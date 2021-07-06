@@ -1,0 +1,51 @@
+# Copyright 2021 Billy Olsen
+# See LICENSE file for licensing details.
+name: keystone-operator
+summary: OpenStack identity service
+maintainer: Openstack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  Keystone is an OpenStack project that provides Identity, Token, Catalog and
+  Policy services for use specifically by projects in the OpenStack family. It
+  implements OpenStack's Identity API.
+version: 3
+bases:
+  - name: ubuntu
+    channel: 20.04/stable
+tags:
+  - openstack
+  - identity
+  - misc
+
+subordinate: false
+
+requires:
+  db:
+    interface: mysql
+    limit: 1
+  ingress:
+    interface: ingress
+
+
+peers:
+  peers:
+    interface: keystone-peer
+
+containers:
+  keystone:
+    resource: keystone-image
+    mounts:
+      - storage: logs
+        location: /var/log/kolla/keystone
+      - storage: db
+        location: /var/lib/keystone
+
+storage:
+  logs:
+    type: filesystem
+  db:
+    type: filesystem
+
+resources:
+  keystone-image:
+    type: oci-image
+    description: Kolla based docker image for keystone

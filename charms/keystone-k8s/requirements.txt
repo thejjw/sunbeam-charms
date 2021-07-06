@@ -1,0 +1,7 @@
+charmhelpers
+jinja2
+kubernetes
+ops
+ops-lib-mysql
+python-keystoneclient
+git+https://opendev.org/openstack/charm-ops-openstack#egg=ops_openstack

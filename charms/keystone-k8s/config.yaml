@@ -1,0 +1,53 @@
+# Copyright 2021 Canonical Ltd.
+# See LICENSE file for licensing details.
+#
+options:
+  debug:
+    default: False
+    description: Enable debug logging.
+    type: boolean
+
+  admin-user:
+    default: admin
+    description: Default admin user for keystone
+    type: string
+  admin-role:
+    default: Admin
+    description: Admin role to be associated with admin and service users
+    type: string
+  service-tenant:
+    default: services
+    description: Name of tenant to associate with service credentials
+    type: string
+
+  service-port:
+    default: 5000
+    description: Port the public and internal endpoints will listen on
+    type: int
+  admin-port:
+    default: 35357
+    description: Port the admin endpoint will listen on
+    type: int
+
+  os-admin-hostname:
+    default: keystone.juju
+    description: |
+      The hostname or address of the admin endpoints that should be advertised
+      in the keystone identity provider.
+    type: string
+  os-internal-hostname:
+    default: keystone.juju
+    description: |
+      The hostname or address of the internal endpoints that should be advertised
+      in the keystone identity provider.
+    type: string
+  os-public-hostname:
+    default: keystone.juju
+    description: |
+      The hostname or address of the internal endpoints that should be advertised
+      in the keystone identity provider.
+    type: string
+  region:
+    default: RegionOne
+    description: Space delimited list of OpenStack regions
+    type: string
