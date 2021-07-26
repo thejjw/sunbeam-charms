@@ -19,8 +19,8 @@ tags:
 subordinate: false
 
 requires:
-  db:
-    interface: mysql
+  keystone-db:
+    interface: mysql_datastore
     limit: 1
   ingress:
     interface: ingress

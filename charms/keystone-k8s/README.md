@@ -31,7 +31,11 @@ This charm is currently in basic dev/exploratory state. This charm will deploy a
 TODOs
 
 - [X] Basic bootstrap of keystone service
-- [ ] Handle shared db relation
+- [ ] Support database relations
+  - [X] MySQL K8s relation
+  - [ ] Handle shared db relation
+- [ ] Fernet Token Rotation
+- [ ] Ingress
 - [ ] Provide identity-service relation
 - [ ] Handle config changed events
 - [ ] Unit tests

@@ -13,15 +13,12 @@ develop a new k8s charm using the Operator Framework:
 """
 
 import logging
-import os
 
 from charms.nginx_ingress_integrator.v0.ingress import IngressRequires
+from charms.mysql.v1.mysql import MySQLConsumer
 
 from ops.charm import CharmBase
 from ops.charm import PebbleReadyEvent
-
-from opslib.mysql import MySQLClient
-from opslib.mysql import MySQLRelationEvent
 
 from ops.main import main
 from ops.framework import StoredState
@@ -39,6 +36,7 @@ KEYSTONE_CONTAINER = "keystone"
 
 
 KEYSTONE_CONF = '/etc/keystone/keystone.conf'
+LOGGING_CONF = '/etc/keystone/logging.conf'
 DATABASE_CONF = '/etc/keystone/database.conf'
 KEYSTONE_WSGI_CONF = '/etc/apache2/sites-available/wsgi-keystone.conf'
 
@@ -52,15 +50,14 @@ class KeystoneOperatorCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
 
-        logger.warning(f'Current working directory is: {os.getcwd()}')
-
         self.framework.observe(self.on.keystone_pebble_ready,
                                self._on_keystone_pebble_ready)
         self.framework.observe(self.on.config_changed,
                                self._on_config_changed)
 
-        self.db = MySQLClient(self, 'db')
-        self.framework.observe(self.db.on.database_changed,
+        # Register the database consumer and register for events
+        self.db = MySQLConsumer(self, 'keystone-db', {"mysql": ">=8"})
+        self.framework.observe(self.on.keystone_db_relation_changed,
                                self._on_database_changed)
 
         self.ingress_public = IngressRequires(self, {
@@ -70,31 +67,65 @@ class KeystoneOperatorCharm(CharmBase):
         })
         self.keystone_manager = manager.KeystoneManager(self)
 
-        # TODO(wolsen) how to determine the current release?
+        # TODO(wolsen) how to determine the current release? Will likely need
+        #  to peak inside the container
         self.os_config_renderer = SidecarConfigRenderer('src/templates',
                                                         'victoria')
         self._register_configs(self.os_config_renderer)
-
         self._state.set_default(bootstrapped=False)
+        self._state.set_default(db_ready=False)
+        self._state.set_default(admin_domain_name='admin_domain')
+        self._state.set_default(admin_domain_id=None)
+        self._state.set_default(default_domain_id=None)
+        self._state.set_default(service_project_id=None)
 
     def _register_configs(self, renderer: SidecarConfigRenderer) -> None:
         """
 
         """
-        # renderer.register(KEYSTONE_CONF, contexts.KeystoneContext(self),
-        #                   containers=[KEYSTONE_CONTAINER])
-        renderer.register(DATABASE_CONF, contexts.DatabaseContext(self, 'db'),
-                          containers=[KEYSTONE_CONTAINER])
+        renderer.register(KEYSTONE_CONF, contexts.KeystoneContext(self),
+                          containers=[KEYSTONE_CONTAINER],
+                          user='keystone', group='keystone')
+        renderer.register(LOGGING_CONF, contexts.KeystoneLoggingContext(self),
+                          containers=[KEYSTONE_CONTAINER],
+                          user='keystone', group='keystone')
+        renderer.register(DATABASE_CONF,
+                          contexts.DatabaseContext(self, 'keystone-db'),
+                          containers=[KEYSTONE_CONTAINER],
+                          user='keystone', group='keystone')
         renderer.register(KEYSTONE_WSGI_CONF,
                           contexts.WSGIWorkerConfigContext(self),
                           containers=[KEYSTONE_CONTAINER],
                           user='root', group='root')
 
-    def _on_database_changed(self, event: MySQLRelationEvent) -> None:
+    def _on_database_changed(self, event) -> None:
         """Handles database change events."""
-        self.unit.status = model.MaintenanceStatus('Updating database '
-                                                   'configuration')
+        # self.unit.status = model.MaintenanceStatus('Updating database '
+        #                                            'configuration')
+        databases = self.db.databases()
+        logger.info(f'Received databases: {databases}')
+
+        if not databases:
+            logger.info(f'Requesting a new database...')
+            # The mysql-k8s operator creates a database using the relation
+            # information in the form of:
+            #   db_{relation_id}_{partial_uuid}_{name_suffix}
+            # where name_suffix defaults to "". Specify it to the name of the
+            # current app to make it somewhat understandable as to what this
+            # database actually is for.
+            # NOTE(wolsen): database name cannot contain a '-'
+            name_suffix = self.app.name.replace('-', '_')
+            self.db.new_database(name_suffix=name_suffix)
+            return
+
+        credentials = self.db.credentials()
+        logger.info(f'Received credentials: {credentials}')
+        self._state.db_ready = True
         self._do_bootstrap()
+
+    @property
+    def default_domain_id(self):
+        return self._state.default_domain_id
 
     @property
     def admin_domain_name(self):
@@ -132,8 +163,29 @@ class KeystoneOperatorCharm(CharmBase):
         return 'abc123'
 
     @property
-    def service_tenant(self):
+    def service_project(self):
         return self.model.config['service-tenant']
+
+    @property
+    def service_project_id(self):
+        return self._state.service_project_id
+
+    @property
+    def admin_endpoint(self):
+        admin_hostname = self.model.config['os-admin-hostname']
+        admin_port = self.model.config['admin-port']
+        return f'http://{admin_hostname}:{admin_port}/v3'
+
+    @property
+    def internal_endpoint(self):
+        internal_hostname = self.model.config['os-internal-hostname']
+        service_port = self.model.config['service-port']
+        return f'http://{internal_hostname}:{service_port}/v3'
+
+    @property
+    def public_endpoint(self):
+        public_hostname = self.model.config['os-public-hostname']
+        return f'http://{public_hostname}:5000/v3'
 
     @property
     def db_ready(self):
@@ -143,7 +195,16 @@ class KeystoneOperatorCharm(CharmBase):
         :returns: True if the database is ready to be accessed, False otherwise
         :rtype: bool
         """
-        return self._state.db_available
+        return self._state.db_ready
+
+    def is_bootstrapped(self):
+        """Returns True if the instance is bootstrapped.
+
+        :returns: True if the keystone service has been bootstrapped,
+                  False otherwise
+        :rtype: bool
+        """
+        return self._state.bootstrapped
 
     def _do_bootstrap(self):
         """Checks the services to see which services need to run depending
@@ -155,10 +216,14 @@ class KeystoneOperatorCharm(CharmBase):
          2. Bootstrap the keystone users service
          3. Setup the fernet tokens
         """
-        # if not self.db_ready:
-        #     logger.debug('Database not ready, not bootstrapping')
-        #     self.unit.status = model.BlockedStatus('Waiting for database')
-        #     return
+        if self.is_bootstrapped():
+            logger.debug('Keystone is already bootstrapped')
+            return
+
+        if not self.db_ready:
+            logger.debug('Database not ready, not bootstrapping')
+            self.unit.status = model.BlockedStatus('Waiting for database')
+            return
 
         if not self.unit.is_leader():
             logger.debug('Deferring bootstrap to leader unit')

@@ -59,8 +59,8 @@ class KeystoneManager(framework.Object):
         # TODO(wolsen) use appropriate values rather than these
         auth = v3.Password(
             auth_url="http://localhost:5000/v3",
-            username=self.charm.admin_user,
-            password='abc123',
+            username=self.charm.charm_user,
+            password=self.charm.charm_password,
             system_scope='all',
             project_domain_name='Default',
             user_domain_name='Default',
@@ -72,20 +72,15 @@ class KeystoneManager(framework.Object):
 
     @property
     def admin_endpoint(self):
-        admin_hostname = self.charm.model.config['os-admin-hostname']
-        admin_port = self.charm.model.config['admin-port']
-        return f'http://{admin_hostname}:{admin_port}/v3'
+        return self.charm.admin_endpoint
 
     @property
     def internal_endpoint(self):
-        internal_hostname = self.charm.model.config['os-internal-hostname']
-        service_port = self.charm.model.config['service-port']
-        return f'http://{internal_hostname}:{service_port}/v3'
+        return self.charm.internal_endpoint
 
     @property
     def public_endpoint(self):
-        public_hostname = self.charm.model.config['os-public-hostname']
-        return f'http://{public_hostname}:5000/v3'
+        return self.charm.public_endpoint
 
     @property
     def regions(self):
@@ -144,7 +139,8 @@ class KeystoneManager(framework.Object):
             logger.info("Syncing database...")
             out = check_output(container,
                                ['sudo', '-u', 'keystone',
-                                'keystone-manage', 'db_sync'],
+                                'keystone-manage', '--config-dir',
+                                '/etc/keystone', 'db_sync'],
                                service_name='keystone-db-sync')
             logging.debug(f'Output from database sync: \n{out}')
         except ContainerProcessError:
@@ -228,12 +224,15 @@ class KeystoneManager(framework.Object):
         """
         # Get the default domain id
         default_domain = self.get_domain('default')
-        logger.debug(f'Default domain id: {default_domain["id"]}')
+        logger.debug(f'Default domain id: {default_domain.id}')
+        self.charm._state.default_domain_id = default_domain.id  # noqa
 
         # Get the admin domain id
         admin_domain = self.create_domain(name='admin_domain',
                                           may_exist=True)
         logger.debug(f'Admin domain id: {admin_domain.id}')
+        self.charm._state.admin_domain_id = admin_domain.id  # noqa
+        self.charm._state.admin_domain_name = admin_domain.name  # noqa
 
         # Ensure that we have the necessary projects: admin and service
         admin_project = self.create_project(name='admin', domain=admin_domain,
@@ -271,10 +270,11 @@ class KeystoneManager(framework.Object):
                                             may_exist=True)
         logger.debug(f'Service domain id: {service_domain.id}.')
 
-        service_project = self.create_project(name=self.charm.service_tenant,
+        service_project = self.create_project(name=self.charm.service_project,
                                               domain=service_domain,
                                               may_exist=True)
         logger.debug(f'Service project id: {service_project.id}.')
+        self.charm._state.service_project_id = service_project.id  # noqa
 
     def update_service_catalog_for_keystone(self):
         """

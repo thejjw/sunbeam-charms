@@ -1,7 +1,6 @@
 charmhelpers
 jinja2
 kubernetes
-ops
-ops-lib-mysql
+git+https://github.com/canonical/operator/@master#egg=ops
 python-keystoneclient
 git+https://opendev.org/openstack/charm-ops-openstack#egg=ops_openstack
