@@ -1,6 +1,6 @@
 # Copyright 2021 Billy Olsen
 # See LICENSE file for licensing details.
-name: keystone-operator
+name: sunbeam-keystone-operator
 summary: OpenStack identity service
 maintainer: Openstack Charmers <openstack-charmers@lists.ubuntu.com>
 description: |
