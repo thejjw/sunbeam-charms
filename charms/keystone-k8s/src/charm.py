@@ -302,13 +302,6 @@ class KeystoneOperatorCharm(CharmBase):
 
     def _on_config_changed(self, _):
         """Just an example to show how to deal with changed configuration.
-
-        TEMPLATE-TODO: change this example to suit your needs.
-        If you don't need to handle config, you can remove this method,
-        the hook created in __init__.py for it, the corresponding test,
-        and the config.py file.
-
-        Learn more about config at https://juju.is/docs/sdk/config
         """
         logger.debug('config changed event')
         if self._state.bootstrapped:
