@@ -15,10 +15,10 @@ driver = {{ identity_backend }}
 {% if default_domain_id -%}
 default_domain_id = {{ default_domain_id }}
 {% endif -%}
-
 domain_specific_drivers_enabled = True
 domain_config_dir = {{ domain_config_dir }}
 
+{% include "parts/section-database" %}
 [credential]
 driver = sql
 

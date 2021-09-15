@@ -160,7 +160,9 @@ class KeystoneManager(framework.Object):
             logger.info("Setting up fernet tokens...")
             out = check_output(container,
                                ['sudo', '-u', 'keystone',
-                                'keystone-manage', 'fernet_setup'],
+                                'keystone-manage', 'fernet_setup',
+                                '--keystone-user', 'keystone',
+                                '--keystone-group', 'keystone'],
                                service_name='keystone-fernet-setup')
             logging.debug(f'Output from keystone fernet setup: \n{out}')
         except ContainerProcessError:

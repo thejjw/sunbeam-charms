@@ -113,9 +113,11 @@ class KeystoneContext(ContextGenerator):
         ctxt = {
             'api_version': 3,
             'admin_role': self.charm.admin_role,
+            'assignment_backend': 'sql',
             'service_tenant_id': self.charm.service_project_id,
             'admin_domain_name': self.charm.admin_domain_name,
             'admin_domain_id': self.charm.admin_domain_id,
+            'auth_methods': 'external,password,token,oauth1,mapped',
             'default_domain_id': self.charm.default_domain_id,
             'admin_port': config['admin-port'],
             'public_port': config['service-port'],
