@@ -106,7 +106,7 @@ class KeystoneOperatorCharm(CharmBase):
         logger.info(f'Received databases: {databases}')
 
         if not databases:
-            logger.info(f'Requesting a new database...')
+            logger.info('Requesting a new database...')
             # The mysql-k8s operator creates a database using the relation
             # information in the form of:
             #   db_{relation_id}_{partial_uuid}_{name_suffix}
