@@ -89,10 +89,6 @@ class KeystoneOperatorCharm(CharmBase):
         renderer.register(LOGGING_CONF, contexts.KeystoneLoggingContext(self),
                           containers=[KEYSTONE_CONTAINER],
                           user='keystone', group='keystone')
-        renderer.register(DATABASE_CONF,
-                          contexts.DatabaseContext(self, 'keystone-db'),
-                          containers=[KEYSTONE_CONTAINER],
-                          user='keystone', group='keystone')
         renderer.register(KEYSTONE_WSGI_CONF,
                           contexts.WSGIWorkerConfigContext(self),
                           containers=[KEYSTONE_CONTAINER],
