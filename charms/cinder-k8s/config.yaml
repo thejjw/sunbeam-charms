@@ -1,14 +1,27 @@
-# Copyright 2021 James Page
-# See LICENSE file for licensing details.
-#
-# TEMPLATE-TODO: change this example to suit your needs.
-# If you don't need a config, you can remove the file entirely.
-# It ties in to the example _on_config_changed handler in src/charm.py
-#
-# Learn more about config at: https://juju.is/docs/sdk/config
-
 options:
-  thing:
-    default: 🎁
-    description: A thing used by the charm.
+  debug:
+    default: False
+    description: Enable debug logging.
+    type: boolean
+  os-admin-hostname:
+    default: cinder.juju
+    description: |
+      The hostname or address of the admin endpoints that should be advertised
+      in the cinder volume provider.
+    type: string
+  os-internal-hostname:
+    default: cinder.juju
+    description: |
+      The hostname or address of the internal endpoints that should be advertised
+      in the cinder volume provider.
+    type: string
+  os-public-hostname:
+    default: cinder.juju
+    description: |
+      The hostname or address of the internal endpoints that should be advertised
+      in the cinder volume provider.
+    type: string
+  region:
+    default: RegionOne
+    description: Space delimited list of OpenStack regions
     type: string
