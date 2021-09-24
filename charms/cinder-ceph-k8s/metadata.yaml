@@ -1,0 +1,40 @@
+# Copyright 2021 Canonical Ltd
+# See LICENSE file for licensing details.
+name: sunbeam-cinder-ceph-operator
+summary: OpenStack volume service - Ceph backend
+maintainer: Openstack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with Ceph storage
+  backends.
+version: 3
+bases:
+  - name: ubuntu
+    channel: 20.04/stable
+tags:
+  - openstack
+  - storage
+  - misc
+
+containers:
+  cinder-volume:
+    resource: cinder-base
+
+resources:
+  cinder-base:
+    type: oci-image
+    description: OCI image for OpenStack Cinder (kolla/cinder-base)
+
+requires:
+  amqp:
+    interface: rabbitmq
+
+provides:
+  ceph-access:
+    interface: cinder-ceph-key
+  storage-backend:
+    interface: cinder-backend
+
+peers:
+  peers:
+    interface: cinder-peer
