@@ -6,15 +6,14 @@ This charm provide Cinder <-> Ceph integration as part of an OpenStack deploymen
 
 import logging
 
-
 from ops.charm import CharmBase
 from ops.framework import StoredState
 from ops.main import main
 from ops.model import ActiveStatus
 
-logger = logging.getLogger(__name__)
+from charms.sunbeam_rabbitmq_operator.v0.amqp import RabbitMQAMQPRequires
 
-CINDER_API_PORT = 8090
+logger = logging.getLogger(__name__)
 
 
 class CinderCephOperatorCharm(CharmBase):
@@ -25,18 +24,22 @@ class CinderCephOperatorCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
 
-        self.framework.observe(self.on.cinder_volume_pebble_ready,
-                               self._on_cinder_volume_pebble_ready)
+        self.framework.observe(
+            self.on.cinder_volume_pebble_ready,
+            self._on_cinder_volume_pebble_ready,
+        )
 
-        self.framework.observe(self.on.config_changed,
-                               self._on_config_changed)
+        self.framework.observe(self.on.config_changed, self._on_config_changed)
 
         self._stored.set_default(amqp_ready=False)
         self._stored.set_default(ceph_ready=False)
 
-        # TODO
-        # Register AMQP consumer + events
-
+        self.amqp = RabbitMQAMQPRequires(
+            self, "amqp", username="cinder", vhost="openstack"
+        )
+        self.framework.observe(
+            self.amqp.on.ready_amqp_servers, self._on_amqp_ready
+        )
         # TODO
         # State modelling
         # AMQP + Ceph -> +Volume
@@ -52,15 +55,17 @@ class CinderCephOperatorCharm(CharmBase):
                     "override": "replace",
                     "summary": "Cinder Volume",
                     "command": "cinder-volume --use-syslog",
-                    "startup": "enabled"
+                    "startup": "enabled",
                 }
-            }
+            },
         }
 
     def _on_cinder_volume_pebble_ready(self, event):
         """Define and start a workload using the Pebble API."""
         container = event.workload
-        container.add_layer("cinder-volume", self._pebble_cinder_scheduler_layer, combine=True)
+        container.add_layer(
+            "cinder-volume", self._pebble_cinder_volume_layer, combine=True
+        )
         container.autostart()
 
     def _on_config_changed(self, _):
@@ -71,7 +76,7 @@ class CinderCephOperatorCharm(CharmBase):
 
     def _on_amqp_ready(self, event):
         """AMQP service ready for use"""
-        pass
+        self._stored.amqp_ready = True
 
 
 if __name__ == "__main__":

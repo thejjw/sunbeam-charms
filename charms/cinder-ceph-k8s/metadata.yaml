@@ -28,6 +28,8 @@ resources:
 requires:
   amqp:
     interface: rabbitmq
+  ceph:
+    interface: ceph-client
 
 provides:
   ceph-access:
