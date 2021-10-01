@@ -14,21 +14,14 @@ develop a new k8s charm using the Operator Framework:
 
 import logging
 
-from charms.nginx_ingress_integrator.v0.ingress import IngressRequires
-from charms.mysql.v1.mysql import MySQLConsumer
-
-from ops.charm import CharmBase
-from ops.charm import PebbleReadyEvent
-
 from ops.main import main
 from ops.framework import StoredState
 from ops import model
 
-from utils import contexts
 from utils import manager
-from utils.cprocess import check_output
-from utils.cprocess import ContainerProcessError
-from utils.templating import SidecarConfigRenderer
+import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
+import advanced_sunbeam_openstack.adapters as sunbeam_adapters
+import advanced_sunbeam_openstack.core as sunbeam_core
 
 logger = logging.getLogger(__name__)
 
@@ -37,91 +30,90 @@ KEYSTONE_CONTAINER = "keystone"
 
 KEYSTONE_CONF = '/etc/keystone/keystone.conf'
 LOGGING_CONF = '/etc/keystone/logging.conf'
-DATABASE_CONF = '/etc/keystone/database.conf'
-KEYSTONE_WSGI_CONF = '/etc/apache2/sites-available/wsgi-keystone.conf'
 
 
-class KeystoneOperatorCharm(CharmBase):
+class KeystoneLoggingAdapter(sunbeam_adapters.ConfigAdapter):
+
+    def context(self):
+        config = self.charm.model.config
+        ctxt = {}
+        if config['debug']:
+            ctxt['root_level'] = 'DEBUG'
+        log_level = config['log-level']
+        if log_level in ['DEBUG', 'INFO', 'WARNING', 'ERROR']:
+            ctxt['log_level'] = log_level
+        else:
+            logger.error('log-level must be one of the following values '
+                         f'(DEBUG, INFO, WARNING, ERROR) not "{log_level}"')
+            ctxt['log_level'] = None
+        ctxt['log_file'] = '/var/log/keystone/keystone.log'
+        return ctxt
+
+
+class KeystoneConfigAdapter(sunbeam_adapters.ConfigAdapter):
+
+    def context(self):
+        config = self.charm.model.config
+        return {
+            'api_version': 3,
+            'admin_role': self.charm.admin_role,
+            'assignment_backend': 'sql',
+            'service_tenant_id': self.charm.service_project_id,
+            'admin_domain_name': self.charm.admin_domain_name,
+            'admin_domain_id': self.charm.admin_domain_id,
+            'auth_methods': 'external,password,token,oauth1,mapped',
+            'default_domain_id': self.charm.default_domain_id,
+            'admin_port': config['admin-port'],
+            'public_port': config['service-port'],
+            'debug': config['debug'],
+            'token_expiration': config['token-expiration'],
+            'catalog_cache_expiration': config['catalog-cache-expiration'],
+            'dogpile_cache_expiration': config['dogpile-cache-expiration'],
+            'identity_backend': 'sql',
+            'token_provider': 'fernet',
+            'fernet_max_active_keys': config['fernet-max-active-keys'],
+            'public_endpoint': self.charm.public_endpoint,
+            'admin_endpoint': self.charm.admin_endpoint,
+            'domain_config_dir': '/etc/keystone/domains',
+            'log_config': '/etc/keystone/logging.conf.j2',
+            'paste_config_file': '/etc/keystone/keystone-paste.ini',
+        }
+
+
+class KeystoneOperatorCharm(sunbeam_core.OSBaseOperatorAPICharm):
     """Charm the service."""
 
     _state = StoredState()
     _authed = False
+    service_name = "keystone"
+    wsgi_admin_script = '/usr/bin/keystone-wsgi-admin'
+    wsgi_public_script = '/usr/bin/keystone-wsgi-public'
 
-    def __init__(self, *args):
-        super().__init__(*args)
-
-        self.framework.observe(self.on.keystone_pebble_ready,
-                               self._on_keystone_pebble_ready)
-        self.framework.observe(self.on.config_changed,
-                               self._on_config_changed)
-
-        # Register the database consumer and register for events
-        self.db = MySQLConsumer(self, 'keystone-db', {"mysql": ">=8"})
-        self.framework.observe(self.on.keystone_db_relation_changed,
-                               self._on_database_changed)
-
-        self.ingress_public = IngressRequires(self, {
-            'service-hostname': self.model.config['os-public-hostname'],
-            'service-name': self.app.name,
-            'service-port': self.model.config['service-port'],
-        })
+    def __init__(self, framework):
+        super().__init__(framework)
         self.keystone_manager = manager.KeystoneManager(self)
-
-        # TODO(wolsen) how to determine the current release? Will likely need
-        #  to peak inside the container
-        self.os_config_renderer = SidecarConfigRenderer('src/templates',
-                                                        'victoria')
-        self._register_configs(self.os_config_renderer)
-        self._state.set_default(bootstrapped=False)
-        self._state.set_default(db_ready=False)
         self._state.set_default(admin_domain_name='admin_domain')
         self._state.set_default(admin_domain_id=None)
         self._state.set_default(default_domain_id=None)
         self._state.set_default(service_project_id=None)
+        self.adapters.add_config_adapters([
+            KeystoneConfigAdapter(self, 'ks_config'),
+            KeystoneLoggingAdapter(self, 'ks_logging')])
 
-    def _register_configs(self, renderer: SidecarConfigRenderer) -> None:
-        """
+    @property
+    def container_configs(self):
+        _cconfigs = super().container_configs
+        _cconfigs.extend([
+            sunbeam_core.ContainerConfigFile(
+                [KEYSTONE_CONTAINER],
+                LOGGING_CONF,
+                'keystone',
+                'keystone')])
+        return _cconfigs
 
-        """
-        renderer.register(KEYSTONE_CONF, contexts.KeystoneContext(self),
-                          containers=[KEYSTONE_CONTAINER],
-                          user='keystone', group='keystone')
-        renderer.register(LOGGING_CONF, contexts.KeystoneLoggingContext(self),
-                          containers=[KEYSTONE_CONTAINER],
-                          user='keystone', group='keystone')
-        renderer.register(DATABASE_CONF,
-                          contexts.DatabaseContext(self, 'keystone-db'),
-                          containers=[KEYSTONE_CONTAINER],
-                          user='keystone', group='keystone')
-        renderer.register(KEYSTONE_WSGI_CONF,
-                          contexts.WSGIWorkerConfigContext(self),
-                          containers=[KEYSTONE_CONTAINER],
-                          user='root', group='root')
-
-    def _on_database_changed(self, event) -> None:
-        """Handles database change events."""
-        # self.unit.status = model.MaintenanceStatus('Updating database '
-        #                                            'configuration')
-        databases = self.db.databases()
-        logger.info(f'Received databases: {databases}')
-
-        if not databases:
-            logger.info('Requesting a new database...')
-            # The mysql-k8s operator creates a database using the relation
-            # information in the form of:
-            #   db_{relation_id}_{partial_uuid}_{name_suffix}
-            # where name_suffix defaults to "". Specify it to the name of the
-            # current app to make it somewhat understandable as to what this
-            # database actually is for.
-            # NOTE(wolsen): database name cannot contain a '-'
-            name_suffix = self.app.name.replace('-', '_')
-            self.db.new_database(name_suffix=name_suffix)
-            return
-
-        credentials = self.db.credentials()
-        logger.info(f'Received credentials: {credentials}')
-        self._state.db_ready = True
-        self._do_bootstrap()
+    @property
+    def default_public_ingress_port(self):
+        return 5000
 
     @property
     def default_domain_id(self):
@@ -187,128 +179,31 @@ class KeystoneOperatorCharm(CharmBase):
         public_hostname = self.model.config['os-public-hostname']
         return f'http://{public_hostname}:5000/v3'
 
-    @property
-    def db_ready(self):
-        """Returns True if the remote database has been configured and is
-        ready for access from the local service.
-
-        :returns: True if the database is ready to be accessed, False otherwise
-        :rtype: bool
-        """
-        return self._state.db_ready
-
-    def is_bootstrapped(self):
-        """Returns True if the instance is bootstrapped.
-
-        :returns: True if the keystone service has been bootstrapped,
-                  False otherwise
-        :rtype: bool
-        """
-        return self._state.bootstrapped
-
     def _do_bootstrap(self):
-        """Checks the services to see which services need to run depending
-        on the current state.
-
+        """
         Starts the appropriate services in the order they are needed.
         If the service has not yet been bootstrapped, then this will
-         1. Create the keystone database
+         1. Create the database
          2. Bootstrap the keystone users service
          3. Setup the fernet tokens
         """
-        if self.is_bootstrapped():
-            logger.debug('Keystone is already bootstrapped')
-            return
-
-        if not self.db_ready:
-            logger.debug('Database not ready, not bootstrapping')
-            self.unit.status = model.BlockedStatus('Waiting for database')
-            return
-
-        if not self.unit.is_leader():
-            logger.debug('Deferring bootstrap to leader unit')
-            self.unit.status = model.BlockedStatus('Waiting for leader to '
-                                                   'bootstrap keystone')
-            return
-
-        container = self.unit.get_container('keystone')
-        if not container:
-            logger.debug('Keystone container is not ready. Deferring bootstrap')
-            return
-
-        # Write the config files to the container
-        self.os_config_renderer.write_all(container)
-
+        super()._do_bootstrap()
         try:
-            check_output(container, 'a2ensite wsgi-keystone && sleep 1')
-        except ContainerProcessError:
-            logger.exception('Failed to enable wsgi-keystone site in apache')
-            # ignore for now - pebble is raising an exited too quickly, but it
-            # appears to work properly.
-
-        try:
+            container = self.unit.get_container(self.wsgi_container_name)
             self.keystone_manager.setup_keystone(container)
-        except ContainerProcessError:
+        except sunbeam_cprocess.ContainerProcessError:
             logger.exception('Failed to bootstrap')
             self._state.bootstrapped = False
             return
-
-        self.unit.status = model.MaintenanceStatus('Starting Keystone')
-        service = container.get_service('keystone-wsgi')
-        if service.is_running():
-            container.stop('keystone-wsgi')
-
-        container.start('keystone-wsgi')
-
         self.keystone_manager.setup_initial_projects_and_users()
+        self.unit.status = model.MaintenanceStatus('Starting Keystone')
 
-        self.unit.status = model.ActiveStatus()
-        self._state.bootstrapped = True
 
-    def _on_keystone_pebble_ready(self, event: PebbleReadyEvent) -> None:
-        """Invoked when the keystone bootstrap init container is ready.
+class KeystoneVictoriaOperatorCharm(KeystoneOperatorCharm):
 
-        When invoked, the Pebble service is running in the container and ready
-        for bootstrap. The bootstrap sequence consists of creating the initial
-        keystone database and performing initial setup of the admin
-        credentials.
-        """
-        container = event.workload
-        logger.debug('Updating keystone bootstrap layer to create the '
-                     'keystone database')
-
-        container.add_layer('keystone', self._keystone_layer(), combine=True)
-        logger.debug(f'Plan: {container.get_plan()}')
-        self._do_bootstrap()
-
-    def _keystone_layer(self) -> dict:
-        """Keystone layer definition.
-
-        :returns: pebble layer configuration for keystone services
-        :rtype: dict
-        """
-        return {
-            'summary': 'keystone layer',
-            'description': 'pebble config layer for keystone',
-            'services': {
-                'keystone-wsgi': {
-                    'override': 'replace',
-                    'summary': 'Keystone Identity',
-                    'command': '/usr/sbin/apache2ctl -DFOREGROUND',
-                    'startup': 'disabled',
-                },
-            },
-        }
-
-    def _on_config_changed(self, _):
-        """Just an example to show how to deal with changed configuration.
-        """
-        logger.debug('config changed event')
-        if self._state.bootstrapped:
-            self.keystone_manager.update_service_catalog_for_keystone()
-
+    openstack_release = 'victoria'
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(KeystoneOperatorCharm, use_juju_for_storage=True)
+    main(KeystoneVictoriaOperatorCharm, use_juju_for_storage=True)

@@ -6,19 +6,19 @@
 [DEFAULT]
 use_syslog = True
 log_config_append = /etc/keystone/logging.conf
-debug = {{ debug }}
+debug = {{ options.debug }}
 
-public_endpoint = {{ public_endpoint }}
+public_endpoint = {{ ks_config.public_endpoint }}
 
 [identity]
-driver = {{ identity_backend }}
-{% if default_domain_id -%}
-default_domain_id = {{ default_domain_id }}
+driver = {{ ks_config.identity_backend }}
+{% if ks_config.default_domain_id -%}
+default_domain_id = {{ ks_config.default_domain_id }}
 {% endif -%}
-
 domain_specific_drivers_enabled = True
-domain_config_dir = {{ domain_config_dir }}
+domain_config_dir = {{ ks_config.domain_config_dir }}
 
+{% include "parts/section-database" %}
 [credential]
 driver = sql
 
@@ -26,53 +26,53 @@ driver = sql
 driver = sql
 
 [catalog]
-cache_time = {{ catalog_cache_expiration }}
+cache_time = {{ ks_config.catalog_cache_expiration }}
 driver = sql
 
 [endpoint_filter]
 
 [token]
-expiration = {{ token_expiration }}
+expiration = {{ ks_config.token_expiration }}
 
 [fernet_tokens]
-max_active_keys = {{ fernet_max_active_keys }}
+max_active_keys = {{ ks_config.fernet_max_active_keys }}
 
 {% include "parts/section-signing" %}
 
 {% include "section-oslo-cache" %}
 # This goes in the section above, selectively
 # Bug #1899117
-expiration_time = {{ dogpile_cache_expiration }}
+expiration_time = {{ ks_config.dogpile_cache_expiration }}
 
 [policy]
 driver = sql
 
 [assignment]
-driver = {{ assignment_backend }}
+driver = {{ ks_config.assignment_backend }}
 
 [auth]
-methods = {{ auth_methods }}
+methods = {{ ks_config.auth_methods }}
 
 [paste_deploy]
-config_file = {{ paste_config_file }}
+config_file = {{ ks_config.paste_config_file }}
 
 [extra_headers]
 Distribution = Ubuntu
 
 [ldap]
-{% if identity_backend == 'ldap' -%}
-url = {{ ldap_server }}
-user = {{ ldap_user }}
-password = {{ ldap_password }}
-suffix = {{ ldap_suffix }}
+{% if ks_config.identity_backend == 'ldap' -%}
+url = {{ ks_config.ldap_server }}
+user = {{ ks_config.ldap_user }}
+password = {{ ks_config.ldap_password }}
+suffix = {{ ks_config.ldap_suffix }}
 
-{% if ldap_config_flags -%}
-{% for key, value in ldap_config_flags.iteritems() -%}
+{% if ks_config.ldap_config_flags -%}
+{% for key, value in ks_config.ldap_config_flags.iteritems() -%}
 {{ key }} = {{ value }}
 {% endfor -%}
 {% endif -%}
 
-{% if ldap_readonly -%}
+{% if ks_config.ldap_readonly -%}
 user_allow_create = False
 user_allow_update = False
 user_allow_delete = False
@@ -92,12 +92,12 @@ group_allow_delete = False
 {% endif -%}
 
 [resource]
-admin_project_domain_name = {{ admin_domain_name }}
+admin_project_domain_name = {{ ks_config.admin_domain_name }}
 admin_project_name = admin
 
-{% if password_security_compliance %}
+{% if ks_config.password_security_compliance %}
 [security_compliance]
-{% for k, v in password_security_compliance.items() -%}
+{% for k, v in ks_config.password_security_compliance.items() -%}
 {{ k }} = {{ v }}
 {% endfor -%}
 {% endif -%}

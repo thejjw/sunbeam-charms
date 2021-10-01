@@ -20,11 +20,8 @@ from keystoneauth1 import session
 from keystoneauth1.identity import v3
 from keystoneclient.v3 import client
 
-from utils.cprocess import check_output
-from utils.cprocess import check_call
-from utils.cprocess import ContainerProcessError
-
-from utils.guard import guard
+import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
+import advanced_sunbeam_openstack.guard as sunbeam_guard
 
 import logging
 import typing
@@ -99,7 +96,7 @@ class KeystoneManager(framework.Object):
         :param container: the container to set keystone up in.
         :type container: Container
         """
-        with guard(self.charm, 'Initializing Keystone'):
+        with sunbeam_guard.guard(self.charm, 'Initializing Keystone'):
             self._sync_database(container)
             self._fernet_setup(container)
             self._credential_setup(container)
@@ -137,13 +134,16 @@ class KeystoneManager(framework.Object):
         try:
             self._set_status('Syncing database')
             logger.info("Syncing database...")
-            out = check_output(container,
-                               ['sudo', '-u', 'keystone',
-                                'keystone-manage', '--config-dir',
-                                '/etc/keystone', 'db_sync'],
-                               service_name='keystone-db-sync')
+            out = sunbeam_cprocess.check_output(
+                container,
+                [
+                    'sudo', '-u', 'keystone',
+                    'keystone-manage', '--config-dir',
+                    '/etc/keystone', 'db_sync'],
+                service_name='keystone-db-sync',
+                timeout=180)
             logging.debug(f'Output from database sync: \n{out}')
-        except ContainerProcessError:
+        except sunbeam_cprocess.ContainerProcessError:
             logger.exception('Error occurred synchronizing the database.')
             raise KeystoneException('Database sync failed')
 
@@ -158,12 +158,16 @@ class KeystoneManager(framework.Object):
         try:
             self._set_status('Setting up fernet tokens')
             logger.info("Setting up fernet tokens...")
-            out = check_output(container,
-                               ['sudo', '-u', 'keystone',
-                                'keystone-manage', 'fernet_setup'],
-                               service_name='keystone-fernet-setup')
+            out = sunbeam_cprocess.check_output(
+                container,
+                [
+                    'sudo', '-u', 'keystone',
+                    'keystone-manage', 'fernet_setup',
+                    '--keystone-user', 'keystone',
+                    '--keystone-group', 'keystone'],
+                service_name='keystone-fernet-setup')
             logging.debug(f'Output from keystone fernet setup: \n{out}')
-        except ContainerProcessError:
+        except sunbeam_cprocess.ContainerProcessError:
             logger.exception('Error occurred setting up fernet tokens')
             raise KeystoneException('Fernet setup failed.')
 
@@ -174,11 +178,13 @@ class KeystoneManager(framework.Object):
         try:
             self._set_status('Setting up credentials')
             logger.info("Setting up credentials...")
-            check_output(container,
-                         ['sudo', '-u', 'keystone',
-                          'keystone-manage', 'credential_setup'],
-                         service_name='keystone-credential-setup')
-        except ContainerProcessError:
+            sunbeam_cprocess.check_output(
+                container,
+                [
+                    'sudo', '-u', 'keystone',
+                    'keystone-manage', 'credential_setup'],
+                service_name='keystone-credential-setup')
+        except sunbeam_cprocess.ContainerProcessError:
             logger.exception('Error occurred during credential setup')
             raise KeystoneException('Credential setup failed.')
 
@@ -193,19 +199,21 @@ class KeystoneManager(framework.Object):
             # NOTE(wolsen) in classic keystone charm, there's a comment about
             # enabling immutable roles for this. This is unnecessary as it is
             # now the default behavior for keystone-manage bootstrap.
-            check_call(container,
-                       ['keystone-manage', 'bootstrap',
-                        '--bootstrap-username', self.charm.charm_user,
-                        '--bootstrap-password', self.charm.charm_password,
-                        '--bootstrap-project-name', 'admin',
-                        '--bootstrap-role-name', self.charm.admin_role,
-                        '--bootstrap-service-name', 'keystone',
-                        '--bootstrap-admin-url', self.admin_endpoint,
-                        '--bootstrap-public-url', self.public_endpoint,
-                        '--bootstrap-internal-url', self.internal_endpoint,
-                        '--bootstrap-region-id', self.regions[0]],
-                       service_name='keystone-manage-bootstrap')
-        except ContainerProcessError:
+            sunbeam_cprocess.check_call(
+                container,
+                [
+                    'keystone-manage', 'bootstrap',
+                    '--bootstrap-username', self.charm.charm_user,
+                    '--bootstrap-password', self.charm.charm_password,
+                    '--bootstrap-project-name', 'admin',
+                    '--bootstrap-role-name', self.charm.admin_role,
+                    '--bootstrap-service-name', 'keystone',
+                    '--bootstrap-admin-url', self.admin_endpoint,
+                    '--bootstrap-public-url', self.public_endpoint,
+                    '--bootstrap-internal-url', self.internal_endpoint,
+                    '--bootstrap-region-id', self.regions[0]],
+                service_name='keystone-manage-bootstrap')
+        except sunbeam_cprocess.ContainerProcessError:
             logger.exception('Error occurred bootstrapping keystone service')
             raise KeystoneException('Bootstrap failed')
 
@@ -213,7 +221,8 @@ class KeystoneManager(framework.Object):
         """
 
         """
-        with guard(self.charm, 'Setting up initial projects and users'):
+        with sunbeam_guard.guard(self.charm,
+                                 'Setting up initial projects and users'):
             self._setup_admin_accounts()
             self._setup_service_accounts()
             self.update_service_catalog_for_keystone()
@@ -246,7 +255,7 @@ class KeystoneManager(framework.Object):
         logger.debug('Ensuring roles exist for admin')
         # I seem to recall all kinds of grief between Member and member and
         # _member_ and inconsistencies in what other projects expect.
-        member_role = self.create_role(name='Member', may_exist=True)
+        member_role = self.create_role(name='member', may_exist=True)
         admin_role = self.create_role(name=self.charm.admin_role,
                                       may_exist=True)
 
