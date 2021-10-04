@@ -9,75 +9,78 @@ import logging
 from ops.charm import CharmBase
 from ops.framework import StoredState
 from ops.main import main
-from ops.model import ActiveStatus
+from ops.model import ActiveStatus, BlockedStatus, WaitingStatus
 
-from charms.sunbeam_rabbitmq_operator.v0.amqp import RabbitMQAMQPRequires
+from charms.sunbeam_rabbitmq_operator.v0.amqp import AMQPRequires
+from charms.ceph.v0.ceph_client import CephClientRequires
+
+from typing import List
+
+# NOTE: rename sometime
+import advanced_sunbeam_openstack.core as core
+import advanced_sunbeam_openstack.adapters as adapters
 
 logger = logging.getLogger(__name__)
 
+CINDER_VOLUME_CONTAINER = 'cinder-volume'
 
-class CinderCephOperatorCharm(CharmBase):
-    """Charm the service."""
 
-    _stored = StoredState()
-
-    def __init__(self, *args):
-        super().__init__(*args)
-
-        self.framework.observe(
-            self.on.cinder_volume_pebble_ready,
-            self._on_cinder_volume_pebble_ready,
-        )
-
-        self.framework.observe(self.on.config_changed, self._on_config_changed)
-
-        self._stored.set_default(amqp_ready=False)
-        self._stored.set_default(ceph_ready=False)
-
-        self.amqp = RabbitMQAMQPRequires(
-            self, "amqp", username="cinder", vhost="openstack"
-        )
-        self.framework.observe(
-            self.amqp.on.ready_amqp_servers, self._on_amqp_ready
-        )
-        # TODO
-        # State modelling
-        # AMQP + Ceph -> +Volume
+class CinderCephAdapters(adapters.OPSRelationAdapters):
 
     @property
-    def _pebble_cinder_volume_layer(self):
-        """Pebble layer for Cinder volume"""
-        return {
-            "summary": "cinder layer",
-            "description": "pebble configuration for cinder services",
-            "services": {
-                "cinder-volume": {
-                    "override": "replace",
-                    "summary": "Cinder Volume",
-                    "command": "cinder-volume --use-syslog",
-                    "startup": "enabled",
-                }
-            },
-        }
+    def interface_map(self):
+        _map = super().interface_map
+        _map.update({
+            'rabbitmq': adapters.AMQPAdapter})
+        return _map
 
-    def _on_cinder_volume_pebble_ready(self, event):
-        """Define and start a workload using the Pebble API."""
-        container = event.workload
-        container.add_layer(
-            "cinder-volume", self._pebble_cinder_volume_layer, combine=True
+
+class CinderCephOperatorCharm(core.OSBaseOperatorCharm):
+    """Cinder/Ceph Operator charm"""
+
+    # NOTE: service_name == container_name
+    service_name = 'cinder-volume'
+
+    service_user = 'cinder'
+    service_group = 'cinder'
+
+    cinder_conf = '/etc/cinder/cinder.conf'
+
+    def __init__(self, framework):
+        super().__init__(
+            framework,
+            adapters=CinderCephAdapters(self)
         )
-        container.autostart()
 
-    def _on_config_changed(self, _):
-        """Just an example to show how to deal with changed configuration"""
-        # TODO
-        # Set debug logging and restart services
+    def get_relation_handlers(self) -> List[core.RelationHandler]:
+        """Relation handlers for the service."""
+        self.amqp = core.AMQPHandler(
+            self, "amqp", self.configure_charm
+        )
+        return [self.amqp]
+
+    @property
+    def container_configs(self) -> List[core.ContainerConfigFile]:
+        _cconfigs = super().container_configs
+        _cconfigs.extend([
+            core.ContainerConfigFile(
+                [self.service_name],
+                self.cinder_conf,
+                self.service_user,
+                self.service_group
+            )
+        ])
+
+    def _do_bootstrap(self):
+        """No-op the bootstrap method as none required"""
         pass
 
-    def _on_amqp_ready(self, event):
-        """AMQP service ready for use"""
-        self._stored.amqp_ready = True
+
+
+class CinderCephVictoriaOperatorCharm(CinderCephOperatorCharm):
+
+    openstack_relesae = 'victoria'
 
 
 if __name__ == "__main__":
-    main(CinderCephOperatorCharm)
+    main(CinderCephVictoriaOperatorCharm, use_juju_for_storage=True)

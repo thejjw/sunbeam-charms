@@ -1,10 +1,10 @@
-"""RabbitMQAMQPProvides and Requires module.
+"""AMQPProvides and Requires module.
 
 
 This library contains the Requires and Provides classes for handling
 the amqp interface.
 
-Import `RabbitMQAMQPRequires` in your charm, with the charm object and the
+Import `AMQPRequires` in your charm, with the charm object and the
 relation name:
     - self
     - "amqp"
@@ -14,43 +14,56 @@ Also provide two additional parameters to the charm object:
     - vhost
 
 Two events are also available to respond to:
-    - has_amqp_servers
-    - ready_amqp_servers
+    - connected
+    - ready
+    - goneaway
 
 A basic example showing the usage of this relation follows:
 
 ```
-from charms.sunbeam_rabbitmq_operator.v0.amqp import RabbitMQAMQPRequires
+from charms.sunbeam_rabbitmq_operator.v0.amqp import AMQPRequires
 
 class AMQPClientCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
         # AMQP Requires
-        self.amqp_requires = RabbitMQAMQPRequires(
+        self.amqp = AMQPRequires(
             self, "amqp",
-            username = "amqp-client",
-            vhost = "amqp-client-vhost"
+            username="myusername",
+            vhost="vhostname"
         )
         self.framework.observe(
-            self.amqp_requires.on.has_amqp_servers, self._on_has_amqp_servers)
+            self.amqp.on.connected, self._on_amqp_connected)
         self.framework.observe(
-            self.amqp_requires.on.ready_amqp_servers, self._on_ready_amqp_servers)
+            self.amqp.on.ready, self._on_amqp_ready)
+        self.framework.observe(
+            self.amqp.on.goneaway, self._on_amqp_goneaway)
 
-    def _on_has_amqp_servers(self, event):
-        '''React to the AMQP relation joined.
+    def _on_amqp_connected(self, event):
+        '''React to the AMQP connected event.
 
-        The AMQP interface will use the provided username and vhost to commuicate
-        with the.
+        This event happens when n AMQP relation is added to the
+        model before credentials etc have been provided.
         '''
         # Do something before the relation is complete
+        pass
 
-    def _on_ready_amqp_servers(self, event):
-        '''React to the AMQP relation joined.
+    def _on_amqp_ready(self, event):
+        '''React to the AMQP ready event.
 
         The AMQP interface will use the provided username and vhost for the
         request to the rabbitmq server.
         '''
         # AMQP Relation is ready. Do something with the completed relation.
+        pass
+
+    def _on_amqp_goneaway(self, event):
+        '''React to the AMQP goneaway event.
+
+        This event happens when an AMQP relation is removed.
+        '''
+        # AMQP Relation has goneaway. shutdown services or suchlike
+        pass
 ```
 """
 
@@ -82,31 +95,37 @@ from typing import List
 logger = logging.getLogger(__name__)
 
 
-class HasAMQPServersEvent(EventBase):
-    """Has AMQPServers Event."""
+class AMQPConnectedEvent(EventBase):
+    """AMQP connected Event."""
 
     pass
 
 
-class ReadyAMQPServersEvent(EventBase):
-    """Ready AMQPServers Event."""
+class AMQPReadyEvent(EventBase):
+    """AMQP ready for use Event."""
 
     pass
 
 
-class RabbitMQAMQPServerEvents(ObjectEvents):
+class AMQPGoneAwayEvent(EventBase):
+    """AMQP relation has gone-away Event"""
+
+    pass
+
+class AMQPServerEvents(ObjectEvents):
     """Events class for `on`"""
 
-    has_amqp_servers = EventSource(HasAMQPServersEvent)
-    ready_amqp_servers = EventSource(ReadyAMQPServersEvent)
+    connected = EventSource(AMQPConnectedEvent)
+    ready = EventSource(AMQPReadyEvent)
+    goneaway = EventSource(AMQPGoneAwayEvent)
 
 
-class RabbitMQAMQPRequires(Object):
+class AMQPRequires(Object):
     """
-    RabbitMQAMQPRequires class
+    AMQPRequires class
     """
 
-    on = RabbitMQAMQPServerEvents()
+    on = AMQPServerEvents()
     _stored = StoredState()
 
     def __init__(self, charm, relation_name: str, username: str, vhost: str):
@@ -124,6 +143,10 @@ class RabbitMQAMQPRequires(Object):
             self._on_amqp_relation_changed,
         )
         self.framework.observe(
+            self.charm.on[relation_name].relation_departed,
+            self._on_amqp_relation_changed,
+        )
+        self.framework.observe(
             self.charm.on[relation_name].relation_broken,
             self._on_amqp_relation_broken,
         )
@@ -131,19 +154,19 @@ class RabbitMQAMQPRequires(Object):
     def _on_amqp_relation_joined(self, event):
         """AMQP relation joined."""
         logging.debug("RabbitMQAMQPRequires on_joined")
-        self.on.has_amqp_servers.emit()
+        self.on.connected.emit()
         self.request_access(self.username, self.vhost)
 
     def _on_amqp_relation_changed(self, event):
         """AMQP relation changed."""
         logging.debug("RabbitMQAMQPRequires on_changed")
         if self.password:
-            self.on.ready_amqp_servers.emit()
+            self.on.ready.emit()
 
     def _on_amqp_relation_broken(self, event):
         """AMQP relation broken."""
-        # TODO clear data on the relation
-        logging.debug("RabbitMQAMQPRequires on_departed")
+        logging.debug("RabbitMQAMQPRequires on_broken")
+        self.on.goneaway.emit()
 
     @property
     def _amqp_rel(self) -> Relation:
@@ -188,19 +211,19 @@ class ReadyAMQPClientsEvent(EventBase):
     pass
 
 
-class RabbitMQAMQPClientEvents(ObjectEvents):
+class AMQPClientEvents(ObjectEvents):
     """Events class for `on`"""
 
     has_amqp_clients = EventSource(HasAMQPClientsEvent)
     ready_amqp_clients = EventSource(ReadyAMQPClientsEvent)
 
 
-class RabbitMQAMQPProvides(Object):
+class AMQPProvides(Object):
     """
-    RabbitMQAMQPProvides class
+    AMQPProvides class
     """
 
-    on = RabbitMQAMQPClientEvents()
+    on = AMQPClientEvents()
     _stored = StoredState()
 
     def __init__(self, charm, relation_name):
