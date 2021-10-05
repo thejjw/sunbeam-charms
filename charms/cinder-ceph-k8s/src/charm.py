@@ -38,16 +38,16 @@ class CephClientAdapter(OpenStackOperRelationAdapter):
     @property
     def monitor_hosts(self):
         return ",".join(
-            sorted(self.relation.get_relation_data().get('mon_hosts'))
+            sorted(self.relation.get_relation_data().get("mon_hosts"))
         )
 
     @property
     def auth(self):
-        return self.relation.get_relation_data().get('auth')
+        return self.relation.get_relation_data().get("auth")
 
     @property
     def key(self):
-        return self.relation.get_relation_data().get('key')
+        return self.relation.get_relation_data().get("key")
 
     @property
     def rbd_features(self):
@@ -55,15 +55,14 @@ class CephClientAdapter(OpenStackOperRelationAdapter):
 
 
 class CephConfigurationAdapter(adapters.ConfigAdapter):
-
     def context(self):
         config = self.charm.model.config.get
         ctxt = {}
-        if config('pool-type') and config('pool-type') == 'erasure-coded':
-            base_pool_name = config('rbd-pool') or config('rbd-pool-name')
+        if config("pool-type") and config("pool-type") == "erasure-coded":
+            base_pool_name = config("rbd-pool") or config("rbd-pool-name")
             if not base_pool_name:
                 base_pool_name = self.charm.app.name
-            ctxt['rbd_default_data_pool'] = base_pool_name
+            ctxt["rbd_default_data_pool"] = base_pool_name
         return ctxt
 
 
@@ -72,10 +71,12 @@ class CinderCephAdapters(adapters.OPSRelationAdapters):
     @property
     def interface_map(self):
         _map = super().interface_map
-        _map.update({
-            "rabbitmq": adapters.AMQPAdapter,
-            "ceph-client": CephClientAdapter,
-        })
+        _map.update(
+            {
+                "rabbitmq": adapters.AMQPAdapter,
+                "ceph-client": CephClientAdapter,
+            }
+        )
         return _map
 
 
@@ -176,9 +177,9 @@ class CinderCephOperatorCharm(core.OSBaseOperatorCharm):
 
     def __init__(self, framework):
         super().__init__(framework, adapters=CinderCephAdapters(self))
-        self.adapters.add_config_adapters([
-            CephConfigurationAdapter(self, 'ceph_config')
-        ])
+        self.adapters.add_config_adapters(
+            [CephConfigurationAdapter(self, "ceph_config")]
+        )
 
     def get_relation_handlers(self) -> List[core.RelationHandler]:
         """Relation handlers for the service."""
@@ -296,8 +297,9 @@ class CinderCephOperatorCharm(core.OSBaseOperatorCharm):
             )
             # Create EC metadata pool
             self.ceph.interface.create_replicated_pool(
-                name=metadata_pool_name, replicas=replicas,
-                weight=metadata_weight
+                name=metadata_pool_name,
+                replicas=replicas,
+                weight=metadata_weight,
             )
         else:
             self.ceph.interface.create_replicated_pool(
