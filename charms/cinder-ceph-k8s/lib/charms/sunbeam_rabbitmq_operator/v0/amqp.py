@@ -75,7 +75,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 2
+LIBPATCH = 3
 
 import logging
 import requests
@@ -111,6 +111,7 @@ class AMQPGoneAwayEvent(EventBase):
     """AMQP relation has gone-away Event"""
 
     pass
+
 
 class AMQPServerEvents(ObjectEvents):
     """Events class for `on`"""
@@ -182,6 +183,16 @@ class AMQPRequires(Object):
     def hostname(self) -> str:
         """Return the hostname from the AMQP relation"""
         return self._amqp_rel.data[self._amqp_rel.app].get("hostname")
+
+    @property
+    def ssl_port(self) -> str:
+        """Return the SSL port from the AMQP relation"""
+        return self._amqp_rel.data[self._amqp_rel.app].get("ssl_port")
+
+    @property
+    def ssl_ca(self) -> str:
+        """Return the SSL port from the AMQP relation"""
+        return self._amqp_rel.data[self._amqp_rel.app].get("ssl_ca")
 
     @property
     def hostnames(self) -> List[str]:
