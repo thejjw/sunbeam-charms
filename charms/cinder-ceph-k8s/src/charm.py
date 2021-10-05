@@ -28,18 +28,58 @@ from collections.abc import Callable
 # NOTE: rename sometime
 import advanced_sunbeam_openstack.core as core
 import advanced_sunbeam_openstack.adapters as adapters
+from ops_openstack.adapters import OpenStackOperRelationAdapter
 
 logger = logging.getLogger(__name__)
 
 
+# TODO: -> aso
+class CephClientAdapter(OpenStackOperRelationAdapter):
+    @property
+    def monitor_hosts(self):
+        return ",".join(
+            sorted(self.relation.get_relation_data().get('mon_hosts'))
+        )
+
+    @property
+    def auth(self):
+        return self.relation.get_relation_data().get('auth')
+
+    @property
+    def key(self):
+        return self.relation.get_relation_data().get('key')
+
+    @property
+    def rbd_features(self):
+        return None
+
+
+class CephConfigurationAdapter(adapters.ConfigAdapter):
+
+    def context(self):
+        config = self.charm.model.config.get
+        ctxt = {}
+        if config('pool-type') and config('pool-type') == 'erasure-coded':
+            base_pool_name = config('rbd-pool') or config('rbd-pool-name')
+            if not base_pool_name:
+                base_pool_name = self.charm.app.name
+            ctxt['rbd_default_data_pool'] = base_pool_name
+        return ctxt
+
+
+# TODO: -> aso
 class CinderCephAdapters(adapters.OPSRelationAdapters):
     @property
     def interface_map(self):
         _map = super().interface_map
-        _map.update({"rabbitmq": adapters.AMQPAdapter})
+        _map.update({
+            "rabbitmq": adapters.AMQPAdapter,
+            "ceph-client": CephClientAdapter,
+        })
         return _map
 
 
+# TODO: -> aso
 class AMQPHandler(core.RelationHandler):
     def __init__(
         self,
@@ -77,6 +117,7 @@ class AMQPHandler(core.RelationHandler):
             return False
 
 
+# TODO: -> aso
 class CephClientHandler(core.RelationHandler):
     def __init__(
         self,
@@ -131,13 +172,16 @@ class CinderCephOperatorCharm(core.OSBaseOperatorCharm):
     service_group = "cinder"
 
     cinder_conf = "/etc/cinder/cinder.conf"
+    ceph_conf = "/etc/ceph/ceph.conf"
 
     def __init__(self, framework):
         super().__init__(framework, adapters=CinderCephAdapters(self))
+        self.adapters.add_config_adapters([
+            CephConfigurationAdapter(self, 'ceph_config')
+        ])
 
     def get_relation_handlers(self) -> List[core.RelationHandler]:
         """Relation handlers for the service."""
-        # TODO: add ceph once we've written a handler class
         self.amqp = AMQPHandler(
             self,
             "amqp",
@@ -166,7 +210,13 @@ class CinderCephOperatorCharm(core.OSBaseOperatorCharm):
                     self.cinder_conf,
                     self.service_user,
                     self.service_group,
-                )
+                ),
+                core.ContainerConfigFile(
+                    [self.service_name],
+                    self.ceph_conf,
+                    self.service_user,
+                    self.service_group,
+                ),
             ]
         )
         return _cconfigs
@@ -244,10 +294,11 @@ class CinderCephOperatorCharm(core.OSBaseOperatorCharm):
                 weight=weight,
                 allow_ec_overwrites=True,
             )
+            # Create EC metadata pool
             self.ceph.interface.create_replicated_pool(
-                name=metadata_pool_name, weight=metadata_weight
+                name=metadata_pool_name, replicas=replicas,
+                weight=metadata_weight
             )
-
         else:
             self.ceph.interface.create_replicated_pool(
                 name=data_pool_name, replicas=replicas, weight=weight
