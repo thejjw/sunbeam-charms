@@ -20,6 +20,7 @@ from ops.main import main
 from ops.model import ActiveStatus
 
 from charms.sunbeam_rabbitmq_operator.v0.amqp import AMQPRequires
+from charms.ceph.v0.ceph_client import CephClientRequires
 
 from typing import List
 
@@ -63,6 +64,31 @@ class AMQPHandler(core.RelationHandler):
             return False
 
 
+class CephClientHandler(core.RelationHandler):
+    def setup_event_handler(self) -> Object:
+        """Configure event handlers for an ceph-client interface."""
+        logger.debug("Setting up ceph-client event handler")
+        ceph = CephClientRequires(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            ceph.on.pools_available, self._on_pools_available
+        )
+        return ceph
+
+    def _on_pools_available(self, event) -> None:
+        """Handles pools available event."""
+        # Ready is only emitted when the interface considers
+        # that the relation is complete
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Handler ready for use."""
+        return self.interface.pools_available
+
+
 class CinderCephOperatorCharm(core.OSBaseOperatorCharm):
     """Cinder/Ceph Operator charm"""
 
@@ -81,7 +107,11 @@ class CinderCephOperatorCharm(core.OSBaseOperatorCharm):
         """Relation handlers for the service."""
         # TODO: add ceph once we've written a handler class
         self.amqp = AMQPHandler(self, "amqp", self.configure_charm)
-        return [self.amqp]
+        self.ceph = CephClientHandler(self, "ceph", self.configure_charm)
+        return [
+            self.amqp,
+            self.ceph,
+        ]
 
     @property
     def container_configs(self) -> List[core.ContainerConfigFile]:
@@ -101,9 +131,7 @@ class CinderCephOperatorCharm(core.OSBaseOperatorCharm):
     def configure_charm(self, event) -> None:
         """Catchall handler to cconfigure charm services."""
         if not self.relation_handlers_ready():
-            logging.debug(
-                "Defering configuration, charm relations not ready"
-            )
+            logging.debug("Defering configuration, charm relations not ready")
             return
 
         for ph in self.pebble_handlers:

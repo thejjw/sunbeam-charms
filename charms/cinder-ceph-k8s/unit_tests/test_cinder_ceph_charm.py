@@ -64,6 +64,8 @@ class TestCinderCephOperatorCharm(unittest.TestCase):
         self.harness.begin_with_initial_hooks()
 
     def test_amqp_relation(self):
+        # Fake out the ceph relation for AMQP testing
+        self.harness.charm.ceph.interface._stored.pools_available = True
         # Initial state - handlers will be incomplete
         self.assertFalse(self.harness.charm.relation_handlers_ready())
         # Add relation = handler will still be incomplete until
