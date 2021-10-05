@@ -61,9 +61,36 @@ class TestCinderCephOperatorCharm(unittest.TestCase):
     def setUp(self):
         self.harness = Harness(_CinderCephVictoriaOperatorCharm)
         self.addCleanup(self.harness.cleanup)
-        self.harness.begin()
+        self.harness.begin_with_initial_hooks()
 
-    def test_pebble_ready_handler(self):
-        self.assertEqual(self.harness.charm.seen_events, [])
-        self.harness.container_pebble_ready("cinder-volume")
-        self.assertEqual(self.harness.charm.seen_events, ["PebbleReadyEvent"])
+    def test_amqp_relation(self):
+        # Initial state - handlers will be incomplete
+        self.assertFalse(self.harness.charm.relation_handlers_ready())
+        # Add relation = handler will still be incomplete until
+        # data is provided
+        amqp_rel = self.harness.add_relation("amqp", "rabbitmq")
+        self.harness.add_relation_unit(amqp_rel, "rabbitmq/0")
+        self.assertFalse(self.harness.charm.relation_handlers_ready())
+        # Add app data to relation
+        self.harness.update_relation_data(
+            amqp_rel,
+            "rabbitmq",
+            {
+                "password": "foobar",
+                "hostname": "rabbitmq.endpoint.kubernetes.local",
+            },
+        )
+        self.assertTrue(self.harness.charm.relation_handlers_ready())
+        # Perform some basic validation that the interface data
+        # is correctly set
+        self.assertEqual(self.harness.charm.amqp.interface.username, "cinder")
+        self.assertEqual(self.harness.charm.amqp.interface.vhost, "openstack")
+        self.assertEqual(self.harness.charm.amqp.interface.password, "foobar")
+        self.assertEqual(
+            self.harness.charm.amqp.interface.hostname,
+            "rabbitmq.endpoint.kubernetes.local",
+        )
+        # Remove the relation which should result in relation
+        # handlers returing to an un-ready state.
+        self.harness.remove_relation(amqp_rel)
+        self.assertFalse(self.harness.charm.relation_handlers_ready())
