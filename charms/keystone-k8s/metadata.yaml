@@ -18,6 +18,10 @@ tags:
 
 subordinate: false
 
+provides:
+  identity-service:
+    interface: keystone
+
 requires:
   keystone-db:
     interface: mysql_datastore
