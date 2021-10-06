@@ -20,7 +20,7 @@ from ops.main import main
 from ops.model import ActiveStatus
 
 from charms.sunbeam_rabbitmq_operator.v0.amqp import AMQPRequires
-from charms.ceph.v0.ceph_client import CephClientRequires
+from interface_ceph_client.ceph_client import CephClientRequires
 
 from typing import List
 from collections.abc import Callable
