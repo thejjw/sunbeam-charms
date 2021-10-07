@@ -13,15 +13,17 @@ develop a new k8s charm using the Operator Framework:
 """
 
 import logging
+from typing import List
 
 from ops.main import main
 from ops.framework import StoredState
 from ops import model
 
 from utils import manager
-import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
-import advanced_sunbeam_openstack.adapters as sunbeam_adapters
+import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
+import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
+import advanced_sunbeam_openstack.config_contexts as sunbeam_contexts
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +34,7 @@ KEYSTONE_CONF = '/etc/keystone/keystone.conf'
 LOGGING_CONF = '/etc/keystone/logging.conf'
 
 
-class KeystoneLoggingAdapter(sunbeam_adapters.ConfigAdapter):
+class KeystoneLoggingAdapter(sunbeam_contexts.ConfigContext):
 
     def context(self):
         config = self.charm.model.config
@@ -50,7 +52,7 @@ class KeystoneLoggingAdapter(sunbeam_adapters.ConfigAdapter):
         return ctxt
 
 
-class KeystoneConfigAdapter(sunbeam_adapters.ConfigAdapter):
+class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
 
     def context(self):
         config = self.charm.model.config
@@ -80,7 +82,7 @@ class KeystoneConfigAdapter(sunbeam_adapters.ConfigAdapter):
         }
 
 
-class KeystoneOperatorCharm(sunbeam_core.OSBaseOperatorAPICharm):
+class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
     _state = StoredState()
@@ -96,9 +98,14 @@ class KeystoneOperatorCharm(sunbeam_core.OSBaseOperatorAPICharm):
         self._state.set_default(admin_domain_id=None)
         self._state.set_default(default_domain_id=None)
         self._state.set_default(service_project_id=None)
-        self.adapters.add_config_adapters([
+
+    @property
+    def config_adapters(self) -> List[sunbeam_contexts.ConfigContext]:
+        """Configuration adapters for the operator."""
+        return [
             KeystoneConfigAdapter(self, 'ks_config'),
-            KeystoneLoggingAdapter(self, 'ks_logging')])
+            KeystoneLoggingAdapter(self, 'ks_logging'),
+            sunbeam_contexts.CharmConfigContext(self, 'options')]
 
     @property
     def container_configs(self):

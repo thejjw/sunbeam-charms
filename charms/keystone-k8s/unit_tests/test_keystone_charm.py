@@ -45,8 +45,8 @@ class _KeystoneVictoriaOperatorCharm(charm.KeystoneVictoriaOperatorCharm):
                 openstack_release,
                 adapters))
 
-    def _on_service_pebble_ready(self, event):
-        super()._on_service_pebble_ready(event)
+    def configure_charm(self, event):
+        super().configure_charm(event)
         self._log_event(event)
 
 
