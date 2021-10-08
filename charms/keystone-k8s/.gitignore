@@ -9,3 +9,4 @@ __pycache__/
 *.py[cod]
 **.swp
 .stestr/
+lib/charms/sunbeam_rabbitmq_operator

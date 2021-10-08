@@ -356,8 +356,8 @@ class KeystoneManager(framework.Object):
         return project
 
     def create_user(self, name: str, password: str, email: str = None,
-                    project: 'Project' = None,
-                    domain: 'Domain' = None,
+                    project: 'Project'=None,
+                    domain: 'Domain'=None,
                     may_exist: bool = False) -> 'User':
         """
 
@@ -375,8 +375,8 @@ class KeystoneManager(framework.Object):
         logger.debug(f'Created user {user.name} with id {user.id}.')
         return user
 
-    def get_user(self, name: str, project: 'Project' = None,
-                 domain: typing.Union[str, 'Domain'] = None) -> 'User':
+    def get_user(self, name: str, project: 'Project'=None,
+                 domain: typing.Union[str, 'Domain']=None) -> 'User':
         """
 
         """
@@ -388,7 +388,7 @@ class KeystoneManager(framework.Object):
         return None
 
     def create_role(self, name: str,
-                    domain: typing.Union['Domain', str] = None,
+                    domain: typing.Union['Domain', str]=None,
                     may_exist: bool = False) -> 'Role':
         """
 
@@ -416,8 +416,8 @@ class KeystoneManager(framework.Object):
         return None
 
     def get_roles(self, user: 'User',
-                  project: 'Project' = None,
-                  domain: 'Project' = None) \
+                  project: 'Project'=None,
+                  domain: 'Project'=None) \
             -> typing.List['Role']:
         """
 
@@ -436,8 +436,8 @@ class KeystoneManager(framework.Object):
 
     def grant_role(self, role: typing.Union['Role', str],
                    user: 'User',
-                   project: typing.Union['Project', str] = None,
-                   domain: typing.Union['Domain', str] = None,
+                   project: typing.Union['Project', str]=None,
+                   domain: typing.Union['Domain', str]=None,
                    may_exist: bool = False) -> 'Role':
         """
 
