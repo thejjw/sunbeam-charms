@@ -19,7 +19,6 @@ from ops.charm import Object, CharmBase
 from ops.main import main
 from ops.model import ActiveStatus
 
-from charms.sunbeam_rabbitmq_operator.v0.amqp import AMQPRequires
 from interface_ceph_client.ceph_client import CephClientRequires
 
 from typing import List
@@ -27,34 +26,14 @@ from collections.abc import Callable
 
 # NOTE: rename sometime
 import advanced_sunbeam_openstack.core as core
-import advanced_sunbeam_openstack.adapters as adapters
-from ops_openstack.adapters import OpenStackOperRelationAdapter
+import advanced_sunbeam_openstack.charm as charm
+import advanced_sunbeam_openstack.relation_handlers as relation_handlers
+import advanced_sunbeam_openstack.config_contexts as config_contexts
 
 logger = logging.getLogger(__name__)
 
 
-# TODO: -> aso
-class CephClientAdapter(OpenStackOperRelationAdapter):
-    @property
-    def monitor_hosts(self):
-        return ",".join(
-            sorted(self.relation.get_relation_data().get("mon_hosts"))
-        )
-
-    @property
-    def auth(self):
-        return self.relation.get_relation_data().get("auth")
-
-    @property
-    def key(self):
-        return self.relation.get_relation_data().get("key")
-
-    @property
-    def rbd_features(self):
-        return None
-
-
-class CephConfigurationAdapter(adapters.ConfigAdapter):
+class CephConfigurationContext(config_contexts.ConfigContext):
     def context(self):
         config = self.charm.model.config.get
         ctxt = {}
@@ -67,67 +46,21 @@ class CephConfigurationAdapter(adapters.ConfigAdapter):
 
 
 # TODO: -> aso
-class CinderCephAdapters(adapters.OPSRelationAdapters):
-    @property
-    def interface_map(self):
-        _map = super().interface_map
-        _map.update(
-            {
-                "rabbitmq": adapters.AMQPAdapter,
-                "ceph-client": CephClientAdapter,
-            }
-        )
-        return _map
+class CephClientHandler(relation_handlers.RelationHandler):
 
+    ERASURE_CODED = "erasure-coded"
+    REPLICATED = "replacated"
 
-# TODO: -> aso
-class AMQPHandler(core.RelationHandler):
     def __init__(
         self,
         charm: CharmBase,
         relation_name: str,
         callback_f: Callable,
-        username: str,
-        vhost: int,
+        allow_ec_overwrites: bool = True,
+        app_name: str = None
     ):
-        self.username = username
-        self.vhost = vhost
-        super().__init__(charm, relation_name, callback_f)
-
-    def setup_event_handler(self) -> Object:
-        """Configure event handlers for an AMQP relation."""
-        logger.debug("Setting up AMQP event handler")
-        amqp = AMQPRequires(
-            self.charm, self.relation_name, self.username, self.vhost
-        )
-        self.framework.observe(amqp.on.ready, self._on_amqp_ready)
-        return amqp
-
-    def _on_amqp_ready(self, event) -> None:
-        """Handles AMQP change events."""
-        # Ready is only emitted when the interface considers
-        # that the relation is complete (indicated by a password)
-        self.callback_f(event)
-
-    @property
-    def ready(self) -> bool:
-        """Handler ready for use."""
-        try:
-            return bool(self.interface.password)
-        except AttributeError:
-            return False
-
-
-# TODO: -> aso
-class CephClientHandler(core.RelationHandler):
-    def __init__(
-        self,
-        charm: CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-        broker_callback_f: Callable,
-    ):
-        self.broker_callback_f = broker_callback_f
+        self.allow_ec_overwrite = allow_ec_overwrites
+        self.app_name = app_name
         super().__init__(charm, relation_name, callback_f)
 
     def setup_event_handler(self) -> Object:
@@ -141,7 +74,7 @@ class CephClientHandler(core.RelationHandler):
             ceph.on.pools_available, self._on_pools_available
         )
         self.framework.observe(
-            ceph.on.broker_available, self._on_broker_available
+            ceph.on.broker_available, self.request_pools
         )
         return ceph
 
@@ -151,19 +84,109 @@ class CephClientHandler(core.RelationHandler):
         # that the relation is complete
         self.callback_f(event)
 
-    def _on_broker_available(self, event) -> None:
-        """Handles broker available event."""
-        # Propagate event to charm class to allow desired
-        # pool requests etc... to be created
-        self.broker_callback_f(event)
+    def request_pools(self, event) -> None:
+        """
+        Request Ceph pool creation when interface broker is ready.
+
+        The default handler will automatically request erasure-coded
+        or replicated pools depending on the configuration of the
+        charm from which the handler is being used.
+
+        To provide charm specific behaviour, subclass the default
+        handler and use the required broker methods on the underlying
+        interface object.
+        """
+        config = self.model.config.get
+        data_pool_name = (
+            config("rbd-pool-name") or
+            config("rbd-pool") or
+            self.app.name
+        )
+        metadata_pool_name = (
+            config("ec-rbd-metadata-pool") or f"{self.app.name}-metadata"
+        )
+        weight = config("ceph-pool-weight")
+        replicas = config("ceph-osd-replication-count")
+        # TODO: add bluestore compression options
+        if config("pool-type") == self.ERASURE_CODED:
+            # General EC plugin config
+            plugin = config("ec-profile-plugin")
+            technique = config("ec-profile-technique")
+            device_class = config("ec-profile-device-class")
+            bdm_k = config("ec-profile-k")
+            bdm_m = config("ec-profile-m")
+            # LRC plugin config
+            bdm_l = config("ec-profile-locality")
+            crush_locality = config("ec-profile-crush-locality")
+            # SHEC plugin config
+            bdm_c = config("ec-profile-durability-estimator")
+            # CLAY plugin config
+            bdm_d = config("ec-profile-helper-chunks")
+            scalar_mds = config("ec-profile-scalar-mds")
+            # Profile name
+            profile_name = (
+                config("ec-profile-name") or f"{self.app.name}-profile"
+            )
+            # Metadata sizing is approximately 1% of overall data weight
+            # but is in effect driven by the number of rbd's rather than
+            # their size - so it can be very lightweight.
+            metadata_weight = weight * 0.01
+            # Resize data pool weight to accomodate metadata weight
+            weight = weight - metadata_weight
+            # Create erasure profile
+            self.interface.create_erasure_profile(
+                name=profile_name,
+                k=bdm_k,
+                m=bdm_m,
+                lrc_locality=bdm_l,
+                lrc_crush_locality=crush_locality,
+                shec_durability_estimator=bdm_c,
+                clay_helper_chunks=bdm_d,
+                clay_scalar_mds=scalar_mds,
+                device_class=device_class,
+                erasure_type=plugin,
+                erasure_technique=technique,
+            )
+
+            # Create EC data pool
+            self.interface.create_erasure_pool(
+                name=data_pool_name,
+                erasure_profile=profile_name,
+                weight=weight,
+                allow_ec_overwrites=self.allow_ec_overwrites,
+                app_name=self.app_name,
+            )
+            # Create EC metadata pool
+            self.interface.create_replicated_pool(
+                name=metadata_pool_name,
+                replicas=replicas,
+                weight=metadata_weight,
+                app_name=self.app_name,
+            )
+        else:
+            self.interface.create_replicated_pool(
+                name=data_pool_name, replicas=replicas, weight=weight,
+                app_name=self.app_name,
+            )
 
     @property
     def ready(self) -> bool:
         """Handler ready for use."""
         return self.interface.pools_available
 
+    def context(self) -> dict:
+        ctxt = super().context()
+        data = self.interface.get_relation_data()
+        ctxt['mon_hosts'] = ",".join(
+            sorted(data.get("mon_hosts"))
+        )
+        ctxt['auth'] = data.get('auth')
+        ctxt['key'] = data.get("key")
+        ctxt['rbd_features'] = None
+        return ctxt
 
-class CinderCephOperatorCharm(core.OSBaseOperatorCharm):
+
+class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
     """Cinder/Ceph Operator charm"""
 
     # NOTE: service_name == container_name
@@ -175,34 +198,29 @@ class CinderCephOperatorCharm(core.OSBaseOperatorCharm):
     cinder_conf = "/etc/cinder/cinder.conf"
     ceph_conf = "/etc/ceph/ceph.conf"
 
-    def __init__(self, framework):
-        super().__init__(framework, adapters=CinderCephAdapters(self))
-        self.adapters.add_config_adapters(
-            [CephConfigurationAdapter(self, "ceph_config")]
-        )
-
-    def get_relation_handlers(self) -> List[core.RelationHandler]:
+    def get_relation_handlers(self) -> List[relation_handlers.RelationHandler]:
         """Relation handlers for the service."""
-        self.amqp = AMQPHandler(
-            self,
-            "amqp",
-            self.configure_charm,
-            username="cinder",
-            vhost="openstack",
-        )
+        handlers = super().get_relation_handlers()
         self.ceph = CephClientHandler(
             self,
             "ceph",
             self.configure_charm,
-            self.request_pools,
+            allow_ec_overwrites=True,
+            app_name='rbd'
         )
-        return [
-            self.amqp,
-            self.ceph,
-        ]
+        handlers.append(self.ceph)
+        return handlers
+
+    @property
+    def confog_contexts(self) -> List[config_contexts.ConfigContext]:
+        """Configuration contexts for the operator."""
+        contexts = super().config_contexts
+        contexts.append(CephConfigurationContext(self, "ceph_config"))
+        return contexts
 
     @property
     def container_configs(self) -> List[core.ContainerConfigFile]:
+        """Container configurations for the operator."""
         _cconfigs = super().container_configs
         _cconfigs.extend(
             [
@@ -238,73 +256,6 @@ class CinderCephOperatorCharm(core.OSBaseOperatorCharm):
                 return
 
         self.unit.status = ActiveStatus()
-
-    def request_pools(self, event) -> None:
-        """Request Ceph pool creation when interface broker is ready"""
-        config = self.model.config.get
-        data_pool_name = config("rbd-pool-name") or self.app.name
-        metadata_pool_name = (
-            config("ec-rbd-metadata-pool") or f"{self.app.name}-metadata"
-        )
-        weight = config("ceph-pool-weight")
-        replicas = config("ceph-osd-replication-count")
-        if config("pool-type") == "erasure-coded":
-            # General EC plugin config
-            plugin = config("ec-profile-plugin")
-            technique = config("ec-profile-technique")
-            device_class = config("ec-profile-device-class")
-            bdm_k = config("ec-profile-k")
-            bdm_m = config("ec-profile-m")
-            # LRC plugin config
-            bdm_l = config("ec-profile-locality")
-            crush_locality = config("ec-profile-crush-locality")
-            # SHEC plugin config
-            bdm_c = config("ec-profile-durability-estimator")
-            # CLAY plugin config
-            bdm_d = config("ec-profile-helper-chunks")
-            scalar_mds = config("ec-profile-scalar-mds")
-            # Profile name
-            profile_name = (
-                config("ec-profile-name") or f"{self.app.name}-profile"
-            )
-            # Metadata sizing is approximately 1% of overall data weight
-            # but is in effect driven by the number of rbd's rather than
-            # their size - so it can be very lightweight.
-            metadata_weight = weight * 0.01
-            # Resize data pool weight to accomodate metadata weight
-            weight = weight - metadata_weight
-            # Create erasure profile
-            self.ceph.interface.create_erasure_profile(
-                name=profile_name,
-                k=bdm_k,
-                m=bdm_m,
-                lrc_locality=bdm_l,
-                lrc_crush_locality=crush_locality,
-                shec_durability_estimator=bdm_c,
-                clay_helper_chunks=bdm_d,
-                clay_scalar_mds=scalar_mds,
-                device_class=device_class,
-                erasure_type=plugin,
-                erasure_technique=technique,
-            )
-
-            # Create EC data pool
-            self.ceph.interface.create_erasure_pool(
-                name=data_pool_name,
-                erasure_profile=profile_name,
-                weight=weight,
-                allow_ec_overwrites=True,
-            )
-            # Create EC metadata pool
-            self.ceph.interface.create_replicated_pool(
-                name=metadata_pool_name,
-                replicas=replicas,
-                weight=metadata_weight,
-            )
-        else:
-            self.ceph.interface.create_replicated_pool(
-                name=data_pool_name, replicas=replicas, weight=weight
-            )
 
 
 class CinderCephVictoriaOperatorCharm(CinderCephOperatorCharm):

@@ -85,7 +85,10 @@ class TestCinderCephOperatorCharm(unittest.TestCase):
         self.assertTrue(self.harness.charm.relation_handlers_ready())
         # Perform some basic validation that the interface data
         # is correctly set
-        self.assertEqual(self.harness.charm.amqp.interface.username, "cinder")
+        self.assertEqual(
+            self.harness.charm.amqp.interface.username,
+            self.harness.charm.service_name
+        )
         self.assertEqual(self.harness.charm.amqp.interface.vhost, "openstack")
         self.assertEqual(self.harness.charm.amqp.interface.password, "foobar")
         self.assertEqual(
