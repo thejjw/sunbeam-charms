@@ -50,11 +50,6 @@ options:
       Availability zone name of this volume backend. If set, it will
       override the default availability zone. Supported for Pike or
       newer releases.
-  use-syslog:
-    type: boolean
-    default: False
-    description: |
-      Setting this to True will configure services to log to syslog.
   restrict-ceph-pools:
     default: False
     type: boolean
