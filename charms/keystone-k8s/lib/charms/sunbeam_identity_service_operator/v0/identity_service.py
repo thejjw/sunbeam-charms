@@ -9,7 +9,12 @@ relation name:
     - self
     - "identity_service"
 
-Also provide two additional parameters to the charm object:
+Also provide additional parameters to the charm object:
+    - service
+    - internal_url
+    - public_url
+    - admin_url
+    - region
     - username
     - vhost
 
@@ -21,7 +26,7 @@ Two events are also available to respond to:
 A basic example showing the usage of this relation follows:
 
 ```
-from charms.sunbeam_rabbitmq_operator.v0.identity_service import IdentityServiceRequires
+from charms.sunbeam_sunbeam_identity_service_operator.v0.identity_service import IdentityServiceRequires
 
 class IdentityServiceClientCharm(CharmBase):
     def __init__(self, *args):
@@ -34,8 +39,6 @@ class IdentityServiceClientCharm(CharmBase):
             public_url = "http://public-url"
             admin_url = "http://admin-url"
             region = "region"
-            username="myusername",
-            vhost="vhostname"
         )
         self.framework.observe(
             self.identity_service.on.connected, self._on_identity_service_connected)
@@ -56,8 +59,8 @@ class IdentityServiceClientCharm(CharmBase):
     def _on_identity_service_ready(self, event):
         '''React to the IdentityService ready event.
 
-        The IdentityService interface will use the provided username and vhost for the
-        request to the rabbitmq server.
+        The IdentityService interface will use the provided config for the
+        request to the identity server.
         '''
         # IdentityService Relation is ready. Do something with the completed relation.
         pass
@@ -164,7 +167,7 @@ class IdentityServiceRequires(Object):
 
     def _on_identity_service_relation_joined(self, event):
         """IdentityService relation joined."""
-        logging.debug("RabbitMQIdentityServiceRequires on_joined")
+        logging.debug("IdentityService on_joined")
         self.on.connected.emit()
         self.register_service(
             self.service,
@@ -175,13 +178,13 @@ class IdentityServiceRequires(Object):
 
     def _on_identity_service_relation_changed(self, event):
         """IdentityService relation changed."""
-        logging.debug("RabbitMQIdentityServiceRequires on_changed")
+        logging.debug("IdentityService on_changed")
         if self.password:
             self.on.ready.emit()
 
     def _on_identity_service_relation_broken(self, event):
         """IdentityService relation broken."""
-        logging.debug("RabbitMQIdentityServiceRequires on_broken")
+        logging.debug("IdentityService on_broken")
         self.on.goneaway.emit()
 
     @property
@@ -328,12 +331,12 @@ class IdentityServiceProvides(Object):
 
     def _on_identity_service_relation_joined(self, event):
         """Handle IdentityService joined."""
-        logging.debug("RabbitMQIdentityServiceProvides on_joined")
+        logging.debug("IdentityService on_joined")
         self.on.has_identity_service_clients.emit()
 
     def _on_identity_service_relation_changed(self, event):
         """Handle IdentityService changed."""
-        logging.debug("RabbitMQIdentityServiceProvides on_changed")
+        logging.debug("IdentityService on_changed")
         REQUIRED_KEYS = [
             'service',
             'internal-url',
