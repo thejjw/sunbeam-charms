@@ -1,4 +1,13 @@
 options:
+  debug:
+    type: boolean
+    default: False
+    description: Enable debug logging.
+  use-syslog:
+    type: boolean
+    default: True
+    description: |
+      Setting this to False will disable logging to syslog (the default).
   ceph-osd-replication-count:
     default: 3
     type: int

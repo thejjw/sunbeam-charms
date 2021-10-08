@@ -32,6 +32,9 @@ import advanced_sunbeam_openstack.config_contexts as config_contexts
 
 logger = logging.getLogger(__name__)
 
+ERASURE_CODED = "erasure-coded"
+REPLICATED = "replacated"
+
 
 class CephConfigurationContext(config_contexts.ConfigContext):
     def context(self):
@@ -45,12 +48,31 @@ class CephConfigurationContext(config_contexts.ConfigContext):
         return ctxt
 
 
+class CinderCephConfigurationContext(config_contexts.ConfigContext):
+    def context(self):
+        config = self.charm.model.config.get
+        data_pool_name = config('rbd-pool-name') or self.charm.app.name
+        if config('pool-type') == ERASURE_CODED:
+            pool_name = (
+                config('ec-rbd-metadata-pool') or
+                f"{data_pool_name}-metadata"
+            )
+        else:
+            pool_name = data_pool_name
+        backend_name = config('volume-backend-name') or self.charm.app.name
+        # TODO:
+        # secret_uuid needs to be generated and shared for the app
+        return {
+            'rbd_pool': pool_name,
+            'rbd_user': self.charm.app.name,
+            'backend_name': backend_name,
+            'backend_availability_zone': config('backend-availability-zone'),
+            'secret_uuid': 'f889b537-8d4e-4445-ae32-7552073e9b7e',
+        }
+
+
 # TODO: -> aso
 class CephClientHandler(relation_handlers.RelationHandler):
-
-    ERASURE_CODED = "erasure-coded"
-    REPLICATED = "replacated"
-
     def __init__(
         self,
         charm: CharmBase,
@@ -100,15 +122,15 @@ class CephClientHandler(relation_handlers.RelationHandler):
         data_pool_name = (
             config("rbd-pool-name") or
             config("rbd-pool") or
-            self.app.name
+            self.charm.app.name
         )
         metadata_pool_name = (
-            config("ec-rbd-metadata-pool") or f"{self.app.name}-metadata"
+            config("ec-rbd-metadata-pool") or f"{self.charm.app.name}-metadata"
         )
         weight = config("ceph-pool-weight")
         replicas = config("ceph-osd-replication-count")
         # TODO: add bluestore compression options
-        if config("pool-type") == self.ERASURE_CODED:
+        if config("pool-type") == ERASURE_CODED:
             # General EC plugin config
             plugin = config("ec-profile-plugin")
             technique = config("ec-profile-technique")
@@ -125,7 +147,7 @@ class CephClientHandler(relation_handlers.RelationHandler):
             scalar_mds = config("ec-profile-scalar-mds")
             # Profile name
             profile_name = (
-                config("ec-profile-name") or f"{self.app.name}-profile"
+                config("ec-profile-name") or f"{self.charm.app.name}-profile"
             )
             # Metadata sizing is approximately 1% of overall data weight
             # but is in effect driven by the number of rbd's rather than
@@ -212,10 +234,11 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
         return handlers
 
     @property
-    def confog_contexts(self) -> List[config_contexts.ConfigContext]:
+    def config_contexts(self) -> List[config_contexts.ConfigContext]:
         """Configuration contexts for the operator."""
         contexts = super().config_contexts
         contexts.append(CephConfigurationContext(self, "ceph_config"))
+        contexts.append(CinderCephConfigurationContext(self, "cinder_ceph"))
         return contexts
 
     @property
@@ -248,7 +271,7 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
 
         for ph in self.pebble_handlers:
             if ph.pebble_ready:
-                ph.init_service()
+                ph.init_service(self.contexts())
 
         for ph in self.pebble_handlers:
             if not ph.service_ready:

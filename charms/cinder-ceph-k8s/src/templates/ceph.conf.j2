@@ -6,7 +6,6 @@
 [global]
 {% if ceph.auth -%}
 auth_supported = {{ ceph.auth }}
-keyring = /etc/ceph/$cluster.$name.keyring
 mon host = {{ ceph.monitor_hosts }}
 {% endif -%}
 log to syslog = {{ options.use_syslog }}
