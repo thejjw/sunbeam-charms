@@ -179,8 +179,11 @@ class IdentityServiceRequires(Object):
     def _on_identity_service_relation_changed(self, event):
         """IdentityService relation changed."""
         logging.debug("IdentityService on_changed")
-        if self.password:
+        try:
+            self.service_password
             self.on.ready.emit()
+        except AttributeError:
+            pass
 
     def _on_identity_service_relation_broken(self, event):
         """IdentityService relation broken."""
