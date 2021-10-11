@@ -6,7 +6,7 @@
 [global]
 {% if ceph.auth -%}
 auth_supported = {{ ceph.auth }}
-mon host = {{ ceph.monitor_hosts }}
+mon host = {{ ceph.mon_hosts }}
 {% endif -%}
 log to syslog = {{ options.use_syslog }}
 err to syslog = {{ options.use_syslog }}
