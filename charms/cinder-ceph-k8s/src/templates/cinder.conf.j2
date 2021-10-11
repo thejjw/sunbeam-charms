@@ -15,7 +15,7 @@ state_path = /var/lib/cinder
 transport_url = {{ amqp.transport_url }}
 {% endif %}
 
-[{{ cinder_ceph.backend_name }}]]
+[{{ cinder_ceph.backend_name }}]
 volume_driver = cinder.volume.drivers.rbd.RBDDriver
 rbd_exclusive_cinder_pool = True
 report_discard_supported = True
