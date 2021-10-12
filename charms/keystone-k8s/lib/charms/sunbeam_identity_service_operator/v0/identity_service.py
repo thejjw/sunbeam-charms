@@ -85,6 +85,7 @@ LIBAPI = 0
 # to 0 if you are raising the major API version
 LIBPATCH = 3
 
+import json
 import logging
 import requests
 
@@ -137,16 +138,12 @@ class IdentityServiceRequires(Object):
     on = IdentityServiceServerEvents()
     _stored = StoredState()
 
-    def __init__(self, charm, relation_name: str, service: str,
-                 internal_url: str, public_url: str, admin_url: str,
+    def __init__(self, charm, relation_name: str, service_endpoints: dict,
                  region: str):
         super().__init__(charm, relation_name)
         self.charm = charm
         self.relation_name = relation_name
-        self.service = service
-        self.internal_url = internal_url
-        self.public_url = public_url
-        self.admin_url = admin_url
+        self.service_endpoints = service_endpoints
         self.region = region
         self.framework.observe(
             self.charm.on[relation_name].relation_joined,
@@ -169,11 +166,8 @@ class IdentityServiceRequires(Object):
         """IdentityService relation joined."""
         logging.debug("IdentityService on_joined")
         self.on.connected.emit()
-        self.register_service(
-            self.service,
-            self.internal_url,
-            self.public_url,
-            self.admin_url,
+        self.register_services(
+            self.service_endpoints,
             self.region)
 
     def _on_identity_service_relation_changed(self, event):
@@ -202,7 +196,7 @@ class IdentityServiceRequires(Object):
 
     @property
     def api_version(self) -> str:
-        """Return the admin_domain_id."""
+        """Return the api_version."""
         return self.get_remote_app_data('api-version')
 
     @property
@@ -236,13 +230,43 @@ class IdentityServiceRequires(Object):
         return self.get_remote_app_data('internal-protocol')
 
     @property
-    def service_domain(self) -> str:
-        """Return the internal_port."""
-        return self.get_remote_app_data('service-domain')
+    def admin_domain_name(self) -> str:
+        """Return the admin_domain_name."""
+        return self.get_remote_app_data('admin-domain-name')
+
+    @property
+    def admin_domain_id(self) -> str:
+        """Return the admin_domain_id."""
+        return self.get_remote_app_data('admin-domain-id')
+
+    @property
+    def admin_project_name(self) -> str:
+        """Return the admin_project_name."""
+        return self.get_remote_app_data('admin-project-name')
+
+    @property
+    def admin_project_id(self) -> str:
+        """Return the admin_project_id."""
+        return self.get_remote_app_data('admin-project-id')
+
+    @property
+    def admin_user_name(self) -> str:
+        """Return the admin_user_name."""
+        return self.get_remote_app_data('admin-user-name')
+
+    @property
+    def admin_user_id(self) -> str:
+        """Return the admin_user_id."""
+        return self.get_remote_app_data('admin-user-id')
+
+    @property
+    def service_domain_name(self) -> str:
+        """Return the service_domain_name."""
+        return self.get_remote_app_data('service-domain-name')
 
     @property
     def service_domain_id(self) -> str:
-        """Return the internal_port."""
+        """Return the service_domain_id."""
         return self.get_remote_app_data('service-domain-id')
 
     @property
@@ -266,25 +290,33 @@ class IdentityServiceRequires(Object):
         return self.get_remote_app_data('service-protocol')
 
     @property
-    def service_project(self) -> str:
-        """Return the service_project."""
-        return self.get_remote_app_data('service-project')
+    def service_project_name(self) -> str:
+        """Return the service_project_name."""
+        return self.get_remote_app_data('service-project-name')
 
     @property
     def service_project_id(self) -> str:
-        """Return the service_project."""
+        """Return the service_project_id."""
         return self.get_remote_app_data('service-project-id')
 
-    def register_service(self, service: str, internal_url: str,
-                         public_url: str, admin_url: str, region: str) -> None:
+    @property
+    def service_user_name(self) -> str:
+        """Return the service_user_name."""
+        return self.get_remote_app_data('service-user-name')
+
+    @property
+    def service_user_id(self) -> str:
+        """Return the service_user_id."""
+        return self.get_remote_app_data('service-user-id')
+
+
+    def register_services(self, service_endpoints: dict,
+                          region: str) -> None:
         """Request access to the IdentityService server."""
         if self.model.unit.is_leader():
             logging.debug("Requesting service registration")
             app_data = self._identity_service_rel.data[self.charm.app]
-            app_data["service"] = service
-            app_data["internal-url"] = internal_url
-            app_data["public-url"] = public_url
-            app_data["admin-url"] = admin_url
+            app_data["service-endpoints"] = json.dumps(service_endpoints)
             app_data["region"] = region
 
 
@@ -297,7 +329,31 @@ class HasIdentityServiceClientsEvent(EventBase):
 class ReadyIdentityServiceClientsEvent(EventBase):
     """IdentityServiceClients Ready Event."""
 
-    pass
+    def __init__(self, handle, relation_id, relation_name, service_endpoints,
+                 region, client_app_name):
+        super().__init__(handle)
+        self.relation_id = relation_id
+        self.relation_name = relation_name
+        self.service_endpoints = service_endpoints
+        self.region = region
+        self.client_app_name = client_app_name
+            
+
+    def snapshot(self):
+        return {
+            "relation_id": self.relation_id,
+            "relation_name": self.relation_name,
+            "service_endpoints": self.service_endpoints,
+            "client_app_name": self.client_app_name,
+            "region": self.region}
+
+    def restore(self, snapshot):
+        super().restore(snapshot)
+        self.relation_id = snapshot["relation_id"]
+        self.relation_name = snapshot["relation_name"]
+        self.service_endpoints = snapshot["service_endpoints"]
+        self.region = snapshot["region"]
+        self.client_app_name = snapshot["client_app_name"]
 
 
 class IdentityServiceClientEvents(ObjectEvents):
@@ -341,10 +397,7 @@ class IdentityServiceProvides(Object):
         """Handle IdentityService changed."""
         logging.debug("IdentityService on_changed")
         REQUIRED_KEYS = [
-            'service',
-            'internal-url',
-            'public-url',
-            'admin-url',
+            'service-endpoints',
             'region']
         
         values = [
@@ -352,49 +405,66 @@ class IdentityServiceProvides(Object):
             for k in REQUIRED_KEYS ]
         # Validate data on the relation
         if all(values):
-            self.on.ready_identity_service_clients.emit()
+            print(event.relation.id)
+            print(event.relation.name)
+            service_eps = json.loads(
+                event.relation.data[event.relation.app]['service-endpoints'])
+            self.on.ready_identity_service_clients.emit(
+                event.relation.id,
+                event.relation.name,
+                service_eps,
+                event.relation.data[event.relation.app]['region'],
+                event.relation.app.name)
 
     def _on_identity_service_relation_broken(self, event):
         """Handle IdentityService broken."""
         logging.debug("IdentityServiceProvides on_departed")
         # TODO clear data on the relation
 
-    def set_identity_service_credentials(self, admin_domain_id: str,
-                                         admin_project_id: str,
-                                         admin_user_id: str,
+    def set_identity_service_credentials(self, relation_name: int,
+                                         relation_id: str,
                                          api_version: str,
-                                         auth_host: str, auth_port: str,
+                                         auth_host: str,
+                                         auth_port: str,
                                          auth_protocol: str,
                                          internal_host: str,
                                          internal_port: str,
                                          internal_protocol: str,
-                                         service_domain: str,
-                                         service_domain_id: str,
                                          service_host: str,
-                                         service_password: str,
                                          service_port: str,
                                          service_protocol: str,
-                                         service_tenant: str,
-                                         service_tenant_id: str,
-                                         service_username: str):
+                                         admin_domain: str,
+                                         admin_project: str,
+                                         admin_user: str,
+                                         service_domain: str,
+                                         service_password: str,
+                                         service_project: str,
+                                         service_user: str):
         logging.debug("Setting identity_service connection information.")
-        app_data = self._identity_service_rel.data[self.charm.app]
-        app_data["admin-domain-id"] = admin_domain_id
-        app_data["admin-project-id"] = admin_project_id
-        app_data["admin-user-id"] = admin_user_id
+        for relation in self.framework.model.relations[relation_name]:
+            if relation.id == relation_id:
+                _identity_service_rel = relation
+        app_data = _identity_service_rel.data[self.charm.app]
         app_data["api-version"] = api_version
         app_data["auth-host"] = auth_host
-        app_data["auth-port"] = auth_port
+        app_data["auth-port"] = str(auth_port)
         app_data["auth-protocol"] = auth_protocol
         app_data["internal-host"] = internal_host
-        app_data["internal-port"] = internal_port
+        app_data["internal-port"] = str(internal_port)
         app_data["internal-protocol"] = internal_protocol
-        app_data["service-domain"] = service_domain
-        app_data["service-domain_id"] = service_domain_id
         app_data["service-host"] = service_host
-        app_data["service-password"] = service_password
-        app_data["service-port"] = service_port
+        app_data["service-port"] = str(service_port)
         app_data["service-protocol"] = service_protocol
-        app_data["service-project"] = service_project
-        app_data["service-project-id"] = service_project_id
-        app_data["service-username"] = service_username
+        app_data["admin-domain-name"] = admin_domain.name
+        app_data["admin-domain-id"] = admin_domain.id
+        app_data["admin-project-name"] = admin_project.name
+        app_data["admin-project-id"] = admin_project.id
+        app_data["admin-user-name"] = admin_user.name
+        app_data["admin-user-id"] = admin_user.id
+        app_data["service-domain-name"] = service_domain.name
+        app_data["service-domain-id"] = service_domain.id
+        app_data["service-project-name"] = service_project.name
+        app_data["service-project-id"] = service_project.id
+        app_data["service-user-name"] = service_user.name
+        app_data["service-user-id"] = service_user.id
+        app_data["service-password"] = service_password
