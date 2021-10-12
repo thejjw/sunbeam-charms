@@ -355,6 +355,16 @@ class KeystoneManager(framework.Object):
         logger.debug(f'Created project {name} with id {project.id}')
         return project
 
+    def get_project(self, name: str, domain: typing.Union[str, 'Domain']=None):
+        """
+
+        """
+        projects = self.api.projects.list(domain=domain)
+        for project in projects:
+            if project.name.lower() == name.lower():
+                return project
+        return None
+
     def create_user(self, name: str, password: str, email: str = None,
                     project: 'Project'=None,
                     domain: 'Domain'=None,
@@ -492,6 +502,7 @@ class KeystoneManager(framework.Object):
             # TODO(wolsen) can we have more than one service with the same
             #  service name? I don't think so, so we'll just handle the first
             #  one for now.
+            print("FOUND: {}".format(services))
             for service in services:
                 logger.debug(f'Service {name} already exists with '
                              f'service id {service.id}.')

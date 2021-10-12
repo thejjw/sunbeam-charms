@@ -15,6 +15,7 @@ develop a new k8s charm using the Operator Framework:
 import logging
 from typing import List
 
+import ops.charm
 from ops.main import main
 from ops.framework import StoredState
 from ops import model
@@ -24,6 +25,9 @@ import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
 import advanced_sunbeam_openstack.config_contexts as sunbeam_contexts
+import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
+import charms.sunbeam_identity_service_operator.v0.identity_service \
+    as sunbeam_id_svc
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +86,39 @@ class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
         }
 
 
+class IdentityServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        callback_f,
+    ):
+        super().__init__(charm, relation_name, callback_f)
+
+    def setup_event_handler(self):
+        """Configure event handlers for an Identity service relation."""
+        logger.debug("Setting up Identity Service event handler")
+        id_svc = sunbeam_id_svc.IdentityServiceProvides(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            id_svc.on.ready_identity_service_clients,
+            self._on_identity_service_ready)
+        return id_svc
+
+    def _on_identity_service_ready(self, event) -> None:
+        """Handles AMQP change events."""
+        # Ready is only emitted when the interface considers
+        # that the relation is complete (indicated by a password)
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        return True
+
+
 class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
@@ -99,8 +136,21 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self._state.set_default(default_domain_id=None)
         self._state.set_default(service_project_id=None)
 
+    def get_relation_handlers(self, handlers=None) -> List[
+            sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = handlers or []
+        if self.can_add_handler('identity-service', handlers):
+            self.id_svc = IdentityServiceProvidesHandler(
+                self,
+                'identity-service',
+                self.register_service)
+            handlers.append(self.id_svc)
+        handlers = super().get_relation_handlers(handlers)
+        return handlers
+
     @property
-    def config_adapters(self) -> List[sunbeam_contexts.ConfigContext]:
+    def config_contexts(self) -> List[sunbeam_contexts.ConfigContext]:
         """Configuration adapters for the operator."""
         return [
             KeystoneConfigAdapter(self, 'ks_config'),
@@ -117,6 +167,64 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 'keystone',
                 'keystone')])
         return _cconfigs
+
+    def register_service(self, event):
+        service_domain = self.keystone_manager.create_domain(
+            name='service_domain',
+            may_exist=True)
+        service_project = self.keystone_manager.get_project(
+            name=self.service_project,
+            domain=service_domain)
+        admin_domain = self.keystone_manager.get_domain(
+            name='admin_domain')
+        admin_project = self.keystone_manager.get_project(
+            name='admin',
+            domain=admin_domain)
+        admin_user = self.keystone_manager.get_user(
+            name=self.model.config['admin-user'],
+            project=admin_project,
+            domain=admin_domain)
+        for ep_data in event.service_endpoints:
+            service_username = 'svc_{}'.format(
+                event.client_app_name.replace('-', '_'))
+            service_password = 'password123'
+            service_user = self.keystone_manager.create_user(
+                name=service_username,
+                password=service_password,
+                domain=service_domain.id,
+                may_exist=True)
+            service = self.keystone_manager.create_service(
+                name=ep_data['service_name'],
+                service_type=ep_data['type'],
+                description=ep_data['description'],
+                may_exist=True)
+            for interface in ['admin', 'internal', 'public']:
+                self.keystone_manager.create_endpoint(
+                    service=service,
+                    interface=interface,
+                    url=ep_data[f'{interface}_url'],
+                    region=event.region,
+                    may_exist=True)
+            self.id_svc.interface.set_identity_service_credentials(
+                event.relation_name,
+                event.relation_id,
+                'v3',
+                self.app.name,
+                self.default_public_ingress_port,
+                'http',
+                self.app.name,
+                self.default_public_ingress_port,
+                'http',
+                self.app.name,
+                self.default_public_ingress_port,
+                'http',
+                admin_domain,
+                admin_project,
+                admin_user,
+                service_domain,
+                service_password,
+                service_project,
+                service_user)
 
     @property
     def default_public_ingress_port(self):
