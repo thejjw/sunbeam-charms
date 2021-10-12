@@ -17,14 +17,17 @@ tags:
 
 containers:
   cinder-api:
-    resource: cinder-base
+    resource: cinder-api-image
   cinder-scheduler:
-    resource: cinder-base
+    resource: cinder-scheduler-image
 
 resources:
-  cinder-base:
+  cinder-api-image:
     type: oci-image
-    description: OCI image for OpenStack Cinder (kolla/cinder-base)
+    description: OCI image for OpenStack Cinder (kolla/cinder-api-image)
+  cinder-scheduler-image:
+    type: oci-image
+    description: OCI image for OpenStack Cinder (kolla/cinder-api-image)
 
 requires:
   cinder-db:

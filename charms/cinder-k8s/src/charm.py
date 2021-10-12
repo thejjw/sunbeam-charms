@@ -6,79 +6,61 @@ This charm provide Cinder services as part of an OpenStack deployment
 
 import logging
 
-from charms.nginx_ingress_integrator.v0.ingress import IngressRequires
-from charms.mysql.v1.mysql import MySQLConsumer
-
-from ops.charm import CharmBase
 from ops.framework import StoredState
 from ops.main import main
-from ops.model import ActiveStatus
+
+import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
+import advanced_sunbeam_openstack.charm as sunbeam_charm
+import advanced_sunbeam_openstack.core as sunbeam_core
+import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
 
 logger = logging.getLogger(__name__)
 
 CINDER_API_PORT = 8090
+CINDER_API_CONTAINER = "cinder-api"
+CINDER_SCHEDULER_CONTAINER = "cinder-scheduler"
 
 
-class CinderOperatorCharm(CharmBase):
-    """Charm the service."""
+class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
 
-    _stored = StoredState()
+    def init_service(self, context) -> None:
+        """Enable and start WSGI service"""
+        container = self.charm.unit.get_container(self.container_name)
+        self.write_config(context)
+        try:
+            sunbeam_cprocess.check_output(
+                container,
+                (f'a2disconf cinder-wsgi; a2ensite {self.wsgi_service_name} '
+                 '&& sleep 1'))
+        except sunbeam_cprocess.ContainerProcessError:
+            logger.exception(
+                f'Failed to enable {self.wsgi_service_name} site in apache')
+            # ignore for now - pebble is raising an exited too quickly, but it
+            # appears to work properly.
+        self.start_wsgi()
+        self._state.service_ready = True
 
-    def __init__(self, *args):
-        super().__init__(*args)
 
-        self.framework.observe(self.on.cinder_api_pebble_ready,
-                               self._on_cinder_api_pebble_ready)
-        self.framework.observe(self.on.cinder_scheduler_pebble_ready,
-                               self._on_cinder_scheduler_pebble_ready)
+class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
 
-        self.framework.observe(self.on.config_changed,
-                               self._on_config_changed)
+    def start_service(self):
+        container = self.charm.unit.get_container(self.container_name)
+        if not container:
+            logger.debug(f'{self.container_name} container is not ready. '
+                         'Cannot start service.')
+            return
+        service = container.get_service(self.service_name)
+        if service.is_running():
+            container.stop(self.service_name)
 
-        # Register the database consumer and register for events
-        self.db = MySQLConsumer(self, 'cinder-db', {"mysql": ">=8"})
-        self.framework.observe(self.on.cinder_db_relation_changed,
-                               self._on_database_changed)
+        container.start(self.service_name)
 
-        # Access to API service from outside of K8S
-        self.ingress_public = IngressRequires(self, {
-            'service-hostname': self.model.config['os-public-hostname'],
-            'service-name': self.app.name,
-            'service-port': CINDER_API_PORT,
-        })
+    def get_layer(self):
+        """Apache service
 
-        self._stored.set_default(db_ready=False)
-        self._stored.set_default(amqp_ready=False)
-        self._stored.set_default(identity_ready=False)
-
-        # TODO
-        # Register AMQP consumer + events
-        # Register Identity Service consumer + events
-
-        # TODO
-        # State modelling
-        # DB & AMQP & Identity -> API and Scheduler
-        # Store URL's etc on _changed events?
-
-    @property
-    def _pebble_cinder_api_layer(self):
-        """Pebble layer for Cinder API"""
-        return {
-            "summary": "cinder layer",
-            "description": "pebble configuration for cinder services",
-            "services": {
-                "cinder-api": {
-                    "override": "replace",
-                    "summary": "Cinder API",
-                    "command": "/usr/sbin/apache2ctl -DFOREGROUND",
-                    "startup": "enabled"
-                }
-            }
-        }
-
-    @property
-    def _pebble_cinder_scheduler_layer(self):
-        """Pebble layer for Cinder Scheduler"""
+        :returns: pebble layer configuration for wsgi services
+        :rtype: dict
+        """
         return {
             "summary": "cinder layer",
             "description": "pebble configuration for cinder services",
@@ -92,38 +74,123 @@ class CinderOperatorCharm(CharmBase):
             }
         }
 
-    def _on_cinder_api_pebble_ready(self, event):
-        """Define and start a workload using the Pebble API."""
-        container = event.workload
-        container.add_layer("cinder-api", self._pebble_cinder_api_layer, combine=True)
-        container.autostart()
+    def init_service(self, context):
+        self.write_config(context)
+#        container = self.charm.unit.get_container(self.container_name)
+#        try:
+#            sunbeam_cprocess.check_output(
+#                container,
+#                f'a2ensite {self.wsgi_service_name} && sleep 1')
+#        except sunbeam_cprocess.ContainerProcessError:
+#            logger.exception(
+#                f'Failed to enable {self.wsgi_service_name} site in apache')
+#            # ignore for now - pebble is raising an exited too quickly, but it
+#            # appears to work properly.
+        self.start_service()
+        self._state.service_ready = True
 
-    def _on_cinder_scheduler_pebble_ready(self, event):
-        """Define and start a workload using the Pebble API."""
-        container = event.workload
-        container.add_layer("cinder-scheduler", self._pebble_cinder_scheduler_layer, combine=True)
-        container.autostart()
+    def default_container_configs(self):
+        return [
+            sunbeam_core.ContainerConfigFile(
+                [self.container_name],
+                '/etc/cinder/cinder.conf',
+                'cinder',
+                'cinder')]
 
-    def _on_config_changed(self, _):
-        """Just an example to show how to deal with changed configuration"""
-        # TODO
-        # Set debug logging and restart services
-        pass
 
-    def _on_database_ready(self, event):
-        """Database ready for use"""
-        # TODO
-        # Run sync process if on lead unit
-        pass
+class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
+    """Charm the service."""
 
-    def _on_amqp_ready(self, event):
-        """AMQP service ready for use"""
-        pass
+    _state = StoredState()
+    _authed = False
+    service_name = "cinder"
+    wsgi_admin_script = '/usr/bin/cinder-wsgi-admin'
+    wsgi_public_script = '/usr/bin/cinder-wsgi-public'
 
-    def _on_identity_service_ready(self, event):
-        """Identity service ready for use"""
-        pass
+    def __init__(self, framework):
+        super().__init__(framework)
+        self._state.set_default(admin_domain_name='admin_domain')
+        self._state.set_default(admin_domain_id=None)
+        self._state.set_default(default_domain_id=None)
+        self._state.set_default(service_project_id=None)
 
+    @property
+    def service_endpoints(self):
+        return [
+            {
+                'service_name': 'cinderv2',
+                'type': 'volumev2',
+                'description': "Cinder Volume Service v2",
+                'internal_url': f'{self.internal_url}/v2/$(tenant_id)s',
+                'public_url': f'{self.public_url}/v2/$(tenant_id)s',
+                'admin_url': f'{self.admin_url}/v2/$(tenant_id)s'},
+            {
+                'service_name': 'cinderv3',
+                'type': 'volumev3',
+                'description': "Cinder Volume Service v3",
+                'internal_url': f'{self.internal_url}/v3/$(tenant_id)s',
+                'public_url': f'{self.public_url}/v3/$(tenant_id)s',
+                'admin_url': f'{self.admin_url}/v3/$(tenant_id)s'}]
+
+    def get_pebble_handlers(self):
+        pebble_handlers = [
+            CinderWSGIPebbleHandler(
+                self,
+                CINDER_API_CONTAINER,
+                self.service_name,
+                self.container_configs,
+                self.template_dir,
+                self.openstack_release,
+                self.configure_charm,
+                f'wsgi-{self.service_name}'),
+            CinderSchedulerPebbleHandler(
+                self,
+                CINDER_SCHEDULER_CONTAINER,
+                'cinder-scheduler',
+                [],
+                self.template_dir,
+                self.openstack_release,
+                self.configure_charm)]
+        return pebble_handlers
+
+    @property
+    def default_public_ingress_port(self):
+        return 8776
+
+    @property
+    def wsgi_container_name(self):
+        return CINDER_API_CONTAINER
+
+    def _do_bootstrap(self):
+        """
+        Starts the appropriate services in the order they are needed.
+        If the service has not yet been bootstrapped, then this will
+         1. Create the database
+        """
+        super()._do_bootstrap()
+        try:
+            container = self.unit.get_container(CINDER_SCHEDULER_CONTAINER)
+            logger.info("Syncing database...")
+            out = sunbeam_cprocess.check_output(
+                container,
+                [
+                    'sudo', '-u', 'cinder',
+                    'cinder-manage', '--config-dir',
+                    '/etc/cinder', 'db', 'sync'],
+                service_name='keystone-db-sync',
+                timeout=180)
+            logging.debug(f'Output from database sync: \n{out}')
+        except sunbeam_cprocess.ContainerProcessError:
+            logger.exception('Failed to bootstrap')
+            self._state.bootstrapped = False
+            return
+
+
+class CinderVictoriaOperatorCharm(CinderOperatorCharm):
+
+    openstack_release = 'victoria'
 
 if __name__ == "__main__":
-    main(CinderOperatorCharm)
+    # Note: use_juju_for_storage=True required per
+    # https://github.com/canonical/operator/issues/506
+    main(CinderVictoriaOperatorCharm, use_juju_for_storage=True)
