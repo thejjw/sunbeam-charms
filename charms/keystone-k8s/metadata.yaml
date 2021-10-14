@@ -23,7 +23,7 @@ provides:
     interface: keystone
 
 requires:
-  keystone-db:
+  shared-db:
     interface: mysql_datastore
     limit: 1
   ingress:

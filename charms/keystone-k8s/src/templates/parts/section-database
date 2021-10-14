@@ -1,6 +1,6 @@
 [database]
-{% if keystone_db.database_host -%}
-connection = {{ keystone_db.database_type }}://{{ keystone_db.database_user }}:{{ keystone_db.database_password }}@{{ keystone_db.database_host }}/{{ keystone_db.database }}{% if keystone_db.database_ssl_ca %}?ssl_ca={{ keystone_db.database_ssl_ca }}{% if keystone_db.database_ssl_cert %}&ssl_cert={{ keystone_db.database_ssl_cert }}&ssl_key={{ keystone_db.database_ssl_key }}{% endif %}{% endif %}
+{% if shared_db.database_host -%}
+connection = {{ shared_db.database_type }}://{{ shared_db.database_user }}:{{ shared_db.database_password }}@{{ shared_db.database_host }}/{{ shared_db.database }}{% if shared_db.database_ssl_ca %}?ssl_ca={{ shared_db.database_ssl_ca }}{% if shared_db.database_ssl_cert %}&ssl_cert={{ shared_db.database_ssl_cert }}&ssl_key={{ shared_db.database_ssl_key }}{% endif %}{% endif %}
 {% else -%}
 connection = sqlite:////var/lib/keystone/keystone.db
 {% endif -%}
