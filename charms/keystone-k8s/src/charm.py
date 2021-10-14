@@ -26,8 +26,7 @@ import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
 import advanced_sunbeam_openstack.config_contexts as sunbeam_contexts
 import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
-import charms.sunbeam_identity_service_operator.v0.identity_service \
-    as sunbeam_id_svc
+import charms.sunbeam_keystone_operator.v0.identity_service as sunbeam_id_svc
 
 logger = logging.getLogger(__name__)
 
