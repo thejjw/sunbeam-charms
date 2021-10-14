@@ -76,14 +76,14 @@ class IdentityServiceClientCharm(CharmBase):
 """
 
 # The unique Charmhub library identifier, never change it
-# LIBID = ""
+LIBID = "6a7cb19b98314ecf916e3fcb02708608"
 
 # Increment this major API version when introducing breaking changes
 LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 3
+LIBPATCH = 1
 
 import json
 import logging
