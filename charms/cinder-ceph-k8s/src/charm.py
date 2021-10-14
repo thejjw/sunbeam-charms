@@ -29,6 +29,8 @@ import advanced_sunbeam_openstack.core as core
 import advanced_sunbeam_openstack.charm as charm
 import advanced_sunbeam_openstack.relation_handlers as relation_handlers
 import advanced_sunbeam_openstack.config_contexts as config_contexts
+import advanced_sunbeam_openstack.container_handlers as container_handlers
+import advanced_sunbeam_openstack.cprocess as cprocess
 
 logger = logging.getLogger(__name__)
 
@@ -196,6 +198,11 @@ class CephClientHandler(relation_handlers.RelationHandler):
         """Handler ready for use."""
         return self.interface.pools_available
 
+    @property
+    def key(self) -> str:
+        """Retrieve the cephx key provided for the application"""
+        return self.interface.get_relation_data().get('key')
+
     def context(self) -> dict:
         ctxt = super().context()
         data = self.interface.get_relation_data()
@@ -206,6 +213,26 @@ class CephClientHandler(relation_handlers.RelationHandler):
         ctxt['key'] = data.get("key")
         ctxt['rbd_features'] = None
         return ctxt
+
+
+class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
+    def get_layer(self) -> dict:
+        """cinder-volume service pebble layer
+
+        :returns: pebble layer configuration for cinder-volume service
+        """
+        return {
+            'summary': f'{self.service_name} layer',
+            'description': 'pebble config layer for cinder-volume service',
+            'services': {
+                self.service_name: {
+                    'override': 'replace',
+                    'summary': self.service_name,
+                    'command': f'{self.service_name} --use-syslog',
+                    'startup': 'disabled',
+                },
+            },
+        }
 
 
 class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
@@ -232,6 +259,18 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
         )
         handlers.append(self.ceph)
         return handlers
+
+    def get_pebble_handlers(self) -> List[container_handlers.PebbleHandler]:
+        """Pebble handlers for the operator."""
+        return [
+            CinderVolumePebbleHandler(
+                self,
+                self.service_name,
+                self.service_name,
+                self.container_configs,
+                self.template_dir,
+                self.openstack_release,
+                self.configure_charm)]
 
     @property
     def config_contexts(self) -> List[config_contexts.ConfigContext]:
@@ -271,6 +310,17 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
 
         for ph in self.pebble_handlers:
             if ph.pebble_ready:
+                container = self.unit.get_container(
+                    ph.container_name
+                )
+                cprocess.check_call(
+                    container,
+                    ['ceph-authtool',
+                     f'/etc/ceph/ceph.client.{self.app.name}.keyring',
+                     '--create-keyring',
+                     f'--name=client.{self.app.name}',
+                     f'--add-key={self.ceph.key}']
+                )
                 ph.init_service(self.contexts())
 
         for ph in self.pebble_handlers:

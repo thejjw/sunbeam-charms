@@ -1,6 +1,6 @@
 ###############################################################################
 # [ WARNING ]
-# cinder-volume configuration file maintained by Juju
+# cinder-volume configuration file maintained by cinder-ceph-operator
 # local changes will be overwritten.
 ###############################################################################
 [DEFAULT]
@@ -14,6 +14,12 @@ state_path = /var/lib/cinder
 {% if amqp.transport_url %}
 transport_url = {{ amqp.transport_url }}
 {% endif %}
+
+[database]
+{% if shared_db.database_host -%}
+connection = {{ shared_db.database_type }}://{{ shared_db.database_user }}:{{ shared_db.database_password }}@{{ shared_db.database_host }}/{{ shared_db.database }}{% if shared_db.database_ssl_ca %}?ssl_ca={{ shared_db.database_ssl_ca }}{% if shared_db.database_ssl_cert %}&ssl_cert={{ shared_db.database_ssl_cert }}&ssl_key={{ shared_db.database_ssl_key }}{% endif %}{% endif %}
+{% endif -%}
+connection_recycle_time = 200
 
 [{{ cinder_ceph.backend_name }}]
 volume_driver = cinder.volume.drivers.rbd.RBDDriver

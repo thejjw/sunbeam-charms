@@ -18,18 +18,20 @@ tags:
 
 containers:
   cinder-volume:
-    resource: cinder-base
+    resource: cinder-volume
 
 resources:
-  cinder-base:
+  cinder-volume:
     type: oci-image
-    description: OCI image for OpenStack Cinder (kolla/cinder-base)
+    description: OCI image for OpenStack Cinder (kolla/cinder-volume)
 
 requires:
   amqp:
     interface: rabbitmq
   ceph:
     interface: ceph-client
+  shared-db:
+    interface: mysql_datastore
 
 provides:
   ceph-access:
