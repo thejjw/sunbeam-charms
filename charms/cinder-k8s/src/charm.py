@@ -14,6 +14,8 @@ import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
 
+from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
+
 logger = logging.getLogger(__name__)
 
 CINDER_API_PORT = 8090
@@ -113,6 +115,12 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self._state.set_default(admin_domain_id=None)
         self._state.set_default(default_domain_id=None)
         self._state.set_default(service_project_id=None)
+        self.service_patcher = KubernetesServicePatch(
+            self,
+            [
+                ('public', 8776),
+            ]
+        )
 
     @property
     def service_endpoints(self):
