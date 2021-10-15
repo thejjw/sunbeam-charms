@@ -25,6 +25,9 @@ CINDER_SCHEDULER_CONTAINER = "cinder-scheduler"
 
 class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
 
+    def start_service(self):
+        pass
+
     def init_service(self, context) -> None:
         """Enable and start WSGI service"""
         container = self.charm.unit.get_container(self.container_name)
@@ -192,6 +195,13 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             logger.exception('Failed to bootstrap')
             self._state.bootstrapped = False
             return
+
+    def configure_charm(self, event) -> None:
+        super().configure_charm(event)
+        # Restarting services after bootstrap should be in aso
+        if self._state.bootstrapped:
+            for handler in self.pebble_handlers:
+                handler.start_service()
 
 
 class CinderVictoriaOperatorCharm(CinderOperatorCharm):
