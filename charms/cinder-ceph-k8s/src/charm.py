@@ -84,7 +84,7 @@ class CephClientHandler(relation_handlers.RelationHandler):
         allow_ec_overwrites: bool = True,
         app_name: str = None
     ):
-        self.allow_ec_overwrite = allow_ec_overwrites
+        self.allow_ec_overwrites = allow_ec_overwrites
         self.app_name = app_name
         super().__init__(charm, relation_name, callback_f)
 
@@ -302,6 +302,11 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
             ]
         )
         return _cconfigs
+
+    @property
+    def databases(self) -> List[str]:
+        """Provide database name for cinder services"""
+        return ['cinder']
 
     def configure_charm(self, event) -> None:
         """Catchall handler to cconfigure charm services."""
