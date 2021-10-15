@@ -179,6 +179,11 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return _cconfigs
 
     def register_service(self, event):
+        if not self._state.bootstrapped:
+            event.defer()
+            return
+        if not self.unit.is_leader:
+            return
         service_domain = self.keystone_manager.create_domain(
             name='service_domain',
             may_exist=True)
