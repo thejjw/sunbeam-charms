@@ -6,4 +6,4 @@ build/
 .coverage
 __pycache__/
 *.py[cod]
-lib/charms/sunbeam_rabbitmq_operator/
+lib/charms/

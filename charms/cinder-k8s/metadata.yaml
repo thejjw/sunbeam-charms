@@ -30,7 +30,7 @@ resources:
     description: OCI image for OpenStack Cinder (kolla/cinder-api-image)
 
 requires:
-  cinder-db:
+  shared-db:
     interface: mysql_datastore
     limit: 1
   ingress:
