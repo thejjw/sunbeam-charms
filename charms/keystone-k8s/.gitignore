@@ -9,6 +9,3 @@ __pycache__/
 *.py[cod]
 **.swp
 .stestr/
-lib/charms/sunbeam_rabbitmq_operator
-lib/charms/sunbeam_mysql_k8s
-lib/charms/nginx_ingress_integrator
