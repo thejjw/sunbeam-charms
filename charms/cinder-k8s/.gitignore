@@ -6,4 +6,3 @@ build/
 .coverage
 __pycache__/
 *.py[cod]
-lib/charms/
