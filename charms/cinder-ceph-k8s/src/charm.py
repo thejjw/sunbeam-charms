@@ -65,6 +65,7 @@ class CinderCephConfigurationContext(config_contexts.ConfigContext):
         # TODO:
         # secret_uuid needs to be generated and shared for the app
         return {
+            'cluster_name': self.charm.app.name,
             'rbd_pool': pool_name,
             'rbd_user': self.charm.app.name,
             'backend_name': backend_name,

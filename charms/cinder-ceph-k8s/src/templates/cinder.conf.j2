@@ -16,6 +16,7 @@ transport_url = {{ amqp.transport_url }}
 {% endif %}
 
 enabled_backends = {{ cinder_ceph.backend_name }}
+cluster = {{ cinder_ceph.cluster_name }}
 
 [database]
 {% if shared_db.database_host -%}
