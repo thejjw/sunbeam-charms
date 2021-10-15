@@ -28,7 +28,8 @@ import advanced_sunbeam_openstack.config_contexts as sunbeam_contexts
 import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
 import charms.sunbeam_keystone_operator.v0.identity_service as sunbeam_id_svc
 
-from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
+from charms.observability_libs.v0.kubernetes_service_patch \
+    import KubernetesServicePatch
 
 
 logger = logging.getLogger(__name__)
@@ -184,6 +185,11 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             return
         if not self.unit.is_leader:
             return
+        relation = self.model.get_relation(
+            event.relation_name,
+            event.relation_id)
+        binding = self.framework.model.get_binding(relation)
+        ingress_address = str(binding.network.ingress_address)
         service_domain = self.keystone_manager.create_domain(
             name='service_domain',
             may_exist=True)
@@ -224,13 +230,13 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 event.relation_name,
                 event.relation_id,
                 'v3',
-                self.app.name,
+                ingress_address,
                 self.default_public_ingress_port,
                 'http',
-                self.app.name,
+                ingress_address,
                 self.default_public_ingress_port,
                 'http',
-                self.app.name,
+                ingress_address,
                 self.default_public_ingress_port,
                 'http',
                 admin_domain,
