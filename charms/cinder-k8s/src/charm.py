@@ -129,6 +129,9 @@ class StorageBackendRequiresHandler(sunbeam_rhandlers.RelationHandler):
         # that the relation is complete (indicated by a password)
         self.callback_f(event)
 
+    def set_ready(self) -> None:
+        return self.interface.set_ready()
+
     @property
     def ready(self) -> bool:
         return True

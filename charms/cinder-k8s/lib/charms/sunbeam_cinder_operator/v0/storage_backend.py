@@ -108,7 +108,6 @@ class StorageBackendRequires(Object):
         """StorageBackend relation joined."""
         logging.debug("RabbitMQStorageBackendRequires on_joined")
         self.on.connected.emit()
-        self.request_access(self.username, self.vhost)
 
     def _on_storage_backend_relation_changed(self, event):
         """StorageBackend relation changed."""
@@ -170,12 +169,15 @@ class StorageBackendProvides(Object):
         """Handle StorageBackend joined."""
         logging.debug("StorageBackendProvides on_joined")
 
+    def remote_ready(self):
+        relation = self.framework.model.get_relation(self.relation_name)
+        ready = relation.data[relation.app].get("ready")
+        return ready and json.loads(ready)
+
     def _on_storage_backend_relation_changed(self, event):
         """Handle StorageBackend changed."""
         logging.debug("StorageBackendProvides on_changed")
-        relation = self.framework.model.get_relation(self.relation_name)
-        ready = relation.data[relation.app].get("ready")
-        if ready and json.loads(ready):
+        if self.remote_ready():
             self.on.api_ready.emit()
 
     def _on_storage_backend_relation_broken(self, event):
