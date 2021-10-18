@@ -32,6 +32,11 @@ import advanced_sunbeam_openstack.config_contexts as config_contexts
 import advanced_sunbeam_openstack.container_handlers as container_handlers
 import advanced_sunbeam_openstack.cprocess as cprocess
 
+import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
+
+import charms.sunbeam_cinder_operator.v0.storage_backend \
+    as sunbeam_storage_backend
+
 logger = logging.getLogger(__name__)
 
 ERASURE_CODED = "erasure-coded"
@@ -216,6 +221,31 @@ class CephClientHandler(relation_handlers.RelationHandler):
         return ctxt
 
 
+class StorageBackendProvidesHandler(sunbeam_rhandlers.RelationHandler):
+
+    def setup_event_handler(self):
+        """Configure event handlers for an Identity service relation."""
+        logger.debug("Setting up Identity Service event handler")
+        sb_svc = sunbeam_storage_backend.StorageBackendProvides(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            sb_svc.on.api_ready,
+            self._on_ready)
+        return sb_svc
+
+    def _on_ready(self, event) -> None:
+        """Handles AMQP change events."""
+        # Ready is only emitted when the interface considers
+        # that the relation is complete (indicated by a password)
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        return self.interface.remote_ready()
+
+
 class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
     def get_layer(self) -> dict:
         """cinder-volume service pebble layer
@@ -248,6 +278,10 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
     cinder_conf = "/etc/cinder/cinder.conf"
     ceph_conf = "/etc/ceph/ceph.conf"
 
+    def __init__(self, framework):
+        super().__init__(framework)
+        self._state.set_default(api_ready=False)
+
     def get_relation_handlers(self) -> List[relation_handlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = super().get_relation_handlers()
@@ -259,6 +293,11 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
             app_name='rbd'
         )
         handlers.append(self.ceph)
+        self.sb_svc = StorageBackendProvidesHandler(
+            self,
+            'storage-backend',
+            self.api_ready)
+        handlers.append(self.sb_svc)
         return handlers
 
     def get_pebble_handlers(self) -> List[container_handlers.PebbleHandler]:
@@ -272,6 +311,13 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
                 self.template_dir,
                 self.openstack_release,
                 self.configure_charm)]
+
+    def api_ready(self, event) -> None:
+        self._state.api_ready = True
+        self.configure_charm(event)
+        if self._state.bootstrapped:
+            for handler in self.pebble_handlers:
+                handler.start_service()
 
     @property
     def config_contexts(self) -> List[config_contexts.ConfigContext]:
