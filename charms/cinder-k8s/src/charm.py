@@ -5,6 +5,7 @@ This charm provide Cinder services as part of an OpenStack deployment
 """
 
 import logging
+from typing import List
 
 from ops.framework import StoredState
 from ops.main import main
@@ -13,8 +14,13 @@ import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
 import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
+import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
 
-from charms.observability_libs.v0.kubernetes_service_patch import KubernetesServicePatch
+import charms.sunbeam_cinder_operator.v0.storage_backend \
+    as sunbeam_storage_backend
+
+from charms.observability_libs.v0.kubernetes_service_patch \
+    import KubernetesServicePatch
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +109,34 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
                 'cinder')]
 
 
+class StorageBackendRequiresHandler(sunbeam_rhandlers.RelationHandler):
+
+    def setup_event_handler(self):
+        """Configure event handlers for an Identity service relation."""
+        logger.debug("Setting up Identity Service event handler")
+        sb_svc = sunbeam_storage_backend.StorageBackendRequires(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            sb_svc.on.ready,
+            self._on_ready)
+        return sb_svc
+
+    def _on_ready(self, event) -> None:
+        """Handles AMQP change events."""
+        # Ready is only emitted when the interface considers
+        # that the relation is complete (indicated by a password)
+        self.callback_f(event)
+
+    def set_ready(self) -> None:
+        return self.interface.set_ready()
+
+    @property
+    def ready(self) -> bool:
+        return True
+
+
 class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
@@ -124,6 +158,19 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 ('public', 8776),
             ]
         )
+
+    def get_relation_handlers(self, handlers=None) -> List[
+            sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = handlers or []
+        if self.can_add_handler('storage-backend', handlers):
+            self.sb_svc = StorageBackendRequiresHandler(
+                self,
+                'storage-backend',
+                self.configure_charm)
+            handlers.append(self.sb_svc)
+        handlers = super().get_relation_handlers(handlers)
+        return handlers
 
     @property
     def service_endpoints(self):
@@ -202,6 +249,8 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if self._state.bootstrapped:
             for handler in self.pebble_handlers:
                 handler.start_service()
+            # Tell storage backends we are ready
+            self.sb_svc.set_ready()
 
 
 class CinderVictoriaOperatorCharm(CinderOperatorCharm):
