@@ -265,6 +265,23 @@ class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
             },
         }
 
+    def start_service(self):
+        container = self.charm.unit.get_container(self.container_name)
+        if not container:
+            logger.debug(f'{self.container_name} container is not ready. '
+                         'Cannot start service.')
+            return
+        service = container.get_service(self.service_name)
+        if service.is_running():
+            container.stop(self.service_name)
+
+        container.start(self.service_name)
+
+    def init_service(self, context):
+        self.write_config(context)
+        self.start_service()
+        self._state.service_ready = True
+
 
 class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
     """Cinder/Ceph Operator charm"""
