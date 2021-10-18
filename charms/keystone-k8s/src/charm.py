@@ -205,6 +205,9 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             name=self.model.config['admin-user'],
             project=admin_project,
             domain=admin_domain)
+        admin_role = self.keystone_manager.create_role(
+            name=self.admin_role,
+            may_exist=True)
         for ep_data in event.service_endpoints:
             service_username = 'svc_{}'.format(
                 event.client_app_name.replace('-', '_'))
@@ -213,6 +216,11 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 name=service_username,
                 password=service_password,
                 domain=service_domain.id,
+                may_exist=True)
+            self.keystone_manager.grant_role(
+                role=admin_role,
+                user=service_user,
+                project=service_project,
                 may_exist=True)
             service = self.keystone_manager.create_service(
                 name=ep_data['service_name'],
