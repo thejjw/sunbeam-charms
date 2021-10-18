@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
 import sys
 
 sys.path.append('lib')  # noqa
@@ -23,6 +22,7 @@ sys.path.append('src')  # noqa
 from ops.testing import Harness
 
 import charm
+import advanced_sunbeam_openstack.test_utils as test_utils
 
 
 class _CinderVictoriaOperatorCharm(charm.CinderVictoriaOperatorCharm):
@@ -50,9 +50,14 @@ class _CinderVictoriaOperatorCharm(charm.CinderVictoriaOperatorCharm):
         self._log_event(event)
 
 
-class TestCinderOperatorCharm(unittest.TestCase):
+class TestCinderOperatorCharm(test_utils.CharmTestCase):
+
+    PATCHES = [
+        'KubernetesServicePatch'
+    ]
 
     def setUp(self):
+        super().setUp(charm, self.PATCHES)
         self.harness = Harness(_CinderVictoriaOperatorCharm)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
