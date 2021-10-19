@@ -310,18 +310,18 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def admin_endpoint(self):
         admin_hostname = self.model.config['os-admin-hostname']
         admin_port = self.model.config['admin-port']
-        return f'http://{admin_hostname}:{admin_port}/v3'
+        return f'http://{admin_hostname}:{admin_port}'
 
     @property
     def internal_endpoint(self):
         internal_hostname = self.model.config['os-internal-hostname']
         service_port = self.model.config['service-port']
-        return f'http://{internal_hostname}:{service_port}/v3'
+        return f'http://{internal_hostname}:{service_port}'
 
     @property
     def public_endpoint(self):
         public_hostname = self.model.config['os-public-hostname']
-        return f'http://{public_hostname}:5000/v3'
+        return f'http://{public_hostname}:5000'
 
     def _do_bootstrap(self):
         """
