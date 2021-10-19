@@ -4,7 +4,7 @@ This is a placeholder docstring for this charm library. Docstrings are
 presented on Charmhub and updated whenever you push a new version of the
 library.
 
-Complete documentation about creating and documenting libraries can be found 
+Complete documentation about creating and documenting libraries can be found
 in the SDK docs at https://juju.is/docs/sdk/libraries.
 
 See `charmcraft publish-lib` and `charmcraft fetch-lib` for details of how to
@@ -106,25 +106,26 @@ class StorageBackendRequires(Object):
 
     def _on_storage_backend_relation_joined(self, event):
         """StorageBackend relation joined."""
-        logging.debug("RabbitMQStorageBackendRequires on_joined")
+        logging.debug("StorageBackendRequires on_joined")
         self.on.connected.emit()
 
     def _on_storage_backend_relation_changed(self, event):
         """StorageBackend relation changed."""
-        logging.debug("RabbitMQStorageBackendRequires on_changed")
+        logging.debug("StorageBackendRequires on_changed")
         self.on.ready.emit()
 
     def _on_storage_backend_relation_broken(self, event):
         """StorageBackend relation broken."""
-        logging.debug("RabbitMQStorageBackendRequires on_broken")
+        logging.debug("StorageBackendRequires on_broken")
         self.on.goneaway.emit()
 
     def set_ready(self) -> None:
         """Request access to the StorageBackend server."""
         if self.model.unit.is_leader():
-            logging.debug("Requesting StorageBackend user and vhost")
-            relation = self.framework.model.get_relation(self.relation_name)
-            if relation:
+            logging.debug(
+                "Signalling storage backends that core services are ready"
+            )
+            for relation in self.framework.model.relations[self.relation_name]:
                 relation.data[self.charm.app]["ready"] = 'true'
 
 
