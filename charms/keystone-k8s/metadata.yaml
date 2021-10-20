@@ -29,7 +29,6 @@ requires:
   ingress:
     interface: ingress
 
-
 peers:
   peers:
     interface: keystone-peer
@@ -37,17 +36,6 @@ peers:
 containers:
   keystone:
     resource: keystone-image
-    mounts:
-      - storage: logs
-        location: /var/log/kolla/keystone
-      - storage: db
-        location: /var/lib/keystone
-
-storage:
-  logs:
-    type: filesystem
-  db:
-    type: filesystem
 
 resources:
   keystone-image:
