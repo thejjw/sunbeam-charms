@@ -22,6 +22,7 @@ sys.path.append('src')  # noqa
 from ops.testing import Harness
 
 import charm
+import mock
 import advanced_sunbeam_openstack.test_utils as test_utils
 
 
@@ -53,16 +54,56 @@ class _KeystoneVictoriaOperatorCharm(charm.KeystoneVictoriaOperatorCharm):
 class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
 
     PATCHES = [
-        'KubernetesServicePatch'
+        'KubernetesServicePatch',
+        'manager'
     ]
 
     def setUp(self):
+        self.container_calls = {
+            'push': {},
+            'pull': [],
+            'remove_path': []}
+
         super().setUp(charm, self.PATCHES)
-        self.harness = Harness(_KeystoneVictoriaOperatorCharm)
+        self.km_mock = mock.MagicMock()
+        self.manager.KeystoneManager.return_value = self.km_mock
+        self.harness = test_utils.get_harness(
+            _KeystoneVictoriaOperatorCharm,
+            container_calls=self.container_calls)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
+
 
     def test_pebble_ready_handler(self):
         self.assertEqual(self.harness.charm.seen_events, [])
         self.harness.container_pebble_ready('keystone')
         self.assertEqual(self.harness.charm.seen_events, ['PebbleReadyEvent'])
+
+    def test_leader_bootstraps(self):
+        self.harness.set_leader()
+        rel_id = self.harness.add_relation('peers', 'keystone')
+        self.harness.add_relation_unit(
+           rel_id,
+            'keystone/1')
+        self.harness.container_pebble_ready('keystone')
+        test_utils.add_db_relation_credentials(
+            self.harness,
+            test_utils.add_base_db_relation(self.harness))
+        container = self.harness.charm.unit.get_container(
+            self.harness.charm.wsgi_container_name)
+        self.km_mock.setup_keystone.assert_called_once_with(
+            container) 
+        self.km_mock.setup_initial_projects_and_users.assert_called_once_with() 
+
+    def test_non_leader_no_bootstraps(self):
+        self.harness.set_leader(False)
+        rel_id = self.harness.add_relation('peers', 'keystone')
+        self.harness.add_relation_unit(
+            rel_id,
+            'keystone/1')
+        self.harness.container_pebble_ready('keystone')
+        test_utils.add_db_relation_credentials(
+            self.harness,
+            test_utils.add_base_db_relation(self.harness))
+        self.assertFalse(
+            self.km_mock.setup_keystone.called)
