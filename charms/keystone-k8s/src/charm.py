@@ -183,7 +183,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if not self._state.bootstrapped:
             event.defer()
             return
-        if not self.unit.is_leader:
+        if not self.unit.is_leader():
             return
         relation = self.model.get_relation(
             event.relation_name,
@@ -332,14 +332,15 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
          3. Setup the fernet tokens
         """
         super()._do_bootstrap()
-        try:
-            container = self.unit.get_container(self.wsgi_container_name)
-            self.keystone_manager.setup_keystone(container)
-        except sunbeam_cprocess.ContainerProcessError:
-            logger.exception('Failed to bootstrap')
-            self._state.bootstrapped = False
-            return
-        self.keystone_manager.setup_initial_projects_and_users()
+        if self.unit.is_leader():
+            try:
+                container = self.unit.get_container(self.wsgi_container_name)
+                self.keystone_manager.setup_keystone(container)
+            except sunbeam_cprocess.ContainerProcessError:
+                logger.exception('Failed to bootstrap')
+                self._state.bootstrapped = False
+                return
+            self.keystone_manager.setup_initial_projects_and_users()
         self.unit.status = model.MaintenanceStatus('Starting Keystone')
 
 
