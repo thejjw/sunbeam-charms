@@ -344,11 +344,11 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self.unit.status = model.MaintenanceStatus('Starting Keystone')
 
 
-class KeystoneVictoriaOperatorCharm(KeystoneOperatorCharm):
+class KeystoneWallabyOperatorCharm(KeystoneOperatorCharm):
 
-    openstack_release = 'victoria'
+    openstack_release = 'wallaby'
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(KeystoneVictoriaOperatorCharm, use_juju_for_storage=True)
+    main(KeystoneWallabyOperatorCharm, use_juju_for_storage=True)
