@@ -400,10 +400,10 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
         self.unit.status = ActiveStatus()
 
 
-class CinderCephVictoriaOperatorCharm(CinderCephOperatorCharm):
+class CinderCephWallabyOperatorCharm(CinderCephOperatorCharm):
 
-    openstack_release = "victoria"
+    openstack_release = "wallaby"
 
 
 if __name__ == "__main__":
-    main(CinderCephVictoriaOperatorCharm, use_juju_for_storage=True)
+    main(CinderCephWallabyOperatorCharm, use_juju_for_storage=True)
