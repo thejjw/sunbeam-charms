@@ -18,10 +18,10 @@ tags:
 
 containers:
   cinder-volume:
-    resource: cinder-volume
+    resource: cinder-volume-image
 
 resources:
-  cinder-volume:
+  cinder-volume-image:
     type: oci-image
     description: OCI image for OpenStack Cinder (kolla/cinder-volume)
 
