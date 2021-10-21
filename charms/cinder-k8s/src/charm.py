@@ -253,11 +253,11 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self.sb_svc.set_ready()
 
 
-class CinderVictoriaOperatorCharm(CinderOperatorCharm):
+class CinderWallabyOperatorCharm(CinderOperatorCharm):
 
-    openstack_release = 'victoria'
+    openstack_release = 'wallaby'
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(CinderVictoriaOperatorCharm, use_juju_for_storage=True)
+    main(CinderWallabyOperatorCharm, use_juju_for_storage=True)
