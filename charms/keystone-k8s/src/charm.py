@@ -309,12 +309,20 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def admin_endpoint(self):
         admin_hostname = self.model.config['os-admin-hostname']
+        if not admin_hostname:
+            admin_hostname = self.model.get_binding(
+                "identity-service"
+            ).network.ingress_address
         admin_port = self.model.config['admin-port']
         return f'http://{admin_hostname}:{admin_port}'
 
     @property
     def internal_endpoint(self):
         internal_hostname = self.model.config['os-internal-hostname']
+        if not internal_hostname:
+            internal_hostname = self.model.get_binding(
+                "identity-service"
+            ).network.ingress_address
         service_port = self.model.config['service-port']
         return f'http://{internal_hostname}:{service_port}'
 

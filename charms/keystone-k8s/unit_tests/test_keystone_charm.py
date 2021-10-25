@@ -19,14 +19,12 @@ import sys
 sys.path.append('lib')  # noqa
 sys.path.append('src')  # noqa
 
-from ops.testing import Harness
-
 import charm
 import mock
 import advanced_sunbeam_openstack.test_utils as test_utils
 
 
-class _KeystoneVictoriaOperatorCharm(charm.KeystoneVictoriaOperatorCharm):
+class _KeystoneWallabyOperatorCharm(charm.KeystoneWallabyOperatorCharm):
 
     def __init__(self, framework):
         self.seen_events = []
@@ -68,11 +66,10 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self.km_mock = mock.MagicMock()
         self.manager.KeystoneManager.return_value = self.km_mock
         self.harness = test_utils.get_harness(
-            _KeystoneVictoriaOperatorCharm,
+            _KeystoneWallabyOperatorCharm,
             container_calls=self.container_calls)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
-
 
     def test_pebble_ready_handler(self):
         self.assertEqual(self.harness.charm.seen_events, [])
@@ -83,7 +80,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self.harness.set_leader()
         rel_id = self.harness.add_relation('peers', 'keystone')
         self.harness.add_relation_unit(
-           rel_id,
+            rel_id,
             'keystone/1')
         self.harness.container_pebble_ready('keystone')
         test_utils.add_db_relation_credentials(
@@ -92,8 +89,8 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         container = self.harness.charm.unit.get_container(
             self.harness.charm.wsgi_container_name)
         self.km_mock.setup_keystone.assert_called_once_with(
-            container) 
-        self.km_mock.setup_initial_projects_and_users.assert_called_once_with() 
+            container)
+        self.km_mock.setup_initial_projects_and_users.assert_called_once_with()
 
     def test_non_leader_no_bootstraps(self):
         self.harness.set_leader(False)
