@@ -34,13 +34,13 @@ options:
     type: int
 
   os-admin-hostname:
-    default: keystone.juju
+    default:
     description: |
       The hostname or address of the admin endpoints that should be advertised
       in the keystone identity provider.
     type: string
   os-internal-hostname:
-    default: keystone.juju
+    default:
     description: |
       The hostname or address of the internal endpoints that should be advertised
       in the keystone identity provider.

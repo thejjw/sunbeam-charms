@@ -19,6 +19,13 @@ from ops.model import MaintenanceStatus
 from keystoneauth1 import session
 from keystoneauth1.identity import v3
 from keystoneclient.v3 import client
+from keystoneclient.v3.domains import Domain
+from keystoneclient.v3.endpoints import Endpoint
+from keystoneclient.v3.projects import Project
+from keystoneclient.v3.regions import Region
+from keystoneclient.v3.roles import Role
+from keystoneclient.v3.services import Service
+from keystoneclient.v3.users import User
 
 import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
 import advanced_sunbeam_openstack.guard as sunbeam_guard
