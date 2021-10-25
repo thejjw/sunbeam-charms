@@ -1,0 +1,28 @@
+###############################################################################
+# [ WARNING ]
+# glance configuration file maintained by Juju
+# local changes may be overwritten.
+###############################################################################
+[DEFAULT]
+debug = {{ options.debug }}
+transport_url = {{ amqp.transport_url }}
+
+{% include "parts/section-database" %}
+
+{% include "parts/section-identity" %}
+
+
+
+[glance_store]
+default_backend = ceph
+filesystem_store_datadir = /var/lib/glance/images/
+
+[ceph]
+rbd_store_chunk_size = 8
+rbd_store_pool = glance
+rbd_store_user = glance
+rados_connect_timeout = 0
+rbd_store_ceph_conf = /etc/ceph/ceph.conf
+
+[paste_deploy]
+flavor = keystone

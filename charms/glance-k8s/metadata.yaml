@@ -1,0 +1,48 @@
+# Copyright 2021 Canonical Ltd
+# See LICENSE file for licensing details.
+name: sunbeam-glance-operator
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+summary: OpenStack Image Registry and Delivery Service
+description: |
+  The Glance project provides an image registration and discovery service
+  and an image delivery service. These services are used in conjunction
+  by Nova to deliver images from object stores, such as OpenStack's Swift
+  service, to Nova's compute nodes.
+version: 3
+bases:
+  - name: ubuntu
+    channel: 20.04/stable
+tags:
+  - openstack
+  - storage
+  - misc
+
+containers:
+  glance-api:
+    resource: glance-api-image
+
+resources:
+  glance-api-image:
+    type: oci-image
+    description: OCI image for OpenStack Glance (kolla/glance-api-image)
+
+requires:
+  shared-db:
+    interface: mysql_datastore
+    limit: 1
+  ingress:
+    interface: ingress
+  identity-service:
+    interface: keystone
+    limit: 1
+  amqp:
+    interface: rabbitmq
+  image-service:
+    interface: glance
+  ceph:
+    interface: ceph-client
+
+peers:
+  peers:
+    interface: glance-peer
+
