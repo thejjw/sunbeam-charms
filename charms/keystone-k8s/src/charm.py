@@ -308,7 +308,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def admin_endpoint(self):
-        admin_hostname = self.model.config['os-admin-hostname']
+        admin_hostname = self.model.config.get('os-admin-hostname')
         if not admin_hostname:
             admin_hostname = self.model.get_binding(
                 "identity-service"
@@ -318,7 +318,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def internal_endpoint(self):
-        internal_hostname = self.model.config['os-internal-hostname']
+        internal_hostname = self.model.config.get('os-internal-hostname')
         if not internal_hostname:
             internal_hostname = self.model.get_binding(
                 "identity-service"
@@ -328,7 +328,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def public_endpoint(self):
-        public_hostname = self.model.config['os-public-hostname']
+        public_hostname = self.model.config.get('os-public-hostname')
         return f'http://{public_hostname}:5000'
 
     def _do_bootstrap(self):
