@@ -25,7 +25,10 @@ from ops.testing import Harness
 import charm
 
 
-class _CinderCephVictoriaOperatorCharm(charm.CinderCephVictoriaOperatorCharm):
+class _CinderCephOperatorCharm(charm.CinderCephOperatorCharm):
+
+    openstack_release = "wallaby"
+
     def __init__(self, framework):
         self.seen_events = []
         self.render_calls = []
@@ -59,7 +62,7 @@ class _CinderCephVictoriaOperatorCharm(charm.CinderCephVictoriaOperatorCharm):
 
 class TestCinderCephOperatorCharm(unittest.TestCase):
     def setUp(self):
-        self.harness = Harness(_CinderCephVictoriaOperatorCharm)
+        self.harness = Harness(_CinderCephOperatorCharm)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin_with_initial_hooks()
 
@@ -87,7 +90,7 @@ class TestCinderCephOperatorCharm(unittest.TestCase):
         # is correctly set
         self.assertEqual(
             self.harness.charm.amqp.interface.username,
-            self.harness.charm.service_name
+            self.harness.charm.service_name,
         )
         self.assertEqual(self.harness.charm.amqp.interface.vhost, "openstack")
         self.assertEqual(self.harness.charm.amqp.interface.password, "foobar")

@@ -15,14 +15,10 @@ of an OpenStack deployment
 
 import logging
 
-from ops.charm import Object, CharmBase
 from ops.main import main
 from ops.model import ActiveStatus
 
-from interface_ceph_client.ceph_client import CephClientRequires
-
 from typing import List
-from collections.abc import Callable
 
 # NOTE: rename sometime
 import advanced_sunbeam_openstack.core as core
@@ -34,20 +30,19 @@ import advanced_sunbeam_openstack.cprocess as cprocess
 
 import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
 
-import charms.sunbeam_cinder_operator.v0.storage_backend \
-    as sunbeam_storage_backend
+import charms.sunbeam_cinder_operator.v0.storage_backend as sunbeam_storage_backend
 
 logger = logging.getLogger(__name__)
-
-ERASURE_CODED = "erasure-coded"
-REPLICATED = "replacated"
 
 
 class CephConfigurationContext(config_contexts.ConfigContext):
     def context(self):
         config = self.charm.model.config.get
         ctxt = {}
-        if config("pool-type") and config("pool-type") == "erasure-coded":
+        if (
+            config("pool-type")
+            and config("pool-type") == sunbeam_rhandlers.ERASURE_CODED
+        ):
             base_pool_name = config("rbd-pool") or config("rbd-pool-name")
             if not base_pool_name:
                 base_pool_name = self.charm.app.name
@@ -58,171 +53,27 @@ class CephConfigurationContext(config_contexts.ConfigContext):
 class CinderCephConfigurationContext(config_contexts.ConfigContext):
     def context(self):
         config = self.charm.model.config.get
-        data_pool_name = config('rbd-pool-name') or self.charm.app.name
-        if config('pool-type') == ERASURE_CODED:
+        data_pool_name = config("rbd-pool-name") or self.charm.app.name
+        if config("pool-type") == sunbeam_rhandlers.ERASURE_CODED:
             pool_name = (
-                config('ec-rbd-metadata-pool') or
-                f"{data_pool_name}-metadata"
+                config("ec-rbd-metadata-pool") or f"{data_pool_name}-metadata"
             )
         else:
             pool_name = data_pool_name
-        backend_name = config('volume-backend-name') or self.charm.app.name
+        backend_name = config("volume-backend-name") or self.charm.app.name
         # TODO:
         # secret_uuid needs to be generated and shared for the app
         return {
-            'cluster_name': self.charm.app.name,
-            'rbd_pool': pool_name,
-            'rbd_user': self.charm.app.name,
-            'backend_name': backend_name,
-            'backend_availability_zone': config('backend-availability-zone'),
-            'secret_uuid': 'f889b537-8d4e-4445-ae32-7552073e9b7e',
+            "cluster_name": self.charm.app.name,
+            "rbd_pool": pool_name,
+            "rbd_user": self.charm.app.name,
+            "backend_name": backend_name,
+            "backend_availability_zone": config("backend-availability-zone"),
+            "secret_uuid": "f889b537-8d4e-4445-ae32-7552073e9b7e",
         }
 
 
-# TODO: -> aso
-class CephClientHandler(relation_handlers.RelationHandler):
-    def __init__(
-        self,
-        charm: CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-        allow_ec_overwrites: bool = True,
-        app_name: str = None
-    ):
-        self.allow_ec_overwrites = allow_ec_overwrites
-        self.app_name = app_name
-        super().__init__(charm, relation_name, callback_f)
-
-    def setup_event_handler(self) -> Object:
-        """Configure event handlers for an ceph-client interface."""
-        logger.debug("Setting up ceph-client event handler")
-        ceph = CephClientRequires(
-            self.charm,
-            self.relation_name,
-        )
-        self.framework.observe(
-            ceph.on.pools_available, self._on_pools_available
-        )
-        self.framework.observe(
-            ceph.on.broker_available, self.request_pools
-        )
-        return ceph
-
-    def _on_pools_available(self, event) -> None:
-        """Handles pools available event."""
-        # Ready is only emitted when the interface considers
-        # that the relation is complete
-        self.callback_f(event)
-
-    def request_pools(self, event) -> None:
-        """
-        Request Ceph pool creation when interface broker is ready.
-
-        The default handler will automatically request erasure-coded
-        or replicated pools depending on the configuration of the
-        charm from which the handler is being used.
-
-        To provide charm specific behaviour, subclass the default
-        handler and use the required broker methods on the underlying
-        interface object.
-        """
-        config = self.model.config.get
-        data_pool_name = (
-            config("rbd-pool-name") or
-            config("rbd-pool") or
-            self.charm.app.name
-        )
-        metadata_pool_name = (
-            config("ec-rbd-metadata-pool") or f"{self.charm.app.name}-metadata"
-        )
-        weight = config("ceph-pool-weight")
-        replicas = config("ceph-osd-replication-count")
-        # TODO: add bluestore compression options
-        if config("pool-type") == ERASURE_CODED:
-            # General EC plugin config
-            plugin = config("ec-profile-plugin")
-            technique = config("ec-profile-technique")
-            device_class = config("ec-profile-device-class")
-            bdm_k = config("ec-profile-k")
-            bdm_m = config("ec-profile-m")
-            # LRC plugin config
-            bdm_l = config("ec-profile-locality")
-            crush_locality = config("ec-profile-crush-locality")
-            # SHEC plugin config
-            bdm_c = config("ec-profile-durability-estimator")
-            # CLAY plugin config
-            bdm_d = config("ec-profile-helper-chunks")
-            scalar_mds = config("ec-profile-scalar-mds")
-            # Profile name
-            profile_name = (
-                config("ec-profile-name") or f"{self.charm.app.name}-profile"
-            )
-            # Metadata sizing is approximately 1% of overall data weight
-            # but is in effect driven by the number of rbd's rather than
-            # their size - so it can be very lightweight.
-            metadata_weight = weight * 0.01
-            # Resize data pool weight to accomodate metadata weight
-            weight = weight - metadata_weight
-            # Create erasure profile
-            self.interface.create_erasure_profile(
-                name=profile_name,
-                k=bdm_k,
-                m=bdm_m,
-                lrc_locality=bdm_l,
-                lrc_crush_locality=crush_locality,
-                shec_durability_estimator=bdm_c,
-                clay_helper_chunks=bdm_d,
-                clay_scalar_mds=scalar_mds,
-                device_class=device_class,
-                erasure_type=plugin,
-                erasure_technique=technique,
-            )
-
-            # Create EC data pool
-            self.interface.create_erasure_pool(
-                name=data_pool_name,
-                erasure_profile=profile_name,
-                weight=weight,
-                allow_ec_overwrites=self.allow_ec_overwrites,
-                app_name=self.app_name,
-            )
-            # Create EC metadata pool
-            self.interface.create_replicated_pool(
-                name=metadata_pool_name,
-                replicas=replicas,
-                weight=metadata_weight,
-                app_name=self.app_name,
-            )
-        else:
-            self.interface.create_replicated_pool(
-                name=data_pool_name, replicas=replicas, weight=weight,
-                app_name=self.app_name,
-            )
-
-    @property
-    def ready(self) -> bool:
-        """Handler ready for use."""
-        return self.interface.pools_available
-
-    @property
-    def key(self) -> str:
-        """Retrieve the cephx key provided for the application"""
-        return self.interface.get_relation_data().get('key')
-
-    def context(self) -> dict:
-        ctxt = super().context()
-        data = self.interface.get_relation_data()
-        ctxt['mon_hosts'] = ",".join(
-            sorted(data.get("mon_hosts"))
-        )
-        ctxt['auth'] = data.get('auth')
-        ctxt['key'] = data.get("key")
-        ctxt['rbd_features'] = None
-        return ctxt
-
-
 class StorageBackendProvidesHandler(sunbeam_rhandlers.RelationHandler):
-
     def setup_event_handler(self):
         """Configure event handlers for an Identity service relation."""
         logger.debug("Setting up Identity Service event handler")
@@ -230,9 +81,7 @@ class StorageBackendProvidesHandler(sunbeam_rhandlers.RelationHandler):
             self.charm,
             self.relation_name,
         )
-        self.framework.observe(
-            sb_svc.on.api_ready,
-            self._on_ready)
+        self.framework.observe(sb_svc.on.api_ready, self._on_ready)
         return sb_svc
 
     def _on_ready(self, event) -> None:
@@ -253,14 +102,14 @@ class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
         :returns: pebble layer configuration for cinder-volume service
         """
         return {
-            'summary': f'{self.service_name} layer',
-            'description': 'pebble config layer for cinder-volume service',
-            'services': {
+            "summary": f"{self.service_name} layer",
+            "description": "pebble config layer for cinder-volume service",
+            "services": {
                 self.service_name: {
-                    'override': 'replace',
-                    'summary': self.service_name,
-                    'command': f'{self.service_name} --use-syslog',
-                    'startup': 'enabled',
+                    "override": "replace",
+                    "summary": self.service_name,
+                    "command": f"{self.service_name} --use-syslog",
+                    "startup": "enabled",
                 },
             },
         }
@@ -268,8 +117,10 @@ class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
     def start_service(self):
         container = self.charm.unit.get_container(self.container_name)
         if not container:
-            logger.debug(f'{self.container_name} container is not ready. '
-                         'Cannot start service.')
+            logger.debug(
+                f"{self.container_name} container is not ready. "
+                "Cannot start service."
+            )
             return
         service = container.get_service(self.service_name)
         if service.is_running():
@@ -302,18 +153,17 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
     def get_relation_handlers(self) -> List[relation_handlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = super().get_relation_handlers()
-        self.ceph = CephClientHandler(
+        self.ceph = relation_handlers.CephClientHandler(
             self,
             "ceph",
             self.configure_charm,
             allow_ec_overwrites=True,
-            app_name='rbd'
+            app_name="rbd",
         )
         handlers.append(self.ceph)
         self.sb_svc = StorageBackendProvidesHandler(
-            self,
-            'storage-backend',
-            self.api_ready)
+            self, "storage-backend", self.api_ready
+        )
         handlers.append(self.sb_svc)
         return handlers
 
@@ -327,7 +177,9 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
                 self.container_configs,
                 self.template_dir,
                 self.openstack_release,
-                self.configure_charm)]
+                self.configure_charm,
+            )
+        ]
 
     def api_ready(self, event) -> None:
         self._state.api_ready = True
@@ -369,7 +221,7 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
     @property
     def databases(self) -> List[str]:
         """Provide database name for cinder services"""
-        return ['cinder']
+        return ["cinder"]
 
     def configure_charm(self, event) -> None:
         """Catchall handler to cconfigure charm services."""
@@ -379,16 +231,16 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
 
         for ph in self.pebble_handlers:
             if ph.pebble_ready:
-                container = self.unit.get_container(
-                    ph.container_name
-                )
+                container = self.unit.get_container(ph.container_name)
                 cprocess.check_call(
                     container,
-                    ['ceph-authtool',
-                     f'/etc/ceph/ceph.client.{self.app.name}.keyring',
-                     '--create-keyring',
-                     f'--name=client.{self.app.name}',
-                     f'--add-key={self.ceph.key}']
+                    [
+                        "ceph-authtool",
+                        f"/etc/ceph/ceph.client.{self.app.name}.keyring",
+                        "--create-keyring",
+                        f"--name=client.{self.app.name}",
+                        f"--add-key={self.ceph.key}",
+                    ],
                 )
                 ph.init_service(self.contexts())
 
