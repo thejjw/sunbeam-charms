@@ -1,0 +1,44 @@
+name: sunbeam-neutron-operator
+summary: OpenStack Networking API service
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  Neutron is a virtual network service for OpenStack, and a part of
+  Netstack. Just like OpenStack Nova provides an API to dynamically
+  request and configure virtual servers, Neutron provides an API to
+  dynamically request and configure virtual networks. These networks
+  connect "interfaces" from other OpenStack services (e.g., virtual NICs
+  from Nova VMs). The Neutron API supports extensions to provide
+  advanced network capabilities (e.g., QoS, ACLs, network monitoring,
+  etc.)
+  .
+  This charm provides the OpenStack Neutron API service.
+tags:
+  - openstack
+
+containers:
+  neutron-server:
+    resource: neutron-server-image
+
+resources:
+  neutron-server-image:
+    type: oci-image
+    description: OCI image for OpenStack Neutron API (kolla/neutron-server)
+
+provides:
+  neutron-api:
+    interface: neutron-api
+
+requires:
+  ingress:
+    interface: ingress
+  shared-db:
+    interface: mysql_datastore
+    limit: 1
+  amqp:
+    interface: rabbitmq
+  identity-service:
+    interface: keystone
+
+peers:
+  peers:
+    interface: neutron-peer
