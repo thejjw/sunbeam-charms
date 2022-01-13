@@ -27,8 +27,6 @@ containers:
     resource: nova-scheduler-image
   nova-conductor:
     resource: nova-conductor-image
-  nova-metadata:
-    resource: nova-metadata-image
 
 resources:
   nova-api-image:
@@ -40,9 +38,6 @@ resources:
   nova-conductor-image:
     type: oci-image
     description: OCI image for OpenStack Nova API (kolla/nova-conductor-image)
-  nova-metadata-image:
-    type: oci-image
-    description: OCI image for OpenStack Nova API (kolla/nova-metadata-image)
 
 requires:
   ingress:
