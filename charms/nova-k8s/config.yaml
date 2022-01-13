@@ -1,0 +1,27 @@
+options:
+  debug:
+    default: False
+    description: Enable debug logging.
+    type: boolean
+  os-admin-hostname:
+    default: nova.juju
+    description: |
+      The hostname or address of the admin endpoints that should be advertised
+      in the nova image provider.
+    type: string
+  os-internal-hostname:
+    default: nova.juju
+    description: |
+      The hostname or address of the internal endpoints that should be advertised
+      in the nova image provider.
+    type: string
+  os-public-hostname:
+    default: nova.juju
+    description: |
+      The hostname or address of the internal endpoints that should be advertised
+      in the nova image provider.
+    type: string
+  region:
+    default: RegionOne
+    description: Space delimited list of OpenStack regions
+    type: string

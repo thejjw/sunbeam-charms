@@ -1,0 +1,48 @@
+Listen {{ wsgi_config.public_port }}
+Listen {{ wsgi_nova_api.public_port }}
+<VirtualHost *:{{ wsgi_config.public_port }}>
+    WSGIDaemonProcess nova-api processes=3 threads=1 user={{ wsgi_config.user }} group={{ wsgi_config.group }} \
+                      display-name=%{GROUP}
+    WSGIProcessGroup glance
+    WSGIScriptAlias / {{ wsgi_config.wsgi_public_script }}
+    WSGIApplicationGroup %{GLOBAL}
+    WSGIPassAuthorization On
+    <IfVersion >= 2.4>
+      ErrorLogFormat "%{cu}t %M"
+    </IfVersion>
+    ErrorLog {{ wsgi_config.error_log }}
+    CustomLog {{ wsgi_config.custom_log }} combined
+
+    <Directory /usr/bin>
+        <IfVersion >= 2.4>
+            Require all granted
+        </IfVersion>
+        <IfVersion < 2.4>
+            Order allow,deny
+            Allow from all
+        </IfVersion>
+    </Directory>
+</VirtualHost>
+<VirtualHost *:{{ wsgi_nova_api.public_port }}>
+    WSGIDaemonProcess nova-metadata processes=3 threads=1 user={{ wsgi_nova_api.user }} group={{ wsgi_nova_api.group }} \
+                      display-name=%{GROUP}
+    WSGIProcessGroup glance
+    WSGIScriptAlias / {{ wsgi_nova_api.wsgi_public_script }}
+    WSGIApplicationGroup %{GLOBAL}
+    WSGIPassAuthorization On
+    <IfVersion >= 2.4>
+      ErrorLogFormat "%{cu}t %M"
+    </IfVersion>
+    ErrorLog {{ wsgi_nova_api.error_log }}
+    CustomLog {{ wsgi_nova_api.custom_log }} combined
+
+    <Directory /usr/bin>
+        <IfVersion >= 2.4>
+            Require all granted
+        </IfVersion>
+        <IfVersion < 2.4>
+            Order allow,deny
+            Allow from all
+        </IfVersion>
+    </Directory>
+</VirtualHost>

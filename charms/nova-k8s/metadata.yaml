@@ -1,0 +1,76 @@
+name: sunbeam-nova-operator
+summary: OpenStack Compute - Nova cloud controller service
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+ OpenStack is a reliable cloud infrastructure. Its mission is to produce
+ the ubiquitous cloud computing platform that will meet the needs of public
+ and private cloud providers regardless of size, by being simple to implement
+ and massively scalable.
+ .
+ OpenStack Compute, codenamed Nova, is a cloud computing fabric controller. In
+ addition to its "native" API (the OpenStack API), it also supports the Amazon
+ EC2 API.
+ .
+ This charm provides the cloud controller service for OpenStack Nova and includes
+ nova-scheduler, nova-api and nova-conductor services.
+version: 3
+bases:
+  - name: ubuntu
+    channel: 20.04/stable
+tags:
+  - openstack
+
+containers:
+  nova-api:
+    resource: nova-api-image
+  nova-scheduler:
+    resource: nova-scheduler-image
+  nova-conductor:
+    resource: nova-conductor-image
+  nova-metadata:
+    resource: nova-metadata-image
+
+resources:
+  nova-api-image:
+    type: oci-image
+    description: OCI image for OpenStack Nova API (kolla/nova-api-image)
+  nova-scheduler-image:
+    type: oci-image
+    description: OCI image for OpenStack Nova API (kolla/nova-scheduler-image)
+  nova-conductor-image:
+    type: oci-image
+    description: OCI image for OpenStack Nova API (kolla/nova-conductor-image)
+  nova-metadata-image:
+    type: oci-image
+    description: OCI image for OpenStack Nova API (kolla/nova-metadata-image)
+
+requires:
+  ingress:
+    interface: ingress
+  shared-db:
+    interface: mysql_datastore
+    limit: 1
+  amqp:
+    interface: rabbitmq
+  image-service:
+    interface: glance
+  identity-service:
+    interface: keystone
+  cloud-compute:
+    interface: nova-compute
+  cinder-volume-service:
+    interface: cinder
+  neutron-network-service:
+    interface: neutron
+  neutron-api:
+    interface: neutron-api
+  placement:
+    interface: placement
+
+provides:
+  cloud-controller:
+    interface: nova
+
+peers:
+  peers:
+    interface: nova-peer
