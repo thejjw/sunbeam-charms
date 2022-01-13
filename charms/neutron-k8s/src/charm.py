@@ -58,6 +58,9 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "neutron-server"
+    # Remove wsgi_admin_script and wsgi_admin_script after aso fix
+    wsgi_admin_script = ""
+    wsgi_public_script = ""
 
     db_sync_cmds = [
         ['sudo', '-u', 'neutron', 'neutron-db-manage', '--config-file',
