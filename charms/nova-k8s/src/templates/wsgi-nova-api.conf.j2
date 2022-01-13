@@ -3,7 +3,7 @@ Listen {{ wsgi_nova_api.public_port }}
 <VirtualHost *:{{ wsgi_config.public_port }}>
     WSGIDaemonProcess nova-api processes=3 threads=1 user={{ wsgi_config.user }} group={{ wsgi_config.group }} \
                       display-name=%{GROUP}
-    WSGIProcessGroup nova
+    WSGIProcessGroup nova-api
     WSGIScriptAlias / {{ wsgi_config.wsgi_public_script }}
     WSGIApplicationGroup %{GLOBAL}
     WSGIPassAuthorization On
@@ -26,7 +26,7 @@ Listen {{ wsgi_nova_api.public_port }}
 <VirtualHost *:{{ wsgi_nova_api.public_port }}>
     WSGIDaemonProcess nova-metadata processes=3 threads=1 user={{ wsgi_nova_api.user }} group={{ wsgi_nova_api.group }} \
                       display-name=%{GROUP}
-    WSGIProcessGroup nova
+    WSGIProcessGroup nova-metadata
     WSGIScriptAlias / {{ wsgi_nova_api.wsgi_public_script }}
     WSGIApplicationGroup %{GLOBAL}
     WSGIPassAuthorization On
