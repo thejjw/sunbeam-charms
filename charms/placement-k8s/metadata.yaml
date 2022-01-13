@@ -1,0 +1,39 @@
+name: sunbeam-placement-operator
+summary: OpenStack placement service
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  OpenStack Placement provides an HTTP service for managing, selecting,
+  and claiming providers of classes of inventory representing available
+  resources in a cloud.
+  .
+version: 3
+bases:
+  - name: ubuntu
+    channel: 20.04/stable
+tags:
+- openstack
+
+containers:
+  placement-api:
+    resource: placement-api-image
+
+resources:
+  placement-api-image:
+    type: oci-image
+    description: OCI image for OpenStack Placement
+
+requires:
+  shared-db:
+    interface: mysql_datastore
+    limit: 1
+  identity-service:
+    interface: keystone
+  ingress:
+    interface: ingress
+provides:
+  placement:
+    interface: placement
+
+peers:
+  peers:
+    interface: placement-peer
