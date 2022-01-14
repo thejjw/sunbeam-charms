@@ -3347,7 +3347,9 @@ region_name = {{ options.region }}
 # Neutron metadata requests. In order to be used, the
 # 'X-Metadata-Provider-Signature' header must be supplied in the request. For
 # more information, refer to the documentation. (string value)
-#metadata_proxy_shared_secret =
+{% if leader_db.shared_metadata_secret -%}
+metadata_proxy_shared_secret = {{ leader_db.shared_metadata_secret }}
+{% endif -%}
 
 # PEM encoded Certificate Authority to use when verifying HTTPs connections
 # (string value)

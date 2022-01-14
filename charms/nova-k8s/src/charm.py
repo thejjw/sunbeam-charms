@@ -7,14 +7,12 @@ This charm provide Nova services as part of an OpenStack deployment
 import logging
 from typing import List
 
-from ops.framework import StoredState
+import ops.framework
 from ops.main import main
 
-import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
 import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
-import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
 import advanced_sunbeam_openstack.config_contexts as sunbeam_ctxts
 
 from charms.observability_libs.v0.kubernetes_service_patch \
@@ -25,7 +23,8 @@ logger = logging.getLogger(__name__)
 NOVA_SCHEDULER_CONTAINER = "nova-scheduler"
 NOVA_CONDUCTOR_CONTAINER = "nova-conductor"
 
-class WSGINovaAPIConfigContext(sunbeam_ctxts.ConfigContext):
+
+class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
     """Configuration context for WSGI configuration."""
 
     def context(self) -> dict:
@@ -106,7 +105,7 @@ class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
-    _state = StoredState()
+    _state = ops.framework.StoredState()
     service_name = "nova-api"
     wsgi_admin_script = '/usr/bin/nova-api-wsgi'
     wsgi_public_script = '/usr/bin/nova-api-wsgi'
@@ -190,12 +189,26 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         _cadapters = super().config_contexts
         _cadapters.extend(
             [
-                WSGINovaAPIConfigContext(
-                    self, 'wsgi_nova_api',
+                WSGINovaMetadataConfigContext(
+                    self, 'wsgi_nova_metadata',
                 )
             ]
         )
         return _cadapters
+
+    def configure_charm(self, event: ops.framework.EventBase) -> None:
+        metadata_secret = self.get_shared_metadatasecret()
+        if metadata_secret:
+            logging.debug("Found metadata secret in leader DB")
+        else:
+            if self.unit.is_leader():
+                logging.debug("Creating metadata secret")
+                self.set_shared_metadatasecret()
+            else:
+                logging.debug("Metadata secret not ready")
+                return
+        super().configure_charm(event)
+
 
 class NovaWallabyOperatorCharm(NovaOperatorCharm):
 
@@ -205,4 +218,3 @@ if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
     main(NovaWallabyOperatorCharm, use_juju_for_storage=True)
-
