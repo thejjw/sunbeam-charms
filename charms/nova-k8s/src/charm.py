@@ -5,6 +5,7 @@ This charm provide Nova services as part of an OpenStack deployment
 """
 
 import logging
+import uuid
 from typing import List
 
 import ops.framework
@@ -109,6 +110,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     service_name = "nova-api"
     wsgi_admin_script = '/usr/bin/nova-api-wsgi'
     wsgi_public_script = '/usr/bin/nova-api-wsgi'
+    shared_metadata_secret_key = 'shared-metadata-secret'
 
     db_sync_cmds = [
         ['sudo', '-u', 'nova', 'nova-manage', 'api_db', 'sync'],
@@ -195,6 +197,15 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ]
         )
         return _cadapters
+
+    def get_shared_metadatasecret(self):
+        """Return the shared metadata secret."""
+        return self.leader_get(self.shared_metadata_secret_key)
+
+    def set_shared_metadatasecret(self):
+        """Store the shared metadata secret."""
+        self.leader_set(
+            {self.shared_metadata_secret_key: str(uuid.uuid1())})
 
     def configure_charm(self, event: ops.framework.EventBase) -> None:
         metadata_secret = self.get_shared_metadatasecret()
