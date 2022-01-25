@@ -1,0 +1,15 @@
+#!/usr/bin/bash
+
+WRAPPER_LOG=/var/log/ovn/cluster_join_wrapper.log
+
+function log_msg()
+{
+    msg=$1
+    echo "$(date): $msg" >> $WRAPPER_LOG 
+}
+ls -l /var/lib/ovn/{.ovn,ovn}* &> /dev/null && { log_msg "Existing DB files found, skipping join"; exit 0; }
+log_msg "No existing DB files present"
+ADDRESSES="{{ peers.db_sb_cluster_connection_strs|join(' ') }}"
+log_msg "Running join-cluster cmd: ovsdb-tool join-cluster /var/lib/ovn/ovnsb_db.db OVN_Southbound $ADDRESSES"
+# ovsdb-tool join-cluster /var/lib/ovn/ovnsb_db.db OVN_Southbound ssl\:10.1.8.116\:6644 ssl\:10.1.46.82\:6644 ssl\:10.1.41.7\:6644
+ovsdb-tool join-cluster /var/lib/ovn/ovnsb_db.db OVN_Southbound $ADDRESSES &> $WRAPPER_LOG

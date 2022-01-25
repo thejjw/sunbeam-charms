@@ -1,0 +1,60 @@
+name: sunbeam-ovn-central-operator
+summary: Open Virtual Network for Open vSwitch
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  Principal charm that deploys ovn-northd, the OVN central control daemon,
+  and ovsdb-server, the Open vSwitch Database (OVSDB).
+
+  The ovn-northd daemon is responsible for translating the high-level OVN
+  configuration into logical configuration consumable by daemons such as
+  ovn-controller.
+
+  The ovn-northd process talks to OVN Northbound- and Southbound- databases.
+
+  The ovsdb-server exposes endpoints over relations implemented by the ovsdb
+  interface.
+
+  The charm supports clustering of the OVSDB, you must have a odd number of
+  units for this to work. Note that write performance decreases as you
+  increase the number of units.
+
+  Running multiple ovn-northd daemons is supported and they will operate in
+  active/passive mode. The daemon uses a locking feature in the OVSDB to
+  automatically choose a single active instance.
+tags:
+- networking
+
+containers:
+  ovn-sb-db-server:
+    resource: ovn-sb-db-server-image
+  ovn-nb-db-server:
+    resource: ovn-nb-db-server-image
+  ovn-northd:
+    resource: ovn-northd-image
+
+resources:
+  ovn-sb-db-server-image:
+    type: oci-image
+    description: OCI image
+  ovn-nb-db-server-image:
+    type: oci-image
+    description: OCI image
+  ovn-northd-image:
+    type: oci-image
+    description: OCI image
+
+requires:
+  certificates:
+    interface: tls-certificates
+
+provides:
+  ovsdb:
+    interface: ovsdb
+  ovsdb-cms:
+    interface: ovsdb-cms
+  ovsdb-server:
+    interface: ovsdb-cluster
+
+peers:
+  peers:
+    interface: ovn-central-peer

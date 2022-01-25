@@ -1,0 +1,31 @@
+#!/usr/bin/bash
+
+WRAPPER_LOG=/var/log/ovn/service_wrapper.log
+
+function log_msg()
+{
+    msg=$1
+    echo "$(date): $msg" >> $WRAPPER_LOG 
+}
+
+function stop_svc()
+{
+    log_msg "Stopping"
+    /usr/share/ovn/scripts/ovn-ctl stop_nb_ovsdb 2>&1
+}
+
+trap stop_svc EXIT
+
+log_msg "Starting"
+
+/usr/share/ovn/scripts/ovn-ctl run_nb_ovsdb \
+    --db-nb-cluster-local-addr={{ peers.cluster_local_addr }} \
+    --db-nb-cluster-local-port={{ peers.db_nb_cluster_port }} \
+    --db-nb-cluster-local-proto=ssl \
+    --db-nb-cluster-remote-addr={{ peers.cluster_remote_addrs | first if not ovs_db.is_charm_leader else '' }} \
+    --db-nb-cluster-remote-port={{ peers.db_nb_cluster_port }} \
+    --db-nb-cluster-remote-proto=ssl \
+    --ovn-nb-db-ssl-key={{ ovs_db.ovn_key }} \
+    --ovn-nb-db-ssl-cert={{ ovs_db.ovn_cert }} \
+    --ovn-nb-db-ssl-ca-cert={{ ovs_db.ovn_ca_cert }} \
+    --ovn-nb-logfile=/var/log/ovn/ovn-nb-db.log
