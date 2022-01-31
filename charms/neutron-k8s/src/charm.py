@@ -121,11 +121,103 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return "/etc/neutron/neutron.conf"
 
 
-class NeutronWallabyOperatorCharm(NeutronOperatorCharm):
+# Neutron OVN Specific Code
+
+class OVNContext(sunbeam_ctxts.ConfigContext):
+
+    def context(self) -> dict:
+        return {
+            'extension_drivers': 'port_security',
+            'type_drivers': 'geneve,gre,vlan,flat,local',
+            'tenant_network_types': 'geneve,gre,vlan,flat,local',
+            'mechanism_drivers': 'ovn',
+            'path_mtu': '1500',
+            'tunnel_id_ranges': '1:1000',
+            'vni_ranges': '1001:2000',
+            'network_vlan_ranges': 'physnet1:1000:2000',
+            'flat_networks': 'physnet1',
+            'enable_tunneling': 'True',
+            'local_ip': '127.0.0.1',
+            'tunnel_types': 'gre',
+            'enable_security_group': 'True',
+            'vni_ranges': '1001:2000',
+            'max_header_size': '38',
+            'ovn_l3_scheduler': 'leastloaded',
+            'ovn_metadata_enabled': 'True',
+            'enable_distributed_floating_ip': 'False',
+            'dns_servers': '',
+            'dhcp_default_lease_time': '43200',
+            'dns_servers': '',
+            'ovn_dhcp4_global_options': '',
+            'ovn_dhcp6_global_options': '',
+            'vhost_sock_dir': '/run/libvirt-vhost-user',
+            'ovn_key': '/etc/neutron/plugins/ml2/key_host',
+            'ovn_cert': '/etc/neutron/plugins/ml2/cert_host',
+            'ovn_ca_cert': '/etc/neutron/plugins/ml2/neutron-ovn.crt'}
+
+class NeutronServerOVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+
+    def default_container_configs(self):
+        return [
+            sunbeam_core.ContainerConfigFile(
+                [self.container_name],
+                '/etc/neutron/neutron.conf',
+                'neutron',
+                'neutron'),
+            sunbeam_core.ContainerConfigFile(
+                [self.container_name],
+                '/etc/neutron/plugins/ml2/key_host',
+                'root',
+                'root'),
+            sunbeam_core.ContainerConfigFile(
+                [self.container_name],
+                '/etc/neutron/plugins/ml2/cert_host',
+                'root',
+                'root'),
+            sunbeam_core.ContainerConfigFile(
+                [self.container_name],
+                '/etc/neutron/plugins/ml2/neutron-ovn.crt',
+                'root',
+                'root'),
+            sunbeam_core.ContainerConfigFile(
+                [self.container_name],
+                '/etc/neutron/plugins/ml2/ml2_conf.ini',
+                'root',
+                'root')]
+
+
+
+class NeutronOVNOperatorCharm(NeutronOperatorCharm):
+
+    @property
+    def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
+        """Configuration contexts for the operator."""
+        contexts = super().config_contexts
+        contexts.append(
+            OVNContext(self, "ovn"))
+        return contexts
+
+    def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
+        """Pebble handlers for the service."""
+        return [
+            NeutronServerOVNPebbleHandler(
+                self,
+                'neutron-server',
+                self.service_name,
+                self.container_configs,
+                self.template_dir,
+                self.openstack_release,
+                self.configure_charm,
+            )
+        ]
+
+
+
+class NeutronOVNWallabyOperatorCharm(NeutronOVNOperatorCharm):
 
     openstack_release = 'wallaby'
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(NeutronWallabyOperatorCharm, use_juju_for_storage=True)
+    main(NeutronOVNWallabyOperatorCharm, use_juju_for_storage=True)

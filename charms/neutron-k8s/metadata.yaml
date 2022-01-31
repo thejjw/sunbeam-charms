@@ -38,6 +38,10 @@ requires:
     interface: rabbitmq
   identity-service:
     interface: keystone
+  ovsdb-cms:
+    interface: ovsdb-cms
+  certificates:
+    interface: tls-certificates
 
 peers:
   peers:

@@ -12,3 +12,8 @@ parts:
   charm:
     build-packages:
       - git
+      - libffi-dev
+      - libssl-dev
+    charm-python-packages:
+      - setuptools < 58
+      - cryptography < 3.4
