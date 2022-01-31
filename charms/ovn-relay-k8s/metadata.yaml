@@ -1,0 +1,30 @@
+name: sunbeam-ovn-relay-operator
+summary: Relay for Open Virtual Network for Open vSwitch
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  In sert description
+tags:
+- networking
+
+containers:
+  ovsdb-server:
+    resource: ovn-sb-db-server-image
+
+resources:
+  ovn-sb-db-server-image:
+    type: oci-image
+    description: OCI image
+
+requires:
+  ovsdb-cms:
+    interface: ovsdb-cms
+  certificates:
+    interface: tls-certificates
+
+provides:
+  ovsdb-cms-relay:
+    interface: ovsdb-cms
+
+peers:
+  peers:
+    interface: ovn-relay-peer

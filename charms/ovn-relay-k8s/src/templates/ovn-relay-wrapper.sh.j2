@@ -1,0 +1,32 @@
+#!/usr/bin/bash
+
+WRAPPER_LOG=/var/log/ovn/service_wrapper.log
+
+function log_msg()
+{
+    msg=$1
+    echo "$(date): $msg" >> $WRAPPER_LOG 
+}
+
+function stop_svc()
+{
+    log_msg "Stopping"
+}
+
+log_msg "Starting"
+REMOTES={{ ovsdb_cms.db_sb_connection_strs }}
+# ovsdb-server --remote=ptcp:6642:172.16.0.1 relay:OVN_Southbound:$REMOTES
+
+ovsdb-server \
+    -vconsole:emer \
+    -vsyslog:err \
+    -vfile:info \
+    -c {{ ovs_db.ovn_cert }} \
+    -C {{ ovs_db.ovn_ca_cert }} \
+    -p {{ ovs_db.ovn_key }} \
+    --no-chdir \
+    --log-file=/var/log/ovn/ovn-relay.log \
+    --pidfile=/var/run/ovn/ovn-relay.pid \
+    --remote=ptcp:6642:{{ ovsdb_cms.local_address }} relay:OVN_Southbound:$REMOTES
+
+trap stop_svc EXIT
