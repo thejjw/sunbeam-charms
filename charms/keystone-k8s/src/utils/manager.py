@@ -151,11 +151,9 @@ class KeystoneManager(framework.Object):
             logger.exception('Error occurred synchronizing the database.')
             raise KeystoneException('Database sync failed')
 
-    def _fernet_setup(self, container):
+    def _fernet_setup(self):
         """Sets up the fernet token store in the specified container.
 
-        :param container: the container to setup the fernet token store in
-        :type container: ops.model.Container
         :raises: KeystoneException when a failure occurs setting up the fernet
                  token store
         """
@@ -171,7 +169,7 @@ class KeystoneManager(framework.Object):
             logger.exception('Error occurred setting up fernet tokens')
             raise KeystoneException('Fernet setup failed.')
 
-    def _credential_setup(self, container):
+    def _credential_setup(self):
         """
 
         """
@@ -185,7 +183,7 @@ class KeystoneManager(framework.Object):
             logger.exception('Error occurred during credential setup')
             raise KeystoneException('Credential setup failed.')
 
-    def _bootstrap(self, container):
+    def _bootstrap(self):
         """
 
         """
