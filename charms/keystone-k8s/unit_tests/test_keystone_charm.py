@@ -57,11 +57,6 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
     ]
 
     def setUp(self):
-        self.container_calls = {
-            'push': {},
-            'pull': [],
-            'remove_path': []}
-
         super().setUp(charm, self.PATCHES)
         self.km_mock = mock.MagicMock()
         self.manager.KeystoneManager.return_value = self.km_mock
@@ -86,10 +81,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         test_utils.add_db_relation_credentials(
             self.harness,
             test_utils.add_base_db_relation(self.harness))
-        container = self.harness.charm.unit.get_container(
-            self.harness.charm.wsgi_container_name)
-        self.km_mock.setup_keystone.assert_called_once_with(
-            container)
+        self.km_mock.setup_keystone.assert_called_once_with()
         self.km_mock.setup_initial_projects_and_users.assert_called_once_with()
 
     def test_non_leader_no_bootstraps(self):

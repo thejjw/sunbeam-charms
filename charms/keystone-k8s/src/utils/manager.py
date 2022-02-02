@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import ops.pebble
 from ops import framework
-from ops.model import Container
 from ops.model import MaintenanceStatus
 
 from keystoneauth1 import session
@@ -27,7 +27,6 @@ from keystoneclient.v3.roles import Role
 from keystoneclient.v3.services import Service
 from keystoneclient.v3.users import User
 
-import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
 import advanced_sunbeam_openstack.guard as sunbeam_guard
 
 import logging
@@ -44,10 +43,18 @@ class KeystoneManager(framework.Object):
     """
 
     """
-    def __init__(self, charm):
+    def __init__(self, charm, container_name):
         super().__init__(charm, 'keystone-manager')
         self.charm = charm
+        self.container_name = container_name
         self._api = None
+
+    def run_cmd(self, cmd, exception_on_error=True):
+        pebble_handler = self.charm.get_named_pebble_handler(
+            self.container_name)
+        pebble_handler.execute(
+            cmd,
+            exception_on_error=True)
 
     @property
     def api(self):
@@ -92,22 +99,19 @@ class KeystoneManager(framework.Object):
         regions = [r for r in self.charm.model.config['region'].split() if r]
         return regions
 
-    def setup_keystone(self, container: Container):
+    def setup_keystone(self):
         """Runs the keystone setup process for first time configuration.
 
         Runs through the keystone setup process for initial installation and
         configuration. This involves creating the database, setting up fernet
         repositories for tokens and credentials, and bootstrapping the initial
         keystone service.
-
-        :param container: the container to set keystone up in.
-        :type container: Container
         """
         with sunbeam_guard.guard(self.charm, 'Initializing Keystone'):
-            self._sync_database(container)
-            self._fernet_setup(container)
-            self._credential_setup(container)
-            self._bootstrap(container)
+            self._sync_database()
+            self._fernet_setup()
+            self._credential_setup()
+            self._bootstrap()
 
     def _set_status(self, status: str, app: bool = False) -> None:
         """Sets the status to the specified status string.
@@ -127,30 +131,23 @@ class KeystoneManager(framework.Object):
 
         target.status = MaintenanceStatus(status)
 
-    def _sync_database(self, container: Container):
+    def _sync_database(self):
         """Syncs the database using the keystone-manage db_sync
 
         The database is synchronized using the keystone-manage db_sync command.
         Database configuration information is retrieved from configuration
         files.
 
-        :param container: the container to sync the database in
-        :type container: ops.model.Container
         :raises: KeystoneException when the database sync fails.
         """
         try:
             self._set_status('Syncing database')
             logger.info("Syncing database...")
-            out = sunbeam_cprocess.check_output(
-                container,
-                [
-                    'sudo', '-u', 'keystone',
-                    'keystone-manage', '--config-dir',
-                    '/etc/keystone', 'db_sync'],
-                service_name='keystone-db-sync',
-                timeout=180)
-            logging.debug(f'Output from database sync: \n{out}')
-        except sunbeam_cprocess.ContainerProcessError:
+            self.run_cmd([
+                'sudo', '-u', 'keystone',
+                'keystone-manage', '--config-dir',
+                '/etc/keystone', 'db_sync'])
+        except ops.pebble.ExecError:
             logger.exception('Error occurred synchronizing the database.')
             raise KeystoneException('Database sync failed')
 
@@ -165,16 +162,12 @@ class KeystoneManager(framework.Object):
         try:
             self._set_status('Setting up fernet tokens')
             logger.info("Setting up fernet tokens...")
-            out = sunbeam_cprocess.check_output(
-                container,
-                [
-                    'sudo', '-u', 'keystone',
-                    'keystone-manage', 'fernet_setup',
-                    '--keystone-user', 'keystone',
-                    '--keystone-group', 'keystone'],
-                service_name='keystone-fernet-setup')
-            logging.debug(f'Output from keystone fernet setup: \n{out}')
-        except sunbeam_cprocess.ContainerProcessError:
+            self.run_cmd([
+                'sudo', '-u', 'keystone',
+                'keystone-manage', 'fernet_setup',
+                '--keystone-user', 'keystone',
+                '--keystone-group', 'keystone'])
+        except ops.pebble.ExecError:
             logger.exception('Error occurred setting up fernet tokens')
             raise KeystoneException('Fernet setup failed.')
 
@@ -185,13 +178,10 @@ class KeystoneManager(framework.Object):
         try:
             self._set_status('Setting up credentials')
             logger.info("Setting up credentials...")
-            sunbeam_cprocess.check_output(
-                container,
-                [
-                    'sudo', '-u', 'keystone',
-                    'keystone-manage', 'credential_setup'],
-                service_name='keystone-credential-setup')
-        except sunbeam_cprocess.ContainerProcessError:
+            self.run_cmd([
+                'sudo', '-u', 'keystone',
+                'keystone-manage', 'credential_setup'])
+        except ops.pebble.ExecError:
             logger.exception('Error occurred during credential setup')
             raise KeystoneException('Credential setup failed.')
 
@@ -206,21 +196,18 @@ class KeystoneManager(framework.Object):
             # NOTE(wolsen) in classic keystone charm, there's a comment about
             # enabling immutable roles for this. This is unnecessary as it is
             # now the default behavior for keystone-manage bootstrap.
-            sunbeam_cprocess.check_call(
-                container,
-                [
-                    'keystone-manage', 'bootstrap',
-                    '--bootstrap-username', self.charm.charm_user,
-                    '--bootstrap-password', self.charm.charm_password,
-                    '--bootstrap-project-name', 'admin',
-                    '--bootstrap-role-name', self.charm.admin_role,
-                    '--bootstrap-service-name', 'keystone',
-                    '--bootstrap-admin-url', self.admin_endpoint,
-                    '--bootstrap-public-url', self.public_endpoint,
-                    '--bootstrap-internal-url', self.internal_endpoint,
-                    '--bootstrap-region-id', self.regions[0]],
-                service_name='keystone-manage-bootstrap')
-        except sunbeam_cprocess.ContainerProcessError:
+            self.run_cmd([
+                'keystone-manage', 'bootstrap',
+                '--bootstrap-username', self.charm.charm_user,
+                '--bootstrap-password', self.charm.charm_password,
+                '--bootstrap-project-name', 'admin',
+                '--bootstrap-role-name', self.charm.admin_role,
+                '--bootstrap-service-name', 'keystone',
+                '--bootstrap-admin-url', self.admin_endpoint,
+                '--bootstrap-public-url', self.public_endpoint,
+                '--bootstrap-internal-url', self.internal_endpoint,
+                '--bootstrap-region-id', self.regions[0]])
+        except ops.pebble.ExecError:
             logger.exception('Error occurred bootstrapping keystone service')
             raise KeystoneException('Bootstrap failed')
 

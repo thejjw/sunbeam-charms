@@ -16,6 +16,7 @@ import logging
 from typing import List
 
 import ops.charm
+import ops.pebble
 from ops.main import main
 from ops.framework import StoredState
 from ops import model
@@ -23,7 +24,6 @@ from ops import model
 from utils import manager
 import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
-import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
 import advanced_sunbeam_openstack.config_contexts as sunbeam_contexts
 import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
 import charms.sunbeam_keystone_operator.v0.identity_service as sunbeam_id_svc
@@ -133,7 +133,9 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def __init__(self, framework):
         super().__init__(framework)
-        self.keystone_manager = manager.KeystoneManager(self)
+        self.keystone_manager = manager.KeystoneManager(
+            self,
+            KEYSTONE_CONTAINER)
         self._state.set_default(admin_domain_name='admin_domain')
         self._state.set_default(admin_domain_id=None)
         self._state.set_default(default_domain_id=None)
@@ -173,7 +175,6 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         _cconfigs = super().container_configs
         _cconfigs.extend([
             sunbeam_core.ContainerConfigFile(
-                [KEYSTONE_CONTAINER],
                 LOGGING_CONF,
                 'keystone',
                 'keystone')])
@@ -342,9 +343,8 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         super()._do_bootstrap()
         if self.unit.is_leader():
             try:
-                container = self.unit.get_container(self.wsgi_container_name)
-                self.keystone_manager.setup_keystone(container)
-            except sunbeam_cprocess.ContainerProcessError:
+                self.keystone_manager.setup_keystone()
+            except ops.pebble.ExecError:
                 logger.exception('Failed to bootstrap')
                 self._state.bootstrapped = False
                 return
