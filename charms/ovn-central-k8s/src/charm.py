@@ -4,19 +4,15 @@
 This charm provide Glance services as part of an OpenStack deployment
 """
 
-import os
 import ovn
 import ovsdb as ch_ovsdb
-import ipaddress
 import logging
-import itertools
 from typing import List
 
 import ops.charm
 from ops.framework import StoredState
 from ops.main import main
 
-import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
 import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
@@ -33,8 +29,7 @@ logger = logging.getLogger(__name__)
 OVN_SB_DB_CONTAINER = "ovn-sb-db-server"
 OVN_NB_DB_CONTAINER = "ovn-nb-db-server"
 OVN_NORTHD_CONTAINER = "ovn-northd"
-
-
+OVN_DB_CONTAINERS = [OVN_SB_DB_CONTAINER, OVN_NB_DB_CONTAINER]
 
 
 class OVNDBConfigContext(sunbeam_ctxts.ConfigContext):
@@ -275,13 +270,15 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def get_pebble_executor(self, container_name):
         container = self.unit.get_container(
             container_name)
+
         def _run_via_pebble(*args):
             process = container.exec(list(args), timeout=5*60)
             out, warnings = process.wait_output()
             if warnings:
-                 for line in warnings.splitlines():
-                     logger.warning('CMD Out: %s', line.strip())
+                for line in warnings.splitlines():
+                    logger.warning('CMD Out: %s', line.strip())
             return out
+
         return _run_via_pebble
 
     def cluster_status(self, db, cmd_executor):
@@ -318,9 +315,12 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             executor = self.get_pebble_executor(OVN_NB_DB_CONTAINER)
         elif db == 'sb':
             executor = self.get_pebble_executor(OVN_SB_DB_CONTAINER)
-        status = self.cluster_status('ovn{}_db'.format(db), cmd_executor=executor)
+        status = self.cluster_status(
+            'ovn{}_db'.format(db),
+            cmd_executor=executor)
         if status and status.is_cluster_leader:
-            logging.debug('configure_ovn_listener is_cluster_leader {}'.format(db))
+            logging.debug(
+                'configure_ovn_listener is_cluster_leader {}'.format(db))
             connections = ch_ovsdb.SimpleOVSDB(
                 'ovn-{}ctl'.format(db),
                 cmd_executor=executor).connection
@@ -376,7 +376,8 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 self.unit.status = ops.model.WaitingStatus(
                     "Waiting for data from leader")
                 return
-            logging.debug("Remote leader is ready and has supplied all data needed")
+            logging.debug(
+                "Remote leader is ready and has supplied all data needed")
 
         if not self.relation_handlers_ready():
             logging.debug("Aborting charm relations not ready")
@@ -396,7 +397,7 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         if self.unit.is_leader():
             # Start services in North/South containers on lead unit
             logging.debug("Starting services in DB containers")
-            for ph in self.get_named_pebble_handlers([OVN_SB_DB_CONTAINER, OVN_NB_DB_CONTAINER]):
+            for ph in self.get_named_pebble_handlers(OVN_DB_CONTAINERS):
                 ph.start_service()
             # Attempt to setup listers etc
             self.configure_ovn()
@@ -413,10 +414,11 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 'sb_cid': str(sb_status.cluster_id),
             })
             self.unit.status = ops.model.ActiveStatus()
-        else:    
+        else:
             logging.debug("Attempting to join OVN_Northbound cluster")
             container = self.unit.get_container(OVN_NB_DB_CONTAINER)
-            process = container.exec(['bash', '/root/ovn-nb-cluster-join.sh'], timeout=5*60)
+            process = container.exec(
+                ['bash', '/root/ovn-nb-cluster-join.sh'], timeout=5*60)
             out, warnings = process.wait_output()
             if warnings:
                 for line in warnings.splitlines():
@@ -424,39 +426,40 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
             logging.debug("Attempting to join OVN_Southbound cluster")
             container = self.unit.get_container(OVN_SB_DB_CONTAINER)
-            process = container.exec(['bash', '/root/ovn-sb-cluster-join.sh'], timeout=5*60)
+            process = container.exec(
+                ['bash', '/root/ovn-sb-cluster-join.sh'], timeout=5*60)
             out, warnings = process.wait_output()
             if warnings:
                 for line in warnings.splitlines():
                     logger.warning('CMD Out: %s', line.strip())
             logging.debug("Starting services in DB containers")
-            for ph in self.get_named_pebble_handlers([OVN_SB_DB_CONTAINER, OVN_NB_DB_CONTAINER]):
+            for ph in self.get_named_pebble_handlers(OVN_DB_CONTAINERS):
                 ph.start_service()
             # Attempt to setup listers etc
             self.configure_ovn()
             self.unit.status = ops.model.ActiveStatus()
-            
+
     def configure_ovn(self):
         inactivity_probe = int(
             self.config['ovsdb-server-inactivity-probe']) * 1000
         self.configure_ovn_listener(
             'nb', {
-                 self.ovsdb_cms.db_nb_port: {
-                     'inactivity_probe': inactivity_probe,
-                 },
+                self.ovsdb_cms.db_nb_port: {
+                    'inactivity_probe': inactivity_probe,
+                },
             })
         self.configure_ovn_listener(
             'sb', {
-                 self.ovsdb_cms.db_sb_port: {
-                     'role': 'ovn-controller',
-                     'inactivity_probe': inactivity_probe,
-                  },
+                self.ovsdb_cms.db_sb_port: {
+                    'role': 'ovn-controller',
+                    'inactivity_probe': inactivity_probe,
+                },
             })
         self.configure_ovn_listener(
             'sb', {
-                 self.ovsdb_cms.db_sb_admin_port: {
-                     'inactivity_probe': inactivity_probe,
-                 },
+                self.ovsdb_cms.db_sb_admin_port: {
+                    'inactivity_probe': inactivity_probe,
+                },
             })
 
 
