@@ -196,7 +196,8 @@ class OVSDBCMSProvides(Object):
 
     def set_unit_data(self, settings: typing.Dict[str, str]) -> None:
         """Publish settings on the peer unit data bag."""
-        relation = self.framework.model.get_relation(self.relation_name)
-        for k, v in settings.items():
-            relation.data[self.model.unit][k] = v
+        relations = self.framework.model.relations[self.relation_name]
+        for relation in relations:
+            for k, v in settings.items():
+                relation.data[self.model.unit][k] = v
 
