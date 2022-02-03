@@ -22,7 +22,8 @@ OVN_RUNDIR = '/var/run/ovn'
 OVN_SYSCONFDIR = '/etc/ovn'
 
 
-def ovn_appctl(target, args, rundir=None, use_ovs_appctl=False, cmd_executor=None):
+def ovn_appctl(target, args, rundir=None, use_ovs_appctl=False,
+               cmd_executor=None):
     """Run ovn/ovs-appctl for target with args and return output.
 
     :param target: Name of daemon to contact.  Unless target begins with '/',
@@ -127,7 +128,8 @@ class OVNClusterStatus(object):
             self.vote == other.vote and
             self.election_timer == other.election_timer and
             self.log == other.log and
-            self.entries_not_yet_committed == other.entries_not_yet_committed and
+            self.entries_not_yet_committed ==
+            other.entries_not_yet_committed and
             self.entries_not_yet_applied == other.entries_not_yet_applied and
             self.connections == other.connections and
             self.servers == other.servers)
@@ -142,7 +144,8 @@ class OVNClusterStatus(object):
         return self.leader == 'self'
 
 
-def cluster_status(target, schema=None, use_ovs_appctl=False, rundir=None, cmd_executor=None):
+def cluster_status(target, schema=None, use_ovs_appctl=False, rundir=None,
+                   cmd_executor=None):
     """Retrieve status information from clustered OVSDB.
 
     :param target: Usually one of 'ovsdb-server', 'ovnnb_db', 'ovnsb_db', can
@@ -228,7 +231,8 @@ def is_northd_active(cmd_executor=None):
     :rtype: bool
     """
     try:
-        for line in ovn_appctl('ovn-northd', ('status',), cmd_executor=cmd_executor).splitlines():
+        for line in ovn_appctl('ovn-northd', ('status',),
+                               cmd_executor=cmd_executor).splitlines():
             if line.startswith('Status:') and 'active' in line:
                 return True
     except subprocess.CalledProcessError:

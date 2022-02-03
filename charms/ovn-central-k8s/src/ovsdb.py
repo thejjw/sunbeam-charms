@@ -147,7 +147,8 @@ class SimpleOVSDB(object):
             raise AttributeError(
                 'table "{}" not known for use with "{}"'
                 .format(table, self._tool))
-        return self.Table(self._tool, table, args=self._args, cmd_executor=self.cmd_executor)
+        return self.Table(
+            self._tool, table, args=self._args, cmd_executor=self.cmd_executor)
 
     class Table(object):
         """Methods to interact with contents of OVSDB tables.
@@ -250,7 +251,8 @@ class SimpleOVSDB(object):
             return self._find_tbl(condition=condition)
 
         def remove(self, rec, col, value):
-            self.cmd_executor(self._tool, 'remove', self._table, rec, col, value)
+            self.cmd_executor(
+                self._tool, 'remove', self._table, rec, col, value)
 
         def set(self, rec, col, value):
             self.cmd_executor(self._tool, 'set', self._table, rec,
