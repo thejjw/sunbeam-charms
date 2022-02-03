@@ -405,8 +405,6 @@ class IdentityServiceProvides(Object):
             for k in REQUIRED_KEYS ]
         # Validate data on the relation
         if all(values):
-            print(event.relation.id)
-            print(event.relation.name)
             service_eps = json.loads(
                 event.relation.data[event.relation.app]['service-endpoints'])
             self.on.ready_identity_service_clients.emit(
