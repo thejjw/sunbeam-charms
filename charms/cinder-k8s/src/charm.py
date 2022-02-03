@@ -101,16 +101,6 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
 
     def init_service(self, context):
         self.write_config(context)
-        # container = self.charm.unit.get_container(self.container_name)
-        # try:
-        #     sunbeam_cprocess.check_output(
-        #         container,
-        #         f'a2ensite {self.wsgi_service_name} && sleep 1')
-        # except sunbeam_cprocess.ContainerProcessError:
-        #     logger.exception(
-        #         f'Failed to enable {self.wsgi_service_name} site in apache')
-        #   # ignore for now - pebble is raising an exited too quickly, but it
-        #   # appears to work properly.
         self.start_service()
         self._state.service_ready = True
 
