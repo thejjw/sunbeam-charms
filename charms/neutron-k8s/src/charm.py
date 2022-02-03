@@ -10,11 +10,9 @@ from typing import List
 from ops.framework import StoredState
 from ops.main import main
 
-import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
 import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
-import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
 import advanced_sunbeam_openstack.config_contexts as sunbeam_ctxts
 
 from charms.observability_libs.v0.kubernetes_service_patch \
@@ -155,6 +153,7 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
             'ovn_cert': '/etc/neutron/plugins/ml2/cert_host',
             'ovn_ca_cert': '/etc/neutron/plugins/ml2/neutron-ovn.crt'}
 
+
 class NeutronServerOVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
     def default_container_configs(self):
@@ -186,7 +185,6 @@ class NeutronServerOVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 'root')]
 
 
-
 class NeutronOVNOperatorCharm(NeutronOperatorCharm):
 
     @property
@@ -210,7 +208,6 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
                 self.configure_charm,
             )
         ]
-
 
 
 class NeutronOVNWallabyOperatorCharm(NeutronOVNOperatorCharm):

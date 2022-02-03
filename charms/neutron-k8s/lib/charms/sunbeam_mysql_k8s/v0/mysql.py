@@ -35,7 +35,6 @@ to get the relevant information from the relation data.
 import json
 import uuid
 import logging
-from ops.relation import ConsumerBase
 
 from ops.framework import (
     StoredState,
@@ -53,7 +52,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 logger = logging.getLogger(__name__)
 
