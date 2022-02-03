@@ -13,13 +13,13 @@ from ops.main import main
 from lightkube import Client
 from lightkube.resources.core_v1 import Service
 
-import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
+import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess  # noqa
 import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
 import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
 
-import charms.sunbeam_cinder_operator.v0.storage_backend as sunbeam_storage_backend
+import charms.sunbeam_cinder_operator.v0.storage_backend as sunbeam_storage_backend  # noqa
 
 from charms.observability_libs.v0.kubernetes_service_patch import (
     KubernetesServicePatch,
@@ -44,7 +44,8 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             sunbeam_cprocess.check_output(
                 container,
                 (
-                    f"a2disconf cinder-wsgi; a2ensite {self.wsgi_service_name} "
+                    "a2disconf cinder-wsgi; a2ensite"
+                    f" {self.wsgi_service_name} "
                     "&& sleep 1"
                 ),
             )
@@ -94,16 +95,16 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
 
     def init_service(self, context):
         self.write_config(context)
-        #        container = self.charm.unit.get_container(self.container_name)
-        #        try:
-        #            sunbeam_cprocess.check_output(
-        #                container,
-        #                f'a2ensite {self.wsgi_service_name} && sleep 1')
-        #        except sunbeam_cprocess.ContainerProcessError:
-        #            logger.exception(
-        #                f'Failed to enable {self.wsgi_service_name} site in apache')
-        #            # ignore for now - pebble is raising an exited too quickly, but it
-        #            # appears to work properly.
+        # container = self.charm.unit.get_container(self.container_name)
+        # try:
+        #     sunbeam_cprocess.check_output(
+        #         container,
+        #         f'a2ensite {self.wsgi_service_name} && sleep 1')
+        # except sunbeam_cprocess.ContainerProcessError:
+        #     logger.exception(
+        #         f'Failed to enable {self.wsgi_service_name} site in apache')
+        #   # ignore for now - pebble is raising an exited too quickly, but it
+        #   # appears to work properly.
         self.start_service()
         self._state.service_ready = True
 
@@ -179,10 +180,8 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def ingress_address(self) -> str:
-        """IP address or hostname for external/public access to this service."""
-        svc_hostname = self.model.config.get(
-            "os-public-hostname"
-        )
+        """IP address or hostname for access to this service."""
+        svc_hostname = self.model.config.get("os-public-hostname")
         if svc_hostname:
             return svc_hostname
 
@@ -191,9 +190,12 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             Service, name=self.app.name, namespace=self.model.name
         )
 
-        if status := charm_service.status:
-            if load_balancer_status := status.loadBalancer:
-                if ingress_addresses := load_balancer_status.ingress:
+        status = charm_service.status
+        if status:
+            load_balancer_status = status.loadBalancer
+            if load_balancer_status:
+                ingress_addresses = load_balancer_status.ingress
+                if ingress_addresses:
                     ingress_address = ingress_addresses[0]
                     return ingress_address.hostname or ingress_address.ip
 
