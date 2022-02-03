@@ -10,7 +10,6 @@ from typing import List
 from ops.framework import StoredState
 from ops.main import main
 
-import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
 import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
@@ -32,6 +31,10 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     service_name = "glance-api"
     wsgi_admin_script = '/usr/bin/glance-wsgi-api'
     wsgi_public_script = '/usr/bin/glance-wsgi-api'
+
+    db_sync_cmds = [
+        ['sudo', '-u', 'glance', 'glance-manage', '--config-dir',
+         '/etc/glance', 'db', 'sync']]
 
     def __init__(self, framework):
         super().__init__(framework)
@@ -111,62 +114,34 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def default_public_ingress_port(self):
         return 9292
 
-    def _do_bootstrap(self):
-        """
-        Starts the appropriate services in the order they are needed.
-        If the service has not yet been bootstrapped, then this will
-         1. Create the database
-        """
-        super()._do_bootstrap()
-        try:
-            container = self.unit.get_container(self.wsgi_container_name)
-            logger.info("Syncing database...")
-            out = sunbeam_cprocess.check_output(
-                container,
-                [
-                    'sudo', '-u', 'glance',
-                    'glance-manage', '--config-dir',
-                    '/etc/glance', 'db', 'sync'],
-                service_name='keystone-db-sync',
-                timeout=180)
-            logging.debug(f'Output from database sync: \n{out}')
-        except sunbeam_cprocess.ContainerProcessError:
-            logger.exception('Failed to bootstrap')
-            self._state.bootstrapped = False
-            return
-
     def configure_charm(self, event) -> None:
         """Catchall handler to cconfigure charm services."""
         if not self.relation_handlers_ready():
             logging.debug("Defering configuration, charm relations not ready")
             return
+        if not self.ceph.key:
+            logging.debug("No Ceph key found")
+            return
 
-        for ph in self.pebble_handlers:
-            if ph.pebble_ready:
-                container = self.unit.get_container(
-                    ph.container_name
-                )
-                sunbeam_cprocess.check_call(
-                    container,
-                    ['apt', 'update'])
-                sunbeam_cprocess.check_call(
-                    container,
-                    ['apt', 'install', '-y', 'ceph-common'])
-                try:
-                    sunbeam_cprocess.check_call(
-                        container,
-                        ['ceph-authtool',
-                         f'/etc/ceph/ceph.client.{self.app.name}.keyring',
-                         '--create-keyring',
-                         f'--name=client.{self.app.name}',
-                         f'--add-key={self.ceph.key}']
-                    )
-                except sunbeam_cprocess.ContainerProcessError:
-                    pass
-                ph.init_service(self.contexts())
+        ph = self.get_named_pebble_handler("glance-api")
+        if ph.pebble_ready:
+            ph.execute(
+                ['apt', 'update'],
+                exception_on_error=True)
+            ph.execute(
+                ['apt', 'install', '-y', 'ceph-common'],
+                exception_on_error=True)
+            ph.execute(
+                [
+                    'ceph-authtool',
+                    f'/etc/ceph/ceph.client.{self.app.name}.keyring',
+                    '--create-keyring',
+                    f'--name=client.{self.app.name}',
+                    f'--add-key={self.ceph.key}'],
+                exception_on_error=True)
+            ph.init_service(self.contexts())
 
         super().configure_charm(event)
-        # Restarting services after bootstrap should be in aso
         if self._state.bootstrapped:
             for handler in self.pebble_handlers:
                 handler.start_service()
