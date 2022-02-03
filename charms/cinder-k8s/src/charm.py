@@ -7,13 +7,14 @@ This charm provide Cinder services as part of an OpenStack deployment
 import logging
 from typing import List
 
+import ops.pebble
+
 from ops.framework import StoredState
 from ops.main import main
 
 from lightkube import Client
 from lightkube.resources.core_v1 import Service
 
-import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess  # noqa
 import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
@@ -38,18 +39,23 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
 
     def init_service(self, context) -> None:
         """Enable and start WSGI service"""
-        container = self.charm.unit.get_container(self.container_name)
         self.write_config(context)
         try:
-            sunbeam_cprocess.check_output(
-                container,
-                (
-                    "a2disconf cinder-wsgi; a2ensite"
-                    f" {self.wsgi_service_name} "
-                    "&& sleep 1"
-                ),
+            self.execute(
+                [
+                    "a2disconf",
+                    "cinder-wsgi"
+                ],
+                exception_on_error=True
             )
-        except sunbeam_cprocess.ContainerProcessError:
+            self.execute(
+                [
+                    "a2ensite",
+                    self.wsgi_service_name
+                ],
+                exception_on_error=True
+            )
+        except ops.pebble.ExecError:
             logger.exception(
                 f"Failed to enable {self.wsgi_service_name} site in apache"
             )
@@ -267,25 +273,22 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """
         super()._do_bootstrap()
         try:
-            container = self.unit.get_container(CINDER_SCHEDULER_CONTAINER)
             logger.info("Syncing database...")
-            out = sunbeam_cprocess.check_output(
-                container,
-                [
-                    "sudo",
-                    "-u",
-                    "cinder",
-                    "cinder-manage",
-                    "--config-dir",
-                    "/etc/cinder",
-                    "db",
-                    "sync",
-                ],
-                service_name="keystone-db-sync",
-                timeout=180,
+            pebble_handler = self.charm.get_named_pebble_handler(
+                CINDER_SCHEDULER_CONTAINER
             )
-            logging.debug(f"Output from database sync: \n{out}")
-        except sunbeam_cprocess.ContainerProcessError:
+            pebble_handler.execute([
+                "sudo",
+                "-u",
+                "cinder",
+                "cinder-manage",
+                "--config-dir",
+                "/etc/cinder",
+                "db",
+                "sync"],
+                exception_on_error=True
+            )
+        except ops.pebble.ExecError:
             logger.exception("Failed to bootstrap")
             self._state.bootstrapped = False
             return
