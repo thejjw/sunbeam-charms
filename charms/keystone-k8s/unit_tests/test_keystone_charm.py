@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import mock
 import json
 import sys
 
@@ -21,7 +22,6 @@ sys.path.append('lib')  # noqa
 sys.path.append('src')  # noqa
 
 import charm
-import mock
 import advanced_sunbeam_openstack.test_utils as test_utils
 
 
@@ -49,11 +49,13 @@ class _KeystoneWallabyOperatorCharm(charm.KeystoneWallabyOperatorCharm):
         super().configure_charm(event)
         self._log_event(event)
 
+    def public_ingress_address(self) -> str:
+        return '10.0.0.10'
+
 
 class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
 
     PATCHES = [
-        'KubernetesServicePatch',
         'manager'
     ]
 
@@ -117,7 +119,10 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         km_mock.create_role.return_value = admin_role_mock
         return km_mock
 
-    def setUp(self):
+    @mock.patch(
+        'charms.observability_libs.v0.kubernetes_service_patch.'
+        'KubernetesServicePatch')
+    def setUp(self, sp_mock):
         super().setUp(charm, self.PATCHES)
         self.km_mock = self.ks_manager_mock()
         self.manager.KeystoneManager.return_value = self.km_mock
