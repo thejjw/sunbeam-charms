@@ -100,7 +100,6 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
     def default_container_configs(self):
         return [
             sunbeam_core.ContainerConfigFile(
-                [self.container_name],
                 "/etc/cinder/cinder.conf",
                 "cinder",
                 "cinder",
@@ -224,7 +223,7 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         super()._do_bootstrap()
         try:
             logger.info("Syncing database...")
-            pebble_handler = self.charm.get_named_pebble_handler(
+            pebble_handler = self.get_named_pebble_handler(
                 CINDER_SCHEDULER_CONTAINER
             )
             pebble_handler.execute([
