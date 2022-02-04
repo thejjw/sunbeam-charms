@@ -122,7 +122,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
     @mock.patch(
         'charms.observability_libs.v0.kubernetes_service_patch.'
         'KubernetesServicePatch')
-    def setUp(self, sp_mock):
+    def setUp(self, mock_svc_patch):
         super().setUp(charm, self.PATCHES)
         self.km_mock = self.ks_manager_mock()
         self.manager.KeystoneManager.return_value = self.km_mock
