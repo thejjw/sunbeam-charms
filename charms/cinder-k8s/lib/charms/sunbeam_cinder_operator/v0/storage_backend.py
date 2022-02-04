@@ -172,8 +172,10 @@ class StorageBackendProvides(Object):
 
     def remote_ready(self):
         relation = self.framework.model.get_relation(self.relation_name)
-        ready = relation.data[relation.app].get("ready")
-        return ready and json.loads(ready)
+        if relation:
+            ready = relation.data[relation.app].get("ready")
+            return ready and json.loads(ready)
+        return False
 
     def _on_storage_backend_relation_changed(self, event):
         """Handle StorageBackend changed."""
