@@ -15,25 +15,21 @@ develop a new k8s charm using the Operator Framework:
 import logging
 from typing import List
 
-from ops.charm import CharmBase
+import ops.framework
 from ops.framework import StoredState
 from ops.main import main
 
-import advanced_sunbeam_openstack.charm as sunbeam_charm
-import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
-import advanced_sunbeam_openstack.core as sunbeam_core
-
 import advanced_sunbeam_openstack.config_contexts as sunbeam_ctxts
-
-from charms.observability_libs.v0.kubernetes_service_patch \
-    import KubernetesServicePatch
+import advanced_sunbeam_openstack.ovn.container_handlers as ovn_chandlers
+import advanced_sunbeam_openstack.ovn.config_contexts as ovn_ctxts
+import advanced_sunbeam_openstack.ovn.charm as ovn_charm
 
 logger = logging.getLogger(__name__)
 
 OVSDB_SERVER = "ovsdb-server"
 
 
-class OVNRelayPebbleHandler(sunbeam_chandlers.OVNPebbleHandler):
+class OVNRelayPebbleHandler(ovn_chandlers.OVNPebbleHandler):
 
     @property
     def wrapper_script(self):
@@ -44,20 +40,14 @@ class OVNRelayPebbleHandler(sunbeam_chandlers.OVNPebbleHandler):
         return 'OVN Relay'
 
 
-class OVNRelayOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
+class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
     """Charm the service."""
 
     _state = StoredState()
 
-    def __init__(self, framework):
+    def __init__(self, framework: ops.framework.Framework) -> None:
+        """Run constructor."""
         super().__init__(framework)
-        self.service_patcher = KubernetesServicePatch(
-            self,
-            [
-                ('southboundrelay', 6642),
-            ]
-        )
-        self.configure_charm(None)
 
     def get_pebble_handlers(self):
         pebble_handlers = [
@@ -76,7 +66,7 @@ class OVNRelayOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Configuration contexts for the operator."""
         contexts = super().config_contexts
         contexts.append(
-            sunbeam_ctxts.OVNDBConfigContext(self, "ovs_db"))
+            ovn_ctxts.OVNDBConfigContext(self, "ovs_db"))
         return contexts
 
 
