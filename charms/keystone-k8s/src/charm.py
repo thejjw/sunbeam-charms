@@ -28,10 +28,6 @@ import advanced_sunbeam_openstack.config_contexts as sunbeam_contexts
 import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
 import charms.sunbeam_keystone_operator.v0.identity_service as sunbeam_id_svc
 
-from charms.observability_libs.v0.kubernetes_service_patch \
-    import KubernetesServicePatch
-
-
 logger = logging.getLogger(__name__)
 
 KEYSTONE_CONTAINER = "keystone"
@@ -140,14 +136,6 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self._state.set_default(admin_domain_id=None)
         self._state.set_default(default_domain_id=None)
         self._state.set_default(service_project_id=None)
-
-        self.service_patcher = KubernetesServicePatch(
-            self,
-            [
-                ('public', 5000),
-                ('admin', 35357)
-            ]
-        )
 
     def get_relation_handlers(self, handlers=None) -> List[
             sunbeam_rhandlers.RelationHandler]:
