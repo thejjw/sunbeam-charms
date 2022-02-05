@@ -17,7 +17,9 @@ import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
 import advanced_sunbeam_openstack.config_contexts as sunbeam_ctxts
-import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
+import advanced_sunbeam_openstack.ovn.container_handlers as ovn_chandlers
+import advanced_sunbeam_openstack.ovn.config_contexts as ovn_ctxts
+import advanced_sunbeam_openstack.ovn.relation_handlers as ovn_rhandlers
 
 import charms.sunbeam_ovn_central_operator.v0.ovsdb as ovsdb
 
@@ -32,70 +34,15 @@ OVN_NORTHD_CONTAINER = "ovn-northd"
 OVN_DB_CONTAINERS = [OVN_SB_DB_CONTAINER, OVN_NB_DB_CONTAINER]
 
 
-class OVNDBConfigContext(sunbeam_ctxts.ConfigContext):
-
-    def context(self) -> dict:
-        return {
-            'is_charm_leader': self.charm.unit.is_leader(),
-            'ovn_key': '/etc/ovn/key_host',
-            'ovn_cert': '/etc/ovn/cert_host',
-            'ovn_ca_cert': '/etc/ovn/ovn-central.crt'}
-
-
-class OVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
-
-    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
-        """Initialise service ready for use.
-
-        Write configuration files to the container and record
-        that service is ready for us.
-
-        NOTE: Override default to services being automatically started
-        """
-        self.setup_dirs()
-        self.write_config(context)
-        self._state.service_ready = True
+class OVNNorthBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
 
     @property
-    def directories(self):
-        return [
-            sunbeam_chandlers.ContainerDir(
-                '/etc/ovn',
-                'root',
-                'root'),
-            sunbeam_chandlers.ContainerDir(
-                '/run/ovn',
-                'root',
-                'root'),
-            sunbeam_chandlers.ContainerDir(
-                '/var/lib/ovn',
-                'root',
-                'root'),
-            sunbeam_chandlers.ContainerDir(
-                '/var/log/ovn',
-                'root',
-                'root')]
+    def wrapper_script(self):
+        return '/root/ovn-northd-wrapper.sh'
 
-    def default_container_configs(self):
-        return [
-            sunbeam_core.ContainerConfigFile(
-                [self.container_name],
-                '/etc/ovn/key_host',
-                'root',
-                'root'),
-            sunbeam_core.ContainerConfigFile(
-                [self.container_name],
-                '/etc/ovn/cert_host',
-                'root',
-                'root'),
-            sunbeam_core.ContainerConfigFile(
-                [self.container_name],
-                '/etc/ovn/ovn-central.crt',
-                'root',
-                'root')]
-
-
-class OVNNorthBPebbleHandler(OVNPebbleHandler):
+    @property
+    def service_description(self):
+        return 'OVN Northd'
 
     def default_container_configs(self):
         _cc = super().default_container_configs()
@@ -105,39 +52,21 @@ class OVNNorthBPebbleHandler(OVNPebbleHandler):
                 '/etc/ovn/ovn-northd-db-params.conf',
                 'root',
                 'root'))
-        _cc.append(
-            sunbeam_core.ContainerConfigFile(
-                [self.container_name],
-                '/root/ovn-northd-wrapper.sh',
-                'root',
-                'root'))
         return _cc
 
-    def get_layer(self) -> dict:
-        return {
-            "summary": f"OVN Northd layer",
-            "description": "pebble config layer for OVN NorthD",
-            "services": {
-                f"ovn-northd": {
-                    "override": "replace",
-                    "summary": f"OVN Northd",
-                    "command": "bash /root/ovn-northd-wrapper.sh",
-                    "startup": "disabled",
-                },
-            },
-        }
 
+class OVNNorthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
 
-class OVNNorthBDBPebbleHandler(OVNPebbleHandler):
+    @property
+    def wrapper_script(self):
+        return '/root/ovn-nb-db-server-wrapper.sh'
+
+    @property
+    def service_description(self):
+        return 'OVN North Bound DB'
 
     def default_container_configs(self):
         _cc = super().default_container_configs()
-        _cc.append(
-            sunbeam_core.ContainerConfigFile(
-                [self.container_name],
-                '/root/ovn-nb-db-server-wrapper.sh',
-                'root',
-                'root'))
         _cc.append(
             sunbeam_core.ContainerConfigFile(
                 [self.container_name],
@@ -146,31 +75,19 @@ class OVNNorthBDBPebbleHandler(OVNPebbleHandler):
                 'root'))
         return _cc
 
-    def get_layer(self) -> dict:
-        return {
-            "summary": f"OVN North Bound DB layer",
-            "description": "pebble config layer for OVN North DB",
-            "services": {
-                f"ovn-nb-db-server": {
-                    "override": "replace",
-                    "summary": f"OVN North Bound DB Server",
-                    "command": "bash /root/ovn-nb-db-server-wrapper.sh",
-                    "startup": "disabled",
-                },
-            },
-        }
 
+class OVNSouthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
 
-class OVNSouthBDBPebbleHandler(OVNPebbleHandler):
+    @property
+    def wrapper_script(self):
+        return '/root/ovn-sb-db-server-wrapper.sh'
+
+    @property
+    def service_description(self):
+        return 'OVN South Bound DB'
 
     def default_container_configs(self):
         _cc = super().default_container_configs()
-        _cc.append(
-            sunbeam_core.ContainerConfigFile(
-                [self.container_name],
-                '/root/ovn-sb-db-server-wrapper.sh',
-                'root',
-                'root'))
         _cc.append(
             sunbeam_core.ContainerConfigFile(
                 [self.container_name],
@@ -178,20 +95,6 @@ class OVNSouthBDBPebbleHandler(OVNPebbleHandler):
                 'root',
                 'root'))
         return _cc
-
-    def get_layer(self) -> dict:
-        return {
-            "summary": f"OVN South Bound DB layer",
-            "description": "pebble config layer for OVN South DB",
-            "services": {
-                f"ovn-sb-db-server": {
-                    "override": "replace",
-                    "summary": f"OVN South Bound DB Server",
-                    "command": "bash /root/ovn-sb-db-server-wrapper.sh",
-                    "startup": "disabled",
-                },
-            },
-        }
 
 
 class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
@@ -242,13 +145,13 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Relation handlers for the service."""
         handlers = handlers or []
         if self.can_add_handler('peers', handlers):
-            self.peers = sunbeam_rhandlers.OVNDBClusterPeerHandler(
+            self.peers = ovn_rhandlers.OVNDBClusterPeerHandler(
                 self,
                 'peers',
                 self.configure_charm)
             handlers.append(self.peers)
         if self.can_add_handler('ovsdb-cms', handlers):
-            self.ovsdb_cms = sunbeam_rhandlers.OVSDBCMSProvidesHandler(
+            self.ovsdb_cms = ovn_rhandlers.OVSDBCMSProvidesHandler(
                 self,
                 'ovsdb-cms',
                 self.configure_charm)
@@ -261,7 +164,7 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Configuration contexts for the operator."""
         contexts = super().config_contexts
         contexts.append(
-            OVNDBConfigContext(self, "ovs_db"))
+            ovn_ctxts.OVNDBConfigContext(self, "ovs_db"))
         return contexts
 
     def ovn_rundir(self):
