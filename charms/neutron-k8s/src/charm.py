@@ -15,9 +15,6 @@ import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
 import advanced_sunbeam_openstack.config_contexts as sunbeam_ctxts
 
-from charms.observability_libs.v0.kubernetes_service_patch \
-    import KubernetesServicePatch
-
 logger = logging.getLogger(__name__)
 
 
@@ -64,15 +61,6 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ['sudo', '-u', 'neutron', 'neutron-db-manage', '--config-file',
          '/etc/neutron/neutron.conf', '--config-file',
          '/etc/neutron/plugins/ml2/ml2_conf.ini', 'upgrade', 'head']]
-
-    def __init__(self, framework):
-        super().__init__(framework)
-        self.service_patcher = KubernetesServicePatch(
-            self,
-            [
-                ('public', self.default_public_ingress_port),
-            ]
-        )
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""
@@ -159,27 +147,22 @@ class NeutronServerOVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     def default_container_configs(self):
         return [
             sunbeam_core.ContainerConfigFile(
-                [self.container_name],
                 '/etc/neutron/neutron.conf',
                 'neutron',
                 'neutron'),
             sunbeam_core.ContainerConfigFile(
-                [self.container_name],
                 '/etc/neutron/plugins/ml2/key_host',
                 'root',
                 'root'),
             sunbeam_core.ContainerConfigFile(
-                [self.container_name],
                 '/etc/neutron/plugins/ml2/cert_host',
                 'root',
                 'root'),
             sunbeam_core.ContainerConfigFile(
-                [self.container_name],
                 '/etc/neutron/plugins/ml2/neutron-ovn.crt',
                 'root',
                 'root'),
             sunbeam_core.ContainerConfigFile(
-                [self.container_name],
                 '/etc/neutron/plugins/ml2/ml2_conf.ini',
                 'root',
                 'root')]
