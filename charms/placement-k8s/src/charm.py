@@ -5,19 +5,11 @@ This charm provide Placement services as part of an OpenStack deployment
 """
 
 import logging
-from typing import List
 
 from ops.framework import StoredState
 from ops.main import main
 
-import advanced_sunbeam_openstack.cprocess as sunbeam_cprocess
 import advanced_sunbeam_openstack.charm as sunbeam_charm
-import advanced_sunbeam_openstack.core as sunbeam_core
-import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
-import advanced_sunbeam_openstack.config_contexts as sunbeam_ctxts
-
-from charms.observability_libs.v0.kubernetes_service_patch \
-    import KubernetesServicePatch
 
 logger = logging.getLogger(__name__)
 
@@ -30,14 +22,8 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_admin_script = '/usr/bin/placement-wsgi-api'
     wsgi_public_script = '/usr/bin/placement-wsgi-api'
 
-    def __init__(self, framework):
-        super().__init__(framework)
-        self.service_patcher = KubernetesServicePatch(
-            self,
-            [
-                ('public', self.default_public_ingress_port),
-            ]
-        )
+    db_sync_cmds = [
+        ['sudo', '-u', 'placement', 'placement-manage', 'db', 'sync']]
 
     @property
     def service_conf(self) -> str:
@@ -69,28 +55,6 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def default_public_ingress_port(self):
         return 8778
 
-    def _do_bootstrap(self):
-        """
-        Starts the appropriate services in the order they are needed.
-        If the service has not yet been bootstrapped, then this will
-         1. Create the database
-        """
-        super()._do_bootstrap()
-        try:
-            container = self.unit.get_container(self.wsgi_container_name)
-            logger.info("Syncing database...")
-            out = sunbeam_cprocess.check_output(
-                container,
-                [
-                    'sudo', '-u', 'placement',
-                    'placement-manage', 'db', 'sync'],
-                service_name='placement-db-sync',
-                timeout=180)
-            logging.debug(f'Output from database sync: \n{out}')
-        except sunbeam_cprocess.ContainerProcessError:
-            logger.exception('Failed to bootstrap')
-            self._state.bootstrapped = False
-            return
 
 class PlacementWallabyOperatorCharm(PlacementOperatorCharm):
 
