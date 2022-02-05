@@ -15,9 +15,6 @@ import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
 import advanced_sunbeam_openstack.config_contexts as sunbeam_ctxts
 
-from charms.observability_libs.v0.kubernetes_service_patch \
-    import KubernetesServicePatch
-
 logger = logging.getLogger(__name__)
 
 
@@ -35,15 +32,6 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     db_sync_cmds = [
         ['sudo', '-u', 'glance', 'glance-manage', '--config-dir',
          '/etc/glance', 'db', 'sync']]
-
-    def __init__(self, framework):
-        super().__init__(framework)
-        self.service_patcher = KubernetesServicePatch(
-            self,
-            [
-                ('public', self.default_public_ingress_port),
-            ]
-        )
 
     @property
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:

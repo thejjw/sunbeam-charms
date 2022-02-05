@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import mock
 import sys
 
 sys.path.append('lib')  # noqa
@@ -50,11 +51,12 @@ class _GlanceWallabyOperatorCharm(charm.GlanceWallabyOperatorCharm):
 
 class TestGlanceOperatorCharm(test_utils.CharmTestCase):
 
-    PATCHES = [
-        'KubernetesServicePatch'
-    ]
+    PATCHES = []
 
-    def setUp(self):
+    @mock.patch(
+        'charms.observability_libs.v0.kubernetes_service_patch.'
+        'KubernetesServicePatch')
+    def setUp(self, mock_patch):
         self.container_calls = {
             'push': {},
             'pull': [],
