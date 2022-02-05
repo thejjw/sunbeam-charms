@@ -16,9 +16,6 @@ import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
 import advanced_sunbeam_openstack.config_contexts as sunbeam_ctxts
 
-from charms.observability_libs.v0.kubernetes_service_patch \
-    import KubernetesServicePatch
-
 logger = logging.getLogger(__name__)
 
 NOVA_SCHEDULER_CONTAINER = "nova-scheduler"
@@ -116,15 +113,6 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ['sudo', '-u', 'nova', 'nova-manage', 'api_db', 'sync'],
         ['sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'map_cell0'],
         ['sudo', '-u', 'nova', 'nova-manage', 'db', 'sync']]
-
-    def __init__(self, framework):
-        super().__init__(framework)
-        self.service_patcher = KubernetesServicePatch(
-            self,
-            [
-                ('public', self.default_public_ingress_port),
-            ]
-        )
 
     @property
     def service_conf(self) -> str:
