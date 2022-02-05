@@ -15,7 +15,6 @@ develop a new k8s charm using the Operator Framework:
 import logging
 from typing import List
 
-import ops.framework
 from ops.framework import StoredState
 from ops.main import main
 
@@ -44,10 +43,6 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
     """Charm the service."""
 
     _state = StoredState()
-
-    def __init__(self, framework: ops.framework.Framework) -> None:
-        """Run constructor."""
-        super().__init__(framework)
 
     def get_pebble_handlers(self):
         pebble_handlers = [
