@@ -14,6 +14,8 @@ import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
 import advanced_sunbeam_openstack.config_contexts as sunbeam_ctxts
+import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
+import advanced_sunbeam_openstack.ovn.relation_handlers as ovn_rhandlers
 
 logger = logging.getLogger(__name__)
 
@@ -142,7 +144,7 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
             'ovn_ca_cert': '/etc/neutron/plugins/ml2/neutron-ovn.crt'}
 
 
-class NeutronServerOVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
 
     def default_container_configs(self):
         return [
@@ -191,6 +193,19 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
                 self.configure_charm,
             )
         ]
+
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = handlers or []
+        if self.can_add_handler("ovsdb-cms", handlers):
+            self.ovsdb_cms = ovn_rhandlers.OVSDBCMSRequiresHandler(
+                self, "ovsdb-cms", self.configure_charm,
+            )
+            handlers.append(self.ovsdb_cms)
+        handlers = super().get_relation_handlers(handlers)
+        return handlers
 
 
 class NeutronOVNWallabyOperatorCharm(NeutronOVNOperatorCharm):
