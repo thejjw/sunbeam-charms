@@ -48,7 +48,6 @@ class OVNNorthBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         _cc = super().default_container_configs()
         _cc.append(
             sunbeam_core.ContainerConfigFile(
-                [self.container_name],
                 '/etc/ovn/ovn-northd-db-params.conf',
                 'root',
                 'root'))
@@ -69,7 +68,6 @@ class OVNNorthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         _cc = super().default_container_configs()
         _cc.append(
             sunbeam_core.ContainerConfigFile(
-                [self.container_name],
                 '/root/ovn-nb-cluster-join.sh',
                 'root',
                 'root'))
@@ -90,7 +88,6 @@ class OVNSouthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         _cc = super().default_container_configs()
         _cc.append(
             sunbeam_core.ContainerConfigFile(
-                [self.container_name],
                 '/root/ovn-sb-cluster-join.sh',
                 'root',
                 'root'))
