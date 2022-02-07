@@ -64,7 +64,6 @@ class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     def default_container_configs(self):
         return [
             sunbeam_core.ContainerConfigFile(
-                [self.container_name],
                 '/etc/nova/nova.conf',
                 'nova',
                 'nova')]
@@ -94,7 +93,6 @@ class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     def default_container_configs(self):
         return [
             sunbeam_core.ContainerConfigFile(
-                [self.container_name],
                 '/etc/nova/nova.conf',
                 'nova',
                 'nova')]
