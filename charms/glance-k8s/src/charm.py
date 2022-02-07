@@ -50,7 +50,6 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         _cconfigs.extend(
             [
                 sunbeam_core.ContainerConfigFile(
-                    [self.service_name],
                     self.ceph_conf,
                     self.service_user,
                     self.service_group,
