@@ -194,6 +194,8 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             {self.shared_metadata_secret_key: str(uuid.uuid1())})
 
     def configure_charm(self, event: ops.framework.EventBase) -> None:
+        if not self.peers.ready:
+            return
         metadata_secret = self.get_shared_metadatasecret()
         if metadata_secret:
             logging.debug("Found metadata secret in leader DB")
