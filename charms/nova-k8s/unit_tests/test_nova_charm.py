@@ -57,10 +57,7 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
         'charms.observability_libs.v0.kubernetes_service_patch.'
         'KubernetesServicePatch')
     def setUp(self, mock_patch):
-        self.container_calls = {
-            'push': {},
-            'pull': [],
-            'remove_path': []}
+        self.container_calls = test_utils.ContainerCalls()
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
             _NovaWallabyOperatorCharm,
@@ -70,7 +67,23 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
 
     def test_pebble_ready_handler(self):
         self.assertEqual(self.harness.charm.seen_events, [])
-        self.harness.container_pebble_ready('nova-api')
-        self.harness.container_pebble_ready('nova-scheduler')
-        self.harness.container_pebble_ready('nova-conductor')
+        test_utils.set_all_pebbles_ready(self.harness)
         self.assertEqual(len(self.harness.charm.seen_events), 3)
+
+    def test_all_relations(self):
+        self.harness.set_leader()
+        test_utils.set_all_pebbles_ready(self.harness)
+        test_utils.add_all_relations(self.harness)
+        self.assertEqual(
+            self.container_calls.execute['nova-api'],
+            [
+                ['a2ensite', 'wsgi-nova-api'],
+                ['sudo', '-u', 'nova', 'nova-manage', 'api_db', 'sync'],
+                ['sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'map_cell0'],
+                ['sudo', '-u', 'nova', 'nova-manage', 'db', 'sync']
+            ])
+        self.assertEqual(
+            sorted(self.container_calls.updated_files('nova-api')),
+            [
+                '/etc/apache2/sites-available/wsgi-nova-api.conf',
+                '/etc/nova/nova.conf'])
