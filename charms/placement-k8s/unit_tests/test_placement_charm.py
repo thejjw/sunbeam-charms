@@ -57,11 +57,7 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         'charms.observability_libs.v0.kubernetes_service_patch.'
         'KubernetesServicePatch')
     def setUp(self, mock_patch):
-        self.container_calls = {
-            'push': {},
-            'pull': [],
-            'exec': [],
-            'remove_path': []}
+        self.container_calls = test_utils.ContainerCalls()
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
             _PlacementWallabyOperatorCharm,
@@ -71,26 +67,21 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
 
     def test_pebble_ready_handler(self):
         self.assertEqual(self.harness.charm.seen_events, [])
-        self.harness.container_pebble_ready('placement-api')
+        test_utils.set_all_pebbles_ready(self.harness)
         self.assertEqual(self.harness.charm.seen_events, ['PebbleReadyEvent'])
 
     def test_all_relations(self):
         self.harness.set_leader()
-        self.harness.container_pebble_ready('placement-api')
-        test_utils.add_db_relation_credentials(
-            self.harness,
-            test_utils.add_base_db_relation(self.harness))
-        test_utils.add_identity_service_relation_response(
-            self.harness,
-            test_utils.add_base_identity_service_relation(self.harness))
+        test_utils.set_all_pebbles_ready(self.harness)
+        test_utils.add_all_relations(self.harness)
         self.assertEqual(
-            self.container_calls['exec'],
+            self.container_calls.execute['placement-api'],
             [
                 ['a2ensite', 'wsgi-placement-api'],
                 ['sudo', '-u', 'placement', 'placement-manage', 'db', 'sync']
             ])
         self.assertEqual(
-            sorted(list(self.container_calls['push'].keys())),
+            sorted(self.container_calls.updated_files('placement-api')),
             [
                 '/etc/apache2/sites-available/wsgi-placement-api.conf',
                 '/etc/placement/placement.conf'])
