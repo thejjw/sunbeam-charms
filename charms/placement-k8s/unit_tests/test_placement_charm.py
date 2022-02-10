@@ -60,6 +60,7 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         self.container_calls = {
             'push': {},
             'pull': [],
+            'exec': [],
             'remove_path': []}
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
@@ -72,3 +73,24 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(self.harness.charm.seen_events, [])
         self.harness.container_pebble_ready('placement-api')
         self.assertEqual(self.harness.charm.seen_events, ['PebbleReadyEvent'])
+
+    def test_all_relations(self):
+        self.harness.set_leader()
+        self.harness.container_pebble_ready('placement-api')
+        test_utils.add_db_relation_credentials(
+            self.harness,
+            test_utils.add_base_db_relation(self.harness))
+        test_utils.add_identity_service_relation_response(
+            self.harness,
+            test_utils.add_base_identity_service_relation(self.harness))
+        self.assertEqual(
+            self.container_calls['exec'],
+            [
+                ['a2ensite', 'wsgi-placement-api'],
+                ['sudo', '-u', 'placement', 'placement-manage', 'db', 'sync']
+            ])
+        self.assertEqual(
+            sorted(list(self.container_calls['push'].keys())),
+            [
+                '/etc/apache2/sites-available/wsgi-placement-api.conf',
+                '/etc/placement/placement.conf'])
