@@ -269,7 +269,7 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                     "Waiting for leader to be ready")
                 return
             missing_leader_data = [
-                k for k in ['nb_cid', 'nb_cid']
+                k for k in ['nb_cid', 'sb_cid']
                 if not self.leader_get(k)]
             if missing_leader_data:
                 logging.debug(f"missing {missing_leader_data} from leader")
