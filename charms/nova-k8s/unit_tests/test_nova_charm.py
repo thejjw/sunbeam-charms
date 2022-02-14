@@ -28,21 +28,10 @@ class _NovaWallabyOperatorCharm(charm.NovaWallabyOperatorCharm):
 
     def __init__(self, framework):
         self.seen_events = []
-        self.render_calls = []
         super().__init__(framework)
 
     def _log_event(self, event):
         self.seen_events.append(type(event).__name__)
-
-    def renderer(self, containers, container_configs, template_dir,
-                 openstack_release, adapters):
-        self.render_calls.append(
-            (
-                containers,
-                container_configs,
-                template_dir,
-                openstack_release,
-                adapters))
 
     def configure_charm(self, event):
         super().configure_charm(event)
@@ -57,7 +46,6 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
         'charms.observability_libs.v0.kubernetes_service_patch.'
         'KubernetesServicePatch')
     def setUp(self, mock_patch):
-        self.container_calls = test_utils.ContainerCalls()
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
             _NovaWallabyOperatorCharm,
