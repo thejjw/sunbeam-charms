@@ -57,10 +57,7 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
         'charms.observability_libs.v0.kubernetes_service_patch.'
         'KubernetesServicePatch')
     def setUp(self, mock_patch):
-        self.container_calls = {
-            'push': {},
-            'pull': [],
-            'remove_path': []}
+        self.container_calls = test_utils.ContainerCalls()
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
             _GlanceWallabyOperatorCharm,
@@ -70,5 +67,35 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
 
     def test_pebble_ready_handler(self):
         self.assertEqual(self.harness.charm.seen_events, [])
-        self.harness.container_pebble_ready('glance-api')
+        test_utils.set_all_pebbles_ready(self.harness)
         self.assertEqual(self.harness.charm.seen_events, ['PebbleReadyEvent'])
+
+    def test_all_relations(self):
+        self.harness.set_leader()
+        test_utils.set_all_pebbles_ready(self.harness)
+        test_utils.add_all_relations(self.harness)
+        ceph_install_cmds = [
+            ['apt', 'update'],
+            ['apt', 'install', '-y', 'ceph-common'],
+            ['ceph-authtool',
+             '/etc/ceph/ceph.client.sunbeam-glance-operator.keyring',
+             '--create-keyring',
+             '--name=client.sunbeam-glance-operator',
+             '--add-key=AQBUfpVeNl7CHxAA8/f6WTcYFxW2dJ5VyvWmJg==']]
+        for cmd in ceph_install_cmds:
+            self.assertIn(cmd, self.container_calls.execute['glance-api'])
+
+        app_setup_cmds = [
+            ['a2ensite', 'wsgi-glance-api'],
+            ['sudo', '-u', 'glance', 'glance-manage', '--config-dir',
+             '/etc/glance', 'db', 'sync']]
+        for cmd in app_setup_cmds:
+            self.assertIn(cmd, self.container_calls.execute['glance-api'])
+
+        self.assertEqual(
+            sorted(list(set(
+                self.container_calls.updated_files('glance-api')))),
+            [
+                '/etc/apache2/sites-available/wsgi-glance-api.conf',
+                '/etc/ceph/ceph.conf',
+                '/etc/glance/glance-api.conf'])
