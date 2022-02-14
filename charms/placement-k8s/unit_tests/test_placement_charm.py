@@ -28,21 +28,10 @@ class _PlacementWallabyOperatorCharm(charm.PlacementWallabyOperatorCharm):
 
     def __init__(self, framework):
         self.seen_events = []
-        self.render_calls = []
         super().__init__(framework)
 
     def _log_event(self, event):
         self.seen_events.append(type(event).__name__)
-
-    def renderer(self, containers, container_configs, template_dir,
-                 openstack_release, adapters):
-        self.render_calls.append(
-            (
-                containers,
-                container_configs,
-                template_dir,
-                openstack_release,
-                adapters))
 
     def configure_charm(self, event):
         super().configure_charm(event)
@@ -57,7 +46,6 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         'charms.observability_libs.v0.kubernetes_service_patch.'
         'KubernetesServicePatch')
     def setUp(self, mock_patch):
-        self.container_calls = test_utils.ContainerCalls()
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
             _PlacementWallabyOperatorCharm,
@@ -74,14 +62,14 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_all_relations(self.harness)
+        setup_cmds = [
+            ['a2ensite', 'wsgi-placement-api'],
+            ['sudo', '-u', 'placement', 'placement-manage', 'db', 'sync']]
+        for cmd in setup_cmds:
+            self.assertIn(cmd, self.container_calls.execute['placement-api'])
         self.assertEqual(
-            self.container_calls.execute['placement-api'],
-            [
-                ['a2ensite', 'wsgi-placement-api'],
-                ['sudo', '-u', 'placement', 'placement-manage', 'db', 'sync']
-            ])
-        self.assertEqual(
-            sorted(self.container_calls.updated_files('placement-api')),
+            sorted(list(set(
+                self.container_calls.updated_files('placement-api')))),
             [
                 '/etc/apache2/sites-available/wsgi-placement-api.conf',
                 '/etc/placement/placement.conf'])
