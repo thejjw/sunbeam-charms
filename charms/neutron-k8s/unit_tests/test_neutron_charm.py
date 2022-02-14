@@ -57,10 +57,7 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         'charms.observability_libs.v0.kubernetes_service_patch.'
         'KubernetesServicePatch')
     def setUp(self, mock_patch):
-        self.container_calls = {
-            'push': {},
-            'pull': [],
-            'remove_path': []}
+        self.container_calls = test_utils.ContainerCalls()
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
             _NeutronOVNWallabyOperatorCharm,
@@ -72,3 +69,25 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(self.harness.charm.seen_events, [])
         self.harness.container_pebble_ready('neutron-server')
         self.assertEqual(len(self.harness.charm.seen_events), 1)
+
+    def test_all_relations(self):
+        self.harness.set_leader()
+        test_utils.set_all_pebbles_ready(self.harness)
+        test_utils.add_all_relations(self.harness)
+
+        setup_cmds = [
+            [
+                'sudo', '-u', 'neutron', 'neutron-db-manage', '--config-file',
+                '/etc/neutron/neutron.conf', '--config-file',
+                '/etc/neutron/plugins/ml2/ml2_conf.ini', 'upgrade', 'head']]
+        for cmd in setup_cmds:
+            self.assertIn(cmd, self.container_calls.execute['neutron-server'])
+        self.assertEqual(
+            sorted(list(set(
+                self.container_calls.updated_files('neutron-server')))),
+            [
+                '/etc/neutron/neutron.conf',
+                '/etc/neutron/plugins/ml2/cert_host',
+                '/etc/neutron/plugins/ml2/key_host',
+                '/etc/neutron/plugins/ml2/ml2_conf.ini',
+                '/etc/neutron/plugins/ml2/neutron-ovn.crt'])
