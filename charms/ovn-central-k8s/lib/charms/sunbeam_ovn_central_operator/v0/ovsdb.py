@@ -37,7 +37,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 
 # TODO: add your code here! Happy coding!
@@ -122,8 +122,9 @@ class OVSDBCMSRequires(Object):
         """Retrieve value for key from all related units."""
         values = []
         relation = self.framework.model.get_relation(self.relation_name)
-        for unit in relation.units:
-            values.append(relation.data[unit].get(key))
+        if relation:
+            for unit in relation.units:
+                values.append(relation.data[unit].get(key))
         return values
 
 
