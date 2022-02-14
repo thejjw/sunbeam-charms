@@ -74,16 +74,16 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_all_relations(self.harness)
+
+        setup_cmds = [
+            ['a2ensite', 'wsgi-nova-api'],
+            ['sudo', '-u', 'nova', 'nova-manage', 'api_db', 'sync'],
+            ['sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'map_cell0'],
+            ['sudo', '-u', 'nova', 'nova-manage', 'db', 'sync']]
+        for cmd in setup_cmds:
+            self.assertIn(cmd, self.container_calls.execute['nova-api'])
         self.assertEqual(
-            self.container_calls.execute['nova-api'],
-            [
-                ['a2ensite', 'wsgi-nova-api'],
-                ['sudo', '-u', 'nova', 'nova-manage', 'api_db', 'sync'],
-                ['sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'map_cell0'],
-                ['sudo', '-u', 'nova', 'nova-manage', 'db', 'sync']
-            ])
-        self.assertEqual(
-            sorted(self.container_calls.updated_files('nova-api')),
+            sorted(list(set(self.container_calls.updated_files('nova-api')))),
             [
                 '/etc/apache2/sites-available/wsgi-nova-api.conf',
                 '/etc/nova/nova.conf'])
