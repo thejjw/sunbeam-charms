@@ -53,10 +53,6 @@ class TestOVNRelayWallabyOperatorCharm(test_utils.CharmTestCase):
     PATCHES = []
 
     def setUp(self):
-        self.container_calls = {
-            'push': {},
-            'pull': [],
-            'remove_path': []}
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
             _OVNRelayWallabyOperatorCharm,
@@ -68,3 +64,17 @@ class TestOVNRelayWallabyOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(self.harness.charm.seen_events, [])
         self.harness.container_pebble_ready('ovsdb-server')
         self.assertEqual(len(self.harness.charm.seen_events), 1)
+
+    def test_all_relations(self):
+        self.harness.set_leader()
+        self.assertEqual(self.harness.charm.seen_events, [])
+        test_utils.set_all_pebbles_ready(self.harness)
+        test_utils.add_all_relations(self.harness)
+        self.assertEqual(
+            sorted(list(set(
+                self.container_calls.updated_files('ovsdb-server')))),
+            [
+                '/etc/ovn/cert_host',
+                '/etc/ovn/key_host',
+                '/etc/ovn/ovn-central.crt',
+                '/root/ovn-relay-wrapper.sh'])
