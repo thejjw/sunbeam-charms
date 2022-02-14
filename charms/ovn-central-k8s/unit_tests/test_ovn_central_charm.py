@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import mock
 import sys
 
 sys.path.append('lib')  # noqa
@@ -47,6 +48,19 @@ class _OVNCentralWallabyOperatorCharm(charm.OVNCentralWallabyOperatorCharm):
         super().configure_charm(event)
         self._log_event(event)
 
+    def configure_ovn_listener(self, db, port_map):
+        pass
+
+    def cluster_status(self, db, cmd_executor):
+        if db == 'ovnnb_db':
+            nb_mock = mock.MagicMock()
+            nb_mock.cluster_id = 'nb_id'
+            return nb_mock
+        if db == 'ovnsb_db':
+            sb_mock = mock.MagicMock()
+            sb_mock.cluster_id = 'sb_id'
+            return sb_mock
+
 
 class TestOVNCentralWallabyOperatorCharm(test_utils.CharmTestCase):
 
@@ -55,10 +69,6 @@ class TestOVNCentralWallabyOperatorCharm(test_utils.CharmTestCase):
     ]
 
     def setUp(self):
-        self.container_calls = {
-            'push': {},
-            'pull': [],
-            'remove_path': []}
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
             _OVNCentralWallabyOperatorCharm,
@@ -68,7 +78,88 @@ class TestOVNCentralWallabyOperatorCharm(test_utils.CharmTestCase):
 
     def test_pebble_ready_handler(self):
         self.assertEqual(self.harness.charm.seen_events, [])
-        self.harness.container_pebble_ready('ovn-sb-db-server')
-        self.harness.container_pebble_ready('ovn-nb-db-server')
-        self.harness.container_pebble_ready('ovn-northd')
+        test_utils.set_all_pebbles_ready(self.harness)
         self.assertEqual(len(self.harness.charm.seen_events), 3)
+
+    def test_all_relations_leader(self):
+        self.harness.set_leader()
+        self.assertEqual(self.harness.charm.seen_events, [])
+        test_utils.set_all_pebbles_ready(self.harness)
+        test_utils.add_all_relations(self.harness)
+        self.assertEqual(
+            sorted(self.container_calls.updated_files('ovn-sb-db-server')),
+            [
+                '/etc/ovn/cert_host',
+                '/etc/ovn/key_host',
+                '/etc/ovn/ovn-central.crt',
+                '/root/ovn-sb-cluster-join.sh',
+                '/root/ovn-sb-db-server-wrapper.sh'])
+        self.assertEqual(
+            sorted(self.container_calls.updated_files('ovn-nb-db-server')),
+            [
+                '/etc/ovn/cert_host',
+                '/etc/ovn/key_host',
+                '/etc/ovn/ovn-central.crt',
+                '/root/ovn-nb-cluster-join.sh',
+                '/root/ovn-nb-db-server-wrapper.sh'])
+        self.assertEqual(
+            sorted(self.container_calls.updated_files('ovn-northd')),
+            [
+                '/etc/ovn/cert_host',
+                '/etc/ovn/key_host',
+                '/etc/ovn/ovn-central.crt',
+                '/etc/ovn/ovn-northd-db-params.conf',
+                '/root/ovn-northd-wrapper.sh'])
+
+    def test_all_relations_non_leader(self):
+        self.harness.set_leader(False)
+        self.assertEqual(self.harness.charm.seen_events, [])
+        test_utils.set_all_pebbles_ready(self.harness)
+        rel_ids = test_utils.add_all_relations(self.harness)
+        test_utils.set_remote_leader_ready(
+            self.harness,
+            rel_ids['peers'])
+        self.harness.update_relation_data(
+            rel_ids['peers'],
+            self.harness.charm.app.name,
+            {
+                'nb_cid': 'nbcid',
+                'sb_cid': 'sbcid'}
+        )
+        self.assertEqual(
+            sorted(list(set(
+                self.container_calls.updated_files('ovn-sb-db-server')))),
+            [
+                '/etc/ovn/cert_host',
+                '/etc/ovn/key_host',
+                '/etc/ovn/ovn-central.crt',
+                '/root/ovn-sb-cluster-join.sh',
+                '/root/ovn-sb-db-server-wrapper.sh'])
+        self.assertEqual(
+            sorted(list(set(
+                self.container_calls.updated_files('ovn-nb-db-server')))),
+            [
+                '/etc/ovn/cert_host',
+                '/etc/ovn/key_host',
+                '/etc/ovn/ovn-central.crt',
+                '/root/ovn-nb-cluster-join.sh',
+                '/root/ovn-nb-db-server-wrapper.sh'])
+        self.assertEqual(
+            sorted(list(set(
+                self.container_calls.updated_files('ovn-northd')))),
+            [
+                '/etc/ovn/cert_host',
+                '/etc/ovn/key_host',
+                '/etc/ovn/ovn-central.crt',
+                '/etc/ovn/ovn-northd-db-params.conf',
+                '/root/ovn-northd-wrapper.sh'])
+        self.assertEqual(
+            self.container_calls.execute['ovn-sb-db-server'],
+            [
+                ['bash', '/root/ovn-sb-cluster-join.sh']
+            ])
+        self.assertEqual(
+            self.container_calls.execute['ovn-nb-db-server'],
+            [
+                ['bash', '/root/ovn-nb-cluster-join.sh']
+            ])
