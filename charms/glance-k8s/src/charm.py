@@ -134,11 +134,11 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 handler.start_service()
 
 
-class GlanceWallabyOperatorCharm(GlanceOperatorCharm):
+class GlanceXenaOperatorCharm(GlanceOperatorCharm):
 
-    openstack_release = 'wallaby'
+    openstack_release = 'xena'
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(GlanceWallabyOperatorCharm, use_juju_for_storage=True)
+    main(GlanceXenaOperatorCharm, use_juju_for_storage=True)
