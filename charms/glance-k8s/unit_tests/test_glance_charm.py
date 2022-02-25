@@ -24,7 +24,7 @@ import charm
 import advanced_sunbeam_openstack.test_utils as test_utils
 
 
-class _GlanceWallabyOperatorCharm(charm.GlanceWallabyOperatorCharm):
+class _GlanceXenaOperatorCharm(charm.GlanceXenaOperatorCharm):
 
     def __init__(self, framework):
         self.seen_events = []
@@ -48,7 +48,7 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
     def setUp(self, mock_patch):
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
-            _GlanceWallabyOperatorCharm,
+            _GlanceXenaOperatorCharm,
             container_calls=self.container_calls)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
