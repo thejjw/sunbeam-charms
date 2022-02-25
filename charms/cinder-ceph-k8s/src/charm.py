@@ -26,11 +26,10 @@ import advanced_sunbeam_openstack.charm as charm
 import advanced_sunbeam_openstack.relation_handlers as relation_handlers
 import advanced_sunbeam_openstack.config_contexts as config_contexts
 import advanced_sunbeam_openstack.container_handlers as container_handlers
-import advanced_sunbeam_openstack.cprocess as cprocess
 
 import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
 
-import charms.sunbeam_cinder_operator.v0.storage_backend as sunbeam_storage_backend
+import charms.sunbeam_cinder_operator.v0.storage_backend as sunbeam_storage_backend  # noqa
 
 logger = logging.getLogger(__name__)
 
@@ -40,8 +39,8 @@ class CephConfigurationContext(config_contexts.ConfigContext):
         config = self.charm.model.config.get
         ctxt = {}
         if (
-            config("pool-type")
-            and config("pool-type") == sunbeam_rhandlers.ERASURE_CODED
+            config("pool-type") and
+            config("pool-type") == sunbeam_rhandlers.ERASURE_CODED
         ):
             base_pool_name = config("rbd-pool") or config("rbd-pool-name")
             if not base_pool_name:
@@ -203,13 +202,11 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
         _cconfigs.extend(
             [
                 core.ContainerConfigFile(
-                    [self.service_name],
                     self.cinder_conf,
                     self.service_user,
                     self.service_group,
                 ),
                 core.ContainerConfigFile(
-                    [self.service_name],
                     self.ceph_conf,
                     self.service_user,
                     self.service_group,
@@ -231,9 +228,7 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
 
         for ph in self.pebble_handlers:
             if ph.pebble_ready:
-                container = self.unit.get_container(ph.container_name)
-                cprocess.check_call(
-                    container,
+                ph.execute(
                     [
                         "ceph-authtool",
                         f"/etc/ceph/ceph.client.{self.app.name}.keyring",
@@ -241,6 +236,7 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
                         f"--name=client.{self.app.name}",
                         f"--add-key={self.ceph.key}",
                     ],
+                    exception_on_error=True
                 )
                 ph.init_service(self.contexts())
 
@@ -254,7 +250,7 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
 
 class CinderCephWallabyOperatorCharm(CinderCephOperatorCharm):
 
-    openstack_release = "wallaby"
+    openstack_release = "xena"
 
 
 if __name__ == "__main__":
