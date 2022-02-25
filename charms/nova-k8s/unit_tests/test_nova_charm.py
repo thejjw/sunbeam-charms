@@ -24,7 +24,7 @@ import charm
 import advanced_sunbeam_openstack.test_utils as test_utils
 
 
-class _NovaWallabyOperatorCharm(charm.NovaWallabyOperatorCharm):
+class _NovaXenaOperatorCharm(charm.NovaXenaOperatorCharm):
 
     def __init__(self, framework):
         self.seen_events = []
@@ -48,7 +48,7 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
     def setUp(self, mock_patch):
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
-            _NovaWallabyOperatorCharm,
+            _NovaXenaOperatorCharm,
             container_calls=self.container_calls)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
