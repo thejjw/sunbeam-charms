@@ -342,7 +342,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
 class KeystoneWallabyOperatorCharm(KeystoneOperatorCharm):
 
-    openstack_release = 'wallaby'
+    openstack_release = 'xena'
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
