@@ -56,11 +56,11 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return 8778
 
 
-class PlacementWallabyOperatorCharm(PlacementOperatorCharm):
+class PlacementXenaOperatorCharm(PlacementOperatorCharm):
 
-    openstack_release = 'wallaby'
+    openstack_release = 'xena'
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(PlacementWallabyOperatorCharm, use_juju_for_storage=True)
+    main(PlacementXenaOperatorCharm, use_juju_for_storage=True)
