@@ -65,11 +65,11 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         return contexts
 
 
-class OVNRelayWallabyOperatorCharm(OVNRelayOperatorCharm):
+class OVNRelayXenaOperatorCharm(OVNRelayOperatorCharm):
 
-    openstack_release = 'wallaby'
+    openstack_release = 'xena'
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(OVNRelayWallabyOperatorCharm, use_juju_for_storage=True)
+    main(OVNRelayXenaOperatorCharm, use_juju_for_storage=True)
