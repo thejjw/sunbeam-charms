@@ -209,11 +209,11 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         super().configure_charm(event)
 
 
-class NovaWallabyOperatorCharm(NovaOperatorCharm):
+class NovaXenaOperatorCharm(NovaOperatorCharm):
 
-    openstack_release = 'wallaby'
+    openstack_release = 'xena'
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(NovaWallabyOperatorCharm, use_juju_for_storage=True)
+    main(NovaXenaOperatorCharm, use_juju_for_storage=True)
