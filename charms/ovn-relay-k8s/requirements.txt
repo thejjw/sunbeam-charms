@@ -1,11 +1,15 @@
 ops
 jinja2
-git+https://opendev.org/openstack/charm-ops-openstack#egg=ops_openstack
+# Get resources from github until cacerts issue is charmbuild image is fixed.
+# git+https://opendev.org/openstack/charm-ops-openstack#egg=ops_openstack
+# git+https://opendev.org/openstack/charm-ops-interface-tls-certificates#egg=interface_tls_certificates
+git+https://github.com/openstack/charm-ops-openstack#egg=ops_openstack
+git+https://github.com/openstack/charm-ops-interface-tls-certificates#egg=interface_tls_certificates
+
 git+https://github.com/openstack-charmers/advanced-sunbeam-openstack@v0.1#egg=advanced_sunbeam_openstack
 lightkube
-# These are only needeed if the charm relates to ceph
+lightkube-models
+cryptography < 3.4
 git+https://github.com/openstack/charm-ops-interface-ceph-client#egg=interface_ceph_client
 # Charmhelpers is only present as interface_ceph_client uses it.
 git+https://github.com/juju/charm-helpers.git#egg=charmhelpers
-cryptography < 3.4
-git+https://opendev.org/openstack/charm-ops-interface-tls-certificates#egg=interface_tls_certificates
