@@ -24,7 +24,7 @@ import charm
 import advanced_sunbeam_openstack.test_utils as test_utils
 
 
-class _OVNCentralWallabyOperatorCharm(charm.OVNCentralWallabyOperatorCharm):
+class _OVNCentralXenaOperatorCharm(charm.OVNCentralXenaOperatorCharm):
 
     def __init__(self, framework):
         self.seen_events = []
@@ -51,7 +51,7 @@ class _OVNCentralWallabyOperatorCharm(charm.OVNCentralWallabyOperatorCharm):
             return sb_mock
 
 
-class TestOVNCentralWallabyOperatorCharm(test_utils.CharmTestCase):
+class TestOVNCentralXenaOperatorCharm(test_utils.CharmTestCase):
 
     PATCHES = [
         'KubernetesServicePatch',
@@ -60,7 +60,7 @@ class TestOVNCentralWallabyOperatorCharm(test_utils.CharmTestCase):
     def setUp(self):
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
-            _OVNCentralWallabyOperatorCharm,
+            _OVNCentralXenaOperatorCharm,
             container_calls=self.container_calls)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
