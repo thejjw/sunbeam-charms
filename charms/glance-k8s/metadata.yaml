@@ -37,10 +37,12 @@ requires:
     limit: 1
   amqp:
     interface: rabbitmq
-  image-service:
-    interface: glance
   ceph:
     interface: ceph-client
+
+provides:
+  image-service:
+    interface: glance
 
 peers:
   peers:
