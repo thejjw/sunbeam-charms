@@ -13,6 +13,7 @@ develop a new k8s charm using the Operator Framework:
 """
 
 import logging
+from typing import Callable
 from typing import List
 
 import ops.charm
@@ -26,7 +27,9 @@ import advanced_sunbeam_openstack.charm as sunbeam_charm
 import advanced_sunbeam_openstack.core as sunbeam_core
 import advanced_sunbeam_openstack.config_contexts as sunbeam_contexts
 import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
+
 import charms.sunbeam_keystone_operator.v0.identity_service as sunbeam_id_svc
+import charms.sunbeam_keystone_operator.v0.cloud_credentials as sunbeam_cc_svc
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +94,7 @@ class IdentityServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
         self,
         charm: ops.charm.CharmBase,
         relation_name: str,
-        callback_f,
+        callback_f: Callable,
     ):
         super().__init__(charm, relation_name, callback_f)
 
@@ -111,6 +114,39 @@ class IdentityServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
         """Handles AMQP change events."""
         # Ready is only emitted when the interface considers
         # that the relation is complete (indicated by a password)
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        return True
+
+
+class CloudCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+    ):
+        super().__init__(charm, relation_name, callback_f)
+
+    def setup_event_handler(self):
+        """Configure event handlers for a Cloud Credentials relation."""
+        logger.debug("Setting up Cloud Credentials event handler")
+        id_svc = sunbeam_cc_svc.CloudCredentialsProvides(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            id_svc.on.ready_cloud_credentials_clients,
+            self._on_cloud_credentials_ready)
+        return id_svc
+
+    def _on_cloud_credentials_ready(self, event) -> None:
+        """Handles cloud credentials change events."""
+        # Ready is only emitted when the interface considers
+        # that the relation is complete (indicated by a username)
         self.callback_f(event)
 
     @property
@@ -145,10 +181,19 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self.id_svc = IdentityServiceProvidesHandler(
                 self,
                 'identity-service',
-                self.register_service)
+                self.register_service,
+            )
             handlers.append(self.id_svc)
-        handlers = super().get_relation_handlers(handlers)
-        return handlers
+
+        if self.can_add_handler('identity-credentials', handlers):
+            self.cc_svc = CloudCredentialsProvidesHandler(
+                self,
+                'identity-credentials',
+                self.add_credentials,
+            )
+            handlers.append(self.cc_svc)
+
+        return super().get_relation_handlers(handlers)
 
     @property
     def config_contexts(self) -> List[sunbeam_contexts.ConfigContext]:
@@ -243,6 +288,70 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 service_password,
                 service_project,
                 service_user)
+
+    def add_credentials(self, event):
+        """
+
+        :param event:
+        :return:
+        """
+        if not self.unit.is_leader():
+            logger.debug('Current unit is not the leader unit, deferring '
+                         'credential creation to leader unit.')
+            return
+
+        if not self.bootstrapped():
+            logger.debug('Keystone is not bootstrapped, deferring credential '
+                         'creation until after bootstrap.')
+            event.defer()
+            return
+
+        relation = self.model.get_relation(
+            event.relation_name,
+            event.relation_id)
+        binding = self.framework.model.get_binding(relation)
+        ingress_address = str(binding.network.ingress_address)
+        service_domain = self.keystone_manager.create_domain(
+            name='service_domain',
+            may_exist=True)
+        service_project = self.keystone_manager.get_project(
+            name=self.service_project,
+            domain=service_domain)
+        service_user = self.keystone_manager.create_user(
+            name=event.username,
+            password='password123',
+            domain=service_domain.id,
+            may_exist=True)
+        admin_role = self.keystone_manager.create_role(
+            name=self.admin_role,
+            may_exist=True)
+        # TODO(wolsen) let's not always grant admin role!
+        self.keystone_manager.grant_role(
+            role=admin_role,
+            user=service_user,
+            project=service_project,
+            may_exist=True)
+
+        self.cc_svc.interface.set_cloud_credentials(
+            relation_name=event.relation_name,
+            relation_id=event.relation_id,
+            api_version='v3',
+            auth_host=ingress_address,
+            auth_port=self.default_public_ingress_port,
+            auth_protocol='http',
+            internal_host=ingress_address,  # XXX(wolsen) internal address?
+            internal_port=self.default_public_ingress_port,
+            internal_protocol='http',
+            username=service_user.name,
+            password='password123',
+            project_name=service_project.name,
+            project_id=service_project.id,
+            user_domain_name=service_domain.name,
+            user_domain_id=service_domain.id,
+            project_domain_name=service_domain.name,
+            project_domain_id=service_domain.id,
+            region=self.model.config['region'],  # XXX(wolsen) region matters?
+        )
 
     @property
     def default_public_ingress_port(self):
@@ -343,6 +452,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 class KeystoneWallabyOperatorCharm(KeystoneOperatorCharm):
 
     openstack_release = 'xena'
+
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per

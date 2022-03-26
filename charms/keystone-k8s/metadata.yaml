@@ -21,6 +21,8 @@ subordinate: false
 provides:
   identity-service:
     interface: keystone
+  identity-credentials:
+    interface: keystone-credentials
 
 requires:
   shared-db:
