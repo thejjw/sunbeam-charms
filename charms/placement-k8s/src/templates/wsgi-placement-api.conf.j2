@@ -2,7 +2,7 @@ Listen {{ wsgi_config.public_port }}
 <VirtualHost *:{{ wsgi_config.public_port }}>
     WSGIDaemonProcess placement processes=3 threads=1 user={{ wsgi_config.user }} group={{ wsgi_config.group }} \
                       display-name=%{GROUP}
-    WSGIProcessGroup glance
+    WSGIProcessGroup placement
     WSGIScriptAlias / {{ wsgi_config.wsgi_public_script }}
     WSGIApplicationGroup %{GLOBAL}
     WSGIPassAuthorization On
