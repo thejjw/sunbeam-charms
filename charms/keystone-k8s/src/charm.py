@@ -426,8 +426,13 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def public_endpoint(self):
-        public_hostname = self.model.config.get('os-public-hostname')
-        return f'http://{public_hostname}:5000'
+        address = self.public_ingress_address
+        if not address:
+            address = self.model.get_binding(
+                'identity-service'
+            ).network.ingress_address
+        service_port = self.model.config['service-port']
+        return f'http://{address}:{service_port}'
 
     def _do_bootstrap(self):
         """

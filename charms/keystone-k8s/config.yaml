@@ -46,7 +46,7 @@ options:
       in the keystone identity provider.
     type: string
   os-public-hostname:
-    default: keystone.juju
+    default:
     description: |
       The hostname or address of the internal endpoints that should be advertised
       in the keystone identity provider.
