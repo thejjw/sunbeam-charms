@@ -1,5 +1,6 @@
-# Copyright 2021 Billy Olsen
+# Copyright 2021 Canonical Ltd.
 # See LICENSE file for licensing details.
+
 name: sunbeam-keystone-operator
 summary: OpenStack identity service
 maintainer: Openstack Charmers <openstack-charmers@lists.ubuntu.com>
@@ -15,8 +16,6 @@ tags:
   - openstack
   - identity
   - misc
-
-subordinate: false
 
 provides:
   identity-service:
@@ -35,9 +34,35 @@ peers:
   peers:
     interface: keystone-peer
 
+storage:
+  fernet-keys:
+    type: filesystem
+    description: |
+      Persistent storage for the location of fernet tokens
+    minimum-size: 5M
+
+  credential-keys:
+    type: filesystem
+    description: |
+      Persistent storage for the location of credential keys
+    minimum-size: 5M
+
 containers:
+  # The primary container that runs the keystone services
   keystone:
     resource: keystone-image
+    mounts:
+      - storage: fernet-keys
+        # The fernet keys used for generated tokens are stored here. With a
+        # mounted storage option, the fernet keys are persisted across
+        # container restarts.
+        location: /etc/keystone/fernet-keys/
+
+      - storage: credential-keys
+        # The credential keys used for generated credentials are stored here.
+        # With a mounted storage option, the credential keys are persisted
+        # across container restarts.
+        location: /etc/keystone/credential-keys/
 
 resources:
   keystone-image:
