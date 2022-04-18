@@ -241,14 +241,15 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         :param handlers:
         :return:
         """
-        handlers = super().get_relation_handlers(handlers)
-        self.compute_nodes = CloudComputeRequiresHandler(
-            self,
-            'cloud-compute',
-            self.model.config['region'],
-            self.register_compute_nodes,
-        )
-        handlers.append(self.compute_nodes)
+        handlers = super().get_relation_handlers(handlers or [])
+        if self.can_add_handler("cloud-compute", handlers):
+            self.compute_nodes = CloudComputeRequiresHandler(
+                self,
+                'cloud-compute',
+                self.model.config['region'],
+                self.register_compute_nodes,
+            )
+            handlers.append(self.compute_nodes)
         return handlers
 
     @property

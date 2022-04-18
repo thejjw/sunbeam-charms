@@ -42,6 +42,7 @@ resources:
 requires:
   ingress:
     interface: ingress
+    limit: 1
   shared-db:
     interface: mysql_datastore
     limit: 1

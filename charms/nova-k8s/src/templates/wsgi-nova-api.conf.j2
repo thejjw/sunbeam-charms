@@ -4,6 +4,9 @@ Listen {{ wsgi_nova_metadata.public_port }}
     WSGIDaemonProcess nova-api processes=3 threads=1 user={{ wsgi_config.user }} group={{ wsgi_config.group }} \
                       display-name=%{GROUP}
     WSGIProcessGroup nova-api
+    {% if ingress.ingress_path -%}
+    WSGIScriptAlias {{ ingress.ingress_path }} {{ wsgi_config.wsgi_public_script }}
+    {% endif -%}
     WSGIScriptAlias / {{ wsgi_config.wsgi_public_script }}
     WSGIApplicationGroup %{GLOBAL}
     WSGIPassAuthorization On
