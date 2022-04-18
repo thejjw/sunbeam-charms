@@ -4,19 +4,19 @@ options:
     description: Enable debug logging.
     type: boolean
   os-admin-hostname:
-    default: nova.juju
+    default:
     description: |
       The hostname or address of the admin endpoints that should be advertised
       in the nova image provider.
     type: string
   os-internal-hostname:
-    default: nova.juju
+    default:
     description: |
       The hostname or address of the internal endpoints that should be advertised
       in the nova image provider.
     type: string
   os-public-hostname:
-    default: nova.juju
+    default:
     description: |
       The hostname or address of the internal endpoints that should be advertised
       in the nova image provider.

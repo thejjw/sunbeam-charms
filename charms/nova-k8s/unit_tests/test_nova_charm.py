@@ -67,7 +67,10 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
             ['a2ensite', 'wsgi-nova-api'],
             ['sudo', '-u', 'nova', 'nova-manage', 'api_db', 'sync'],
             ['sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'map_cell0'],
-            ['sudo', '-u', 'nova', 'nova-manage', 'db', 'sync']]
+            ['sudo', '-u', 'nova', 'nova-manage', 'db', 'sync'],
+            ['sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'create_cell',
+             '--name', 'cell1', '--verbose'],
+        ]
         for cmd in setup_cmds:
             self.assertIn(cmd, self.container_calls.execute['nova-api'])
         self.assertEqual(
