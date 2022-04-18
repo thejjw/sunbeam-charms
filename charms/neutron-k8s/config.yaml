@@ -4,19 +4,19 @@ options:
     description: Enable debug logging.
     type: boolean
   os-admin-hostname:
-    default: neutron.juju
+    default:
     description: |
       The hostname or address of the admin endpoints that should be advertised
       in the neutron image provider.
     type: string
   os-internal-hostname:
-    default: neutron.juju
+    default:
     description: |
       The hostname or address of the internal endpoints that should be advertised
       in the neutron image provider.
     type: string
   os-public-hostname:
-    default: neutron.juju
+    default:
     description: |
       The hostname or address of the internal endpoints that should be advertised
       in the neutron image provider.
