@@ -14,15 +14,25 @@ transport_url = {{ amqp.transport_url }}
 
 
 [glance_store]
+{% if ceph.auth %}
 default_backend = ceph
+enabled_backends = ceph, filestore
+{% else %}
+default_backend = filestore
+enabled_backends = filestore
+{% endif %}
+
+[filestore]
 filesystem_store_datadir = /var/lib/glance/images/
 
+{% if ceph.auth %}
 [ceph]
 rbd_store_chunk_size = 8
 rbd_store_pool = glance
 rbd_store_user = glance
 rados_connect_timeout = 0
 rbd_store_ceph_conf = /etc/ceph/ceph.conf
+{% endif %}
 
 [paste_deploy]
 flavor = keystone

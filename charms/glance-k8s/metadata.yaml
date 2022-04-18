@@ -20,11 +20,25 @@ tags:
 containers:
   glance-api:
     resource: glance-api-image
+    mounts:
+      - storage: local-repository
+        # A persistent storage place to store glance images in a local file
+        # based repository. This must be shared storage in order to support a
+        # highly available glance registry.
+        location: /var/lib/glance/images
 
 resources:
   glance-api-image:
     type: oci-image
     description: OCI image for OpenStack Glance (kolla/glance-api-image)
+
+storage:
+  local-repository:
+    type: filesystem
+    description: |
+      A local filesystem storage repository for glance images to be saved to.
+      Note, this must be shared storage in order to support a highly 
+      available glance image registry.
 
 requires:
   shared-db:
