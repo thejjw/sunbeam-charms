@@ -426,6 +426,9 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def public_endpoint(self):
+        if self.ingress:
+            return self.ingress.url
+
         address = self.public_ingress_address
         if not address:
             address = self.model.get_binding(

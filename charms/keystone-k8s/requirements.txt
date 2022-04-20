@@ -5,3 +5,4 @@ git+https://github.com/openstack-charmers/advanced-sunbeam-openstack@v0.1#egg=ad
 lightkube
 lightkube-models
 python-keystoneclient
+serialized-data-interface

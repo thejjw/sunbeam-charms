@@ -4,6 +4,9 @@ Listen 0.0.0.0:35357
 <VirtualHost *:5000>
     WSGIDaemonProcess keystone-public processes=1 threads=1 user=keystone group=keystone display-name=%{GROUP} python-path=/usr/lib/python3/site-packages
     WSGIProcessGroup keystone-public
+    {% if ingress.ingress_path -%}
+    WSGIScriptAlias {{ ingress.ingress_path }} /usr/bin/keystone-wsgi-public
+    {% endif -%}
     WSGIScriptAlias / /usr/bin/keystone-wsgi-public
     WSGIApplicationGroup %{GLOBAL}
     WSGIPassAuthorization On
