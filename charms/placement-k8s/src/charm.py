@@ -19,8 +19,8 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "placement-api"
-    wsgi_admin_script = '/usr/bin/placement-wsgi-api'
-    wsgi_public_script = '/usr/bin/placement-wsgi-api'
+    wsgi_admin_script = '/usr/bin/placement-api'
+    wsgi_public_script = '/usr/bin/placement-api'
 
     db_sync_cmds = [
         ['sudo', '-u', 'placement', 'placement-manage', 'db', 'sync']]
