@@ -30,6 +30,7 @@ requires:
     interface: keystone
   ingress:
     interface: ingress
+    limit: 1
 provides:
   placement:
     interface: placement
