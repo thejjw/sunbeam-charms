@@ -37,6 +37,10 @@ class _PlacementXenaOperatorCharm(charm.PlacementXenaOperatorCharm):
         super().configure_charm(event)
         self._log_event(event)
 
+    @property
+    def public_ingress_address(self):
+        return 'placement.juju'
+
 
 class TestPlacementOperatorCharm(test_utils.CharmTestCase):
 
