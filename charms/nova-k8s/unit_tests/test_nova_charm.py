@@ -37,6 +37,10 @@ class _NovaXenaOperatorCharm(charm.NovaXenaOperatorCharm):
         super().configure_charm(event)
         self._log_event(event)
 
+    @property
+    def public_ingress_address(self):
+        return "nova.juju"
+
 
 class TestNovaOperatorCharm(test_utils.CharmTestCase):
 
