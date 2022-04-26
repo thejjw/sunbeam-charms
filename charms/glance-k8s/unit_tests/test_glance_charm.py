@@ -37,6 +37,10 @@ class _GlanceXenaOperatorCharm(charm.GlanceXenaOperatorCharm):
         super().configure_charm(event)
         self._log_event(event)
 
+    @property
+    def public_ingress_address(self):
+        return "glance.juju"
+
 
 class TestGlanceOperatorCharm(test_utils.CharmTestCase):
 
