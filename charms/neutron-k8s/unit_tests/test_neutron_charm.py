@@ -37,6 +37,10 @@ class _NeutronOVNXenaOperatorCharm(charm.NeutronOVNXenaOperatorCharm):
         super().configure_charm(event)
         self._log_event(event)
 
+    @property
+    def public_ingress_address(self):
+        return "neutron.juju"
+
 
 class TestNeutronOperatorCharm(test_utils.CharmTestCase):
 
