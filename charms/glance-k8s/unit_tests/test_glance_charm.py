@@ -46,26 +46,38 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
 
     PATCHES = []
 
-    @mock.patch(
-        'charms.observability_libs.v0.kubernetes_service_patch.'
-        'KubernetesServicePatch')
-    def setUp(self, mock_patch):
+    def setUp(self):
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
             _GlanceXenaOperatorCharm,
             container_calls=self.container_calls)
         self.addCleanup(self.harness.cleanup)
-        self.harness.begin()
+        test_utils.add_complete_ingress_relation(self.harness)
 
-    def test_pebble_ready_handler(self):
+    @mock.patch(
+        'charms.observability_libs.v0.kubernetes_service_patch.'
+        'KubernetesServicePatch')
+    def test_pebble_ready_handler(self, svc_patch):
+        self.harness.begin()
         self.assertEqual(self.harness.charm.seen_events, [])
         test_utils.set_all_pebbles_ready(self.harness)
         self.assertEqual(self.harness.charm.seen_events, ['PebbleReadyEvent'])
 
-    def test_all_relations(self):
+    @mock.patch(
+        'charms.observability_libs.v0.kubernetes_service_patch.'
+        'KubernetesServicePatch')
+    def test_all_relations(self, svc_patch):
+        ceph_rel_id = self.harness.add_relation("ceph", "ceph-mon")
+        self.harness.begin_with_initial_hooks()
+        self.harness.add_relation_unit(ceph_rel_id, "ceph-mon/0")
+        self.harness.update_relation_data(
+            ceph_rel_id,
+            "ceph-mon/0",
+            {"ingress-address": "10.0.0.33"})
+        test_utils.add_ceph_relation_credentials(self.harness, ceph_rel_id)
+        test_utils.add_api_relations(self.harness)
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
-        test_utils.add_all_relations(self.harness)
         ceph_install_cmds = [
             ['apt', 'update'],
             ['apt', 'install', '-y', 'ceph-common'],
@@ -84,10 +96,6 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
         for cmd in app_setup_cmds:
             self.assertIn(cmd, self.container_calls.execute['glance-api'])
 
-        self.assertEqual(
-            sorted(list(set(
-                self.container_calls.updated_files('glance-api')))),
-            [
-                '/etc/apache2/sites-available/wsgi-glance-api.conf',
-                '/etc/ceph/ceph.conf',
-                '/etc/glance/glance-api.conf'])
+        for f in ['/etc/apache2/sites-available/wsgi-glance-api.conf',
+                  '/etc/glance/glance-api.conf', '/etc/ceph/ceph.conf']:
+            self.check_file('glance-api', f)
