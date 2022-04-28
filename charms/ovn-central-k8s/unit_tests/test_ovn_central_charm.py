@@ -70,35 +70,40 @@ class TestOVNCentralXenaOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         self.assertEqual(len(self.harness.charm.seen_events), 3)
 
+    def check_rendered_files(self):
+        sb_config_files = [
+            '/etc/ovn/cert_host',
+            '/etc/ovn/key_host',
+            '/etc/ovn/ovn-central.crt',
+            '/root/ovn-sb-cluster-join.sh',
+            '/root/ovn-sb-db-server-wrapper.sh']
+        for f in sb_config_files:
+            self.check_file('ovn-sb-db-server', f)
+
+        nb_config_files = [
+            '/etc/ovn/cert_host',
+            '/etc/ovn/key_host',
+            '/etc/ovn/ovn-central.crt',
+            '/root/ovn-nb-cluster-join.sh',
+            '/root/ovn-nb-db-server-wrapper.sh']
+        for f in nb_config_files:
+            self.check_file('ovn-nb-db-server', f)
+
+        northd_config_files = [
+            '/etc/ovn/cert_host',
+            '/etc/ovn/key_host',
+            '/etc/ovn/ovn-central.crt',
+            '/etc/ovn/ovn-northd-db-params.conf',
+            '/root/ovn-northd-wrapper.sh']
+        for f in northd_config_files:
+            self.check_file('ovn-northd', f)
+
     def test_all_relations_leader(self):
         self.harness.set_leader()
         self.assertEqual(self.harness.charm.seen_events, [])
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_all_relations(self.harness)
-        self.assertEqual(
-            sorted(self.container_calls.updated_files('ovn-sb-db-server')),
-            [
-                '/etc/ovn/cert_host',
-                '/etc/ovn/key_host',
-                '/etc/ovn/ovn-central.crt',
-                '/root/ovn-sb-cluster-join.sh',
-                '/root/ovn-sb-db-server-wrapper.sh'])
-        self.assertEqual(
-            sorted(self.container_calls.updated_files('ovn-nb-db-server')),
-            [
-                '/etc/ovn/cert_host',
-                '/etc/ovn/key_host',
-                '/etc/ovn/ovn-central.crt',
-                '/root/ovn-nb-cluster-join.sh',
-                '/root/ovn-nb-db-server-wrapper.sh'])
-        self.assertEqual(
-            sorted(self.container_calls.updated_files('ovn-northd')),
-            [
-                '/etc/ovn/cert_host',
-                '/etc/ovn/key_host',
-                '/etc/ovn/ovn-central.crt',
-                '/etc/ovn/ovn-northd-db-params.conf',
-                '/root/ovn-northd-wrapper.sh'])
+        self.check_rendered_files()
 
     def test_all_relations_non_leader(self):
         self.harness.set_leader(False)
@@ -115,33 +120,7 @@ class TestOVNCentralXenaOperatorCharm(test_utils.CharmTestCase):
                 'nb_cid': 'nbcid',
                 'sb_cid': 'sbcid'}
         )
-        self.assertEqual(
-            sorted(list(set(
-                self.container_calls.updated_files('ovn-sb-db-server')))),
-            [
-                '/etc/ovn/cert_host',
-                '/etc/ovn/key_host',
-                '/etc/ovn/ovn-central.crt',
-                '/root/ovn-sb-cluster-join.sh',
-                '/root/ovn-sb-db-server-wrapper.sh'])
-        self.assertEqual(
-            sorted(list(set(
-                self.container_calls.updated_files('ovn-nb-db-server')))),
-            [
-                '/etc/ovn/cert_host',
-                '/etc/ovn/key_host',
-                '/etc/ovn/ovn-central.crt',
-                '/root/ovn-nb-cluster-join.sh',
-                '/root/ovn-nb-db-server-wrapper.sh'])
-        self.assertEqual(
-            sorted(list(set(
-                self.container_calls.updated_files('ovn-northd')))),
-            [
-                '/etc/ovn/cert_host',
-                '/etc/ovn/key_host',
-                '/etc/ovn/ovn-central.crt',
-                '/etc/ovn/ovn-northd-db-params.conf',
-                '/root/ovn-northd-wrapper.sh'])
+        self.check_rendered_files()
         self.assertEqual(
             self.container_calls.execute['ovn-sb-db-server'],
             [
