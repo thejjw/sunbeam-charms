@@ -127,6 +127,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(self.harness.charm.seen_events, ['PebbleReadyEvent'])
 
     def test_id_client(self):
+        test_utils.add_complete_ingress_relation(self.harness)
         self.harness.set_leader()
         self.harness.add_relation('peers', 'keystone')
         self.harness.container_pebble_ready('keystone')
@@ -165,6 +166,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 'service-user-name': 'suser_name'})
 
     def test_leader_bootstraps(self):
+        test_utils.add_complete_ingress_relation(self.harness)
         self.harness.set_leader()
         rel_id = self.harness.add_relation('peers', 'keystone')
         self.harness.add_relation_unit(
@@ -178,6 +180,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self.km_mock.setup_initial_projects_and_users.assert_called_once_with()
 
     def test_non_leader_no_bootstraps(self):
+        test_utils.add_complete_ingress_relation(self.harness)
         self.harness.set_leader(False)
         rel_id = self.harness.add_relation('peers', 'keystone')
         self.harness.add_relation_unit(
