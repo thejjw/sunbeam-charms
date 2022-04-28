@@ -55,6 +55,7 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
             _NovaXenaOperatorCharm,
             container_calls=self.container_calls)
         self.addCleanup(self.harness.cleanup)
+        test_utils.add_complete_ingress_relation(self.harness)
         self.harness.begin()
 
     def test_pebble_ready_handler(self):
@@ -77,8 +78,8 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
         ]
         for cmd in setup_cmds:
             self.assertIn(cmd, self.container_calls.execute['nova-api'])
-        self.assertEqual(
-            sorted(list(set(self.container_calls.updated_files('nova-api')))),
-            [
-                '/etc/apache2/sites-available/wsgi-nova-api.conf',
-                '/etc/nova/nova.conf'])
+        config_files = [
+            '/etc/apache2/sites-available/wsgi-nova-api.conf',
+            '/etc/nova/nova.conf']
+        for f in config_files:
+            self.check_file('nova-api', f)

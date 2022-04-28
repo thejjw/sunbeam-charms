@@ -294,8 +294,8 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         handler = self.get_named_pebble_handler(NOVA_CONDUCTOR_CONTAINER)
         # TODO(wolsen) make sure the container is there to run the command in
         # if not handler.service_ready:
-        #     logger.info(f'Container {NOVA_CONDUCTOR_CONTAINER} is not ready, '
-        #                 'deferring')
+        #     logger.info(f'Container {NOVA_CONDUCTOR_CONTAINER} is not ready,'
+        #                 ' deferring')
         #     event.defer()
         #     return
 
