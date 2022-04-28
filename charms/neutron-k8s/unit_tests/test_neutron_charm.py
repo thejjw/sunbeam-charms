@@ -55,6 +55,7 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
             _NeutronOVNXenaOperatorCharm,
             container_calls=self.container_calls)
         self.addCleanup(self.harness.cleanup)
+        test_utils.add_complete_ingress_relation(self.harness)
         self.harness.begin()
 
     def test_pebble_ready_handler(self):
@@ -74,12 +75,13 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
                 '/etc/neutron/plugins/ml2/ml2_conf.ini', 'upgrade', 'head']]
         for cmd in setup_cmds:
             self.assertIn(cmd, self.container_calls.execute['neutron-server'])
-        self.assertEqual(
-            sorted(list(set(
-                self.container_calls.updated_files('neutron-server')))),
-            [
-                '/etc/neutron/neutron.conf',
-                '/etc/neutron/plugins/ml2/cert_host',
-                '/etc/neutron/plugins/ml2/key_host',
-                '/etc/neutron/plugins/ml2/ml2_conf.ini',
-                '/etc/neutron/plugins/ml2/neutron-ovn.crt'])
+
+        config_files = [
+            '/etc/neutron/neutron.conf',
+            '/etc/neutron/plugins/ml2/cert_host',
+            '/etc/neutron/plugins/ml2/key_host',
+            '/etc/neutron/plugins/ml2/ml2_conf.ini',
+            '/etc/neutron/plugins/ml2/neutron-ovn.crt']
+
+        for f in config_files:
+            self.check_file('neutron-server', f)
