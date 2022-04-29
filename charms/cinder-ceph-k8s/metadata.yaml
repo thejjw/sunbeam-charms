@@ -24,6 +24,7 @@ resources:
   cinder-volume-image:
     type: oci-image
     description: OCI image for OpenStack Cinder (kolla/cinder-volume)
+    upstream-source: docker.io/kolla/ubuntu-binary-cinder-volume:xena
 
 requires:
   amqp:
