@@ -44,10 +44,14 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     def default_container_configs(self):
         return [
             sunbeam_core.ContainerConfigFile(
-                [self.container_name],
                 '/etc/neutron/neutron.conf',
                 'neutron',
-                'neutron')]
+                'neutron'),
+            sunbeam_core.ContainerConfigFile(
+                '/etc/neutron/api-paste.ini',
+                'neutron',
+                'neutron'),
+        ]
 
 
 class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
@@ -167,7 +171,12 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
             sunbeam_core.ContainerConfigFile(
                 '/etc/neutron/plugins/ml2/ml2_conf.ini',
                 'root',
-                'root')]
+                'root'),
+            sunbeam_core.ContainerConfigFile(
+                '/etc/neutron/api-paste.ini',
+                'neutron',
+                'neutron'),
+        ]
 
 
 class NeutronOVNOperatorCharm(NeutronOperatorCharm):
@@ -211,6 +220,7 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
 class NeutronOVNXenaOperatorCharm(NeutronOVNOperatorCharm):
 
     openstack_release = 'xena'
+
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
