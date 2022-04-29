@@ -10,9 +10,9 @@ parts:
   update-certificates:
     plugin: nil
     override-build: |
-      sudo apt update
-      sudo apt install -y ca-certificates
-      sudo update-ca-certificates
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
 
   charm:
     after: [update-certificates]
