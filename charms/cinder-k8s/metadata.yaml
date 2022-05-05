@@ -35,6 +35,7 @@ requires:
     limit: 1
   ingress:
     interface: ingress
+    limit: 1
   identity-service:
     interface: keystone
     limit: 1
