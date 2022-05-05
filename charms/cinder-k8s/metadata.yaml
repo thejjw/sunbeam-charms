@@ -25,9 +25,11 @@ resources:
   cinder-api-image:
     type: oci-image
     description: OCI image for OpenStack Cinder (kolla/cinder-api-image)
+    upstream-source: docker.io/kolla/ubuntu-binary-cinder-api:xena
   cinder-scheduler-image:
     type: oci-image
     description: OCI image for OpenStack Cinder (kolla/cinder-api-image)
+    upstream-source: docker.io/kolla/ubuntu-binary-cinder-scheduler:xena
 
 requires:
   shared-db:
