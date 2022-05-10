@@ -1,0 +1,42 @@
+name: sunbeam-openstack-dashboard-ops
+summary: OpenStack openstack-dashboard service
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  OpenStack openstack-dashboard provides an HTTP service for managing, selecting,
+  and claiming providers of classes of inventory representing available
+  resources in a cloud.
+  .
+version: 3
+bases:
+  - name: ubuntu
+    channel: 20.04/stable
+tags:
+- openstack
+
+containers:
+  openstack-dashboard:
+    resource: openstack-dashboard-image
+
+resources:
+  openstack-dashboard-image:
+    type: oci-image
+    description: OCI image for OpenStack openstack-dashboard
+
+requires:
+  shared-db:
+    interface: mysql_datastore
+    limit: 1
+  ingress:
+    interface: ingress
+    limit: 1
+  cloud-credentials:
+    interface: keystone-credentials
+    limit: 1
+
+provides:
+  openstack-dashboard:
+    interface: openstack-dashboard
+
+peers:
+  peers:
+    interface: openstack-dashboard-peer
