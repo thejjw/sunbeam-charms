@@ -14,15 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
 import sys
+import json
 
 sys.path.append("lib")  # noqa
 sys.path.append("src")  # noqa
 
-from ops.testing import Harness
-
 import charm
+import advanced_sunbeam_openstack.test_utils as test_utils
+
+from ops.testing import (
+    Harness,
+)
 
 
 class _CinderCephOperatorCharm(charm.CinderCephOperatorCharm):
@@ -60,45 +63,39 @@ class _CinderCephOperatorCharm(charm.CinderCephOperatorCharm):
         self._log_event(event)
 
 
-class TestCinderCephOperatorCharm(unittest.TestCase):
-    def setUp(self):
-        self.harness = Harness(_CinderCephOperatorCharm)
-        self.addCleanup(self.harness.cleanup)
-        self.harness.begin_with_initial_hooks()
+def add_complete_storage_backend_relation(harness: Harness) -> None:
+    """Add complete storage-backend relation."""
+    storage_backend_rel = harness.add_relation(
+        "storage-backend", "cinder"
+    )
+    harness.add_relation_unit(
+        storage_backend_rel, "cinder/0"
+    )
+    harness.update_relation_data(
+        storage_backend_rel,
+        "cinder",
+        {
+            "ready": json.dumps("true")
+        }
+    )
 
-    def test_amqp_relation(self):
-        # Fake out the ceph relation for AMQP testing
-        self.harness.charm.ceph.interface._stored.pools_available = True
-        # Initial state - handlers will be incomplete
-        self.assertFalse(self.harness.charm.relation_handlers_ready())
-        # Add relation = handler will still be incomplete until
-        # data is provided
-        amqp_rel = self.harness.add_relation("amqp", "rabbitmq")
-        self.harness.add_relation_unit(amqp_rel, "rabbitmq/0")
-        self.assertFalse(self.harness.charm.relation_handlers_ready())
-        # Add app data to relation
-        self.harness.update_relation_data(
-            amqp_rel,
-            "rabbitmq",
-            {
-                "password": "foobar",
-                "hostname": "rabbitmq.endpoint.kubernetes.local",
-            },
-        )
+
+class TestCinderCephOperatorCharm(test_utils.CharmTestCase):
+
+    PATCHES = []
+
+    def setUp(self):
+        super().setUp(charm, self.PATCHES)
+        self.harness = test_utils.get_harness(
+            _CinderCephOperatorCharm,
+            container_calls=self.container_calls)
+        self.addCleanup(self.harness.cleanup)
+
+    def test_all_relations(self):
+        self.harness.begin_with_initial_hooks()
+        test_utils.add_complete_ceph_relation(self.harness)
+        test_utils.add_complete_amqp_relation(self.harness)
+        test_utils.add_complete_db_relation(self.harness)
+        add_complete_storage_backend_relation(self.harness)
+        test_utils.set_all_pebbles_ready(self.harness)
         self.assertTrue(self.harness.charm.relation_handlers_ready())
-        # Perform some basic validation that the interface data
-        # is correctly set
-        self.assertEqual(
-            self.harness.charm.amqp.interface.username,
-            self.harness.charm.service_name,
-        )
-        self.assertEqual(self.harness.charm.amqp.interface.vhost, "openstack")
-        self.assertEqual(self.harness.charm.amqp.interface.password, "foobar")
-        self.assertEqual(
-            self.harness.charm.amqp.interface.hostname,
-            "rabbitmq.endpoint.kubernetes.local",
-        )
-        # Remove the relation which should result in relation
-        # handlers returing to an un-ready state.
-        self.harness.remove_relation(amqp_rel)
-        self.assertFalse(self.harness.charm.relation_handlers_ready())
