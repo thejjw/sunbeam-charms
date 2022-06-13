@@ -16,6 +16,7 @@
 
 import mock
 import sys
+import textwrap
 
 sys.path.append('lib')  # noqa
 sys.path.append('src')  # noqa
@@ -55,6 +56,7 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
             _PlacementXenaOperatorCharm,
             container_calls=self.container_calls)
         self.addCleanup(self.harness.cleanup)
+        test_utils.add_complete_ingress_relation(self.harness)
         self.harness.begin()
 
     def test_pebble_ready_handler(self):
@@ -71,9 +73,35 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
             ['sudo', '-u', 'placement', 'placement-manage', 'db', 'sync']]
         for cmd in setup_cmds:
             self.assertIn(cmd, self.container_calls.execute['placement-api'])
-        self.assertEqual(
-            sorted(list(set(
-                self.container_calls.updated_files('placement-api')))),
-            [
-                '/etc/apache2/sites-available/wsgi-placement-api.conf',
-                '/etc/placement/placement.conf'])
+        self.check_file(
+            'placement-api',
+            '/etc/apache2/sites-available/wsgi-placement-api.conf')
+        expect_entries = """
+            [DEFAULT]
+            debug = False
+            use_syslog = true
+
+            [api]
+            auth_strategy = keystone
+
+            [placement_database]
+            connection = mysql+pymysql://foo:hardpassword@10.0.0.10/db1
+            [keystone_authtoken]
+            www_authenticate_uri = http://keystone.internal:5000
+            auth_url = http://keystone.internal:5000
+            auth_type = password
+            project_domain_name = None
+            user_domain_name = None
+            project_name = None
+            username = None
+            password = svcpass1
+
+
+            [placement]
+            randomize_allocation_candidates = true
+        """
+        expect_string = textwrap.dedent(expect_entries).lstrip()
+        self.check_file(
+            'placement-api',
+            '/etc/placement/placement.conf',
+            contents=expect_string)
