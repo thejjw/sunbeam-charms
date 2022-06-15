@@ -78,6 +78,7 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
 
         config_files = [
             '/etc/neutron/neutron.conf',
+            '/etc/neutron/api-paste.ini',
             '/etc/neutron/plugins/ml2/cert_host',
             '/etc/neutron/plugins/ml2/key_host',
             '/etc/neutron/plugins/ml2/ml2_conf.ini',
