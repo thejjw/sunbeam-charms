@@ -138,9 +138,11 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         rel_data = self.harness.get_relation_data(
             identity_rel_id,
             self.harness.charm.unit.app.name)
+        self.maxDiff = None
         self.assertEqual(
             rel_data,
             {
+                'admin-auth-url': 'http://10.0.0.10:35357',
                 'admin-domain-id': 'adomain_id',
                 'admin-domain-name': 'adomain_name',
                 'admin-project-id': 'aproject_id',
@@ -151,9 +153,11 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 'auth-host': '10.0.0.10',
                 'auth-port': '5000',
                 'auth-protocol': 'http',
+                'internal-auth-url': 'http://internal-url',
                 'internal-host': '10.0.0.10',
                 'internal-port': '5000',
                 'internal-protocol': 'http',
+                'public-auth-url': 'http://public-url',
                 'service-domain-id': 'sdomain_id',
                 'service-domain-name': 'sdomain_name',
                 'service-host': '10.0.0.10',

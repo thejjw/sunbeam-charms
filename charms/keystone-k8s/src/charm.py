@@ -287,7 +287,10 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 service_domain,
                 service_password,
                 service_project,
-                service_user)
+                service_user,
+                self.internal_endpoint,
+                self.admin_endpoint,
+                self.public_endpoint)
 
     def add_credentials(self, event):
         """
@@ -416,6 +419,9 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def internal_endpoint(self):
+        if self.ingress_internal:
+            return self.ingress_internal.url
+
         internal_hostname = self.model.config.get('os-internal-hostname')
         if not internal_hostname:
             internal_hostname = self.model.get_binding(
@@ -426,8 +432,8 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def public_endpoint(self):
-        if self.ingress:
-            return self.ingress.url
+        if self.ingress_public:
+            return self.ingress_public.url
 
         address = self.public_ingress_address
         if not address:
@@ -455,6 +461,17 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 return
             self.keystone_manager.setup_initial_projects_and_users()
         self.unit.status = model.MaintenanceStatus('Starting Keystone')
+
+    def _ingress_changed(self, event: ops.framework.EventBase) -> None:
+        """Ingress changed callback.
+
+        Invoked when the data on the ingress relation has changed. This will
+        update the keystone endpoints, and then call the configure_charm.
+        """
+        logger.debug('Received an ingress_changed event')
+        if self.bootstrapped():
+            self.keystone_manager.update_service_catalog_for_keystone()
+        self.configure_charm(event)
 
 
 class KeystoneWallabyOperatorCharm(KeystoneOperatorCharm):
