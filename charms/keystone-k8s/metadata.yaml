@@ -1,7 +1,7 @@
 # Copyright 2021 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-name: sunbeam-keystone-operator
+name: keystone-k8s
 summary: OpenStack identity service
 maintainer: Openstack Charmers <openstack-charmers@lists.ubuntu.com>
 description: |

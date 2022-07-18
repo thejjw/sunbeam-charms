@@ -22,10 +22,10 @@ sys.path.append('lib')  # noqa
 sys.path.append('src')  # noqa
 
 import charm
-import advanced_sunbeam_openstack.test_utils as test_utils
+import ops_sunbeam.test_utils as test_utils
 
 
-class _KeystoneWallabyOperatorCharm(charm.KeystoneWallabyOperatorCharm):
+class _KeystoneXenaOperatorCharm(charm.KeystoneXenaOperatorCharm):
 
     def __init__(self, framework):
         self.seen_events = []
@@ -116,7 +116,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self.km_mock = self.ks_manager_mock()
         self.manager.KeystoneManager.return_value = self.km_mock
         self.harness = test_utils.get_harness(
-            _KeystoneWallabyOperatorCharm,
+            _KeystoneXenaOperatorCharm,
             container_calls=self.container_calls)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()

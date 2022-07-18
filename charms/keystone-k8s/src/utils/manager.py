@@ -27,7 +27,7 @@ from keystoneclient.v3.roles import Role
 from keystoneclient.v3.services import Service
 from keystoneclient.v3.users import User
 
-import advanced_sunbeam_openstack.guard as sunbeam_guard
+import ops_sunbeam.guard as sunbeam_guard
 
 import logging
 import typing
