@@ -96,7 +96,6 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
             username = None
             password = svcpass1
 
-
             [placement]
             randomize_allocation_candidates = true
         """
