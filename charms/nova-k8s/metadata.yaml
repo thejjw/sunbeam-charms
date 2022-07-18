@@ -40,8 +40,12 @@ resources:
     description: OCI image for OpenStack Nova API (kolla/nova-conductor-image)
 
 requires:
-  ingress:
+  ingress-internal:
     interface: ingress
+    limit: 1
+  ingress-public:
+    interface: ingress
+    optional: true
     limit: 1
   shared-db:
     interface: mysql_datastore
