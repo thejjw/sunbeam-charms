@@ -1,7 +1,7 @@
 ops
 jinja2
-git+https://opendev.org/openstack/charm-ops-openstack#egg=ops_openstack
-git+https://github.com/openstack-charmers/advanced-sunbeam-openstack#egg=advanced_sunbeam_openstack
+#git+https://opendev.org/openstack/charm-ops-openstack#egg=ops_openstack
+git+https://github.com/openstack-charmers/advanced-sunbeam-openstack#egg=ops_sunbeam
 git+https://github.com/openstack/charm-ops-interface-ceph-client#egg=interface_ceph_client
 lightkube
 lightkube-models

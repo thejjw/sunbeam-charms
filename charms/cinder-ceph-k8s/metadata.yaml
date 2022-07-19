@@ -1,6 +1,6 @@
 # Copyright 2021 Canonical Ltd
 # See LICENSE file for licensing details.
-name: sunbeam-cinder-ceph-operator
+name: cinder-ceph-k8s
 summary: OpenStack volume service - Ceph backend
 maintainer: Openstack Charmers <openstack-charmers@lists.ubuntu.com>
 description: |
