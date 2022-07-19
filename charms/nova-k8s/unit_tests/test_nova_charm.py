@@ -21,7 +21,7 @@ sys.path.append('lib')  # noqa
 sys.path.append('src')  # noqa
 
 import charm
-import advanced_sunbeam_openstack.test_utils as test_utils
+import ops_sunbeam.test_utils as test_utils
 
 
 class _NovaXenaOperatorCharm(charm.NovaXenaOperatorCharm):
