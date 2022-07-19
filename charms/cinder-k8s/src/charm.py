@@ -12,10 +12,10 @@ import ops.pebble
 from ops.framework import StoredState
 from ops.main import main
 
-import advanced_sunbeam_openstack.charm as sunbeam_charm
-import advanced_sunbeam_openstack.core as sunbeam_core
-import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
-import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.container_handlers as sunbeam_chandlers
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 
 import charms.sunbeam_cinder_operator.v0.storage_backend as sunbeam_storage_backend  # noqa
 
@@ -181,6 +181,21 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "admin_url": f"{self.admin_url}/v3/$(tenant_id)s",
             },
         ]
+
+    @property
+    def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
+        """Container configuration files for the service."""
+        _cconfigs = super().container_configs
+        _cconfigs.extend(
+            [
+                sunbeam_core.ContainerConfigFile(
+                    '/etc/cinder/api-paste.ini',
+                    self.service_user,
+                    self.service_group,
+                )
+            ]
+        )
+        return _cconfigs
 
     def get_pebble_handlers(self):
         pebble_handlers = [
