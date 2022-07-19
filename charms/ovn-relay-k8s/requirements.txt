@@ -3,10 +3,9 @@ jinja2
 # Get resources from github until cacerts issue is charmbuild image is fixed.
 # git+https://opendev.org/openstack/charm-ops-openstack#egg=ops_openstack
 # git+https://opendev.org/openstack/charm-ops-interface-tls-certificates#egg=interface_tls_certificates
-git+https://github.com/openstack/charm-ops-openstack#egg=ops_openstack
 git+https://github.com/openstack/charm-ops-interface-tls-certificates#egg=interface_tls_certificates
 
-git+https://github.com/openstack-charmers/advanced-sunbeam-openstack@v0.1#egg=advanced_sunbeam_openstack
+git+https://github.com/openstack-charmers/advanced-sunbeam-openstack#egg=ops_sunbeam
 lightkube
 lightkube-models
 cryptography < 3.4
