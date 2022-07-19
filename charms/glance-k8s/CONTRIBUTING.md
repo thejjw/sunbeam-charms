@@ -1,4 +1,4 @@
-# sunbeam-glance-operator
+# glance-k8s
 
 ## Developing
 
@@ -10,21 +10,26 @@ Create and activate a virtualenv with the development requirements:
 
 ## Code overview
 
-TEMPLATE-TODO: 
-One of the most important things a consumer of your charm (or library)
-needs to know is what set of functionality it provides. Which categories
-does it fit into? Which events do you listen to? Which libraries do you
-consume? Which ones do you export and how are they used?
+Get familiarise with [Charmed Operator Framework](https://juju.is/docs/sdk)
+and [Sunbeam documentation](sunbeam-docs).
+
+glance-k8s charm uses the ops_sunbeam library and extends
+OSBaseOperatorAPICharm from the library.
+
+glance-k8s charm consumes shared-db relation to connect to database,
+identity-service to register the service endpoints to keystone
+and ingress-internal/ingress-public relation to get exposed over
+internal and public networks.
 
 ## Intended use case
 
-TEMPLATE-TODO:
-Why were these decisions made? What's the scope of your charm?
+glance-k8s charm deploys and configures OpenStack Image service
+on a kubernetes based environment. It should be possible to use
+local storage or ceph based storage as backend.
 
 ## Roadmap
 
-If this Charm doesn't fulfill all of the initial functionality you were
-hoping for or planning on, please add a Roadmap or TODO here
+TODO
 
 ## Testing
 
@@ -32,3 +37,20 @@ The Python operator framework includes a very nice harness for testing
 operator behaviour without full deployment. Just `run_tests`:
 
     ./run_tests
+
+## Deployment
+
+This project uses tox for building and managing. To build the charm
+run:
+
+    tox -e build
+
+To deploy the local test instance:
+
+    tox -e build
+    juju add-model glance
+    juju deploy ./glance-k8s_ubuntu-20.04-amd64.charm --resource glance-image=kolla/ubuntu-binary-glance:xena
+
+<!-- LINKS -->
+
+[sunbeam-docs]: https://github.com/openstack-charmers/advanced-sunbeam-openstack/blob/main/README.rst
