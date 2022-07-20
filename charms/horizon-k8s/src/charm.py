@@ -11,9 +11,9 @@ from typing import List
 import ops.framework
 from ops.main import main
 
-import advanced_sunbeam_openstack.core as sunbeam_core
-import advanced_sunbeam_openstack.charm as sunbeam_charm
-import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
+import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.container_handlers as sunbeam_chandlers
 
 logger = logging.getLogger(__name__)
 
@@ -111,14 +111,15 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Configure charm services."""
         super().configure_charm(event)
         if self.bootstrapped():
-            self.unit.status = ops.model.ActiveStatus(self.ingress.url)
+            self.unit.status = ops.model.ActiveStatus(
+                self.ingress_internal.url)
 
 
-class OpenstackDashboardWallabyOperatorCharm(OpenstackDashboardOperatorCharm):
+class OpenstackDashboardXenaOperatorCharm(OpenstackDashboardOperatorCharm):
 
-    openstack_release = 'wallaby'
+    openstack_release = 'xena'
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(OpenstackDashboardWallabyOperatorCharm, use_juju_for_storage=True)
+    main(OpenstackDashboardXenaOperatorCharm, use_juju_for_storage=True)

@@ -1,8 +1,6 @@
 ops
 jinja2
-git+https://opendev.org/openstack/charm-ops-openstack#egg=ops_openstack
-#git+https://github.com/openstack-charmers/advanced-sunbeam-openstack#egg=advanced_sunbeam_openstack
-git+https://github.com/gnuoy/advanced-sunbeam-openstack@add-cloud-creds#egg=advanced_sunbeam_openstack
+git+https://github.com/openstack-charmers/advanced-sunbeam-openstack#egg=ops_sunbeam
 lightkube
 lightkube-models
 serialized_data_interface

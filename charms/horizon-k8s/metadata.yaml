@@ -1,4 +1,4 @@
-name: sunbeam-openstack-dashboard-ops
+name: horizon-k8s
 summary: OpenStack openstack-dashboard service
 maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
 description: |
@@ -26,8 +26,12 @@ requires:
   shared-db:
     interface: mysql_datastore
     limit: 1
-  ingress:
+  ingress-internal:
     interface: ingress
+    limit: 1
+  ingress-public:
+    interface: ingress
+    optional: true
     limit: 1
   cloud-credentials:
     interface: keystone-credentials

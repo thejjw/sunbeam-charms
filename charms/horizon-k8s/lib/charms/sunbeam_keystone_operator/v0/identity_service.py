@@ -26,7 +26,7 @@ Two events are also available to respond to:
 A basic example showing the usage of this relation follows:
 
 ```
-from charms.sunbeam_sunbeam_identity_service_operator.v0.identity_service import IdentityServiceRequires
+from charms.sunbeam_keystone_operator.v0.identity_service import IdentityServiceRequires
 
 class IdentityServiceClientCharm(CharmBase):
     def __init__(self, *args):
@@ -309,6 +309,21 @@ class IdentityServiceRequires(Object):
         """Return the service_user_id."""
         return self.get_remote_app_data('service-user-id')
 
+    @property
+    def internal_auth_url(self) -> str:
+        """Return the internal_auth_url."""
+        return self.get_remote_app_data('internal-auth-url')
+
+    @property
+    def admin_auth_url(self) -> str:
+        """Return the admin_auth_url."""
+        return self.get_remote_app_data('admin-auth-url')
+
+    @property
+    def public_auth_url(self) -> str:
+        """Return the public_auth_url."""
+        return self.get_remote_app_data('public-auth-url')
+
 
     def register_services(self, service_endpoints: dict,
                           region: str) -> None:
@@ -439,7 +454,10 @@ class IdentityServiceProvides(Object):
                                          service_domain: str,
                                          service_password: str,
                                          service_project: str,
-                                         service_user: str):
+                                         service_user: str,
+                                         internal_auth_url: str,
+                                         admin_auth_url: str,
+                                         public_auth_url: str):
         logging.debug("Setting identity_service connection information.")
         for relation in self.framework.model.relations[relation_name]:
             if relation.id == relation_id:
@@ -468,3 +486,6 @@ class IdentityServiceProvides(Object):
         app_data["service-user-name"] = service_user.name
         app_data["service-user-id"] = service_user.id
         app_data["service-password"] = service_password
+        app_data["internal-auth-url"] = internal_auth_url
+        app_data["admin-auth-url"] = admin_auth_url
+        app_data["public-auth-url"] = public_auth_url
