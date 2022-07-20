@@ -26,7 +26,7 @@ Two events are also available to respond to:
 A basic example showing the usage of this relation follows:
 
 ```
-from charms.sunbeam_sunbeam_identity_service_operator.v0.identity_service import IdentityServiceRequires
+from charms.sunbeam_keystone_operator.v0.identity_service import IdentityServiceRequires
 
 class IdentityServiceClientCharm(CharmBase):
     def __init__(self, *args):
