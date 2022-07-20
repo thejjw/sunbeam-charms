@@ -1,6 +1,19 @@
 #!/usr/bin/env python3
-# Copyright 2021 Billy Olsen
-# See LICENSE file for licensing details.
+#
+# Copyright 2021 Canonical Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 #
 # Learn more at: https://juju.is/docs/sdk
 
@@ -23,10 +36,10 @@ from ops.framework import StoredState
 from ops import model
 
 from utils import manager
-import advanced_sunbeam_openstack.charm as sunbeam_charm
-import advanced_sunbeam_openstack.core as sunbeam_core
-import advanced_sunbeam_openstack.config_contexts as sunbeam_contexts
-import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.config_contexts as sunbeam_contexts
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 
 import charms.sunbeam_keystone_operator.v0.identity_service as sunbeam_id_svc
 import charms.sunbeam_keystone_operator.v0.cloud_credentials as sunbeam_cc_svc
@@ -474,7 +487,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self.configure_charm(event)
 
 
-class KeystoneWallabyOperatorCharm(KeystoneOperatorCharm):
+class KeystoneXenaOperatorCharm(KeystoneOperatorCharm):
 
     openstack_release = 'xena'
 
@@ -482,4 +495,4 @@ class KeystoneWallabyOperatorCharm(KeystoneOperatorCharm):
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(KeystoneWallabyOperatorCharm, use_juju_for_storage=True)
+    main(KeystoneXenaOperatorCharm, use_juju_for_storage=True)

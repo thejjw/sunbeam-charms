@@ -1,49 +1,93 @@
-# keystone-operator
+# keystone-k8s
 
 ## Description
 
-The keystone operator is an operator to manage the keystone identity
-service.
+The keystone-k8s is an operator to manage the keystone identity service
+on a kubernetes based environment.
 
 ## Usage
 
-TODO: Provide high-level usage, such as required config or relations
+### Deployment
 
+keystone-k8s is deployed using below command:
 
-## Developing
+    juju deploy keystone-k8s keystone --trust
 
-This project uses tox for building and managing. To build the charm
-run:
+Now connect the keystone application to an existing database.
 
-    tox -e build
+    juju deploy sunbeam-mysql-k8s mysql
+    juju relate mysql:database keystone:shared-db
 
-To deploy the local test instance:
+### Configuration
 
-    tox -e build
-    juju add-model keystone
-    juju deploy ./keystone-operator.charm --resource keystone-image=kolla/ubuntu-binary-keystone:victoria
+This section covers common and/or important configuration options. See file
+`config.yaml` for the full list of options, along with their descriptions and
+default values. See the [Juju documentation][juju-docs-config-apps] for details
+on configuring applications.
 
+### Actions
 
-## Status
+This section covers Juju [actions][juju-docs-actions] supported by the charm.
+Actions allow specific operations to be performed on a per-unit basis. To
+display action descriptions run `juju actions keystone`. If the charm is not
+deployed then see file `actions.yaml`.
 
-This charm is currently in basic dev/exploratory state. This charm will deploy a keystone instance which uses local sqlite database.
+## Relations
 
-TODOs
+The charm supports the following relations. They are primarily of use to
+developers:
 
-- [X] Basic bootstrap of keystone service
-- [ ] Support database relations
-  - [X] MySQL K8s relation
-  - [ ] Handle shared db relation
-- [ ] Fernet Token Rotation
-- [ ] Ingress
-- [ ] Provide identity-service relation
-- [ ] Handle config changed events
-- [ ] Unit tests
-- [ ] Functional tests
+* `identity-credentials`: Used by charms to obtain Keystone credentials without
+  creating a service catalogue entry. Set 'username' only on the relation and
+  Keystone will set defaults and return authentication details. Possible
+  relation settings:
 
-## Testing
+  * `username`: Username to be created.
+  * `project`: Project (tenant) name to be created. Defaults to service's
+               project.
+  * `domain`: Keystone v3 domain the user will be created in. Defaults to the
+              Default domain.
 
-The Python operator framework includes a very nice harness for testing
-operator behaviour without full deployment. Just `run_tests`:
+* `identity-service`: Used by API endpoints to request an entry in the Keystone
+  service catalogue and the endpoint template catalogue.
 
-    ./run_tests
+  When a relation is established Keystone receives the following data from the
+  requesting API endpoint:
+
+  * `service_name`
+  * `region`
+  * `public_url`
+  * `admin_url`
+  * `internal_url`
+
+  Keystone verifies that the requested service is supported (the list of
+  supported services should remain updated). The following will occur for a
+  supported service:
+
+  1. an entry in the service catalogue is created
+  1. an endpoint template is created
+  1. an admin token is generated.
+
+  The API endpoint receives the token and is informed of the ports that
+  Keystone is listening on.
+
+## OCI Images
+
+The charm by default uses `docker.io/kolla/ubuntu-binary-keystone:xena` image.
+
+## Contributing
+
+Please see the [Juju SDK docs](https://juju.is/docs/sdk) for guidelines 
+on enhancements to this charm following best practice guidelines, and
+[CONTRIBUTING.md](contributors-guide) for developer guidance.
+
+## Bugs
+
+Please report bugs on [Launchpad][lp-bugs-charm-keystone-k8s].
+
+<!-- LINKS -->
+
+[contributors-guide]: https://github.com/openstack-charmers/charm-keystone-operator/blob/main/CONTRIBUTING.md
+[juju-docs-actions]: https://jaas.ai/docs/actions
+[juju-docs-config-apps]: https://juju.is/docs/configuring-applications
+[lp-bugs-charm-keystone-k8s]: https://bugs.launchpad.net/charm-keystone-k8s/+filebug
