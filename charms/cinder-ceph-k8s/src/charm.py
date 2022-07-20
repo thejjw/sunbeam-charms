@@ -20,14 +20,12 @@ from ops.model import ActiveStatus
 
 from typing import List
 
-# NOTE: rename sometime
-import advanced_sunbeam_openstack.core as core
-import advanced_sunbeam_openstack.charm as charm
-import advanced_sunbeam_openstack.relation_handlers as relation_handlers
-import advanced_sunbeam_openstack.config_contexts as config_contexts
-import advanced_sunbeam_openstack.container_handlers as container_handlers
-
-import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.core as core
+import ops_sunbeam.charm as charm
+import ops_sunbeam.relation_handlers as relation_handlers
+import ops_sunbeam.config_contexts as config_contexts
+import ops_sunbeam.container_handlers as container_handlers
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 
 import charms.sunbeam_cinder_operator.v0.storage_backend as sunbeam_storage_backend  # noqa
 
