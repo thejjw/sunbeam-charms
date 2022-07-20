@@ -1,4 +1,4 @@
-# sunbeam-ovn-central-operator
+# ovn-central-k8s
 
 ## Developing
 
@@ -10,21 +10,27 @@ Create and activate a virtualenv with the development requirements:
 
 ## Code overview
 
-TEMPLATE-TODO: 
-One of the most important things a consumer of your charm (or library)
-needs to know is what set of functionality it provides. Which categories
-does it fit into? Which events do you listen to? Which libraries do you
-consume? Which ones do you export and how are they used?
+Get familiarise with [Charmed Operator Framework](https://juju.is/docs/sdk)
+and [Sunbeam documentation](sunbeam-docs).
+
+ovn-central-k8s charm uses the ops_sunbeam library and extends
+OSBaseOperatorAPICharm from the library.
+
+ovn-central-k8s charm consumes certificates to get generated
+certificates from vault and provides ovsdb-cms relation to
+provide ovn-central endpoints for external services to connect to.
+
+ovn-central-k8s starts northd, ovsdb-sb-server, ovsdb-nb-server
+services by creating separate pebble handlers for each service.
 
 ## Intended use case
 
-TEMPLATE-TODO:
-Why were these decisions made? What's the scope of your charm?
+ovn-central-k8s charm deploys and configures OVN Central services
+on a kubernetes based environment.
 
 ## Roadmap
 
-If this Charm doesn't fulfill all of the initial functionality you were
-hoping for or planning on, please add a Roadmap or TODO here
+TODO
 
 ## Testing
 
@@ -32,3 +38,20 @@ The Python operator framework includes a very nice harness for testing
 operator behaviour without full deployment. Just `run_tests`:
 
     ./run_tests
+
+## Deployment
+
+This project uses tox for building and managing. To build the charm
+run:
+
+    tox -e build
+
+To deploy the local test instance:
+
+    tox -e build
+    juju add-model ovn-central
+    juju deploy ./ovn-central-k8s_ubuntu-20.04-amd64.charm --resource ovn-northd-image=registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-northd-image ovn-nb-db-server-image=registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-nb-db-server-image ovn-sb-db-server-image=registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-sb-db-server-image
+
+<!-- LINKS -->
+
+[sunbeam-docs]: https://github.com/openstack-charmers/advanced-sunbeam-openstack/blob/main/README.rst
