@@ -10,12 +10,12 @@ from typing import List
 from ops.framework import StoredState
 from ops.main import main
 
-import advanced_sunbeam_openstack.charm as sunbeam_charm
-import advanced_sunbeam_openstack.core as sunbeam_core
-import advanced_sunbeam_openstack.container_handlers as sunbeam_chandlers
-import advanced_sunbeam_openstack.config_contexts as sunbeam_ctxts
-import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
-import advanced_sunbeam_openstack.ovn.relation_handlers as ovn_rhandlers
+import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.container_handlers as sunbeam_chandlers
+import ops_sunbeam.config_contexts as sunbeam_ctxts
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 
 logger = logging.getLogger(__name__)
 
