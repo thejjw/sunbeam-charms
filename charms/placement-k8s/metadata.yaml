@@ -1,4 +1,4 @@
-name: sunbeam-placement-operator
+name: placement-k8s
 summary: OpenStack placement service
 maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
 description: |
