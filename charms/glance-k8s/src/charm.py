@@ -1,4 +1,21 @@
 #!/usr/bin/env python3
+
+#
+# Copyright 2021 Canonical Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 """Glance Operator Charm.
 
 This charm provide Glance services as part of an OpenStack deployment
@@ -13,10 +30,10 @@ from ops.main import main
 from ops.model import BlockedStatus
 from ops.charm import CharmBase
 
-import advanced_sunbeam_openstack.charm as sunbeam_charm
-import advanced_sunbeam_openstack.core as sunbeam_core
-import advanced_sunbeam_openstack.relation_handlers as sunbeam_rhandlers
-import advanced_sunbeam_openstack.config_contexts as sunbeam_ctxts
+import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.config_contexts as sunbeam_ctxts
 
 logger = logging.getLogger(__name__)
 

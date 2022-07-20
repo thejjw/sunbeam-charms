@@ -21,7 +21,7 @@ sys.path.append('lib')  # noqa
 sys.path.append('src')  # noqa
 
 import charm
-import advanced_sunbeam_openstack.test_utils as test_utils
+import ops_sunbeam.test_utils as test_utils
 
 
 class _GlanceXenaOperatorCharm(charm.GlanceXenaOperatorCharm):
@@ -82,9 +82,9 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
             ['apt', 'update'],
             ['apt', 'install', '-y', 'ceph-common'],
             ['ceph-authtool',
-             '/etc/ceph/ceph.client.sunbeam-glance-operator.keyring',
+             '/etc/ceph/ceph.client.glance-k8s.keyring',
              '--create-keyring',
-             '--name=client.sunbeam-glance-operator',
+             '--name=client.glance-k8s',
              '--add-key=AQBUfpVeNl7CHxAA8/f6WTcYFxW2dJ5VyvWmJg==']]
         for cmd in ceph_install_cmds:
             self.assertIn(cmd, self.container_calls.execute['glance-api'])

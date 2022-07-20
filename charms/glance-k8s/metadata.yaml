@@ -1,6 +1,6 @@
 # Copyright 2021 Canonical Ltd
 # See LICENSE file for licensing details.
-name: sunbeam-glance-operator
+name: glance-k8s
 maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
 summary: OpenStack Image Registry and Delivery Service
 description: |
