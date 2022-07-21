@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2021 Canonical Ltd.
+# Copyright 2022 Canonical Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ sys.path.append('lib')  # noqa
 sys.path.append('src')  # noqa
 
 import charm
-import advanced_sunbeam_openstack.test_utils as test_utils
+import ops_sunbeam.test_utils as test_utils
 
 
 class _OVNRelayXenaOperatorCharm(charm.OVNRelayXenaOperatorCharm):
@@ -59,11 +59,10 @@ class TestOVNRelayXenaOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(self.harness.charm.seen_events, [])
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_all_relations(self.harness)
-        self.assertEqual(
-            sorted(list(set(
-                self.container_calls.updated_files('ovsdb-server')))),
-            [
-                '/etc/ovn/cert_host',
-                '/etc/ovn/key_host',
-                '/etc/ovn/ovn-central.crt',
-                '/root/ovn-relay-wrapper.sh'])
+        ovsdb_config_files = [
+            '/etc/ovn/cert_host',
+            '/etc/ovn/key_host',
+            '/etc/ovn/ovn-central.crt',
+            '/root/ovn-relay-wrapper.sh']
+        for f in ovsdb_config_files:
+            self.check_file('ovsdb-server', f)

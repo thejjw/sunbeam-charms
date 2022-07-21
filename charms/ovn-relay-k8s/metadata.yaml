@@ -1,8 +1,12 @@
-name: sunbeam-ovn-relay-operator
+name: ovn-relay-k8s
 summary: Relay for Open Virtual Network for Open vSwitch
 maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
 description: |
-  In sert description
+  The charm that deploys OVSDB Relay service.
+
+  The OVSDB Relay handles all read-only requests and forwards
+  transactions that requires database modifications to ovsdb
+  server.
 tags:
 - networking
 
