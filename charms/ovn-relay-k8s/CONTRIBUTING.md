@@ -13,7 +13,7 @@ Create and activate a virtualenv with the development requirements:
 Get familiarise with [Charmed Operator Framework](https://juju.is/docs/sdk)
 and [Sunbeam documentation](sunbeam-docs).
 
-ovn-relay-k8s charm uses the ops_sunbeam library and extends
+ovn-relay-k8s charm uses the ops\_sunbeam library and extends
 OSBaseOVNOperatorCharm from the library.
 
 ovn-relay-k8s charm consumes certificates to get generated
@@ -45,8 +45,6 @@ run:
 
 To deploy the local test instance:
 
-    tox -e build
-    juju add-model ovn-relay
     juju deploy ./ovn-relay-k8s_ubuntu-20.04-amd64.charm --resource ovn-sb-db-server-image=registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-sb-db-server-image
 
 <!-- LINKS -->

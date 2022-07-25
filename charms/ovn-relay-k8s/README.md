@@ -2,8 +2,8 @@
 
 ## Description
 
-The ovn-relay-k8s is an operator to manage the OVN ovsdb
-relay service on a kubernetes based environment.
+ovn-relay-k8s is an operator to manage the OVN ovsdb relay service
+on a Kubernetes based environment.
 
 ## Usage
 
@@ -13,8 +13,8 @@ ovn-relay-k8s is deployed using below command:
 
     juju deploy ovn-relay-k8s ovn-relay
 
-Now connect the ovn-relay application to vault to generate
-certificates.
+Now connect the ovn-relay operator to Vault to generate
+certificates for secure authentication and communication:
 
     juju relate vault:certificates ovn-relay:certificates
 
