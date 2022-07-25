@@ -3,7 +3,7 @@
 ## Description
 
 placement-k8s is an operator to manage the OpenStack Placement service
-on a kubernetes based environment.
+on a Kubernetes based environment.
 
 ## Usage
 
