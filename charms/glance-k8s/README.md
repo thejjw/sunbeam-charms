@@ -2,7 +2,7 @@
 
 ## Description
 
-The glance-k8s is an operator to manage the Glance image service on a
+glance-k8s is an operator to manage the Glance image service on a
 Kubernetes based environment.
 
 ## Usage
