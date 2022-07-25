@@ -13,7 +13,7 @@ Create and activate a virtualenv with the development requirements:
 Get familiarise with [Charmed Operator Framework](https://juju.is/docs/sdk)
 and [Sunbeam documentation](sunbeam-docs).
 
-keystone-k8s charm uses the ops_sunbeam library and extends
+keystone-k8s charm uses the ops\_sunbeam library and extends
 OSBaseOperatorAPICharm from the library.
 
 The charm provides identity-service and identity-credentials relations
@@ -52,9 +52,7 @@ run:
 
 To deploy the local test instance:
 
-    tox -e build
-    juju add-model keystone
-    juju deploy ./keystone-k8s_ubuntu-20.04-amd64.charm --resource keystone-image=kolla/ubuntu-binary-keystone:xena
+    juju deploy ./keystone-k8s_ubuntu-20.04-amd64.charm --trust --resource keystone-image=kolla/ubuntu-binary-keystone:xena
 
 <!-- LINKS -->
 

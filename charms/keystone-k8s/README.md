@@ -2,8 +2,8 @@
 
 ## Description
 
-The keystone-k8s is an operator to manage the keystone identity service
-on a kubernetes based environment.
+keystone-k8s is an operator to manage the Keystone identity service
+on a Kubernetes based environment.
 
 ## Usage
 
@@ -13,9 +13,8 @@ keystone-k8s is deployed using below command:
 
     juju deploy keystone-k8s keystone --trust
 
-Now connect the keystone application to an existing database.
+Now connect the keystone operator to an existing database.
 
-    juju deploy sunbeam-mysql-k8s mysql
     juju relate mysql:database keystone:shared-db
 
 ### Configuration
@@ -77,7 +76,7 @@ The charm by default uses `docker.io/kolla/ubuntu-binary-keystone:xena` image.
 
 ## Contributing
 
-Please see the [Juju SDK docs](https://juju.is/docs/sdk) for guidelines 
+Please see the [Juju SDK docs](https://juju.is/docs/sdk) for guidelines
 on enhancements to this charm following best practice guidelines, and
 [CONTRIBUTING.md](contributors-guide) for developer guidance.
 
