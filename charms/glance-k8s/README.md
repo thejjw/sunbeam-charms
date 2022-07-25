@@ -2,8 +2,8 @@
 
 ## Description
 
-The glance-k8s is an operator to manage the image service on a
-kubernetes based environment.
+The glance-k8s is an operator to manage the Glance image service on a
+Kubernetes based environment.
 
 ## Usage
 
@@ -13,8 +13,8 @@ glance-k8s is deployed using below command:
 
     juju deploy glance-k8s glance --trust
 
-Now connect the glance application to an existing database,
-amqp and keystone identity.
+Now connect the glance operator to an existing database,
+messaging and keystone identity operators:
 
     juju relate mysql:database glance:shared-db
     juju relate rabbitmq:amqp glance:amqp
@@ -38,13 +38,12 @@ deployed then see file `actions.yaml`.
 
 glance-k8s requires the following relations:
 
-`shared-db`: To connect to the database
-`amqp`: To connect to rabbitmq
-`identity-service`: To register endpoints in keystone
-`ceph`: To connect to ceph (optional)
+`shared-db`: To connect to MySQL
+`amqp`: To connect to RabbitMQ
+`identity-service`: To register endpoints in Keystone
+`ceph`: To connect to Ceph for image storage (optional)
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network
-
 
 ## OCI Images
 

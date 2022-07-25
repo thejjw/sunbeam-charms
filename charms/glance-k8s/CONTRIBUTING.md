@@ -13,7 +13,7 @@ Create and activate a virtualenv with the development requirements:
 Get familiarise with [Charmed Operator Framework](https://juju.is/docs/sdk)
 and [Sunbeam documentation](sunbeam-docs).
 
-glance-k8s charm uses the ops_sunbeam library and extends
+glance-k8s charm uses the ops\_sunbeam library and extends
 OSBaseOperatorAPICharm from the library.
 
 glance-k8s charm consumes shared-db relation to connect to database,
@@ -47,9 +47,7 @@ run:
 
 To deploy the local test instance:
 
-    tox -e build
-    juju add-model glance
-    juju deploy ./glance-k8s_ubuntu-20.04-amd64.charm --resource glance-image=kolla/ubuntu-binary-glance:xena
+    juju deploy ./glance-k8s_ubuntu-20.04-amd64.charm --trust --resource glance-image=kolla/ubuntu-binary-glance:xena
 
 <!-- LINKS -->
 
