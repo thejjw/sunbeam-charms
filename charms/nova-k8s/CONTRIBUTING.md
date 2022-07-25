@@ -13,7 +13,7 @@ Create and activate a virtualenv with the development requirements:
 Get familiarise with [Charmed Operator Framework](https://juju.is/docs/sdk)
 and [Sunbeam documentation](sunbeam-docs).
 
-nova-k8s charm uses the ops_sunbeam library and extends
+nova-k8s charm uses the ops\_sunbeam library and extends
 OSBaseOperatorAPICharm from the library.
 
 nova-k8s charm consumes shared-db relation to connect to database,
@@ -50,9 +50,7 @@ run:
 
 To deploy the local test instance:
 
-    tox -e build
-    juju add-model nova
-    juju deploy ./nova-k8s_ubuntu-20.04-amd64.charm --resource nova-api-image=kolla/ubuntu-binary-nova-api:xena --resource nova-scheduler-image=kolla/ubuntu-binary-nova-scheduler:xena nova-conductor-image=kolla/ubuntu-binary-nova-condcutor:xena 
+    juju deploy ./nova-k8s_ubuntu-20.04-amd64.charm --trust --resource nova-api-image=kolla/ubuntu-binary-nova-api:xena --resource nova-scheduler-image=kolla/ubuntu-binary-nova-scheduler:xena nova-conductor-image=kolla/ubuntu-binary-nova-condcutor:xena
 
 <!-- LINKS -->
 

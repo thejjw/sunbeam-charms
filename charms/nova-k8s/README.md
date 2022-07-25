@@ -2,8 +2,8 @@
 
 ## Description
 
-The nova-k8s is an operator to manage the nova control services
-on a kubernetes based environment.
+nova-k8s is an operator to manage the Nova API, Conductor and Scheduler
+services on a Kubernetes based environment.
 
 ## Usage
 
@@ -13,8 +13,8 @@ nova-k8s is deployed using below command:
 
     juju deploy nova-k8s nova --trust
 
-Now connect the nova application to an existing database,
-amqp and keystone identity.
+Now connect the nova operator to existing database,
+messaging and keystone identity operators:
 
     juju relate mysql:database nova:shared-db
     juju relate rabbitmq:amqp nova:amqp
@@ -38,15 +38,16 @@ deployed then see file `actions.yaml`.
 
 nova-k8s requires the following relations:
 
-`shared-db`: To connect to the database
-`amqp`: To connect to rabbitmq
-`identity-service`: To register endpoints in keystone
+`shared-db`: To connect to MySQL
+`amqp`: To connect to RabbitMQ
+`identity-service`: To register endpoints in Keystone
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network
 
 ## OCI Images
 
 The charm by default uses following images:
+
     `docker.io/kolla/ubuntu-binary-nova-api:xena`
     `docker.io/kolla/ubuntu-binary-nova-scheduler:xena`
     `docker.io/kolla/ubuntu-binary-nova-conductor:xena`
