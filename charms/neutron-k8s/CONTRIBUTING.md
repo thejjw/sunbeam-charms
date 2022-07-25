@@ -48,9 +48,7 @@ run:
 
 To deploy the local test instance:
 
-    tox -e build
-    juju add-model neutron
-    juju deploy ./neutron-k8s_ubuntu-20.04-amd64.charm --resource neutron-server-image=kolla/ubuntu-binary-neutron-server:xena
+    juju deploy ./neutron-k8s_ubuntu-20.04-amd64.charm --trust --resource neutron-server-image=kolla/ubuntu-binary-neutron-server:xena
 
 <!-- LINKS -->
 

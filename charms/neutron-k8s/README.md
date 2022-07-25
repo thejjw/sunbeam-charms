@@ -2,8 +2,8 @@
 
 ## Description
 
-The neutron-k8s is an operator to manage the networking service
-on a kubernetes based environment.
+neutron-k8s is an operator to manage the Neutron networking service
+on a Kubernetes based environment.
 
 ## Usage
 
@@ -13,8 +13,8 @@ neutron-k8s is deployed using below command:
 
     juju deploy neutron-k8s neutron --trust
 
-Now connect the nova application to an existing database,
-amqp, keystone identity, ovn-central and vault for certificates.
+Now connect the neutron operator to existing database,
+messaging, identity, OVN and Vault operators:
 
     juju relate mysql:database neutron:shared-db
     juju relate rabbitmq:amqp neutron:amqp
@@ -40,11 +40,11 @@ deployed then see file `actions.yaml`.
 
 neutron-k8s requires the following relations:
 
-`shared-db`: To connect to the database
-`amqp`: To connect to rabbitmq
-`identity-service`: To register endpoints in keystone
-`ovsdb-cms`: To connect to OVN central
-`certificates`: To retrieve generated certificates from vault 
+`shared-db`: To connect to MySQL
+`amqp`: To connect to RabbitMQ
+`identity-service`: To register endpoints in Keystone
+`ovsdb-cms`: To connect to OVN
+`certificates`: To retrieve generated certificates from Vault
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network
 
