@@ -2,8 +2,8 @@
 
 ## Description
 
-The cinder-ceph-k8s is an operator to manage the cinder service 
-integration with ceph storage backend on a kubernetes based
+The cinder-ceph-k8s is an operator to manage the Cinder service
+integration with Ceph storage backend on a Kubernetes based
 environment.
 
 ## Usage
@@ -12,13 +12,14 @@ environment.
 
 cinder-ceph-k8s is deployed using below command:
 
-    juju deploy cinder-ceph-k8s cinderceph --trust
+    juju deploy cinder-ceph-k8s cinder-ceph --trust
 
-Now connect the cinder-ceph application to database, amqp and ceph.
+Now connect the cinder-ceph application to database, messaging and Ceph
+services:
 
-    juju relate mysql:database cinderceph:shared-db
-    juju relate rabbitmq:amqp cinderceph:amqp
-    juju relate ceph-mon:ceph cinderceph:ceph
+    juju relate mysql:database cinder-ceph:shared-db
+    juju relate rabbitmq:amqp cinder-ceph:amqp
+    juju relate ceph-mon:ceph cinder-ceph:ceph
 
 ### Configuration
 
@@ -38,8 +39,9 @@ deployed then see file `actions.yaml`.
 
 cinder-ceph-k8s requires the following relations:
 
-`amqp`: To connect to rabbitmq
-`ceph`: To connect to ceph storage backend
+`amqp`: To connect to RabbitMQ
+`ceph`: To connect to Ceph storage backend
+`database`: To connect to MySQL
 
 ## OCI Images
 
