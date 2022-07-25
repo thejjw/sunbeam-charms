@@ -2,8 +2,8 @@
 
 ## Description
 
-The placement-k8s is an operator to manage the placement service on a
-kubernetes based environment.
+placement-k8s is an operator to manage the OpenStack Placement service
+on a kubernetes based environment.
 
 ## Usage
 
@@ -13,8 +13,8 @@ placement-k8s is deployed using below command:
 
     juju deploy placement-k8s placement --trust
 
-Now connect the placement application to an existing database
-and keystone identity.
+Now connect the placement operator to an existing database
+and keystone identity operators.
 
     juju relate mysql:database placement:shared-db
     juju relate keystone:identity-service placement:identity-service
