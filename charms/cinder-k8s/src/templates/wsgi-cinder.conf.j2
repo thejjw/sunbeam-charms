@@ -1,6 +1,6 @@
 Listen 8776
 <VirtualHost *:8776>
-    WSGIDaemonProcess cinder processes=3 threads=1 user=cinder group=cinder \
+    WSGIDaemonProcess cinder processes=4 threads=1 user=cinder group=cinder \
                       display-name=%{GROUP}
     WSGIProcessGroup cinder
     WSGIScriptAlias / /usr/bin/cinder-wsgi
