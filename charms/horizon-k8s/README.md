@@ -2,8 +2,8 @@
 
 ## Description
 
-The horizon-k8s is an operator to manage the openstack dashboard
-service on a kubernetes based environment.
+horizon-k8s is an operator to manage the OpenStack dashboard
+service on a Kubernetes based environment.
 
 ## Usage
 
@@ -13,8 +13,8 @@ horizon-k8s is deployed using below command:
 
     juju deploy horizon-k8s horizon --trust
 
-Now connect the horizon application to an existing database,
-and keystone identity.
+Now connect the horizon operator to existing database and Keystone
+operators:
 
     juju relate mysql:database horizon:shared-db
     juju relate keystone:cloud-credentials horizon:cloud-credentials
@@ -37,8 +37,8 @@ deployed then see file `actions.yaml`.
 
 horizon-k8s requires the following relations:
 
-`shared-db`: To connect to the database
-`cloud-credentials`: To register cloud users in keystone
+`shared-db`: To connect to MySQL
+`cloud-credentials`: To register cloud users in Keystone
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network
 
