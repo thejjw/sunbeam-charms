@@ -2,7 +2,7 @@ Listen 0.0.0.0:5000
 Listen 0.0.0.0:35357
 
 <VirtualHost *:5000>
-    WSGIDaemonProcess keystone-public processes=1 threads=1 user=keystone group=keystone display-name=%{GROUP} python-path=/usr/lib/python3/site-packages
+    WSGIDaemonProcess keystone-public processes=4 threads=1 user=keystone group=keystone display-name=%{GROUP} python-path=/usr/lib/python3/site-packages
     WSGIProcessGroup keystone-public
     {% if ingress_internal.ingress_path -%}
     WSGIScriptAlias {{ ingress_internal.ingress_path }} /usr/bin/keystone-wsgi-public
@@ -29,7 +29,7 @@ Listen 0.0.0.0:35357
 </VirtualHost>
 
 <VirtualHost *:35357>
-    WSGIDaemonProcess keystone-admin processes=1 threads=1 user=keystone group=keystone display-name=%{GROUP} python-path=/usr/lib/python3/site-packages
+    WSGIDaemonProcess keystone-admin processes=4 threads=1 user=keystone group=keystone display-name=%{GROUP} python-path=/usr/lib/python3/site-packages
     WSGIProcessGroup keystone-admin
     WSGIScriptAlias / /usr/bin/keystone-wsgi-admin
     WSGIApplicationGroup %{GLOBAL}
