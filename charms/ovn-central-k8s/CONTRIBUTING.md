@@ -48,9 +48,7 @@ run:
 
 To deploy the local test instance:
 
-    tox -e build
-    juju add-model ovn-central
-    juju deploy ./ovn-central-k8s_ubuntu-20.04-amd64.charm --resource ovn-northd-image=registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-northd-image ovn-nb-db-server-image=registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-nb-db-server-image ovn-sb-db-server-image=registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-sb-db-server-image
+    juju deploy ./ovn-central-k8s_ubuntu-20.04-amd64.charm --trust --resource ovn-northd-image=registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-northd-image ovn-nb-db-server-image=registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-nb-db-server-image ovn-sb-db-server-image=registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-sb-db-server-image
 
 <!-- LINKS -->
 

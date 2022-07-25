@@ -2,8 +2,8 @@
 
 ## Description
 
-The ovn-central-k8s is an operator to manage the OVN central
-services northd, ovsdb-nb, ovsdb-sb on a kubernetes based
+ovn-central-k8s is an operator to manage the OVN central
+services (northd, ovsdb-nb, ovsdb-sb) on a Kubernetes based
 environment.
 
 ## Usage
@@ -14,8 +14,8 @@ ovn-central-k8s is deployed using below command:
 
     juju deploy ovn-central-k8s ovn-central
 
-Now connect the ovn-central application to vault to generate
-certificates.
+Now connect the ovn-central operator to Vault to generate
+certificates for secure authentication and communication:
 
     juju relate vault:certificates ovn-central:certificates
 
@@ -36,14 +36,17 @@ deployed then see file `actions.yaml`.
 ## Relations
 
 ovn-central-k8s requires the following relations:
+
 `certificates`: To retrieve generated certificates from vault
 
 ovn-central-k8s provides the following relations:
-`ovsdb-cms`: Used by neutron to get ovn-central IPs.
+
+`ovsdb-cms`: Used by Neutron to get ovn-central IPs.
 
 ## OCI Images
 
-The charm by default uses following images.
+The charm by default uses following images:
+
     `registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-northd-image`
     `registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-nb-db-server-image`
     `registry.jujucharms.com/charm/kau2b145zhaeuj5ly4w4m30qiq8qzspf93tnd/ovn-sb-db-server-image`
