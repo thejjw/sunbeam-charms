@@ -2,7 +2,7 @@
 
 ## Description
 
-The cinder-k8s is an operator to manage the Cinder API and Scheduler
+cinder-k8s is an operator to manage the Cinder API and Scheduler
 services on a Kubernetes based environment.
 
 ## Usage
