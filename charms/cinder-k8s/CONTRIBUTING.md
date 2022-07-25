@@ -13,7 +13,7 @@ Create and activate a virtualenv with the development requirements:
 Get familiarise with [Charmed Operator Framework](https://juju.is/docs/sdk)
 and [Sunbeam documentation](sunbeam-docs).
 
-cinder-k8s charm uses the ops_sunbeam library and extends
+cinder-k8s charm uses the ops\_sunbeam library and extends
 OSBaseOperatorAPICharm from the library.
 
 cinder-k8s charm consumes shared-db relation to connect to database,
@@ -47,8 +47,6 @@ run:
 
 To deploy the local test instance:
 
-    tox -e build
-    juju add-model cinder
     juju deploy ./cinder-k8s_ubuntu-20.04-amd64.charm --resource cinder-api-image=kolla/ubuntu-binary-cinder-api:xena --resource cinder-scheduler-image=kolla/ubuntu-binary-cinder-scheduler:xena
 
 <!-- LINKS -->

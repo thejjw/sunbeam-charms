@@ -2,8 +2,8 @@
 
 ## Description
 
-The cinder-k8s is an operator to manage the cinder service on a
-kubernetes based environment.
+The cinder-k8s is an operator to manage the Cinder API and Scheduler
+services on a Kubernetes based environment.
 
 ## Usage
 
@@ -13,8 +13,8 @@ cinder-k8s is deployed using below command:
 
     juju deploy cinder-k8s cinder --trust
 
-Now connect the cinder application to an existing database,
-amqp and keystone identity.
+Now connect the cinder operator to existing database, messaging
+and keystone identity operators:
 
     juju relate mysql:database cinder:shared-db
     juju relate rabbitmq:amqp cinder:amqp
@@ -38,16 +38,17 @@ deployed then see file `actions.yaml`.
 
 cinder-k8s requires the following relations:
 
-`shared-db`: To connect to the database
-`amqp`: To connect to rabbitmq
-`identity-service`: To register endpoints in keystone
+`shared-db`: To connect to MySQL
+`amqp`: To connect to RabbitMQ
+`identity-service`: To register endpoints in Keystone
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network
-`storage-backend`: To connect to backend which exposes storage
+`storage-backend`: To connect to backends which manage block storage
 
 ## OCI Images
 
 The charm by default uses follwoing images:
+
 `docker.io/kolla/ubuntu-binary-cinder-api:xena`
 `docker.io/kolla/ubuntu-binary-cinder-scheduler:xena`
 
