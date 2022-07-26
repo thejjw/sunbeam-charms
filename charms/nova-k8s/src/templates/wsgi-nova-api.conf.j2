@@ -4,7 +4,7 @@ Listen {{ wsgi_nova_metadata.public_port }}
     WSGIDaemonProcess nova-api processes=4 threads=1 user={{ wsgi_config.user }} group={{ wsgi_config.group }} \
                       display-name=%{GROUP}
     WSGIProcessGroup nova-api
-    {% if ingress_internal.ingress_path -%}
+    {% if ingress_internal and ingress_internal.ingress_path -%}
     WSGIScriptAlias {{ ingress_internal.ingress_path }} {{ wsgi_config.wsgi_public_script }}
     {% endif -%}
     WSGIScriptAlias / {{ wsgi_config.wsgi_public_script }}

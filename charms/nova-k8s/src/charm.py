@@ -177,7 +177,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def service_conf(self) -> str:
         """Service default configuration file."""
-        return f"/etc/nova/nova.conf"
+        return "/etc/nova/nova.conf"
 
     @property
     def service_user(self) -> str:
