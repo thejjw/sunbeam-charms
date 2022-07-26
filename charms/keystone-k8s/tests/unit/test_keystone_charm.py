@@ -16,10 +16,6 @@
 
 import mock
 import json
-import sys
-
-sys.path.append('lib')  # noqa
-sys.path.append('src')  # noqa
 
 import charm
 import ops_sunbeam.test_utils as test_utils

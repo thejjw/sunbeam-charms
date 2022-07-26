@@ -8,7 +8,9 @@ use_syslog = True
 log_config_append = /etc/keystone/logging.conf
 debug = {{ options.debug }}
 
+{% if ks_config.public_endpoint -%}
 public_endpoint = {{ ks_config.public_endpoint }}
+{% endif -%}
 
 [identity]
 driver = {{ ks_config.identity_backend }}

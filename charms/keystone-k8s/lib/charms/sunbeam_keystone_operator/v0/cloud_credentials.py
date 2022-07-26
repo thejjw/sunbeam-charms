@@ -75,6 +75,17 @@ class IdentityServiceClientCharm(CharmBase):
 ```
 """
 
+import logging
+
+from ops.framework import (
+    StoredState,
+    EventBase,
+    ObjectEvents,
+    EventSource,
+    Object,
+)
+from ops.model import Relation
+
 # The unique Charmhub library identifier, never change it
 LIBID = "deadbeef"
 
@@ -84,22 +95,6 @@ LIBAPI = 0
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
 LIBPATCH = 1
-
-import json
-import logging
-import requests
-
-from ops.framework import (
-    StoredState,
-    EventBase,
-    ObjectEvents,
-    EventSource,
-    Object,
-)
-
-from ops.model import Relation
-
-from typing import List
 
 logger = logging.getLogger(__name__)
 
