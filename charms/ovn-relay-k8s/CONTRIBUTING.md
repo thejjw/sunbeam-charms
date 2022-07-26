@@ -32,9 +32,9 @@ TODO
 ## Testing
 
 The Python operator framework includes a very nice harness for testing
-operator behaviour without full deployment. Just `run_tests`:
+operator behaviour without full deployment. Run tests using command:
 
-    ./run_tests
+    tox -e py3
 
 ## Deployment
 
