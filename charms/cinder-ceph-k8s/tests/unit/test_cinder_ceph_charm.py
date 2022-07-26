@@ -14,11 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
 import json
-
-sys.path.append("lib")  # noqa
-sys.path.append("src")  # noqa
 
 import charm
 import ops_sunbeam.test_utils as test_utils
