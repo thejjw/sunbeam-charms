@@ -15,10 +15,6 @@
 # limitations under the License.
 
 import mock
-import sys
-
-sys.path.append('lib')  # noqa
-sys.path.append('src')  # noqa
 
 import charm
 import ops_sunbeam.test_utils as test_utils

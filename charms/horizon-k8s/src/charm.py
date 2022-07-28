@@ -34,7 +34,7 @@ class WSGIDashboardPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             logging.debug(f'Output from a2dissite: \n{out}')
         except ops.pebble.ExecError:
             logger.exception(
-                f"Failed to disable default site in apache"
+                "Failed to disable default site in apache"
             )
         super().init_service(context)
 
@@ -64,12 +64,12 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def apache_vhost(self) -> str:
         """Service default configuration file."""
-        return f"/etc/apache2/sites-enabled/openstack-dashboard.conf"
+        return "/etc/apache2/sites-enabled/openstack-dashboard.conf"
 
     @property
     def service_conf(self) -> str:
         """Service default configuration file."""
-        return f"/etc/openstack-dashboard/local_settings.py"
+        return "/etc/openstack-dashboard/local_settings.py"
 
     @property
     def service_user(self) -> str:
@@ -118,6 +118,7 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 class OpenstackDashboardXenaOperatorCharm(OpenstackDashboardOperatorCharm):
 
     openstack_release = 'xena'
+
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
