@@ -77,7 +77,7 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
         :return: True if the storage is ready, False otherwise.
         """
         if self.charm.has_ceph_relation():
-            logger.debug(f'ceph relation is connected, deferring to parent')
+            logger.debug('ceph relation is connected, deferring to parent')
             return super().ready
 
         # Check to see if the storage is satisfied
@@ -160,7 +160,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def service_conf(self) -> str:
         """Service default configuration file."""
-        return f"/etc/glance/glance-api.conf"
+        return "/etc/glance/glance-api.conf"
 
     @property
     def service_user(self) -> str:
