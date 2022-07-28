@@ -75,6 +75,20 @@ class IdentityServiceClientCharm(CharmBase):
 ```
 """
 
+import json
+import logging
+
+from ops.framework import (
+    StoredState,
+    EventBase,
+    ObjectEvents,
+    EventSource,
+    Object,
+)
+from ops.model import Relation
+
+logger = logging.getLogger(__name__)
+
 # The unique Charmhub library identifier, never change it
 LIBID = "6a7cb19b98314ecf916e3fcb02708608"
 
@@ -85,21 +99,6 @@ LIBAPI = 0
 # to 0 if you are raising the major API version
 LIBPATCH = 1
 
-import json
-import logging
-import requests
-
-from ops.framework import (
-    StoredState,
-    EventBase,
-    ObjectEvents,
-    EventSource,
-    Object,
-)
-
-from ops.model import Relation
-
-from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -309,24 +308,20 @@ class IdentityServiceRequires(Object):
         """Return the service_user_id."""
         return self.get_remote_app_data('service-user-id')
 
-
     @property
     def internal_auth_url(self) -> str:
         """Return the internal_auth_url."""
         return self.get_remote_app_data('internal-auth-url')
-
 
     @property
     def admin_auth_url(self) -> str:
         """Return the admin_auth_url."""
         return self.get_remote_app_data('admin-auth-url')
 
-
     @property
     def public_auth_url(self) -> str:
         """Return the public_auth_url."""
         return self.get_remote_app_data('public-auth-url')
-
 
     def register_services(self, service_endpoints: dict,
                           region: str) -> None:
@@ -355,7 +350,6 @@ class ReadyIdentityServiceClientsEvent(EventBase):
         self.service_endpoints = service_endpoints
         self.region = region
         self.client_app_name = client_app_name
-            
 
     def snapshot(self):
         return {
@@ -417,10 +411,11 @@ class IdentityServiceProvides(Object):
         REQUIRED_KEYS = [
             'service-endpoints',
             'region']
-        
+
         values = [
             event.relation.data[event.relation.app].get(k)
-            for k in REQUIRED_KEYS ]
+            for k in REQUIRED_KEYS
+        ]
         # Validate data on the relation
         if all(values):
             service_eps = json.loads(

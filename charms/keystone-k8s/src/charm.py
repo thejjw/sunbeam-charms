@@ -432,7 +432,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def internal_endpoint(self):
-        if self.ingress_internal:
+        if self.ingress_internal and self.ingress_internal.url:
             return self.ingress_internal.url
 
         internal_hostname = self.model.config.get('os-internal-hostname')
@@ -445,7 +445,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def public_endpoint(self):
-        if self.ingress_public:
+        if self.ingress_public and self.ingress_public.url:
             return self.ingress_public.url
 
         address = self.public_ingress_address
