@@ -44,7 +44,7 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def service_conf(self) -> str:
         """Service default configuration file."""
-        return f"/etc/placement/placement.conf"
+        return "/etc/placement/placement.conf"
 
     @property
     def service_user(self) -> str:
@@ -75,6 +75,7 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 class PlacementXenaOperatorCharm(PlacementOperatorCharm):
 
     openstack_release = 'xena'
+
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
