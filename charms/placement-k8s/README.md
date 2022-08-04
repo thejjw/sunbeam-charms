@@ -58,7 +58,7 @@ Please report bugs on [Launchpad][lp-bugs-charm-placement-k8s].
 
 <!-- LINKS -->
 
-[contributors-guide]: https://github.com/openstack-charmers/charm-placement-operator/blob/main/CONTRIBUTING.md
+[contributors-guide]: https://opendev.org/openstack/charm-placement-k8s/src/branch/main/CONTRIBUTING.md
 [juju-docs-actions]: https://jaas.ai/docs/actions
 [juju-docs-config-apps]: https://juju.is/docs/configuring-applications
 [lp-bugs-charm-placement-k8s]: https://bugs.launchpad.net/charm-placement-k8s/+filebug
