@@ -61,7 +61,7 @@ Please report bugs on [Launchpad][lp-bugs-charm-glance-k8s].
 
 <!-- LINKS -->
 
-[contributors-guide]: https://github.com/openstack-charmers/charm-glance-operator/blob/main/CONTRIBUTING.md
+[contributors-guide]: https://opendev.org/openstack/charm-glance-k8s/src/branch/main/CONTRIBUTING.md
 [juju-docs-actions]: https://jaas.ai/docs/actions
 [juju-docs-config-apps]: https://juju.is/docs/configuring-applications
 [lp-bugs-charm-glance-k8s]: https://bugs.launchpad.net/charm-glance-k8s/+filebug
