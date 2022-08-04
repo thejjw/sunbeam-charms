@@ -64,7 +64,7 @@ Please report bugs on [Launchpad][lp-bugs-charm-neutron-k8s].
 
 <!-- LINKS -->
 
-[contributors-guide]: https://github.com/openstack-charmers/charm-neutron-operator/blob/main/CONTRIBUTING.md
+[contributors-guide]: https://opendev.org/openstack/charm-neutron-k8s/src/branch/main/CONTRIBUTING.md
 [juju-docs-actions]: https://jaas.ai/docs/actions
 [juju-docs-config-apps]: https://juju.is/docs/configuring-applications
 [lp-bugs-charm-neutron-k8s]: https://bugs.launchpad.net/charm-neutron-k8s/+filebug
