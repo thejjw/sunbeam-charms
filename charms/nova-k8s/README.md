@@ -64,7 +64,7 @@ Please report bugs on [Launchpad][lp-bugs-charm-nova-k8s].
 
 <!-- LINKS -->
 
-[contributors-guide]: https://github.com/openstack-charmers/charm-nova-operator/blob/main/CONTRIBUTING.md
+[contributors-guide]: https://opendev.org/openstack/charm-nova-k8s/src/branch/main/CONTRIBUTING.md
 [juju-docs-actions]: https://jaas.ai/docs/actions
 [juju-docs-config-apps]: https://juju.is/docs/configuring-applications
 [lp-bugs-charm-nova-k8s]: https://bugs.launchpad.net/charm-nova-k8s/+filebug
