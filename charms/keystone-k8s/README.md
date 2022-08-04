@@ -86,7 +86,7 @@ Please report bugs on [Launchpad][lp-bugs-charm-keystone-k8s].
 
 <!-- LINKS -->
 
-[contributors-guide]: https://github.com/openstack-charmers/charm-keystone-operator/blob/main/CONTRIBUTING.md
+[contributors-guide]: https://opendev.org/openstack/charm-keystone-k8s/src/branch/main/CONTRIBUTING.md
 [juju-docs-actions]: https://jaas.ai/docs/actions
 [juju-docs-config-apps]: https://juju.is/docs/configuring-applications
 [lp-bugs-charm-keystone-k8s]: https://bugs.launchpad.net/charm-keystone-k8s/+filebug
