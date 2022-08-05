@@ -63,7 +63,7 @@ Please report bugs on [Launchpad][lp-bugs-charm-ovn-central-k8s].
 
 <!-- LINKS -->
 
-[contributors-guide]: https://github.com/openstack-charmers/charm-ovn-central-operator/blob/main/CONTRIBUTING.md
+[contributors-guide]: https://opendev.org/x/charm-ovn-central-k8s/src/branch/main/CONTRIBUTING.md
 [juju-docs-actions]: https://jaas.ai/docs/actions
 [juju-docs-config-apps]: https://juju.is/docs/configuring-applications
 [lp-bugs-charm-ovn-central-k8s]: https://bugs.launchpad.net/charm-ovn-central-k8s/+filebug
