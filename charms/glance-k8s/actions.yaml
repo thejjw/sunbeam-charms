@@ -1,2 +1,8 @@
 # NOTE: no actions yet!
-{ }
+
+describe-status:
+  description: |
+    See an expanded view of the compound status.
+    For a neat human readable summary:
+
+      juju run-action --wait glance/0 describe-status --format=json | jq -r '.[].results.output'

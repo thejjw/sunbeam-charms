@@ -25,12 +25,15 @@ import logging
 from typing import Callable
 from typing import List
 
-from ops.framework import StoredState
+from ops.framework import StoredState, EventBase
 from ops.main import main
-from ops.model import BlockedStatus
+from ops.model import (
+    ActiveStatus, BlockedStatus, WaitingStatus,
+)
 from ops.charm import CharmBase
 
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.compound_status as compound_status
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.config_contexts as sunbeam_ctxts
@@ -88,12 +91,30 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
         allow_ec_overwrites: bool = True,
         app_name: str = None,
         juju_storage_name: str = None,
-        mandatory: bool = False,
     ) -> None:
         """Run constructor."""
         self.juju_storage_name = juju_storage_name
         super().__init__(charm, relation_name, callback_f, allow_ec_overwrites,
-                         app_name, mandatory)
+                         app_name, mandatory=True)
+
+    def set_status(self, status: compound_status.Status) -> None:
+        """
+        Override the base set_status.
+
+        Custom logic is required here since this relation handler
+        falls back to local storage if the ceph relation isn't found.
+        """
+        if (
+            not self.charm.has_ceph_relation() and
+            not self.charm.has_local_storage()
+        ):
+            status.set(BlockedStatus(
+                "ceph integration and local storage are not available"
+            ))
+        elif self.ready:
+            status.set(ActiveStatus(""))
+        else:
+            status.set(WaitingStatus("integration incomplete"))
 
     @property
     def ready(self) -> bool:
@@ -158,6 +179,16 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         'ceph',
     }
 
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.framework.observe(
+            self.on.describe_status_action,
+            self._describe_status_action
+        )
+
+    def _describe_status_action(self, event: EventBase) -> None:
+        event.set_results({"output": self.status_pool.summarise()})
+
     @property
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
         """Configuration contexts for the operator."""
@@ -206,7 +237,6 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             allow_ec_overwrites=True,
             app_name='rbd',
             juju_storage_name='local-repository',
-            mandatory='ceph' in self.mandatory_relations,
         )
         handlers.append(self.ceph)
         return handlers
@@ -264,22 +294,26 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return self.model.get_relation('ceph') is not None
 
     def configure_charm(self, event) -> None:
-        """Catchall handler to cconfigure charm services."""
+        """Catchall handler to configure charm services."""
         if not self.relation_handlers_ready():
-            logging.debug("Deferring configuration, charm relations not ready")
+            logger.debug("Deferring configuration, charm relations not ready")
             return
 
         if self.has_ceph_relation():
             if not self.ceph.key:
                 logger.debug('Ceph key is not yet present, waiting.')
+                self.status.set(
+                    WaitingStatus("ceph key not present yet")
+                )
                 return
         elif self.has_local_storage():
             logger.debug('Local storage is configured, using that.')
         else:
             logger.debug('Neither local storage nor ceph relation exists.')
-            self.unit.status = BlockedStatus('Missing storage. Relate to Ceph '
-                                             'or add local storage to '
-                                             'continue.')
+            self.status.set(BlockedStatus(
+                'Missing storage. Relate to Ceph '
+                'or add local storage to continue.'
+            ))
             return
 
         ph = self.get_named_pebble_handler("glance-api")
@@ -311,6 +345,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if self._state.bootstrapped:
             for handler in self.pebble_handlers:
                 handler.start_service()
+            self.status.set(ActiveStatus(""))
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""
