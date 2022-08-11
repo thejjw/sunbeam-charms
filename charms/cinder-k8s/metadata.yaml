@@ -24,12 +24,14 @@ containers:
 resources:
   cinder-api-image:
     type: oci-image
-    description: OCI image for OpenStack Cinder (kolla/cinder-api-image)
-    upstream-source: docker.io/kolla/ubuntu-binary-cinder-api:xena
+    description: OCI image for OpenStack Cinder API
+    # docker.io/kolla/ubuntu-binary-cinder-api:xena
+    upstream-source: docker.io/kolla/ubuntu-binary-cinder-api@sha256:93999206c297ff25dc2499fa6a146a8424ffe434fffae8cd97ec38aac6721c91
   cinder-scheduler-image:
     type: oci-image
-    description: OCI image for OpenStack Cinder (kolla/cinder-api-image)
-    upstream-source: docker.io/kolla/ubuntu-binary-cinder-scheduler:xena
+    description: OCI image for OpenStack Cinder Scheduler
+    # docker.io/kolla/ubuntu-binary-cinder-scheduler:xena
+    upstream-source: docker.io/kolla/ubuntu-binary-cinder-scheduler@sha256:ea07d1f81e203b08b9cc92f3e569e703bef432f75ec2b4ee0300ef5a14157324
 
 requires:
   shared-db:
