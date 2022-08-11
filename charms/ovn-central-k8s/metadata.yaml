@@ -35,13 +35,19 @@ containers:
 resources:
   ovn-sb-db-server-image:
     type: oci-image
-    description: OCI image
+    description: OCI image for OVN Southbound Database Server
+    # docker.io/kolla/ubuntu-binary-ovn-sb-db-server:xena
+    upstream-source: docker.io/kolla/ubuntu-binary-ovn-sb-db-server@sha256:97105560d1360ed0a707ddf2cadc8aac1cb076cc08580a39f51ddb62e89027ca
   ovn-nb-db-server-image:
     type: oci-image
-    description: OCI image
+    description: OCI image for OVN Northbound Database Server
+    # docker.io/kolla/ubuntu-binary-ovn-nb-db-server:xena
+    upstream-source: docker.io/kolla/ubuntu-binary-ovn-nb-db-server@sha256:d3cbecbfbc2c8bdee5f6dc17d182fe004208d7b9d9da8549dba42261dbe8668f
   ovn-northd-image:
     type: oci-image
-    description: OCI image
+    description: OCI image for OVN Northd
+    # docker.io/kolla/ubuntu-binary-ovn-northd:xena
+    upstream-source: docker.io/kolla/ubuntu-binary-ovn-northd@sha256:b78cc657c2966727dca55396daac7d1797113212e97de0961fb612c6bc0ba969
 
 requires:
   certificates:
