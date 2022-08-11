@@ -72,5 +72,6 @@ containers:
 resources:
   keystone-image:
     type: oci-image
-    description: Kolla based docker image for keystone
-    upstream-source: docker.io/kolla/ubuntu-binary-keystone:xena
+    description: OCI image for OpenStack Keystone
+    # docker.io/kolla/ubuntu-binary-keystone:xena
+    upstream-source: docker.io/kolla/ubuntu-binary-keystone@sha256:aa5b22f10a26e1bf0a083f5a7bfb249573757f1d0c45bb632252c70f6f0292cb
