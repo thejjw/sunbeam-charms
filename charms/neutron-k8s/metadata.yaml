@@ -22,7 +22,9 @@ containers:
 resources:
   neutron-server-image:
     type: oci-image
-    description: OCI image for OpenStack Neutron API (kolla/neutron-server)
+    description: OCI image for OpenStack Neutron API
+    # docker.io/kolla/ubuntu-binary-neutron-server:xena
+    upstream-source: docker.io/kolla/ubuntu-binary-neutron-server@sha256:6aef64b32b44f341a239526118e6f2fa8e0c67773867e2d9d92a8ef48ba7f194
 
 provides:
   neutron-api:
