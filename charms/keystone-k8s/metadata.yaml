@@ -16,6 +16,8 @@ tags:
   - openstack
   - identity
   - misc
+source: https://opendev.org/openstack/charm-keystone-k8s
+issues: https://bugs.launchpad.net/charm-keystone-k8s
 
 provides:
   identity-service:
