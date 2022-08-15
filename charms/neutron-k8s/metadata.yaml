@@ -14,6 +14,8 @@ description: |
   This charm provides the OpenStack Neutron API service.
 tags:
   - openstack
+source: https://opendev.org/openstack/charm-neutron-k8s
+issues: https://bugs.launchpad.net/charm-neutron-k8s
 
 containers:
   neutron-server:
