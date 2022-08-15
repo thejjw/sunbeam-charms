@@ -19,6 +19,8 @@ bases:
     channel: 20.04/stable
 tags:
   - openstack
+source: https://opendev.org/openstack/charm-nova-k8s
+issues: https://bugs.launchpad.net/charm-nova-k8s
 
 containers:
   nova-api:
