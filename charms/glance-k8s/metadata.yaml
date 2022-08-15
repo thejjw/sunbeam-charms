@@ -16,6 +16,8 @@ tags:
   - openstack
   - storage
   - misc
+source: https://opendev.org/openstack/charm-glance-k8s
+issues: https://bugs.launchpad.net/charm-glance-k8s
 
 containers:
   glance-api:
