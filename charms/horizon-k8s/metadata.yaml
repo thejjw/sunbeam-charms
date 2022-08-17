@@ -12,6 +12,8 @@ bases:
     channel: 20.04/stable
 tags:
 - openstack
+source: https://opendev.org/openstack/charm-horizon-k8s
+issues: https://bugs.launchpad.net/charm-horizon-k8s
 
 containers:
   openstack-dashboard:
