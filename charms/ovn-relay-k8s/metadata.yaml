@@ -9,6 +9,8 @@ description: |
   server.
 tags:
 - networking
+source: https://opendev.org/x/charm-ovn-relay-k8s
+issues: https://bugs.launchpad.net/charm-ovn-relay-k8s
 
 containers:
   ovsdb-server:
