@@ -2,3 +2,21 @@
     templates:
       - openstack-python3-charm-yoga-jobs
       - openstack-cover-jobs
+    check:
+      jobs:
+        - build-charm
+        - func-tests
+    vars:
+      charm_build_name: keystone-k8s
+
+- job:
+    name: build-charm
+    run: playbooks/build-charm.yaml
+    provides: charm
+    timeout: 3600
+- job:
+    name: func-tests
+    run: playbooks/run-tests.yaml
+    requires: charm
+    dependencies:
+      - name: build-charm

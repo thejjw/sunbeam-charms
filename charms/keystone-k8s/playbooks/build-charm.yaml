@@ -1,0 +1,75 @@
+- hosts: all
+  tasks:
+
+    - name: lxd apt packages are not present
+      apt:
+        name:
+          - lxd
+          - lxd-client
+        state: absent
+        purge: yes
+      become: true
+
+    - name: snapd is installed
+      apt:
+        name: snapd
+      become: true
+
+    - name: lxd snap is installed
+      snap:
+        name: lxd
+        channel: latest/stable
+      become: true
+
+    - name: lxd is initialised
+      command: lxd init --auto
+      become: true
+
+    - name: current user is in lxd group
+      user:
+        name: "{{ ansible_user }}"
+        groups: lxd
+        append: true
+      become: true
+
+    - name: reset ssh connection to apply permissions from new group
+      meta: reset_connection
+
+    - name: charmcraft is installed
+      snap:
+        name: charmcraft
+        channel: latest/stable
+        classic: true
+      become: true
+
+    - name: charm is packed
+      command:
+        cmd: charmcraft --verbosity trace pack
+        chdir: "{{ zuul.project.src_dir }}"
+
+    - name: local charm is named consistently
+      command:
+        cmd: ./rename.sh
+        chdir: "{{ zuul.project.src_dir }}"
+
+    - name: Compress built charm
+      archive:
+        dest: "{{ zuul.project.src_dir }}/{{ charm_build_name }}.charm.gz"
+        path: "{{ zuul.project.src_dir }}/{{ charm_build_name }}.charm"
+        format: gz
+
+    - name: built charm is available in the zuul log root for auto artifact upload
+      fetch:
+        src: "{{ zuul.project.src_dir }}/{{ charm_build_name }}.charm.gz"
+        dest: "{{ zuul.executor.log_root }}/"
+        flat: true
+      become: true
+
+    - zuul_return:
+        data:
+          zuul:
+            artifacts:
+              - name: charm
+                url: "{{ charm_build_name }}.charm.gz"
+                metadata:
+                  type: charm

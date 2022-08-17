@@ -198,10 +198,10 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
     def test_leader_bootstraps(self):
         test_utils.add_complete_ingress_relation(self.harness)
         self.harness.set_leader()
-        rel_id = self.harness.add_relation('peers', 'keystone')
+        rel_id = self.harness.add_relation('peers', 'keystone-k8s')
         self.harness.add_relation_unit(
             rel_id,
-            'keystone/1')
+            'keystone-k8s/1')
         self.harness.container_pebble_ready('keystone')
         test_utils.add_db_relation_credentials(
             self.harness,
@@ -212,10 +212,10 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
     def test_leader_rotate_fernet_keys(self):
         test_utils.add_complete_ingress_relation(self.harness)
         self.harness.set_leader()
-        rel_id = self.harness.add_relation('peers', 'keystone')
+        rel_id = self.harness.add_relation('peers', 'keystone-k8s')
         self.harness.add_relation_unit(
             rel_id,
-            'keystone/1')
+            'keystone-k8s/1')
         self.harness.container_pebble_ready('keystone')
         test_utils.add_db_relation_credentials(
             self.harness,
@@ -225,10 +225,10 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
 
     def test_not_leader_rotate_fernet_keys(self):
         test_utils.add_complete_ingress_relation(self.harness)
-        rel_id = self.harness.add_relation('peers', 'keystone')
+        rel_id = self.harness.add_relation('peers', 'keystone-k8s')
         self.harness.add_relation_unit(
             rel_id,
-            'keystone/1')
+            'keystone-k8s/1')
         self.harness.container_pebble_ready('keystone')
         test_utils.add_db_relation_credentials(
             self.harness,
@@ -239,10 +239,10 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
     def test_on_heartbeat(self):
         test_utils.add_complete_ingress_relation(self.harness)
         self.harness.set_leader()
-        rel_id = self.harness.add_relation('peers', 'keystone')
+        rel_id = self.harness.add_relation('peers', 'keystone-k8s')
         self.harness.add_relation_unit(
             rel_id,
-            'keystone/1')
+            'keystone-k8s/1')
         self.harness.container_pebble_ready('keystone')
         test_utils.add_db_relation_credentials(
             self.harness,
@@ -271,10 +271,10 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
     def test_non_leader_no_bootstraps(self):
         test_utils.add_complete_ingress_relation(self.harness)
         self.harness.set_leader(False)
-        rel_id = self.harness.add_relation('peers', 'keystone')
+        rel_id = self.harness.add_relation('peers', 'keystone-k8s')
         self.harness.add_relation_unit(
             rel_id,
-            'keystone/1')
+            'keystone-k8s/1')
         self.harness.container_pebble_ready('keystone')
         test_utils.add_db_relation_credentials(
             self.harness,

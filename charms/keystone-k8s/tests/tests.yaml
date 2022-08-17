@@ -1,0 +1,37 @@
+gate_bundles:
+  - xena
+smoke_bundles:
+  - xena
+configure:
+  - zaza.openstack.charm_tests.keystone.setup.add_tempest_roles
+tests:
+  - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneV3
+tests_options:
+  trust:
+    - xena
+
+  tempest:
+    default:
+      smoke: True
+      exclude-list:
+        - "tempest.api.image.v2.test_images.BasicOperationsImagesTest.test_register_upload_get_image_file"
+
+target_deploy_status:
+  traefik:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  traefik-public:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  rabbitmq:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  glance:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  keystone:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  mysql:
+    workload-status: active
+    workload-status-message-regex: '^$'

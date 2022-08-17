@@ -1,8 +1,10 @@
 - project:
     templates:
-      - charm-unit-jobs-py38
-      - charm-unit-jobs-py310
       - charm-publish-jobs
+    check:
+      jobs:
+        - build-charm
+        - func-tests
     vars:
       needs_charm_build: true
       charm_build_name: keystone-k8s
@@ -10,3 +12,24 @@
       publish_charm: true
       charmcraft_channel: 2.0/stable
       publish_channel: latest/edge
+# Canonical CI also reads the zuul.yaml and the jobs defined in there. As a
+# result Canonical CI attempts to run these jobs again despite them having
+# already run in the OpenDev CI. The job definitions below overide the
+# ones from the zuul.yaml and replace the `run` directive with a noop.
+# Originally the setup of microk8s was in a seperate `pre-run` file.
+# However this caused problems as you cannot override the `pre-run`
+# job only append to it. To get around this the microk8s setup, the
+# test run and cleanup steps were all put into the `run` step. When
+# these job definitions move out of the charm these should be split
+# apart again.
+- job:
+    name: build-charm
+    run: playbooks/osci-noop.yaml
+    provides: charm
+    timeout: 3600
+- job:
+    name: func-tests
+    run: playbooks/osci-noop.yaml
+    requires: charm
+    dependencies:
+      - name: build-charm
