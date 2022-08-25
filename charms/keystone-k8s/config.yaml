@@ -24,15 +24,6 @@ options:
     description: Name of tenant to associate with service credentials
     type: string
 
-  service-port:
-    default: 5000
-    description: Port the public and internal endpoints will listen on
-    type: int
-  admin-port:
-    default: 35357
-    description: Port the admin endpoint will listen on
-    type: int
-
   os-admin-hostname:
     default:
     description: |

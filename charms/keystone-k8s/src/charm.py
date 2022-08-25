@@ -84,8 +84,7 @@ class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
             'admin_domain_id': self.charm.admin_domain_id,
             'auth_methods': 'external,password,token,oauth1,mapped',
             'default_domain_id': self.charm.default_domain_id,
-            'admin_port': config['admin-port'],
-            'public_port': config['service-port'],
+            'public_port': self.charm.service_port,
             'debug': config['debug'],
             'token_expiration': config['token-expiration'],
             'catalog_cache_expiration': config['catalog-cache-expiration'],
@@ -175,6 +174,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     service_name = "keystone"
     wsgi_admin_script = '/usr/bin/keystone-wsgi-admin'
     wsgi_public_script = '/usr/bin/keystone-wsgi-public'
+    service_port = 5000
 
     def __init__(self, framework):
         super().__init__(framework)
@@ -427,8 +427,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             admin_hostname = self.model.get_binding(
                 "identity-service"
             ).network.ingress_address
-        admin_port = self.model.config['admin-port']
-        return f'http://{admin_hostname}:{admin_port}'
+        return f'http://{admin_hostname}:{self.service_port}'
 
     @property
     def internal_endpoint(self):
@@ -440,8 +439,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             internal_hostname = self.model.get_binding(
                 "identity-service"
             ).network.ingress_address
-        service_port = self.model.config['service-port']
-        return f'http://{internal_hostname}:{service_port}'
+        return f'http://{internal_hostname}:{self.service_port}'
 
     @property
     def public_endpoint(self):
@@ -453,8 +451,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             address = self.model.get_binding(
                 'identity-service'
             ).network.ingress_address
-        service_port = self.model.config['service-port']
-        return f'http://{address}:{service_port}'
+        return f'http://{address}:{self.service_port}'
 
     def _do_bootstrap(self):
         """
