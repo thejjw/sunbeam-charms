@@ -618,6 +618,11 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ).network.ingress_address
         return f'http://{address}:{self.service_port}'
 
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return f'http://localhost:{self.default_public_ingress_port}/v3'
+
     def _do_bootstrap(self) -> bool:
         """
         Starts the appropriate services in the order they are needed.
