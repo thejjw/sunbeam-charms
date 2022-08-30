@@ -329,7 +329,9 @@ class IdentityServiceRequires(Object):
         if self.model.unit.is_leader():
             logging.debug("Requesting service registration")
             app_data = self._identity_service_rel.data[self.charm.app]
-            app_data["service-endpoints"] = json.dumps(service_endpoints)
+            app_data["service-endpoints"] = json.dumps(
+                service_endpoints, sort_keys=True
+            )
             app_data["region"] = region
 
 
