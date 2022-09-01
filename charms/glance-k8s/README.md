@@ -16,7 +16,7 @@ glance-k8s is deployed using below command:
 Now connect the glance operator to an existing database,
 messaging and keystone identity operators:
 
-    juju relate mysql:database glance:shared-db
+    juju relate mysql:database glance:database
     juju relate rabbitmq:amqp glance:amqp
     juju relate keystone:identity-service glance:identity-service
 
@@ -38,7 +38,7 @@ deployed then see file `actions.yaml`.
 
 glance-k8s requires the following relations:
 
-`shared-db`: To connect to MySQL
+`database`: To connect to MySQL
 `amqp`: To connect to RabbitMQ
 `identity-service`: To register endpoints in Keystone
 `ceph`: To connect to Ceph for image storage (optional)
