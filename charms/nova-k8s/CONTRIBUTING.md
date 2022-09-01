@@ -16,7 +16,7 @@ and [Sunbeam documentation](sunbeam-docs).
 nova-k8s charm uses the ops\_sunbeam library and extends
 OSBaseOperatorAPICharm from the library.
 
-nova-k8s charm consumes shared-db relation to connect to database,
+nova-k8s charm consumes database relation to connect to database,
 identity-service to register the service endpoints to keystone
 and ingress-internal/ingress-public relation to get exposed over
 internal and public networks.

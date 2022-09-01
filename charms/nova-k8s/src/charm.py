@@ -6,8 +6,7 @@ This charm provide Nova services as part of an OpenStack deployment
 
 import logging
 import uuid
-from typing import Callable
-from typing import List
+from typing import Callable, List, Mapping
 
 import ops.framework
 from ops.main import main
@@ -166,13 +165,26 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_public_script = '/usr/bin/nova-api-wsgi'
     shared_metadata_secret_key = 'shared-metadata-secret'
 
-    db_sync_cmds = [
-        ['sudo', '-u', 'nova', 'nova-manage', 'api_db', 'sync'],
-        ['sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'map_cell0'],
-        ['sudo', '-u', 'nova', 'nova-manage', 'db', 'sync'],
-        ['sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'create_cell',
-         '--name', 'cell1', '--verbose'],
-    ]
+    @property
+    def db_sync_cmds(self) -> List[List[str]]:
+        # we must provide the database connection for the cell database,
+        # because the database credentials are different to the main database.
+        # If we don't provide them:
+        # > If you don't specify --database_connection then nova-manage will
+        # > use the [database]/connection value from your config file,
+        # > and mangle the database name to have a _cell0 suffix.
+        # https://docs.openstack.org/nova/yoga/admin/cells.html#configuring-a-new-deployment
+        cell_database = self.dbs["cell-database"].context()["connection"]
+        return [
+            ['sudo', '-u', 'nova', 'nova-manage', 'api_db', 'sync'],
+            [
+                'sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'map_cell0',
+                '--database_connection', cell_database
+            ],
+            ['sudo', '-u', 'nova', 'nova-manage', 'db', 'sync'],
+            ['sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'create_cell',
+             '--name', 'cell1', '--verbose'],
+        ]
 
     @property
     def service_conf(self) -> str:
@@ -205,12 +217,17 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return 8774
 
     @property
-    def databases(self) -> List[str]:
+    def databases(self) -> Mapping[str, str]:
         """Databases needed to support this charm.
 
-        Need to override the default to specify three dbs.
+        Need to override the default
+        because we're registering multiple databases.
         """
-        return ["nova_api", "nova", "nova_cell0"]
+        return {
+            "database": "nova",
+            "api-database": "nova_api",
+            "cell-database": "nova_cell0",
+        }
 
     def get_pebble_handlers(self):
         pebble_handlers = super().get_pebble_handlers()

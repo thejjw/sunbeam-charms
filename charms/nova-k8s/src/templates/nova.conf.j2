@@ -6,16 +6,16 @@ state_path = /var/lib/nova
 transport_url = {{ amqp.transport_url }}
 
 [api_database]
-{% if shared_db.nova_api -%}
-connection = {{ shared_db.nova_api.connection }}
+{% if api_database.connection -%}
+connection = {{ api_database.connection }}
 {% else -%}
 connection = sqlite:////var/lib/nova/nova_api.sqlite
 {% endif -%}
 connection_recycle_time = 200
 
 [database]
-{% if shared_db.nova -%}
-connection = {{ shared_db.nova.connection }}
+{% if database.connection -%}
+connection = {{ database.connection }}
 {% else -%}
 connection = sqlite:////var/lib/nova/nova.sqlite
 {% endif -%}

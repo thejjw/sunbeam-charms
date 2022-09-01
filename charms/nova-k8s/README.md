@@ -16,7 +16,9 @@ nova-k8s is deployed using below command:
 Now connect the nova operator to existing database,
 messaging and keystone identity operators:
 
-    juju relate mysql:database nova:shared-db
+    juju relate mysql:database nova:database
+    juju relate mysql:database nova:api-database
+    juju relate mysql:database nova:cell-database
     juju relate rabbitmq:amqp nova:amqp
     juju relate keystone:identity-service nova:identity-service
 
@@ -38,7 +40,7 @@ deployed then see file `actions.yaml`.
 
 nova-k8s requires the following relations:
 
-`shared-db`: To connect to MySQL
+`database`, `api-database`, `cell-database`: To connect to MySQL (nova requires 3 databases)
 `amqp`: To connect to RabbitMQ
 `identity-service`: To register endpoints in Keystone
 `ingress-internal`: To expose service on underlying internal network

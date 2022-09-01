@@ -62,12 +62,24 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
     def test_all_relations(self):
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
+        # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
+
+        # but nova has some extra db relations, so add them manually here
+        rel_id = add_db_relation(self.harness, "api-database")
+        test_utils.add_db_relation_credentials(self.harness, rel_id)
+        rel_id = add_db_relation(self.harness, "cell-database")
+        test_utils.add_db_relation_credentials(self.harness, rel_id)
 
         setup_cmds = [
             ['a2ensite', 'wsgi-nova-api'],
             ['sudo', '-u', 'nova', 'nova-manage', 'api_db', 'sync'],
-            ['sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'map_cell0'],
+            [
+                'sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'map_cell0',
+                '--database_connection',
+                # values originate in test_utils.add_db_relation_credentials()
+                'mysql+pymysql://foo:hardpassword@10.0.0.10/nova_cell0'
+            ],
             ['sudo', '-u', 'nova', 'nova-manage', 'db', 'sync'],
             ['sudo', '-u', 'nova', 'nova-manage', 'cell_v2', 'create_cell',
              '--name', 'cell1', '--verbose'],
@@ -79,3 +91,14 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
             '/etc/nova/nova.conf']
         for f in config_files:
             self.check_file('nova-api', f)
+
+
+def add_db_relation(harness, name) -> str:
+    """Add db relation."""
+    rel_id = harness.add_relation(name, "mysql")
+    harness.add_relation_unit(rel_id, "mysql/0")
+    harness.add_relation_unit(rel_id, "mysql/0")
+    harness.update_relation_data(
+        rel_id, "mysql/0", {"ingress-address": "10.0.0.3"}
+    )
+    return rel_id
