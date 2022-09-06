@@ -27,8 +27,8 @@ resources:
     upstream-source: docker.io/kolla/ubuntu-binary-horizon@sha256:3385e3d30382a4f7f4603597b8c6bdd19523b03487ad8e2383c447659b1aab61
 
 requires:
-  shared-db:
-    interface: mysql_datastore
+  database:
+    interface: mysql_client
     limit: 1
   ingress-internal:
     interface: ingress
