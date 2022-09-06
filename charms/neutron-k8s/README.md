@@ -16,7 +16,7 @@ neutron-k8s is deployed using below command:
 Now connect the neutron operator to existing database,
 messaging, identity, OVN and Vault operators:
 
-    juju relate mysql:database neutron:shared-db
+    juju relate mysql:database neutron:database
     juju relate rabbitmq:amqp neutron:amqp
     juju relate keystone:identity-service neutron:identity-service
     juju relate ovn-central:ovsdb-cms neutron:ovsdb-cms
@@ -40,7 +40,7 @@ deployed then see file `actions.yaml`.
 
 neutron-k8s requires the following relations:
 
-`shared-db`: To connect to MySQL
+`database`: To connect to MySQL
 `amqp`: To connect to RabbitMQ
 `identity-service`: To register endpoints in Keystone
 `ovsdb-cms`: To connect to OVN

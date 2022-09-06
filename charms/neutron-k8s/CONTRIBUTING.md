@@ -16,7 +16,7 @@ and [Sunbeam documentation](sunbeam-docs).
 neutron-k8s charm uses the ops_sunbeam library and extends
 OSBaseOperatorAPICharm from the library.
 
-neutron-k8s charm consumes shared-db relation to connect to database,
+neutron-k8s charm consumes database relation to connect to database,
 identity-service to register the service endpoints to keystone,
 ovsdb-cms to connect to ovn-central, certificates to get generated
 certificates from vault and ingress-internal/ingress-public relation

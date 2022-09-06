@@ -40,8 +40,8 @@ requires:
     interface: ingress
     optional: true
     limit: 1
-  shared-db:
-    interface: mysql_datastore
+  database:
+    interface: mysql_client
     limit: 1
   amqp:
     interface: rabbitmq
