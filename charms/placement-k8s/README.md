@@ -16,7 +16,7 @@ placement-k8s is deployed using below command:
 Now connect the placement operator to an existing database
 and keystone identity operators.
 
-    juju relate mysql:database placement:shared-db
+    juju relate mysql:database placement:database
     juju relate keystone:identity-service placement:identity-service
 
 ### Configuration
@@ -37,7 +37,7 @@ deployed then see file `actions.yaml`.
 
 placement-k8s requires the following relations:
 
-`shared-db`: To connect to the database
+`database`: To connect to the database
 `identity-service`: To register endpoints in keystone
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network

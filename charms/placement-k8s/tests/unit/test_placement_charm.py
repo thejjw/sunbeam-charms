@@ -42,6 +42,7 @@ class _PlacementXenaOperatorCharm(charm.PlacementXenaOperatorCharm):
 class TestPlacementOperatorCharm(test_utils.CharmTestCase):
 
     PATCHES = []
+    maxDiff = None
 
     @mock.patch(
         'charms.observability_libs.v0.kubernetes_service_patch.'
@@ -73,27 +74,27 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
             'placement-api',
             '/etc/apache2/sites-available/wsgi-placement-api.conf')
         expect_entries = """
-            [DEFAULT]
-            debug = False
-            use_syslog = true
+        [DEFAULT]
+        debug = False
+        use_syslog = true
 
-            [api]
-            auth_strategy = keystone
+        [api]
+        auth_strategy = keystone
 
-            [placement_database]
-            connection = mysql+pymysql://foo:hardpassword@10.0.0.10/db1
-            [keystone_authtoken]
-            www_authenticate_uri = http://keystone.internal:5000
-            auth_url = http://keystone.internal:5000
-            auth_type = password
-            project_domain_name = None
-            user_domain_name = None
-            project_name = None
-            username = None
-            password = svcpass1
+        [placement_database]
+        connection = mysql+pymysql://foo:hardpassword@10.0.0.10/placement_api
+        [keystone_authtoken]
+        www_authenticate_uri = http://keystone.internal:5000
+        auth_url = http://keystone.internal:5000
+        auth_type = password
+        project_domain_name = None
+        user_domain_name = None
+        project_name = None
+        username = None
+        password = svcpass1
 
-            [placement]
-            randomize_allocation_candidates = true
+        [placement]
+        randomize_allocation_candidates = true
         """
         expect_string = textwrap.dedent(expect_entries).lstrip()
         self.check_file(

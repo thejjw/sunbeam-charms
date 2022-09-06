@@ -27,8 +27,8 @@ resources:
     upstream-source: docker.io/kolla/ubuntu-binary-placement-api@sha256:8498a09abe5490e5eaa23714ca3b253e662f3b5cc1a3f13300aa1e4865d6db16
 
 requires:
-  shared-db:
-    interface: mysql_datastore
+  database:
+    interface: mysql_client
     limit: 1
   identity-service:
     interface: keystone
