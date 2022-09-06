@@ -16,7 +16,7 @@ and [Sunbeam documentation](sunbeam-docs).
 cinder-k8s charm uses the ops\_sunbeam library and extends
 OSBaseOperatorAPICharm from the library.
 
-cinder-k8s charm consumes shared-db relation to connect to database,
+cinder-k8s charm consumes database relation to connect to database,
 identity-service to register the service endpoints to keystone
 and ingress-internal/ingress-public relation to get exposed over
 internal and public networks.

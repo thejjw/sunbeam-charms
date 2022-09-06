@@ -36,8 +36,8 @@ resources:
     upstream-source: docker.io/kolla/ubuntu-binary-cinder-scheduler@sha256:ea07d1f81e203b08b9cc92f3e569e703bef432f75ec2b4ee0300ef5a14157324
 
 requires:
-  shared-db:
-    interface: mysql_datastore
+  database:
+    interface: mysql_client
     limit: 1
   ingress-internal:
     interface: ingress

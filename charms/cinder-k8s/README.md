@@ -16,7 +16,7 @@ cinder-k8s is deployed using below command:
 Now connect the cinder operator to existing database, messaging
 and keystone identity operators:
 
-    juju relate mysql:database cinder:shared-db
+    juju relate mysql:database cinder:database
     juju relate rabbitmq:amqp cinder:amqp
     juju relate keystone:identity-service cinder:identity-service
 
@@ -38,7 +38,7 @@ deployed then see file `actions.yaml`.
 
 cinder-k8s requires the following relations:
 
-`shared-db`: To connect to MySQL
+`database`: To connect to MySQL
 `amqp`: To connect to RabbitMQ
 `identity-service`: To register endpoints in Keystone
 `ingress-internal`: To expose service on underlying internal network
