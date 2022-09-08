@@ -351,7 +351,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self.cc_svc.interface.set_cloud_credentials(
             relation_name=event.relation_name,
             relation_id=event.relation_id,
-            api_version='v3',
+            api_version='3',
             auth_host=ingress_address,
             auth_port=self.default_public_ingress_port,
             auth_protocol='http',
