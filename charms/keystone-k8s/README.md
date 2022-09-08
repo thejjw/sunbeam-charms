@@ -15,7 +15,7 @@ keystone-k8s is deployed using below command:
 
 Now connect the keystone operator to an existing database.
 
-    juju relate mysql:database keystone:shared-db
+    juju relate mysql:database keystone:database
 
 ### Configuration
 

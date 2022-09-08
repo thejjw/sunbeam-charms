@@ -26,8 +26,8 @@ provides:
     interface: keystone-credentials
 
 requires:
-  shared-db:
-    interface: mysql_datastore
+  database:
+    interface: mysql_client
     limit: 1
   ingress-internal:
     interface: ingress

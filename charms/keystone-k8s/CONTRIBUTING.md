@@ -23,7 +23,7 @@ is consumed by charms that need to register to keystone catalog and
 identity-credentials library is consumed by charms that want to create
 cloud credentials.
 
-keystone-k8s charm consumes shared-db relation to connect to database
+keystone-k8s charm consumes database relation to connect to database
 and ingress-internal/ingress-public relation to get exposed over
 internal and public networks.
 
