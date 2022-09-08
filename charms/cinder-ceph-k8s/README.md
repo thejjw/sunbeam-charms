@@ -17,7 +17,7 @@ cinder-ceph-k8s is deployed using below command:
 Now connect the cinder-ceph application to database, messaging and Ceph
 services:
 
-    juju relate mysql:database cinder-ceph:shared-db
+    juju relate mysql:database cinder-ceph:database
     juju relate rabbitmq:amqp cinder-ceph:amqp
     juju relate ceph-mon:ceph cinder-ceph:ceph
 

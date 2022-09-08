@@ -34,8 +34,9 @@ requires:
     interface: rabbitmq
   ceph:
     interface: ceph-client
-  shared-db:
-    interface: mysql_datastore
+  database:
+    interface: mysql_client
+    limit: 1
 
 provides:
   ceph-access:

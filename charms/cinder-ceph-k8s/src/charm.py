@@ -18,7 +18,7 @@ import logging
 from ops.main import main
 from ops.model import ActiveStatus
 
-from typing import List
+from typing import List, Mapping
 
 import ops_sunbeam.core as core
 import ops_sunbeam.charm as charm
@@ -214,9 +214,11 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
         return _cconfigs
 
     @property
-    def databases(self) -> List[str]:
+    def databases(self) -> Mapping[str, str]:
         """Provide database name for cinder services"""
-        return ["cinder"]
+        return {
+            'database': 'cinder'
+        }
 
     def configure_charm(self, event) -> None:
         """Catchall handler to cconfigure charm services."""

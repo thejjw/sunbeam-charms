@@ -16,7 +16,7 @@ and [Sunbeam documentation](sunbeam-docs).
 cinder-ceph-k8s charm uses the ops\_sunbeam library and extends
 OSBaseOperatorCharm from the library.
 
-cinder-ceph-k8s charm consumes shared-db relation to connect to database,
+cinder-ceph-k8s charm consumes database relation to connect to database,
 amqp to connect to rabbitmq and ceph relation to connect to external ceph.
 
 The charm starts cinder-volume service with integration with ceph as
