@@ -52,6 +52,23 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         self.harness = test_utils.get_harness(
             _PlacementXenaOperatorCharm,
             container_calls=self.container_calls)
+
+        # clean up events that were dynamically defined,
+        # otherwise we get issues because they'll be redefined,
+        # which is not allowed.
+        from charms.data_platform_libs.v0.database_requires import (
+            DatabaseEvents
+        )
+        for attr in (
+            "database_database_created",
+            "database_endpoints_changed",
+            "database_read_only_endpoints_changed",
+        ):
+            try:
+                delattr(DatabaseEvents, attr)
+            except AttributeError:
+                pass
+
         self.addCleanup(self.harness.cleanup)
         test_utils.add_complete_ingress_relation(self.harness)
         self.harness.begin()
