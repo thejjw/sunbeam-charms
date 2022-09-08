@@ -7,7 +7,7 @@ This charm provide Glance services as part of an OpenStack deployment
 import ovn
 import ovsdb as ch_ovsdb
 import logging
-from typing import List
+from typing import List, Mapping
 
 import ops.charm
 from ops.framework import StoredState
@@ -163,6 +163,15 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         contexts.append(
             ovn_ctxts.OVNDBConfigContext(self, "ovs_db"))
         return contexts
+
+    @property
+    def databases(self) -> Mapping[str, str]:
+        """Databases needed to support this charm.
+
+        Return empty dict as no mysql databases are
+        required.
+        """
+        return {}
 
     def ovn_rundir(self):
         return '/var/run/ovn'
