@@ -1,0 +1,12 @@
+- project:
+    templates:
+      - charm-unit-jobs-py38
+      - charm-unit-jobs-py310
+      - charm-publish-jobs
+    vars:
+      needs_charm_build: true
+      charm_build_name: nova-k8s
+      build_type: charmcraft
+      publish_charm: true
+      charmcraft_channel: 2.0/stable
+      publish_channel: latest/edge
