@@ -25,7 +25,7 @@ develop a new k8s charm using the Operator Framework:
 """
 
 import logging
-from typing import List
+from typing import List, Mapping
 
 from ops.framework import StoredState
 from ops.main import main
@@ -75,6 +75,15 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         contexts.append(
             ovn_ctxts.OVNDBConfigContext(self, "ovs_db"))
         return contexts
+
+    @property
+    def databases(self) -> Mapping[str, str]:
+        """Databases needed to support this charm.
+
+        Return empty dict as no mysql databases are
+        required.
+        """
+        return {}
 
 
 class OVNRelayXenaOperatorCharm(OVNRelayOperatorCharm):
