@@ -52,18 +52,27 @@ options:
     default: 3
     description: |
       This is the maximum number of active keys. It has a minimum of 3, which includes the
-      spare and staging keys. When set to 3, the rotation time for the keys is the same as
-      the token expiration time. When set to a higher value, the rotation time is less than
-      the `token-expiration` time as calculated by:
+      spare and staging keys. The key rotation time is calculated by:
 
-      rotation-time = token-expiration / (fernet-max-active-keys -2)
+      rotation-time = (token-expiration + allow-expired-window) / (fernet-max-active-keys - 2)
 
       Please see the charm documentation for further details about how to use the Fernet token
       parameters to achieve a key strategy appropriate for the system in question.
+      NOTE: the minimum time between fernet key rotations is 5 minutes;
+      token-expiration + allow-expired-window should not be less than this.
   token-expiration:
     type: int
-    default: 3600
-    description: Amount of time (in seconds) a token should remain valid.
+    default: 3600 # 1 hour
+    description: |
+      Amount of time (in seconds) a token should remain valid.
+      Default is 1 hour.
+  allow-expired-window:
+    type: int
+    default: 172800 # 2 days
+    description: |
+      This controls the number of seconds that a token can be retrieved for beyond the built-in expiry time.
+      This allows long running operations to succeed.
+      Defaults to two days.
   catalog-cache-expiration:
     type: int
     default: 60

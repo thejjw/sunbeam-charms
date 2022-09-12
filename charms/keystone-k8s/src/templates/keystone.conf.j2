@@ -31,6 +31,7 @@ driver = sql
 
 [token]
 expiration = {{ ks_config.token_expiration }}
+allow_expired_window = {{ ks_config.allow_expired_window }}
 
 [fernet_tokens]
 max_active_keys = {{ ks_config.fernet_max_active_keys }}

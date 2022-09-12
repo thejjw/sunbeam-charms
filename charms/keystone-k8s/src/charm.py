@@ -25,14 +25,23 @@ develop a new k8s charm using the Operator Framework:
     https://discourse.charmhub.io/t/4208
 """
 
+import json
 import logging
-from typing import Callable
-from typing import List
+import os
+import subprocess
+import time
+from typing import Callable, List, Dict, Optional
 
 import ops.charm
+from ops.charm import (
+    CharmEvents,
+    RelationChangedEvent,
+    RelationEvent,
+    HookEvent,
+)
 import ops.pebble
 from ops.main import main
-from ops.framework import StoredState
+from ops.framework import StoredState, Object, EventSource
 from ops import model
 
 from utils import manager
@@ -47,6 +56,8 @@ import charms.sunbeam_keystone_operator.v0.cloud_credentials as sunbeam_cc_svc
 logger = logging.getLogger(__name__)
 
 KEYSTONE_CONTAINER = "keystone"
+LAST_FERNET_KEY_ROTATION_KEY = "last_fernet_rotation"
+FERNET_KEYS_KEY = "fernet_keys"
 
 
 KEYSTONE_CONF = '/etc/keystone/keystone.conf'
@@ -87,6 +98,7 @@ class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
             'public_port': self.charm.service_port,
             'debug': config['debug'],
             'token_expiration': config['token-expiration'],
+            'allow_expired_window': config['allow-expired-window'],
             'catalog_cache_expiration': config['catalog-cache-expiration'],
             'dogpile_cache_expiration': config['dogpile-cache-expiration'],
             'identity_backend': 'sql',
@@ -166,9 +178,77 @@ class CloudCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+class FernetKeysUpdatedEvent(RelationEvent):
+    """This local event triggered if fernet keys were updated."""
+
+    def get_fernet_keys(self) -> Dict[str, str]:
+        """Retrieve the fernet keys from app data."""
+        return json.loads(
+            self.relation.data[self.relation.app].get(FERNET_KEYS_KEY, "{}")
+        )
+
+
+class HeartbeatEvent(HookEvent):
+    """This local event triggered regularly as a wake up call."""
+
+
+class KeystoneEvents(CharmEvents):
+    """Custom local events."""
+    fernet_keys_updated = EventSource(FernetKeysUpdatedEvent)
+    heartbeat = EventSource(HeartbeatEvent)
+
+
+class KeystoneInterface(Object):
+
+    def __init__(self, charm):
+        super().__init__(charm, 'keystone-peers')
+        self.charm = charm
+        self.framework.observe(
+            self.charm.on.peers_relation_changed,
+            self._on_peer_data_changed
+        )
+
+    def _on_peer_data_changed(self, event: RelationChangedEvent):
+        """
+        Check the peer data updates for updated fernet keys.
+
+        Then we can pull the keys from the app data,
+        and tell the local charm to write them to disk.
+        """
+        old_data = event.relation.data[self.charm.unit].get(
+            FERNET_KEYS_KEY, ''
+        )
+        data = self.charm.peers.get_app_data(FERNET_KEYS_KEY) or ''
+
+        # only launch the event if the data has changed
+        # and there there are actually keys
+        # (not just an empty dictionary string "{}")
+        if data and data != old_data and json.loads(data):
+            event.relation.data[self.charm.unit].update(
+                {FERNET_KEYS_KEY: data}
+            )
+            # use an event here so we can defer it
+            # if keystone isn't bootstrapped yet
+            self.charm.on.fernet_keys_updated.emit(
+                event.relation, app=event.app, unit=event.unit
+            )
+
+    def distribute_fernet_keys(self, keys: Dict[str, str]):
+        """
+        Trigger a fernet key distribution.
+
+        This is achieved by simply saving it to the app data here,
+        which will trigger the peer data changed event across all the units.
+        """
+        self.charm.peers.set_app_data({
+            FERNET_KEYS_KEY: json.dumps(keys),
+        })
+
+
 class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
+    on = KeystoneEvents()
     _state = StoredState()
     _authed = False
     service_name = "keystone"
@@ -189,6 +269,87 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self._state.set_default(admin_domain_id=None)
         self._state.set_default(default_domain_id=None)
         self._state.set_default(service_project_id=None)
+        self.peer_interface = KeystoneInterface(self)
+
+        self.framework.observe(
+            self.on.fernet_keys_updated,
+            self._on_fernet_keys_updated
+        )
+        self.framework.observe(self.on.heartbeat, self._on_heartbeat)
+        self._launch_heartbeat()
+
+    def _launch_heartbeat(self):
+        """
+        Launch another process that will wake up the charm every 5 minutes.
+
+        Used to auto schedule fernet key rotation.
+        """
+        # check if already running
+        if subprocess.call(['pgrep', '-f', 'heartbeat']) == 0:
+            return
+
+        logger.debug("Launching the heartbeat")
+        subprocess.Popen(
+            ["./src/heartbeat.sh"],
+            cwd=os.environ["JUJU_CHARM_DIR"],
+        )
+
+    def _on_fernet_keys_updated(self, event: FernetKeysUpdatedEvent):
+        if not self.bootstrapped():
+            event.defer()
+            return
+
+        keys = event.get_fernet_keys()
+        if keys:
+            self.keystone_manager.write_fernet_keys(keys)
+
+    def _on_heartbeat(self, _event):
+        """
+        This should be called regularly.
+
+        It will check if it's time to rotate the fernet keys,
+        and perform the rotation and key distribution if it is time.
+        """
+        # Only rotate and distribute keys from the leader unit.
+        if not self.unit.is_leader():
+            return
+
+        # if we're not set up, then don't try rotating keys
+        if not self.bootstrapped():
+            return
+
+        # minimum allowed for max_keys is 3
+        max_keys = max(self.model.config['fernet-max-active-keys'], 3)
+        exp = self.model.config['token-expiration']
+        exp_window = self.model.config['allow-expired-window']
+        rotation_seconds = (exp + exp_window) / (max_keys - 2)
+
+        # last time the fernet keys were rotated, in seconds since the epoch
+        last_rotation: Optional[str] = (
+            self.peers.get_app_data(LAST_FERNET_KEY_ROTATION_KEY)
+        )
+        now: int = int(time.time())
+
+        if (
+            last_rotation is None or
+            now - int(last_rotation) >= rotation_seconds
+        ):
+            self._rotate_fernet_keys()
+            self.peers.set_app_data({LAST_FERNET_KEY_ROTATION_KEY: str(now)})
+
+    def _rotate_fernet_keys(self):
+        """
+        Rotate fernet keys and trigger distribution.
+
+        If this is run on a non-leader unit, it's a noop.
+        Keys should only ever be rotated and distributed from a single unit.
+        """
+        if not self.unit.is_leader():
+            return
+        self.keystone_manager.rotate_fernet_keys()
+        self.peer_interface.distribute_fernet_keys(
+            self.keystone_manager.read_fernet_keys()
+        )
 
     def get_relation_handlers(self, handlers=None) -> List[
             sunbeam_rhandlers.RelationHandler]:

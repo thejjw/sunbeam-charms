@@ -16,6 +16,7 @@
 
 import mock
 import json
+import os
 
 import charm
 import ops_sunbeam.test_utils as test_utils
@@ -41,7 +42,8 @@ class _KeystoneXenaOperatorCharm(charm.KeystoneXenaOperatorCharm):
 class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
 
     PATCHES = [
-        'manager'
+        'manager',
+        'subprocess',
     ]
 
     def add_id_relation(self) -> str:
@@ -102,6 +104,11 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         km_mock.create_domain.return_value = service_domain_mock
         km_mock.create_user.return_value = service_user_mock
         km_mock.create_role.return_value = admin_role_mock
+        km_mock.read_fernet_keys.return_value = {
+            '0': 'Qf4vHdf6XC2dGKpEwtGapq7oDOqUWepcH2tKgQ0qOKc=',
+            '3': 'UK3qzLGvu-piYwau0BFyed8O3WP8lFKH_v1sXYulzhs=',
+            '4': 'YVYUJbQNASbVzzntqj2sG9rbDOV_QQfueDCz0PJEKKw=',
+        }
         return km_mock
 
     @mock.patch(
@@ -109,6 +116,12 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         'KubernetesServicePatch')
     def setUp(self, mock_svc_patch):
         super().setUp(charm, self.PATCHES)
+
+        # used by _launch_heartbeat.
+        # value doesn't matter for tests because mocking
+        os.environ["JUJU_CHARM_DIR"] = "/arbitrary/directory/"
+        self.subprocess.call.return_value = 1
+
         self.km_mock = self.ks_manager_mock()
         self.manager.KeystoneManager.return_value = self.km_mock
         self.harness = test_utils.get_harness(
@@ -195,6 +208,65 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
             test_utils.add_base_db_relation(self.harness))
         self.km_mock.setup_keystone.assert_called_once_with()
         self.km_mock.setup_initial_projects_and_users.assert_called_once_with()
+
+    def test_leader_rotate_fernet_keys(self):
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        rel_id = self.harness.add_relation('peers', 'keystone')
+        self.harness.add_relation_unit(
+            rel_id,
+            'keystone/1')
+        self.harness.container_pebble_ready('keystone')
+        test_utils.add_db_relation_credentials(
+            self.harness,
+            test_utils.add_base_db_relation(self.harness))
+        self.harness.charm._rotate_fernet_keys()
+        self.km_mock.rotate_fernet_keys.assert_called_once_with()
+
+    def test_not_leader_rotate_fernet_keys(self):
+        test_utils.add_complete_ingress_relation(self.harness)
+        rel_id = self.harness.add_relation('peers', 'keystone')
+        self.harness.add_relation_unit(
+            rel_id,
+            'keystone/1')
+        self.harness.container_pebble_ready('keystone')
+        test_utils.add_db_relation_credentials(
+            self.harness,
+            test_utils.add_base_db_relation(self.harness))
+        self.harness.charm._rotate_fernet_keys()
+        self.km_mock.rotate_fernet_keys.assert_not_called()
+
+    def test_on_heartbeat(self):
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        rel_id = self.harness.add_relation('peers', 'keystone')
+        self.harness.add_relation_unit(
+            rel_id,
+            'keystone/1')
+        self.harness.container_pebble_ready('keystone')
+        test_utils.add_db_relation_credentials(
+            self.harness,
+            test_utils.add_base_db_relation(self.harness))
+        self.harness.charm._on_heartbeat(None)
+        self.km_mock.rotate_fernet_keys.assert_called_once_with()
+
+        # run the heartbeat again immediately.
+        # The keys should not be rotated again,
+        # since by default the rotation interval will be > 2 days.
+        self.harness.charm._on_heartbeat(None)
+        self.km_mock.rotate_fernet_keys.assert_called_once_with()
+
+    def test_launching_heartbeat(self):
+        # verify that the heartbeat script is launched during initialisation
+        self.subprocess.Popen.assert_called_once_with(
+            ["./src/heartbeat.sh"],
+            cwd="/arbitrary/directory/",
+        )
+
+        # implementation detail, but probably good to double check
+        self.subprocess.call.assert_called_once_with(
+            ['pgrep', '-f', 'heartbeat']
+        )
 
     def test_non_leader_no_bootstraps(self):
         test_utils.add_complete_ingress_relation(self.harness)

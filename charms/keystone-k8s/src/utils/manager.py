@@ -49,12 +49,12 @@ class KeystoneManager(framework.Object):
         self.container_name = container_name
         self._api = None
 
-    def run_cmd(self, cmd, exception_on_error=True):
+    def run_cmd(self, cmd, exception_on_error=True, **kwargs):
         pebble_handler = self.charm.get_named_pebble_handler(
             self.container_name)
-        pebble_handler.execute(
+        return pebble_handler.execute(
             cmd,
-            exception_on_error=True)
+            exception_on_error=True, **kwargs)
 
     @property
     def api(self):
@@ -112,6 +112,60 @@ class KeystoneManager(framework.Object):
             self._fernet_setup()
             self._credential_setup()
             self._bootstrap()
+
+    def rotate_fernet_keys(self):
+        """
+        Rotate the fernet keys.
+
+        And probably also distribute the keys to other units too.
+
+        See for more information:
+        https://docs.openstack.org/keystone/latest/admin/fernet-token-faq.html
+
+        This should be called on the leader unit,
+        at intervals of
+        (token-expiration + allow-expired-window)/(fernet-max-active-keys - 2)
+        """
+        with sunbeam_guard.guard(self.charm, 'Rotating fernet keys'):
+            self.run_cmd([
+                'sudo', '-u', 'keystone',
+                'keystone-manage', 'fernet_rotate',
+                '--keystone-user', 'keystone',
+                '--keystone-group', 'keystone'])
+
+    def read_fernet_keys(self) -> typing.Mapping[str, str]:
+        """
+        Pull the fernet keys from the on-disk repository.
+        """
+        container = self.charm.unit.get_container(self.container_name)
+        files = container.list_files("/etc/keystone/fernet-keys")
+        return {
+            file.name: container.pull(file.path).read() for file in files
+        }
+
+    def write_fernet_keys(self, keys: typing.Mapping[str, str]):
+        """
+        Update the local fernet key repository with the provided keys.
+        """
+        container = self.charm.unit.get_container(self.container_name)
+
+        logger.debug("Writing updated fernet keys")
+
+        # write the keys
+        for filename, contents in keys.items():
+            container.push(
+                f'/etc/keystone/fernet-keys/{filename}',
+                contents,
+                user='keystone',
+                group='keystone',
+                permissions=0o600,
+            )
+
+        # remove old keys
+        files = container.list_files("/etc/keystone/fernet-keys")
+        for file in files:
+            if file.name not in keys:
+                container.remove_path(file.path)
 
     def _set_status(self, status: str, app: bool = False) -> None:
         """Sets the status to the specified status string.

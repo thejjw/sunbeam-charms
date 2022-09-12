@@ -45,7 +45,7 @@ storage:
   fernet-keys:
     type: filesystem
     description: |
-      Persistent storage for the location of fernet tokens
+      Persistent storage for the location of fernet keys
     minimum-size: 5M
 
   credential-keys:
