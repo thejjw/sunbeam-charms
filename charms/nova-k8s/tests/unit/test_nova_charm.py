@@ -74,7 +74,6 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
                 pass
 
         self.addCleanup(self.harness.cleanup)
-        test_utils.add_complete_ingress_relation(self.harness)
         self.harness.begin()
 
     def test_pebble_ready_handler(self):
@@ -87,6 +86,7 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
+        test_utils.add_complete_ingress_relation(self.harness)
 
         # but nova has some extra db relations, so add them manually here
         rel_id = add_db_relation(self.harness, "api-database")
