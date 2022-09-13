@@ -11,16 +11,13 @@
 #
 cryptography<3.4
 jinja2
+jsonschema
 lightkube
 lightkube-models
 ops
 git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
 
 python-keystoneclient  # keystone-k8s
-
-# Used for Traefik
-# Note: Remove when traefik-k8s-operator v1 library is released
-serialized_data_interface
 
 git+https://opendev.org/openstack/charm-ops-interface-tls-certificates#egg=interface_tls_certificates
 

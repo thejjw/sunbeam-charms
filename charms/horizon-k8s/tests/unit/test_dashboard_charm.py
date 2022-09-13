@@ -52,7 +52,6 @@ class TestDashboardOperatorCharm(test_utils.CharmTestCase):
             _DashboardXenaOperatorCharm,
             container_calls=self.container_calls)
         self.addCleanup(self.harness.cleanup)
-        test_utils.add_complete_ingress_relation(self.harness)
         self.harness.begin()
 
     def test_pebble_ready_handler(self):
@@ -64,6 +63,7 @@ class TestDashboardOperatorCharm(test_utils.CharmTestCase):
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_all_relations(self.harness)
+        test_utils.add_complete_ingress_relation(self.harness)
         setup_cmds = [
             ['a2dissite', '000-default'],
             ['a2ensite', 'wsgi-openstack-dashboard'],
