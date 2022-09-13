@@ -68,7 +68,6 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
                 pass
 
         self.addCleanup(self.harness.cleanup)
-        test_utils.add_complete_ingress_relation(self.harness)
         self.harness.begin()
 
     def test_pebble_ready_handler(self):
@@ -80,6 +79,7 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_all_relations(self.harness)
+        test_utils.add_complete_ingress_relation(self.harness)
 
         setup_cmds = [
             [
