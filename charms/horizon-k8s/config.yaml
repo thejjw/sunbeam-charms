@@ -21,10 +21,6 @@ options:
       The hostname or address of the internal endpoints that should be advertised
       in the glance image provider.
     type: string
-  region:
-    default: RegionOne
-    description: Space delimited list of OpenStack regions
-    type: string
   session-timeout:
     type: int
     default: 3600
@@ -68,18 +64,6 @@ options:
       instances. Snapshots sources won’t show up in the Launch Instance modal
       dialogue box.  This option works from the Newton release, and has no
       effect on earlier OpenStack releases.
-  neutron-network-dvr:
-    type: boolean
-    default: False
-    description: |
-      Enable Neutron distributed virtual router (DVR) feature in the
-      Router panel.
-  neutron-network-l3ha:
-    type: boolean
-    default: False
-    description: |
-      Enable HA (High Availability) mode in Neutron virtual router in
-      the Router panel.
   cinder-backup:
     type: boolean
     default: False
@@ -131,7 +115,7 @@ options:
       above.
   api-result-limit:
     type: int
-    default:
+    default: 1000
     description: |
       The maximum number of objects (e.g. Swift objects or Glance images) to
       display on a single page before providing a paging element (a "more" link)
@@ -144,19 +128,6 @@ options:
       external network before allowing FIPs to be attached to a VM. Some use
       cases will not meet this constraint, e.g. if the router is owned by a
       different project. Setting this to False removes this check from Horizon.
-  enable-consistency-groups:
-    type: boolean
-    default: false
-    description: |
-      By default Cinder does not enable the Consistency Groups feature. To
-      avoid having the Consistency Groups tabs on Horizon without the feature
-      enabled on Cinder, this also defaults to False. Setting this to True
-      will make the Consistency Groups tabs appear on the dashboard.
-      .
-      This option is supported for releases up to OpenStack Stein only. As of
-      OpenStack Train, consistency groups have been dropped and replaced by
-      the generic group feature. Setting this option for OpenStack Train or
-      above will not do anything.
   disable-password-reveal:
     type: boolean
     default: false

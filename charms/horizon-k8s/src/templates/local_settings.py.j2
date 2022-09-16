@@ -139,7 +139,7 @@ LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
 # (usually behind a load-balancer). Either you have to make sure that a session
 # gets all requests routed to the same dashboard instance or you set the same
 # SECRET_KEY for all of them.
-SECRET_KEY = "{{ secret }}"
+SECRET_KEY = "{{ options.secret }}"
 
 # We recommend you use memcached for development; otherwise after every reload
 # of the django development server, you will have to login again. To use
@@ -160,7 +160,7 @@ DATABASES = {
         'NAME': '{{ database.database }}',
         'USER': '{{ database.database_user }}',
         'PASSWORD': '{{ database.database_password }}',
-        'HOST': '{{ database.database_host }}',
+        'HOST': '{{ database.database_host.split(':')[0] }}',
         'default-character-set': 'utf8'
     }
 }
@@ -192,12 +192,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #]
 
 OPENSTACK_HOST = "{{ cloud_credentials.internal_host }}"
-OPENSTACK_KEYSTONE_DEFAULT_ROLE = "Member"
+OPENSTACK_KEYSTONE_DEFAULT_ROLE = "{{ options.default_role }}"
 OPENSTACK_KEYSTONE_URL = "{{ cloud_credentials.internal_protocol }}://%s:{{ cloud_credentials.internal_port }}/v3" % OPENSTACK_HOST
 OPENSTACK_API_VERSIONS = { "identity": 3, }
-# OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = {{ multi_domain }}
-OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "{{ cloud_credentials.admin_domain_id }}"
-
+OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
+OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "{{ options.default_domain or cloud_credentials.project_domain_id }}"
 
 # Enables keystone web single-sign-on if set to True.
 #WEBSSO_ENABLED = False
@@ -316,8 +315,8 @@ OPENSTACK_NEUTRON_NETWORK = {
     'enable_router': True,
     'enable_quotas': True,
     'enable_ipv6': True,
-    'enable_distributed_router': {{ options.neutron_network_dvr }},
-    'enable_ha_router': {{ options.neutron_network_l3ha }},
+    'enable_distributed_router': False,
+    'enable_ha_router': False,
     'enable_fip_topology_check': {{ options.enable_fip_topology_check }},
 
     # Default dns servers you would like to use when a subnet is
@@ -343,7 +342,7 @@ OPENSTACK_NEUTRON_NETWORK = {
     # configured via the dashboard. When using specific plugins the
     # profile_support can be turned on if needed.
     {% if support_profile -%}
-    'profile_support': '{{ options.support_profile }}',
+    'profile_support': '{{ options.profile }}',
     {% else -%}
     'profile_support': None,
     {% endif -%}
@@ -829,17 +828,17 @@ REST_API_REQUIRED_SETTINGS = ['OPENSTACK_HYPERVISOR_FEATURES',
 
 # XXX Review theme handling and update here
 
-WEBROOT = '{{ ingress_internal.ingress_path }}'
-STATIC_URL = '{{ ingress_internal.ingress_path }}/static/'
+WEBROOT = '{{ ingress_public.ingress_path }}'
+STATIC_URL = '{{ ingress_public.ingress_path }}/static/'
 
 {% if webroot == "/" %}
 LOGIN_URL='/auth/login/'
 LOGOUT_URL='/auth/logout/'
 {% else %}
-LOGIN_URL='{{ ingress_internal.ingress_path }}/auth/login/'
-LOGOUT_URL='{{ ingress_internal.ingress_path }}/auth/logout/'
+LOGIN_URL='{{ ingress_public.ingress_path }}/auth/login/'
+LOGOUT_URL='{{ ingress_public.ingress_path }}/auth/logout/'
 {% endif %}
-LOGIN_REDIRECT_URL='{{ ingress_internal.ingress_path }}'
+LOGIN_REDIRECT_URL='{{ ingress_public.ingress_path }}'
 
 # By default, validation of the HTTP Host header is disabled.  Production
 # installations should have this set accordingly.  For more information
