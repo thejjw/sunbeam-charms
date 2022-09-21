@@ -46,8 +46,8 @@ class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
 
 class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
-    def get_layer(self):
-        """Apache service
+    def get_layer(self) -> dict:
+        """Nova Scheduler service
 
         :returns: pebble layer configuration for scheduler service
         :rtype: dict
@@ -65,6 +65,24 @@ class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             }
         }
 
+    def get_healthcheck_layer(self) -> dict:
+        """Health check pebble layer.
+
+        :returns: pebble health check layer configuration for scheduler service
+        :rtype: dict
+        """
+        return {
+            "checks": {
+                "online": {
+                    "override": "replace",
+                    "level": "ready",
+                    "exec": {
+                        "command": "service nova-scheduler status"
+                    }
+                },
+            }
+        }
+
     def default_container_configs(self):
         return [
             sunbeam_core.ContainerConfigFile(
@@ -76,9 +94,9 @@ class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
     def get_layer(self):
-        """Apache service
+        """Nova Conductor service
 
-        :returns: pebble layer configuration for conductor service
+        :returns: pebble service layer configuration for conductor service
         :rtype: dict
         """
         return {
@@ -91,6 +109,23 @@ class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "command": "nova-conductor",
                     "startup": "enabled"
                 }
+            }
+        }
+
+    def get_healthcheck_layer(self) -> dict:
+        """Health check pebble layer.
+
+        :returns: pebble health check layer configuration for conductor service
+        """
+        return {
+            "checks": {
+                "online": {
+                    "override": "replace",
+                    "level": "ready",
+                    "exec": {
+                        "command": "service nova-conductor status"
+                    }
+                },
             }
         }
 
