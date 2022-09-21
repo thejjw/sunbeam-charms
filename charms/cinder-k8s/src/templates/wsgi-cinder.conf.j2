@@ -3,7 +3,10 @@ Listen 8776
     WSGIDaemonProcess cinder processes=4 threads=1 user=cinder group=cinder \
                       display-name=%{GROUP}
     WSGIProcessGroup cinder
-    WSGIScriptAlias / /usr/bin/cinder-wsgi
+    {% if ingress_public and ingress_public.ingress_path -%}
+    WSGIScriptAlias {{ ingress_public.ingress_path }} {{ wsgi_config.wsgi_public_script }}
+    {% endif -%}
+    WSGIScriptAlias / {{ wsgi_config.wsgi_public_script }}
     WSGIApplicationGroup %{GLOBAL}
     WSGIPassAuthorization On
     <IfVersion >= 2.4>

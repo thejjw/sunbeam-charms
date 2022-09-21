@@ -41,10 +41,10 @@ requires:
     limit: 1
   ingress-internal:
     interface: ingress
+    optional: true
     limit: 1
   ingress-public:
     interface: ingress
-    optional: true
     limit: 1
   identity-service:
     interface: keystone
@@ -55,6 +55,7 @@ requires:
     interface: cinder-backend
   image-service:
     interface: glance
+    optional: true
 
 provides:
   ceph-access:

@@ -141,6 +141,14 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_admin_script = "/usr/bin/cinder-wsgi-admin"
     wsgi_public_script = "/usr/bin/cinder-wsgi-public"
 
+    mandatory_relations = {
+        'database',
+        'amqp',
+        'storage-backend',
+        'identity-service',
+        'ingress-public',
+    }
+
     def __init__(self, framework):
         super().__init__(framework)
         self._state.set_default(admin_domain_name="admin_domain")
@@ -155,7 +163,10 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         handlers = handlers or []
         if self.can_add_handler("storage-backend", handlers):
             self.sb_svc = StorageBackendRequiresHandler(
-                self, "storage-backend", self.configure_charm
+                self,
+                "storage-backend",
+                self.configure_charm,
+                "storage-backend" in self.mandatory_relations,
             )
             handlers.append(self.sb_svc)
         handlers = super().get_relation_handlers(handlers)
