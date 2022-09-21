@@ -57,6 +57,12 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             '--noinput']
     ]
 
+    mandatory_relations = {
+        'database',
+        'ingress-public',
+        'cloud-credentials',
+    }
+
     @property
     def default_public_ingress_port(self):
         return 80
@@ -112,7 +118,7 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         super().configure_charm(event)
         if self.bootstrapped():
             self.unit.status = ops.model.ActiveStatus(
-                self.ingress_internal.url)
+                self.ingress_public.url)
 
 
 class OpenstackDashboardXenaOperatorCharm(OpenstackDashboardOperatorCharm):
