@@ -25,7 +25,7 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     def get_layer(self):
         """Neutron server service
 
-        :returns: pebble layer configuration for neutron server service
+        :returns: pebble service layer configuration for neutron server service
         :rtype: dict
         """
         return {
@@ -38,6 +38,25 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "command": "neutron-server",
                     "startup": "enabled"
                 }
+            }
+        }
+
+    def get_healthcheck_layer(self) -> dict:
+        """Health check pebble layer.
+
+        :returns: pebble health check layer configuration for neutron server
+                  service
+        :rtype: dict
+        """
+        return {
+            "checks": {
+                "online": {
+                    "override": "replace",
+                    "level": "ready",
+                    "http": {
+                        "url": self.charm.healthcheck_http_url
+                    }
+                },
             }
         }
 
