@@ -98,6 +98,10 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     """Charm the service."""
 
     _state = StoredState()
+    mandatory_relations = {
+        'certificates',
+        'peers'
+    }
 
     def __init__(self, framework):
         super().__init__(framework)
@@ -145,13 +149,15 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self.peers = ovn_rhandlers.OVNDBClusterPeerHandler(
                 self,
                 'peers',
-                self.configure_charm)
+                self.configure_charm,
+                'peers' in self.mandatory_relations)
             handlers.append(self.peers)
         if self.can_add_handler('ovsdb-cms', handlers):
             self.ovsdb_cms = ovn_rhandlers.OVSDBCMSProvidesHandler(
                 self,
                 'ovsdb-cms',
-                self.configure_charm)
+                self.configure_charm,
+                'ovsdb-cms' in self.mandatory_relations)
             handlers.append(self.ovsdb_cms)
         handlers = super().get_relation_handlers(handlers)
         return handlers
