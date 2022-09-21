@@ -175,6 +175,10 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_admin_script = '/usr/bin/keystone-wsgi-admin'
     wsgi_public_script = '/usr/bin/keystone-wsgi-public'
     service_port = 5000
+    mandatory_relations = {
+        'database',
+        'ingress-public'
+    }
 
     def __init__(self, framework):
         super().__init__(framework)
