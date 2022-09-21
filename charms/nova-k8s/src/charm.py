@@ -111,6 +111,7 @@ class CloudComputeRequiresHandler(sunbeam_rhandlers.RelationHandler):
         relation_name: str,
         region: str,
         callback_f: Callable,
+        mandatory: bool = False,
     ):
         """Creates a new CloudComputeRequiresHandler that handles initial
         events from the relation and invokes the provided callbacks based on
@@ -124,9 +125,11 @@ class CloudComputeRequiresHandler(sunbeam_rhandlers.RelationHandler):
         :type region: str
         :param callback_f: the function to call when the nodes are connected
         :type callback_f: Callable
+        :param mandatory: flag to determine if relation handler is mandatory
+        :type mandatory: bool
         """
         self.region = region
-        super().__init__(charm, relation_name, callback_f)
+        super().__init__(charm, relation_name, callback_f, mandatory)
 
     def setup_event_handler(self):
         """Configure event handlers for the cloud-compute service relation."""
@@ -164,6 +167,14 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_admin_script = '/usr/bin/nova-api-wsgi'
     wsgi_public_script = '/usr/bin/nova-api-wsgi'
     shared_metadata_secret_key = 'shared-metadata-secret'
+    mandatory_relations = {
+        'database',
+        'api-database',
+        'cell-database',
+        'amqp',
+        'identity-service',
+        'ingress-public',
+    }
 
     @property
     def db_sync_cmds(self) -> List[List[str]]:
