@@ -5,7 +5,9 @@
 ###############################################################################
 [DEFAULT]
 debug = {{ options.debug }}
+{% if amqp %}
 transport_url = {{ amqp.transport_url }}
+{% endif %}
 
 {% include "parts/section-database" %}
 

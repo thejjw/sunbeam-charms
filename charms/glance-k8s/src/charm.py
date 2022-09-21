@@ -55,11 +55,12 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
         allow_ec_overwrites: bool = True,
         app_name: str = None,
         juju_storage_name: str = None,
+        mandatory: bool = False,
     ) -> None:
         """Run constructor."""
         self.juju_storage_name = juju_storage_name
         super().__init__(charm, relation_name, callback_f, allow_ec_overwrites,
-                         app_name)
+                         app_name, mandatory)
 
     @property
     def ready(self) -> bool:
@@ -114,6 +115,16 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ['sudo', '-u', 'glance', 'glance-manage', '--config-dir',
          '/etc/glance', 'db', 'sync']]
 
+    # ceph is included in the mandatory list as the GlanceStorage
+    # relation handler falls back to juju storage if ceph relation
+    # is not connected.
+    mandatory_relations = {
+        'database',
+        'identity-service',
+        'ingress-public',
+        'ceph',
+    }
+
     @property
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
         """Configuration contexts for the operator."""
@@ -153,6 +164,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             allow_ec_overwrites=True,
             app_name='rbd',
             juju_storage_name='local-repository',
+            mandatory='ceph' in self.mandatory_relations,
         )
         handlers.append(self.ceph)
         return handlers

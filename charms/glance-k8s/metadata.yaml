@@ -50,18 +50,20 @@ requires:
     limit: 1
   ingress-internal:
     interface: ingress
+    optional: true
     limit: 1
   ingress-public:
     interface: ingress
-    optional: true
     limit: 1
   identity-service:
     interface: keystone
     limit: 1
   amqp:
     interface: rabbitmq
+    optional: true
   ceph:
     interface: ceph-client
+    optional: true
 
 provides:
   image-service:
