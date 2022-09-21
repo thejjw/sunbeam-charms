@@ -35,10 +35,10 @@ provides:
 requires:
   ingress-internal:
     interface: ingress
+    optional: true
     limit: 1
   ingress-public:
     interface: ingress
-    optional: true
     limit: 1
   database:
     interface: mysql_client
@@ -51,6 +51,7 @@ requires:
     interface: ovsdb-cms
   certificates:
     interface: tls-certificates
+    optional: true
 
 peers:
   peers:

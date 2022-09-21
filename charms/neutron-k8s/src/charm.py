@@ -181,6 +181,13 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
 
 class NeutronOVNOperatorCharm(NeutronOperatorCharm):
 
+    mandatory_relations = {
+        'database',
+        'ovsdb-cms',
+        'identity-service',
+        'ingress-public',
+    }
+
     @property
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
         """Configuration contexts for the operator."""
@@ -210,7 +217,10 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
         handlers = handlers or []
         if self.can_add_handler("ovsdb-cms", handlers):
             self.ovsdb_cms = ovn_rhandlers.OVSDBCMSRequiresHandler(
-                self, "ovsdb-cms", self.configure_charm,
+                self,
+                "ovsdb-cms",
+                self.configure_charm,
+                "ovsdb-cms" in self.mandatory_relations,
             )
             handlers.append(self.ovsdb_cms)
         handlers = super().get_relation_handlers(handlers)
