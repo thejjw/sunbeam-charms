@@ -55,6 +55,10 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
     """Charm the service."""
 
     _state = StoredState()
+    mandatory_relations = {
+        'ovsdb-cms',
+        'certificates',
+    }
 
     def get_pebble_handlers(self):
         pebble_handlers = [
