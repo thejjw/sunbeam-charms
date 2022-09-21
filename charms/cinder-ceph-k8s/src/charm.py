@@ -143,6 +143,12 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
     cinder_conf = "/etc/cinder/cinder.conf"
     ceph_conf = "/etc/ceph/ceph.conf"
 
+    mandatory_relations = {
+        "database",
+        "amqp",
+        "ceph",
+    }
+
     def __init__(self, framework):
         super().__init__(framework)
         self._state.set_default(api_ready=False)
@@ -156,10 +162,14 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
             self.configure_charm,
             allow_ec_overwrites=True,
             app_name="rbd",
+            mandatory="ceph" in self.mandatory_relations,
         )
         handlers.append(self.ceph)
         self.sb_svc = StorageBackendProvidesHandler(
-            self, "storage-backend", self.api_ready
+            self,
+            "storage-backend",
+            self.api_ready,
+            "storage-backend" in self.mandatory_relations,
         )
         handlers.append(self.sb_svc)
         return handlers
