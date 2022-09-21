@@ -199,6 +199,12 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def default_public_ingress_port(self):
         return 9292
 
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        # / returns 300 and /versions return 200
+        return f'http://localhost:{self.default_public_ingress_port}/versions'
+
     def has_local_storage(self) -> bool:
         """Returns whether the application has been deployed with local
         storage or not.
