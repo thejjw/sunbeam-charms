@@ -47,6 +47,10 @@ class OVNRelayPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         return '/root/ovn-relay-wrapper.sh'
 
     @property
+    def status_command(self):
+        return '/usr/share/ovn/scripts/ovn-ctl status_ovsdb'
+
+    @property
     def service_description(self):
         return 'OVN Relay'
 
