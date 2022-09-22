@@ -41,6 +41,10 @@ class OVNNorthBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         return '/root/ovn-northd-wrapper.sh'
 
     @property
+    def status_command(self):
+        return '/usr/share/ovn/scripts/ovn-ctl status_northd'
+
+    @property
     def service_description(self):
         return 'OVN Northd'
 
@@ -61,6 +65,12 @@ class OVNNorthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         return '/root/ovn-nb-db-server-wrapper.sh'
 
     @property
+    def status_command(self):
+        # This command always return 0 even if the DB service
+        # is not running, so adding healthcheck with tcp check
+        return '/usr/share/ovn/scripts/ovn-ctl status_ovsdb'
+
+    @property
     def service_description(self):
         return 'OVN North Bound DB'
 
@@ -73,12 +83,36 @@ class OVNNorthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
                 'root'))
         return _cc
 
+    def get_healthcheck_layer(self) -> dict:
+        """Health check pebble layer.
+
+        :returns: pebble health check layer configuration for OVN NB DB
+        :rtype: dict
+        """
+        return {
+            "checks": {
+                "online": {
+                    "override": "replace",
+                    "level": "ready",
+                    "tcp": {
+                        "port": 6641
+                    }
+                },
+            }
+        }
+
 
 class OVNSouthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
 
     @property
     def wrapper_script(self):
         return '/root/ovn-sb-db-server-wrapper.sh'
+
+    @property
+    def status_command(self):
+        # This command always return 0 even if the DB service
+        # is not running, so adding healthcheck with tcp check
+        return '/usr/share/ovn/scripts/ovn-ctl status_ovsdb'
 
     @property
     def service_description(self):
@@ -92,6 +126,24 @@ class OVNSouthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
                 'root',
                 'root'))
         return _cc
+
+    def get_healthcheck_layer(self) -> dict:
+        """Health check pebble layer.
+
+        :returns: pebble health check layer configuration for OVN SB DB
+        :rtype: dict
+        """
+        return {
+            "checks": {
+                "online": {
+                    "override": "replace",
+                    "level": "ready",
+                    "tcp": {
+                        "port": 6642
+                    }
+                },
+            }
+        }
 
 
 class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
@@ -328,7 +380,6 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 'nb_cid': str(nb_status.cluster_id),
                 'sb_cid': str(sb_status.cluster_id),
             })
-            self.unit.status = ops.model.ActiveStatus()
         else:
             logging.debug("Attempting to join OVN_Northbound cluster")
             container = self.unit.get_container(OVN_NB_DB_CONTAINER)
@@ -352,7 +403,12 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 ph.start_service()
             # Attempt to setup listers etc
             self.configure_ovn()
-            self.unit.status = ops.model.ActiveStatus()
+
+        # Add healthchecks to the plan
+        for ph in self.pebble_handlers:
+            ph.add_healthchecks()
+
+        self.unit.status = ops.model.ActiveStatus()
 
     def configure_ovn(self):
         inactivity_probe = int(
