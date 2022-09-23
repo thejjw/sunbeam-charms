@@ -97,6 +97,7 @@ class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
         """cinder-volume service pebble layer
 
         :returns: pebble layer configuration for cinder-volume service
+        :rtype: dict
         """
         return {
             "summary": f"{self.service_name} layer",
@@ -109,6 +110,24 @@ class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
                     "startup": "enabled",
                 },
             },
+        }
+
+    def get_healthcheck_layer(self) -> dict:
+        """Health check pebble layer.
+
+        :returns: pebble health check layer configuration for scheduler service
+        :rtype: dict
+        """
+        return {
+            "checks": {
+                "online": {
+                    "override": "replace",
+                    "level": "ready",
+                    "exec": {
+                        "command": f"service {self.service_name} status"
+                    }
+                },
+            }
         }
 
     def start_service(self):
@@ -254,6 +273,10 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
             if not ph.service_ready:
                 logging.debug("Defering, container service not ready")
                 return
+
+        # Add healthchecks to the plan
+        for ph in self.pebble_handlers:
+            ph.add_healthchecks()
 
         self.unit.status = ActiveStatus()
 
