@@ -57,6 +57,25 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         self.start_wsgi()
         self._state.service_ready = True
 
+    def get_healthcheck_layer(self) -> dict:
+        """Health check pebble layer.
+
+        :returns: pebble health check layer configuration for cinder-api
+                  service
+        :rtype: dict
+        """
+        return {
+            "checks": {
+                "online": {
+                    "override": "replace",
+                    "level": "ready",
+                    "exec": {
+                        "command": "service apache2 status"
+                    }
+                },
+            }
+        }
+
 
 class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
     def start_service(self):
@@ -73,8 +92,8 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
 
         container.start(self.service_name)
 
-    def get_layer(self):
-        """Apache service
+    def get_layer(self) -> dict:
+        """Cinder Scheduler service
 
         :returns: pebble layer configuration for wsgi services
         :rtype: dict
@@ -90,6 +109,24 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
                     "startup": "enabled",
                 }
             },
+        }
+
+    def get_healthcheck_layer(self) -> dict:
+        """Health check pebble layer.
+
+        :returns: pebble health check layer configuration for scheduler service
+        :rtype: dict
+        """
+        return {
+            "checks": {
+                "online": {
+                    "override": "replace",
+                    "level": "ready",
+                    "exec": {
+                        "command": "service cinder-scheduler status"
+                    }
+                },
+            }
         }
 
     def init_service(self, context):
