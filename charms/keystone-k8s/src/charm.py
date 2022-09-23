@@ -618,7 +618,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ).network.ingress_address
         return f'http://{address}:{self.service_port}'
 
-    def _do_bootstrap(self):
+    def _do_bootstrap(self) -> bool:
         """
         Starts the appropriate services in the order they are needed.
         If the service has not yet been bootstrapped, then this will
@@ -626,16 +626,29 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
          2. Bootstrap the keystone users service
          3. Setup the fernet tokens
         """
-        super()._do_bootstrap()
+        if not super()._do_bootstrap():
+            return False
+
         if self.unit.is_leader():
             try:
                 self.keystone_manager.setup_keystone()
-            except ops.pebble.ExecError:
+            except (ops.pebble.ExecError, ops.pebble.ConnectionError) as error:
                 logger.exception('Failed to bootstrap')
-                self._state.bootstrapped = False
-                return
-            self.keystone_manager.setup_initial_projects_and_users()
+                logger.exception(error)
+                return False
+
+            try:
+                self.keystone_manager.setup_initial_projects_and_users()
+            except Exception:
+                # keystone might fail with Internal server error, not
+                # sure of exact exceptions to be caught. List below that
+                # are observed:
+                # keystoneauth1.exceptions.connection.ConnectFailure
+                logger.exception('Failed to setup projects and users')
+                return False
+
         self.unit.status = model.MaintenanceStatus('Starting Keystone')
+        return True
 
     def _ingress_changed(self, event: ops.framework.EventBase) -> None:
         """Ingress changed callback.

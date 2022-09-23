@@ -107,7 +107,7 @@ class KeystoneManager(framework.Object):
         repositories for tokens and credentials, and bootstrapping the initial
         keystone service.
         """
-        with sunbeam_guard.guard(self.charm, 'Initializing Keystone'):
+        with sunbeam_guard.guard(self.charm, 'Initializing Keystone', False):
             self._sync_database()
             self._fernet_setup()
             self._credential_setup()
@@ -268,7 +268,8 @@ class KeystoneManager(framework.Object):
 
         """
         with sunbeam_guard.guard(self.charm,
-                                 'Setting up initial projects and users'):
+                                 'Setting up initial projects and users',
+                                 False):
             self._setup_admin_accounts()
             self._setup_service_accounts()
             self.update_service_catalog_for_keystone()
