@@ -31,6 +31,7 @@ from ops.framework import StoredState
 from ops.main import main
 
 import ops_sunbeam.config_contexts as sunbeam_ctxts
+import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.charm as ovn_charm
@@ -49,6 +50,19 @@ class OVNRelayPebbleHandler(ovn_chandlers.OVNPebbleHandler):
     @property
     def service_description(self):
         return 'OVN Relay'
+
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Initialise service ready for use.
+
+        Write configuration files to the container and record
+        that service is ready for us.
+
+        NOTE: Override default to services being automatically started
+        """
+        self.setup_dirs()
+        self.write_config(context)
+        self.start_service()
+        self._state.service_ready = True
 
 
 class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
