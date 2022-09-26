@@ -298,6 +298,11 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             logging.debug("Aborting charm relations not ready")
             return
 
+        if not all([ph.pebble_ready for ph in self.pebble_handlers]):
+            logging.debug(
+                "Aborting configuration, not all pebble handlers are ready")
+            return
+
         # Render Config in all containers but init should *NOT* start
         # the service.
         for ph in self.pebble_handlers:
