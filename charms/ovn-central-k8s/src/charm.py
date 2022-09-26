@@ -318,14 +318,6 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                             .format(str(connection['_uuid']), k, v))
                         connections.set(str(connection['_uuid']), k, v)
 
-    def get_named_pebble_handlers(self, container_names):
-        # XXX Move to ASO
-        return [
-            h
-            for h in self.pebble_handlers
-            if h.container_name in container_names
-        ]
-
     def configure_charm(self, event: ops.framework.EventBase) -> None:
         """Catchall handler to configure charm services.
 
@@ -409,7 +401,13 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             # Attempt to setup listers etc
             self.configure_ovn()
 
+        # Start ovn-northd service
+        ph = self.get_named_pebble_handler(OVN_NORTHD_CONTAINER)
+        ph.start_service()
+
         # Add healthchecks to the plan
+        # Healthchecks are added after bootstrap process is completed
+        # to avoid container restarts during bootstraping
         for ph in self.pebble_handlers:
             ph.add_healthchecks()
 
