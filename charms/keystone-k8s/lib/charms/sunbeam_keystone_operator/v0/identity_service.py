@@ -457,9 +457,13 @@ class IdentityServiceProvides(Object):
                                          admin_auth_url: str,
                                          public_auth_url: str):
         logging.debug("Setting identity_service connection information.")
+        _identity_service_rel = None
         for relation in self.framework.model.relations[relation_name]:
             if relation.id == relation_id:
                 _identity_service_rel = relation
+        if not _identity_service_rel:
+            # Relation has disappeared so skip send of data
+            return
         app_data = _identity_service_rel.data[self.charm.app]
         app_data["api-version"] = api_version
         app_data["auth-host"] = auth_host

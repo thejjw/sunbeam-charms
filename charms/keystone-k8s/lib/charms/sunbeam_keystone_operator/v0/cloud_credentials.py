@@ -392,9 +392,13 @@ class CloudCredentialsProvides(Object):
                               project_domain_id: str,
                               region: str):
         logging.debug("Setting cloud_credentials connection information.")
+        _cloud_credentials_rel = None
         for relation in self.framework.model.relations[relation_name]:
             if relation.id == relation_id:
                 _cloud_credentials_rel = relation
+        if not _cloud_credentials_rel:
+            # Relation has disappeared so don't send the data
+            return
         app_data = _cloud_credentials_rel.data[self.charm.app]
         app_data["api-version"] = api_version
         app_data["auth-host"] = auth_host
