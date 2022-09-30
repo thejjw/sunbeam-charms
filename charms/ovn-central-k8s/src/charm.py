@@ -160,8 +160,8 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         self.service_patcher = KubernetesServicePatch(
             self,
             [
-                ('northbound', 6643),
-                ('southbound', 6644),
+                ('northbound', 6641),
+                ('southbound', 6642),
             ]
         )
 
