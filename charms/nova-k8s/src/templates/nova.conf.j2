@@ -42,6 +42,12 @@ enable = False
 workers = 4
 
 [scheduler]
+# NOTE(jamespage): perform automatic host cell mapping
+#                  until we can orchestrate this better
+#                  using the nova-cc <--> nova-compute
+#                  relation
+discover_hosts_in_cells_interval = 30
+
 workers = 4
 
 [os_region_name]
