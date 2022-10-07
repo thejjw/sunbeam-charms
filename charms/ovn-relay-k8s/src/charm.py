@@ -35,6 +35,9 @@ import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.charm as ovn_charm
 
+from charms.observability_libs.v0.kubernetes_service_patch \
+    import KubernetesServicePatch
+
 logger = logging.getLogger(__name__)
 
 OVSDB_SERVER = "ovsdb-server"
@@ -63,6 +66,15 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         'ovsdb-cms',
         'certificates',
     }
+
+    def __init__(self, framework):
+        super().__init__(framework)
+        self.service_patcher = KubernetesServicePatch(
+            self,
+            [
+                ('southbound', 6642),
+            ]
+        )
 
     def get_pebble_handlers(self):
         pebble_handlers = [

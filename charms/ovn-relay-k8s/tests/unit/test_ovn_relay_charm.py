@@ -34,7 +34,9 @@ class _OVNRelayXenaOperatorCharm(charm.OVNRelayXenaOperatorCharm):
 
 class TestOVNRelayXenaOperatorCharm(test_utils.CharmTestCase):
 
-    PATCHES = []
+    PATCHES = [
+        'KubernetesServicePatch',
+    ]
 
     def setUp(self):
         super().setUp(charm, self.PATCHES)
