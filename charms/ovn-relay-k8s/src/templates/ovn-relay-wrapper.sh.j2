@@ -15,7 +15,6 @@ function stop_svc()
 
 log_msg "Starting"
 REMOTES={{ ovsdb_cms.db_sb_connection_strs }}
-# ovsdb-server --remote=ptcp:6642:172.16.0.1 relay:OVN_Southbound:$REMOTES
 
 ovsdb-server \
     -vconsole:emer \
@@ -28,6 +27,6 @@ ovsdb-server \
     --log-file=/var/log/ovn/ovn-relay.log \
     --pidfile=/var/run/ovn/ovn-relay.pid \
     --unixctl=/var/run/ovn/ovn_relay.sock \
-    --remote=ptcp:6642:{{ ovsdb_cms.local_address }} relay:OVN_Southbound:$REMOTES
+    --remote=pssl:6642:{{ ovsdb_cms.local_address }} relay:OVN_Southbound:$REMOTES
 
 trap stop_svc EXIT
