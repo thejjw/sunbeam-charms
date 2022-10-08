@@ -175,8 +175,8 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     _state = StoredState()
     _authed = False
     service_name = "cinder"
-    wsgi_admin_script = "/usr/bin/cinder-wsgi-admin"
-    wsgi_public_script = "/usr/bin/cinder-wsgi-public"
+    wsgi_admin_script = "/usr/bin/cinder-wsgi"
+    wsgi_public_script = "/usr/bin/cinder-wsgi"
 
     mandatory_relations = {
         'database',
