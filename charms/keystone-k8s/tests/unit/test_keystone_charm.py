@@ -44,6 +44,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
     PATCHES = [
         'manager',
         'subprocess',
+        'pwgen',
     ]
 
     def add_id_relation(self) -> str:
@@ -121,6 +122,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         # value doesn't matter for tests because mocking
         os.environ["JUJU_CHARM_DIR"] = "/arbitrary/directory/"
         self.subprocess.call.return_value = 1
+        self.pwgen.pwgen.return_value = 'randonpassword'
 
         self.km_mock = self.ks_manager_mock()
         self.manager.KeystoneManager.return_value = self.km_mock
@@ -155,7 +157,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
     def test_id_client(self):
         test_utils.add_complete_ingress_relation(self.harness)
         self.harness.set_leader()
-        self.harness.add_relation('peers', 'keystone')
+        peer_rel_id = self.harness.add_relation('peers', 'keystone')
         self.harness.container_pebble_ready('keystone')
         test_utils.add_db_relation_credentials(
             self.harness,
@@ -187,13 +189,24 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 'service-domain-id': 'sdomain_id',
                 'service-domain-name': 'sdomain_name',
                 'service-host': '10.0.0.10',
-                'service-password': 'password123',
+                'service-password': 'randonpassword',
                 'service-port': '5000',
                 'service-project-id': 'aproject_id',
                 'service-project-name': 'aproject_name',
                 'service-protocol': 'http',
                 'service-user-id': 'suser_id',
                 'service-user-name': 'suser_name'})
+
+        peer_data = self.harness.get_relation_data(
+            peer_rel_id,
+            self.harness.charm.unit.app.name)
+        self.assertEqual(
+            peer_data,
+            {
+                'leader_ready': 'true',
+                'password_svc_cinder': 'randonpassword'
+            }
+        )
 
     def test_leader_bootstraps(self):
         test_utils.add_complete_ingress_relation(self.harness)
@@ -281,3 +294,36 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
             test_utils.add_base_db_relation(self.harness))
         self.assertFalse(
             self.km_mock.setup_keystone.called)
+
+    def test_password_storage(self):
+        self.harness.set_leader()
+        rel_id = self.harness.add_relation('peers', 'keystone-k8s')
+
+        self.harness.charm.peer_interface.store_password(
+            'test-user',
+            'foobar'
+        )
+
+        self.assertEqual(
+            self.harness.charm.peer_interface.retrieve_password(
+                'test-user'
+            ),
+            'foobar'
+        )
+
+        self.assertEqual(
+            self.harness.charm.peer_interface.retrieve_password(
+                'unknown-user'
+            ),
+            None
+        )
+
+        self.assertEqual(
+            self.harness.get_relation_data(
+                rel_id,
+                self.harness.charm.app.name,
+            ),
+            {
+                "password_test-user": "foobar",
+            }
+        )
