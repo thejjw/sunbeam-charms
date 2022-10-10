@@ -293,6 +293,14 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self.framework.observe(self.on.heartbeat, self._on_heartbeat)
         self._launch_heartbeat()
 
+        self.framework.observe(
+            self.on.get_admin_password_action,
+            self._get_admin_password_action
+        )
+
+    def _get_admin_password_action(self, event):
+        event.set_results({"password": self.admin_password})
+
     def _launch_heartbeat(self):
         """
         Launch another process that will wake up the charm every 5 minutes.
@@ -584,9 +592,9 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return self._state.admin_domain_id
 
     @property
-    def admin_password(self):
-        # TODO(wolsen) password stuff
-        return 'abc123'
+    def admin_password(self) -> str:
+        """Retrieve the password for the Admin user."""
+        return self._retrieve_or_set_password(self.admin_user)
 
     @property
     def admin_user(self):
@@ -606,9 +614,9 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return '_charm-keystone-admin'
 
     @property
-    def charm_password(self):
-        # TODO
-        return 'abc123'
+    def charm_password(self) -> str:
+        """The password for the charm admin user."""
+        return self._retrieve_or_set_password(self.charm_user)
 
     @property
     def service_project(self):

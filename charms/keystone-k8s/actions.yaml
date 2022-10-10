@@ -1,3 +1,5 @@
 # Copyright 2021 Canonical Ltd.
 # See LICENSE file for licensing details.
-{ }
+
+get-admin-password:
+  description: Get the password for the Keystone Admin user
