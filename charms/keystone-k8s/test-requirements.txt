@@ -9,6 +9,6 @@ mock
 flake8
 stestr
 git+https://github.com/openstack-charmers/zaza.git#egg=zaza
-git+https://github.com/javacruft/zaza-openstack-tests.git@get-admin-passwords-k8s#egg=zaza.openstack
+git+https://github.com/openstack-charmers/zaza-openstack-tests.git#egg=zaza.openstack
 git+https://opendev.org/openstack/tempest.git#egg=tempest
 ops

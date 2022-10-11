@@ -299,20 +299,20 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self.harness.set_leader()
         rel_id = self.harness.add_relation('peers', 'keystone-k8s')
 
-        self.harness.charm.peer_interface.store_password(
+        self.harness.charm.password_manager.store(
             'test-user',
             'foobar'
         )
 
         self.assertEqual(
-            self.harness.charm.peer_interface.retrieve_password(
+            self.harness.charm.password_manager.retrieve(
                 'test-user'
             ),
             'foobar'
         )
 
         self.assertEqual(
-            self.harness.charm.peer_interface.retrieve_password(
+            self.harness.charm.password_manager.retrieve(
                 'unknown-user'
             ),
             None

@@ -51,6 +51,8 @@ import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.config_contexts as sunbeam_contexts
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 
+from ops_sunbeam.interfaces import OperatorPeers
+
 import charms.sunbeam_keystone_operator.v0.identity_service as sunbeam_id_svc
 import charms.sunbeam_keystone_operator.v0.cloud_credentials as sunbeam_cc_svc
 
@@ -245,19 +247,44 @@ class KeystoneInterface(Object):
             FERNET_KEYS_KEY: json.dumps(keys),
         })
 
-    def store_password(self, username: str, password: str):
+
+class KeystonePasswordManager(Object):
+    """Helper for management of keystone credential passwords."""
+
+    def __init__(self,
+                 charm: ops.charm.CharmBase,
+                 interface: OperatorPeers):
+        self.charm = charm
+        self.interface = interface
+
+    def store(self, username: str, password: str):
         """Store username and password."""
         logging.debug(f"Storing password for {username}")
-        self.charm.peers.set_app_data({
+        self.interface.set_app_data({
             f"password_{username}": password,
         })
 
-    def retrieve_password(self, username: str) -> str:
+    def retrieve(self, username: str) -> str:
         """Retrieve persisted password for provided username"""
-        if not self.charm.peers:
+        if not self.interface:
             return None
-        password = self.charm.peers.get_app_data(f"password_{username}")
+        password = self.interface.get_app_data(f"password_{username}")
         return str(password) if password else None
+
+    def retrieve_or_set(self, username: str) -> str:
+        """Retrieve or setup a password for a user.
+
+        New passwords will only be created by the lead unit of the
+        application.
+        """
+        password = self.retrieve(username)
+        if not password and self.charm.unit.is_leader():
+            password = pwgen.pwgen(12)
+            self.store(
+                username,
+                password
+            )
+        return password
 
 
 class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
@@ -297,6 +324,8 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self.on.get_admin_password_action,
             self._get_admin_password_action
         )
+
+        self.password_manager = KeystonePasswordManager(self, self.peers)
 
     def _get_admin_password_action(self, event):
         event.set_results({"password": self.admin_password})
@@ -446,7 +475,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         for ep_data in event.service_endpoints:
             service_username = 'svc_{}'.format(
                 event.client_app_name.replace('-', '_'))
-            service_password = self._retrieve_or_set_password(
+            service_password = self.password_manager.retrieve_or_set(
                 service_username
             )
             service_user = self.keystone_manager.create_user(
@@ -523,7 +552,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         service_project = self.keystone_manager.get_project(
             name=self.service_project,
             domain=service_domain)
-        user_password = self._retrieve_or_set_password(event.username)
+        user_password = self.password_manager.retrieve_or_set(event.username)
         service_user = self.keystone_manager.create_user(
             name=event.username,
             password=user_password,
@@ -560,21 +589,6 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             region=self.model.config['region'],  # XXX(wolsen) region matters?
         )
 
-    def _retrieve_or_set_password(self, username: str) -> str:
-        """Retrieve or setup a password for a user.
-
-        New passwords will only be created by the lead unit of the
-        application.
-        """
-        password = self.peer_interface.retrieve_password(username)
-        if not password and self.unit.is_leader():
-            password = pwgen.pwgen(12)
-            self.peer_interface.store_password(
-                username,
-                password
-            )
-        return password
-
     @property
     def default_public_ingress_port(self):
         return 5000
@@ -594,7 +608,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def admin_password(self) -> str:
         """Retrieve the password for the Admin user."""
-        return self._retrieve_or_set_password(self.admin_user)
+        return self.password_manager.retrieve_or_set(self.admin_user)
 
     @property
     def admin_user(self):
@@ -616,7 +630,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def charm_password(self) -> str:
         """The password for the charm admin user."""
-        return self._retrieve_or_set_password(self.charm_user)
+        return self.password_manager.retrieve_or_set(self.charm_user)
 
     @property
     def service_project(self):
