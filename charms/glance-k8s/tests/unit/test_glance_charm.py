@@ -103,12 +103,12 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
             self.assertIn(cmd, self.container_calls.execute['glance-api'])
 
         app_setup_cmds = [
-            ['a2ensite', 'wsgi-glance-api'],
+            ['a2enmod', 'proxy_http'],
             ['sudo', '-u', 'glance', 'glance-manage', '--config-dir',
              '/etc/glance', 'db', 'sync']]
         for cmd in app_setup_cmds:
             self.assertIn(cmd, self.container_calls.execute['glance-api'])
 
-        for f in ['/etc/apache2/sites-available/wsgi-glance-api.conf',
+        for f in ['/etc/apache2/sites-enabled/glance-forwarding.conf',
                   '/etc/glance/glance-api.conf', '/etc/ceph/ceph.conf']:
             self.check_file('glance-api', f)

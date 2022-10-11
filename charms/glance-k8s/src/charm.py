@@ -34,8 +34,41 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.config_contexts as sunbeam_ctxts
+import ops_sunbeam.container_handlers as sunbeam_chandlers
 
 logger = logging.getLogger(__name__)
+
+# Use Apache to translate /<model-name> to /.  This should be possible
+# adding rules to the api-paste.ini but this does not seem to work
+# and glance always interprets the mode-name as a requested version number.
+
+
+class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+
+    def get_layer(self) -> dict:
+        """Glance API service pebble layer.
+
+        :returns: pebble layer configuration for glance api service
+        """
+        return {
+            "summary": f"{self.service_name} layer",
+            "description": "pebble config layer for glance api service",
+            "services": {
+                f"{self.service_name}": {
+                    "override": "replace",
+                    "summary": f"{self.service_name} standalone",
+                    "command": ("/usr/bin/glance-api "
+                                "--config-file /etc/glance/glance-api.conf"),
+                    "startup": "disabled",
+                },
+                "apache forwarder": {
+                    "override": "replace",
+                    "summary": "apache",
+                    "command": "/usr/sbin/apache2ctl -DFOREGROUND",
+                    "startup": "disabled",
+                },
+            },
+        }
 
 
 class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
@@ -142,6 +175,15 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
         """Container configurations for the operator."""
         _cconfigs = super().container_configs
+        _cconfigs.extend(
+            [
+                sunbeam_core.ContainerConfigFile(
+                    '/etc/apache2/sites-enabled/glance-forwarding.conf',
+                    self.service_user,
+                    self.service_group,
+                ),
+            ]
+        )
         if self.has_ceph_relation():
             _cconfigs.extend(
                 [
@@ -241,6 +283,9 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             return
 
         ph = self.get_named_pebble_handler("glance-api")
+        ph.execute(
+            ['a2enmod', 'proxy_http'],
+            exception_on_error=True)
         if ph.pebble_ready:
             if self.has_ceph_relation() and self.ceph.key:
                 logger.debug('Setting up Ceph packages in images.')
@@ -266,6 +311,20 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if self._state.bootstrapped:
             for handler in self.pebble_handlers:
                 handler.start_service()
+
+    def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
+        """Pebble handlers for the service."""
+        return [
+            GlanceAPIPebbleHandler(
+                self,
+                self.service_name,
+                self.service_name,
+                self.container_configs,
+                self.template_dir,
+                self.openstack_release,
+                self.configure_charm
+            )
+        ]
 
 
 class GlanceXenaOperatorCharm(GlanceOperatorCharm):

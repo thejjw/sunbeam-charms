@@ -1,0 +1,13 @@
+Listen 9292
+
+<VirtualHost *:9292>
+  ProxyPreserveHost On
+  ProxyRequests Off
+  {% if ingress_public and ingress_public.ingress_path -%}
+  ProxyPass /{{ ingress_public.ingress_path }} http://localhost:9282/
+  ProxyPassReverse /{{ ingress_public.ingress_path }} http://localhost:9282/
+  {% endif -%}
+  ErrorLog /var/log/apache2/error.log
+  CustomLog /var/log/apache2/access.log combined
+</VirtualHost>
+
