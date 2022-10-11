@@ -25,7 +25,9 @@ develop a new k8s charm using the Operator Framework:
 """
 
 import logging
-from typing import List, Mapping
+
+from ipaddress import IPv4Address, IPv6Address
+from typing import List, Mapping, Union
 
 from ops.framework import StoredState
 from ops.main import main
@@ -87,8 +89,27 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
             self,
             [
                 ('southbound', 6642),
-            ]
+            ],
+            service_type="LoadBalancer"
         )
+        self.framework.observe(
+            self.on.get_southbound_db_url_action,
+            self._get_southbound_db_url_action
+        )
+
+    def _get_southbound_db_url_action(self, event):
+        event.set_results({"url": self.southbound_db_url})
+
+    @property
+    def ingress_address(self) -> Union[IPv4Address, IPv6Address]:
+        """Network IP address for access to the OVN relay service."""
+        return self.model.get_binding(
+            'ovsdb-cms-relay').network.ingress_addresses[0]
+
+    @property
+    def southbound_db_url(self) -> str:
+        """Full connection URL for Southbound DB relay."""
+        return f"ssl:{self.ingress_address}:6442"
 
     def get_pebble_handlers(self):
         pebble_handlers = [

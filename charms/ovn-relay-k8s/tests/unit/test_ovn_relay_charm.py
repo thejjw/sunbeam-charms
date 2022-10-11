@@ -63,3 +63,9 @@ class TestOVNRelayXenaOperatorCharm(test_utils.CharmTestCase):
             '/root/ovn-relay-wrapper.sh']
         for f in ovsdb_config_files:
             self.check_file('ovsdb-server', f)
+
+    def test_southbound_db_url(self):
+        self.assertEqual(
+            'ssl:10.0.0.10:6442',
+            self.harness.charm.southbound_db_url
+        )
