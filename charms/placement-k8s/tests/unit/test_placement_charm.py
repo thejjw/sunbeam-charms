@@ -107,7 +107,7 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         project_domain_name = None
         user_domain_name = None
         project_name = None
-        username = None
+        username = svcuser1
         password = svcpass1
 
         [placement]
