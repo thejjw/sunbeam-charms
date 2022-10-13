@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from unittest.mock import MagicMock
 import mock
 import json
 import os
@@ -35,6 +36,7 @@ class _KeystoneXenaOperatorCharm(charm.KeystoneXenaOperatorCharm):
         super().configure_charm(event)
         self._log_event(event)
 
+    @property
     def public_ingress_address(self) -> str:
         return '10.0.0.10'
 
@@ -327,3 +329,31 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "password_test-user": "foobar",
             }
         )
+
+    def test_get_service_account_action(self):
+        self.harness.add_relation('peers', 'keystone-k8s')
+
+        action_event = MagicMock()
+        action_event.params = {'username': 'external_service'}
+
+        # Check call on non-lead unit.
+        self.harness.charm._get_service_account_action(action_event)
+
+        action_event.set_results.assert_not_called()
+        action_event.fail.assert_called()
+
+        # Check call on lead unit.
+        self.harness.set_leader()
+        self.harness.charm._get_service_account_action(action_event)
+
+        action_event.set_results.assert_called_with({
+            'username': 'external_service',
+            'password': 'randonpassword',
+            'user-domain-name': 'sdomain_name',
+            'project-name': 'aproject_name',
+            'project-domain-name': 'sdomain_name',
+            'region': 'RegionOne',
+            'internal-endpoint': 'http://10.0.0.10:5000',
+            'public-endpoint': 'http://10.0.0.10:5000',
+            'api-version': 3
+        })

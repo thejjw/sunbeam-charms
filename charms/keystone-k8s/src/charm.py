@@ -39,6 +39,7 @@ from ops.charm import (
     RelationChangedEvent,
     RelationEvent,
     HookEvent,
+    ActionEvent,
 )
 import ops.pebble
 from ops.main import main
@@ -327,6 +328,11 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
         self.password_manager = KeystonePasswordManager(self, self.peers)
 
+        self.framework.observe(
+            self.on.get_service_account_action,
+            self._get_service_account_action
+        )
+
     def _get_admin_password_action(self, event):
         event.set_results({"password": self.admin_password})
 
@@ -588,6 +594,54 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             project_domain_id=service_domain.id,
             region=self.model.config['region'],  # XXX(wolsen) region matters?
         )
+
+    def _get_service_account_action(self, event: ActionEvent) -> None:
+        """Create/get details for a service account.
+
+        This action handler will create a new services account
+        for the provided username.  This account can be used
+        to provide access to OpenStack services from outside
+        of the Charmed deployment.
+        """
+        if not self.unit.is_leader():
+            event.fail('Please run action on lead unit.')
+            return
+
+        # TODO: refactor into general helper method.
+        username = event.params['username']
+        service_domain = self.keystone_manager.create_domain(
+            name='service_domain',
+            may_exist=True)
+        service_project = self.keystone_manager.get_project(
+            name=self.service_project,
+            domain=service_domain)
+        user_password = self.password_manager.retrieve_or_set(username)
+        service_user = self.keystone_manager.create_user(
+            name=username,
+            password=user_password,
+            domain=service_domain.id,
+            may_exist=True)
+        admin_role = self.keystone_manager.create_role(
+            name=self.admin_role,
+            may_exist=True)
+        # TODO(wolsen) let's not always grant admin role!
+        self.keystone_manager.grant_role(
+            role=admin_role,
+            user=service_user,
+            project=service_project,
+            may_exist=True)
+
+        event.set_results({
+            "username": username,
+            "password": user_password,
+            "user-domain-name": service_domain.name,
+            "project-name": service_project.name,
+            "project-domain-name": service_domain.name,
+            "region": self.model.config['region'],
+            "internal-endpoint": self.internal_endpoint,
+            "public-endpoint": self.public_endpoint,
+            "api-version": 3
+        })
 
     @property
     def default_public_ingress_port(self):
