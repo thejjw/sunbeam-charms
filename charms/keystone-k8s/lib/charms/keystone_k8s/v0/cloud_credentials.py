@@ -1,13 +1,13 @@
-"""IdentityServiceProvides and Requires module.
+"""CloudCredentialsProvides and Requires module.
 
 
 This library contains the Requires and Provides classes for handling
-the identity_service interface.
+the cloud_credentials interface.
 
-Import `IdentityServiceRequires` in your charm, with the charm object and the
+Import `CloudCredentialsRequires` in your charm, with the charm object and the
 relation name:
     - self
-    - "identity_service"
+    - "cloud_credentials"
 
 Also provide additional parameters to the charm object:
     - service
@@ -26,14 +26,14 @@ Two events are also available to respond to:
 A basic example showing the usage of this relation follows:
 
 ```
-from charms.sunbeam_sunbeam_identity_service_operator.v0.identity_service import IdentityServiceRequires
+from charms.keystone_k8s.v0.cloud_credentials import CloudCredentialsRequires
 
-class IdentityServiceClientCharm(CharmBase):
+class CloudCredentialsClientCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
-        # IdentityService Requires
-        self.identity_service = IdentityServiceRequires(
-            self, "identity_service",
+        # CloudCredentials Requires
+        self.cloud_credentials = CloudCredentialsRequires(
+            self, "cloud_credentials",
             service = "my-service"
             internal_url = "http://internal-url"
             public_url = "http://public-url"
@@ -41,36 +41,36 @@ class IdentityServiceClientCharm(CharmBase):
             region = "region"
         )
         self.framework.observe(
-            self.identity_service.on.connected, self._on_identity_service_connected)
+            self.cloud_credentials.on.connected, self._on_cloud_credentials_connected)
         self.framework.observe(
-            self.identity_service.on.ready, self._on_identity_service_ready)
+            self.cloud_credentials.on.ready, self._on_cloud_credentials_ready)
         self.framework.observe(
-            self.identity_service.on.goneaway, self._on_identity_service_goneaway)
+            self.cloud_credentials.on.goneaway, self._on_cloud_credentials_goneaway)
 
-    def _on_identity_service_connected(self, event):
-        '''React to the IdentityService connected event.
+    def _on_cloud_credentials_connected(self, event):
+        '''React to the CloudCredentials connected event.
 
-        This event happens when n IdentityService relation is added to the
+        This event happens when n CloudCredentials relation is added to the
         model before credentials etc have been provided.
         '''
         # Do something before the relation is complete
         pass
 
-    def _on_identity_service_ready(self, event):
-        '''React to the IdentityService ready event.
+    def _on_cloud_credentials_ready(self, event):
+        '''React to the CloudCredentials ready event.
 
-        The IdentityService interface will use the provided config for the
+        The CloudCredentials interface will use the provided config for the
         request to the identity server.
         '''
-        # IdentityService Relation is ready. Do something with the completed relation.
+        # CloudCredentials Relation is ready. Do something with the completed relation.
         pass
 
-    def _on_identity_service_goneaway(self, event):
-        '''React to the IdentityService goneaway event.
+    def _on_cloud_credentials_goneaway(self, event):
+        '''React to the CloudCredentials goneaway event.
 
-        This event happens when an IdentityService relation is removed.
+        This event happens when an CloudCredentials relation is removed.
         '''
-        # IdentityService Relation has goneaway. shutdown services or suchlike
+        # CloudCredentials Relation has goneaway. shutdown services or suchlike
         pass
 ```
 """
@@ -87,7 +87,7 @@ from ops.framework import (
 from ops.model import Relation
 
 # The unique Charmhub library identifier, never change it
-LIBID = "deadbeef"
+LIBID = "a5d96cc2686c47eea554ce2210c2d24e"
 
 # Increment this major API version when introducing breaking changes
 LIBAPI = 0
