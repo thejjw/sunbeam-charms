@@ -1,5 +1,0 @@
-- hosts: all
-  tasks:
-    - name: noop job
-      debug:
-        msg: "Skipping job as it has run upstream"
