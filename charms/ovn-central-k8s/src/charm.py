@@ -425,7 +425,6 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         self.configure_ovn_listener(
             'sb', {
                 self.ovsdb_cms.db_sb_port: {
-                    'role': 'ovn-controller',
                     'inactivity_probe': inactivity_probe,
                 },
             })
