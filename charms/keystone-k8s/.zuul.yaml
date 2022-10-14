@@ -5,7 +5,6 @@
     check:
       jobs:
         - build-charm
-        - func-tests
     vars:
       charm_build_name: keystone-k8s
 
