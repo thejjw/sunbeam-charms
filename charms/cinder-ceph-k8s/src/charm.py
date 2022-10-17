@@ -27,7 +27,7 @@ import ops_sunbeam.config_contexts as config_contexts
 import ops_sunbeam.container_handlers as container_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 
-import charms.sunbeam_cinder_operator.v0.storage_backend as sunbeam_storage_backend  # noqa
+import charms.cinder_k8s.v0.storage_backend as sunbeam_storage_backend  # noqa
 
 logger = logging.getLogger(__name__)
 

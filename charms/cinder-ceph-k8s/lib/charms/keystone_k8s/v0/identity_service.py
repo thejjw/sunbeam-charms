@@ -90,7 +90,7 @@ from ops.model import Relation
 logger = logging.getLogger(__name__)
 
 # The unique Charmhub library identifier, never change it
-LIBID = "6a7cb19b98314ecf916e3fcb02708608"
+LIBID = "0fa7fe7236c14c6e9624acf232b9a3b0"
 
 # Increment this major API version when introducing breaking changes
 LIBAPI = 0
@@ -329,7 +329,9 @@ class IdentityServiceRequires(Object):
         if self.model.unit.is_leader():
             logging.debug("Requesting service registration")
             app_data = self._identity_service_rel.data[self.charm.app]
-            app_data["service-endpoints"] = json.dumps(service_endpoints)
+            app_data["service-endpoints"] = json.dumps(
+                service_endpoints, sort_keys=True
+            )
             app_data["region"] = region
 
 
@@ -455,9 +457,13 @@ class IdentityServiceProvides(Object):
                                          admin_auth_url: str,
                                          public_auth_url: str):
         logging.debug("Setting identity_service connection information.")
+        _identity_service_rel = None
         for relation in self.framework.model.relations[relation_name]:
             if relation.id == relation_id:
                 _identity_service_rel = relation
+        if not _identity_service_rel:
+            # Relation has disappeared so skip send of data
+            return
         app_data = _identity_service_rel.data[self.charm.app]
         app_data["api-version"] = api_version
         app_data["auth-host"] = auth_host
