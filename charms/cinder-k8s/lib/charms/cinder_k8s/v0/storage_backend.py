@@ -20,14 +20,14 @@ Markdown is supported, following the CommonMark specification.
 """
 
 # The unique Charmhub library identifier, never change it
-LIBID = "570c8011bf5045d280452a1c27e18784"
+LIBID = "68536ea2f06d40078ccbedd7095e141c"
 
 # Increment this major API version when introducing breaking changes
 LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 2
+LIBPATCH = 1
 
 import json
 import logging
