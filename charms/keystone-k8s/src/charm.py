@@ -54,7 +54,7 @@ import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 
 from ops_sunbeam.interfaces import OperatorPeers
 
-import charms.sunbeam_keystone_operator.v0.identity_service as sunbeam_id_svc
+import charms.keystone_k8s.v0.identity_service as sunbeam_id_svc
 import charms.keystone_k8s.v0.cloud_credentials as sunbeam_cc_svc
 
 logger = logging.getLogger(__name__)

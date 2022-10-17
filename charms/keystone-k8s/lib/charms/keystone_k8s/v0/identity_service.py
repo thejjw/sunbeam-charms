@@ -90,7 +90,7 @@ from ops.model import Relation
 logger = logging.getLogger(__name__)
 
 # The unique Charmhub library identifier, never change it
-LIBID = "6a7cb19b98314ecf916e3fcb02708608"
+LIBID = "0fa7fe7236c14c6e9624acf232b9a3b0"
 
 # Increment this major API version when introducing breaking changes
 LIBAPI = 0
