@@ -21,7 +21,7 @@ import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 
-import charms.sunbeam_ovn_central_operator.v0.ovsdb as ovsdb
+import charms.ovn_central_k8s.v0.ovsdb as ovsdb
 
 from charms.observability_libs.v0.kubernetes_service_patch \
     import KubernetesServicePatch
