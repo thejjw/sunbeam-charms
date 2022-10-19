@@ -2,3 +2,6 @@
     templates:
       - openstack-python3-charm-yoga-jobs
       - openstack-cover-jobs
+      - microk8s-func-test
+    vars:
+      charm_build_name: nova-k8s
