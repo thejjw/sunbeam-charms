@@ -3,11 +3,14 @@ gate_bundles:
 smoke_bundles:
   - xena
 configure:
+  - zaza.openstack.charm_tests.keystone.setup.wait_for_all_endpoints
   - zaza.openstack.charm_tests.keystone.setup.add_tempest_roles
 tests:
   - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneV3
 tests_options:
   trust:
+    - xena
+  ignore_hard_deploy_errors:
     - xena
 
   tempest:
