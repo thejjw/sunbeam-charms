@@ -19,10 +19,10 @@ trap stop_svc EXIT
 log_msg "Starting"
 
 /usr/share/ovn/scripts/ovn-ctl run_nb_ovsdb \
-    --db-nb-cluster-local-addr={{ peers.cluster_local_addr }} \
+    --db-nb-cluster-local-addr={{ peers.cluster_local_hostname }} \
     --db-nb-cluster-local-port={{ peers.db_nb_cluster_port }} \
     --db-nb-cluster-local-proto=ssl \
-    --db-nb-cluster-remote-addr={{ peers.cluster_remote_addrs | first if not ovs_db.is_charm_leader else '' }} \
+    --db-nb-cluster-remote-addr={{ peers.cluster_remote_hostnames | first if not ovs_db.is_charm_leader else '' }} \
     --db-nb-cluster-remote-port={{ peers.db_nb_cluster_port }} \
     --db-nb-cluster-remote-proto=ssl \
     --ovn-nb-db-ssl-key={{ ovs_db.ovn_key }} \
