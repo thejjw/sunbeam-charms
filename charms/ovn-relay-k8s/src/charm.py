@@ -109,7 +109,7 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
     @property
     def southbound_db_url(self) -> str:
         """Full connection URL for Southbound DB relay."""
-        return f"ssl:{self.ingress_address}:6442"
+        return f"ssl:{self.ingress_address}:6642"
 
     def get_pebble_handlers(self):
         pebble_handlers = [

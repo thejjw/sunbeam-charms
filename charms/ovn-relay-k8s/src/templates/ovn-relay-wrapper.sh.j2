@@ -14,7 +14,7 @@ function stop_svc()
 }
 
 log_msg "Starting"
-REMOTES={{ ovsdb_cms.db_sb_connection_strs }}
+REMOTES={{ ovsdb_cms.db_sb_connection_hostname_strs }}
 
 ovsdb-server \
     -vconsole:emer \

@@ -66,6 +66,6 @@ class TestOVNRelayXenaOperatorCharm(test_utils.CharmTestCase):
 
     def test_southbound_db_url(self):
         self.assertEqual(
-            'ssl:10.0.0.10:6442',
+            'ssl:10.0.0.10:6642',
             self.harness.charm.southbound_db_url
         )
