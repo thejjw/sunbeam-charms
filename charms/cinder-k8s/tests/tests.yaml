@@ -1,0 +1,34 @@
+gate_bundles:
+  - xena
+smoke_bundles:
+  - xena
+# There is no storage provider at the moment so cannot run tests.
+configure:
+  - zaza.charm_tests.noop.setup.basic_setup
+tests:
+  - zaza.charm_tests.noop.tests.NoopTest
+tests_options:
+  trust:
+    - xena
+  ignore_hard_deploy_errors:
+    - xena
+
+target_deploy_status:
+  traefik:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  traefik-public:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  rabbitmq:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  keystone:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  mysql:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  cinder:
+    workload-status: blocked
+    workload-status-message-regex: '\(storage-backend\) integration missing'

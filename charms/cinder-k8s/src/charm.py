@@ -253,7 +253,6 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.service_name,
                 self.container_configs,
                 self.template_dir,
-                self.openstack_release,
                 self.configure_charm,
                 f"wsgi-{self.service_name}",
             ),
@@ -263,7 +262,6 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "cinder-scheduler",
                 [],
                 self.template_dir,
-                self.openstack_release,
                 self.configure_charm,
             ),
         ]
@@ -315,12 +313,7 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self.sb_svc.set_ready()
 
 
-class CinderXenaOperatorCharm(CinderOperatorCharm):
-
-    openstack_release = "xena"
-
-
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(CinderXenaOperatorCharm, use_juju_for_storage=True)
+    main(CinderOperatorCharm, use_juju_for_storage=True)

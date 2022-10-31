@@ -20,7 +20,7 @@ import charm
 import ops_sunbeam.test_utils as test_utils
 
 
-class _CinderXenaOperatorCharm(charm.CinderXenaOperatorCharm):
+class _CinderOperatorCharm(charm.CinderOperatorCharm):
 
     def __init__(self, framework):
         self.seen_events = []
@@ -31,13 +31,12 @@ class _CinderXenaOperatorCharm(charm.CinderXenaOperatorCharm):
         self.seen_events.append(type(event).__name__)
 
     def renderer(self, containers, container_configs, template_dir,
-                 openstack_release, adapters):
+                 adapters):
         self.render_calls.append(
             (
                 containers,
                 container_configs,
                 template_dir,
-                openstack_release,
                 adapters))
 
     def configure_charm(self, event):
@@ -59,7 +58,7 @@ class TestCinderOperatorCharm(test_utils.CharmTestCase):
             'remove_path': []}
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
-            _CinderXenaOperatorCharm,
+            _CinderOperatorCharm,
             container_calls=self.container_calls)
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
