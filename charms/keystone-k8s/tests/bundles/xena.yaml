@@ -25,7 +25,7 @@ applications:
 
   # required for glance
   rabbitmq:
-    charm: ch:sunbeam-rabbitmq-operator
+    charm: ch:rabbitmq-k8s
     channel: edge
     scale: 1
     trust: true
