@@ -1,7 +1,5 @@
 - project:
     templates:
-      - charm-unit-jobs-py38
-      - charm-unit-jobs-py310
       - charm-publish-jobs
     vars:
       needs_charm_build: true
