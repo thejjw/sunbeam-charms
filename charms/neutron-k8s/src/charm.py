@@ -201,6 +201,7 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
 class NeutronOVNOperatorCharm(NeutronOperatorCharm):
 
     mandatory_relations = {
+        'amqp',
         'database',
         'ovsdb-cms',
         'identity-service',
