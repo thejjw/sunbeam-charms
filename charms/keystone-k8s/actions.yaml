@@ -4,6 +4,9 @@
 get-admin-password:
   description: Get the password for the Keystone Admin user
 
+get-admin-account:
+  description: Get full access details for the Keystone Admin user
+
 get-service-account:
   description: Create/get details for a new/existing service account.
   params:

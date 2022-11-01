@@ -326,6 +326,11 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self._get_admin_password_action
         )
 
+        self.framework.observe(
+            self.on.get_admin_account_action,
+            self._get_admin_account_action
+        )
+
         self.password_manager = KeystonePasswordManager(self, self.peers)
 
         self.framework.observe(
@@ -333,8 +338,43 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self._get_service_account_action
         )
 
-    def _get_admin_password_action(self, event):
+    def _get_admin_password_action(self, event: ActionEvent) -> None:
+        if not self.unit.is_leader():
+            event.fail('Please run action on lead unit.')
+            return
         event.set_results({"password": self.admin_password})
+
+    def _get_admin_account_action(self, event: ActionEvent) -> None:
+        """Get details for the admin account.
+
+        This action handler will provide a full set of details
+        to access the cloud using the admin account.
+        """
+        if not self.unit.is_leader():
+            event.fail('Please run action on lead unit.')
+            return
+        openrc = f"""# openrc for access to OpenStack
+export OS_AUTH_URL={self.public_endpoint}
+export OS_USERNAME={self.admin_user}
+export OS_PASSWORD={self.admin_password}
+export OS_PROJECT_DOMAIN_NAME={self.admin_domain_name}
+export OS_USER_DOMAIN_NAME={self.admin_domain_name}
+export OS_PROJECT_NAME=admin
+export OS_IDENTITY_API_VERSION=3
+export OS_AUTH_VERSION=3
+        """
+        event.set_results({
+            "username": self.admin_user,
+            "password": self.admin_password,
+            "user-domain-name": self.admin_domain_name,
+            "project-name": "admin",
+            "project-domain-name": self.admin_domain_name,
+            "region": self.model.config['region'],
+            "internal-endpoint": self.internal_endpoint,
+            "public-endpoint": self.public_endpoint,
+            "api-version": 3,
+            "openrc": openrc,
+        })
 
     def _launch_heartbeat(self):
         """

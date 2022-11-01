@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, ANY
 import mock
 import json
 import os
@@ -356,4 +356,28 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
             'internal-endpoint': 'http://10.0.0.10:5000',
             'public-endpoint': 'http://10.0.0.10:5000',
             'api-version': 3
+        })
+
+    def test_get_admin_account_action(self):
+        self.harness.add_relation('peers', 'keystone-k8s')
+        action_event = MagicMock()
+
+        self.harness.charm._get_admin_account_action(action_event)
+        action_event.set_results.assert_not_called()
+        action_event.fail.assert_called()
+
+        self.harness.set_leader()
+        self.harness.charm._get_admin_account_action(action_event)
+
+        action_event.set_results.assert_called_with({
+            'username': 'admin',
+            'password': 'randonpassword',
+            'user-domain-name': 'admin_domain',
+            'project-name': 'admin',
+            'project-domain-name': 'admin_domain',
+            'region': 'RegionOne',
+            'internal-endpoint': 'http://10.0.0.10:5000',
+            'public-endpoint': 'http://10.0.0.10:5000',
+            'api-version': 3,
+            'openrc': ANY,
         })
