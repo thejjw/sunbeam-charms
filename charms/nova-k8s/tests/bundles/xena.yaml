@@ -49,6 +49,12 @@ applications:
       nova-scheduler-image: kolla/ubuntu-binary-nova-scheduler:xena
       nova-conductor-image: kolla/ubuntu-binary-nova-conductor:xena
 
+  placement:
+    charm: ch:placement-k8s
+    channel: edge
+    scale: 1
+    trust: true
+
 relations:
 - - traefik:ingress
   - keystone:ingress-internal
@@ -72,3 +78,12 @@ relations:
   - nova:ingress-internal
 - - traefik-public:ingress
   - nova:ingress-public
+
+- - mysql:database
+  - placement:database
+- - keystone:identity-service
+  - placement:identity-service
+- - traefik:ingress
+  - placement:ingress-internal
+- - traefik-public:ingress
+  - placement:ingress-public
