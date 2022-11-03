@@ -14,51 +14,63 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
+"""Tests for placement charm."""
+
 import textwrap
 
-import charm
+import mock
 import ops_sunbeam.test_utils as test_utils
 
+import charm
 
-class _PlacementXenaOperatorCharm(charm.PlacementXenaOperatorCharm):
+
+class _PlacementOperatorCharm(charm.PlacementOperatorCharm):
+    """Placement test charm."""
 
     def __init__(self, framework):
+        """Setup event logging."""
         self.seen_events = []
         super().__init__(framework)
 
     def _log_event(self, event):
+        """Log events."""
         self.seen_events.append(type(event).__name__)
 
     def configure_charm(self, event):
+        """Log configure charm call."""
         super().configure_charm(event)
         self._log_event(event)
 
     @property
     def public_ingress_address(self):
-        return 'placement.juju'
+        """Ingress address for charm."""
+        return "placement.juju"
 
 
 class TestPlacementOperatorCharm(test_utils.CharmTestCase):
+    """Classes for testing placement charms."""
 
     PATCHES = []
     maxDiff = None
 
     @mock.patch(
-        'charms.observability_libs.v0.kubernetes_service_patch.'
-        'KubernetesServicePatch')
+        "charms.observability_libs.v0.kubernetes_service_patch."
+        "KubernetesServicePatch"
+    )
     def setUp(self, mock_patch):
+        """Setup Placement tests."""
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
-            _PlacementXenaOperatorCharm,
-            container_calls=self.container_calls)
+            _PlacementOperatorCharm, container_calls=self.container_calls
+        )
 
         # clean up events that were dynamically defined,
         # otherwise we get issues because they'll be redefined,
         # which is not allowed.
         from charms.data_platform_libs.v0.database_requires import (
-            DatabaseEvents
+            DatabaseEvents,
         )
+
         for attr in (
             "database_database_created",
             "database_endpoints_changed",
@@ -73,23 +85,27 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         self.harness.begin()
 
     def test_pebble_ready_handler(self):
+        """Test Pebble ready event is captured."""
         self.assertEqual(self.harness.charm.seen_events, [])
         test_utils.set_all_pebbles_ready(self.harness)
-        self.assertEqual(self.harness.charm.seen_events, ['PebbleReadyEvent'])
+        self.assertEqual(self.harness.charm.seen_events, ["PebbleReadyEvent"])
 
     def test_all_relations(self):
+        """Test all the charms relations."""
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_all_relations(self.harness)
         test_utils.add_complete_ingress_relation(self.harness)
         setup_cmds = [
-            ['a2ensite', 'wsgi-placement-api'],
-            ['sudo', '-u', 'placement', 'placement-manage', 'db', 'sync']]
+            ["a2ensite", "wsgi-placement-api"],
+            ["sudo", "-u", "placement", "placement-manage", "db", "sync"],
+        ]
         for cmd in setup_cmds:
-            self.assertIn(cmd, self.container_calls.execute['placement-api'])
+            self.assertIn(cmd, self.container_calls.execute["placement-api"])
         self.check_file(
-            'placement-api',
-            '/etc/apache2/sites-available/wsgi-placement-api.conf')
+            "placement-api",
+            "/etc/apache2/sites-available/wsgi-placement-api.conf",
+        )
         expect_entries = """
         [DEFAULT]
         debug = False
@@ -115,6 +131,7 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         """
         expect_string = textwrap.dedent(expect_entries).lstrip()
         self.check_file(
-            'placement-api',
-            '/etc/placement/placement.conf',
-            contents=expect_string)
+            "placement-api",
+            "/etc/placement/placement.conf",
+            contents=expect_string,
+        )

@@ -22,10 +22,13 @@ This charm provide Placement services as part of an OpenStack deployment
 
 import logging
 
-from ops.framework import StoredState
-from ops.main import main
-
 import ops_sunbeam.charm as sunbeam_charm
+from ops.framework import (
+    StoredState,
+)
+from ops.main import (
+    main,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -35,11 +38,12 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "placement-api"
-    wsgi_admin_script = '/usr/bin/placement-api'
-    wsgi_public_script = '/usr/bin/placement-api'
+    wsgi_admin_script = "/usr/bin/placement-api"
+    wsgi_public_script = "/usr/bin/placement-api"
 
     db_sync_cmds = [
-        ['sudo', '-u', 'placement', 'placement-manage', 'db', 'sync']]
+        ["sudo", "-u", "placement", "placement-manage", "db", "sync"]
+    ]
 
     @property
     def service_conf(self) -> str:
@@ -49,35 +53,34 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def service_user(self) -> str:
         """Service user file and directory ownership."""
-        return 'placement'
+        return "placement"
 
     @property
     def service_group(self) -> str:
         """Service group file and directory ownership."""
-        return 'placement'
+        return "placement"
 
     @property
     def service_endpoints(self):
+        """Service endpoints description."""
         return [
             {
-                'service_name': 'placement',
-                'type': 'placement',
-                'description': "OpenStack Placement API",
-                'internal_url': f'{self.internal_url}',
-                'public_url': f'{self.public_url}',
-                'admin_url': f'{self.admin_url}'}]
+                "service_name": "placement",
+                "type": "placement",
+                "description": "OpenStack Placement API",
+                "internal_url": f"{self.internal_url}",
+                "public_url": f"{self.public_url}",
+                "admin_url": f"{self.admin_url}",
+            }
+        ]
 
     @property
     def default_public_ingress_port(self):
+        """Default ingress port."""
         return 8778
-
-
-class PlacementXenaOperatorCharm(PlacementOperatorCharm):
-
-    openstack_release = 'xena'
 
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(PlacementXenaOperatorCharm, use_juju_for_storage=True)
+    main(PlacementOperatorCharm, use_juju_for_storage=True)
