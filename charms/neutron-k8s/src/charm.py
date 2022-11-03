@@ -1,29 +1,50 @@
 #!/usr/bin/env python3
+#
+# Copyright 2022 Canonical Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Neutron Operator Charm.
 
 This charm provide Neutron services as part of an OpenStack deployment
 """
 
 import logging
-from typing import List
-
-from ops.framework import StoredState
-from ops.main import main
+from typing import (
+    List,
+)
 
 import ops_sunbeam.charm as sunbeam_charm
-import ops_sunbeam.core as sunbeam_core
-import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.config_contexts as sunbeam_ctxts
-import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.container_handlers as sunbeam_chandlers
+import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from ops.framework import (
+    StoredState,
+)
+from ops.main import (
+    main,
+)
 
 logger = logging.getLogger(__name__)
 
 
 class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+    """Handler for interacting with pebble data."""
 
     def get_layer(self):
-        """Neutron server service
+        """Neutron server service.
 
         :returns: pebble service layer configuration for neutron server service
         :rtype: dict
@@ -36,9 +57,9 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "summary": "Neutron Server",
                     "command": "neutron-server",
-                    "startup": "enabled"
+                    "startup": "enabled",
                 }
-            }
+            },
         }
 
     def get_healthcheck_layer(self) -> dict:
@@ -53,23 +74,20 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "online": {
                     "override": "replace",
                     "level": "ready",
-                    "http": {
-                        "url": self.charm.healthcheck_http_url
-                    }
+                    "http": {"url": self.charm.healthcheck_http_url},
                 },
             }
         }
 
     def default_container_configs(self):
+        """Base container configs."""
         return [
             sunbeam_core.ContainerConfigFile(
-                '/etc/neutron/neutron.conf',
-                'neutron',
-                'neutron'),
+                "/etc/neutron/neutron.conf", "neutron", "neutron"
+            ),
             sunbeam_core.ContainerConfigFile(
-                '/etc/neutron/api-paste.ini',
-                'neutron',
-                'neutron'),
+                "/etc/neutron/api-paste.ini", "neutron", "neutron"
+            ),
         ]
 
 
@@ -83,48 +101,61 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_public_script = ""
 
     db_sync_cmds = [
-        ['sudo', '-u', 'neutron', 'neutron-db-manage', '--config-file',
-         '/etc/neutron/neutron.conf', '--config-file',
-         '/etc/neutron/plugins/ml2/ml2_conf.ini', 'upgrade', 'head']]
+        [
+            "sudo",
+            "-u",
+            "neutron",
+            "neutron-db-manage",
+            "--config-file",
+            "/etc/neutron/neutron.conf",
+            "--config-file",
+            "/etc/neutron/plugins/ml2/ml2_conf.ini",
+            "upgrade",
+            "head",
+        ]
+    ]
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""
         return [
             NeutronServerPebbleHandler(
                 self,
-                'neutron-server',
+                "neutron-server",
                 self.service_name,
                 self.container_configs,
                 self.template_dir,
-                self.openstack_release,
                 self.configure_charm,
             )
         ]
 
     @property
     def service_endpoints(self):
+        """Neutron service endpoint description."""
         return [
             {
-                'service_name': 'neutron',
-                'type': 'network',
-                'description': "OpenStack Networking",
-                'internal_url': f'{self.internal_url}',
-                'public_url': f'{self.public_url}',
-                'admin_url': f'{self.admin_url}'}]
+                "service_name": "neutron",
+                "type": "network",
+                "description": "OpenStack Networking",
+                "internal_url": f"{self.internal_url}",
+                "public_url": f"{self.public_url}",
+                "admin_url": f"{self.admin_url}",
+            }
+        ]
 
     @property
     def default_public_ingress_port(self):
+        """Public ingress port."""
         return 9696
 
     @property
     def service_user(self) -> str:
         """Service user file and directory ownership."""
-        return 'neutron'
+        return "neutron"
 
     @property
     def service_group(self) -> str:
         """Service group file and directory ownership."""
-        return 'neutron'
+        return "neutron"
 
     @property
     def service_conf(self) -> str:
@@ -134,86 +165,86 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
 # Neutron OVN Specific Code
 
+
 class OVNContext(sunbeam_ctxts.ConfigContext):
+    """OVN configuration."""
 
     def context(self) -> dict:
+        """Configuration context."""
         return {
-            'extension_drivers': 'port_security',
-            'type_drivers': 'geneve,gre,vlan,flat,local',
-            'tenant_network_types': 'geneve,gre,vlan,flat,local',
-            'mechanism_drivers': 'ovn',
-            'path_mtu': '1500',
-            'tunnel_id_ranges': '1:1000',
-            'vni_ranges': '1001:2000',
-            'network_vlan_ranges': 'physnet1:1000:2000',
-            'flat_networks': 'physnet1',
-            'enable_tunneling': 'True',
-            'local_ip': '127.0.0.1',
-            'tunnel_types': 'gre',
-            'enable_security_group': 'True',
-            'vni_ranges': '1001:2000',
-            'max_header_size': '38',
-            'ovn_l3_scheduler': 'leastloaded',
-            'ovn_metadata_enabled': 'True',
-            'enable_distributed_floating_ip': 'False',
-            'dns_servers': '',
-            'dhcp_default_lease_time': '43200',
-            'dns_servers': '',
-            'ovn_dhcp4_global_options': '',
-            'ovn_dhcp6_global_options': '',
-            'vhost_sock_dir': '/run/libvirt-vhost-user',
-            'ovn_key': '/etc/neutron/plugins/ml2/key_host',
-            'ovn_cert': '/etc/neutron/plugins/ml2/cert_host',
-            'ovn_ca_cert': '/etc/neutron/plugins/ml2/neutron-ovn.crt'}
+            "extension_drivers": "port_security",
+            "type_drivers": "geneve,gre,vlan,flat,local",
+            "tenant_network_types": "geneve,gre,vlan,flat,local",
+            "mechanism_drivers": "ovn",
+            "path_mtu": "1500",
+            "tunnel_id_ranges": "1:1000",
+            "vni_ranges": "1001:2000",
+            "network_vlan_ranges": "physnet1:1000:2000",
+            "flat_networks": "physnet1",
+            "enable_tunneling": "True",
+            "local_ip": "127.0.0.1",
+            "tunnel_types": "gre",
+            "enable_security_group": "True",
+            "vni_ranges": "1001:2000",
+            "max_header_size": "38",
+            "ovn_l3_scheduler": "leastloaded",
+            "ovn_metadata_enabled": "True",
+            "enable_distributed_floating_ip": "False",
+            "dns_servers": "",
+            "dhcp_default_lease_time": "43200",
+            "dns_servers": "",
+            "ovn_dhcp4_global_options": "",
+            "ovn_dhcp6_global_options": "",
+            "vhost_sock_dir": "/run/libvirt-vhost-user",
+            "ovn_key": "/etc/neutron/plugins/ml2/key_host",
+            "ovn_cert": "/etc/neutron/plugins/ml2/cert_host",
+            "ovn_ca_cert": "/etc/neutron/plugins/ml2/neutron-ovn.crt",
+        }
 
 
 class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
+    """Handler for interacting with neutron container."""
 
     def default_container_configs(self):
+        """Neutron container configs."""
         return [
             sunbeam_core.ContainerConfigFile(
-                '/etc/neutron/neutron.conf',
-                'neutron',
-                'neutron'),
+                "/etc/neutron/neutron.conf", "neutron", "neutron"
+            ),
             sunbeam_core.ContainerConfigFile(
-                '/etc/neutron/plugins/ml2/key_host',
-                'root',
-                'root'),
+                "/etc/neutron/plugins/ml2/key_host", "root", "root"
+            ),
             sunbeam_core.ContainerConfigFile(
-                '/etc/neutron/plugins/ml2/cert_host',
-                'root',
-                'root'),
+                "/etc/neutron/plugins/ml2/cert_host", "root", "root"
+            ),
             sunbeam_core.ContainerConfigFile(
-                '/etc/neutron/plugins/ml2/neutron-ovn.crt',
-                'root',
-                'root'),
+                "/etc/neutron/plugins/ml2/neutron-ovn.crt", "root", "root"
+            ),
             sunbeam_core.ContainerConfigFile(
-                '/etc/neutron/plugins/ml2/ml2_conf.ini',
-                'root',
-                'root'),
+                "/etc/neutron/plugins/ml2/ml2_conf.ini", "root", "root"
+            ),
             sunbeam_core.ContainerConfigFile(
-                '/etc/neutron/api-paste.ini',
-                'neutron',
-                'neutron'),
+                "/etc/neutron/api-paste.ini", "neutron", "neutron"
+            ),
         ]
 
 
 class NeutronOVNOperatorCharm(NeutronOperatorCharm):
+    """Neutron charm class for OVN."""
 
     mandatory_relations = {
-        'amqp',
-        'database',
-        'ovsdb-cms',
-        'identity-service',
-        'ingress-public',
+        "amqp",
+        "database",
+        "ovsdb-cms",
+        "identity-service",
+        "ingress-public",
     }
 
     @property
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
         """Configuration contexts for the operator."""
         contexts = super().config_contexts
-        contexts.append(
-            OVNContext(self, "ovn"))
+        contexts.append(OVNContext(self, "ovn"))
         return contexts
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
@@ -221,11 +252,10 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
         return [
             NeutronServerOVNPebbleHandler(
                 self,
-                'neutron-server',
+                "neutron-server",
                 self.service_name,
                 self.container_configs,
                 self.template_dir,
-                self.openstack_release,
                 self.configure_charm,
             )
         ]
@@ -247,12 +277,7 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
         return handlers
 
 
-class NeutronOVNXenaOperatorCharm(NeutronOVNOperatorCharm):
-
-    openstack_release = 'xena'
-
-
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(NeutronOVNXenaOperatorCharm, use_juju_for_storage=True)
+    main(NeutronOVNOperatorCharm, use_juju_for_storage=True)
