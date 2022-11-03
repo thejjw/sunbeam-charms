@@ -38,7 +38,7 @@ max_active_keys = {{ ks_config.fernet_max_active_keys }}
 
 {% include "parts/section-signing" %}
 
-{% include "section-oslo-cache" %}
+{% include "parts/section-oslo-cache" %}
 # This goes in the section above, selectively
 # Bug #1899117
 expiration_time = {{ ks_config.dogpile_cache_expiration }}
@@ -103,7 +103,7 @@ admin_project_name = admin
 
 {% include "parts/section-federation" %}
 
-{% include "section-oslo-middleware" %}
+{% include "parts/section-oslo-middleware" %}
 # This goes in the section above, selectively
 # Bug #1819134
 max_request_body_size = 114688

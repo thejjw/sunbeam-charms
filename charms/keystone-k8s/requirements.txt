@@ -24,5 +24,3 @@ git+https://opendev.org/openstack/charm-ops-interface-tls-certificates#egg=inter
 
 # Note: Required for cinder-k8s, cinder-ceph-k8s, glance-k8s, nova-k8s
 git+https://opendev.org/openstack/charm-ops-interface-ceph-client#egg=interface_ceph_client
-# Charmhelpers is only present as interface_ceph_client uses it.
-git+https://github.com/juju/charm-helpers.git#egg=charmhelpers
