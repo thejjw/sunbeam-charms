@@ -497,6 +497,11 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 return
         super().configure_charm(event)
 
+        # Restart nova-scheduler service after cell1 is created
+        # Creation of cell1 is part of bootstrap process
+        handler = self.get_named_pebble_handler(NOVA_SCHEDULER_CONTAINER)
+        handler.start_all()
+
 
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
