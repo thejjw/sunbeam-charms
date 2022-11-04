@@ -14,14 +14,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
+"""Tests for glance charm."""
 
-import charm
+import mock
 import ops_sunbeam.test_utils as test_utils
 
+import charm
 
-class _GlanceXenaOperatorCharm(charm.GlanceXenaOperatorCharm):
 
+class _GlanceOperatorCharm(charm.GlanceOperatorCharm):
     def __init__(self, framework):
         self.seen_events = []
         super().__init__(framework)
@@ -39,21 +40,24 @@ class _GlanceXenaOperatorCharm(charm.GlanceXenaOperatorCharm):
 
 
 class TestGlanceOperatorCharm(test_utils.CharmTestCase):
+    """Class for testing glance charm."""
 
     PATCHES = []
 
     def setUp(self):
+        """Setup Glance tests."""
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
-            _GlanceXenaOperatorCharm,
-            container_calls=self.container_calls)
+            _GlanceOperatorCharm, container_calls=self.container_calls
+        )
 
         # clean up events that were dynamically defined,
         # otherwise we get issues because they'll be redefined,
         # which is not allowed.
         from charms.data_platform_libs.v0.database_requires import (
-            DatabaseEvents
+            DatabaseEvents,
         )
+
         for attr in (
             "database_database_created",
             "database_endpoints_changed",
@@ -68,47 +72,65 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
         test_utils.add_complete_ingress_relation(self.harness)
 
     @mock.patch(
-        'charms.observability_libs.v0.kubernetes_service_patch.'
-        'KubernetesServicePatch')
+        "charms.observability_libs.v0.kubernetes_service_patch."
+        "KubernetesServicePatch"
+    )
     def test_pebble_ready_handler(self, svc_patch):
+        """Test Pebble ready event is captured."""
         self.harness.begin()
         self.assertEqual(self.harness.charm.seen_events, [])
         test_utils.set_all_pebbles_ready(self.harness)
-        self.assertEqual(self.harness.charm.seen_events, ['PebbleReadyEvent'])
+        self.assertEqual(self.harness.charm.seen_events, ["PebbleReadyEvent"])
 
     @mock.patch(
-        'charms.observability_libs.v0.kubernetes_service_patch.'
-        'KubernetesServicePatch')
+        "charms.observability_libs.v0.kubernetes_service_patch."
+        "KubernetesServicePatch"
+    )
     def test_all_relations(self, svc_patch):
+        """Test all the charms relations."""
         ceph_rel_id = self.harness.add_relation("ceph", "ceph-mon")
         self.harness.begin_with_initial_hooks()
         self.harness.add_relation_unit(ceph_rel_id, "ceph-mon/0")
         self.harness.update_relation_data(
-            ceph_rel_id,
-            "ceph-mon/0",
-            {"ingress-address": "10.0.0.33"})
+            ceph_rel_id, "ceph-mon/0", {"ingress-address": "10.0.0.33"}
+        )
         test_utils.add_ceph_relation_credentials(self.harness, ceph_rel_id)
         test_utils.add_api_relations(self.harness)
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
         ceph_install_cmds = [
-            ['apt', 'update'],
-            ['apt', 'install', '-y', 'ceph-common'],
-            ['ceph-authtool',
-             '/etc/ceph/ceph.client.glance-k8s.keyring',
-             '--create-keyring',
-             '--name=client.glance-k8s',
-             '--add-key=AQBUfpVeNl7CHxAA8/f6WTcYFxW2dJ5VyvWmJg==']]
+            ["apt", "update"],
+            ["apt", "install", "-y", "ceph-common"],
+            [
+                "ceph-authtool",
+                "/etc/ceph/ceph.client.glance-k8s.keyring",
+                "--create-keyring",
+                "--name=client.glance-k8s",
+                "--add-key=AQBUfpVeNl7CHxAA8/f6WTcYFxW2dJ5VyvWmJg==",
+            ],
+        ]
         for cmd in ceph_install_cmds:
-            self.assertIn(cmd, self.container_calls.execute['glance-api'])
+            self.assertIn(cmd, self.container_calls.execute["glance-api"])
 
         app_setup_cmds = [
-            ['a2enmod', 'proxy_http'],
-            ['sudo', '-u', 'glance', 'glance-manage', '--config-dir',
-             '/etc/glance', 'db', 'sync']]
+            ["a2enmod", "proxy_http"],
+            [
+                "sudo",
+                "-u",
+                "glance",
+                "glance-manage",
+                "--config-dir",
+                "/etc/glance",
+                "db",
+                "sync",
+            ],
+        ]
         for cmd in app_setup_cmds:
-            self.assertIn(cmd, self.container_calls.execute['glance-api'])
+            self.assertIn(cmd, self.container_calls.execute["glance-api"])
 
-        for f in ['/etc/apache2/sites-enabled/glance-forwarding.conf',
-                  '/etc/glance/glance-api.conf', '/etc/ceph/ceph.conf']:
-            self.check_file('glance-api', f)
+        for f in [
+            "/etc/apache2/sites-enabled/glance-forwarding.conf",
+            "/etc/glance/glance-api.conf",
+            "/etc/ceph/ceph.conf",
+        ]:
+            self.check_file("glance-api", f)
