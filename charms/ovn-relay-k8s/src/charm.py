@@ -25,21 +25,30 @@ develop a new k8s charm using the Operator Framework:
 """
 
 import logging
-
-from ipaddress import IPv4Address, IPv6Address
-from typing import List, Mapping, Union
-
-from ops.framework import StoredState
-from ops.main import main
+from ipaddress import (
+    IPv4Address,
+    IPv6Address,
+)
+from typing import (
+    List,
+    Mapping,
+    Union,
+)
 
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.core as sunbeam_core
-import ops_sunbeam.ovn.container_handlers as ovn_chandlers
-import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.charm as ovn_charm
-
-from charms.observability_libs.v0.kubernetes_service_patch \
-    import KubernetesServicePatch
+import ops_sunbeam.ovn.config_contexts as ovn_ctxts
+import ops_sunbeam.ovn.container_handlers as ovn_chandlers
+from charms.observability_libs.v0.kubernetes_service_patch import (
+    KubernetesServicePatch,
+)
+from ops.framework import (
+    StoredState,
+)
+from ops.main import (
+    main,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,18 +56,22 @@ OVSDB_SERVER = "ovsdb-server"
 
 
 class OVNRelayPebbleHandler(ovn_chandlers.OVNPebbleHandler):
+    """Handler for OVN Relay container."""
 
     @property
     def wrapper_script(self):
-        return '/root/ovn-relay-wrapper.sh'
+        """Wrapper script for managing OVN service."""
+        return "/root/ovn-relay-wrapper.sh"
 
     @property
     def status_command(self):
-        return '/usr/share/ovn/scripts/ovn-ctl status_ovsdb'
+        """Status command for container."""
+        return "/usr/share/ovn/scripts/ovn-ctl status_ovsdb"
 
     @property
     def service_description(self):
-        return 'OVN Relay'
+        """Description of service."""
+        return "OVN Relay"
 
     def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
         """Initialise service ready for use.
@@ -79,8 +92,8 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
 
     _state = StoredState()
     mandatory_relations = {
-        'ovsdb-cms',
-        'certificates',
+        "ovsdb-cms",
+        "certificates",
     }
 
     def __init__(self, framework):
@@ -88,13 +101,13 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         self.service_patcher = KubernetesServicePatch(
             self,
             [
-                ('southbound', 6642),
+                ("southbound", 6642),
             ],
-            service_type="LoadBalancer"
+            service_type="LoadBalancer",
         )
         self.framework.observe(
             self.on.get_southbound_db_url_action,
-            self._get_southbound_db_url_action
+            self._get_southbound_db_url_action,
         )
 
     def _get_southbound_db_url_action(self, event):
@@ -104,7 +117,8 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
     def ingress_address(self) -> Union[IPv4Address, IPv6Address]:
         """Network IP address for access to the OVN relay service."""
         return self.model.get_binding(
-            'ovsdb-cms-relay').network.ingress_addresses[0]
+            "ovsdb-cms-relay"
+        ).network.ingress_addresses[0]
 
     @property
     def southbound_db_url(self) -> str:
@@ -112,23 +126,24 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         return f"ssl:{self.ingress_address}:6642"
 
     def get_pebble_handlers(self):
+        """Return pebble handler for container."""
         pebble_handlers = [
             OVNRelayPebbleHandler(
                 self,
                 OVSDB_SERVER,
-                'ovn-relay',
+                "ovn-relay",
                 self.container_configs,
                 self.template_dir,
-                self.openstack_release,
-                self.configure_charm)]
+                self.configure_charm,
+            )
+        ]
         return pebble_handlers
 
     @property
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
         """Configuration contexts for the operator."""
         contexts = super().config_contexts
-        contexts.append(
-            ovn_ctxts.OVNDBConfigContext(self, "ovs_db"))
+        contexts.append(ovn_ctxts.OVNDBConfigContext(self, "ovs_db"))
         return contexts
 
     @property
@@ -141,12 +156,7 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         return {}
 
 
-class OVNRelayXenaOperatorCharm(OVNRelayOperatorCharm):
-
-    openstack_release = 'xena'
-
-
 if __name__ == "__main__":
     # Note: use_juju_for_storage=True required per
     # https://github.com/canonical/operator/issues/506
-    main(OVNRelayXenaOperatorCharm, use_juju_for_storage=True)
+    main(OVNRelayOperatorCharm, use_juju_for_storage=True)
