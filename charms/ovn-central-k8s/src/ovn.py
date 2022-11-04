@@ -1,4 +1,4 @@
-# Copyright 2019 Canonical Ltd
+# Copyright 2022 Canonical Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,19 +11,22 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+"""OVN utilities."""
+
 import os
 import subprocess
 import uuid
 
 import utils
 
+OVN_RUNDIR = "/var/run/ovn"
+OVN_SYSCONFDIR = "/etc/ovn"
 
-OVN_RUNDIR = '/var/run/ovn'
-OVN_SYSCONFDIR = '/etc/ovn'
 
-
-def ovn_appctl(target, args, rundir=None, use_ovs_appctl=False,
-               cmd_executor=None):
+def ovn_appctl(
+    target, args, rundir=None, use_ovs_appctl=False, cmd_executor=None
+):
     """Run ovn/ovs-appctl for target with args and return output.
 
     :param target: Name of daemon to contact.  Unless target begins with '/',
@@ -44,25 +47,43 @@ def ovn_appctl(target, args, rundir=None, use_ovs_appctl=False,
     # NOTE(fnordahl): The ovsdb-server processes for the OVN databases use a
     # non-standard naming scheme for their daemon control socket and we need
     # to pass the full path to the socket.
-    if target in ('ovnnb_db', 'ovnsb_db',):
-        target = os.path.join(rundir or OVN_RUNDIR, target + '.ctl')
+    if target in (
+        "ovnnb_db",
+        "ovnsb_db",
+    ):
+        target = os.path.join(rundir or OVN_RUNDIR, target + ".ctl")
 
     if use_ovs_appctl:
-        tool = 'ovs-appctl'
+        tool = "ovs-appctl"
     else:
-        tool = 'ovn-appctl'
+        tool = "ovn-appctl"
 
     if not cmd_executor:
         cmd_executor = utils._run
-    return cmd_executor(tool, '-t', target, *args)
+    return cmd_executor(tool, "-t", target, *args)
 
 
 class OVNClusterStatus(object):
+    """Class for examining cluster status."""
 
-    def __init__(self, name, cluster_id, server_id, address, status, role,
-                 term, leader, vote, election_timer, log,
-                 entries_not_yet_committed, entries_not_yet_applied,
-                 connections, servers):
+    def __init__(
+        self,
+        name,
+        cluster_id,
+        server_id,
+        address,
+        status,
+        role,
+        term,
+        leader,
+        vote,
+        election_timer,
+        log,
+        entries_not_yet_committed,
+        entries_not_yet_applied,
+        connections,
+        servers,
+    ):
         """Initialize and populate OVNClusterStatus object.
 
         Use class initializer so we can define types in a compatible manner.
@@ -116,23 +137,25 @@ class OVNClusterStatus(object):
         self.servers = servers
 
     def __eq__(self, other):
+        """Whether statuses are equal."""
         return (
-            self.name == other.name and
-            self.cluster_id == other.cluster_id and
-            self.server_id == other.server_id and
-            self.address == other.address and
-            self.status == other.status and
-            self.role == other.role and
-            self.term == other.term and
-            self.leader == other.leader and
-            self.vote == other.vote and
-            self.election_timer == other.election_timer and
-            self.log == other.log and
-            self.entries_not_yet_committed ==
-            other.entries_not_yet_committed and
-            self.entries_not_yet_applied == other.entries_not_yet_applied and
-            self.connections == other.connections and
-            self.servers == other.servers)
+            self.name == other.name
+            and self.cluster_id == other.cluster_id
+            and self.server_id == other.server_id
+            and self.address == other.address
+            and self.status == other.status
+            and self.role == other.role
+            and self.term == other.term
+            and self.leader == other.leader
+            and self.vote == other.vote
+            and self.election_timer == other.election_timer
+            and self.log == other.log
+            and self.entries_not_yet_committed
+            == other.entries_not_yet_committed
+            and self.entries_not_yet_applied == other.entries_not_yet_applied
+            and self.connections == other.connections
+            and self.servers == other.servers
+        )
 
     @property
     def is_cluster_leader(self):
@@ -141,11 +164,12 @@ class OVNClusterStatus(object):
         :returns: Whether target is cluster leader
         :rtype: bool
         """
-        return self.leader == 'self'
+        return self.leader == "self"
 
 
-def cluster_status(target, schema=None, use_ovs_appctl=False, rundir=None,
-                   cmd_executor=None):
+def cluster_status(
+    target, schema=None, use_ovs_appctl=False, rundir=None, cmd_executor=None
+):
     """Retrieve status information from clustered OVSDB.
 
     :param target: Usually one of 'ovsdb-server', 'ovnnb_db', 'ovnsb_db', can
@@ -163,38 +187,44 @@ def cluster_status(target, schema=None, use_ovs_appctl=False, rundir=None,
     :raises: subprocess.CalledProcessError, KeyError, RuntimeError
     """
     schema_map = {
-        'ovnnb_db': 'OVN_Northbound',
-        'ovnsb_db': 'OVN_Southbound',
+        "ovnnb_db": "OVN_Northbound",
+        "ovnsb_db": "OVN_Southbound",
     }
     if schema and schema not in schema_map.keys():
         raise RuntimeError('Unknown schema provided: "{}"'.format(schema))
 
     status = {}
-    k = ''
-    for line in ovn_appctl(target,
-                           ('cluster/status', schema or schema_map[target]),
-                           rundir=rundir,
-                           use_ovs_appctl=use_ovs_appctl,
-                           cmd_executor=cmd_executor).splitlines():
-        if k and line.startswith(' '):
+    k = ""
+    for line in ovn_appctl(
+        target,
+        ("cluster/status", schema or schema_map[target]),
+        rundir=rundir,
+        use_ovs_appctl=use_ovs_appctl,
+        cmd_executor=cmd_executor,
+    ).splitlines():
+        if k and line.startswith(" "):
             # there is no key which means this is a instance of a multi-line/
             # multi-value item, populate the List which is already stored under
             # the key.
-            if k == 'servers':
+            if k == "servers":
                 status[k].append(
-                    tuple(line.replace(')', '').lstrip().split()[0:4:3]))
+                    tuple(line.replace(")", "").lstrip().split()[0:4:3])
+                )
             else:
                 status[k].append(line.lstrip())
-        elif ':' in line:
+        elif ":" in line:
             # this is a line with a key
-            k, v = line.split(':', 1)
+            k, v = line.split(":", 1)
             k = k.lower()
-            k = k.replace(' ', '_')
+            k = k.replace(" ", "_")
             if v:
                 # this is a line with both key and value
-                if k in ('cluster_id', 'server_id',):
-                    v = v.replace('(', '')
-                    v = v.replace(')', '')
+                if k in (
+                    "cluster_id",
+                    "server_id",
+                ):
+                    v = v.replace("(", "")
+                    v = v.replace(")", "")
                     status[k] = tuple(v.split())
                 else:
                     status[k] = v.lstrip()
@@ -204,21 +234,22 @@ def cluster_status(target, schema=None, use_ovs_appctl=False, rundir=None,
                 # populated on subsequent iterations.
                 status[k] = []
     return OVNClusterStatus(
-        status['name'],
-        uuid.UUID(status['cluster_id'][1]),
-        uuid.UUID(status['server_id'][1]),
-        status['address'],
-        status['status'],
-        status['role'],
-        int(status['term']),
-        status['leader'],
-        status['vote'],
-        int(status['election_timer']),
-        status['log'],
-        int(status['entries_not_yet_committed']),
-        int(status['entries_not_yet_applied']),
-        status['connections'],
-        status['servers'])
+        status["name"],
+        uuid.UUID(status["cluster_id"][1]),
+        uuid.UUID(status["server_id"][1]),
+        status["address"],
+        status["status"],
+        status["role"],
+        int(status["term"]),
+        status["leader"],
+        status["vote"],
+        int(status["election_timer"]),
+        status["log"],
+        int(status["entries_not_yet_committed"]),
+        int(status["entries_not_yet_applied"]),
+        status["connections"],
+        status["servers"],
+    )
 
 
 def is_northd_active(cmd_executor=None):
@@ -231,9 +262,10 @@ def is_northd_active(cmd_executor=None):
     :rtype: bool
     """
     try:
-        for line in ovn_appctl('ovn-northd', ('status',),
-                               cmd_executor=cmd_executor).splitlines():
-            if line.startswith('Status:') and 'active' in line:
+        for line in ovn_appctl(
+            "ovn-northd", ("status",), cmd_executor=cmd_executor
+        ).splitlines():
+            if line.startswith("Status:") and "active" in line:
                 return True
     except subprocess.CalledProcessError:
         pass
