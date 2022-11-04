@@ -14,14 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import mock
+"""Unit tests for Horizon operator."""
 
-import charm
+import mock
 import ops_sunbeam.test_utils as test_utils
 
+import charm
 
-class _DashboardXenaOperatorCharm(
-        charm.OpenstackDashboardXenaOperatorCharm):
+
+class _DashboardOperatorCharm(charm.OpenstackDashboardOperatorCharm):
+    """Test Operator Charm for Horizon Operator."""
 
     def __init__(self, framework):
         self.seen_events = []
@@ -36,28 +38,32 @@ class _DashboardXenaOperatorCharm(
 
     @property
     def public_ingress_address(self):
-        return 'dashboard.juju'
+        return "dashboard.juju"
 
 
 class TestDashboardOperatorCharm(test_utils.CharmTestCase):
+    """Unit tests for Horizon Operator."""
 
     PATCHES = []
 
     @mock.patch(
-        'charms.observability_libs.v0.kubernetes_service_patch.'
-        'KubernetesServicePatch')
+        "charms.observability_libs.v0.kubernetes_service_patch."
+        "KubernetesServicePatch"
+    )
     def setUp(self, mock_patch):
+        """Setup environment for unit test."""
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
-            _DashboardXenaOperatorCharm,
-            container_calls=self.container_calls)
+            _DashboardOperatorCharm, container_calls=self.container_calls
+        )
 
         # clean up events that were dynamically defined,
         # otherwise we get issues because they'll be redefined,
         # which is not allowed.
         from charms.data_platform_libs.v0.database_requires import (
-            DatabaseEvents
+            DatabaseEvents,
         )
+
         for attr in (
             "database_database_created",
             "database_endpoints_changed",
@@ -72,27 +78,35 @@ class TestDashboardOperatorCharm(test_utils.CharmTestCase):
         self.harness.begin()
 
     def test_pebble_ready_handler(self):
+        """Test pebble ready handler."""
         self.assertEqual(self.harness.charm.seen_events, [])
         test_utils.set_all_pebbles_ready(self.harness)
-        self.assertEqual(self.harness.charm.seen_events, ['PebbleReadyEvent'])
+        self.assertEqual(self.harness.charm.seen_events, ["PebbleReadyEvent"])
 
     def test_all_relations(self):
+        """Test all integrations for Operator."""
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_all_relations(self.harness)
         test_utils.add_complete_ingress_relation(self.harness)
         setup_cmds = [
-            ['a2dissite', '000-default'],
-            ['a2ensite', 'wsgi-openstack-dashboard'],
-            ['python3', '/usr/share/openstack-dashboard/manage.py', 'migrate',
-             '--noinput']]
+            ["a2dissite", "000-default"],
+            ["a2ensite", "wsgi-openstack-dashboard"],
+            [
+                "python3",
+                "/usr/share/openstack-dashboard/manage.py",
+                "migrate",
+                "--noinput",
+            ],
+        ]
         for cmd in setup_cmds:
             self.assertIn(
-                cmd,
-                self.container_calls.execute['openstack-dashboard'])
+                cmd, self.container_calls.execute["openstack-dashboard"]
+            )
         self.check_file(
-            'openstack-dashboard',
-            '/etc/apache2/sites-available/wsgi-openstack-dashboard.conf')
+            "openstack-dashboard",
+            "/etc/apache2/sites-available/wsgi-openstack-dashboard.conf",
+        )
         self.check_file(
-            'openstack-dashboard',
-            '/etc/openstack-dashboard/local_settings.py')
+            "openstack-dashboard", "/etc/openstack-dashboard/local_settings.py"
+        )
