@@ -4,12 +4,7 @@
 #     https://github.com/openstack-charmers/release-tools
 #
 
-# NOTE: newer versions of cryptography require a Rust compiler to build,
-# see
-# * https://github.com/openstack-charmers/zaza/issues/421
-# * https://mail.python.org/pipermail/cryptography-dev/2021-January/001003.html
-#
-cryptography<3.4
+cryptography
 jinja2
 jsonschema
 lightkube
@@ -19,8 +14,3 @@ pwgen
 git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
 
 python-keystoneclient  # keystone-k8s
-
-git+https://opendev.org/openstack/charm-ops-interface-tls-certificates#egg=interface_tls_certificates
-
-# Note: Required for cinder-k8s, cinder-ceph-k8s, glance-k8s, nova-k8s
-git+https://opendev.org/openstack/charm-ops-interface-ceph-client#egg=interface_ceph_client
