@@ -202,7 +202,6 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
                 self.service_name,
                 self.container_configs,
                 self.template_dir,
-                self.openstack_release,
                 self.configure_charm,
             )
         ]
