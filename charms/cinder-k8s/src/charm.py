@@ -253,7 +253,6 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.service_name,
                 self.container_configs,
                 self.template_dir,
-                self.openstack_release,
                 self.configure_charm,
                 f"wsgi-{self.service_name}",
             ),
@@ -263,7 +262,6 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "cinder-scheduler",
                 [],
                 self.template_dir,
-                self.openstack_release,
                 self.configure_charm,
             ),
         ]
