@@ -467,6 +467,7 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             ph.add_healthchecks()
 
         self.unit.status = ops.model.ActiveStatus()
+        self._state.bootstrapped = True
 
     def configure_ovn(self):
         """Configure ovn listener."""
