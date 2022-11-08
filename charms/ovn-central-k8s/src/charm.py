@@ -466,6 +466,7 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         for ph in self.pebble_handlers:
             ph.add_healthchecks()
 
+        self.bootstrap_status.set(ops.model.ActiveStatus())
         self.unit.status = ops.model.ActiveStatus()
         self._state.bootstrapped = True
 
