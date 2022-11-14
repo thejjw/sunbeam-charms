@@ -139,7 +139,11 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Configure charm services."""
         super().configure_charm(event)
         if self.bootstrapped():
-            self.status.set(ops.model.ActiveStatus(self.ingress_public.url))
+            self.status.set(ops.model.ActiveStatus(""))
+            if self.model.unit.is_leader():
+                self.model.app.status = ops.model.ActiveStatus(
+                    self.ingress_public.url
+                )
 
 
 if __name__ == "__main__":
