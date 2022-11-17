@@ -97,7 +97,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 
 logger = logging.getLogger(__name__)
@@ -175,7 +175,7 @@ class IdentityServiceRequires(Object):
         try:
             self.service_password
             self.on.ready.emit()
-        except AttributeError:
+        except (AttributeError, KeyError):
             pass
 
     def _on_identity_service_relation_broken(self, event):
