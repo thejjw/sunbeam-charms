@@ -26,7 +26,7 @@ Two events are also available to respond to:
 A basic example showing the usage of this relation follows:
 
 ```
-from charms.sunbeam_keystone_operator.v0.identity_service import IdentityServiceRequires
+from charms.keystone_k8s.v0.identity_service import IdentityServiceRequires
 
 class IdentityServiceClientCharm(CharmBase):
     def __init__(self, *args):
@@ -97,7 +97,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 
 logger = logging.getLogger(__name__)
@@ -175,7 +175,7 @@ class IdentityServiceRequires(Object):
         try:
             self.service_password
             self.on.ready.emit()
-        except AttributeError:
+        except (AttributeError, KeyError):
             pass
 
     def _on_identity_service_relation_broken(self, event):
