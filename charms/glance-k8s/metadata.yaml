@@ -33,8 +33,8 @@ resources:
   glance-api-image:
     type: oci-image
     description: OCI image for OpenStack Glance
-    # docker.io/kolla/ubuntu-binary-glance-api:xena
-    upstream-source: docker.io/kolla/ubuntu-binary-glance-api@sha256:8225f85767f9c712906d51526e749aacb25ed2ec8e93344067e50a15110d2b24
+    # docker.io/kolla/ubuntu-binary-glance-api:yoga
+    upstream-source: docker.io/kolla/ubuntu-binary-glance-api@sha256:c333174a391b915d0b930a131c985d01462e60c5fe6f6f9f9dc7dd4a3f3be3cf
 
 storage:
   local-repository:
