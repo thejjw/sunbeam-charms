@@ -26,8 +26,8 @@ resources:
   cinder-volume-image:
     type: oci-image
     description: OCI image for OpenStack Cinder Volume
-    # docker.io/kolla/ubuntu-binary-cinder-volume:xena
-    upstream-source: docker.io/kolla/ubuntu-binary-cinder-volume@sha256:97801ddde3d7dc98f383a80711d2fce3ef2d244ea0b3aeb4a7d800981c754091
+    # docker.io/kolla/ubuntu-binary-cinder-volume:yoga
+    upstream-source: docker.io/kolla/ubuntu-binary-cinder-volume@sha256:abc8f7269c76bc0b55114106de97bd1b8256c9d4e1d5bd73c02258f454266109
 
 requires:
   amqp:

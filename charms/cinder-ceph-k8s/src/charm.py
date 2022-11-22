@@ -280,10 +280,5 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
         self.unit.status = ActiveStatus()
 
 
-class CinderCephWallabyOperatorCharm(CinderCephOperatorCharm):
-
-    openstack_release = "xena"
-
-
 if __name__ == "__main__":
-    main(CinderCephWallabyOperatorCharm, use_juju_for_storage=True)
+    main(CinderCephOperatorCharm, use_juju_for_storage=True)
