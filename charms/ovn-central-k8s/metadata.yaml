@@ -38,18 +38,18 @@ resources:
   ovn-sb-db-server-image:
     type: oci-image
     description: OCI image for OVN Southbound Database Server
-    # docker.io/kolla/ubuntu-binary-ovn-sb-db-server:xena
-    upstream-source: docker.io/kolla/ubuntu-binary-ovn-sb-db-server@sha256:97105560d1360ed0a707ddf2cadc8aac1cb076cc08580a39f51ddb62e89027ca
+    # docker.io/kolla/ubuntu-binary-ovn-sb-db-server:yoga
+    upstream-source: docker.io/kolla/ubuntu-binary-ovn-sb-db-server@sha256:35a6e75cd8e613a608ed96a6c4c790d776e16bcb6b1e71dcd9729d12bb3748a2
   ovn-nb-db-server-image:
     type: oci-image
     description: OCI image for OVN Northbound Database Server
-    # docker.io/kolla/ubuntu-binary-ovn-nb-db-server:xena
-    upstream-source: docker.io/kolla/ubuntu-binary-ovn-nb-db-server@sha256:d3cbecbfbc2c8bdee5f6dc17d182fe004208d7b9d9da8549dba42261dbe8668f
+    # docker.io/kolla/ubuntu-binary-ovn-nb-db-server:yoga
+    upstream-source: docker.io/kolla/ubuntu-binary-ovn-nb-db-server@sha256:7d6c8588ca01fb725785332d493531e4aeebde8327e02a95b90c3c04daf40765
   ovn-northd-image:
     type: oci-image
     description: OCI image for OVN Northd
-    # docker.io/kolla/ubuntu-binary-ovn-northd:xena
-    upstream-source: docker.io/kolla/ubuntu-binary-ovn-northd@sha256:b78cc657c2966727dca55396daac7d1797113212e97de0961fb612c6bc0ba969
+    # docker.io/kolla/ubuntu-binary-ovn-northd:yoga
+    upstream-source: docker.io/kolla/ubuntu-binary-ovn-northd@sha256:d388fdb8c8020f2852460274a84e5ad552a39d36f896a1fc6a8d1f5653dfdbab
 
 requires:
   certificates:
