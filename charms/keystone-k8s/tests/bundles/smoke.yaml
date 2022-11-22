@@ -11,13 +11,13 @@ applications:
   # If this isn't present, the units will hang at "installing agent".
   traefik:
     charm: ch:traefik-k8s
-    channel: edge
+    channel: 1.0/stable
     scale: 1
     trust: true
 
   traefik-public:
     charm: ch:traefik-k8s
-    channel: edge
+    channel: 1.0/stable
     scale: 1
     trust: true
     options:
@@ -26,7 +26,7 @@ applications:
   # required for glance
   rabbitmq:
     charm: ch:rabbitmq-k8s
-    channel: edge
+    channel: 3.9/edge
     scale: 1
     trust: true
 
@@ -40,12 +40,12 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
     resources:
-      keystone-image: kolla/ubuntu-binary-keystone:xena
+      keystone-image: kolla/ubuntu-binary-keystone:yoga
       # NOTE: should be in sync with resources described in ../../metadata.yaml
 
   glance:
     charm: ch:glance-k8s
-    channel: edge
+    channel: yoga/edge
     scale: 1
     trust: true
     storage:

@@ -7,4 +7,4 @@
       build_type: charmcraft
       publish_charm: true
       charmcraft_channel: 2.0/stable
-      publish_channel: xena/edge
+      publish_channel: yoga/edge
