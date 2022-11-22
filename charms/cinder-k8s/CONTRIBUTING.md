@@ -47,7 +47,7 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./cinder-k8s_ubuntu-20.04-amd64.charm --resource cinder-api-image=kolla/ubuntu-binary-cinder-api:xena --resource cinder-scheduler-image=kolla/ubuntu-binary-cinder-scheduler:xena
+    juju deploy ./cinder-k8s_ubuntu-20.04-amd64.charm --resource cinder-api-image=kolla/ubuntu-binary-cinder-api:yoga --resource cinder-scheduler-image=kolla/ubuntu-binary-cinder-scheduler:yoga
 
 <!-- LINKS -->
 

@@ -1,7 +1,7 @@
 gate_bundles:
-  - xena
+  - smoke
 smoke_bundles:
-  - xena
+  - smoke
 # There is no storage provider at the moment so cannot run tests.
 configure:
   - zaza.charm_tests.noop.setup.basic_setup
@@ -9,9 +9,9 @@ tests:
   - zaza.charm_tests.noop.tests.NoopTest
 tests_options:
   trust:
-    - xena
+    - smoke
   ignore_hard_deploy_errors:
-    - xena
+    - smoke
 
 target_deploy_status:
   traefik:

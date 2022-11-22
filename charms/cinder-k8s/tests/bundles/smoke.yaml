@@ -11,13 +11,13 @@ applications:
   # If this isn't present, the units will hang at "installing agent".
   traefik:
     charm: ch:traefik-k8s
-    channel: edge
+    channel: 1.0/stable
     scale: 1
     trust: true
 
   traefik-public:
     charm: ch:traefik-k8s
-    channel: edge
+    channel: 1.0/stable
     scale: 1
     trust: true
     options:
@@ -25,13 +25,13 @@ applications:
 
   rabbitmq:
     charm: ch:rabbitmq-k8s
-    channel: edge
+    channel: 3.9/edge
     scale: 1
     trust: true
 
   keystone:
     charm: ch:keystone-k8s
-    channel: edge
+    channel: yoga/edge
     scale: 1
     trust: true
     options:
@@ -45,8 +45,8 @@ applications:
     scale: 1
     trust: true
     resources:
-      cinder-api-image: docker.io/kolla/ubuntu-binary-cinder-api:xena
-      cinder-scheduler-image: docker.io/kolla/ubuntu-binary-cinder-scheduler:xena
+      cinder-api-image: docker.io/kolla/ubuntu-binary-cinder-api:yoga
+      cinder-scheduler-image: docker.io/kolla/ubuntu-binary-cinder-scheduler:yoga
 
 relations:
 - - traefik:ingress
