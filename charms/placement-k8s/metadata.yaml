@@ -22,8 +22,8 @@ resources:
   placement-api-image:
     type: oci-image
     description: OCI image for OpenStack Placement
-    # docker.io/kolla/ubuntu-binary-placement-api:xena
-    upstream-source: docker.io/kolla/ubuntu-binary-placement-api@sha256:8498a09abe5490e5eaa23714ca3b253e662f3b5cc1a3f13300aa1e4865d6db16
+    # docker.io/kolla/ubuntu-binary-placement-api:yoga
+    upstream-source: docker.io/kolla/ubuntu-binary-placement-api@sha256:16db27df961be951bd176fe84cbc0c4df8453ed5426fae5f37f95ae41cc98758
 
 requires:
   database:
