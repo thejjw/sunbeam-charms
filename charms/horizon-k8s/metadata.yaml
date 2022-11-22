@@ -23,8 +23,8 @@ resources:
   openstack-dashboard-image:
     type: oci-image
     description: OCI image for OpenStack Dashboard
-    # docker.io/kolla/ubuntu-binary-horizon:xena
-    upstream-source: docker.io/kolla/ubuntu-binary-horizon@sha256:3385e3d30382a4f7f4603597b8c6bdd19523b03487ad8e2383c447659b1aab61
+    # docker.io/kolla/ubuntu-binary-horizon:yoga
+    upstream-source: docker.io/kolla/ubuntu-binary-horizon@sha256:85fde22e0d1e66c8333eb7ce3371a3aa32248b13186928540535b020693bce2b
 
 requires:
   database:

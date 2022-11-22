@@ -44,7 +44,7 @@ horizon-k8s requires the following relations:
 
 ## OCI Images
 
-The charm by default uses `docker.io/kolla/ubuntu-binary-horizon:xena` image.
+The charm by default uses `docker.io/kolla/ubuntu-binary-horizon:yoga` image.
 
 ## Contributing
 

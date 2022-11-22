@@ -45,7 +45,7 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./horizon-k8s_ubuntu-20.04-amd64.charm --trust --resource openstack-dashboard-image=kolla/ubuntu-binary-horizon:xena
+    juju deploy ./horizon-k8s_ubuntu-20.04-amd64.charm --trust --resource openstack-dashboard-image=kolla/ubuntu-binary-horizon:yoga
 
 <!-- LINKS -->
 
