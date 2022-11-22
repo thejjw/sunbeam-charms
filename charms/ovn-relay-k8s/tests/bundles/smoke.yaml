@@ -3,12 +3,12 @@ bundle: kubernetes
 applications:
   traefik:
     charm: ch:traefik-k8s
-    channel: edge
+    channel: 1.0/stable
     scale: 1
     trust: true
   traefik-public:
     charm: ch:traefik-k8s
-    channel: edge
+    channel: 1.0/stable
     scale: 1
     trust: true
     options:
@@ -20,12 +20,12 @@ applications:
     trust: false
   rabbitmq:
     charm: ch:rabbitmq-k8s
-    channel: edge
+    channel: 3.9/edge
     scale: 1
     trust: true
   keystone:
     charm: ch:keystone-k8s
-    channel: edge
+    channel: yoga/edge
     scale: 1
     trust: true
     options:
@@ -35,29 +35,29 @@ applications:
       credential-keys: 5M
   glance:
     charm: ch:glance-k8s
-    channel: edge
+    channel: yoga/edge
     scale: 1
     trust: true
     storage:
       local-repository: 5G
   nova:
     charm: ch:nova-k8s
-    channel: edge
+    channel: yoga/edge
     scale: 1
     trust: true
   placement:
     charm: ch:placement-k8s
-    channel: edge
+    channel: yoga/edge
     scale: 1
     trust: true
   neutron:
     charm: ch:neutron-k8s
-    channel: edge
+    channel: yoga/edge
     scale: 1
     trust: true
   ovn-central:
     charm: ch:ovn-central-k8s
-    channel: edge
+    channel: 22.03/edge
     scale: 1
     trust: true
   ovn-relay:
@@ -65,7 +65,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: kolla/ubuntu-binary-ovn-sb-db-server:xena
+      ovn-sb-db-server-image: kolla/ubuntu-binary-ovn-sb-db-server:yoga
   vault:
     charm: ch:icey-vault-k8s
     channel: stable
