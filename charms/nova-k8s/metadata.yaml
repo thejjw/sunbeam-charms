@@ -34,18 +34,18 @@ resources:
   nova-api-image:
     type: oci-image
     description: OCI image for OpenStack Nova API
-    # docker.io/kolla/ubuntu-binary-nova-api:xena
-    upstream-source: docker.io/kolla/ubuntu-binary-nova-api@sha256:67524633932e47c9e694a90786b52699ddf81000c55619f2d9bba986114b51f5
+    # docker.io/kolla/ubuntu-binary-nova-api:yoga
+    upstream-source: docker.io/kolla/ubuntu-binary-nova-api@sha256:a5d8efa26d8814b3b70d493ad8a56d5afdfad476fd72ce861dda24e07e2447a5
   nova-scheduler-image:
     type: oci-image
     description: OCI image for OpenStack Nova Scheduler
-    # docker.io/kolla/ubuntu-binary-nova-scheduler:xena
-    upstream-source: docker.io/kolla/ubuntu-binary-nova-scheduler@sha256:f1950c006aadd4fa4708a625eb2c7c09870b186fb4fab4fdf71e8af25003b2c8
+    # docker.io/kolla/ubuntu-binary-nova-scheduler:yoga
+    upstream-source: docker.io/kolla/ubuntu-binary-nova-scheduler@sha256:070456cf355e30710930349fd96ecf2489aac4154cf088547cac4abff893c51d
   nova-conductor-image:
     type: oci-image
     description: OCI image for OpenStack Nova Conductor
-    # docker.io/kolla/ubuntu-binary-nova-conductor:xena
-    upstream-source: docker.io/kolla/ubuntu-binary-nova-conductor@sha256:ecbb385b6d81451cdd551e6c6cc7c05cd8dd7c51d78fd4d9567eaf6a9c46218f
+    # docker.io/kolla/ubuntu-binary-nova-conductor:yoga
+    upstream-source: docker.io/kolla/ubuntu-binary-nova-conductor@sha256:279ed37a942396a2eba1198ea3a75f9982a0e0d766a7fc71f59e26b11df2623a
 
 requires:
   ingress-internal:

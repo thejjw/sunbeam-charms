@@ -11,13 +11,13 @@ applications:
   # If this isn't present, the units will hang at "installing agent".
   traefik:
     charm: ch:traefik-k8s
-    channel: edge
+    channel: 1.0/stable
     scale: 1
     trust: true
 
   traefik-public:
     charm: ch:traefik-k8s
-    channel: edge
+    channel: 1.0/stable
     scale: 1
     trust: true
     options:
@@ -26,13 +26,13 @@ applications:
   # required for nova
   rabbitmq:
     charm: ch:rabbitmq-k8s
-    channel: edge
+    channel: 3.9/edge
     scale: 1
     trust: true
 
   keystone:
     charm: ch:keystone-k8s
-    channel: edge
+    channel: yoga/edge
     scale: 1
     trust: true
     options:
@@ -45,13 +45,13 @@ applications:
     scale: 1
     trust: true
     resources:
-      nova-api-image: kolla/ubuntu-binary-nova-api:xena
-      nova-scheduler-image: kolla/ubuntu-binary-nova-scheduler:xena
-      nova-conductor-image: kolla/ubuntu-binary-nova-conductor:xena
+      nova-api-image: kolla/ubuntu-binary-nova-api:yoga
+      nova-scheduler-image: kolla/ubuntu-binary-nova-scheduler:yoga
+      nova-conductor-image: kolla/ubuntu-binary-nova-conductor:yoga
 
   placement:
     charm: ch:placement-k8s
-    channel: edge
+    channel: yoga/edge
     scale: 1
     trust: true
 
