@@ -53,7 +53,6 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
 
     PATCHES = [
         "manager",
-        "subprocess",
         "pwgen",
     ]
 
@@ -121,7 +120,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         km_mock.create_domain.return_value = service_domain_mock
         km_mock.create_user.return_value = service_user_mock
         km_mock.create_role.return_value = admin_role_mock
-        km_mock.read_fernet_keys.return_value = {
+        km_mock.read_keys.return_value = {
             "0": "Qf4vHdf6XC2dGKpEwtGapq7oDOqUWepcH2tKgQ0qOKc=",
             "3": "UK3qzLGvu-piYwau0BFyed8O3WP8lFKH_v1sXYulzhs=",
             "4": "YVYUJbQNASbVzzntqj2sG9rbDOV_QQfueDCz0PJEKKw=",
@@ -139,7 +138,6 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         # used by _launch_heartbeat.
         # value doesn't matter for tests because mocking
         os.environ["JUJU_CHARM_DIR"] = "/arbitrary/directory/"
-        self.subprocess.call.return_value = 1
         self.pwgen.pwgen.return_value = "randonpassword"
 
         self.km_mock = self.ks_manager_mock()
@@ -167,6 +165,16 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
 
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
+
+    # This function need to be moved to operator
+    def get_secret_by_label(self, label: str) -> str:
+        """Get secret by label from harness class."""
+        print(self.harness._backend._secrets)
+        for secret in self.harness._backend._secrets:
+            if secret.label == label:
+                return secret.id
+
+        return None
 
     def test_pebble_ready_handler(self):
         """Test pebble ready handler."""
@@ -223,9 +231,16 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         peer_data = self.harness.get_relation_data(
             peer_rel_id, self.harness.charm.unit.app.name
         )
+        fernet_secret_id = self.get_secret_by_label("fernet-keys")
+        credential_secret_id = self.get_secret_by_label("credential-keys")
         self.assertEqual(
             peer_data,
-            {"leader_ready": "true", "password_svc_cinder": "randonpassword"},
+            {
+                "leader_ready": "true",
+                "fernet-secret-id": fernet_secret_id,
+                "credential-keys-secret-id": credential_secret_id,
+                "password_svc_cinder": "randonpassword",
+            },
         )
 
     def test_leader_bootstraps(self):
@@ -241,8 +256,50 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self.km_mock.setup_keystone.assert_called_once_with()
         self.km_mock.setup_initial_projects_and_users.assert_called_once_with()
 
-    def test_leader_rotate_fernet_keys(self):
-        """Test leader fernet key rotation."""
+        peer_data = self.harness.get_relation_data(
+            rel_id, self.harness.charm.unit.app.name
+        )
+        fernet_secret_id = self.get_secret_by_label("fernet-keys")
+        credential_secret_id = self.get_secret_by_label("credential-keys")
+        self.assertEqual(
+            peer_data,
+            {
+                "leader_ready": "true",
+                "fernet-secret-id": fernet_secret_id,
+                "credential-keys-secret-id": credential_secret_id,
+            },
+        )
+
+    def test_on_peer_data_changed_no_bootstrap(self):
+        """Test peer_relation_changed on no bootstrap."""
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        rel_id = self.harness.add_relation("peers", "keystone-k8s")
+        self.harness.add_relation_unit(rel_id, "keystone-k8s/1")
+        self.harness.container_pebble_ready("keystone")
+
+        event = MagicMock()
+        self.harness.charm._on_peer_data_changed(event)
+        self.assertTrue(event.defer.called)
+
+    def test_on_peer_data_changed_with_fernet_keys_and_fernet_secret_different(
+        self,
+    ):
+        """Test peer_relation_changed when fernet keys and secret have different content."""
+        updated_fernet_keys = {
+            "0": "Qf4vHdf6XC2dGKpEwtGapq7oDOqUWepcH2tKgQ0qOKc=",
+            "2": "UK3qzLGvu-piYwau0BFyed8O3WP8lFKH_v1sXYulzhs=",
+            "3": "YVYUJbQNASbVzzntqj2sG9rbDOV_QQfueDCz0PJEKKw=",
+        }
+        secret_mock = mock.MagicMock()
+        secret_mock.id = "test-secret-id"
+        secret_mock.get_content.return_value = updated_fernet_keys
+
+        self.harness.model.app.add_secret = MagicMock()
+        self.harness.model.app.add_secret.return_value = secret_mock
+        self.harness.model.get_secret = MagicMock()
+        self.harness.model.get_secret.return_value = secret_mock
+
         test_utils.add_complete_ingress_relation(self.harness)
         self.harness.set_leader()
         rel_id = self.harness.add_relation("peers", "keystone-k8s")
@@ -251,23 +308,37 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         test_utils.add_db_relation_credentials(
             self.harness, test_utils.add_base_db_relation(self.harness)
         )
-        self.harness.charm._rotate_fernet_keys()
-        self.km_mock.rotate_fernet_keys.assert_called_once_with()
 
-    def test_not_leader_rotate_fernet_keys(self):
-        """Test non-leader fernet keys."""
-        test_utils.add_complete_ingress_relation(self.harness)
-        rel_id = self.harness.add_relation("peers", "keystone-k8s")
-        self.harness.add_relation_unit(rel_id, "keystone-k8s/1")
-        self.harness.container_pebble_ready("keystone")
-        test_utils.add_db_relation_credentials(
-            self.harness, test_utils.add_base_db_relation(self.harness)
+        event = MagicMock()
+        self.harness.charm._on_peer_data_changed(event)
+        self.assertTrue(self.harness.model.get_secret.called)
+        self.assertTrue(self.km_mock.read_keys.called)
+        self.assertEqual(self.km_mock.write_keys.call_count, 2)
+        self.km_mock.write_keys.assert_has_calls(
+            [
+                mock.call(
+                    key_repository="/etc/keystone/fernet-keys",
+                    keys=updated_fernet_keys,
+                ),
+                mock.call(
+                    key_repository="/etc/keystone/credential-keys",
+                    keys=updated_fernet_keys,
+                ),
+            ]
         )
-        self.harness.charm._rotate_fernet_keys()
-        self.km_mock.rotate_fernet_keys.assert_not_called()
 
-    def test_on_heartbeat(self):
-        """Test on_heartbeat calls."""
+    def test_on_peer_data_changed_with_fernet_keys_and_fernet_secret_same(
+        self,
+    ):
+        """Test peer_relation_changed when fernet keys and secret have same content."""
+        secret_mock = mock.MagicMock()
+        secret_mock.id = "test-secret-id"
+        secret_mock.get_content.return_value = self.km_mock.read_keys()
+        self.harness.model.app.add_secret = MagicMock()
+        self.harness.model.app.add_secret.return_value = secret_mock
+        self.harness.model.get_secret = MagicMock()
+        self.harness.model.get_secret.return_value = secret_mock
+
         test_utils.add_complete_ingress_relation(self.harness)
         self.harness.set_leader()
         rel_id = self.harness.add_relation("peers", "keystone-k8s")
@@ -276,27 +347,106 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         test_utils.add_db_relation_credentials(
             self.harness, test_utils.add_base_db_relation(self.harness)
         )
-        self.harness.charm._on_heartbeat(None)
-        self.km_mock.rotate_fernet_keys.assert_called_once_with()
 
-        # run the heartbeat again immediately.
-        # The keys should not be rotated again,
-        # since by default the rotation interval will be > 2 days.
-        self.harness.charm._on_heartbeat(None)
-        self.km_mock.rotate_fernet_keys.assert_called_once_with()
+        event = MagicMock()
+        self.harness.charm._on_peer_data_changed(event)
+        self.assertTrue(self.harness.model.get_secret.called)
+        self.assertTrue(self.km_mock.read_keys.called)
+        self.assertFalse(self.km_mock.write_keys.called)
 
-    def test_launching_heartbeat(self):
-        """Test launching a heartbeat."""
-        # verify that the heartbeat script is launched during initialisation
-        self.subprocess.Popen.assert_called_once_with(
-            ["./src/heartbeat.sh"],
-            cwd="/arbitrary/directory/",
-        )
+    def _test_non_leader_on_secret_rotate(self, label: str):
+        """Test secert-rotate event on non leader unit."""
+        test_utils.add_complete_ingress_relation(self.harness)
+        rel_id = self.harness.add_relation("peers", "keystone-k8s")
+        self.harness.add_relation_unit(rel_id, "keystone-k8s/1")
+        self.harness.container_pebble_ready("keystone")
 
-        # implementation detail, but probably good to double check
-        self.subprocess.call.assert_called_once_with(
-            ["pgrep", "-f", "heartbeat"]
-        )
+        event = MagicMock()
+        event.secret.label = label
+        self.harness.charm._on_secret_rotate(event)
+        if label == "fernet-keys":
+            self.assertFalse(self.km_mock.rotate_fernet_keys.called)
+        elif label == "credential-keys":
+            self.assertFalse(self.km_mock.rotate_credential_keys.called)
+
+    def _test_leader_on_secret_rotate(self, label: str):
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        rel_id = self.harness.add_relation("peers", "keystone-k8s")
+        self.harness.add_relation_unit(rel_id, "keystone-k8s/1")
+        self.harness.container_pebble_ready("keystone")
+
+        event = MagicMock()
+        event.secret.label = label
+        self.harness.charm._on_secret_rotate(event)
+        if label == "fernet-keys":
+            fernet_keys_ = {
+                f"fernet-{k}": v for k, v in self.km_mock.read_keys().items()
+            }
+            self.assertTrue(self.km_mock.rotate_fernet_keys.called)
+            event.secret.set_content.assert_called_once_with(fernet_keys_)
+        elif label == "credential-keys":
+            fernet_keys_ = {
+                f"fernet-{k}": v for k, v in self.km_mock.read_keys().items()
+            }
+            self.assertTrue(self.km_mock.rotate_credential_keys.called)
+            event.secret.set_content.assert_called_once_with(fernet_keys_)
+
+    def test_leader_on_secret_rotate_for_label_fernet_keys(self):
+        """Test secret-rotate event for label fernet_keys on leader unit."""
+        self._test_leader_on_secret_rotate(label="fernet-keys")
+
+    def test_leader_on_secret_rotate_for_label_credential_keys(self):
+        """Test secret-rotate event for label credential_keys on leader unit."""
+        self._test_leader_on_secret_rotate(label="credential-keys")
+
+    def test_non_leader_on_secret_rotate_for_label_fernet_keys(self):
+        """Test secret-rotate event for label fernet_keys on non leader unit."""
+        self._test_non_leader_on_secret_rotate(label="fernet-keys")
+
+    def test_non_leader_on_secret_rotate_for_label_credential_keys(self):
+        """Test secret-rotate event for label credential_keys on non leader unit."""
+        self._test_non_leader_on_secret_rotate(label="credential-keys")
+
+    def test_on_secret_changed_with_fernet_keys_and_fernet_secret_same(self):
+        """Test secret change event when fernet keys and secret have same content."""
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        rel_id = self.harness.add_relation("peers", "keystone-k8s")
+        self.harness.add_relation_unit(rel_id, "keystone-k8s/1")
+        self.harness.container_pebble_ready("keystone")
+
+        event = MagicMock()
+        event.secret.label = "fernet-keys"
+        event.secret.get_content.return_value = self.km_mock.read_keys()
+        self.harness.charm._on_secret_changed(event)
+
+        self.assertTrue(event.secret.get_content.called)
+        self.assertTrue(self.km_mock.read_keys.called)
+        self.assertFalse(self.km_mock.write_keys.called)
+
+    def test_on_secret_changed_with_fernet_keys_and_fernet_secret_different(
+        self,
+    ):
+        """Test secret change event when fernet keys and secret have different content."""
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        rel_id = self.harness.add_relation("peers", "keystone-k8s")
+        self.harness.add_relation_unit(rel_id, "keystone-k8s/1")
+        self.harness.container_pebble_ready("keystone")
+
+        event = MagicMock()
+        event.secret.label = "fernet-keys"
+        event.secret.get_content.return_value = {
+            "0": "Qf4vHdf6XC2dGKpEwtGapq7oDOqUWepcH2tKgQ0qOKc=",
+            "4": "UK3qzLGvu-piYwau0BFyed8O3WP8lFKH_v1sXYulzhs=",
+            "5": "YVYUJbQNASbVzzntqj2sG9rbDOV_QQfueDCz0PJEKKw=",
+        }
+        self.harness.charm._on_secret_changed(event)
+
+        self.assertTrue(event.secret.get_content.called)
+        self.assertTrue(self.km_mock.read_keys.called)
+        self.assertTrue(self.km_mock.write_keys.called)
 
     def test_non_leader_no_bootstraps(self):
         """Test bootstraping on a non-leader."""

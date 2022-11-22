@@ -25,16 +25,10 @@ develop a new k8s charm using the Operator Framework:
     https://discourse.charmhub.io/t/4208
 """
 
-import json
 import logging
-import os
-import subprocess
-import time
 from typing import (
     Callable,
-    Dict,
     List,
-    Optional,
 )
 
 import charms.keystone_k8s.v0.cloud_credentials as sunbeam_cc_svc
@@ -48,23 +42,20 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import pwgen
-from ops import (
-    model,
-)
 from ops.charm import (
     ActionEvent,
-    CharmEvents,
-    HookEvent,
     RelationChangedEvent,
-    RelationEvent,
 )
 from ops.framework import (
-    EventSource,
     Object,
     StoredState,
 )
 from ops.main import (
     main,
+)
+from ops.model import (
+    MaintenanceStatus,
+    SecretRotate,
 )
 from ops_sunbeam.interfaces import (
     OperatorPeers,
@@ -77,8 +68,7 @@ from utils import (
 logger = logging.getLogger(__name__)
 
 KEYSTONE_CONTAINER = "keystone"
-LAST_FERNET_KEY_ROTATION_KEY = "last_fernet_rotation"
-FERNET_KEYS_KEY = "fernet_keys"
+FERNET_KEYS_PREFIX = "fernet-"
 
 
 KEYSTONE_CONF = "/etc/keystone/keystone.conf"
@@ -124,13 +114,13 @@ class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
             "default_domain_id": self.charm.default_domain_id,
             "public_port": self.charm.service_port,
             "debug": config["debug"],
-            "token_expiration": config["token-expiration"],
-            "allow_expired_window": config["allow-expired-window"],
+            "token_expiration": 3600,  # 1 hour
+            "allow_expired_window": 169200,  # 2 days - 1 hour
             "catalog_cache_expiration": config["catalog-cache-expiration"],
             "dogpile_cache_expiration": config["dogpile-cache-expiration"],
             "identity_backend": "sql",
             "token_provider": "fernet",
-            "fernet_max_active_keys": config["fernet-max-active-keys"],
+            "fernet_max_active_keys": 4,  # adjusted to make rotation daily
             "public_endpoint": self.charm.public_endpoint,
             "admin_endpoint": self.charm.admin_endpoint,
             "domain_config_dir": "/etc/keystone/domains",
@@ -211,75 +201,6 @@ class CloudCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
-class FernetKeysUpdatedEvent(RelationEvent):
-    """This local event triggered if fernet keys were updated."""
-
-    def get_fernet_keys(self) -> Dict[str, str]:
-        """Retrieve the fernet keys from app data."""
-        return json.loads(
-            self.relation.data[self.relation.app].get(FERNET_KEYS_KEY, "{}")
-        )
-
-
-class HeartbeatEvent(HookEvent):
-    """This local event triggered regularly as a wake up call."""
-
-
-class KeystoneEvents(CharmEvents):
-    """Custom local events."""
-
-    fernet_keys_updated = EventSource(FernetKeysUpdatedEvent)
-    heartbeat = EventSource(HeartbeatEvent)
-
-
-class KeystoneInterface(Object):
-    """Define Keystone interface."""
-
-    def __init__(self, charm):
-        """Init KeystoneInterface class."""
-        super().__init__(charm, "keystone-peers")
-        self.charm = charm
-        self.framework.observe(
-            self.charm.on.peers_relation_changed, self._on_peer_data_changed
-        )
-
-    def _on_peer_data_changed(self, event: RelationChangedEvent):
-        """Check the peer data updates for updated fernet keys.
-
-        Then we can pull the keys from the app data,
-        and tell the local charm to write them to disk.
-        """
-        old_data = event.relation.data[self.charm.unit].get(
-            FERNET_KEYS_KEY, ""
-        )
-        data = self.charm.peers.get_app_data(FERNET_KEYS_KEY) or ""
-
-        # only launch the event if the data has changed
-        # and there there are actually keys
-        # (not just an empty dictionary string "{}")
-        if data and data != old_data and json.loads(data):
-            event.relation.data[self.charm.unit].update(
-                {FERNET_KEYS_KEY: data}
-            )
-            # use an event here so we can defer it
-            # if keystone isn't bootstrapped yet
-            self.charm.on.fernet_keys_updated.emit(
-                event.relation, app=event.app, unit=event.unit
-            )
-
-    def distribute_fernet_keys(self, keys: Dict[str, str]):
-        """Trigger a fernet key distribution.
-
-        This is achieved by simply saving it to the app data here,
-        which will trigger the peer data changed event across all the units.
-        """
-        self.charm.peers.set_app_data(
-            {
-                FERNET_KEYS_KEY: json.dumps(keys),
-            }
-        )
-
-
 class KeystonePasswordManager(Object):
     """Helper for management of keystone credential passwords."""
 
@@ -300,6 +221,7 @@ class KeystonePasswordManager(Object):
         """Retrieve persisted password for provided username."""
         if not self.interface:
             return None
+
         password = self.interface.get_app_data(f"password_{username}")
         return str(password) if password else None
 
@@ -319,7 +241,6 @@ class KeystonePasswordManager(Object):
 class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
-    on = KeystoneEvents()
     _state = StoredState()
     _authed = False
     service_name = "keystone"
@@ -348,13 +269,10 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self._state.set_default(admin_domain_id=None)
         self._state.set_default(default_domain_id=None)
         self._state.set_default(service_project_id=None)
-        self.peer_interface = KeystoneInterface(self)
 
         self.framework.observe(
-            self.on.fernet_keys_updated, self._on_fernet_keys_updated
+            self.on.peers_relation_changed, self._on_peer_data_changed
         )
-        self.framework.observe(self.on.heartbeat, self._on_heartbeat)
-        self._launch_heartbeat()
 
         self.framework.observe(
             self.on.get_admin_password_action, self._get_admin_password_action
@@ -411,78 +329,143 @@ export OS_AUTH_VERSION=3
             }
         )
 
-    def _launch_heartbeat(self):
-        """Launch another process that will wake up the charm every 5 minutes.
+    def _on_peer_data_changed(self, event: RelationChangedEvent):
+        """Check the peer data updates for updated fernet keys.
 
-        Used to auto schedule fernet key rotation.
+        Then we can pull the keys from the app data,
+        and tell the local charm to write them to disk.
         """
-        # check if already running
-        if subprocess.call(["pgrep", "-f", "heartbeat"]) == 0:
-            return
-
-        logger.debug("Launching the heartbeat")
-        subprocess.Popen(
-            ["./src/heartbeat.sh"],
-            cwd=os.environ["JUJU_CHARM_DIR"],
-        )
-
-    def _on_fernet_keys_updated(self, event: FernetKeysUpdatedEvent):
-        """Respond to fernet_keys_updated event."""
         if not self.bootstrapped():
+            logger.debug(
+                "Deferring _on_peer_data_changed event as node is not bootstrapped yet"
+            )
             event.defer()
             return
 
-        keys = event.get_fernet_keys()
-        if keys:
-            self.keystone_manager.write_fernet_keys(keys)
+        fernet_secret_id = self.peers.get_app_data("fernet-secret-id")
+        if fernet_secret_id:
+            fernet_secret = self.model.get_secret(id=fernet_secret_id)
+            keys = fernet_secret.get_content()
 
-    def _on_heartbeat(self, _event):
-        """Respond to heartbeat event.
+            # Remove the prefix from keys retrieved from juju secrets
+            # startswith can be replaced with removeprefix for python >= 3.9
+            prefix_len = len(FERNET_KEYS_PREFIX)
+            keys = {
+                (k[prefix_len:] if k.startswith(FERNET_KEYS_PREFIX) else k): v
+                for k, v in keys.items()
+            }
 
-        This should be called regularly.
+            existing_keys = self.keystone_manager.read_keys(
+                key_repository="/etc/keystone/fernet-keys"
+            )
+            if keys and keys != existing_keys:
+                logger.info("Updating fernet keys")
+                self.keystone_manager.write_keys(
+                    key_repository="/etc/keystone/fernet-keys", keys=keys
+                )
 
-        It will check if it's time to rotate the fernet keys,
-        and perform the rotation and key distribution if it is time.
-        """
-        # Only rotate and distribute keys from the leader unit.
-        if not self.unit.is_leader():
-            return
-
-        # if we're not set up, then don't try rotating keys
-        if not self.bootstrapped():
-            return
-
-        # minimum allowed for max_keys is 3
-        max_keys = max(self.model.config["fernet-max-active-keys"], 3)
-        exp = self.model.config["token-expiration"]
-        exp_window = self.model.config["allow-expired-window"]
-        rotation_seconds = (exp + exp_window) / (max_keys - 2)
-
-        # last time the fernet keys were rotated, in seconds since the epoch
-        last_rotation: Optional[str] = self.peers.get_app_data(
-            LAST_FERNET_KEY_ROTATION_KEY
+        credential_keys_secret_id = self.peers.get_app_data(
+            "credential-keys-secret-id"
         )
-        now: int = int(time.time())
+        if credential_keys_secret_id:
+            credential_keys_secret = self.model.get_secret(
+                id=credential_keys_secret_id
+            )
+            keys = credential_keys_secret.get_content()
 
+            # Remove the prefix from keys retrieved from juju secrets
+            # startswith can be replaced with removeprefix for python >= 3.9
+            prefix_len = len(FERNET_KEYS_PREFIX)
+            keys = {
+                (k[prefix_len:] if k.startswith(FERNET_KEYS_PREFIX) else k): v
+                for k, v in keys.items()
+            }
+
+            existing_keys = self.keystone_manager.read_keys(
+                key_repository="/etc/keystone/credential-keys"
+            )
+            if keys and keys != existing_keys:
+                logger.info("Updating credential keys")
+                self.keystone_manager.write_keys(
+                    key_repository="/etc/keystone/credential-keys", keys=keys
+                )
+
+    def _on_secret_changed(self, event: ops.charm.SecretChangedEvent):
+        logger.info(f"secret-change triggered for label {event.secret.label}")
+        if event.secret.label == "fernet-keys":
+            keys = event.secret.get_content(refresh=True)
+            prefix_len = len(FERNET_KEYS_PREFIX)
+            keys = {
+                (k[prefix_len:] if k.startswith(FERNET_KEYS_PREFIX) else k): v
+                for k, v in keys.items()
+            }
+            existing_keys = self.keystone_manager.read_keys(
+                key_repository="/etc/keystone/fernet-keys"
+            )
+            if keys and keys != existing_keys:
+                logger.info("secret-change event: Updating the fernet keys")
+                self.keystone_manager.write_keys(
+                    key_repository="/etc/keystone/fernet-keys", keys=keys
+                )
+        elif event.secret.label == "credential-keys":
+            keys = event.secret.get_content(refresh=True)
+            prefix_len = len(FERNET_KEYS_PREFIX)
+            keys = {
+                (k[prefix_len:] if k.startswith(FERNET_KEYS_PREFIX) else k): v
+                for k, v in keys.items()
+            }
+            existing_keys = self.keystone_manager.read_keys(
+                key_repository="/etc/keystone/credential-keys"
+            )
+            if keys and keys != existing_keys:
+                logger.info(
+                    "secret-change event: Updating the credential keys"
+                )
+                self.keystone_manager.write_keys(
+                    key_repository="/etc/keystone/credential-keys", keys=keys
+                )
+
+    def _on_secret_rotate(self, event: ops.charm.SecretRotateEvent):
+        if not self.unit.is_leader():
+            logger.warning("Not leader, not rotating the fernet keys")
+            return
+
+        if event.secret.label == "fernet-keys":
+            logger.info("secret-rotate event: Rotating the fernet keys")
+            self.keystone_manager.rotate_fernet_keys()
+            fernet_keys = self.keystone_manager.read_keys(
+                key_repository="/etc/keystone/fernet-keys"
+            )
+            # Secret content keys should be at least 3 characters long,
+            # no number to start, no dash to end
+            # prepend fernet- to the key names
+            fernet_keys_ = {
+                f"{FERNET_KEYS_PREFIX}{k}": v for k, v in fernet_keys.items()
+            }
+            event.secret.set_content(fernet_keys_)
+        elif event.secret.label == "credential-keys":
+            logger.info("secret-rotate event: Rotating the credential keys")
+            self.keystone_manager.rotate_credential_keys()
+            fernet_keys = self.keystone_manager.read_keys(
+                key_repository="/etc/keystone/credential-keys"
+            )
+            # Secret content keys should be at least 3 characters long,
+            # no number to start, no dash to end
+            # prepend fernet- to the key names
+            fernet_keys_ = {
+                f"{FERNET_KEYS_PREFIX}{k}": v for k, v in fernet_keys.items()
+            }
+            event.secret.set_content(fernet_keys_)
+
+    def _on_secret_remove(self, event: ops.charm.SecretRemoveEvent):
+        logger.info(f"secret-remove triggered for label {event.secret.label}")
         if (
-            last_rotation is None
-            or now - int(last_rotation) >= rotation_seconds
+            event.secret.label == "fernet-keys"
+            or event.secret.label == "credential-keys"
         ):
-            self._rotate_fernet_keys()
-            self.peers.set_app_data({LAST_FERNET_KEY_ROTATION_KEY: str(now)})
-
-    def _rotate_fernet_keys(self):
-        """Rotate fernet keys and trigger distribution.
-
-        If this is run on a non-leader unit, it's a noop.
-        Keys should only ever be rotated and distributed from a single unit.
-        """
-        if not self.unit.is_leader():
-            return
-        self.keystone_manager.rotate_fernet_keys()
-        self.peer_interface.distribute_fernet_keys(
-            self.keystone_manager.read_fernet_keys()
-        )
+            # TODO: Remove older revisions of the secret
+            # event.secret.remove_revision(event.revision)
+            pass
 
     def get_relation_handlers(
         self, handlers=None
@@ -840,6 +823,101 @@ export OS_AUTH_VERSION=3
         """Healthcheck HTTP URL for the service."""
         return f"http://localhost:{self.default_public_ingress_port}/v3"
 
+    def _create_fernet_secret(self) -> None:
+        """Create fernet juju secret.
+
+        Create a fernet juju secret if peer relation app data
+        does not contain a fernet secret. This function might
+        re-trigger until bootstrap is successful. So check if
+        fernet secret is already created and update juju fernet
+        secret with existing fernet keys on the unit.
+        """
+        # max_keys = max(self.model.config['fernet-max-active-keys'], 3)
+        # exp = self.model.config['token-expiration']
+        # exp_window = self.model.config['allow-expired-window']
+        # rotation_seconds = (exp + exp_window) / (max_keys - 2)
+
+        fernet_secret_id = self.peers.get_app_data("fernet-secret-id")
+
+        existing_keys = self.keystone_manager.read_keys(
+            key_repository="/etc/keystone/fernet-keys"
+        )
+        # Secret content keys should be at least 3 characters long,
+        # no number to start, no dash to end
+        # prepend fernet- to the key names
+        # existing_keys_ will be in format {'fernet-{filename}: data', ...}
+        existing_keys_ = {f"fernet-{k}": v for k, v in existing_keys.items()}
+
+        # juju secret already created, update content with the fernet
+        # keys on the unit if necessary.
+        if fernet_secret_id:
+            fernet_secret = self.model.get_secret(id=fernet_secret_id)
+            keys = fernet_secret.get_content()
+            if keys and keys != existing_keys_:
+                logger.info("Updating Fernet juju secret")
+                fernet_secret.set_content(existing_keys_)
+        else:
+            # If fernet secret does not exist in peer relation data,
+            # create a new one
+            # Fernet keys are rotated on daily basis considering 1 hour
+            # as token expiration, 47 hours as allow-expired-window and
+            # fernet-max-active-keys to 4.
+            fernet_secret = self.model.app.add_secret(
+                existing_keys_,
+                label="fernet-keys",
+                rotate=SecretRotate("daily"),
+            )
+            logger.info(f"Fernet keys secret created: {fernet_secret.id}")
+            self.peers.set_app_data({"fernet-secret-id": fernet_secret.id})
+            return
+
+    def _create_credential_keys_secret(self) -> None:
+        """Create credential_keys juju secret.
+
+        Create a credential_keys juju secret if peer relation app
+        data does not contain a credential_keys secret. This function
+        might re-trigger until bootstrap is successful. So check if
+        the secret is already created and update juju credential_keys
+        secret with existing fernet keys on the unit.
+        """
+        credential_keys_secret_id = self.peers.get_app_data(
+            "credential-keys-secret-id"
+        )
+
+        existing_keys = self.keystone_manager.read_keys(
+            key_repository="/etc/keystone/credential-keys"
+        )
+        # Secret content keys should be at least 3 characters long,
+        # no number to start, no dash to end
+        # prepend fernet- to the key names
+        # existing_keys_ will be in format {'fernet-{filename}: data', ...}
+        existing_keys_ = {f"fernet-{k}": v for k, v in existing_keys.items()}
+
+        # juju secret already created, update content with the fernet
+        # keys on the unit if necessary.
+        if credential_keys_secret_id:
+            credential_keys_secret = self.model.get_secret(
+                id=credential_keys_secret_id
+            )
+            keys = credential_keys_secret.get_content()
+            if keys and keys != existing_keys_:
+                logger.info("Updating Credential keys juju secret")
+                credential_keys_secret.set_content(existing_keys_)
+        else:
+            # If credential_keys secret does not exist in peer relation data,
+            # create a new one
+            credential_keys_secret = self.model.app.add_secret(
+                existing_keys_,
+                label="credential-keys",
+                rotate=SecretRotate("monthly"),
+            )
+            logger.info(
+                f"Credential keys secret created: {credential_keys_secret.id}"
+            )
+            self.peers.set_app_data(
+                {"credential-keys-secret-id": credential_keys_secret.id}
+            )
+
     @sunbeam_job_ctrl.run_once_per_unit("keystone_bootstrap")
     def keystone_bootstrap(self) -> bool:
         """Starts the appropriate services in the order they are needed.
@@ -858,6 +936,15 @@ export OS_AUTH_VERSION=3
                 )
 
             try:
+                self._create_fernet_secret()
+                self._create_credential_keys_secret()
+            except (ops.pebble.ExecError, ops.pebble.ConnectionError) as error:
+                logger.exception(error)
+                raise sunbeam_guard.BlockedExceptionError(
+                    "Failed to create fernet keys"
+                )
+
+            try:
                 self.keystone_manager.setup_initial_projects_and_users()
             except Exception:
                 # keystone might fail with Internal server error, not
@@ -867,7 +954,7 @@ export OS_AUTH_VERSION=3
                 raise sunbeam_guard.BlockedExceptionError(
                     "Failed to setup projects and users"
                 )
-        self.unit.status = model.MaintenanceStatus("Starting Keystone")
+        self.unit.status = MaintenanceStatus("Starting Keystone")
 
     def configure_app_leader(self, event):
         """Configure the lead unit."""

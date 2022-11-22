@@ -146,8 +146,6 @@ class KeystoneManager(framework.Object):
     def rotate_fernet_keys(self):
         """Rotate the fernet keys.
 
-        And probably also distribute the keys to other units too.
-
         See for more information:
         https://docs.openstack.org/keystone/latest/admin/fernet-token-faq.html
 
@@ -170,22 +168,58 @@ class KeystoneManager(framework.Object):
                 ]
             )
 
-    def read_fernet_keys(self) -> typing.Mapping[str, str]:
+    def rotate_credential_keys(self):
+        """Rotate the credential keys.
+
+        See for more information:
+        https://docs.openstack.org/keystone/latest/admin/credential-encryption.html
+        """
+        with sunbeam_guard.guard(self.charm, "Rotating credential keys"):
+            self.run_cmd(
+                [
+                    "sudo",
+                    "-u",
+                    "keystone",
+                    "keystone-manage",
+                    "credential_migrate",
+                    "--keystone-user",
+                    "keystone",
+                    "--keystone-group",
+                    "keystone",
+                ]
+            )
+            self.run_cmd(
+                [
+                    "sudo",
+                    "-u",
+                    "keystone",
+                    "keystone-manage",
+                    "credential_rotate",
+                    "--keystone-user",
+                    "keystone",
+                    "--keystone-group",
+                    "keystone",
+                ]
+            )
+
+    def read_keys(self, key_repository: str) -> typing.Mapping[str, str]:
         """Pull the fernet keys from the on-disk repository."""
         container = self.charm.unit.get_container(self.container_name)
-        files = container.list_files("/etc/keystone/fernet-keys")
+        files = container.list_files(key_repository)
         return {file.name: container.pull(file.path).read() for file in files}
 
-    def write_fernet_keys(self, keys: typing.Mapping[str, str]):
+    def write_keys(
+        self, key_repository: str, keys: typing.Mapping[str, str]
+    ) -> None:
         """Update the local fernet key repository with the provided keys."""
         container = self.charm.unit.get_container(self.container_name)
 
-        logger.debug("Writing updated fernet keys")
+        logger.debug(f"Writing updated fernet keys at {key_repository}")
 
         # write the keys
         for filename, contents in keys.items():
             container.push(
-                f"/etc/keystone/fernet-keys/{filename}",
+                f"{key_repository}/{filename}",
                 contents,
                 user="keystone",
                 group="keystone",
@@ -193,7 +227,7 @@ class KeystoneManager(framework.Object):
             )
 
         # remove old keys
-        files = container.list_files("/etc/keystone/fernet-keys")
+        files = container.list_files(key_repository)
         for file in files:
             if file.name not in keys:
                 container.remove_path(file.path)
@@ -282,6 +316,10 @@ class KeystoneManager(framework.Object):
                     "keystone",
                     "keystone-manage",
                     "credential_setup",
+                    "--keystone-user",
+                    "keystone",
+                    "--keystone-group",
+                    "keystone",
                 ]
             )
         except ops.pebble.ExecError:
@@ -652,7 +690,7 @@ class KeystoneManager(framework.Object):
             # TODO(wolsen) can we have more than one service with the same
             #  service name? I don't think so, so we'll just handle the first
             #  one for now.
-            print("FOUND: {}".format(services))
+            logger.debug(f"FOUND: {services}")
             for service in services:
                 logger.debug(
                     f"Service {name} already exists with "
