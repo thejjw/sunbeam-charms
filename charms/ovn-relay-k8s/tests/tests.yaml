@@ -65,7 +65,7 @@ target_deploy_status:
   placement:
     workload-status: active
     workload-status-message-regex: '^$'
-  vault:
+  tls-operator:
     workload-status: active
     workload-status-message-regex: '^$'
   ovn-relay:
