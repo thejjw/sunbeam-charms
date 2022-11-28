@@ -62,12 +62,13 @@ applications:
     channel: 22.03/edge
     scale: 1
     trust: true
-  vault:
-    charm: ch:icey-vault-k8s
-    channel: stable
+  tls-operator:
+    charm: tls-certificates-operator
+    channel: edge
     scale: 1
-    resources:
-      vault-image: vault
+    options:
+      generate-self-signed-certificates: true
+      ca-common-name: internal-ca
 
 relations:
 - - mysql:database
@@ -122,10 +123,10 @@ relations:
   - neutron:ingress-internal
 - - traefik-public:ingress
   - neutron:ingress-public
-- - vault:insecure-certificates
+- - tls-operator:certificates
   - neutron:certificates
 - - neutron:ovsdb-cms
   - ovn-central:ovsdb-cms
 
-- - vault:insecure-certificates
+- - tls-operator:certificates
   - ovn-central:certificates
