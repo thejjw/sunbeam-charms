@@ -195,6 +195,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         rel_data = self.harness.get_relation_data(
             identity_rel_id, self.harness.charm.unit.app.name
         )
+        secret_svc_cinder = self.get_secret_by_label("credentials_svc_cinder")
         self.maxDiff = None
         self.assertEqual(
             rel_data,
@@ -218,13 +219,12 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "service-domain-id": "sdomain_id",
                 "service-domain-name": "sdomain_name",
                 "service-host": "10.0.0.10",
-                "service-password": "randonpassword",
+                "service-credentials": secret_svc_cinder,
                 "service-port": "5000",
                 "service-project-id": "aproject_id",
                 "service-project-name": "aproject_name",
                 "service-protocol": "http",
                 "service-user-id": "suser_id",
-                "service-user-name": "suser_name",
             },
         )
 
@@ -239,7 +239,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "leader_ready": "true",
                 "fernet-secret-id": fernet_secret_id,
                 "credential-keys-secret-id": credential_secret_id,
-                "password_svc_cinder": "randonpassword",
+                "credentials_svc_cinder": secret_svc_cinder,
             },
         )
 

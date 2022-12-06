@@ -32,7 +32,7 @@ from typing import (
 )
 
 import charms.keystone_k8s.v0.cloud_credentials as sunbeam_cc_svc
-import charms.keystone_k8s.v0.identity_service as sunbeam_id_svc
+import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
 import ops.charm
 import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
@@ -55,6 +55,7 @@ from ops.main import (
 )
 from ops.model import (
     MaintenanceStatus,
+    SecretNotFoundError,
     SecretRotate,
 )
 from ops_sunbeam.interfaces import (
@@ -424,6 +425,11 @@ export OS_AUTH_VERSION=3
                 self.keystone_manager.write_keys(
                     key_repository="/etc/keystone/credential-keys", keys=keys
                 )
+        else:
+            # By default read the latest content of secret
+            # this will allow juju to trigger secret-remove
+            # event for old revision
+            event.secret.get_content(refresh=True)
 
     def _on_secret_rotate(self, event: ops.charm.SecretRotateEvent):
         if not self.unit.is_leader():
@@ -462,6 +468,7 @@ export OS_AUTH_VERSION=3
         if (
             event.secret.label == "fernet-keys"
             or event.secret.label == "credential-keys"
+            or event.secret.label == f"credentials_{self.admin_user}"
         ):
             # TODO: Remove older revisions of the secret
             # event.secret.remove_revision(event.revision)
@@ -546,9 +553,21 @@ export OS_AUTH_VERSION=3
             service_username = "svc_{}".format(
                 event.client_app_name.replace("-", "_")
             )
-            service_password = self.password_manager.retrieve_or_set(
-                service_username
+            event_relation = self.model.get_relation(
+                event.relation_name, event.relation_id
             )
+            scope = {"relation": event_relation}
+            service_credentials = None
+            service_password = None
+            try:
+                service_credentials = self._retrieve_or_set_secret(
+                    service_username, scope
+                )
+                credentials = self.model.get_secret(id=service_credentials)
+                service_password = credentials.get_content().get("password")
+            except SecretNotFoundError:
+                logger.warning(f"Secret for {service_username} not found")
+
             service_user = self.keystone_manager.create_user(
                 name=service_username,
                 password=service_password,
@@ -592,12 +611,12 @@ export OS_AUTH_VERSION=3
                 admin_project,
                 admin_user,
                 service_domain,
-                service_password,
                 service_project,
                 service_user,
                 self.internal_endpoint,
                 self.admin_endpoint,
                 self.public_endpoint,
+                service_credentials,
             )
 
     def add_credentials(self, event):
@@ -632,7 +651,20 @@ export OS_AUTH_VERSION=3
         service_project = self.keystone_manager.get_project(
             name=self.service_project, domain=service_domain
         )
-        user_password = self.password_manager.retrieve_or_set(event.username)
+        event_relation = self.model.get_relation(
+            event.relation_name, event.relation_id
+        )
+        scope = {"relation": event_relation}
+        user_password = None
+        try:
+            credentials_id = self._retrieve_or_set_secret(
+                event.username, scope
+            )
+            credentials = self.model.get_secret(id=credentials_id)
+            user_password = credentials.get_content().get("password")
+        except SecretNotFoundError:
+            logger.warning(f"Secret for {event.username} not found")
+
         service_user = self.keystone_manager.create_user(
             name=event.username,
             password=user_password,
@@ -691,7 +723,14 @@ export OS_AUTH_VERSION=3
         service_project = self.keystone_manager.get_project(
             name=self.service_project, domain=service_domain
         )
-        user_password = self.password_manager.retrieve_or_set(username)
+        user_password = None
+        try:
+            credentials_id = self._retrieve_or_set_secret(username)
+            credentials = self.model.get_secret(id=credentials_id)
+            user_password = credentials.get_content().get("password")
+        except SecretNotFoundError:
+            logger.warning("Secret for {username} not found")
+
         service_user = self.keystone_manager.create_user(
             name=username,
             password=user_password,
@@ -723,6 +762,26 @@ export OS_AUTH_VERSION=3
             }
         )
 
+    def _retrieve_or_set_secret(self, username: str, scope: dict = {}) -> str:
+        credentials_id = self.peers.get_app_data(f"credentials_{username}")
+        if credentials_id:
+            return credentials_id
+
+        password = pwgen.pwgen(12)
+        credentials_secret = self.model.app.add_secret(
+            {"username": username, "password": password},
+            label=f"credentials_{username}",
+        )
+        self.peers.set_app_data(
+            {
+                f"credentials_{username}": credentials_secret.id,
+            }
+        )
+        if "relation" in scope:
+            credentials_secret.grant(scope["relation"])
+
+        return credentials_secret.id
+
     @property
     def default_public_ingress_port(self):
         """Default public ingress port."""
@@ -746,7 +805,14 @@ export OS_AUTH_VERSION=3
     @property
     def admin_password(self) -> str:
         """Retrieve the password for the Admin user."""
-        return self.password_manager.retrieve_or_set(self.admin_user)
+        try:
+            credentials_id = self._retrieve_or_set_secret(self.admin_user)
+            credentials = self.model.get_secret(id=credentials_id)
+            return credentials.get_content().get("password")
+        except SecretNotFoundError:
+            logger.warning("Secret for admin credentials not found")
+
+        return None
 
     @property
     def admin_user(self):
@@ -770,7 +836,14 @@ export OS_AUTH_VERSION=3
     @property
     def charm_password(self) -> str:
         """The password for the charm admin user."""
-        return self.password_manager.retrieve_or_set(self.charm_user)
+        try:
+            credentials_id = self._retrieve_or_set_secret(self.charm_user)
+            credentials = self.model.get_secret(id=credentials_id)
+            return credentials.get_content().get("password")
+        except SecretNotFoundError:
+            logger.warning("Secret for charm credentials not found")
+
+        return None
 
     @property
     def service_project(self):
