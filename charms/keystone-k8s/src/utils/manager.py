@@ -584,6 +584,27 @@ class KeystoneManager(framework.Object):
 
         return None
 
+    def update_user(
+        self,
+        name: str,
+        password: str,
+        email: str = None,
+        project: "Project" = None,
+        domain: "Domain" = None,
+    ) -> "User":
+        """Update password for user."""
+        user = self.get_user(name=name, domain=domain, project=project)
+        user = self.api.users.update(
+            user,
+            name=name,
+            default_project=project,
+            domain=domain,
+            password=password,
+            email=email,
+        )
+        logger.debug(f"Updated user {user.name}.")
+        return user
+
     def create_role(
         self,
         name: str,

@@ -460,31 +460,6 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         )
         self.assertFalse(self.km_mock.setup_keystone.called)
 
-    def test_password_storage(self):
-        """Test storing password."""
-        self.harness.set_leader()
-        rel_id = self.harness.add_relation("peers", "keystone-k8s")
-
-        self.harness.charm.password_manager.store("test-user", "foobar")
-
-        self.assertEqual(
-            self.harness.charm.password_manager.retrieve("test-user"), "foobar"
-        )
-
-        self.assertEqual(
-            self.harness.charm.password_manager.retrieve("unknown-user"), None
-        )
-
-        self.assertEqual(
-            self.harness.get_relation_data(
-                rel_id,
-                self.harness.charm.app.name,
-            ),
-            {
-                "password_test-user": "foobar",
-            },
-        )
-
     def test_get_service_account_action(self):
         """Test get_service_account action."""
         self.harness.add_relation("peers", "keystone-k8s")
