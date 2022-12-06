@@ -27,6 +27,6 @@ ovsdb-server \
     --log-file=/var/log/ovn/ovn-relay.log \
     --pidfile=/var/run/ovn/ovn-relay.pid \
     --unixctl=/var/run/ovn/ovn_relay.sock \
-    --remote=pssl:6642:{{ ovsdb_cms.local_hostname }} relay:OVN_Southbound:$REMOTES
+    --remote=pssl:6642 relay:OVN_Southbound:$REMOTES
 
 trap stop_svc EXIT
