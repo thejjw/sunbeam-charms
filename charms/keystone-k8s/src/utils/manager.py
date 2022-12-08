@@ -445,6 +445,35 @@ class KeystoneManager(framework.Object):
         logger.debug(f"Service project id: {service_project.id}.")
         self.charm._state.service_project_id = service_project.id  # noqa
 
+    def create_service_account(
+        self,
+        username: str,
+        password: str,
+        project: "Project" = None,
+        domain: "Domain" = None,
+    ) -> "User":
+        """Helper function to create service account."""
+        if not domain:
+            domain = self.get_domain(name="service_domain")
+        if not project:
+            project = self.get_project(
+                name=self.charm.service_project, domain=domain
+            )
+        admin_role = self.get_role(name=self.charm.admin_role)
+        service_user = self.create_user(
+            name=username,
+            password=password,
+            domain=domain.id,
+            may_exist=True,
+        )
+        self.grant_role(
+            role=admin_role,
+            user=service_user,
+            project=project,
+            may_exist=True,
+        )
+        return service_user
+
     def update_service_catalog_for_keystone(self):
         """Create identity service in catalogue."""
         service = self.create_service(
@@ -604,6 +633,14 @@ class KeystoneManager(framework.Object):
         )
         logger.debug(f"Updated user {user.name}.")
         return user
+
+    def delete_user(
+        self,
+        name: str,
+    ) -> None:
+        """Delete a user from name."""
+        user = self.get_user(name)
+        self.api.users.delete(user)
 
     def create_role(
         self,

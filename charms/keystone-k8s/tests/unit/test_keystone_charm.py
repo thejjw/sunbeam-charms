@@ -103,6 +103,12 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
             type(_mock).id = mock.PropertyMock(return_value=p_id)
             return _mock
 
+        def _get_domain_side_effect(name: str):
+            if name == "admin_domain":
+                return admin_domain_mock
+            else:
+                return service_domain_mock
+
         service_domain_mock = _create_mock("sdomain_name", "sdomain_id")
         admin_domain_mock = _create_mock("adomain_name", "adomain_id")
 
@@ -114,12 +120,13 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         admin_role_mock = _create_mock("arole_name", "arole_id")
 
         km_mock = mock.MagicMock()
-        km_mock.get_domain.return_value = admin_domain_mock
+        km_mock.get_domain.side_effect = _get_domain_side_effect
         km_mock.get_project.return_value = admin_project_mock
         km_mock.get_user.return_value = admin_user_mock
         km_mock.create_domain.return_value = service_domain_mock
         km_mock.create_user.return_value = service_user_mock
         km_mock.create_role.return_value = admin_role_mock
+        km_mock.create_service_account.return_value = service_user_mock
         km_mock.read_keys.return_value = {
             "0": "Qf4vHdf6XC2dGKpEwtGapq7oDOqUWepcH2tKgQ0qOKc=",
             "3": "UK3qzLGvu-piYwau0BFyed8O3WP8lFKH_v1sXYulzhs=",

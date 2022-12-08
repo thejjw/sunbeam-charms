@@ -66,6 +66,7 @@ logger = logging.getLogger(__name__)
 
 KEYSTONE_CONTAINER = "keystone"
 FERNET_KEYS_PREFIX = "fernet-"
+CREDENTIALS_SECRET_PREFIX = "credentials_"
 
 
 KEYSTONE_CONF = "/etc/keystone/keystone.conf"
@@ -233,7 +234,6 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self.framework.observe(
             self.on.peers_relation_changed, self._on_peer_data_changed
         )
-
         self.framework.observe(
             self.on.get_admin_password_action, self._get_admin_password_action
         )
@@ -249,19 +249,30 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self._regenerate_password_action,
         )
 
-    def _retrieve_or_set_secret(self, username: str, scope: dict = {}) -> str:
-        credentials_id = self.peers.get_app_data(f"credentials_{username}")
+    def _retrieve_or_set_secret(
+        self,
+        username: str,
+        scope: dict = {},
+        rotate: SecretRotate = SecretRotate.NEVER,
+        add_suffix_to_username: bool = False,
+    ) -> str:
+        label = f"{CREDENTIALS_SECRET_PREFIX}{username}"
+        credentials_id = self.peers.get_app_data(label)
         if credentials_id:
             return credentials_id
 
         password = pwgen.pwgen(12)
+        if add_suffix_to_username:
+            suffix = pwgen.pwgen(6)
+            username = f"{username}-{suffix}"
         credentials_secret = self.model.app.add_secret(
             {"username": username, "password": password},
-            label=f"credentials_{username}",
+            label=label,
+            rotate=rotate,
         )
         self.peers.set_app_data(
             {
-                f"credentials_{username}": credentials_secret.id,
+                label: credentials_secret.id,
             }
         )
         if "relation" in scope:
@@ -323,12 +334,7 @@ export OS_AUTH_VERSION=3
 
         # TODO: refactor into general helper method.
         username = event.params["username"]
-        service_domain = self.keystone_manager.create_domain(
-            name="service_domain", may_exist=True
-        )
-        service_project = self.keystone_manager.get_project(
-            name=self.service_project, domain=service_domain
-        )
+
         user_password = None
         try:
             credentials_id = self._retrieve_or_set_secret(username)
@@ -337,21 +343,17 @@ export OS_AUTH_VERSION=3
         except SecretNotFoundError:
             logger.warning("Secret for {username} not found")
 
-        service_user = self.keystone_manager.create_user(
-            name=username,
+        service_domain = self.keystone_manager.get_domain(
+            name="service_domain"
+        )
+        service_project = self.keystone_manager.get_project(
+            name=self.service_project, domain=service_domain
+        )
+        self.keystone_manager.create_service_account(
+            username=username,
             password=user_password,
-            domain=service_domain.id,
-            may_exist=True,
-        )
-        admin_role = self.keystone_manager.create_role(
-            name=self.admin_role, may_exist=True
-        )
-        # TODO(wolsen) let's not always grant admin role!
-        self.keystone_manager.grant_role(
-            role=admin_role,
-            user=service_user,
             project=service_project,
-            may_exist=True,
+            domain=service_domain,
         )
 
         event.set_results(
@@ -455,7 +457,9 @@ export OS_AUTH_VERSION=3
                 )
 
     def _on_secret_changed(self, event: ops.charm.SecretChangedEvent):
-        logger.info(f"secret-change triggered for label {event.secret.label}")
+        logger.debug(
+            f"secret-changed triggered for label {event.secret.label}"
+        )
         if event.secret.label == "fernet-keys":
             keys = event.secret.get_content(refresh=True)
             prefix_len = len(FERNET_KEYS_PREFIX)
@@ -495,6 +499,10 @@ export OS_AUTH_VERSION=3
             event.secret.get_content(refresh=True)
 
     def _on_secret_rotate(self, event: ops.charm.SecretRotateEvent):
+        # All the juju secrets are created on leader unit, so return
+        # if unit is not leader at this stage instead of checking at
+        # each secret.
+        logger.debug(f"secret-rotate triggered for label {event.secret.label}")
         if not self.unit.is_leader():
             logger.warning("Not leader, not rotating the fernet keys")
             return
@@ -525,18 +533,79 @@ export OS_AUTH_VERSION=3
                 f"{FERNET_KEYS_PREFIX}{k}": v for k, v in fernet_keys.items()
             }
             event.secret.set_content(fernet_keys_)
+            return
+
+        # Secret labels in identity-service relation are
+        # based on remote app name. So generate labels for
+        # all the remote apps related to identity-service.
+        identity_labels = [
+            f"{CREDENTIALS_SECRET_PREFIX}svc_{relation.app.name}"
+            for relation in self.model.relations["identity-service"]
+        ]
+        if event.secret.label in identity_labels:
+            suffix = pwgen.pwgen(6)
+            username = event.secret.label[
+                event.secret.label.startswith(CREDENTIALS_SECRET_PREFIX)
+                and len(CREDENTIALS_SECRET_PREFIX) :  # noqa: E203
+            ]
+            username = f"{username}-{suffix}"
+            password = pwgen.pwgen(12)
+
+            logger.info(f"Creating service account with username {username}")
+            self.keystone_manager.create_service_account(username, password)
+            olduser = event.secret.get_content().get("username")
+            event.secret.set_content(
+                {"username": username, "password": password}
+            )
+            service_users_to_delete = (
+                self.peers.get_app_data("old_service_users") or []
+            )
+            if olduser not in service_users_to_delete:
+                service_users_to_delete.append(olduser)
+                self.peers.set_app_data(
+                    {"old_service_users": service_users_to_delete}
+                )
 
     def _on_secret_remove(self, event: ops.charm.SecretRemoveEvent):
         logger.info(f"secret-remove triggered for label {event.secret.label}")
         if (
             event.secret.label == "fernet-keys"
             or event.secret.label == "credential-keys"
-            or event.secret.label == f"credentials_{self.admin_user}"
-            or event.secret.label == f"credentials_{self.charm_user}"
+            or event.secret.label
+            == f"{CREDENTIALS_SECRET_PREFIX}{self.admin_user}"
+            or event.secret.label
+            == f"{CREDENTIALS_SECRET_PREFIX}{self.charm_user}"
         ):
             # TODO: Remove older revisions of the secret
             # event.secret.remove_revision(event.revision)
-            pass
+            return
+
+        # Secret labels in identity-service relation are
+        # based on remote app name. So generate labels for
+        # all the remote apps related to identity-service.
+        identity_labels = [
+            f"{CREDENTIALS_SECRET_PREFIX}svc_{relation.app.name}"
+            for relation in self.model.relations["identity-service"]
+        ]
+        if event.secret.label in identity_labels:
+            deleted_users = []
+            service_users_to_delete = self.peers.get_app_data(
+                "old_service_users"
+            )
+            for user in service_users_to_delete:
+                # Only delete users created during rotation of event.secret
+                if f"{CREDENTIALS_SECRET_PREFIX}{user}".startswith(
+                    event.secret.label
+                ):
+                    logger.info(f"Deleting user {user} from keystone")
+                    self.keystone_manager.delete_user(user)
+                    deleted_users.append(user)
+            service_users_to_delete = [
+                x for x in service_users_to_delete if x not in deleted_users
+            ]
+            self.peers.set_app_data(
+                {"old_service_users": service_users_to_delete}
+            )
 
     def get_relation_handlers(
         self, handlers=None
@@ -595,8 +664,9 @@ export OS_AUTH_VERSION=3
         )
         binding = self.framework.model.get_binding(relation)
         ingress_address = str(binding.network.ingress_address)
-        service_domain = self.keystone_manager.create_domain(
-            name="service_domain", may_exist=True
+
+        service_domain = self.keystone_manager.get_domain(
+            name="service_domain"
         )
         service_project = self.keystone_manager.get_project(
             name=self.service_project, domain=service_domain
@@ -610,9 +680,7 @@ export OS_AUTH_VERSION=3
             project=admin_project,
             domain=admin_domain,
         )
-        admin_role = self.keystone_manager.create_role(
-            name=self.admin_role, may_exist=True
-        )
+
         for ep_data in event.service_endpoints:
             service_username = "svc_{}".format(
                 event.client_app_name.replace("-", "_")
@@ -625,25 +693,25 @@ export OS_AUTH_VERSION=3
             service_password = None
             try:
                 service_credentials = self._retrieve_or_set_secret(
-                    service_username, scope
+                    service_username,
+                    scope=scope,
+                    rotate=SecretRotate.MONTHLY,
+                    add_suffix_to_username=True,
                 )
                 credentials = self.model.get_secret(id=service_credentials)
-                service_password = credentials.get_content().get("password")
+                credentials = credentials.get_content()
+                service_username = credentials.get("username")
+                service_password = credentials.get("password")
             except SecretNotFoundError:
                 logger.warning(f"Secret for {service_username} not found")
 
-            service_user = self.keystone_manager.create_user(
-                name=service_username,
+            service_user = self.keystone_manager.create_service_account(
+                username=service_username,
                 password=service_password,
-                domain=service_domain.id,
-                may_exist=True,
-            )
-            self.keystone_manager.grant_role(
-                role=admin_role,
-                user=service_user,
                 project=service_project,
-                may_exist=True,
+                domain=service_domain,
             )
+
             service = self.keystone_manager.create_service(
                 name=ep_data["service_name"],
                 service_type=ep_data["type"],
@@ -709,12 +777,6 @@ export OS_AUTH_VERSION=3
         )
         binding = self.framework.model.get_binding(relation)
         ingress_address = str(binding.network.ingress_address)
-        service_domain = self.keystone_manager.create_domain(
-            name="service_domain", may_exist=True
-        )
-        service_project = self.keystone_manager.get_project(
-            name=self.service_project, domain=service_domain
-        )
         event_relation = self.model.get_relation(
             event.relation_name, event.relation_id
         )
@@ -729,21 +791,17 @@ export OS_AUTH_VERSION=3
         except SecretNotFoundError:
             logger.warning(f"Secret for {event.username} not found")
 
-        service_user = self.keystone_manager.create_user(
-            name=event.username,
+        service_domain = self.keystone_manager.get_domain(
+            name="service_domain"
+        )
+        service_project = self.keystone_manager.get_project(
+            name=self.service_project, domain=service_domain
+        )
+        self.keystone_manager.create_service_account(
+            username=event.username,
             password=user_password,
-            domain=service_domain.id,
-            may_exist=True,
-        )
-        admin_role = self.keystone_manager.create_role(
-            name=self.admin_role, may_exist=True
-        )
-        # TODO(wolsen) let's not always grant admin role!
-        self.keystone_manager.grant_role(
-            role=admin_role,
-            user=service_user,
             project=service_project,
-            may_exist=True,
+            domain=service_domain,
         )
 
         self.cc_svc.interface.set_cloud_credentials(
