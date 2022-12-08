@@ -31,7 +31,7 @@ from typing import (
     List,
 )
 
-import charms.keystone_k8s.v0.cloud_credentials as sunbeam_cc_svc
+import charms.keystone_k8s.v1.cloud_credentials as sunbeam_cc_svc
 import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
 import ops.charm
 import ops.pebble
@@ -756,8 +756,7 @@ export OS_AUTH_VERSION=3
             internal_host=ingress_address,  # XXX(wolsen) internal address?
             internal_port=self.default_public_ingress_port,
             internal_protocol="http",
-            username=service_user.name,
-            password=user_password,
+            credentials=credentials_id,
             project_name=service_project.name,
             project_id=service_project.id,
             user_domain_name=service_domain.name,
