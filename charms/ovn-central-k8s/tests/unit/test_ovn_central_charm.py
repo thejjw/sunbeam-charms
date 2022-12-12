@@ -122,6 +122,11 @@ class TestOVNCentralOperatorCharm(test_utils.CharmTestCase):
             self.harness.charm.app.name,
             {"nb_cid": "nbcid", "sb_cid": "sbcid"},
         )
+        self.harness.update_relation_data(
+            rel_ids["peers"],
+            f"{self.harness.charm.app.name}/1",
+            {"bound-hostname": "ovn-central-1"},
+        )
         self.check_rendered_files()
         self.assertEqual(
             self.container_calls.execute["ovn-sb-db-server"],

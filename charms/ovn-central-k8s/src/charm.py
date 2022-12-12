@@ -431,6 +431,11 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 }
             )
         else:
+            if not self.peers.expected_peers_available():
+                logging.info(
+                    "Expected peer units not ready, deferring cluster join"
+                )
+                return
             logging.debug("Attempting to join OVN_Northbound cluster")
             container = self.unit.get_container(OVN_NB_DB_CONTAINER)
             process = container.exec(
