@@ -34,6 +34,8 @@ from ops.main import (
 
 logger = logging.getLogger(__name__)
 
+OPENSTACK_DASHBOARD = "openstack-dashboard"
+
 
 class WSGIDashboardPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Dashboard Pebble Handler."""
@@ -137,6 +139,20 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def configure_charm(self, event: ops.framework.EventBase) -> None:
         """Configure charm services."""
+        # TODO(jamespage)
+        # This is a direct mutation of the container which is less than
+        # ideal but it does workaround the fact that you cannot
+        # configure Django with a dialect for MySQL (pymysql is installed)
+        # This can be dropped when we move to a supported OCI image
+        ph = self.get_named_pebble_handler(OPENSTACK_DASHBOARD)
+        if ph.pebble_ready:
+            logger.debug("Installing MySQLDB client.")
+            ph.execute(["apt", "update"], exception_on_error=True)
+            ph.execute(
+                ["apt", "install", "-y", "python3-mysqldb"],
+                exception_on_error=True,
+            )
+
         super().configure_charm(event)
         if self.bootstrapped():
             self.status.set(ops.model.ActiveStatus(""))
