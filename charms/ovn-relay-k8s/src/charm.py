@@ -43,9 +43,6 @@ import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 from charms.observability_libs.v0.kubernetes_service_patch import (
     KubernetesServicePatch,
 )
-from ops.framework import (
-    StoredState,
-)
 from ops.main import (
     main,
 )
@@ -84,13 +81,11 @@ class OVNRelayPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         self.setup_dirs()
         self.write_config(context)
         self.start_service()
-        self._state.service_ready = True
 
 
 class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
     """Charm the service."""
 
-    _state = StoredState()
     mandatory_relations = {
         "ovsdb-cms",
         "certificates",
