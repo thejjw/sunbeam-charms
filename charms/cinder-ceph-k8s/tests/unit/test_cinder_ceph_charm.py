@@ -14,17 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Unit tests for Cinder Ceph operator charm class."""
+
 import json
 
-import charm
 import ops_sunbeam.test_utils as test_utils
-
 from ops.testing import (
     Harness,
 )
 
+import charm
+
 
 class _CinderCephOperatorCharm(charm.CinderCephOperatorCharm):
+    """Charm wrapper for test usage."""
 
     openstack_release = "wallaby"
 
@@ -61,33 +64,28 @@ class _CinderCephOperatorCharm(charm.CinderCephOperatorCharm):
 
 def add_complete_storage_backend_relation(harness: Harness) -> None:
     """Add complete storage-backend relation."""
-    storage_backend_rel = harness.add_relation(
-        "storage-backend", "cinder"
-    )
-    harness.add_relation_unit(
-        storage_backend_rel, "cinder/0"
-    )
+    storage_backend_rel = harness.add_relation("storage-backend", "cinder")
+    harness.add_relation_unit(storage_backend_rel, "cinder/0")
     harness.update_relation_data(
-        storage_backend_rel,
-        "cinder",
-        {
-            "ready": json.dumps("true")
-        }
+        storage_backend_rel, "cinder", {"ready": json.dumps("true")}
     )
 
 
 class TestCinderCephOperatorCharm(test_utils.CharmTestCase):
+    """Test cases for CinderCephOperatorCharm class."""
 
     PATCHES = []
 
     def setUp(self):
+        """Setup fixtures ready for testing."""
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
-            _CinderCephOperatorCharm,
-            container_calls=self.container_calls)
+            _CinderCephOperatorCharm, container_calls=self.container_calls
+        )
         self.addCleanup(self.harness.cleanup)
 
     def test_all_relations(self):
+        """Test charm in context of full set of relations."""
         self.harness.begin_with_initial_hooks()
         test_utils.add_complete_ceph_relation(self.harness)
         test_utils.add_complete_amqp_relation(self.harness)
