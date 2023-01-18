@@ -14,13 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Unit tests for core Cinder charm class."""
+
 import mock
+import ops_sunbeam.test_utils as test_utils
 
 import charm
-import ops_sunbeam.test_utils as test_utils
 
 
 class _CinderOperatorCharm(charm.CinderOperatorCharm):
+    """Test implementation of Cinder operator."""
 
     def __init__(self, framework):
         self.seen_events = []
@@ -30,40 +33,39 @@ class _CinderOperatorCharm(charm.CinderOperatorCharm):
     def _log_event(self, event):
         self.seen_events.append(type(event).__name__)
 
-    def renderer(self, containers, container_configs, template_dir,
-                 adapters):
+    def renderer(self, containers, container_configs, template_dir, adapters):
+        """Intercept and record all calls to render config files."""
         self.render_calls.append(
-            (
-                containers,
-                container_configs,
-                template_dir,
-                adapters))
+            (containers, container_configs, template_dir, adapters)
+        )
 
     def configure_charm(self, event):
+        """Intercept and record full charm configuration events."""
         super().configure_charm(event)
         self._log_event(event)
 
 
 class TestCinderOperatorCharm(test_utils.CharmTestCase):
+    """Unit tests for Cinder Operator."""
 
     PATCHES = []
 
     @mock.patch(
-        'charms.observability_libs.v0.kubernetes_service_patch.'
-        'KubernetesServicePatch')
+        "charms.observability_libs.v0.kubernetes_service_patch."
+        "KubernetesServicePatch"
+    )
     def setUp(self, mock_patch):
-        self.container_calls = {
-            'push': {},
-            'pull': [],
-            'remove_path': []}
+        """Setup test fixtures for test."""
+        self.container_calls = {"push": {}, "pull": [], "remove_path": []}
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
-            _CinderOperatorCharm,
-            container_calls=self.container_calls)
+            _CinderOperatorCharm, container_calls=self.container_calls
+        )
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
     def test_pebble_ready_handler(self):
+        """Test pebble ready event handling."""
         self.assertEqual(self.harness.charm.seen_events, [])
-        self.harness.container_pebble_ready('cinder-api')
-        self.assertEqual(self.harness.charm.seen_events, ['PebbleReadyEvent'])
+        self.harness.container_pebble_ready("cinder-api")
+        self.assertEqual(self.harness.charm.seen_events, ["PebbleReadyEvent"])

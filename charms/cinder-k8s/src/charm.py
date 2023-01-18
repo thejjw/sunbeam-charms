@@ -1,23 +1,44 @@
 #!/usr/bin/env python3
+
+#
+# Copyright 2021 Canonical Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 """Cinder Operator Charm.
 
 This charm provide Cinder services as part of an OpenStack deployment
 """
 
 import logging
-from typing import List
-
-import ops.pebble
-
-from ops.framework import StoredState
-from ops.main import main
-
-import ops_sunbeam.charm as sunbeam_charm
-import ops_sunbeam.core as sunbeam_core
-import ops_sunbeam.container_handlers as sunbeam_chandlers
-import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from typing import (
+    Dict,
+    List,
+)
 
 import charms.cinder_k8s.v0.storage_backend as sunbeam_storage_backend  # noqa
+import ops.pebble
+import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.container_handlers as sunbeam_chandlers
+import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from ops.framework import (
+    StoredState,
+)
+from ops.main import (
+    main,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,26 +48,19 @@ CINDER_SCHEDULER_CONTAINER = "cinder-scheduler"
 
 
 class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
+    """Pebble handler for Cinder WSGI services."""
+
     def start_service(self):
+        """Start services in container."""
         pass
 
     def init_service(self, context) -> None:
-        """Enable and start WSGI service"""
+        """Enable and start WSGI service."""
         self.write_config(context)
         try:
+            self.execute(["a2disconf", "cinder-wsgi"], exception_on_error=True)
             self.execute(
-                [
-                    "a2disconf",
-                    "cinder-wsgi"
-                ],
-                exception_on_error=True
-            )
-            self.execute(
-                [
-                    "a2ensite",
-                    self.wsgi_service_name
-                ],
-                exception_on_error=True
+                ["a2ensite", self.wsgi_service_name], exception_on_error=True
             )
         except ops.pebble.ExecError:
             logger.exception(
@@ -69,16 +83,17 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
                 "online": {
                     "override": "replace",
                     "level": "ready",
-                    "exec": {
-                        "command": "service apache2 status"
-                    }
+                    "exec": {"command": "service apache2 status"},
                 },
             }
         }
 
 
 class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
+    """Pebble handler for Cinder Scheduler services."""
+
     def start_service(self):
+        """Start services in container."""
         container = self.charm.unit.get_container(self.container_name)
         if not container:
             logger.debug(
@@ -93,7 +108,7 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
         container.start(self.service_name)
 
     def get_layer(self) -> dict:
-        """Cinder Scheduler service
+        """Cinder Scheduler service.
 
         :returns: pebble layer configuration for wsgi services
         :rtype: dict
@@ -122,19 +137,18 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
                 "online": {
                     "override": "replace",
                     "level": "ready",
-                    "exec": {
-                        "command": "service cinder-scheduler status"
-                    }
+                    "exec": {"command": "service cinder-scheduler status"},
                 },
             }
         }
 
-    def init_service(self, context):
+    def init_service(self, context) -> None:
+        """Initialize services and write configuration."""
         self.write_config(context)
         self.start_service()
-        self._state.service_ready = True
 
-    def default_container_configs(self):
+    def default_container_configs(self) -> List[Dict]:
+        """Generate default configuration files for container."""
         return [
             sunbeam_core.ContainerConfigFile(
                 "/etc/cinder/cinder.conf",
@@ -145,6 +159,8 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
 
 
 class StorageBackendRequiresHandler(sunbeam_rhandlers.RelationHandler):
+    """Relation handler for cinder storage backends."""
+
     def setup_event_handler(self):
         """Configure event handlers for an Identity service relation."""
         logger.debug("Setting up Identity Service event handler")
@@ -162,10 +178,12 @@ class StorageBackendRequiresHandler(sunbeam_rhandlers.RelationHandler):
         self.callback_f(event)
 
     def set_ready(self) -> None:
+        """Flag that all services are running and ready for use."""
         return self.interface.set_ready()
 
     @property
     def ready(self) -> bool:
+        """Determine whether interface is ready for use."""
         return True
 
 
@@ -179,11 +197,11 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_public_script = "/usr/bin/cinder-wsgi"
 
     mandatory_relations = {
-        'database',
-        'amqp',
-        'storage-backend',
-        'identity-service',
-        'ingress-public',
+        "database",
+        "amqp",
+        "storage-backend",
+        "identity-service",
+        "ingress-public",
     }
 
     def __init__(self, framework):
@@ -210,7 +228,8 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return handlers
 
     @property
-    def service_endpoints(self):
+    def service_endpoints(self) -> List[Dict]:
+        """Service endpoints for the Cinder API services."""
         return [
             {
                 "service_name": "cinderv2",
@@ -237,7 +256,7 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         _cconfigs.extend(
             [
                 sunbeam_core.ContainerConfigFile(
-                    '/etc/cinder/api-paste.ini',
+                    "/etc/cinder/api-paste.ini",
                     self.service_user,
                     self.service_group,
                 )
@@ -245,7 +264,8 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         )
         return _cconfigs
 
-    def get_pebble_handlers(self):
+    def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
+        """Pebble handlers for the charm."""
         pebble_handlers = [
             CinderWSGIPebbleHandler(
                 self,
@@ -269,14 +289,17 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def default_public_ingress_port(self):
+        """Public ingress port for service."""
         return 8776
 
     @property
     def wsgi_container_name(self):
+        """WSGI API service container name."""
         return CINDER_API_CONTAINER
 
     def _do_bootstrap(self):
-        """
+        """Bootstrap the service ready for use.
+
         Starts the appropriate services in the order they are needed.
         If the service has not yet been bootstrapped, then this will
          1. Create the database
@@ -287,16 +310,18 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             pebble_handler = self.get_named_pebble_handler(
                 CINDER_SCHEDULER_CONTAINER
             )
-            pebble_handler.execute([
-                "sudo",
-                "-u",
-                "cinder",
-                "cinder-manage",
-                "--config-dir",
-                "/etc/cinder",
-                "db",
-                "sync"],
-                exception_on_error=True
+            pebble_handler.execute(
+                [
+                    "sudo",
+                    "-u",
+                    "cinder",
+                    "cinder-manage",
+                    "--config-dir",
+                    "/etc/cinder",
+                    "db",
+                    "sync",
+                ],
+                exception_on_error=True,
             )
         except ops.pebble.ExecError:
             logger.exception("Failed to bootstrap")
@@ -304,6 +329,7 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             return
 
     def configure_charm(self, event) -> None:
+        """Configure the charmed services."""
         super().configure_charm(event)
         # Restarting services after bootstrap should be in aso
         if self._state.bootstrapped:
