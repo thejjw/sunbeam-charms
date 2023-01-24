@@ -33,9 +33,6 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
-from ops.framework import (
-    StoredState,
-)
 from ops.main import (
     main,
 )
@@ -69,7 +66,6 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             # ignore for now - pebble is raising an exited too quickly, but it
             # appears to work properly.
         self.start_wsgi()
-        self._state.service_ready = True
 
     def get_healthcheck_layer(self) -> dict:
         """Health check pebble layer.
@@ -190,7 +186,6 @@ class StorageBackendRequiresHandler(sunbeam_rhandlers.RelationHandler):
 class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
-    _state = StoredState()
     _authed = False
     service_name = "cinder"
     wsgi_admin_script = "/usr/bin/cinder-wsgi"
@@ -203,13 +198,6 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         "identity-service",
         "ingress-public",
     }
-
-    def __init__(self, framework):
-        super().__init__(framework)
-        self._state.set_default(admin_domain_name="admin_domain")
-        self._state.set_default(admin_domain_id=None)
-        self._state.set_default(default_domain_id=None)
-        self._state.set_default(service_project_id=None)
 
     def get_relation_handlers(
         self, handlers=None
@@ -325,7 +313,6 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             )
         except ops.pebble.ExecError:
             logger.exception("Failed to bootstrap")
-            self._state.bootstrapped = False
             return
 
     def configure_charm(self, event) -> None:
