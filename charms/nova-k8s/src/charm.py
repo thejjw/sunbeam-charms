@@ -67,6 +67,10 @@ class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
 class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Nova scheduler."""
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.enable_service_check = True
+
     def get_layer(self) -> dict:
         """Nova Scheduler service layer.
 
@@ -111,6 +115,16 @@ class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "/etc/nova/nova.conf", "nova", "nova"
             )
         ]
+
+    @property
+    def service_ready(self) -> bool:
+        """Determine whether the service the container provides is running."""
+        if self.enable_service_check:
+            logging.debug("Service checks enabled for nova scheduler")
+            return super().service_ready
+        else:
+            logging.debug("Service checks disabled for nova scheduler")
+            return self.pebble_ready
 
 
 class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
@@ -495,12 +509,23 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             else:
                 logger.debug("Metadata secret not ready")
                 return
+        # Do not run service check for nova scheduler as it is broken until db
+        # migrations have run.
+        scheduler_handler = self.get_named_pebble_handler(
+            NOVA_SCHEDULER_CONTAINER
+        )
+        scheduler_handler.enable_service_check = False
         super().configure_charm(event)
-
-        # Restart nova-scheduler service after cell1 is created
-        # Creation of cell1 is part of bootstrap process
-        handler = self.get_named_pebble_handler(NOVA_SCHEDULER_CONTAINER)
-        handler.start_all()
+        if scheduler_handler.pebble_ready:
+            logging.debug("Starting nova scheduler service, pebble ready")
+            # Restart nova-scheduler service after cell1 is created
+            # Creation of cell1 is part of bootstrap process
+            scheduler_handler.start_all()
+            scheduler_handler.enable_service_check = True
+        else:
+            logging.debug(
+                "Not starting nova scheduler service, pebble not ready"
+            )
 
 
 if __name__ == "__main__":
