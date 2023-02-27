@@ -139,7 +139,6 @@ class KeystoneManager(framework.Object):
         keystone service.
         """
         with sunbeam_guard.guard(self.charm, "Initializing Keystone", False):
-            self._sync_database()
             self._fernet_setup()
             self._credential_setup()
             self._bootstrap()

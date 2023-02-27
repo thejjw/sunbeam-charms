@@ -44,6 +44,8 @@ import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_contexts
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.guard as sunbeam_guard
+import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import pwgen
 from ops import (
@@ -325,6 +327,17 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_public_script = "/usr/bin/keystone-wsgi-public"
     service_port = 5000
     mandatory_relations = {"database", "ingress-public"}
+    db_sync_cmds = [
+        [
+            "sudo",
+            "-u",
+            "keystone",
+            "keystone-manage",
+            "--config-dir",
+            "/etc/keystone",
+            "db_sync",
+        ]
+    ]
 
     def __init__(self, framework):
         super().__init__(framework)
@@ -518,7 +531,7 @@ export OS_AUTH_VERSION=3
 
     def register_service(self, event):
         """Register service in keystone."""
-        if not self._state.bootstrapped:
+        if not self.bootstrapped():
             event.defer()
             return
         if not self.unit.is_leader():
@@ -827,7 +840,8 @@ export OS_AUTH_VERSION=3
         """Healthcheck HTTP URL for the service."""
         return f"http://localhost:{self.default_public_ingress_port}/v3"
 
-    def _do_bootstrap(self) -> bool:
+    @sunbeam_job_ctrl.run_once_per_unit("keystone_bootstrap")
+    def keystone_bootstrap(self) -> bool:
         """Starts the appropriate services in the order they are needed.
 
         If the service has not yet been bootstrapped, then this will
@@ -835,16 +849,13 @@ export OS_AUTH_VERSION=3
          2. Bootstrap the keystone users service
          3. Setup the fernet tokens
         """
-        if not super()._do_bootstrap():
-            return False
-
         if self.unit.is_leader():
             try:
                 self.keystone_manager.setup_keystone()
-            except (ops.pebble.ExecError, ops.pebble.ConnectionError) as error:
-                logger.exception("Failed to bootstrap")
-                logger.exception(error)
-                return False
+            except (ops.pebble.ExecError, ops.pebble.ConnectionError):
+                raise sunbeam_guard.BlockedExceptionError(
+                    "Failed to bootstrap"
+                )
 
             try:
                 self.keystone_manager.setup_initial_projects_and_users()
@@ -853,11 +864,15 @@ export OS_AUTH_VERSION=3
                 # sure of exact exceptions to be caught. List below that
                 # are observed:
                 # keystoneauth1.exceptions.connection.ConnectFailure
-                logger.exception("Failed to setup projects and users")
-                return False
-
+                raise sunbeam_guard.BlockedExceptionError(
+                    "Failed to setup projects and users"
+                )
         self.unit.status = model.MaintenanceStatus("Starting Keystone")
-        return True
+
+    def configure_app_leader(self, event):
+        """Configure the lead unit."""
+        self.keystone_bootstrap()
+        self.set_leader_ready()
 
     def _ingress_changed(self, event: ops.framework.EventBase) -> None:
         """Ingress changed callback.
@@ -872,6 +887,4 @@ export OS_AUTH_VERSION=3
 
 
 if __name__ == "__main__":
-    # Note: use_juju_for_storage=True required per
-    # https://github.com/canonical/operator/issues/506
-    main(KeystoneOperatorCharm, use_juju_for_storage=True)
+    main(KeystoneOperatorCharm)
