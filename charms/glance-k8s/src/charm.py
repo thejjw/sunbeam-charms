@@ -377,7 +377,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ph.init_service(self.contexts())
 
         super().configure_charm(event)
-        if self._state.bootstrapped:
+        if self.bootstrapped():
             for handler in self.pebble_handlers:
                 handler.start_service()
             self.status.set(ActiveStatus(""))
@@ -397,6 +397,4 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
 
 if __name__ == "__main__":
-    # Note: use_juju_for_storage=True required per
-    # https://github.com/canonical/operator/issues/506
-    main(GlanceOperatorCharm, use_juju_for_storage=True)
+    main(GlanceOperatorCharm)
