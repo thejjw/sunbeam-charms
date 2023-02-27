@@ -199,6 +199,19 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         "ingress-public",
     }
 
+    db_sync_cmds = [
+        [
+            "sudo",
+            "-u",
+            "cinder",
+            "cinder-manage",
+            "--config-dir",
+            "/etc/cinder",
+            "db",
+            "sync",
+        ],
+    ]
+
     def get_relation_handlers(
         self, handlers=None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
@@ -285,48 +298,18 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """WSGI API service container name."""
         return CINDER_API_CONTAINER
 
-    def _do_bootstrap(self):
-        """Bootstrap the service ready for use.
-
-        Starts the appropriate services in the order they are needed.
-        If the service has not yet been bootstrapped, then this will
-         1. Create the database
-        """
-        super()._do_bootstrap()
-        try:
-            logger.info("Syncing database...")
-            pebble_handler = self.get_named_pebble_handler(
-                CINDER_SCHEDULER_CONTAINER
-            )
-            pebble_handler.execute(
-                [
-                    "sudo",
-                    "-u",
-                    "cinder",
-                    "cinder-manage",
-                    "--config-dir",
-                    "/etc/cinder",
-                    "db",
-                    "sync",
-                ],
-                exception_on_error=True,
-            )
-        except ops.pebble.ExecError:
-            logger.exception("Failed to bootstrap")
-            return
+    @property
+    def db_sync_container_name(self) -> str:
+        """Name of Containerto run db sync from."""
+        return CINDER_SCHEDULER_CONTAINER
 
     def configure_charm(self, event) -> None:
         """Configure the charmed services."""
         super().configure_charm(event)
-        # Restarting services after bootstrap should be in aso
-        if self._state.bootstrapped:
-            for handler in self.pebble_handlers:
-                handler.start_service()
+        if self.bootstrapped():
             # Tell storage backends we are ready
             self.sb_svc.set_ready()
 
 
 if __name__ == "__main__":
-    # Note: use_juju_for_storage=True required per
-    # https://github.com/canonical/operator/issues/506
-    main(CinderOperatorCharm, use_juju_for_storage=True)
+    main(CinderOperatorCharm)
