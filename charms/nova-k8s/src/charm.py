@@ -276,17 +276,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 cell_database,
             ],
             ["sudo", "-u", "nova", "nova-manage", "db", "sync"],
-            [
-                "sudo",
-                "-u",
-                "nova",
-                "nova-manage",
-                "cell_v2",
-                "create_cell",
-                "--name",
-                "cell1",
-                "--verbose",
-            ],
+            ["/root/cell_create_wrapper.sh", "cell1"],
         ]
 
     @property
@@ -391,6 +381,19 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ]
         )
         return _cadapters
+
+    @property
+    def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
+        """Container configuration files for the service."""
+        _cconfigs = super().container_configs
+        _cconfigs.extend(
+            [
+                sunbeam_core.ContainerConfigFile(
+                    "/root/cell_create_wrapper.sh", "root", "root", 0o755
+                )
+            ]
+        )
+        return _cconfigs
 
     def get_shared_metadatasecret(self):
         """Return the shared metadata secret."""
@@ -529,6 +532,4 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
 
 if __name__ == "__main__":
-    # Note: use_juju_for_storage=True required per
-    # https://github.com/canonical/operator/issues/506
-    main(NovaOperatorCharm, use_juju_for_storage=True)
+    main(NovaOperatorCharm)

@@ -118,17 +118,7 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
                 "mysql+pymysql://foo:hardpassword@10.0.0.10/nova_cell0",
             ],
             ["sudo", "-u", "nova", "nova-manage", "db", "sync"],
-            [
-                "sudo",
-                "-u",
-                "nova",
-                "nova-manage",
-                "cell_v2",
-                "create_cell",
-                "--name",
-                "cell1",
-                "--verbose",
-            ],
+            ["/root/cell_create_wrapper.sh", "cell1"],
         ]
         for cmd in setup_cmds:
             self.assertIn(cmd, self.container_calls.execute["nova-api"])
