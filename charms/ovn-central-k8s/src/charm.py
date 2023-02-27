@@ -29,6 +29,7 @@ import ops.charm
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
@@ -297,7 +298,7 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             return ovn.cluster_status(
                 db, rundir=self.ovn_rundir(), cmd_executor=cmd_executor
             )
-        except (ValueError) as e:
+        except ValueError as e:
             logging.error(
                 "Unable to get cluster status, ovsdb-server "
                 "not ready yet?: {}".format(e)
@@ -363,17 +364,12 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                         )
                         connections.set(str(connection["_uuid"]), k, v)
 
-    # Refactor this method to simplify it.
-    def configure_charm(  # noqa: C901
-        self, event: ops.framework.EventBase
-    ) -> None:
-        """Catchall handler to configure charm services."""
-        if not self.unit.is_leader():
-            if not self.is_leader_ready():
-                self.unit.status = ops.model.WaitingStatus(
-                    "Waiting for leader to be ready"
-                )
-                return
+    def check_leader_ready(self):
+        """Check leader is ready and has supplied mandatory data."""
+        if self.supports_peer_relation and not (
+            self.unit.is_leader() or self.is_leader_ready()
+        ):
+            raise sunbeam_guard.WaitingExceptionError("Leader not ready")
             missing_leader_data = [
                 k for k in ["nb_cid", "sb_cid"] if not self.leader_get(k)
             ]
@@ -382,98 +378,86 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 self.unit.status = ops.model.WaitingStatus(
                     "Waiting for data from leader"
                 )
-                return
-            logging.debug(
-                "Remote leader is ready and has supplied all data needed"
-            )
-
-        if not self.relation_handlers_ready():
-            logging.debug("Aborting charm relations not ready")
-            return
-
-        if not all([ph.pebble_ready for ph in self.pebble_handlers]):
-            logging.debug(
-                "Aborting configuration, not all pebble handlers are ready"
-            )
-            return
-
-        # Render Config in all containers but init should *NOT* start
-        # the service.
-        for ph in self.pebble_handlers:
-            if ph.pebble_ready:
-                logging.debug(f"Running init for {ph.service_name}")
-                ph.init_service(self.contexts())
-            else:
-                logging.debug(
-                    f"Not running init for {ph.service_name},"
-                    " container not ready"
+                raise sunbeam_guard.WaitingExceptionError(
+                    "Missing data from leader"
                 )
 
-        if self.unit.is_leader():
-            # Start services in North/South containers on lead unit
-            logging.debug("Starting services in DB containers")
-            for ph in self.get_named_pebble_handlers(OVN_DB_CONTAINERS):
-                ph.start_service()
-            # Attempt to setup listers etc
-            self.configure_ovn()
-            nb_status = self.cluster_status(
-                "ovnnb_db", self.get_pebble_executor(OVN_NB_DB_CONTAINER)
-            )
-            sb_status = self.cluster_status(
-                "ovnsb_db", self.get_pebble_executor(OVN_SB_DB_CONTAINER)
-            )
-            logging.debug("Telling peers leader is ready and cluster ids")
-            self.set_leader_ready()
-            self.leader_set(
-                {
-                    "nb_cid": str(nb_status.cluster_id),
-                    "sb_cid": str(sb_status.cluster_id),
-                }
-            )
-        else:
-            if not self.peers.expected_peers_available():
-                logging.info(
-                    "Expected peer units not ready, deferring cluster join"
-                )
-                return
-            logging.debug("Attempting to join OVN_Northbound cluster")
-            container = self.unit.get_container(OVN_NB_DB_CONTAINER)
-            process = container.exec(
-                ["bash", "/root/ovn-nb-cluster-join.sh"], timeout=5 * 60
-            )
-            out, warnings = process.wait_output()
-            if warnings:
-                for line in warnings.splitlines():
-                    logger.warning("CMD Out: %s", line.strip())
-
-            logging.debug("Attempting to join OVN_Southbound cluster")
-            container = self.unit.get_container(OVN_SB_DB_CONTAINER)
-            process = container.exec(
-                ["bash", "/root/ovn-sb-cluster-join.sh"], timeout=5 * 60
-            )
-            out, warnings = process.wait_output()
-            if warnings:
-                for line in warnings.splitlines():
-                    logger.warning("CMD Out: %s", line.strip())
-            logging.debug("Starting services in DB containers")
-            for ph in self.get_named_pebble_handlers(OVN_DB_CONTAINERS):
-                ph.start_service()
-            # Attempt to setup listers etc
-            self.configure_ovn()
-
-        # Start ovn-northd service
+    def start_northd(self):
+        """Start northd service."""
         ph = self.get_named_pebble_handler(OVN_NORTHD_CONTAINER)
         ph.start_service()
 
-        # Add healthchecks to the plan
-        # Healthchecks are added after bootstrap process is completed
-        # to avoid container restarts during bootstraping
-        for ph in self.pebble_handlers:
-            ph.add_healthchecks()
+    def configure_app_leader(self, event):
+        """Run global app setup.
 
-        self.bootstrap_status.set(ops.model.ActiveStatus())
-        self.unit.status = ops.model.ActiveStatus()
-        self._state.bootstrapped = True
+        These are tasks that should only be run once per application and only
+        the leader runs them.
+        """
+        # Start services in North/South containers on lead unit
+        logging.debug("Starting services in DB containers")
+        for ph in self.get_named_pebble_handlers(OVN_DB_CONTAINERS):
+            ph.start_service()
+        # Attempt to setup listers etc
+        self.configure_ovn()
+        nb_status = self.cluster_status(
+            "ovnnb_db", self.get_pebble_executor(OVN_NB_DB_CONTAINER)
+        )
+        sb_status = self.cluster_status(
+            "ovnsb_db", self.get_pebble_executor(OVN_SB_DB_CONTAINER)
+        )
+        logging.debug("Telling peers leader is ready and cluster ids")
+        self.set_leader_ready()
+        self.leader_set(
+            {
+                "nb_cid": str(nb_status.cluster_id),
+                "sb_cid": str(sb_status.cluster_id),
+            }
+        )
+        self.set_leader_ready()
+        self.start_northd()
+        self.check_pebble_handlers_ready()
+
+    def configure_app_non_leader(self, event):
+        """Configure non leader."""
+        if not self.peers.expected_peers_available():
+            raise sunbeam_guard.WaitingExceptionError(
+                "Expected peer units not ready, deferring cluster join"
+            )
+
+        logging.debug("Attempting to join OVN_Northbound cluster")
+        container = self.unit.get_container(OVN_NB_DB_CONTAINER)
+        process = container.exec(
+            ["bash", "/root/ovn-nb-cluster-join.sh"], timeout=5 * 60
+        )
+        out, warnings = process.wait_output()
+        if warnings:
+            for line in warnings.splitlines():
+                logger.warning("CMD Out: %s", line.strip())
+
+        logging.debug("Attempting to join OVN_Southbound cluster")
+        container = self.unit.get_container(OVN_SB_DB_CONTAINER)
+        process = container.exec(
+            ["bash", "/root/ovn-sb-cluster-join.sh"], timeout=5 * 60
+        )
+        out, warnings = process.wait_output()
+        if warnings:
+            for line in warnings.splitlines():
+                logger.warning("CMD Out: %s", line.strip())
+        logging.debug("Starting services in DB containers")
+        for ph in self.get_named_pebble_handlers(OVN_DB_CONTAINERS):
+            ph.start_service()
+        # Attempt to setup listers etc
+        self.configure_ovn()
+        self.start_northd()
+        self.check_pebble_handlers_ready()
+
+    def configure_unit(self, event: ops.framework.EventBase) -> None:
+        """Run configuration on this unit."""
+        self.check_leader_ready()
+        self.check_relation_handlers_ready()
+        self.init_container_services()
+        # Do not check_pebble_handlers_ready as northd is started later.
+        self._state.unit_bootstrapped = True
 
     def configure_ovn(self):
         """Configure ovn listener."""
@@ -507,6 +491,4 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
 
 if __name__ == "__main__":
-    # Note: use_juju_for_storage=True required per
-    # https://github.com/canonical/operator/issues/506
-    main(OVNCentralOperatorCharm, use_juju_for_storage=True)
+    main(OVNCentralOperatorCharm)
