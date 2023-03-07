@@ -32,13 +32,11 @@ import ops_sunbeam.charm as charm
 import ops_sunbeam.config_contexts as config_contexts
 import ops_sunbeam.container_handlers as container_handlers
 import ops_sunbeam.core as core
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 from ops.main import (
     main,
-)
-from ops.model import (
-    ActiveStatus,
 )
 
 logger = logging.getLogger(__name__)
@@ -172,7 +170,7 @@ class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
         self.start_service()
 
 
-class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
+class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
     """Cinder/Ceph Operator charm."""
 
     # NOTE: service_name == container_name
@@ -232,7 +230,7 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
         """Event handler for bootstrap of service when api services are ready."""
         self._state.api_ready = True
         self.configure_charm(event)
-        if self._state.bootstrapped:
+        if self.bootstrapped():
             for handler in self.pebble_handlers:
                 handler.start_service()
 
@@ -269,12 +267,8 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
         """Provide database name for cinder services."""
         return {"database": "cinder"}
 
-    def configure_charm(self, event) -> None:
-        """Catchall handler to cconfigure charm services."""
-        if not self.relation_handlers_ready():
-            logging.debug("Deferring configuration, charm relations not ready")
-            return
-
+    def init_container_services(self):
+        """Setp ceph keyring and init pebble handlers that are ready."""
         for ph in self.pebble_handlers:
             if ph.pebble_ready:
                 ph.execute(
@@ -288,18 +282,16 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharm):
                     exception_on_error=True,
                 )
                 ph.init_service(self.contexts())
-
-        for ph in self.pebble_handlers:
-            if not ph.service_ready:
-                logging.debug("Deferring, container service not ready")
-                return
-
-        # Add healthchecks to the plan
-        for ph in self.pebble_handlers:
-            ph.add_healthchecks()
-
-        self.unit.status = ActiveStatus()
+            else:
+                logging.debug(
+                    f"Not running init for {ph.service_name},"
+                    " container not ready"
+                )
+                raise sunbeam_guard.WaitingExceptionError(
+                    "Payload container not ready"
+                )
+        super().init_container_services()
 
 
 if __name__ == "__main__":
-    main(CinderCephOperatorCharm, use_juju_for_storage=True)
+    main(CinderCephOperatorCharm)
