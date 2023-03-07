@@ -163,6 +163,4 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
 
 if __name__ == "__main__":
-    # Note: use_juju_for_storage=True required per
-    # https://github.com/canonical/operator/issues/506
-    main(OpenstackDashboardOperatorCharm, use_juju_for_storage=True)
+    main(OpenstackDashboardOperatorCharm)
