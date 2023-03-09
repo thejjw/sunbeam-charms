@@ -191,12 +191,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #    ('http://cluster2.example.com:5000/v2.0', 'cluster2'),
 #]
 
-OPENSTACK_HOST = "{{ cloud_credentials.internal_host }}"
+OPENSTACK_HOST = "{{ identity_credentials.internal_host }}"
 OPENSTACK_KEYSTONE_DEFAULT_ROLE = "{{ options.default_role }}"
-OPENSTACK_KEYSTONE_URL = "{{ cloud_credentials.internal_protocol }}://%s:{{ cloud_credentials.internal_port }}/v3" % OPENSTACK_HOST
+OPENSTACK_KEYSTONE_URL = "{{ identity_credentials.internal_protocol }}://%s:{{ identity_credentials.internal_port }}/v3" % OPENSTACK_HOST
 OPENSTACK_API_VERSIONS = { "identity": 3, }
 OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
-OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "{{ options.default_domain or cloud_credentials.project_domain_id }}"
+OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "{{ options.default_domain or identity_credentials.project_domain_id }}"
 
 # Enables keystone web single-sign-on if set to True.
 #WEBSSO_ENABLED = False

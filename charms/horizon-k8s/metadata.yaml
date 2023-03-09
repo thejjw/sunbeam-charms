@@ -37,7 +37,7 @@ requires:
     interface: ingress
     optional: true
     limit: 1
-  cloud-credentials:
+  identity-credentials:
     interface: keystone-credentials
     limit: 1
 

@@ -81,7 +81,7 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     mandatory_relations = {
         "database",
         "ingress-public",
-        "cloud-credentials",
+        "identity-credentials",
     }
 
     @property

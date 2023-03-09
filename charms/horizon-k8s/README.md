@@ -17,7 +17,7 @@ Now connect the horizon operator to existing database and Keystone
 operators:
 
     juju relate mysql:database horizon:database
-    juju relate keystone:cloud-credentials horizon:cloud-credentials
+    juju relate keystone:identity-credentials horizon:identity-credentials
 
 ### Configuration
 
@@ -38,7 +38,7 @@ deployed then see file `actions.yaml`.
 horizon-k8s requires the following relations:
 
 `database`: To connect to MySQL
-`cloud-credentials`: To register cloud users in Keystone
+`identity-credentials`: To register cloud users in Keystone
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network
 
