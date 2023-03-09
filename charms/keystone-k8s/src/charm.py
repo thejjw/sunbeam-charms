@@ -31,7 +31,7 @@ from typing import (
     List,
 )
 
-import charms.keystone_k8s.v1.cloud_credentials as sunbeam_cc_svc
+import charms.keystone_k8s.v0.identity_credentials as sunbeam_cc_svc
 import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
 import ops.charm
 import ops.pebble
@@ -162,8 +162,8 @@ class IdentityServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
-class CloudCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
-    """Handler for cloud credentials relation."""
+class IdentityCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for identity credentials relation."""
 
     def __init__(
         self,
@@ -174,20 +174,20 @@ class CloudCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
         super().__init__(charm, relation_name, callback_f)
 
     def setup_event_handler(self):
-        """Configure event handlers for a Cloud Credentials relation."""
-        logger.debug("Setting up Cloud Credentials event handler")
-        id_svc = sunbeam_cc_svc.CloudCredentialsProvides(
+        """Configure event handlers for a Identity Credentials relation."""
+        logger.debug("Setting up Identity Credentials event handler")
+        id_svc = sunbeam_cc_svc.IdentityCredentialsProvides(
             self.charm,
             self.relation_name,
         )
         self.framework.observe(
-            id_svc.on.ready_cloud_credentials_clients,
-            self._on_cloud_credentials_ready,
+            id_svc.on.ready_identity_credentials_clients,
+            self._on_identity_credentials_ready,
         )
         return id_svc
 
-    def _on_cloud_credentials_ready(self, event) -> None:
-        """Handles cloud credentials change events."""
+    def _on_identity_credentials_ready(self, event) -> None:
+        """Handles identity credentials change events."""
         # Ready is only emitted when the interface considers
         # that the relation is complete (indicated by a username)
         self.callback_f(event)
@@ -293,7 +293,7 @@ export OS_USER_DOMAIN_NAME={self.admin_domain_name}
 export OS_PROJECT_NAME=admin
 export OS_IDENTITY_API_VERSION=3
 export OS_AUTH_VERSION=3
-        """
+"""
         event.set_results(
             {
                 "username": self.admin_user,
@@ -552,7 +552,7 @@ export OS_AUTH_VERSION=3
             handlers.append(self.id_svc)
 
         if self.can_add_handler("identity-credentials", handlers):
-            self.cc_svc = CloudCredentialsProvidesHandler(
+            self.cc_svc = IdentityCredentialsProvidesHandler(
                 self,
                 "identity-credentials",
                 self.add_credentials,
@@ -746,7 +746,7 @@ export OS_AUTH_VERSION=3
             may_exist=True,
         )
 
-        self.cc_svc.interface.set_cloud_credentials(
+        self.cc_svc.interface.set_identity_credentials(
             relation_name=event.relation_name,
             relation_id=event.relation_id,
             api_version="3",

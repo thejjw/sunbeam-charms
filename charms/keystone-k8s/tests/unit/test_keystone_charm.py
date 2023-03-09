@@ -449,7 +449,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self.assertTrue(self.km_mock.write_keys.called)
 
     def test_non_leader_no_bootstraps(self):
-        """Test bootstraping on a non-leader."""
+        """Test bootstrapping on a non-leader."""
         test_utils.add_complete_ingress_relation(self.harness)
         self.harness.set_leader(False)
         rel_id = self.harness.add_relation("peers", "keystone-k8s")
