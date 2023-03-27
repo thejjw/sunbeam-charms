@@ -97,7 +97,7 @@ LIBAPI = 1
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 0
+LIBPATCH = 1
 
 logger = logging.getLogger(__name__)
 
@@ -437,3 +437,5 @@ class CloudCredentialsProvides(Object):
         app_data["project-domain-name"] = project_domain_name
         app_data["project-domain-id"] = project_domain_id
         app_data["region"] = region
+        app_data["internal-endpoint"] = self.charm.internal_endpoint
+        app_data["public-endpoint"] = self.charm.public_endpoint
