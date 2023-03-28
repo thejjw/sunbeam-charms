@@ -178,7 +178,7 @@ class OVNSouthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         }
 
 
-class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
+class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 
     _state = StoredState()
