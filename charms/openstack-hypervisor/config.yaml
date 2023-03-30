@@ -1,0 +1,28 @@
+options:
+  snap-channel:
+    default: "yoga/edge"
+    type: string
+  debug:
+    default: False
+    type: boolean
+  dns-domain:
+    default: "openstack.local"
+    type: string
+  dns-servers:
+    default: "8.8.8.8"
+    type: string
+  enable-gateway:
+    default: False
+    type: boolean
+  external-bridge:
+    default: "br-ex"
+    type: string
+  external-bridge-address:
+    default:
+    type: string
+  ip-address:
+    default:
+    type: string
+  physnet-name:
+    default: "physnet1"
+    type: string

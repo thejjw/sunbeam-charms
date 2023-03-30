@@ -1,0 +1,22 @@
+name: openstack-hypervisor
+ 
+display-name: OpenStack Hypervisor
+
+summary: Deploy the OpenStack hypervisor
+
+description: |
+  Configure machine to run VMs as part of an OpenStack cloud.
+
+requires:
+  amqp:
+    interface: rabbitmq
+  identity-credentials:
+    interface: keystone-credentials
+  ovsdb-cms:
+    interface: ovsdb-cms
+  certificates:
+    interface: tls-certificates
+    optional: true
+peers:
+  peers:
+    interface: hypervisor-peer
