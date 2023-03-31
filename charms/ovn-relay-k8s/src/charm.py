@@ -40,6 +40,8 @@ import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.ovn.charm as ovn_charm
 import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.container_handlers as ovn_chandlers
+import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 from charms.observability_libs.v0.kubernetes_service_patch import (
     KubernetesServicePatch,
 )
@@ -104,6 +106,22 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
             self.on.get_southbound_db_url_action,
             self._get_southbound_db_url_action,
         )
+
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = handlers or []
+        self.ovsdb_cms = ovn_relation_handlers.OVSDBCMSRequiresHandler(
+            self, "ovsdb-cms", self.configure_charm, True
+        )
+        handlers.append(self.ovsdb_cms)
+        self.ovsdb_cms_relay = ovn_relation_handlers.OVSDBCMSProvidesHandler(
+            self, "ovsdb-cms-relay", self.configure_charm, False
+        )
+        handlers.append(self.ovsdb_cms_relay)
+        handlers = super().get_relation_handlers(handlers)
+        return handlers
 
     def _get_southbound_db_url_action(self, event):
         event.set_results({"url": self.southbound_db_url})
