@@ -804,7 +804,7 @@ export OS_AUTH_VERSION=3
             domain=service_domain,
         )
 
-        self.cc_svc.interface.set_identity_credentials(
+        self.cc_svc.interface.set_cloud_credentials(
             relation_name=event.relation_name,
             relation_id=event.relation_id,
             api_version="3",
