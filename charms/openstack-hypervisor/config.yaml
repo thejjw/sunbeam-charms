@@ -18,7 +18,7 @@ options:
     default: "br-ex"
     type: string
   external-bridge-address:
-    default:
+    default: "10.20.20.1/24"
     type: string
   ip-address:
     default:

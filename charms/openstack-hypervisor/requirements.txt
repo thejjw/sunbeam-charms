@@ -5,8 +5,7 @@ netifaces
 jsonschema
 jinja2
 #git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
-#git+https://github.com/gnuoy/charm-ops-sunbeam@support-machine-charms#egg=ops_sunbeam
-git+https://github.com/gnuoy/charm-ops-sunbeam@hypervisor-wip2#egg=ops_sunbeam
+git+https://github.com/gnuoy/charm-ops-sunbeam@allin#egg=ops_sunbeam
 
 # This charm does not use lightkube* but ops_sunbeam requires it atm
 lightkube

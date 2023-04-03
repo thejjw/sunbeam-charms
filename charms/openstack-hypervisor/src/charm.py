@@ -21,6 +21,7 @@ This charm provide hypervisor services as part of an OpenStack deployment
 """
 
 import base64
+import json
 import logging
 import secrets
 import socket
@@ -33,7 +34,7 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 from netifaces import AF_INET, gateways, ifaddresses
-from ops.framework import StoredState
+import ops.framework
 from ops.main import main
 
 logger = logging.getLogger(__name__)
@@ -58,10 +59,15 @@ def _get_local_ip_by_default_route() -> str:
 class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     """Charm the service."""
 
-    _state = StoredState()
+    _state = ops.framework.StoredState()
     service_name = "hypervisor"
     METADATA_SECRET_KEY = "ovn-metadata-proxy-shared-secret"
     DEFAULT_SECRET_LENGTH = 32
+
+    def __init__(self, framework: ops.framework.Framework) -> None:
+        """Run constructor."""
+        super().__init__(framework)
+        self._state.set_default(metadata_secret='')
 
     def get_relation_handlers(
         self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
@@ -93,19 +99,14 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def metadata_secret(self) -> str:
         """Retrieve or set self.METADATA_SECRET_KEY."""
-        if self.leader_get(self.METADATA_SECRET_KEY):
-            logging.debug("Found {} in leader db".format(self.METADATA_SECRET_KEY))
-            return self.leader_get(self.METADATA_SECRET_KEY)
-        if self.unit.is_leader():
-            logging.debug("Generating new {}".format(self.METADATA_SECRET_KEY))
-            secret = self.generate_metadata_secret()
-            self.leader_set({self.METADATA_SECRET_KEY: secret})
-            return secret
+        if self._state.metadata_secret:
+            logging.debug("Found metadata secret in local db")
+            return self._state.metadata_secret
         else:
-            logging.debug(
-                "{} is missing, need leader to generate it".format(self.METADATA_SECRET_KEY)
-            )
-            raise AttributeError
+            logging.debug("Generating new metadata secret")
+            secret = self.generate_metadata_secret()
+            self._state.metadata_secret = secret
+            return secret
 
     def configure_unit(self, event) -> None:
         """Run configuration on this unit."""
@@ -123,43 +124,42 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         )
         local_ip = _get_local_ip_by_default_route()
         try:
+            contexts = self.contexts()
             snap_data = {
                 "compute.cpu-mode": "host-model",
                 "compute.spice-proxy-address": config("ip-address") or local_ip,
                 "compute.virt-type": "kvm",
                 "credentials.ovn-metadata-proxy-shared-secret": self.metadata_secret(),
-                "identity.auth-url": "http://{}/openstack-keystone".format(
-                    self.contexts().identity_credentials.auth_host
-                ),
-                "identity.password": self.contexts().identity_credentials.password,
-                "identity.project-domain-name": self.contexts().identity_credentials.project_domain_name,
-                "identity.project-name": self.contexts().identity_credentials.project_name,
-                "identity.region-name": self.contexts().identity_credentials.region,
-                "identity.user-domain-name": self.contexts().identity_credentials.user_domain_name,
-                "identity.username": self.contexts().identity_credentials.username,
-                "logging.debug": config("debug"),
+                "identity.auth-url": contexts.identity_credentials.public_endpoint,
+                "identity.password": contexts.identity_credentials.password,
+                "identity.project-domain-name": contexts.identity_credentials.project_domain_name,
+                "identity.project-name": contexts.identity_credentials.project_name,
+                "identity.region-name": contexts.identity_credentials.region,
+                "identity.user-domain-name": contexts.identity_credentials.user_domain_name,
+                "identity.username": contexts.identity_credentials.username,
+                "logging.debug": json.dumps(config("debug")),
                 "network.dns-domain": config("dns-domain"),
                 "network.dns-servers": config("dns-servers"),
-                "network.enable-gateway": config("enable-gateway"),
+                "network.enable-gateway": json.dumps(config("enable-gateway")),
                 "network.external-bridge": config("external-bridge"),
-                "network.external-bridge-address": config("external-bridge-address"),
+                "network.external-bridge-address": config("external-bridge-address") or "10.20.20.1/24",
                 "network.ip-address": config("ip-address") or local_ip,
                 "network.ovn-key": base64.b64encode(
-                    self.contexts().certificates.key.encode()
+                    contexts.certificates.key.encode()
                 ).decode(),
                 "network.ovn-cert": base64.b64encode(
-                    self.contexts().certificates.cert.encode()
+                    contexts.certificates.cert.encode()
                 ).decode(),
                 "network.ovn-cacert": base64.b64encode(
-                    self.contexts().certificates.ca_cert.encode()
+                    contexts.certificates.ca_cert.encode()
                 ).decode(),
                 "network.ovn-sb-connection": list(
-                    self.contexts().ovsdb_cms.db_public_sb_connection_strs
+                    contexts.ovsdb_cms.db_ingress_sb_connection_strs
                 )[0],
                 "network.physnet-name": config("physnet-name"),
-                "node.fqdn": config("fqdn") or socket.getfqdn,
+                "node.fqdn": config("fqdn") or socket.getfqdn(),
                 "node.ip-address": config("ip-address") or local_ip,
-                "rabbitmq.url": self.contexts().amqp.transport_url,
+                "rabbitmq.url": contexts.amqp.transport_url,
             }
 
             cmd = ["snap", "set", "openstack-hypervisor"] + [
