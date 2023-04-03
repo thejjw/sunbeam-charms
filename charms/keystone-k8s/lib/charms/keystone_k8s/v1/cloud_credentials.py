@@ -286,6 +286,16 @@ class CloudCredentialsRequires(Object):
         """Return the region for the auth urls."""
         return self.get_remote_app_data('region')
 
+    @property
+    def internal_endpoint(self) -> str:
+        """Return the region for the internal auth url."""
+        return self.get_remote_app_data('internal-endpoint')
+
+    @property
+    def public_endpoint(self) -> str:
+        """Return the region for the public auth url."""
+        return self.get_remote_app_data('public-endpoint')
+
     def request_credentials(self) -> None:
         """Request credentials from the CloudCredentials server."""
         if self.model.unit.is_leader():
