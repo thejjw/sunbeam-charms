@@ -1,16 +1,18 @@
 # openstack-hypervisor
 
-Charmhub package name: operator-template
-More information: https://charmhub.io/openstack-hypervisor
+This charm deploys the openstack-hypervisor snap.
 
-Describe your charm in one or two sentences.
+It is expected to be related to the control plane via cross model relations. To
+achieve this assuming the control plane is in a model called *k8s*.
 
-## Other resources
+```
+juju offer k8s.rabbitmq-k8s:amqp
+juju offer k8s.keystone:identity-credentials
+juju offer k8s.certificate-authority:certificates
+juju offer k8s.ovn-relay:ovsdb-cms-relay
 
-<!-- If your charm is documented somewhere else other than Charmhub, provide a link separately. -->
-
-- [Read more](https://example.com)
-
-- [Contributing](CONTRIBUTING.md) <!-- or link to other contribution documentation -->
-
-- See the [Juju SDK documentation](https://juju.is/docs/sdk) for more information about developing and improving charms.
+juju relate -m hypervisor openstack-hypervisor admin/k8s.rabbitmq-k8s
+juju relate -m hypervisor openstack-hypervisor admin/k8s.keystone
+juju relate -m hypervisor openstack-hypervisor admin/k8s.certificate-authority
+juju relate -m hypervisor openstack-hypervisor admin/k8s.ovn-relay
+```
