@@ -125,6 +125,9 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         local_ip = _get_local_ip_by_default_route()
         try:
             contexts = self.contexts()
+            sb_connection_strs = list(contexts.ovsdb_cms.db_ingress_sb_connection_strs)
+            if not sb_connection_strs:
+                raise AttributeError(name='ovsdb southbound ingress string')
             snap_data = {
                 "compute.cpu-mode": "host-model",
                 "compute.spice-proxy-address": config("ip-address") or local_ip,
@@ -153,9 +156,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "network.ovn-cacert": base64.b64encode(
                     contexts.certificates.ca_cert.encode()
                 ).decode(),
-                "network.ovn-sb-connection": list(
-                    contexts.ovsdb_cms.db_ingress_sb_connection_strs
-                )[0],
+                "network.ovn-sb-connection": sb_connection_strs[0],
                 "network.physnet-name": config("physnet-name"),
                 "node.fqdn": config("fqdn") or socket.getfqdn(),
                 "node.ip-address": config("ip-address") or local_ip,
