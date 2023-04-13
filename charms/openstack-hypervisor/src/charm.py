@@ -23,6 +23,7 @@ This charm provide hypervisor services as part of an OpenStack deployment
 import base64
 import json
 import logging
+import os
 import secrets
 import socket
 import string
@@ -84,6 +85,17 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             handlers.append(self.ovsdb_cms)
         handlers = super().get_relation_handlers(handlers)
         return handlers
+
+    def ensure_services_running(self):
+        """Ensure systemd services running."""
+        # This should taken care of by the snap
+        svcs = [
+            'snap.openstack-hypervisor.neutron-ovn-metadata-agent.service',
+            'snap.openstack-hypervisor.nova-api-metadata.service',
+            'snap.openstack-hypervisor.nova-compute.service']
+        for svc in svcs:
+            if os.system(f'systemctl is-active --quiet {svc}') != 0:
+                os.system(f'systemctl start {svc}')
 
     def generate_metadata_secret(self) -> str:
         """Generate a secure secret.
@@ -169,7 +181,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         except AttributeError as e:
             raise sunbeam_guard.WaitingExceptionError("Data missing: {}".format(e.name))
         subprocess.check_call(cmd)
-
+        self.ensure_services_running()
         self._state.unit_bootstrapped = True
 
 
