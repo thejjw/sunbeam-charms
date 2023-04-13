@@ -72,7 +72,7 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
         test_utils.add_complete_ingress_relation(self.harness)
 
     @mock.patch(
-        "charms.observability_libs.v0.kubernetes_service_patch."
+        "charms.observability_libs.v1.kubernetes_service_patch."
         "KubernetesServicePatch"
     )
     def test_pebble_ready_handler(self, svc_patch):
@@ -83,7 +83,7 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(self.harness.charm.seen_events, ["PebbleReadyEvent"])
 
     @mock.patch(
-        "charms.observability_libs.v0.kubernetes_service_patch."
+        "charms.observability_libs.v1.kubernetes_service_patch."
         "KubernetesServicePatch"
     )
     def test_all_relations(self, svc_patch):
