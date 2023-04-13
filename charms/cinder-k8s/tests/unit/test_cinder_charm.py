@@ -51,7 +51,7 @@ class TestCinderOperatorCharm(test_utils.CharmTestCase):
     PATCHES = []
 
     @mock.patch(
-        "charms.observability_libs.v0.kubernetes_service_patch."
+        "charms.observability_libs.v1.kubernetes_service_patch."
         "KubernetesServicePatch"
     )
     def setUp(self, mock_patch):
