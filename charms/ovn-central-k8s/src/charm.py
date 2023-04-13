@@ -34,8 +34,11 @@ import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
-from charms.observability_libs.v0.kubernetes_service_patch import (
+from charms.observability_libs.v1.kubernetes_service_patch import (
     KubernetesServicePatch,
+)
+from lightkube.models.core_v1 import (
+    ServicePort,
 )
 from ops.framework import (
     StoredState,
@@ -190,8 +193,8 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.service_patcher = KubernetesServicePatch(
             self,
             [
-                ("northbound", 6641),
-                ("southbound", 6642),
+                ServicePort(6641, name="northbound"),
+                ServicePort(6642, name="southbound"),
             ],
         )
 
