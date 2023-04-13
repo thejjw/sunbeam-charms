@@ -7,7 +7,6 @@ bases:
     - name: "ubuntu"
       channel: "22.04"
 parts:
-parts:
   update-certificates:
     plugin: nil
     override-build: |
@@ -23,3 +22,4 @@ parts:
       - libssl-dev
       - rustc
       - cargo
+      - pkg-config
