@@ -31,7 +31,7 @@ from typing import (
     List,
 )
 
-import charms.keystone_k8s.v1.cloud_credentials as sunbeam_cc_svc
+import charms.keystone_k8s.v0.identity_credentials as sunbeam_cc_svc
 import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
 import ops.charm
 import ops.pebble
@@ -177,12 +177,12 @@ class IdentityCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self):
         """Configure event handlers for a Identity Credentials relation."""
         logger.debug("Setting up Identity Credentials event handler")
-        id_svc = sunbeam_cc_svc.CloudCredentialsProvides(
+        id_svc = sunbeam_cc_svc.IdentityCredentialsProvides(
             self.charm,
             self.relation_name,
         )
         self.framework.observe(
-            id_svc.on.ready_cloud_credentials_clients,
+            id_svc.on.ready_identity_credentials_clients,
             self._on_identity_credentials_ready,
         )
         return id_svc
@@ -804,7 +804,7 @@ export OS_AUTH_VERSION=3
             domain=service_domain,
         )
 
-        self.cc_svc.interface.set_cloud_credentials(
+        self.cc_svc.interface.set_identity_credentials(
             relation_name=event.relation_name,
             relation_id=event.relation_id,
             api_version="3",

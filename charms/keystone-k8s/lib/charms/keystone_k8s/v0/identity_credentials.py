@@ -97,7 +97,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 logger = logging.getLogger(__name__)
 
@@ -286,6 +286,16 @@ class IdentityCredentialsRequires(Object):
         """Return the region for the auth urls."""
         return self.get_remote_app_data('region')
 
+    @property
+    def internal_endpoint(self) -> str:
+        """Return the region for the internal auth url."""
+        return self.get_remote_app_data('internal-endpoint')
+
+    @property
+    def public_endpoint(self) -> str:
+        """Return the region for the public auth url."""
+        return self.get_remote_app_data('public-endpoint')
+
     def request_credentials(self) -> None:
         """Request credentials from the IdentityCredentials server."""
         if self.model.unit.is_leader():
@@ -437,3 +447,5 @@ class IdentityCredentialsProvides(Object):
         app_data["project-domain-name"] = project_domain_name
         app_data["project-domain-id"] = project_domain_id
         app_data["region"] = region
+        app_data["internal-endpoint"] = self.charm.internal_endpoint
+        app_data["public-endpoint"] = self.charm.public_endpoint
