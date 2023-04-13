@@ -42,8 +42,11 @@ import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
-from charms.observability_libs.v0.kubernetes_service_patch import (
+from charms.observability_libs.v1.kubernetes_service_patch import (
     KubernetesServicePatch,
+)
+from lightkube.models.core_v1 import (
+    ServicePort,
 )
 from ops.main import (
     main,
@@ -97,9 +100,7 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         super().__init__(framework)
         self.service_patcher = KubernetesServicePatch(
             self,
-            [
-                ("southbound", 6642),
-            ],
+            [ServicePort(6642, name="southbound")],
             service_type="LoadBalancer",
         )
         self.framework.observe(
