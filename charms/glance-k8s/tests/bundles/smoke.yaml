@@ -3,7 +3,7 @@ applications:
 
   mysql:
     charm: ch:mysql-k8s
-    channel: edge
+    channel: 8.0/stable
     scale: 1
     trust: false
 
