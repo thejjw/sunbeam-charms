@@ -172,7 +172,7 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
     def context(self) -> dict:
         """Configuration context."""
         return {
-            "extension_drivers": "port_security",
+            "extension_drivers": "port_security,qos",
             "type_drivers": "geneve,gre,vlan,flat,local",
             "tenant_network_types": "geneve,gre,vlan,flat,local",
             "mechanism_drivers": "ovn",
