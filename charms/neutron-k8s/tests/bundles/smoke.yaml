@@ -15,7 +15,7 @@ applications:
       kubernetes-service-annotations: metallb.universe.tf/address-pool=public
   mysql:
     charm: ch:mysql-k8s
-    channel: edge
+    channel: 8.0/stable
     scale: 1
     trust: false
   rabbitmq:
