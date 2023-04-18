@@ -25,6 +25,7 @@ develop a new k8s charm using the Operator Framework:
     https://discourse.charmhub.io/t/4208
 """
 
+import json
 import logging
 from typing import (
     Callable,
@@ -220,6 +221,8 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             "db_sync",
         ]
     ]
+    IDSVC_RELATION_NAME = "identity-service"
+    IDCREDS_RELATION_NAME = "identity-credentials"
 
     def __init__(self, framework):
         super().__init__(framework)
@@ -403,7 +406,8 @@ export OS_AUTH_VERSION=3
         """
         if not self.bootstrapped():
             logger.debug(
-                "Deferring _on_peer_data_changed event as node is not bootstrapped yet"
+                "Deferring _on_peer_data_changed event as node is not "
+                "bootstrapped yet"
             )
             event.defer()
             return
@@ -540,7 +544,7 @@ export OS_AUTH_VERSION=3
         # all the remote apps related to identity-service.
         identity_labels = [
             f"{CREDENTIALS_SECRET_PREFIX}svc_{relation.app.name}"
-            for relation in self.model.relations["identity-service"]
+            for relation in self.model.relations[self.IDSVC_RELATION_NAME]
         ]
         if event.secret.label in identity_labels:
             suffix = pwgen.pwgen(6)
@@ -585,7 +589,7 @@ export OS_AUTH_VERSION=3
         # all the remote apps related to identity-service.
         identity_labels = [
             f"{CREDENTIALS_SECRET_PREFIX}svc_{relation.app.name}"
-            for relation in self.model.relations["identity-service"]
+            for relation in self.model.relations[self.IDSVC_RELATION_NAME]
         ]
         if event.secret.label in identity_labels:
             deleted_users = []
@@ -612,19 +616,19 @@ export OS_AUTH_VERSION=3
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
-        if self.can_add_handler("identity-service", handlers):
+        if self.can_add_handler(self.IDSVC_RELATION_NAME, handlers):
             self.id_svc = IdentityServiceProvidesHandler(
                 self,
-                "identity-service",
-                self.register_service,
+                self.IDSVC_RELATION_NAME,
+                self.register_service_from_event,
             )
             handlers.append(self.id_svc)
 
-        if self.can_add_handler("identity-credentials", handlers):
+        if self.can_add_handler(self.IDCREDS_RELATION_NAME, handlers):
             self.cc_svc = IdentityCredentialsProvidesHandler(
                 self,
-                "identity-credentials",
-                self.add_credentials,
+                self.IDCREDS_RELATION_NAME,
+                self.add_credentials_from_event,
             )
             handlers.append(self.cc_svc)
 
@@ -652,16 +656,102 @@ export OS_AUTH_VERSION=3
         )
         return _cconfigs
 
-    def register_service(self, event):
+    def can_service_requests(self) -> bool:
+        """Check if unit can process client requests."""
+        if self.bootstrapped() and self.unit.is_leader():
+            logger.debug("Can service client requests")
+            return True
+        else:
+            logger.debug(
+                "Cannot service client requests. "
+                "Bootstrapped: {} Leader {}".format(
+                    self.bootstrapped(), self.unit.is_leader()
+                )
+            )
+            return False
+
+    def check_outstanding_requests(self) -> bool:
+        """Process any outstanding client requests."""
+        logger.debug("Checking for outstanding client requests")
+        if not self.can_service_requests():
+            return
+        for relation in self.framework.model.relations[
+            self.IDSVC_RELATION_NAME
+        ]:
+            app_data = relation.data[relation.app]
+            if relation.data[self.app].get("service-credentials"):
+                logger.debug(
+                    "Identity service request already processed for "
+                    f"{relation.app.name} {relation.name}/{relation.id}"
+                )
+            else:
+                if app_data.get("service-endpoints"):
+                    logger.debug(
+                        "Processing register service request for "
+                        f"{relation.app.name} {relation.name}/{relation.id}"
+                    )
+                    self.register_service(
+                        relation.id,
+                        relation.name,
+                        json.loads(app_data["service-endpoints"]),
+                        app_data["region"],
+                        relation.app.name,
+                    )
+                else:
+                    logger.debug(
+                        "Cannot process client request, 'service-endpoints' "
+                        "not supplied"
+                    )
+        for relation in self.framework.model.relations[
+            self.IDCREDS_RELATION_NAME
+        ]:
+            app_data = relation.data[relation.app]
+            if relation.data[self.app].get("credentials"):
+                logger.debug(
+                    "Credential request already processed for "
+                    f"{relation.app.name} {relation.name}/{relation.id}"
+                )
+            else:
+                if app_data.get("username"):
+                    logger.debug(
+                        "Processing credentials request from "
+                        f"{relation.app.name} {relation.name}/{relation.id}"
+                    )
+                    self.add_credentials(
+                        relation.id, relation.name, app_data["username"]
+                    )
+                else:
+                    logger.debug(
+                        "Cannot process client request, 'username' not "
+                        "supplied"
+                    )
+
+    def register_service_from_event(self, event):
+        """Process service request event.
+
+        NOTE: The event will not be deferred. If it cannot be processed now
+              then it will be picked up by `check_outstanding_requests`
+        """
+        if self.can_service_requests():
+            self.register_service(
+                event.relation_id,
+                event.relation_name,
+                event.service_endpoints,
+                event.region,
+                event.client_app_name,
+            )
+
+    def register_service(
+        self,
+        relation_id: str,
+        relation_name: str,
+        service_endpoints: str,
+        region: str,
+        client_app_name: str,
+    ):
         """Register service in keystone."""
-        if not self.bootstrapped():
-            event.defer()
-            return
-        if not self.unit.is_leader():
-            return
-        relation = self.model.get_relation(
-            event.relation_name, event.relation_id
-        )
+        logger.debug(f"Registering service requested by {client_app_name}")
+        relation = self.model.get_relation(relation_name, relation_id)
         binding = self.framework.model.get_binding(relation)
         ingress_address = str(binding.network.ingress_address)
 
@@ -681,12 +771,12 @@ export OS_AUTH_VERSION=3
             domain=admin_domain,
         )
 
-        for ep_data in event.service_endpoints:
+        for ep_data in service_endpoints:
             service_username = "svc_{}".format(
-                event.client_app_name.replace("-", "_")
+                client_app_name.replace("-", "_")
             )
             event_relation = self.model.get_relation(
-                event.relation_name, event.relation_id
+                relation_name, relation_id
             )
             scope = {"relation": event_relation}
             service_credentials = None
@@ -723,12 +813,12 @@ export OS_AUTH_VERSION=3
                     service=service,
                     interface=interface,
                     url=ep_data[f"{interface}_url"],
-                    region=event.region,
+                    region=region,
                     may_exist=True,
                 )
             self.id_svc.interface.set_identity_service_credentials(
-                event.relation_name,
-                event.relation_id,
+                relation_name,
+                relation_id,
                 "v3",
                 ingress_address,
                 self.default_public_ingress_port,
@@ -751,45 +841,38 @@ export OS_AUTH_VERSION=3
                 service_credentials,
             )
 
-    def add_credentials(self, event):
+    def add_credentials_from_event(self, event):
+        """Process service request event.
+
+        NOTE: The event will not be deferred. If it cannot be processed now
+              then it will be picked up by `check_outstanding_requests`
+        """
+        if self.can_service_requests(event):
+            self.add_credentials(
+                event.relation_id, event.relation_name, event.username
+            )
+
+    def add_credentials(
+        self, relation_id: str, relation_name: str, username: str
+    ):
         """Add credentials from user defined in event.
 
         :param event:
         :return:
         """
-        if not self.unit.is_leader():
-            logger.debug(
-                "Current unit is not the leader unit, deferring "
-                "credential creation to leader unit."
-            )
-            return
-
-        if not self.bootstrapped():
-            logger.debug(
-                "Keystone is not bootstrapped, deferring credential "
-                "creation until after bootstrap."
-            )
-            event.defer()
-            return
-
-        relation = self.model.get_relation(
-            event.relation_name, event.relation_id
-        )
+        logger.debug("Processing credentials request")
+        relation = self.model.get_relation(relation_name, relation_id)
         binding = self.framework.model.get_binding(relation)
         ingress_address = str(binding.network.ingress_address)
-        event_relation = self.model.get_relation(
-            event.relation_name, event.relation_id
-        )
+        event_relation = self.model.get_relation(relation_name, relation_id)
         scope = {"relation": event_relation}
         user_password = None
         try:
-            credentials_id = self._retrieve_or_set_secret(
-                event.username, scope
-            )
+            credentials_id = self._retrieve_or_set_secret(username, scope)
             credentials = self.model.get_secret(id=credentials_id)
             user_password = credentials.get_content().get("password")
         except SecretNotFoundError:
-            logger.warning(f"Secret for {event.username} not found")
+            logger.warning(f"Secret for {username} not found")
 
         service_domain = self.keystone_manager.get_domain(
             name="service_domain"
@@ -798,15 +881,15 @@ export OS_AUTH_VERSION=3
             name=self.service_project, domain=service_domain
         )
         self.keystone_manager.create_service_account(
-            username=event.username,
+            username=username,
             password=user_password,
             project=service_project,
             domain=service_domain,
         )
 
         self.cc_svc.interface.set_identity_credentials(
-            relation_name=event.relation_name,
-            relation_id=event.relation_id,
+            relation_name=relation_name,
+            relation_id=relation_id,
             api_version="3",
             auth_host=ingress_address,
             auth_port=self.default_public_ingress_port,
@@ -903,7 +986,7 @@ export OS_AUTH_VERSION=3
         admin_hostname = self.model.config.get("os-admin-hostname")
         if not admin_hostname:
             admin_hostname = self.model.get_binding(
-                "identity-service"
+                self.IDSVC_RELATION_NAME
             ).network.ingress_address
         return f"http://{admin_hostname}:{self.service_port}"
 
@@ -916,7 +999,7 @@ export OS_AUTH_VERSION=3
         internal_hostname = self.model.config.get("os-internal-hostname")
         if not internal_hostname:
             internal_hostname = self.model.get_binding(
-                "identity-service"
+                self.IDSVC_RELATION_NAME
             ).network.ingress_address
         return f"http://{internal_hostname}:{self.service_port}"
 
@@ -929,7 +1012,7 @@ export OS_AUTH_VERSION=3
         address = self.public_ingress_address
         if not address:
             address = self.model.get_binding(
-                "identity-service"
+                self.IDSVC_RELATION_NAME
             ).network.ingress_address
         return f"http://{address}:{self.service_port}"
 
@@ -1075,6 +1158,7 @@ export OS_AUTH_VERSION=3
         """Configure the lead unit."""
         self.keystone_bootstrap()
         self.set_leader_ready()
+        self.check_outstanding_requests()
 
     def _ingress_changed(self, event: ops.framework.EventBase) -> None:
         """Ingress changed callback.
