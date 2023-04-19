@@ -847,7 +847,7 @@ export OS_AUTH_VERSION=3
         NOTE: The event will not be deferred. If it cannot be processed now
               then it will be picked up by `check_outstanding_requests`
         """
-        if self.can_service_requests(event):
+        if self.can_service_requests():
             self.add_credentials(
                 event.relation_id, event.relation_name, event.username
             )
