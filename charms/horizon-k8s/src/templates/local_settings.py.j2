@@ -161,6 +161,7 @@ DATABASES = {
         'USER': '{{ database.database_user }}',
         'PASSWORD': '{{ database.database_password }}',
         'HOST': '{{ database.database_host.split(':')[0] }}',
+        'PORT': '{{ database.database_host.split(':')[1] }}',
         'default-character-set': 'utf8'
     }
 }
