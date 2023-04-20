@@ -30,12 +30,12 @@ import string
 import subprocess
 from typing import List
 
+import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 from netifaces import AF_INET, gateways, ifaddresses
-import ops.framework
 from ops.main import main
 
 logger = logging.getLogger(__name__)
@@ -68,7 +68,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run constructor."""
         super().__init__(framework)
-        self._state.set_default(metadata_secret='')
+        self._state.set_default(metadata_secret="")
 
     def get_relation_handlers(
         self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
@@ -90,12 +90,13 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Ensure systemd services running."""
         # This should taken care of by the snap
         svcs = [
-            'snap.openstack-hypervisor.neutron-ovn-metadata-agent.service',
-            'snap.openstack-hypervisor.nova-api-metadata.service',
-            'snap.openstack-hypervisor.nova-compute.service']
+            "snap.openstack-hypervisor.neutron-ovn-metadata-agent.service",
+            "snap.openstack-hypervisor.nova-api-metadata.service",
+            "snap.openstack-hypervisor.nova-compute.service",
+        ]
         for svc in svcs:
-            if os.system(f'systemctl is-active --quiet {svc}') != 0:
-                os.system(f'systemctl start {svc}')
+            if os.system(f"systemctl is-active --quiet {svc}") != 0:
+                os.system(f"systemctl start {svc}")
 
     def generate_metadata_secret(self) -> str:
         """Generate a secure secret.
@@ -139,7 +140,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             contexts = self.contexts()
             sb_connection_strs = list(contexts.ovsdb_cms.db_ingress_sb_connection_strs)
             if not sb_connection_strs:
-                raise AttributeError(name='ovsdb southbound ingress string')
+                raise AttributeError(name="ovsdb southbound ingress string")
             snap_data = {
                 "compute.cpu-mode": "host-model",
                 "compute.spice-proxy-address": config("ip-address") or local_ip,
@@ -157,14 +158,11 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "network.dns-servers": config("dns-servers"),
                 "network.enable-gateway": json.dumps(config("enable-gateway")),
                 "network.external-bridge": config("external-bridge"),
-                "network.external-bridge-address": config("external-bridge-address") or "10.20.20.1/24",
+                "network.external-bridge-address": config("external-bridge-address")
+                or "10.20.20.1/24",
                 "network.ip-address": config("ip-address") or local_ip,
-                "network.ovn-key": base64.b64encode(
-                    contexts.certificates.key.encode()
-                ).decode(),
-                "network.ovn-cert": base64.b64encode(
-                    contexts.certificates.cert.encode()
-                ).decode(),
+                "network.ovn-key": base64.b64encode(contexts.certificates.key.encode()).decode(),
+                "network.ovn-cert": base64.b64encode(contexts.certificates.cert.encode()).decode(),
                 "network.ovn-cacert": base64.b64encode(
                     contexts.certificates.ca_cert.encode()
                 ).decode(),
@@ -174,12 +172,11 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "node.ip-address": config("ip-address") or local_ip,
                 "rabbitmq.url": contexts.amqp.transport_url,
             }
-
-            cmd = ["snap", "set", "openstack-hypervisor"] + [
-                f"{k}={v}" for k, v in snap_data.items()
-            ]
         except AttributeError as e:
             raise sunbeam_guard.WaitingExceptionError("Data missing: {}".format(e.name))
+        cmd = ["snap", "set", "openstack-hypervisor"]
+        for k in sorted(snap_data.keys()):
+            cmd.append(f"{k}={snap_data[k]}")
         subprocess.check_call(cmd)
         self.ensure_services_running()
         self._state.unit_bootstrapped = True
