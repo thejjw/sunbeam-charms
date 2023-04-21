@@ -23,3 +23,8 @@ parts:
       - pkg-config
       - rustc
       - cargo
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - jinja2
+      - git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
