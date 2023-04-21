@@ -27,9 +27,9 @@ import os
 import secrets
 import socket
 import string
-import subprocess
 from typing import List
 
+import charms.operator_libs_linux.v1.snap as snap
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
@@ -121,20 +121,47 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self._state.metadata_secret = secret
             return secret
 
+    def set_snap_data(self, snap_data):
+        """Set snap setting if needed.
+
+        Update the snap with any settings that have changed.
+        """
+        cache = snap.SnapCache()
+        hypervisor = cache["openstack-hypervisor"]
+        new_settings = {}
+        for k in sorted(snap_data.keys()):
+            try:
+                if snap_data[k] != hypervisor.get(k):
+                    new_settings[k] = snap_data[k]
+            except snap.SnapError:
+                # Trying to retrieve an unset parameter results in a snapError
+                # so assume the snap.SnapError means there is missing config
+                # that needs setting.
+                new_settings[k] = snap_data[k]
+        if new_settings:
+            logger.debug(f"Applying new snap settings {new_settings}")
+            hypervisor.set(new_settings)
+        else:
+            logger.debug("Snap settings do not need updating")
+
+    def ensure_snap_present(self):
+        """Install snap if it is not already present."""
+        config = self.model.config.get
+        try:
+            cache = snap.SnapCache()
+            hypervisor = cache["openstack-hypervisor"]
+
+            if not hypervisor.present:
+                hypervisor.ensure(snap.SnapState.Latest, channel=config("snap-channel"))
+        except snap.SnapError as e:
+            logger.error("An exception occurred when installing charmcraft. Reason: %s", e.message)
+
     def configure_unit(self, event) -> None:
         """Run configuration on this unit."""
         self.check_leader_ready()
         self.check_relation_handlers_ready()
         config = self.model.config.get
-        subprocess.check_call(
-            [
-                "snap",
-                "install",
-                "openstack-hypervisor",
-                "--channel",
-                config("snap-channel"),
-            ]
-        )
+        self.ensure_snap_present()
         local_ip = _get_local_ip_by_default_route()
         try:
             contexts = self.contexts()
@@ -174,10 +201,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             }
         except AttributeError as e:
             raise sunbeam_guard.WaitingExceptionError("Data missing: {}".format(e.name))
-        cmd = ["snap", "set", "openstack-hypervisor"]
-        for k in sorted(snap_data.keys()):
-            cmd.append(f"{k}={snap_data[k]}")
-        subprocess.check_call(cmd)
+        self.set_snap_data(snap_data)
         self.ensure_services_running()
         self._state.unit_bootstrapped = True
 

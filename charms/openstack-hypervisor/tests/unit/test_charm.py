@@ -16,6 +16,7 @@
 
 import base64
 import json
+from unittest import mock
 
 import ops_sunbeam.test_utils as test_utils
 
@@ -32,7 +33,7 @@ class _HypervisorOperatorCharm(charm.HypervisorOperatorCharm):
 
 
 class TestCharm(test_utils.CharmTestCase):
-    PATCHES = ["subprocess", "socket"]
+    PATCHES = ["socket", "snap"]
 
     def setUp(self):
         """Setup OpenStack Hypervisor tests."""
@@ -78,12 +79,14 @@ class TestCharm(test_utils.CharmTestCase):
 
     def test_all_relations(self):
         """Test all the charms relations."""
+        hypervisor_snap_mock = mock.MagicMock()
+        hypervisor_snap_mock.present = False
+        self.snap.SnapState.Latest = "latest"
+        self.snap.SnapCache.return_value = {"openstack-hypervisor": hypervisor_snap_mock}
         self.socket.getfqdn.return_value = "test.local"
         self.initial_setup()
         self.harness.set_leader()
-        self.subprocess.check_call.assert_any_call(
-            ["snap", "install", "openstack-hypervisor", "--channel", "essex/stable"]
-        )
+        hypervisor_snap_mock.ensure.assert_any_call("latest", channel="essex/stable")
         test_utils.add_complete_amqp_relation(self.harness)
         test_utils.add_complete_identity_credentials_relation(self.harness)
         metadata = self.harness.charm.metadata_secret()
@@ -93,34 +96,32 @@ class TestCharm(test_utils.CharmTestCase):
             self.harness.charm.contexts().certificates.key.encode()
         ).decode()
         certificate = base64.b64encode(test_utils.TEST_SERVER_CERT.encode()).decode()
-        expect_settings = [
-            "compute.cpu-mode=host-model",
-            "compute.spice-proxy-address=10.0.0.10",
-            "compute.virt-type=kvm",
-            f"credentials.ovn-metadata-proxy-shared-secret={metadata}",
-            "identity.auth-url=None",
-            "identity.password=user-password",
-            "identity.project-domain-name=pdomain_-ame",
-            "identity.project-name=user-project",
-            "identity.region-name=region12",
-            "identity.user-domain-name=udomain-name",
-            "identity.username=username",
-            "logging.debug=false",
-            "network.dns-domain=openstack.local",
-            "network.dns-servers=8.8.8.8",
-            "network.enable-gateway=false",
-            "network.external-bridge=br-ex",
-            "network.external-bridge-address=10.20.20.1/24",
-            "network.ip-address=10.0.0.10",
-            f"network.ovn-cacert={ovn_cacert}",
-            f"network.ovn-cert={certificate}",
-            f"network.ovn-key={private_key}",
-            "network.ovn-sb-connection=ssl:10.20.21.10:6642",
-            "network.physnet-name=physnet1",
-            "node.fqdn=test.local",
-            "node.ip-address=10.0.0.10",
-            "rabbitmq.url=rabbit://hypervisor:rabbit.pass@10.0.0.13:5672/openstack",
-        ]
-        expect_set_cmd = ["snap", "set", "openstack-hypervisor"]
-        expect_set_cmd.extend(expect_settings)
-        self.subprocess.check_call.assert_any_call(expect_set_cmd)
+        expect_settings = {
+            "compute.cpu-mode": "host-model",
+            "compute.spice-proxy-address": "10.0.0.10",
+            "compute.virt-type": "kvm",
+            "credentials.ovn-metadata-proxy-shared-secret": metadata,
+            "identity.auth-url": "http://10.20.21.11:80/openstack-keystone",
+            "identity.password": "user-password",
+            "identity.project-domain-name": "pdomain_-ame",
+            "identity.project-name": "user-project",
+            "identity.region-name": "region12",
+            "identity.user-domain-name": "udomain-name",
+            "identity.username": "username",
+            "logging.debug": "false",
+            "network.dns-domain": "openstack.local",
+            "network.dns-servers": "8.8.8.8",
+            "network.enable-gateway": "false",
+            "network.external-bridge": "br-ex",
+            "network.external-bridge-address": "10.20.20.1/24",
+            "network.ip-address": "10.0.0.10",
+            "network.ovn-cacert": ovn_cacert,
+            "network.ovn-cert": certificate,
+            "network.ovn-key": private_key,
+            "network.ovn-sb-connection": "ssl:10.20.21.10:6642",
+            "network.physnet-name": "physnet1",
+            "node.fqdn": "test.local",
+            "node.ip-address": "10.0.0.10",
+            "rabbitmq.url": "rabbit://hypervisor:rabbit.pass@10.0.0.13:5672/openstack",
+        }
+        hypervisor_snap_mock.set.assert_any_call(expect_settings)
