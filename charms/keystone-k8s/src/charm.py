@@ -54,6 +54,7 @@ from ops.main import (
     main,
 )
 from ops.model import (
+    ActiveStatus,
     MaintenanceStatus,
     SecretNotFoundError,
     SecretRotate,
@@ -251,6 +252,8 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self.on.regenerate_password_action,
             self._regenerate_password_action,
         )
+        if self.bootstrapped():
+            self.bootstrap_status.set(ActiveStatus())
 
     def _retrieve_or_set_secret(
         self,
@@ -399,12 +402,10 @@ export OS_AUTH_VERSION=3
             event.fail(f"Regeneration of password failed: {e}")
 
     def _on_peer_data_changed(self, event: RelationChangedEvent):
-        """Check the peer data updates for updated fernet keys.
-
-        Then we can pull the keys from the app data,
-        and tell the local charm to write them to disk.
-        """
-        if not self.bootstrapped():
+        """Process fernet updates if possible."""
+        if self._state.unit_bootstrapped and self.is_leader_ready():
+            self.update_fernet_keys_from_peer()
+        else:
             logger.debug(
                 "Deferring _on_peer_data_changed event as node is not "
                 "bootstrapped yet"
@@ -412,6 +413,12 @@ export OS_AUTH_VERSION=3
             event.defer()
             return
 
+    def update_fernet_keys_from_peer(self):
+        """Check the peer data updates for updated fernet keys.
+
+        Then we can pull the keys from the app data,
+        and tell the local charm to write them to disk.
+        """
         fernet_secret_id = self.peers.get_app_data("fernet-secret-id")
         if fernet_secret_id:
             fernet_secret = self.model.get_secret(id=fernet_secret_id)
@@ -1159,6 +1166,42 @@ export OS_AUTH_VERSION=3
         self.keystone_bootstrap()
         self.set_leader_ready()
         self.check_outstanding_requests()
+
+    def unit_fernet_bootstrapped(self) -> bool:
+        """Check if fernet tokens have been setup."""
+        try:
+            existing_keys = self.keystone_manager.read_keys(
+                key_repository="/etc/keystone/fernet-keys"
+            )
+        except AttributeError:
+            return False
+        if existing_keys:
+            logger.debug("Keys found")
+            return True
+        else:
+            logger.debug("Keys not found")
+            return False
+
+    def configure_unit(self, event: ops.framework.EventBase) -> None:
+        """Run configuration on this unit."""
+        self.check_leader_ready()
+        self.check_relation_handlers_ready()
+        self.init_container_services()
+        self.check_pebble_handlers_ready()
+        self.run_db_sync()
+        pre_update_fernet_ready = self.unit_fernet_bootstrapped()
+        self.update_fernet_keys_from_peer()
+        # If the wsgi service was running with no tokens it will be in a
+        # wedged state so restart it.
+        if self.unit_fernet_bootstrapped() and not pre_update_fernet_ready:
+            container = self.unit.get_container(self.wsgi_container_name)
+            container.stop("wsgi-keystone")
+            container.start("wsgi-keystone")
+        self._state.unit_bootstrapped = True
+
+    def bootstrapped(self) -> bool:
+        """Determine whether the service has been bootstrapped."""
+        return super().bootstrapped() and self.unit_fernet_bootstrapped()
 
     def _ingress_changed(self, event: ops.framework.EventBase) -> None:
         """Ingress changed callback.
