@@ -262,6 +262,9 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         label = f"{CREDENTIALS_SECRET_PREFIX}{username}"
         credentials_id = self.peers.get_app_data(label)
         if credentials_id:
+            if "relation" in scope:
+                secret = self.model.get_secret(id=credentials_id)
+                secret.grant(scope["relation"])
             return credentials_id
 
         password = pwgen.pwgen(12)
