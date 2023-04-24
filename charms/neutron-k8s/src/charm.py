@@ -58,6 +58,8 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "summary": "Neutron Server",
                     "command": "neutron-server",
                     "startup": "enabled",
+                    "user": "neutron",
+                    "group": "neutron",
                 }
             },
         }
@@ -209,22 +211,28 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
         """Neutron container configs."""
         return [
             sunbeam_core.ContainerConfigFile(
-                "/etc/neutron/neutron.conf", "neutron", "neutron"
+                "/etc/neutron/neutron.conf", "root", "neutron", 0o640
             ),
             sunbeam_core.ContainerConfigFile(
-                "/etc/neutron/plugins/ml2/key_host", "root", "root"
+                "/etc/neutron/plugins/ml2/key_host", "root", "neutron", 0o640
             ),
             sunbeam_core.ContainerConfigFile(
-                "/etc/neutron/plugins/ml2/cert_host", "root", "root"
+                "/etc/neutron/plugins/ml2/cert_host", "root", "neutron", 0o640
             ),
             sunbeam_core.ContainerConfigFile(
-                "/etc/neutron/plugins/ml2/neutron-ovn.crt", "root", "root"
+                "/etc/neutron/plugins/ml2/neutron-ovn.crt",
+                "root",
+                "neutron",
+                0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/etc/neutron/plugins/ml2/ml2_conf.ini", "root", "root"
+                "/etc/neutron/plugins/ml2/ml2_conf.ini",
+                "root",
+                "neutron",
+                0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/etc/neutron/api-paste.ini", "neutron", "neutron"
+                "/etc/neutron/api-paste.ini", "root", "neutron", 0o640
             ),
         ]
 
