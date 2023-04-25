@@ -20,9 +20,6 @@ options:
   external-bridge-address:
     default: "10.20.20.1/24"
     type: string
-  ip-address:
-    default:
-    type: string
   physnet-name:
     default: "physnet1"
     type: string

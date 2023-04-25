@@ -33,7 +33,7 @@ class _HypervisorOperatorCharm(charm.HypervisorOperatorCharm):
 
 
 class TestCharm(test_utils.CharmTestCase):
-    PATCHES = ["socket", "snap"]
+    PATCHES = ["socket", "snap", "_get_local_ip_by_default_route"]
 
     def setUp(self):
         """Setup OpenStack Hypervisor tests."""
@@ -50,7 +50,7 @@ class TestCharm(test_utils.CharmTestCase):
     def initial_setup(self):
         rel_id = self.harness.add_relation("certificates", "vault")
         self.harness.add_relation_unit(rel_id, "vault/0")
-        self.harness.update_config({"snap-channel": "essex/stable", "ip-address": "10.0.0.10"})
+        self.harness.update_config({"snap-channel": "essex/stable"})
         self.harness.begin_with_initial_hooks()
         csr = {"certificate_signing_request": test_utils.TEST_CSR}
         self.harness.update_relation_data(
@@ -79,6 +79,7 @@ class TestCharm(test_utils.CharmTestCase):
 
     def test_all_relations(self):
         """Test all the charms relations."""
+        self._get_local_ip_by_default_route.return_value = "10.0.0.10"
         hypervisor_snap_mock = mock.MagicMock()
         hypervisor_snap_mock.present = False
         self.snap.SnapState.Latest = "latest"

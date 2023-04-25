@@ -36,6 +36,7 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 from netifaces import AF_INET, gateways, ifaddresses
+from ops.charm import ActionEvent
 from ops.main import main
 
 logger = logging.getLogger(__name__)
@@ -69,6 +70,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Run constructor."""
         super().__init__(framework)
         self._state.set_default(metadata_secret="")
+        self.framework.observe(
+            self.on.set_hypervisor_local_settings_action,
+            self._set_hypervisor_local_settings_action,
+        )
 
     def get_relation_handlers(
         self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
@@ -85,6 +90,21 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             handlers.append(self.ovsdb_cms)
         handlers = super().get_relation_handlers(handlers)
         return handlers
+
+    def _set_hypervisor_local_settings_action(self, event: ActionEvent):
+        """Run set_hypervisor_local_settings action."""
+        local_settings = [
+            "network.external-nic",
+            "compute.spice-proxy-address",
+            "network.ip-address",
+        ]
+        new_snap_settings = {}
+        for setting in local_settings:
+            action_param = setting.split(".")[1]
+            if event.params.get(action_param):
+                new_snap_settings[setting] = event.params.get(action_param)
+        if new_snap_settings:
+            self.set_snap_data(new_snap_settings)
 
     def ensure_services_running(self):
         """Ensure systemd services running."""
@@ -121,11 +141,8 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self._state.metadata_secret = secret
             return secret
 
-    def set_snap_data(self, snap_data):
-        """Set snap setting if needed.
-
-        Update the snap with any settings that have changed.
-        """
+    def set_snap_data(self, snap_data: dict):
+        """Set snap data on local snap."""
         cache = snap.SnapCache()
         hypervisor = cache["openstack-hypervisor"]
         new_settings = {}
@@ -195,7 +212,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 ).decode(),
                 "network.ovn-sb-connection": sb_connection_strs[0],
                 "network.physnet-name": config("physnet-name"),
-                "node.fqdn": config("fqdn") or socket.getfqdn(),
+                "node.fqdn": socket.getfqdn(),
                 "node.ip-address": config("ip-address") or local_ip,
                 "rabbitmq.url": contexts.amqp.transport_url,
             }
