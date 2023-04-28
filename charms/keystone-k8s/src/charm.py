@@ -571,13 +571,14 @@ export OS_AUTH_VERSION=3
             event.secret.set_content(
                 {"username": username, "password": password}
             )
+            old_service_users = self.peers.get_app_data("old_service_users")
             service_users_to_delete = (
-                self.peers.get_app_data("old_service_users") or []
+                json.loads(old_service_users) if old_service_users else []
             )
             if olduser not in service_users_to_delete:
                 service_users_to_delete.append(olduser)
                 self.peers.set_app_data(
-                    {"old_service_users": service_users_to_delete}
+                    {"old_service_users": json.dumps(service_users_to_delete)}
                 )
 
     def _on_secret_remove(self, event: ops.charm.SecretRemoveEvent):
@@ -603,8 +604,9 @@ export OS_AUTH_VERSION=3
         ]
         if event.secret.label in identity_labels:
             deleted_users = []
-            service_users_to_delete = self.peers.get_app_data(
-                "old_service_users"
+            old_service_users = self.peers.get_app_data("old_service_users")
+            service_users_to_delete = (
+                json.loads(old_service_users) if old_service_users else []
             )
             for user in service_users_to_delete:
                 # Only delete users created during rotation of event.secret
@@ -618,7 +620,7 @@ export OS_AUTH_VERSION=3
                 x for x in service_users_to_delete if x not in deleted_users
             ]
             self.peers.set_app_data(
-                {"old_service_users": service_users_to_delete}
+                {"old_service_users": json.dumps(service_users_to_delete)}
             )
 
     def get_relation_handlers(
