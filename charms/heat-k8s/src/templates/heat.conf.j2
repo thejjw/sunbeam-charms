@@ -1,0 +1,26 @@
+[DEFAULT]
+debug = {{ options.debug }}
+
+instance_user=ec2-user
+instance_driver=heat.engine.nova
+plugin_dirs = /usr/lib64/heat,/usr/lib/heat
+environment_dir=/etc/heat/environment.d
+deferred_auth_method=password
+host=heat
+auth_encryption_key={{ encryption_key }}
+
+transport_url = {{ amqp.transport_url }}
+
+{% include "parts/section-identity" %}
+
+[database]
+{% include "parts/database-connection" %}
+
+[paste_deploy]
+api_paste_config=/etc/heat/api-paste.ini
+
+[heat_api]
+bind_port=8004
+
+[heat_api_cfn]
+bind_port=8000
