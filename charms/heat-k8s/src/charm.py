@@ -19,8 +19,8 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "heat-api"
-    wsgi_admin_script = '/usr/bin/heat-api-wsgi'
-    wsgi_public_script = '/usr/bin/heat-api-wsgi'
+    wsgi_admin_script = '/usr/bin/heat-wsgi-api'
+    wsgi_public_script = '/usr/bin/heat-wsgi-api'
 
     db_sync_cmds = [
         ['heat-manage', 'db_sync']
