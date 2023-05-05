@@ -1,0 +1,9 @@
+options:
+  debug:
+    default: False
+    description: Enable debug logging.
+    type: boolean
+  region:
+    default: RegionOne
+    description: Space delimited list of OpenStack regions
+    type: string

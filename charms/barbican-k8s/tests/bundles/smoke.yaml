@@ -1,0 +1,70 @@
+bundle: kubernetes
+applications:
+
+  mysql:
+    charm: ch:mysql-k8s
+    channel: 8.0/stable
+    scale: 1
+    trust: false
+
+  # Currently traefik is required for networking things.
+  # If this isn't present, the units will hang at "installing agent".
+  traefik:
+    charm: ch:traefik-k8s
+    channel: 1.0/stable
+    scale: 1
+    trust: true
+
+  traefik-public:
+    charm: ch:traefik-k8s
+    channel: 1.0/stable
+    scale: 1
+    trust: true
+    options:
+      kubernetes-service-annotations: metallb.universe.tf/address-pool=public
+
+  # required for barbican
+  rabbitmq:
+    charm: ch:rabbitmq-k8s
+    channel: 3.9/edge
+    scale: 1
+    trust: true
+
+  keystone:
+    charm: ch:keystone-k8s
+    channel: yoga/edge
+    scale: 1
+    trust: true
+    options:
+      admin-role: admin
+    storage:
+      fernet-keys: 5M
+      credential-keys: 5M
+
+  barbican:
+    charm: ../../barbican-k8s.charm
+    scale: 1
+    trust: true
+    resources:
+      barbican-api-image: kolla/ubuntu-binary-barbican-api:yoga
+      barbican-worker-image: kolla/ubuntu-binary-barbican-worker:yoga
+
+relations:
+- - traefik:ingress
+  - keystone:ingress-internal
+- - traefik-public:ingress
+  - keystone:ingress-public
+
+- - mysql:database
+  - keystone:database
+
+- - mysql:database
+  - barbican:database
+- - rabbitmq:amqp
+  - barbican:amqp
+- - keystone:identity-service
+  - barbican:identity-service
+- - traefik:ingress
+  - barbican:ingress-internal
+- - traefik-public:ingress
+  - barbican:ingress-public
