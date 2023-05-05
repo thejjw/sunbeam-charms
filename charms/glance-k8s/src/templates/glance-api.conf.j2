@@ -11,19 +11,21 @@ transport_url = {{ amqp.transport_url }}
 log_dir = /var/log/glance
 bind_port = 9282
 
+{% if ceph.auth %}
+enabled_backends = filestore:file, ceph:rbd
+{% else %}
+enabled_backends = filestore:file
+{% endif %}
+
 {% include "parts/section-database" %}
 
 {% include "parts/section-identity" %}
 
-
-
 [glance_store]
 {% if ceph.auth %}
 default_backend = ceph
-enabled_backends = ceph, filestore
 {% else %}
 default_backend = filestore
-enabled_backends = filestore
 {% endif %}
 
 [filestore]
