@@ -52,6 +52,32 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 'public_url': f'{self.public_url}',
                 'admin_url': f'{self.admin_url}'}]
 
+    def get_healthcheck_layer(self) -> dict:
+        """Health check pebble layer.
+
+        :returns: pebble health check layer configuration for heat service
+        """
+        return {
+            "checks": {
+                "online": {
+                    "override": "replace",
+                    "level": "ready",
+                    "http": {"url": self.charm.healthcheck_http_url},
+                },
+            }
+        }
+
+    def default_container_configs(self):
+        """Base container configs."""
+        return [
+            sunbeam_core.ContainerConfigFile(
+                "/etc/heat/heat-api.conf", "heat", "heat"
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/heat/api-paste.ini", "heat", "heat"
+            ),
+        ]
+
     @property
     def default_public_ingress_port(self):
         return 8004
