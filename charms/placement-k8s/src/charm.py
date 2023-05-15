@@ -21,8 +21,14 @@ This charm provide Placement services as part of an OpenStack deployment
 """
 
 import logging
+from typing import (
+    List,
+)
 
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.container_handlers as sunbeam_chandlers
+import ops_sunbeam.core as sunbeam_core
 from ops.framework import (
     StoredState,
 )
@@ -31,6 +37,26 @@ from ops.main import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+class WSGIPlacementPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
+    """Placement Pebble Handler."""
+
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Enable and start WSGI service."""
+        container = self.charm.unit.get_container(self.container_name)
+        try:
+            process = container.exec(
+                ["a2dissite", "placement-api"], timeout=5 * 60
+            )
+            out, warnings = process.wait_output()
+            if warnings:
+                for line in warnings.splitlines():
+                    logger.warning("a2dissite warn: %s", line.strip())
+            logging.debug(f"Output from a2dissite: \n{out}")
+        except ops.pebble.ExecError:
+            logger.exception("Failed to disable placement-api site in apache")
+        super().init_service(context)
 
 
 class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
@@ -44,6 +70,20 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     db_sync_cmds = [
         ["sudo", "-u", "placement", "placement-manage", "db", "sync"]
     ]
+
+    def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
+        """Pebble handlers for the service."""
+        return [
+            WSGIPlacementPebbleHandler(
+                self,
+                self.service_name,
+                self.service_name,
+                self.container_configs,
+                self.template_dir,
+                self.configure_charm,
+                f"wsgi-{self.service_name}",
+            )
+        ]
 
     @property
     def service_conf(self) -> str:
