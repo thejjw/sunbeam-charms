@@ -38,6 +38,7 @@ import ops.charm
 import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_contexts
+import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
@@ -199,6 +200,24 @@ class IdentityCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
     def ready(self) -> bool:
         """Check if handler is ready."""
         return True
+
+
+class WSGIKeystonePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
+    """Keystone Pebble Handler."""
+
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Enable and start WSGI service."""
+        container = self.charm.unit.get_container(self.container_name)
+        try:
+            process = container.exec(["a2dissite", "keystone"], timeout=5 * 60)
+            out, warnings = process.wait_output()
+            if warnings:
+                for line in warnings.splitlines():
+                    logger.warning("a2dissite warn: %s", line.strip())
+            logging.debug(f"Output from a2dissite: \n{out}")
+        except ops.pebble.ExecError:
+            logger.exception("Failed to disable keystone site in apache")
+        super().init_service(context)
 
 
 class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
@@ -622,6 +641,20 @@ export OS_AUTH_VERSION=3
             self.peers.set_app_data(
                 {"old_service_users": json.dumps(service_users_to_delete)}
             )
+
+    def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
+        """Pebble handlers for the service."""
+        return [
+            WSGIKeystonePebbleHandler(
+                self,
+                self.service_name,
+                self.service_name,
+                self.container_configs,
+                self.template_dir,
+                self.configure_charm,
+                f"wsgi-{self.service_name}",
+            )
+        ]
 
     def get_relation_handlers(
         self, handlers=None
