@@ -2,6 +2,7 @@
 log_dir = /var/log/nova
 lock_path = /var/lock/nova
 state_path = /var/lib/nova
+debug = {{ options.debug }}
 
 transport_url = {{ amqp.transport_url }}
 
