@@ -84,6 +84,17 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         "identity-credentials",
     }
 
+    def __init__(self, framework):
+        super().__init__(framework)
+        self.framework.observe(
+            self.on.get_dashboard_url_action,
+            self._get_dashboard_url_action,
+        )
+
+    def _get_dashboard_url_action(self, event):
+        """Retrieve the URL for the Horizon OpenStack Dashboard."""
+        event.set_results({"url": self.public_url})
+
     @property
     def default_public_ingress_port(self):
         """Default public ingress port."""

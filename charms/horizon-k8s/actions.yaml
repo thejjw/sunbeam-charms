@@ -1,2 +1,2 @@
-# NOTE: no actions yet!
-{ }
+get-dashboard-url:
+  description: URL for access to the Horizon OpenStack Dashboard.

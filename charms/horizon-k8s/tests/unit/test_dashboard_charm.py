@@ -110,3 +110,11 @@ class TestDashboardOperatorCharm(test_utils.CharmTestCase):
         self.check_file(
             "openstack-dashboard", "/etc/openstack-dashboard/local_settings.py"
         )
+
+    def test_get_dashboard_url_action(self):
+        """Test admin account action."""
+        action_event = mock.MagicMock()
+        self.harness.charm._get_dashboard_url_action(action_event)
+        action_event.set_results.assert_called_with(
+            {"url": "http://dashboard.juju:80"}
+        )
