@@ -44,7 +44,7 @@ placement-k8s requires the following relations:
 
 ## OCI Images
 
-The charm by default uses `docker.io/kolla/ubuntu-binary-placement:xena` image.
+The charm by default uses `ghcr.io/openstack-snaps/placement-api:2023.1` image.
 
 ## Contributing
 
