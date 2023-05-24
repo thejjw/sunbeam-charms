@@ -75,5 +75,5 @@ resources:
   keystone-image:
     type: oci-image
     description: OCI image for OpenStack Keystone
-    # docker.io/kolla/ubuntu-binary-keystone:yoga
-    upstream-source: docker.io/kolla/ubuntu-binary-keystone@sha256:05bc029e63ec06da8f5351f08196c549ecce371fc2236ea53dabb994f2e246b7
+    # ghcr.io/openstack-snaps/keystone:2023.1
+    upstream-source: ghcr.io/openstack-snaps/keystone:2023.1

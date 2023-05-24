@@ -72,7 +72,7 @@ developers:
 
 ## OCI Images
 
-The charm by default uses `docker.io/kolla/ubuntu-binary-keystone:xena` image.
+The charm by default uses `ghcr.io/openstack-snaps/keystone:2023.1` image.
 
 ## Contributing
 
