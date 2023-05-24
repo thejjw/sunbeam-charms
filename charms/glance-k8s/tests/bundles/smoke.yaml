@@ -45,7 +45,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      glance-api-image: kolla/ubuntu-binary-glance-api:yoga
+      glance-api-image: ghcr.io/openstack-snaps/glance-api:2023.1
     storage:
       local-repository: 5G
 
