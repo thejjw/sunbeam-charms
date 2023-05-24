@@ -33,33 +33,17 @@ applications:
     storage:
       fernet-keys: 5M
       credential-keys: 5M
-  glance:
-    charm: ch:glance-k8s
-    channel: yoga/edge
-    scale: 1
-    trust: true
-    storage:
-      local-repository: 5G
-  nova:
-    charm: ch:nova-k8s
-    channel: yoga/edge
-    scale: 1
-    trust: true
-  placement:
-    charm: ch:placement-k8s
-    channel: yoga/edge
-    scale: 1
-    trust: true
   neutron:
-    charm: ch:neutron-k8s
     charm: ../../neutron-k8s.charm
     scale: 1
     trust: true
+    options:
+      debug: true
     resources:
-      neutron-server-image: kolla/ubuntu-binary-neutron-server:yoga
+      neutron-server-image: ghcr.io/openstack-snaps/neutron-server:2023.1
   ovn-central:
     charm: ch:ovn-central-k8s
-    channel: 22.03/edge
+    channel: 23.03/edge
     scale: 1
     trust: true
   tls-operator:
@@ -77,41 +61,6 @@ relations:
   - keystone:ingress-internal
 - - traefik-public:ingress
   - keystone:ingress-public
-
-- - mysql:database
-  - glance:database
-- - rabbitmq:amqp
-  - glance:amqp
-- - keystone:identity-service
-  - glance:identity-service
-- - traefik:ingress
-  - glance:ingress-internal
-- - traefik-public:ingress
-  - glance:ingress-public
-
-- - mysql:database
-  - nova:database
-- - mysql:database
-  - nova:api-database
-- - mysql:database
-  - nova:cell-database
-- - rabbitmq:amqp
-  - nova:amqp
-- - keystone:identity-service
-  - nova:identity-service
-- - traefik:ingress
-  - nova:ingress-internal
-- - traefik-public:ingress
-  - nova:ingress-public
-
-- - mysql:database
-  - placement:database
-- - keystone:identity-service
-  - placement:identity-service
-- - traefik:ingress
-  - placement:ingress-internal
-- - traefik-public:ingress
-  - placement:ingress-public
 
 - - mysql:database
   - neutron:database

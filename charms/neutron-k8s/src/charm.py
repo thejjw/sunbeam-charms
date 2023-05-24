@@ -28,6 +28,8 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.guard as sunbeam_guard
+import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 from ops.framework import (
@@ -275,6 +277,28 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
             handlers.append(self.ovsdb_cms)
         handlers = super().get_relation_handlers(handlers)
         return handlers
+
+    @sunbeam_job_ctrl.run_once_per_unit("post-db-sync-restart")
+    def _post_db_sync_restart(self) -> None:
+        # If neutron-server is running prior to the db-sync the
+        # hash ring job can wedge communication with ovn so restart
+        # neutron-server. Note that the run_once_per_unit decorator
+        # ensure this is only run once.
+        handler = self.get_named_pebble_handler("neutron-server")
+        logger.debug("Restarting neutron-server after db sync")
+        handler.start_all(restart=True)
+
+    @sunbeam_job_ctrl.run_once_per_unit("db-sync")
+    def run_db_sync(self) -> None:
+        """Run db sync and restart neutron-server."""
+        super().run_db_sync()
+        self._post_db_sync_restart()
+
+    def configure_app_non_leader(self, event):
+        """Setup steps for a non-leader after leader has bootstrapped."""
+        if not self.bootstrapped:
+            raise sunbeam_guard.WaitingExceptionError("Leader not ready")
+        self._post_db_sync_restart()
 
 
 if __name__ == "__main__":

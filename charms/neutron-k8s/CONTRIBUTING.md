@@ -48,7 +48,7 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./neutron-k8s_ubuntu-20.04-amd64.charm --trust --resource neutron-server-image=kolla/ubuntu-binary-neutron-server:yoga
+    juju deploy ./neutron-k8s_ubuntu-20.04-amd64.charm --trust --resource neutron-server-image=ghcr.io/openstack-snaps/neutron-server:2023.1
 
 <!-- LINKS -->
 

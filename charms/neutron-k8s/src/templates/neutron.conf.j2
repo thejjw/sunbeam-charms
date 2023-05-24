@@ -2,6 +2,7 @@
 core_plugin = ml2
 debug = {{ options.debug }}
 log_dir = /var/log/neutron
+state_path = /var/lib/neutron
 
 router_distributed = False
 
@@ -27,6 +28,9 @@ notify_nova_on_port_data_changes = True
 global_physnet_mtu = 1500
 
 transport_url = {{ amqp.transport_url }}
+
+[oslo_concurrency]
+lock_path = $state_path/lock
 
 [agent]
 root_helper = "sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf"

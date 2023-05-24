@@ -50,7 +50,7 @@ neutron-k8s requires the following relations:
 
 ## OCI Images
 
-The charm by default uses `docker.io/kolla/ubuntu-binary-neutron-server:yoga` image.
+The charm by default uses `ghcr.io/openstack-snaps/neutron-server:2023.1` image.
 
 ## Contributing
 
