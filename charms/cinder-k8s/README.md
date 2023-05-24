@@ -49,8 +49,8 @@ cinder-k8s requires the following relations:
 
 The charm by default uses follwoing images:
 
-`docker.io/kolla/ubuntu-binary-cinder-api:yoga`
-`docker.io/kolla/ubuntu-binary-cinder-scheduler:yoga`
+`ghcr.io/openstack-snaps/cinder-api:2023.1`
+`ghcr.io/openstack-snaps/cinder-scheduler:2023.1`
 
 ## Contributing
 

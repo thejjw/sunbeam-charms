@@ -27,13 +27,11 @@ resources:
   cinder-api-image:
     type: oci-image
     description: OCI image for OpenStack Cinder API
-    # docker.io/kolla/ubuntu-binary-cinder-api:yoga
-    upstream-source: docker.io/kolla/ubuntu-binary-cinder-api@sha256:1ea1b20809c6539d012f753ce0ed72d60708698635de11929306682b2d57776c
+    upstream-source: ghcr.io/openstack-snaps/cinder-api:2023.1
   cinder-scheduler-image:
     type: oci-image
     description: OCI image for OpenStack Cinder Scheduler
-    # docker.io/kolla/ubuntu-binary-cinder-scheduler:yoga
-    upstream-source: docker.io/kolla/ubuntu-binary-cinder-scheduler@sha256:6733bef1cca6c8fb8f6e40f149ae8ad3f5d1bb7d2de6a312b00dca6b1c77af52
+    upstream-source: ghcr.io/openstack-snaps/cinder-scheduler:2023.1
 
 requires:
   database:
