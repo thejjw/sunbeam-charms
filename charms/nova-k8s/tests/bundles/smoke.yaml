@@ -45,9 +45,9 @@ applications:
     scale: 1
     trust: true
     resources:
-      nova-api-image: kolla/ubuntu-binary-nova-api:yoga
-      nova-scheduler-image: kolla/ubuntu-binary-nova-scheduler:yoga
-      nova-conductor-image: kolla/ubuntu-binary-nova-conductor:yoga
+      nova-api-image: ghcr.io/openstack-snaps/nova-api:2023.1
+      nova-scheduler-image: ghcr.io/openstack-snaps/nova-scheduler:2023.1
+      nova-conductor-image: ghcr.io/openstack-snaps/nova-conductor:2023.1
 
   placement:
     charm: ch:placement-k8s

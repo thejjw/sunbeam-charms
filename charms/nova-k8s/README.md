@@ -50,9 +50,9 @@ nova-k8s requires the following relations:
 
 The charm by default uses following images:
 
-    `docker.io/kolla/ubuntu-binary-nova-api:xena`
-    `docker.io/kolla/ubuntu-binary-nova-scheduler:xena`
-    `docker.io/kolla/ubuntu-binary-nova-conductor:xena`
+    `ghcr.io/openstack-snaps/nova-api:2023.1`
+    `ghcr.io/openstack-snaps/nova-scheduler:2023.1`
+    `ghcr.io/openstack-snaps/nova-conductor:2023.1`
 
 ## Contributing
 
