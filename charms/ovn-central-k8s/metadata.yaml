@@ -51,18 +51,15 @@ resources:
   ovn-sb-db-server-image:
     type: oci-image
     description: OCI image for OVN Southbound Database Server
-    # docker.io/kolla/ubuntu-binary-ovn-sb-db-server:yoga
-    upstream-source: docker.io/kolla/ubuntu-binary-ovn-sb-db-server@sha256:35a6e75cd8e613a608ed96a6c4c790d776e16bcb6b1e71dcd9729d12bb3748a2
+    upstream-source: ghcr.io/openstack-snaps/ovn-sb-db-server:23.03
   ovn-nb-db-server-image:
     type: oci-image
     description: OCI image for OVN Northbound Database Server
-    # docker.io/kolla/ubuntu-binary-ovn-nb-db-server:yoga
-    upstream-source: docker.io/kolla/ubuntu-binary-ovn-nb-db-server@sha256:7d6c8588ca01fb725785332d493531e4aeebde8327e02a95b90c3c04daf40765
+    upstream-source: ghcr.io/openstack-snaps/ovn-nb-db-server:23.03
   ovn-northd-image:
     type: oci-image
     description: OCI image for OVN Northd
-    # docker.io/kolla/ubuntu-binary-ovn-northd:yoga
-    upstream-source: docker.io/kolla/ubuntu-binary-ovn-northd@sha256:d388fdb8c8020f2852460274a84e5ad552a39d36f896a1fc6a8d1f5653dfdbab
+    upstream-source: ghcr.io/openstack-snaps/ovn-northd:23.03
 
 requires:
   certificates:
