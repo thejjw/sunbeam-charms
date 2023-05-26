@@ -29,7 +29,7 @@ import socket
 import string
 from typing import List
 
-import charms.operator_libs_linux.v1.snap as snap
+import charms.operator_libs_linux.v2.snap as snap
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
