@@ -53,6 +53,7 @@ on enhancements to this charm following best practice guidelines, and
 
 Please report bugs on [Launchpad][lp-bugs-charm-ovn-relay-k8s].
 
+
 <!-- LINKS -->
 
 [contributors-guide]: https://opendev.org/x/charm-ovn-relay-k8s/src/branch/main/CONTRIBUTING.md
