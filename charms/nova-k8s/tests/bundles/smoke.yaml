@@ -32,7 +32,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: yoga/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
     options:
@@ -51,7 +51,7 @@ applications:
 
   placement:
     charm: ch:placement-k8s
-    channel: yoga/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
 
