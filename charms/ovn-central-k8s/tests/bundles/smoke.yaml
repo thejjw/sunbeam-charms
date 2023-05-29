@@ -25,7 +25,7 @@ applications:
     trust: true
   keystone:
     charm: ch:keystone-k8s
-    channel: yoga/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
     options:
@@ -35,24 +35,24 @@ applications:
       credential-keys: 5M
   glance:
     charm: ch:glance-k8s
-    channel: yoga/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
     storage:
       local-repository: 5G
   nova:
     charm: ch:nova-k8s
-    channel: yoga/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
   placement:
     charm: ch:placement-k8s
-    channel: yoga/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
   neutron:
     charm: ch:neutron-k8s
-    channel: yoga/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
   ovn-central:
