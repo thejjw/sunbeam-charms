@@ -6,6 +6,7 @@ applications:
     channel: 8.0/stable
     scale: 1
     trust: false
+    constraints: mem=1G
 
   # Currently traefik is required for networking things.
   # If this isn't present, the units will hang at "installing agent".
@@ -31,7 +32,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: yoga/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
     options:
@@ -42,7 +43,7 @@ applications:
 
   cinder:
     charm: ch:cinder-k8s
-    channel: yoga/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
 
@@ -52,7 +53,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      cinder-volume-image: docker.io/kolla/ubuntu-binary-cinder-volume:yoga
+      cinder-volume-image: ghcr.io/openstack-snaps/cinder-volume:2023.1
 
 relations:
 - - traefik:ingress

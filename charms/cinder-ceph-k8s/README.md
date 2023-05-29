@@ -45,7 +45,7 @@ cinder-ceph-k8s requires the following relations:
 
 ## OCI Images
 
-The charm by default uses `docker.io/kolla/ubuntu-binary-cinder-ceph:yoga` image.
+The charm by default uses `ghcr.io/openstack-snaps/cinder-volume:2023.1`
 
 ## Contributing
 
