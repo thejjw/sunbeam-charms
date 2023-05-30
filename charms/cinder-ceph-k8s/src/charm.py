@@ -35,6 +35,9 @@ import ops_sunbeam.core as core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from ops.framework import (
+    EventBase,
+)
 from ops.main import (
     main,
 )
@@ -291,6 +294,12 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
                     "Payload container not ready"
                 )
         super().init_container_services()
+
+    def _on_config_changed(self, event: EventBase) -> None:
+        self.configure_charm(event)
+        if self.ceph.ready:
+            logger.info("CONFIG changed and ceph ready: calling request pools")
+            self.ceph.request_pools(event)
 
 
 if __name__ == "__main__":
