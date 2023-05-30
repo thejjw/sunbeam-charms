@@ -353,15 +353,9 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             return
 
         ph = self.get_named_pebble_handler("glance-api")
-        ph.execute(["a2enmod", "proxy_http"], exception_on_error=True)
         if ph.pebble_ready:
+            ph.execute(["a2enmod", "proxy_http"], exception_on_error=True)
             if self.has_ceph_relation() and self.ceph.key:
-                logger.debug("Setting up Ceph packages in images.")
-                ph.execute(["apt", "update"], exception_on_error=True)
-                ph.execute(
-                    ["apt", "install", "-y", "ceph-common"],
-                    exception_on_error=True,
-                )
                 ph.execute(
                     [
                         "ceph-authtool",
