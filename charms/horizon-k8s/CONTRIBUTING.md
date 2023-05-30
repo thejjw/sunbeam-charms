@@ -22,7 +22,7 @@ ingress-public relation to get exposed over internal and public networks.
 
 ## Intended use case
 
-horizon-k8s charm deploys and configures OpenStack Dashboard service
+horizon-k8s charm deploys and configures Horizon service
 on a kubernetes based environment.
 
 ## Roadmap
@@ -45,7 +45,7 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./horizon-k8s_ubuntu-20.04-amd64.charm --trust --resource openstack-dashboard-image=ghcr.io/openstack-snaps/horizon:2023.1
+    juju deploy ./horizon-k8s_ubuntu-20.04-amd64.charm --trust --resource horizon-image=ghcr.io/openstack-snaps/horizon:2023.1
 
 <!-- LINKS -->
 

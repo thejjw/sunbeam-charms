@@ -13,9 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""OpenstackDashboard Operator Charm.
+"""Horizon Operator Charm.
 
-This charm provide OpenstackDashboard services as part of an OpenStack
+This charm provide Horizon services as part of an OpenStack
 deployment
 """
 
@@ -34,11 +34,11 @@ from ops.main import (
 
 logger = logging.getLogger(__name__)
 
-OPENSTACK_DASHBOARD = "openstack-dashboard"
+HORIZON = "horizon"
 
 
-class WSGIDashboardPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
-    """Dashboard Pebble Handler."""
+class WSGIHorizonPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
+    """Horizon Pebble Handler."""
 
     def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
         """Enable and start WSGI service."""
@@ -46,6 +46,9 @@ class WSGIDashboardPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         try:
             process = container.exec(
                 ["a2dissite", "000-default"], timeout=5 * 60
+            )
+            process = container.exec(
+                ["a2disconf", "openstack-dashboard"], timeout=5 * 60
             )
             out, warnings = process.wait_output()
             if warnings:
@@ -57,11 +60,11 @@ class WSGIDashboardPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         super().init_service(context)
 
 
-class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
+class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
     _state = ops.framework.StoredState()
-    service_name = "openstack-dashboard"
+    service_name = "horizon"
     wsgi_admin_script = (
         "/usr/share/openstack-dashboard/openstack_dashboard/wsgi/django.wsgi"
     )
@@ -101,11 +104,6 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return 80
 
     @property
-    def apache_vhost(self) -> str:
-        """Service default configuration file."""
-        return "/etc/apache2/sites-enabled/openstack-dashboard.conf"
-
-    @property
     def service_conf(self) -> str:
         """Service default configuration file."""
         return "/etc/openstack-dashboard/local_settings.py"
@@ -125,19 +123,19 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Endpoints for horizon."""
         return [
             {
-                "service_name": "openstack-dashboard",
+                "service_name": self.service_name,
                 "type": "openstack-dashboard",
-                "description": "OpenStack OpenstackDashboard API",
-                "internal_url": f"{self.internal_url}",
-                "public_url": f"{self.public_url}",
-                "admin_url": f"{self.admin_url}",
+                "description": "OpenStack Horizon",
+                "internal_url": self.internal_url,
+                "public_url": self.public_url,
+                "admin_url": self.admin_url,
             }
         ]
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""
         return [
-            WSGIDashboardPebbleHandler(
+            WSGIHorizonPebbleHandler(
                 self,
                 self.service_name,
                 self.service_name,
@@ -150,20 +148,6 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def configure_charm(self, event: ops.framework.EventBase) -> None:
         """Configure charm services."""
-        # TODO(jamespage)
-        # This is a direct mutation of the container which is less than
-        # ideal but it does workaround the fact that you cannot
-        # configure Django with a dialect for MySQL (pymysql is installed)
-        # This can be dropped when we move to a supported OCI image
-        ph = self.get_named_pebble_handler(OPENSTACK_DASHBOARD)
-        if ph.pebble_ready:
-            logger.debug("Installing MySQLDB client.")
-            ph.execute(["apt", "update"], exception_on_error=True)
-            ph.execute(
-                ["apt", "install", "-y", "python3-mysqldb"],
-                exception_on_error=True,
-            )
-
         super().configure_charm(event)
         if self.bootstrapped():
             self.status.set(ops.model.ActiveStatus(""))
@@ -172,6 +156,11 @@ class OpenstackDashboardOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                     self.ingress_public.url
                 )
 
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return super().healthcheck_http_url + "openstack-horizon/"
+
 
 if __name__ == "__main__":
-    main(OpenstackDashboardOperatorCharm)
+    main(HorizonOperatorCharm)

@@ -22,7 +22,7 @@ import ops_sunbeam.test_utils as test_utils
 import charm
 
 
-class _DashboardOperatorCharm(charm.OpenstackDashboardOperatorCharm):
+class _HorizonOperatorCharm(charm.HorizonOperatorCharm):
     """Test Operator Charm for Horizon Operator."""
 
     def __init__(self, framework):
@@ -41,7 +41,7 @@ class _DashboardOperatorCharm(charm.OpenstackDashboardOperatorCharm):
         return "dashboard.juju"
 
 
-class TestDashboardOperatorCharm(test_utils.CharmTestCase):
+class TestHorizonOperatorCharm(test_utils.CharmTestCase):
     """Unit tests for Horizon Operator."""
 
     PATCHES = []
@@ -54,7 +54,7 @@ class TestDashboardOperatorCharm(test_utils.CharmTestCase):
         """Setup environment for unit test."""
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
-            _DashboardOperatorCharm, container_calls=self.container_calls
+            _HorizonOperatorCharm, container_calls=self.container_calls
         )
 
         # clean up events that were dynamically defined,
@@ -91,7 +91,8 @@ class TestDashboardOperatorCharm(test_utils.CharmTestCase):
         test_utils.add_complete_ingress_relation(self.harness)
         setup_cmds = [
             ["a2dissite", "000-default"],
-            ["a2ensite", "wsgi-openstack-dashboard"],
+            ["a2disconf", "openstack-dashboard"],
+            ["a2ensite", "wsgi-horizon"],
             [
                 "python3",
                 "/usr/share/openstack-dashboard/manage.py",
@@ -100,15 +101,13 @@ class TestDashboardOperatorCharm(test_utils.CharmTestCase):
             ],
         ]
         for cmd in setup_cmds:
-            self.assertIn(
-                cmd, self.container_calls.execute["openstack-dashboard"]
-            )
+            self.assertIn(cmd, self.container_calls.execute["horizon"])
         self.check_file(
-            "openstack-dashboard",
-            "/etc/apache2/sites-available/wsgi-openstack-dashboard.conf",
+            "horizon",
+            "/etc/apache2/sites-available/wsgi-horizon.conf",
         )
         self.check_file(
-            "openstack-dashboard", "/etc/openstack-dashboard/local_settings.py"
+            "horizon", "/etc/openstack-dashboard/local_settings.py"
         )
 
     def test_get_dashboard_url_action(self):
