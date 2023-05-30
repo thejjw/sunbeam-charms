@@ -395,6 +395,12 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             )
         ]
 
+    def _on_config_changed(self, event: EventBase) -> None:
+        self.configure_charm(event)
+        if self.has_ceph_relation() and self.ceph.ready:
+            logger.info("CONFIG changed and ceph ready: calling request pools")
+            self.ceph.request_pools(event)
+
 
 if __name__ == "__main__":
     main(GlanceOperatorCharm)
