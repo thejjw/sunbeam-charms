@@ -187,7 +187,7 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
     _authed = False
-    service_name = "cinder"
+    service_name = "cinder-api"
     wsgi_admin_script = "/usr/bin/cinder-wsgi"
     wsgi_public_script = "/usr/bin/cinder-wsgi"
 
@@ -294,9 +294,19 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return 8776
 
     @property
-    def wsgi_container_name(self):
-        """WSGI API service container name."""
-        return CINDER_API_CONTAINER
+    def service_conf(self) -> str:
+        """Service default configuration file."""
+        return "/etc/cinder/cinder.conf"
+
+    @property
+    def service_user(self) -> str:
+        """Service user file and directory ownership."""
+        return "cinder"
+
+    @property
+    def service_group(self) -> str:
+        """Service group file and directory ownership."""
+        return "cinder"
 
     @property
     def db_sync_container_name(self) -> str:
