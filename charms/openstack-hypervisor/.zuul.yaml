@@ -3,7 +3,7 @@
       - openstack-python3-charm-yoga-jobs
       - openstack-cover-jobs
     vars:
-      charm_build_name: keystone-k8s
+      charm_build_name: openstack-hypervisor
       juju_channel: 3.1/stable
       juju_classic_mode: false
       microk8s_channel: 1.26-strict/stable

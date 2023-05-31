@@ -1,6 +1,6 @@
 options:
   snap-channel:
-    default: "yoga/edge"
+    default: "2023.1/edge"
     type: string
   debug:
     default: False
