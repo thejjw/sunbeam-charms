@@ -56,6 +56,7 @@ on enhancements to this charm following best practice guidelines, and
 
 Please report bugs on [Launchpad][lp-bugs-charm-horizon-k8s].
 
+
 <!-- LINKS -->
 
 [contributors-guide]: https://opendev.org/openstack/charm-horizon-k8s/src/branch/main/CONTRIBUTING.md
