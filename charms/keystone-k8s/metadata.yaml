@@ -11,7 +11,9 @@ description: |
 version: 3
 bases:
   - name: ubuntu
-    channel: 20.04/stable
+    channel: 22.04/stable
+assumes:
+  - k8s-api
 tags:
   - openstack
   - identity
