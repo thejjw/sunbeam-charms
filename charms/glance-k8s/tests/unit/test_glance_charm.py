@@ -99,8 +99,6 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
         ceph_install_cmds = [
-            ["apt", "update"],
-            ["apt", "install", "-y", "ceph-common"],
             [
                 "ceph-authtool",
                 "/etc/ceph/ceph.client.glance-k8s.keyring",
