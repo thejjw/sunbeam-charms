@@ -25,6 +25,7 @@ import logging
 from typing import (
     Dict,
     List,
+    Mapping,
 )
 
 import charms.cinder_k8s.v0.storage_backend as sunbeam_storage_backend  # noqa
@@ -264,6 +265,11 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ]
         )
         return _cconfigs
+
+    @property
+    def databases(self) -> Mapping[str, str]:
+        """Provide database name for cinder services."""
+        return {"database": "cinder"}
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the charm."""
