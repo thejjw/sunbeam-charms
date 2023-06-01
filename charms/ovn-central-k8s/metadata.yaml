@@ -25,7 +25,11 @@ tags:
 - networking
 source: https://opendev.org/x/charm-ovn-central-k8s
 issues: https://bugs.launchpad.net/charm-ovn-central-k8s
-
+bases:
+  - name: ubuntu
+    channel: 22.04/stable
+assumes:
+  - k8s-api
 storage:
   databases:
     type: filesystem
