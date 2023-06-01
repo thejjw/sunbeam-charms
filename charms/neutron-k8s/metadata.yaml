@@ -16,7 +16,11 @@ tags:
   - openstack
 source: https://opendev.org/openstack/charm-neutron-k8s
 issues: https://bugs.launchpad.net/charm-neutron-k8s
-
+bases:
+  - name: ubuntu
+    channel: 22.04/stable
+assumes:
+  - k8s-api
 containers:
   neutron-server:
     resource: neutron-server-image
