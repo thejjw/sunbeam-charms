@@ -20,14 +20,18 @@
 This charm provide Cinder <-> Ceph integration as part
 of an OpenStack deployment
 """
-
 import logging
+import uuid
 from typing import (
+    Callable,
     List,
     Mapping,
+    Optional,
 )
 
+import charms.cinder_ceph_k8s.v0.ceph_access as sunbeam_ceph_access  # noqa
 import charms.cinder_k8s.v0.storage_backend as sunbeam_storage_backend  # noqa
+import ops.charm
 import ops_sunbeam.charm as charm
 import ops_sunbeam.config_contexts as config_contexts
 import ops_sunbeam.container_handlers as container_handlers
@@ -35,11 +39,12 @@ import ops_sunbeam.core as core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
-from ops.framework import (
-    EventBase,
-)
 from ops.main import (
     main,
+)
+from ops.model import (
+    Relation,
+    SecretRotate,
 )
 
 logger = logging.getLogger(__name__)
@@ -85,7 +90,7 @@ class CinderCephConfigurationContext(config_contexts.ConfigContext):
             "rbd_user": self.charm.app.name,
             "backend_name": backend_name,
             "backend_availability_zone": config("backend-availability-zone"),
-            "secret_uuid": "f889b537-8d4e-4445-ae32-7552073e9b7e",
+            "secret_uuid": self.charm.get_secret_uuid() or "unknown",
         }
 
 
@@ -112,6 +117,42 @@ class StorageBackendProvidesHandler(sunbeam_rhandlers.RelationHandler):
     def ready(self) -> bool:
         """Check whether storage-backend interface is ready for use."""
         return self.interface.remote_ready()
+
+
+class CephAccessProvidesHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for identity service relation."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+    ):
+        super().__init__(charm, relation_name, callback_f)
+
+    def setup_event_handler(self):
+        """Configure event handlers for an Identity service relation."""
+        logger.debug("Setting up Ceph Access event handler")
+        ceph_access_svc = sunbeam_ceph_access.CephAccessProvides(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            ceph_access_svc.on.ready_ceph_access_clients,
+            self._on_ceph_access_ready,
+        )
+        return ceph_access_svc
+
+    def _on_ceph_access_ready(self, event) -> None:
+        """Handles AMQP change events."""
+        # Ready is only emitted when the interface considers
+        # that the relation is complete.
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return True
 
 
 class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
@@ -171,6 +212,10 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
     cinder_conf = "/etc/cinder/cinder.conf"
     ceph_conf = "/etc/ceph/ceph.conf"
 
+    client_secret_key = "secret-uuid"
+
+    ceph_access_relation_name = "ceph-access"
+
     mandatory_relations = {
         "database",
         "amqp",
@@ -200,6 +245,12 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
             "storage-backend" in self.mandatory_relations,
         )
         handlers.append(self.sb_svc)
+        self.ceph_access = CephAccessProvidesHandler(
+            self,
+            "ceph-access",
+            self.process_ceph_access_client_event,
+        )
+        handlers.append(self.ceph_access)
         return handlers
 
     def get_pebble_handlers(self) -> List[container_handlers.PebbleHandler]:
@@ -303,11 +354,109 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
                 )
         super().init_container_services()
 
-    def _on_config_changed(self, event: EventBase) -> None:
-        self.configure_charm(event)
+    def _set_or_update_rbd_secret(
+        self,
+        ceph_key: str,
+        scope: dict = {},
+        rotate: SecretRotate = SecretRotate.NEVER,
+    ) -> str:
+        """Create ceph access secret or update it.
+
+        Create ceph access secret or if it already exists check the contents
+        and update them if needed.
+        """
+        rbd_secret_uuid_id = self.peers.get_app_data(self.client_secret_key)
+        if rbd_secret_uuid_id:
+            secret = self.model.get_secret(id=rbd_secret_uuid_id)
+            secret_data = secret.get_content()
+            if secret_data.get("key") != ceph_key:
+                secret_data["key"] = ceph_key
+                secret.set_content(secret_data)
+        else:
+            secret = self.model.app.add_secret(
+                {
+                    "uuid": str(uuid.uuid4()),
+                    "key": ceph_key,
+                },
+                label=self.client_secret_key,
+                rotate=rotate,
+            )
+            self.peers.set_app_data(
+                {
+                    self.client_secret_key: secret.id,
+                }
+            )
+        if "relation" in scope:
+            secret.grant(scope["relation"])
+
+        return secret.id
+
+    def get_secret_uuid(self) -> Optional[str]:
+        """Get the secret uuid."""
+        uuid = None
+        rbd_secret_uuid_id = self.peers.get_app_data(self.client_secret_key)
+        if rbd_secret_uuid_id:
+            secret = self.model.get_secret(id=rbd_secret_uuid_id)
+            secret_data = secret.get_content()
+            uuid = secret_data["uuid"]
+        return uuid
+
+    def configure_app_leader(self, event: ops.framework.EventBase):
+        """Run global app setup.
+
+        These are tasks that should only be run once per application and only
+        the leader runs them.
+        """
         if self.ceph.ready:
-            logger.info("CONFIG changed and ceph ready: calling request pools")
-            self.ceph.request_pools(event)
+            self._set_or_update_rbd_secret(self.ceph.key)
+            self.set_leader_ready()
+            self.broadcast_ceph_access_credentials()
+        else:
+            raise sunbeam_guard.WaitingExceptionError(
+                "Ceph relation not ready"
+            )
+
+    def can_service_requests(self) -> bool:
+        """Check if unit can process client requests."""
+        if self.bootstrapped() and self.unit.is_leader():
+            logger.debug("Can service client requests")
+            return True
+        else:
+            logger.debug(
+                "Cannot service client requests. "
+                "Bootstrapped: {} Leader {}".format(
+                    self.bootstrapped(), self.unit.is_leader()
+                )
+            )
+            return False
+
+    def send_ceph_access_credentials(self, relation: Relation):
+        """Send clients a link to the secret and grant them access."""
+        rbd_secret_uuid_id = self.peers.get_app_data(self.client_secret_key)
+        secret = self.model.get_secret(id=rbd_secret_uuid_id)
+        secret.grant(relation)
+        self.ceph_access.interface.set_ceph_access_credentials(
+            self.ceph_access_relation_name, relation.id, rbd_secret_uuid_id
+        )
+
+    def process_ceph_access_client_event(self, event: ops.framework.EventBase):
+        """Inform a single client of the access data."""
+        self.broadcast_ceph_access_credentials(relation_id=event.relation.id)
+
+    def broadcast_ceph_access_credentials(
+        self, relation_id: str = None
+    ) -> bool:
+        """Send ceph access data to clients."""
+        logger.debug("Checking for outstanding client requests")
+        if not self.can_service_requests():
+            return
+        for relation in self.framework.model.relations[
+            self.ceph_access_relation_name
+        ]:
+            if relation_id and relation.id == relation_id:
+                self.send_ceph_access_credentials(relation)
+            elif not relation_id:
+                self.send_ceph_access_credentials(relation)
 
 
 if __name__ == "__main__":

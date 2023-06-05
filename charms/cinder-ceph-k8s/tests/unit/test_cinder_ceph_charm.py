@@ -82,6 +82,23 @@ class TestCinderCephOperatorCharm(test_utils.CharmTestCase):
         self.harness = test_utils.get_harness(
             _CinderCephOperatorCharm, container_calls=self.container_calls
         )
+        # clean up events that were dynamically defined,
+        # otherwise we get issues because they'll be redefined,
+        # which is not allowed.
+        from charms.data_platform_libs.v0.database_requires import (
+            DatabaseEvents,
+        )
+
+        for attr in (
+            "database_database_created",
+            "database_endpoints_changed",
+            "database_read_only_endpoints_changed",
+        ):
+            try:
+                delattr(DatabaseEvents, attr)
+            except AttributeError:
+                pass
+
         self.addCleanup(self.harness.cleanup)
 
     def test_all_relations(self):
@@ -93,3 +110,21 @@ class TestCinderCephOperatorCharm(test_utils.CharmTestCase):
         add_complete_storage_backend_relation(self.harness)
         test_utils.set_all_pebbles_ready(self.harness)
         self.assertTrue(self.harness.charm.relation_handlers_ready())
+
+    def test_ceph_access(self):
+        """Test charm provides secret via ceph-access."""
+        self.harness.begin_with_initial_hooks()
+        self.harness.set_leader()
+        test_utils.add_complete_ceph_relation(self.harness)
+        test_utils.add_complete_amqp_relation(self.harness)
+        test_utils.add_complete_db_relation(self.harness)
+        access_rel = self.harness.add_relation(
+            "ceph-access", "openstack-hypervisor"
+        )
+        add_complete_storage_backend_relation(self.harness)
+        test_utils.set_all_pebbles_ready(self.harness)
+        self.assertTrue(self.harness.charm.relation_handlers_ready())
+        rel_data = self.harness.get_relation_data(
+            access_rel, self.harness.charm.unit.app.name
+        )
+        self.assertRegex(rel_data["access-credentials"], "^secret:.*")
