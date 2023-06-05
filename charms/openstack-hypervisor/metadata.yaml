@@ -20,6 +20,9 @@ requires:
   ceilometer-service:
     interface: ceilometer
     optional: true
+  ceph-access:
+    interface: cinder-ceph-key
+    optional: true
 
 provides:
   cos-agent:

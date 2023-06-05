@@ -76,6 +76,18 @@ class TestCharm(test_utils.CharmTestCase):
                 "private-address": "10.20.21.10",
             },
         )
+        ceph_rel_id = self.harness.add_relation("ceph-access", "cinder-ceph")
+        self.harness.add_relation_unit(ceph_rel_id, "cinder-ceph/0")
+
+        credentials_content = {"uuid": "ddd", "key": "eee"}
+        credentials_id = self.harness.add_model_secret("cinder-ceph", credentials_content)
+
+        self.harness.grant_secret(credentials_id, self.harness.charm.app.name)
+        self.harness.update_relation_data(
+            ceph_rel_id,
+            "cinder-ceph",
+            {"access-credentials": credentials_id},
+        )
 
     def test_mandatory_relations(self):
         """Test all the charms relations."""
@@ -101,6 +113,9 @@ class TestCharm(test_utils.CharmTestCase):
             "compute.cpu-mode": "host-model",
             "compute.spice-proxy-address": "10.0.0.10",
             "compute.virt-type": "kvm",
+            "compute.rbd-user": "nova",
+            "compute.rbd-secret-uuid": "ddd",
+            "compute.rbd-key": "eee",
             "credentials.ovn-metadata-proxy-shared-secret": metadata,
             "identity.admin-role": None,
             "identity.auth-url": "http://10.153.2.45:80/openstack-keystone",
@@ -173,6 +188,9 @@ class TestCharm(test_utils.CharmTestCase):
             "compute.cpu-mode": "host-model",
             "compute.spice-proxy-address": "10.0.0.10",
             "compute.virt-type": "kvm",
+            "compute.rbd-user": "nova",
+            "compute.rbd-secret-uuid": "ddd",
+            "compute.rbd-key": "eee",
             "credentials.ovn-metadata-proxy-shared-secret": metadata,
             "identity.admin-role": None,
             "identity.auth-url": "http://10.153.2.45:80/openstack-keystone",

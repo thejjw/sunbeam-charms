@@ -215,6 +215,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             sb_connection_strs = list(contexts.ovsdb_cms.db_ingress_sb_connection_strs)
             if not sb_connection_strs:
                 raise AttributeError(name="ovsdb southbound ingress string")
+
             snap_data = {
                 "compute.cpu-mode": "host-model",
                 "compute.spice-proxy-address": config("ip-address") or local_ip,
@@ -252,8 +253,20 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             }
         except AttributeError as e:
             raise sunbeam_guard.WaitingExceptionError("Data missing: {}".format(e.name))
-
         # Handle optional config contexts
+        try:
+            if contexts.ceph_access.uuid:
+                snap_data.update(
+                    {
+                        "compute.rbd-user": "nova",
+                        "compute.rbd-secret-uuid": contexts.ceph_access.uuid,
+                        "compute.rbd-key": contexts.ceph_access.key,
+                    }
+                )
+        except AttributeError:
+            # If the relation has been removed it is probably less disruptive to leave the
+            # rbd setting in the snap rather than unsetting them.
+            logger.debug("ceph_access relation not integrated")
         try:
             if contexts.ceilometer_service.telemetry_secret:
                 snap_data.update(
