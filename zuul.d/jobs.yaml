@@ -262,6 +262,18 @@
       - rebuild
     vars:
       charm: openstack-hypervisor
+- job:
+    name: charm-build-sunbeam-machine
+    description: Build sunbeam-machine charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/sunbeam-machine/*
+      - rebuild
+    vars:
+      charm: sunbeam-machine
 
 - job:
     name: func-test-core
@@ -710,3 +722,15 @@
       - charmhub_token
     timeout: 3600
 
+- job:
+    name: publish-charm-sunbeam-machine
+    description: |
+      Publish sunbeam-machine built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/sunbeam-machine/*
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
