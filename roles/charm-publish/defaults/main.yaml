@@ -21,3 +21,4 @@ publish_channels:
   keystone-ldap-k8s: latest/edge
   openstack-exporter-k8s: latest/edge
   openstack-hypervisor: latest/edge
+  sunbeam-machine: latest/edge
