@@ -724,7 +724,9 @@ export OS_AUTH_VERSION=3
             self.IDSVC_RELATION_NAME
         ]:
             app_data = relation.data[relation.app]
-            if relation.data[self.app].get("service-credentials"):
+            if relation.data[self.app].get(
+                "service-credentials"
+            ) and relation.data[self.app].get("admin-role"):
                 logger.debug(
                     "Identity service request already processed for "
                     f"{relation.app.name} {relation.name}/{relation.id}"
@@ -751,7 +753,9 @@ export OS_AUTH_VERSION=3
             self.IDCREDS_RELATION_NAME
         ]:
             app_data = relation.data[relation.app]
-            if relation.data[self.app].get("credentials"):
+            if relation.data[self.app].get("credentials") and relation.data[
+                self.app
+            ].get("admin-role"):
                 logger.debug(
                     "Credential request already processed for "
                     f"{relation.app.name} {relation.name}/{relation.id}"
@@ -884,6 +888,7 @@ export OS_AUTH_VERSION=3
                 self.admin_endpoint,
                 self.public_endpoint,
                 service_credentials,
+                self.admin_role,
             )
 
     def add_credentials_from_event(self, event):
@@ -950,6 +955,7 @@ export OS_AUTH_VERSION=3
             project_domain_name=service_domain.name,
             project_domain_id=service_domain.id,
             region=self.model.config["region"],  # XXX(wolsen) region matters?
+            admin_role=self.admin_role,
         )
 
     @property
