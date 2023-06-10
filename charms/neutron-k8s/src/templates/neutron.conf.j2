@@ -41,6 +41,8 @@ root_helper = "sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf"
 
 {% include "parts/section-identity" %}
 
+{% include "parts/section-service-user" %}
+
 [nova]
 
 {% if identity_service.internal_auth_url -%}
