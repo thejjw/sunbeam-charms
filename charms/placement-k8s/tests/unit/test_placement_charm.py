@@ -95,7 +95,12 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_all_relations(self.harness)
+        id_svc_rel = self.harness.model.get_relation("identity-service")
+        self.harness.update_relation_data(
+            id_svc_rel.id, "keystone", {"service-domain-id": "svcdomid"}
+        )
         test_utils.add_complete_ingress_relation(self.harness)
+
         setup_cmds = [
             ["a2ensite", "wsgi-placement-api"],
             ["sudo", "-u", "placement", "placement-manage", "db", "sync"],
@@ -125,6 +130,19 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         project_name = None
         username = svcuser1
         password = svcpass1
+        service_token_roles = None
+        service_token_roles_required = True
+
+        [service_user]
+        auth_url = http://keystone.internal:5000
+        send_service_user_token = true
+        auth_type = password
+        project_domain_id = svcprojid1
+        user_domain_id = svcdomid
+        project_name = None
+        username = svcuser1
+        password = svcpass1
+
 
         [placement]
         randomize_allocation_candidates = true
