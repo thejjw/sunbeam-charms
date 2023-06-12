@@ -25,6 +25,8 @@ from typing import (
 )
 
 import ops.framework
+import ops.model
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
@@ -37,26 +39,29 @@ logger = logging.getLogger(__name__)
 HORIZON = "horizon"
 
 
+def exec(container: ops.model.Container, cmd: str):
+    """Execute a command in a container."""
+    logging.debug(f"Executing command: {cmd!r}")
+    try:
+        process = container.exec(cmd.split(), timeout=5 * 60)
+        out, warnings = process.wait_output()
+        if warnings:
+            for line in warnings.splitlines():
+                logger.warning(f"{cmd} warn: {line.strip()}")
+        logging.debug(f"Output from {cmd!r}: \n{out}")
+    except ops.pebble.ExecError:
+        logger.exception(f"Command {cmd!r} failed")
+
+
 class WSGIHorizonPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Horizon Pebble Handler."""
 
     def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
         """Enable and start WSGI service."""
         container = self.charm.unit.get_container(self.container_name)
-        try:
-            process = container.exec(
-                ["a2dissite", "000-default"], timeout=5 * 60
-            )
-            process = container.exec(
-                ["a2disconf", "openstack-dashboard"], timeout=5 * 60
-            )
-            out, warnings = process.wait_output()
-            if warnings:
-                for line in warnings.splitlines():
-                    logger.warning("a2dissite warn: %s", line.strip())
-            logging.debug(f"Output from a2dissite: \n{out}")
-        except ops.pebble.ExecError:
-            logger.exception("Failed to disable default site in apache")
+        exec(container, "a2dissite 000-default")
+        exec(container, "a2disconf openstack-dashboard")
+        exec(container, "a2disconf other-vhosts-access-log")
         super().init_service(context)
 
 
