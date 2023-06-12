@@ -46,11 +46,7 @@ class TestHorizonOperatorCharm(test_utils.CharmTestCase):
 
     PATCHES = []
 
-    @mock.patch(
-        "charms.observability_libs.v1.kubernetes_service_patch."
-        "KubernetesServicePatch"
-    )
-    def setUp(self, mock_patch):
+    def setUp(self):
         """Setup environment for unit test."""
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
