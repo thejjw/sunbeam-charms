@@ -8,7 +8,7 @@ debug = {{ options.debug }}
 {% if amqp %}
 transport_url = {{ amqp.transport_url }}
 {% endif %}
-log_dir = /var/log/glance
+use_syslog = true
 bind_port = 9282
 
 {% if ceph.auth %}
