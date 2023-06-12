@@ -1,11 +1,9 @@
 #!/usr/bin/bash
 
-WRAPPER_LOG=/var/log/ovn/service_wrapper.log
-
 function log_msg()
 {
     msg=$1
-    echo "$(date): $msg" >> $WRAPPER_LOG 
+    echo "$(date) [wrapper]: $msg"
 }
 
 function stop_svc()
@@ -27,5 +25,4 @@ log_msg "Starting"
     --db-nb-cluster-remote-proto=ssl \
     --ovn-nb-db-ssl-key={{ ovs_db.ovn_key }} \
     --ovn-nb-db-ssl-cert={{ ovs_db.ovn_cert }} \
-    --ovn-nb-db-ssl-ca-cert={{ ovs_db.ovn_ca_cert }} \
-    --ovn-nb-logfile=/var/log/ovn/ovn-nb-db.log
+    --ovn-nb-db-ssl-ca-cert={{ ovs_db.ovn_ca_cert }}
