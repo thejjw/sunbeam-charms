@@ -5,7 +5,7 @@
       - microk8s-func-test
     vars:
       charm_build_name: nova-k8s
-      juju_channel: 3.1/stable
+      juju_channel: 3.2/stable
       juju_classic_mode: false
       microk8s_channel: 1.26-strict/stable
       microk8s_classic_mode: false
