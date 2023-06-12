@@ -5,7 +5,7 @@ keys=root
 keys=normal,normal_with_name,debug
 
 [handlers]
-keys=production,file,devel
+keys=production,devel
 
 [logger_root]
 {% if ks_logging.root_level -%}
@@ -13,23 +13,23 @@ level={{ ks_logging.root_level }}
 {% else -%}
 level=WARNING
 {% endif -%}
-handlers=file,production
+handlers=production
 
 [handler_production]
-class=handlers.SysLogHandler
+class=StreamHandler
 {% if ks_logging.log_level -%}
 level={{ ks_logging.log_level }}
 {% else -%}
 level=ERROR
 {% endif -%}
 formatter=normal_with_name
-# args=(('/dev/log'), handlers.SysLogHandler.LOG_USER)
+args=(sys.stdout,)
 
 [handler_file]
 class=FileHandler
 level=DEBUG
 formatter=normal_with_name
-args=('{{ ks_logging.log_file }}', 'a')
+# args=('/var/log/keystone/keystone.log', 'a')
 
 [handler_devel]
 class=StreamHandler

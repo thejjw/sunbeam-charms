@@ -94,7 +94,6 @@ class KeystoneLoggingAdapter(sunbeam_contexts.ConfigContext):
                 f'(DEBUG, INFO, WARNING, ERROR) not "{log_level}"'
             )
             ctxt["log_level"] = None
-        ctxt["log_file"] = "/var/log/keystone/keystone.log"
         return ctxt
 
 
@@ -685,6 +684,7 @@ export OS_AUTH_VERSION=3
         return [
             KeystoneConfigAdapter(self, "ks_config"),
             KeystoneLoggingAdapter(self, "ks_logging"),
+            sunbeam_contexts.WSGIWorkerConfigContext(self, "wsgi_config"),
             sunbeam_contexts.CharmConfigContext(self, "options"),
         ]
 
