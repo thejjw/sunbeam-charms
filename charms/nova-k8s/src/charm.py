@@ -51,7 +51,6 @@ class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
 
     def context(self) -> dict:
         """WSGI configuration options."""
-        log_svc_name = self.charm.service_name.replace("-", "_")
         return {
             "name": self.charm.service_name,
             "public_port": 8775,
@@ -59,8 +58,8 @@ class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
             "group": self.charm.service_group,
             "wsgi_admin_script": "/usr/bin/nova-metadata-wsgi",
             "wsgi_public_script": "/usr/bin/nova-metadata-wsgi",
-            "error_log": f"/var/log/apache2/{log_svc_name}_error.log",
-            "custom_log": f"/var/log/apache2/{log_svc_name}_access.log",
+            "error_log": "/dev/stdout",
+            "custom_log": "/dev/stdout",
         }
 
 
