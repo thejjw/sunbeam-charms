@@ -1,11 +1,9 @@
 #!/usr/bin/bash
 
-WRAPPER_LOG=/var/log/ovn/service_wrapper.log
-
 function log_msg()
 {
     msg=$1
-    echo "$(date): $msg" >> $WRAPPER_LOG 
+    echo "$(date) [wrapper]: $msg"
 }
 
 function stop_svc()
@@ -18,13 +16,11 @@ REMOTES={{ ovsdb_cms.db_sb_connection_hostname_strs }}
 
 ovsdb-server \
     -vconsole:emer \
-    -vsyslog:err \
-    -vfile:info \
+    -vsyslog:info \
     -c {{ ovs_db.ovn_cert }} \
     -C {{ ovs_db.ovn_ca_cert }} \
     -p {{ ovs_db.ovn_key }} \
     --no-chdir \
-    --log-file=/var/log/ovn/ovn-relay.log \
     --pidfile=/var/run/ovn/ovn-relay.pid \
     --unixctl=/var/run/ovn/ovn_relay.sock \
     --remote=pssl:6642 relay:OVN_Southbound:$REMOTES
