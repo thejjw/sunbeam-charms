@@ -132,6 +132,8 @@ class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
                     "summary": self.service_name,
                     "command": f"{self.service_name} --use-syslog",
                     "startup": "enabled",
+                    "user": "cinder",
+                    "group": "cinder",
                 },
             },
         }
@@ -253,13 +255,15 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
             [
                 core.ContainerConfigFile(
                     self.cinder_conf,
-                    self.service_user,
+                    "root",
                     self.service_group,
+                    0o640,
                 ),
                 core.ContainerConfigFile(
                     self.ceph_conf,
-                    self.service_user,
+                    "root",
                     self.service_group,
+                    0o640,
                 ),
             ]
         )
