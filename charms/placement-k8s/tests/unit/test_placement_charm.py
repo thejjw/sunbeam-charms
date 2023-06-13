@@ -18,7 +18,6 @@
 
 import textwrap
 
-import mock
 import ops_sunbeam.test_utils as test_utils
 
 import charm
@@ -53,11 +52,7 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
     PATCHES = []
     maxDiff = None
 
-    @mock.patch(
-        "charms.observability_libs.v1.kubernetes_service_patch."
-        "KubernetesServicePatch"
-    )
-    def setUp(self, mock_patch):
+    def setUp(self):
         """Setup Placement tests."""
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
