@@ -1224,6 +1224,7 @@ export OS_AUTH_VERSION=3
         """Run configuration on this unit."""
         self.check_leader_ready()
         self.check_relation_handlers_ready()
+        self.open_ports()
         self.init_container_services()
         self.check_pebble_handlers_ready()
         self.run_db_sync()
