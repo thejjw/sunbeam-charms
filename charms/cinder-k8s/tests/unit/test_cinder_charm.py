@@ -16,7 +16,6 @@
 
 """Unit tests for core Cinder charm class."""
 
-import mock
 import ops_sunbeam.test_utils as test_utils
 
 import charm
@@ -50,11 +49,7 @@ class TestCinderOperatorCharm(test_utils.CharmTestCase):
 
     PATCHES = []
 
-    @mock.patch(
-        "charms.observability_libs.v1.kubernetes_service_patch."
-        "KubernetesServicePatch"
-    )
-    def setUp(self, mock_patch):
+    def setUp(self):
         """Setup test fixtures for test."""
         self.container_calls = {"push": {}, "pull": [], "remove_path": []}
         super().setUp(charm, self.PATCHES)
