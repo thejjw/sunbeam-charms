@@ -51,9 +51,7 @@ class _OVNCentralOperatorCharm(charm.OVNCentralOperatorCharm):
 class TestOVNCentralOperatorCharm(test_utils.CharmTestCase):
     """Class for testing OVN central charm."""
 
-    PATCHES = [
-        "KubernetesServicePatch",
-    ]
+    PATCHES = []
 
     def setUp(self):
         """Setup Glance tests."""
