@@ -42,6 +42,7 @@ from ops.pebble import (
 
 logger = logging.getLogger(__name__)
 
+NOVA_WSGI_CONTAINER = "nova-api"
 NOVA_SCHEDULER_CONTAINER = "nova-scheduler"
 NOVA_CONDUCTOR_CONTAINER = "nova-conductor"
 
@@ -85,24 +86,10 @@ class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "summary": "Nova Scheduler",
                     "command": "nova-scheduler",
                     "startup": "enabled",
+                    "user": "nova",
+                    "group": "nova",
                 }
             },
-        }
-
-    def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer.
-
-        :returns: pebble health check layer configuration for scheduler service
-        :rtype: dict
-        """
-        return {
-            "checks": {
-                "online": {
-                    "override": "replace",
-                    "level": "ready",
-                    "exec": {"command": "service nova-scheduler status"},
-                },
-            }
         }
 
     def default_container_configs(
@@ -111,7 +98,10 @@ class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         """Container configurations for handler."""
         return [
             sunbeam_core.ContainerConfigFile(
-                "/etc/nova/nova.conf", "nova", "nova"
+                "/etc/nova/nova.conf",
+                "root",
+                "nova",
+                0o640,
             )
         ]
 
@@ -144,23 +134,10 @@ class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "summary": "Nova Conductor",
                     "command": "nova-conductor",
                     "startup": "enabled",
+                    "user": "nova",
+                    "group": "nova",
                 }
             },
-        }
-
-    def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer.
-
-        :returns: pebble health check layer configuration for conductor service
-        """
-        return {
-            "checks": {
-                "online": {
-                    "override": "replace",
-                    "level": "ready",
-                    "exec": {"command": "service nova-conductor status"},
-                },
-            }
         }
 
     def default_container_configs(
@@ -169,7 +146,10 @@ class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         """Container configurations for handler."""
         return [
             sunbeam_core.ContainerConfigFile(
-                "/etc/nova/nova.conf", "nova", "nova"
+                "/etc/nova/nova.conf",
+                "root",
+                "nova",
+                0o640,
             )
         ]
 
@@ -329,27 +309,33 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self,
     ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
         """Pebble handlers for operator."""
-        pebble_handlers = super().get_pebble_handlers()
-        pebble_handlers.extend(
-            [
-                NovaSchedulerPebbleHandler(
-                    self,
-                    NOVA_SCHEDULER_CONTAINER,
-                    "nova-scheduler",
-                    [],
-                    self.template_dir,
-                    self.configure_charm,
-                ),
-                NovaConductorPebbleHandler(
-                    self,
-                    NOVA_CONDUCTOR_CONTAINER,
-                    "nova-conductor",
-                    [],
-                    self.template_dir,
-                    self.configure_charm,
-                ),
-            ]
-        )
+        pebble_handlers = [
+            sunbeam_chandlers.WSGIPebbleHandler(
+                self,
+                NOVA_WSGI_CONTAINER,
+                self.service_name,
+                self.container_configs,
+                self.template_dir,
+                self.configure_charm,
+                f"wsgi-{self.service_name}",
+            ),
+            NovaSchedulerPebbleHandler(
+                self,
+                NOVA_SCHEDULER_CONTAINER,
+                "nova-scheduler",
+                [],
+                self.template_dir,
+                self.configure_charm,
+            ),
+            NovaConductorPebbleHandler(
+                self,
+                NOVA_CONDUCTOR_CONTAINER,
+                "nova-conductor",
+                [],
+                self.template_dir,
+                self.configure_charm,
+            ),
+        ]
         return pebble_handlers
 
     def get_relation_handlers(
@@ -384,14 +370,17 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
         """Container configuration files for the service."""
-        _cconfigs = super().container_configs
-        _cconfigs.extend(
-            [
-                sunbeam_core.ContainerConfigFile(
-                    "/root/cell_create_wrapper.sh", "root", "root", 0o755
-                )
-            ]
-        )
+        _cconfigs = [
+            sunbeam_core.ContainerConfigFile(
+                "/etc/nova/nova.conf",
+                "root",
+                "nova",
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/root/cell_create_wrapper.sh", "root", "root", 0o755
+            ),
+        ]
         return _cconfigs
 
     def get_shared_metadatasecret(self):
