@@ -34,12 +34,6 @@ import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
-from charms.observability_libs.v1.kubernetes_service_patch import (
-    KubernetesServicePatch,
-)
-from lightkube.models.core_v1 import (
-    ServicePort,
-)
 from ops.framework import (
     StoredState,
 )
@@ -190,13 +184,6 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def __init__(self, framework):
         """Setup OVN central charm class."""
         super().__init__(framework)
-        self.service_patcher = KubernetesServicePatch(
-            self,
-            [
-                ServicePort(6641, name="northbound"),
-                ServicePort(6642, name="southbound"),
-            ],
-        )
 
     def get_pebble_handlers(self):
         """Pebble handlers for all OVN containers."""
@@ -458,9 +445,15 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Run configuration on this unit."""
         self.check_leader_ready()
         self.check_relation_handlers_ready()
+        self.open_ports()
         self.init_container_services()
         # Do not check_pebble_handlers_ready as northd is started later.
         self._state.unit_bootstrapped = True
+
+    def open_ports(self):
+        """Register ports in underlying cloud."""
+        self.unit.open_port("tcp", 6641)
+        self.unit.open_port("tcp", 6642)
 
     def configure_ovn(self):
         """Configure ovn listener."""
