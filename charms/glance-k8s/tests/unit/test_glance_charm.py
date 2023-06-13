@@ -16,7 +16,6 @@
 
 """Tests for glance charm."""
 
-import mock
 import ops_sunbeam.test_utils as test_utils
 
 import charm
@@ -71,22 +70,14 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
         self.addCleanup(self.harness.cleanup)
         test_utils.add_complete_ingress_relation(self.harness)
 
-    @mock.patch(
-        "charms.observability_libs.v1.kubernetes_service_patch."
-        "KubernetesServicePatch"
-    )
-    def test_pebble_ready_handler(self, svc_patch):
+    def test_pebble_ready_handler(self):
         """Test Pebble ready event is captured."""
         self.harness.begin()
         self.assertEqual(self.harness.charm.seen_events, [])
         test_utils.set_all_pebbles_ready(self.harness)
         self.assertEqual(self.harness.charm.seen_events, ["PebbleReadyEvent"])
 
-    @mock.patch(
-        "charms.observability_libs.v1.kubernetes_service_patch."
-        "KubernetesServicePatch"
-    )
-    def test_all_relations(self, svc_patch):
+    def test_all_relations(self):
         """Test all the charms relations."""
         ceph_rel_id = self.harness.add_relation("ceph", "ceph-mon")
         self.harness.begin_with_initial_hooks()
