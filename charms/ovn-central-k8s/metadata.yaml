@@ -30,6 +30,7 @@ bases:
     channel: 22.04/stable
 assumes:
   - k8s-api
+  - juju >= 3.2
 storage:
   databases:
     type: filesystem
