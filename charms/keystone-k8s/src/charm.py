@@ -691,14 +691,20 @@ export OS_AUTH_VERSION=3
     @property
     def container_configs(self):
         """Container configs for keystone."""
-        _cconfigs = super().container_configs
-        _cconfigs.extend(
-            [
-                sunbeam_core.ContainerConfigFile(
-                    LOGGING_CONF, "keystone", "keystone"
-                )
-            ]
-        )
+        _cconfigs = [
+            sunbeam_core.ContainerConfigFile(
+                self.service_conf,
+                "root",
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                LOGGING_CONF,
+                "root",
+                self.service_group,
+                0o640,
+            ),
+        ]
         return _cconfigs
 
     def can_service_requests(self) -> bool:
