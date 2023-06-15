@@ -26,6 +26,7 @@ from typing import (
 
 import charms.ovn_central_k8s.v0.ovsdb as ovsdb
 import ops.charm
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.core as sunbeam_core
@@ -34,6 +35,7 @@ import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import tenacity
 from ops.framework import (
     StoredState,
 )
@@ -273,6 +275,12 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
         return _run_via_pebble
 
+    @tenacity.retry(
+        stop=tenacity.stop_after_attempt(3),
+        retry=tenacity.retry_if_exception_type(ops.pebble.ExecError),
+        after=tenacity.after_log(logger, logging.WARNING),
+        wait=tenacity.wait_exponential(multiplier=1, min=5, max=30),
+    )
     def cluster_status(self, db, cmd_executor):
         """OVN version agnostic cluster_status helper.
 
