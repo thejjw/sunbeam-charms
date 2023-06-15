@@ -86,6 +86,19 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ]
 
     @property
+    def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
+        """Container configurations for the operator."""
+        _cconfigs = [
+            sunbeam_core.ContainerConfigFile(
+                self.service_conf,
+                "root",
+                self.service_group,
+                0o640,
+            ),
+        ]
+        return _cconfigs
+
+    @property
     def service_conf(self) -> str:
         """Service default configuration file."""
         return "/etc/placement/placement.conf"
