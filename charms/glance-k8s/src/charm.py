@@ -76,6 +76,8 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                         "--config-file /etc/glance/glance-api.conf"
                     ),
                     "startup": "disabled",
+                    "user": "glance",
+                    "group": "glance",
                 },
                 "apache forwarder": {
                     "override": "replace",
@@ -238,23 +240,28 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
         """Container configurations for the operator."""
-        _cconfigs = super().container_configs
-        _cconfigs.extend(
-            [
-                sunbeam_core.ContainerConfigFile(
-                    "/etc/apache2/sites-enabled/glance-forwarding.conf",
-                    self.service_user,
-                    self.service_group,
-                ),
-            ]
-        )
+        _cconfigs = [
+            sunbeam_core.ContainerConfigFile(
+                self.service_conf,
+                "root",
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/apache2/sites-enabled/glance-forwarding.conf",
+                "root",
+                self.service_group,
+                0o640,
+            ),
+        ]
         if self.has_ceph_relation():
             _cconfigs.extend(
                 [
                     sunbeam_core.ContainerConfigFile(
                         self.ceph_conf,
-                        self.service_user,
+                        "root",
                         self.service_group,
+                        0o640,
                     ),
                 ]
             )
