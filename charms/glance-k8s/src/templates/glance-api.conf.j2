@@ -21,6 +21,8 @@ enabled_backends = filestore:file
 
 {% include "parts/section-identity" %}
 
+{% include "parts/section-service-user" %}
+
 [glance_store]
 {% if ceph.auth %}
 default_backend = ceph
