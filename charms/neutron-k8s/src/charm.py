@@ -264,7 +264,7 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
                 self,
                 "neutron-server",
                 self.service_name,
-                self.container_configs,
+                [],
                 self.template_dir,
                 self.configure_charm,
             )
