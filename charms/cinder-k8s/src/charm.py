@@ -85,6 +85,15 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             }
         }
 
+    def default_container_configs(self) -> List[Dict]:
+        """Generate default configuration files for container."""
+        return [
+            sunbeam_core.ContainerConfigFile(self.wsgi_conf, "root", "root"),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/cinder/cinder.conf", "root", "cinder", 0o640
+            ),
+        ]
+
 
 class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
     """Pebble handler for Cinder Scheduler services."""
@@ -119,6 +128,8 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
                     "summary": "Cinder Scheduler",
                     "command": "cinder-scheduler --use-syslog",
                     "startup": "enabled",
+                    "user": "cinder",
+                    "group": "cinder",
                 }
             },
         }
@@ -148,9 +159,7 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
         """Generate default configuration files for container."""
         return [
             sunbeam_core.ContainerConfigFile(
-                "/etc/cinder/cinder.conf",
-                "cinder",
-                "cinder",
+                "/etc/cinder/cinder.conf", "root", "cinder", 0o640
             )
         ]
 
@@ -254,16 +263,14 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
         """Container configuration files for the service."""
-        _cconfigs = super().container_configs
-        _cconfigs.extend(
-            [
-                sunbeam_core.ContainerConfigFile(
-                    "/etc/cinder/api-paste.ini",
-                    self.service_user,
-                    self.service_group,
-                )
-            ]
-        )
+        _cconfigs = [
+            sunbeam_core.ContainerConfigFile(
+                "/etc/cinder/api-paste.ini",
+                "root",
+                self.service_group,
+                0o640,
+            )
+        ]
         return _cconfigs
 
     @property
