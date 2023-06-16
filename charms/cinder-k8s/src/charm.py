@@ -123,22 +123,6 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
             },
         }
 
-    def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer.
-
-        :returns: pebble health check layer configuration for scheduler service
-        :rtype: dict
-        """
-        return {
-            "checks": {
-                "online": {
-                    "override": "replace",
-                    "level": "ready",
-                    "exec": {"command": "service cinder-scheduler status"},
-                },
-            }
-        }
-
     def init_service(self, context) -> None:
         """Initialize services and write configuration."""
         self.write_config(context)
