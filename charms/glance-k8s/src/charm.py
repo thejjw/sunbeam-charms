@@ -363,6 +363,8 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if ph.pebble_ready:
             ph.execute(["a2enmod", "proxy_http"], exception_on_error=True)
             if self.has_ceph_relation() and self.ceph.key:
+                # The code for managing ceph client config should move to
+                # a shared lib as it is common across clients
                 ph.execute(
                     [
                         "ceph-authtool",
@@ -370,6 +372,24 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                         "--create-keyring",
                         f"--name=client.{self.app.name}",
                         f"--add-key={self.ceph.key}",
+                    ],
+                    exception_on_error=True,
+                )
+                ph.execute(
+                    [
+                        "chown",
+                        f"root:{self.service_group}",
+                        f"/etc/ceph/ceph.client.{self.app.name}.keyring",
+                        "/etc/ceph/rbdmap",
+                    ],
+                    exception_on_error=True,
+                )
+                ph.execute(
+                    [
+                        "chmod",
+                        "640",
+                        f"/etc/ceph/ceph.client.{self.app.name}.keyring",
+                        "/etc/ceph/rbdmap",
                     ],
                     exception_on_error=True,
                 )
