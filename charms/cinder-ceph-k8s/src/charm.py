@@ -278,6 +278,8 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
         """Setp ceph keyring and init pebble handlers that are ready."""
         for ph in self.pebble_handlers:
             if ph.pebble_ready:
+                # The code for managing ceph client config should move to
+                # a shared lib as it is common across clients.
                 ph.execute(
                     [
                         "ceph-authtool",
@@ -285,6 +287,24 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
                         "--create-keyring",
                         f"--name=client.{self.app.name}",
                         f"--add-key={self.ceph.key}",
+                    ],
+                    exception_on_error=True,
+                )
+                ph.execute(
+                    [
+                        "chown",
+                        f"root:{self.service_group}",
+                        f"/etc/ceph/ceph.client.{self.app.name}.keyring",
+                        "/etc/ceph/rbdmap",
+                    ],
+                    exception_on_error=True,
+                )
+                ph.execute(
+                    [
+                        "chmod",
+                        "640",
+                        f"/etc/ceph/ceph.client.{self.app.name}.keyring",
+                        "/etc/ceph/rbdmap",
                     ],
                     exception_on_error=True,
                 )
