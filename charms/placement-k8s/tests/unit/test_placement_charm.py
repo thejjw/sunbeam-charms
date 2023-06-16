@@ -132,7 +132,7 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         auth_url = http://keystone.internal:5000
         send_service_user_token = true
         auth_type = password
-        project_domain_id = svcprojid1
+        project_domain_id = svcdomid
         user_domain_id = svcdomid
         project_name = None
         username = svcuser1
