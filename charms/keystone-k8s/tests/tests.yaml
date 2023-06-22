@@ -18,6 +18,8 @@ tests_options:
       smoke: True
       exclude-list:
         - "tempest.api.image.v2.test_images.BasicOperationsImagesTest.test_register_upload_get_image_file"
+      include-list:
+        - "tempest.api.identity.v3.test_application_credentials.ApplicationCredentialsV3Test.test_create_application_credential"
 
 target_deploy_status:
   traefik:

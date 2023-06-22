@@ -110,7 +110,7 @@ class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
             "service_tenant_id": self.charm.service_project_id,
             "admin_domain_name": self.charm.admin_domain_name,
             "admin_domain_id": self.charm.admin_domain_id,
-            "auth_methods": "external,password,token,oauth1,mapped",
+            "auth_methods": "external,password,token,oauth1,mapped,application_credential",
             "default_domain_id": self.charm.default_domain_id,
             "public_port": self.charm.service_port,
             "debug": config["debug"],
