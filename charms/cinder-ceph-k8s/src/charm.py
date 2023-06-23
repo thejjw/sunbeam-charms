@@ -138,22 +138,6 @@ class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
             },
         }
 
-    def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer.
-
-        :returns: pebble health check layer configuration for scheduler service
-        :rtype: dict
-        """
-        return {
-            "checks": {
-                "online": {
-                    "override": "replace",
-                    "level": "ready",
-                    "exec": {"command": f"service {self.service_name} status"},
-                },
-            }
-        }
-
     def start_service(self) -> None:
         """Start all services in associated container."""
         container = self.charm.unit.get_container(self.container_name)
