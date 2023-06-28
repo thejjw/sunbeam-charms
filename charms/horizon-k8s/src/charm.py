@@ -162,6 +162,11 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 )
 
     @property
+    def healthcheck_period(self) -> str:
+        """Healthcheck period for horizon service."""
+        return "15s"
+
+    @property
     def healthcheck_http_url(self) -> str:
         """Healthcheck HTTP URL for the service."""
         return super().healthcheck_http_url + "openstack-horizon/auth/login/"
@@ -169,7 +174,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def healthcheck_http_timeout(self) -> str:
         """Healthcheck HTTP check timeout for the service."""
-        return "8s"
+        return "12s"
 
 
 if __name__ == "__main__":
