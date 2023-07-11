@@ -25,4 +25,5 @@ log_msg "Starting"
     --db-nb-cluster-remote-proto=ssl \
     --ovn-nb-db-ssl-key={{ ovs_db.ovn_key }} \
     --ovn-nb-db-ssl-cert={{ ovs_db.ovn_cert }} \
-    --ovn-nb-db-ssl-ca-cert={{ ovs_db.ovn_ca_cert }}
+    --ovn-nb-db-ssl-ca-cert={{ ovs_db.ovn_ca_cert }} \
+    --ovn-nb-log="-vconsole:info"
