@@ -29,7 +29,7 @@ resources:
   cinder-volume-image:
     type: oci-image
     description: OCI image for OpenStack Cinder Volume
-    upstream-source: ghcr.io/openstack-snaps/cinder-volume:2023.1
+    upstream-source: ghcr.io/openstack-snaps/cinder-consolidated:2023.1
 
 requires:
   amqp:

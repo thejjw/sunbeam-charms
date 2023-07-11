@@ -53,7 +53,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      cinder-volume-image: ghcr.io/openstack-snaps/cinder-volume:2023.1
+      cinder-volume-image: ghcr.io/openstack-snaps/cinder-consolidated:2023.1
 
 relations:
 - - traefik:ingress
