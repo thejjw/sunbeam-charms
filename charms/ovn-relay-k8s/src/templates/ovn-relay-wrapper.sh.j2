@@ -15,8 +15,7 @@ log_msg "Starting"
 REMOTES={{ ovsdb_cms.db_sb_connection_hostname_strs }}
 
 ovsdb-server \
-    -vconsole:emer \
-    -vsyslog:info \
+    -vconsole:info \
     -c {{ ovs_db.ovn_cert }} \
     -C {{ ovs_db.ovn_ca_cert }} \
     -p {{ ovs_db.ovn_key }} \
