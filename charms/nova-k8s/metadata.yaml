@@ -37,15 +37,15 @@ resources:
   nova-api-image:
     type: oci-image
     description: OCI image for OpenStack Nova API
-    upstream-source: ghcr.io/openstack-snaps/nova-api:2023.1
+    upstream-source: ghcr.io/openstack-snaps/nova-consolidated:2023.1
   nova-scheduler-image:
     type: oci-image
     description: OCI image for OpenStack Nova Scheduler
-    upstream-source: ghcr.io/openstack-snaps/nova-scheduler:2023.1
+    upstream-source: ghcr.io/openstack-snaps/nova-consolidated:2023.1
   nova-conductor-image:
     type: oci-image
     description: OCI image for OpenStack Nova Conductor
-    upstream-source: ghcr.io/openstack-snaps/nova-conductor:2023.1
+    upstream-source: ghcr.io/openstack-snaps/nova-consolidated:2023.1
 
 requires:
   ingress-internal:
