@@ -103,7 +103,7 @@ class TestCharm(test_utils.CharmTestCase):
             "compute.virt-type": "kvm",
             "credentials.ovn-metadata-proxy-shared-secret": metadata,
             "identity.admin-role": None,
-            "identity.auth-url": "http://10.20.21.11:80/openstack-keystone",
+            "identity.auth-url": "http://10.153.2.45:80/openstack-keystone",
             "identity.password": "user-password",
             "identity.project-domain-id": "pdomain-id",
             "identity.project-domain-name": "pdomain_-ame",

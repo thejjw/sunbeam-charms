@@ -191,7 +191,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "compute.virt-type": "kvm",
                 "credentials.ovn-metadata-proxy-shared-secret": self.metadata_secret(),
                 "identity.admin-role": contexts.identity_credentials.admin_role,
-                "identity.auth-url": contexts.identity_credentials.public_endpoint,
+                "identity.auth-url": contexts.identity_credentials.internal_endpoint,
                 "identity.password": contexts.identity_credentials.password,
                 "identity.project-domain-id": contexts.identity_credentials.project_domain_id,
                 "identity.project-domain-name": contexts.identity_credentials.project_domain_name,
