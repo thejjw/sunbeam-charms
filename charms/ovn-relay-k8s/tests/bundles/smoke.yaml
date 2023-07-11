@@ -65,7 +65,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: ghcr.io/openstack-snaps/ovn-sb-db-server:23.03
+      ovn-sb-db-server-image: ghcr.io/openstack-snaps/ovn-consolidated:23.03
   tls-operator:
     charm: tls-certificates-operator
     channel: edge
