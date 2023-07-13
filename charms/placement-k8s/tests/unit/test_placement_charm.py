@@ -117,8 +117,9 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         [placement_database]
         connection = mysql+pymysql://foo:hardpassword@10.0.0.10/placement_api
         [keystone_authtoken]
-        www_authenticate_uri = http://keystone.internal:5000
         auth_url = http://keystone.internal:5000
+        interface = internal
+        www_authenticate_uri = http://keystone.internal:5000
         auth_type = password
         project_domain_name = None
         user_domain_name = None
