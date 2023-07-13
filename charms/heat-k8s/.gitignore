@@ -1,9 +1,11 @@
 venv/
 build/
 *.charm
-.tox/
+*.swp
+
 .coverage
 __pycache__/
 *.py[cod]
-.idea
-.vscode/
+.tox
+.stestr/
+tempest.log

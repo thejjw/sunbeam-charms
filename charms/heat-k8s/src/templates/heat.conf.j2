@@ -7,7 +7,7 @@ plugin_dirs = /usr/lib64/heat,/usr/lib/heat
 environment_dir=/etc/heat/environment.d
 deferred_auth_method=password
 host=heat
-auth_encryption_key={{ encryption_key }}
+auth_encryption_key={{ peers.auth_encryption_key }}
 
 transport_url = {{ amqp.transport_url }}
 
