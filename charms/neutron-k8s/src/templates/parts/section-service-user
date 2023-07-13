@@ -1,6 +1,8 @@
 {% if identity_service.service_domain_id -%}
 [service_user]
-{% if identity_service.internal_auth_url -%}
+{% if identity_service.admin_auth_url -%}
+auth_url = {{ identity_service.admin_auth_url }}
+{% elif identity_service.internal_auth_url -%}
 auth_url = {{ identity_service.internal_auth_url }}
 {% elif identity_service.internal_host -%}
 auth_url = {{ identity_service.internal_protocol }}://{{ identity_service.internal_host }}:{{ identity_service.internal_port }}

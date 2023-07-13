@@ -44,13 +44,23 @@ root_helper = "sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf"
 {% include "parts/section-service-user" %}
 
 [nova]
-
-{% if identity_service.internal_auth_url -%}
-www_authenticate_uri = {{ identity_service.internal_auth_url }}
+{% if identity_service.admin_auth_url -%}
+auth_url = {{ identity_service.admin_auth_url }}
+# Using admin for neutron -> nova communication
+endpoint_type = admin
+{% elif identity_service.internal_auth_url -%}
 auth_url = {{ identity_service.internal_auth_url }}
+# Using internal for neutron -> nova communication
+endpoint_type = internal
+{% elif identity_service.internal_host -%}
+auth_url = {{ identity_service.internal_protocol }}://{{ identity_service.internal_host }}:{{ identity_service.internal_port }}
+# Using internal for neutron -> nova communication
+endpoint_type = internal
+{% endif -%}
+{% if identity_service.public_auth_url -%}
+www_authenticate_uri = {{ identity_service.public_auth_url }}
 {% elif identity_service.internal_host -%}
 www_authenticate_uri = {{ identity_service.internal_protocol }}://{{ identity_service.internal_host }}:{{ identity_service.internal_port }}
-auth_url = {{ identity_service.internal_protocol }}://{{ identity_service.internal_host }}:{{ identity_service.internal_port }}
 {% endif -%}
 auth_type = password
 project_domain_name = {{ identity_service.service_domain_name }}
@@ -58,6 +68,3 @@ user_domain_name = {{ identity_service.service_domain_name }}
 project_name = {{ identity_service.service_project_name }}
 username = {{ identity_service.service_user_name }}
 password = {{ identity_service.service_password }}
-# Using internal for neutron -> nova communication
-endpoint_type = internal
-
