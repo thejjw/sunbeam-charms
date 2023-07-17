@@ -24,7 +24,7 @@ connection = sqlite:////var/lib/nova/nova.sqlite
 [glance]
 service_type = image
 service_name = glance
-valid_interfaces = internal
+valid_interfaces = admin
 region_name = {{ options.region }}
 
 [keystone_authtoken]
