@@ -25,4 +25,5 @@ log_msg "Starting"
     --db-sb-cluster-remote-proto=ssl \
     --ovn-sb-db-ssl-key={{ ovs_db.ovn_key }} \
     --ovn-sb-db-ssl-cert={{ ovs_db.ovn_cert }} \
-    --ovn-sb-db-ssl-ca-cert={{ ovs_db.ovn_ca_cert }}
+    --ovn-sb-db-ssl-ca-cert={{ ovs_db.ovn_ca_cert }} \
+    --ovn-sb-log="-vconsole:info"
