@@ -8,7 +8,6 @@ debug = {{ options.debug }}
 {% if amqp %}
 transport_url = {{ amqp.transport_url }}
 {% endif %}
-use_syslog = true
 bind_port = 9282
 
 {% if ceph.auth %}
