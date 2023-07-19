@@ -109,7 +109,6 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         expect_entries = """
         [DEFAULT]
         debug = False
-        use_syslog = true
 
         [api]
         auth_strategy = keystone
