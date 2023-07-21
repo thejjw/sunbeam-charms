@@ -45,9 +45,18 @@ applications:
     scale: 1
     trust: true
     resources:
-      heat-api-image: docker.io/kolla/ubuntu-binary-heat-api@sha256:ca80d57606525facb404d8b0374701c02609c2ade5cb7e28ba132e666dd85949
-      heat-api-cfn-image: docker.io/kolla/ubuntu-binary-heat-api-cfn@sha256:6eec5915066b55696414022c86c42360cdbd4b8b1250e06b470fee25af394b66
-      heat-engine-image:  docker.io/kolla/ubuntu-binary-heat-engine@sha256:a54491f7e09eedeaa42c046cedc478f8ba78fc455a6ba285a52a5d0f8ae1df84
+      heat-api-image: ghcr.io/openstack-snaps/heat-api:2023.1
+      heat-engine-image:  ghcr.io/openstack-snaps/heat-engine:2023.1
+
+  heat-cfn:
+    charm: ../../heat-k8s.charm
+    scale: 1
+    trust: true
+    options:
+      api_service: heat-api-cfn
+    resources:
+      heat-api-image: ghcr.io/openstack-snaps/heat-api:2023.1
+      heat-engine-image:  ghcr.io/openstack-snaps/heat-engine:2023.1
 
 relations:
 - - traefik:ingress
@@ -68,4 +77,15 @@ relations:
   - heat:ingress-public
 - - rabbitmq:amqp
   - heat:amqp
+
+- - mysql:database
+  - heat-cfn:database
+- - keystone:identity-service
+  - heat-cfn:identity-service
+- - traefik:ingress
+  - heat-cfn:ingress-internal
+- - traefik-public:ingress
+  - heat-cfn:ingress-public
+- - rabbitmq:amqp
+  - heat-cfn:amqp
 

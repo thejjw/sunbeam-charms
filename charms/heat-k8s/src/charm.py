@@ -23,6 +23,7 @@ import secrets
 import string
 from typing import (
     List,
+    Mapping,
 )
 
 import ops_sunbeam.charm as sunbeam_charm
@@ -38,8 +39,8 @@ from ops.main import (
 logger = logging.getLogger(__name__)
 
 HEAT_API_CONTAINER = "heat-api"
-HEAT_API_CNF_CONTAINER = "heat-api-cfn"
 HEAT_ENGINE_CONTAINER = "heat-engine"
+HEAT_API_SERVICE_KEY = "api-service"
 
 
 class HeatAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
@@ -51,44 +52,52 @@ class HeatAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         :returns: pebble service layer configuration for heat api service
         :rtype: dict
         """
-        return {
-            "summary": "heat api layer",
-            "description": "pebble configuration for heat api service",
-            "services": {
-                "heat-api": {
-                    "override": "replace",
-                    "summary": "Heat API",
-                    "command": "heat-api",
-                    "startup": "enabled",
-                    "user": "heat",
-                    "group": "heat",
-                }
-            },
-        }
+        if self.charm.service_name == "heat-api-cfn":
+            return {
+                "summary": "heat api cfn layer",
+                "description": "pebble configuration for heat api cfn service",
+                "services": {
+                    "heat-api": {
+                        "override": "replace",
+                        "summary": "Heat API CFN",
+                        "command": "heat-api-cfn",
+                        "startup": "enabled",
+                        "user": "heat",
+                        "group": "heat",
+                    }
+                },
+            }
+        else:
+            return {
+                "summary": "heat api layer",
+                "description": "pebble configuration for heat api service",
+                "services": {
+                    "heat-api": {
+                        "override": "replace",
+                        "summary": "Heat API",
+                        "command": "heat-api",
+                        "startup": "enabled",
+                        "user": "heat",
+                        "group": "heat",
+                    }
+                },
+            }
 
+    def get_healthcheck_layer(self) -> dict:
+        """Health check pebble layer.
 
-class HeatAPICFNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
-    """Pebble handler for Heat API CNF container."""
-
-    def get_layer(self):
-        """Heat API CNF service.
-
-        :returns: pebble service layer configuration for API CNF service
-        :rtype: dict
+        :returns: pebble health check layer configuration for heat service
         """
         return {
-            "summary": "heat api cfn layer",
-            "description": "pebble configuration for heat api cfn service",
-            "services": {
-                "heat-api-cfn": {
+            "checks": {
+                "online": {
                     "override": "replace",
-                    "summary": "Heat API CNF",
-                    "command": "heat-api-cfn",
-                    "startup": "enabled",
-                    "user": "heat",
-                    "group": "heat",
-                }
-            },
+                    "level": "ready",
+                    "http": {
+                        "url": f"{self.charm.healthcheck_http_url}/healthcheck"
+                    },
+                },
+            }
         }
 
 
@@ -121,10 +130,9 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
     _state = StoredState()
-    service_name = "heat-api"
     wsgi_admin_script = "/usr/bin/heat-wsgi-api"
     wsgi_public_script = "/usr/bin/heat-wsgi-api"
-    heat_auth_encryption_key = "auth_encryption_key"
+    heat_auth_encryption_key = "auth-encryption-key"
 
     db_sync_cmds = [["heat-manage", "db_sync"]]
 
@@ -144,14 +152,6 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self,
                 HEAT_API_CONTAINER,
                 "heat-api",
-                self.default_container_configs(),
-                self.template_dir,
-                self.configure_charm,
-            ),
-            HeatAPICFNPebbleHandler(
-                self,
-                HEAT_API_CNF_CONTAINER,
-                "heat-api-cfn",
                 self.default_container_configs(),
                 self.template_dir,
                 self.configure_charm,
@@ -192,6 +192,50 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.set_heat_auth_encryption_key()
         super().configure_charm(event)
 
+    def configure_app_leader(self, event):
+        """Configure app leader.
+
+        Ensure setting service_name in peer relation application data if it
+        does not exist.
+        """
+        super().configure_app_leader(event)
+
+        # Update service name in application data
+        if not self.peers.get_app_data(HEAT_API_SERVICE_KEY):
+            self.peers.set_app_data({HEAT_API_SERVICE_KEY: self.service_name})
+
+    @property
+    def databases(self) -> Mapping[str, str]:
+        """Databases needed to support this charm.
+
+        Set database name as heat for both heat-api, heat-api-cfn.
+        """
+        return {
+            "database": "heat",
+        }
+
+    @property
+    def service_name(self) -> str:
+        """Update service_name to heat-api or heat-api-cfn.
+
+        service_name should be updated only once. Get service name from app data if
+        it exists and ignore the charm configuration parameter api-service.
+        If app data does not exist, return with the value from charm configuration.
+        """
+        service_name = None
+        if hasattr(self, "peers"):
+            service_name = self.peers.get_app_data(HEAT_API_SERVICE_KEY)
+
+        if not service_name:
+            service_name = self.config.get("api_service")
+            if service_name not in ["heat-api", "heat-api-cfn"]:
+                logger.warning(
+                    "Config parameter api_service should be one of heat-api, heat-api-cfn, defaulting to heat-api."
+                )
+                service_name = "heat-api"
+
+        return service_name
+
     @property
     def service_conf(self) -> str:
         """Service default configuration file."""
@@ -210,31 +254,28 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def service_endpoints(self):
         """Return heat service endpoints."""
-        return [
-            {
-                "service_name": "heat",
-                "type": "heat",
-                "description": "OpenStack Heat API",
-                "internal_url": f"{self.internal_url}",
-                "public_url": f"{self.public_url}",
-                "admin_url": f"{self.admin_url}",
-            }
-        ]
-
-    def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer.
-
-        :returns: pebble health check layer configuration for heat service
-        """
-        return {
-            "checks": {
-                "online": {
-                    "override": "replace",
-                    "level": "ready",
-                    "http": {"url": self.charm.healthcheck_http_url},
+        if self.service_name == "heat-api-cfn":
+            return [
+                {
+                    "service_name": "heat-cfn",
+                    "type": "cloudformation",
+                    "description": "OpenStack Heat CloudFormation API",
+                    "internal_url": f"{self.internal_url}/v1/$(tenant_id)s",
+                    "public_url": f"{self.public_url}/v1/$(tenant_id)s",
+                    "admin_url": f"{self.admin_url}/v1/$(tenant_id)s",
+                }
+            ]
+        else:
+            return [
+                {
+                    "service_name": "heat",
+                    "type": "orchestration",
+                    "description": "OpenStack Heat API",
+                    "internal_url": f"{self.internal_url}/v1/$(tenant_id)s",
+                    "public_url": f"{self.public_url}/v1/$(tenant_id)s",
+                    "admin_url": f"{self.admin_url}/v1/$(tenant_id)s",
                 },
-            }
-        }
+            ]
 
     def default_container_configs(self):
         """Return base container configs."""
@@ -249,8 +290,19 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def default_public_ingress_port(self):
-        """Port for Heat AI service."""
+        """Port for Heat API service."""
+        # Port 8000 if api service is heat-api-cfn
+        if self.service_name == "heat-api-cfn":
+            return 8000
+
+        # Default heat-api port
         return 8004
+
+    @property
+    def wsgi_container_name(self) -> str:
+        """Name of the WSGI application container."""
+        # Container name for both heat-api and heat-api-cfn service is heat-api
+        return "heat-api"
 
 
 if __name__ == "__main__":

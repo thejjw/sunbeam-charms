@@ -1,3 +1,0 @@
-* Register CFN endpoint with keystone traefik
-* Tempest tests
-* Switch to Antelope rocks

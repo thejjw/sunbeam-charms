@@ -11,7 +11,7 @@ bases:
     channel: 22.04/stable
 assumes:
   - k8s-api
-  - juju >= 3.1
+  - juju >= 3.2
 tags:
 - openstack
 source: https://opendev.org/openstack/charm-heat-k8s
@@ -20,8 +20,6 @@ issues: https://bugs.launchpad.net/charm-heat-k8s
 containers:
   heat-api:
     resource: heat-api-image
-  heat-api-cfn:
-    resource: heat-api-cfn-image
   heat-engine:
     resource: heat-engine-image
 
@@ -29,17 +27,13 @@ resources:
   heat-api-image:
     type: oci-image
     description: OCI image for OpenStack Heat
-    # docker.io/kolla/ubuntu-binary-heat-api:yoga
-    upstream-source: docker.io/kolla/ubuntu-binary-heat-api@sha256:ca80d57606525facb404d8b0374701c02609c2ade5cb7e28ba132e666dd85949
-  heat-api-cfn-image:
-    type: oci-image
-    description: OCI image for OpenStack Heat CFN
-    # docker.io/kolla/ubuntu-binary-heat-api-cfn:yoga
-    upstream-source: docker.io/kolla/ubuntu-binary-heat-api-cfn@sha256:6eec5915066b55696414022c86c42360cdbd4b8b1250e06b470fee25af394b66
+    # ghcr.io/openstack-snaps/heat-api:2023.1
+    upstream-source: ghcr.io/openstack-snaps/heat-api:2023.1
   heat-engine-image:
     type: oci-image
     description: OCI image for OpenStack Heat Engine
-    upstream-source: docker.io/kolla/ubuntu-binary-heat-engine@sha256:a54491f7e09eedeaa42c046cedc478f8ba78fc455a6ba285a52a5d0f8ae1df84
+    # ghcr.io/openstack-snaps/heat-engine:2023.1
+    upstream-source: ghcr.io/openstack-snaps/heat-engine:2023.1
 
 requires:
   database:

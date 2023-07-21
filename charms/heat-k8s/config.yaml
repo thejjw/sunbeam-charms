@@ -25,3 +25,10 @@ options:
     default: RegionOne
     description: Space delimited list of OpenStack regions
     type: string
+  api_service:
+    default: heat-api
+    description: |
+      Value should be one of heat-api or heat-api-cfn. The configuration parameter
+      is only applicable during the initial deploy of the charm and change in the
+      configuration does not have any effect once deployed.
+    type: string

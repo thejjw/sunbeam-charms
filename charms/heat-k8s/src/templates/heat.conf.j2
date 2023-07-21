@@ -1,7 +1,6 @@
 [DEFAULT]
 debug = {{ options.debug }}
 
-instance_user=ec2-user
 instance_driver=heat.engine.nova
 plugin_dirs = /usr/lib64/heat,/usr/lib/heat
 environment_dir=/etc/heat/environment.d
@@ -11,10 +10,10 @@ auth_encryption_key={{ peers.auth_encryption_key }}
 
 transport_url = {{ amqp.transport_url }}
 
+{% include "parts/section-database" %}
+
 {% include "parts/section-identity" %}
 
-[database]
-{% include "parts/database-connection" %}
 
 [paste_deploy]
 api_paste_config=/etc/heat/api-paste.ini

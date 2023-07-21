@@ -10,10 +10,12 @@ Use links instead.
 
 # heat-k8s
 
-Charmhub package name: operator-template
+Charmhub package name: heat-k8s
 More information: https://charmhub.io/heat-k8s
 
-Describe your charm in one or two sentences.
+Operator for OpenStack Heat. The charm can be used to deploy
+either heat-api service or heat-api-cnf service determined by
+the configuration parameter api_service.
 
 ## Other resources
 

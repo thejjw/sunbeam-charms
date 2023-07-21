@@ -76,7 +76,7 @@ class TestHeatOperatorCharm(test_utils.CharmTestCase):
         """Test pebble ready handler."""
         self.assertEqual(self.harness.charm.seen_events, [])
         test_utils.set_all_pebbles_ready(self.harness)
-        self.assertEqual(len(self.harness.charm.seen_events), 3)
+        self.assertEqual(len(self.harness.charm.seen_events), 2)
 
     def test_all_relations(self):
         """Test all integrations for operator."""
