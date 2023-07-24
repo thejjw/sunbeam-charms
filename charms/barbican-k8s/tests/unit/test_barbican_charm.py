@@ -16,7 +16,6 @@
 
 """Unit tests for Barbican operator."""
 
-import mock
 import ops_sunbeam.test_utils as test_utils
 
 import charm
@@ -46,11 +45,7 @@ class TestBarbicanOperatorCharm(test_utils.CharmTestCase):
 
     PATCHES = []
 
-    @mock.patch(
-        "charms.observability_libs.v1.kubernetes_service_patch."
-        "KubernetesServicePatch"
-    )
-    def setUp(self, mock_patch):
+    def setUp(self):
         """Set up environment for unit test."""
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(

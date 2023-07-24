@@ -1,11 +1,10 @@
-name: charm-barbican-k8s
+name: barbican-k8s
 display-name: Barbican
-summary: A very short one-line summary of the charm.
+summary: Openstack Key Manager service
 description: |
-  A single sentence that says what the charm is, concisely and memorably.
-  A paragraph of one to three short sentences, that describe what the charm does.
-  A third paragraph that explains what need the charm meets.
-  Finally, a paragraph that describes whom the charm is useful for.
+  Barbican is the OpenStack Key Manager service.
+  It provides secure storage, provisioning and management of secret data.
+  This includes keying material such as Symmetric Keys, Asymmetric Keys, Certificates and raw binary data.
 maintainer: Openstack Charmers <openstack-charmers@lists.ubuntu.com>
 source: https://opendev.org/openstack/charm-barbican-k8s
 issues: https://bugs.launchpad.net/charm-barbican-k8s
@@ -44,10 +43,8 @@ resources:
   barbican-api-image:
     type: oci-image
     description: OCI image for OpenStack Barbican API
-    # kolla/ubuntu-binary-barbican-api:yoga
-    upstream-source: docker.io/kolla/ubuntu-binary-barbican-api@sha256:8428bb4b6289075832286e098febcc2ff9954df97c279cf8f18c798d188c8e3e
+    upstream-source: ghcr.io/openstack-snaps/barbican-consolidated:2023.1
   barbican-worker-image:
     type: oci-image
     description: OCI image for OpenStack Barbican worker
-    # kolla/ubuntu-binary-barbican-worker:yoga
-    upstream-source: docker.io/kolla/ubuntu-binary-barbican-worker@sha256:4c9d8252bbb8b99d729b28eb586d9c3c08c3a882b076682bae83a0e01600b5f8
+    upstream-source: ghcr.io/openstack-snaps/barbican-consolidated:2023.1

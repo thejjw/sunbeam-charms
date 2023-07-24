@@ -47,7 +47,6 @@ class WSGIBarbicanAdminConfigContext(sunbeam_ctxts.ConfigContext):
 
     def context(self) -> dict:
         """WSGI configuration options."""
-        log_svc_name = self.charm.service_name.replace("-", "_")
         return {
             "name": self.charm.service_name,
             "public_port": 9312,
@@ -55,8 +54,8 @@ class WSGIBarbicanAdminConfigContext(sunbeam_ctxts.ConfigContext):
             "group": self.charm.service_group,
             "wsgi_admin_script": "/usr/bin/barbican-wsgi-api",
             "wsgi_public_script": "/usr/bin/barbican-wsgi-api",
-            "error_log": f"/var/log/apache2/{log_svc_name}_error.log",
-            "custom_log": f"/var/log/apache2/{log_svc_name}_access.log",
+            "error_log": "/dev/stdout",
+            "custom_log": "/dev/stdout",
         }
 
 
@@ -81,25 +80,10 @@ class BarbicanWorkerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "summary": "Barbican Worker",
                     "command": "barbican-worker",
-                    "startup": "enabled",
+                    "user": "barbican",
+                    "group": "barbican",
                 }
             },
-        }
-
-    def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer.
-
-        :returns: pebble health check layer configuration for scheduler service
-        :rtype: dict
-        """
-        return {
-            "checks": {
-                "online": {
-                    "override": "replace",
-                    "level": "ready",
-                    "exec": {"command": "service barbican-worker status"},
-                },
-            }
         }
 
     def default_container_configs(
@@ -144,12 +128,7 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def configure_unit(self, event: framework.EventBase) -> None:
         """Run configuration on this unit."""
         self.disable_barbican_config()
-        self.check_leader_ready()
-        self.check_relation_handlers_ready()
-        self.init_container_services()
-        self.check_pebble_handlers_ready()
-        self.run_db_sync()
-        self._state.unit_bootstrapped = True
+        super().configure_unit(event)
 
     @property
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:

@@ -1,21 +1,14 @@
 bundle: kubernetes
 applications:
-
   mysql:
     charm: ch:mysql-k8s
     channel: 8.0/stable
     scale: 1
-    trust: false
+    trust: true
 
   # Currently traefik is required for networking things.
   # If this isn't present, the units will hang at "installing agent".
   traefik:
-    charm: ch:traefik-k8s
-    channel: 1.0/stable
-    scale: 1
-    trust: true
-
-  traefik-public:
     charm: ch:traefik-k8s
     channel: 1.0/stable
     scale: 1
@@ -32,9 +25,9 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: yoga/edge
+    channel: 2023.1/edge
     scale: 1
-    trust: true
+    trust: false
     options:
       admin-role: admin
     storage:
@@ -44,15 +37,15 @@ applications:
   barbican:
     charm: ../../barbican-k8s.charm
     scale: 1
-    trust: true
+    trust: false
     resources:
-      barbican-api-image: kolla/ubuntu-binary-barbican-api:yoga
-      barbican-worker-image: kolla/ubuntu-binary-barbican-worker:yoga
+      barbican-api-image: ghcr.io/openstack-snaps/barbican-consolidated:2023.1
+      barbican-worker-image: ghcr.io/openstack-snaps/barbican-consolidated:2023.1
 
 relations:
 - - traefik:ingress
   - keystone:ingress-internal
-- - traefik-public:ingress
+- - traefik:ingress
   - keystone:ingress-public
 
 - - mysql:database
@@ -66,5 +59,5 @@ relations:
   - barbican:identity-service
 - - traefik:ingress
   - barbican:ingress-internal
-- - traefik-public:ingress
+- - traefik:ingress
   - barbican:ingress-public
