@@ -26,7 +26,6 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
-import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 from ops import (
     framework,
     model,
@@ -144,7 +143,6 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         )
         return _cadapters
 
-    @sunbeam_job_ctrl.run_once_per_unit("a2disconf")
     def disable_barbican_config(self):
         """Disable default barbican config."""
         container = self.unit.get_container(BARBICAN_API_CONTAINER)
