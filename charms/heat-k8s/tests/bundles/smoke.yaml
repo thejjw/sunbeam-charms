@@ -71,6 +71,8 @@ relations:
   - heat:database
 - - keystone:identity-service
   - heat:identity-service
+- - keystone:identity-ops
+  - heat:identity-ops
 - - traefik:ingress
   - heat:ingress-internal
 - - traefik-public:ingress
@@ -82,6 +84,8 @@ relations:
   - heat-cfn:database
 - - keystone:identity-service
   - heat-cfn:identity-service
+- - keystone:identity-ops
+  - heat-cfn:identity-ops
 - - traefik:ingress
   - heat-cfn:ingress-internal
 - - traefik-public:ingress

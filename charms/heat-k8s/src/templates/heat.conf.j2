@@ -7,6 +7,9 @@ environment_dir=/etc/heat/environment.d
 deferred_auth_method=password
 host=heat
 auth_encryption_key={{ peers.auth_encryption_key }}
+stack_domain_admin={{ heat.stack_domain_admin_user }}
+stack_domain_admin_password={{ heat.stack_domain_admin_password }}
+stack_user_domain_name={{ heat.stack_domain_name }}
 
 transport_url = {{ amqp.transport_url }}
 

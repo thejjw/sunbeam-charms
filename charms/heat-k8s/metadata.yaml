@@ -50,6 +50,8 @@ requires:
     limit: 1
   amqp:
     interface: rabbitmq
+  identity-ops:
+    interface: keystone-resources
 
 peers:
   peers:

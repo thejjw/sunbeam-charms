@@ -16,7 +16,15 @@
 
 """Unit tests for Heat operator."""
 
+import json
+from unittest.mock import (
+    MagicMock,
+)
+
 import ops_sunbeam.test_utils as test_utils
+from ops.testing import (
+    Harness,
+)
 
 import charm
 
@@ -72,19 +80,75 @@ class TestHeatOperatorCharm(test_utils.CharmTestCase):
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
+    def add_complete_identity_resource_relation(
+        self, harness: Harness
+    ) -> None:
+        """Add complete Identity resource relation."""
+        rel_id = harness.add_relation("identity-ops", "keystone")
+        harness.add_relation_unit(rel_id, "keystone/0")
+        ops = harness.charm._get_heat_stack_domain_ops()
+        id_ = harness.charm.hash_ops(ops)
+        harness.update_relation_data(
+            rel_id,
+            "keystone/0",
+            {
+                "request": json.dumps(
+                    {"id": id_, "tag": "initial_heat_domain_setup", "ops": ops}
+                )
+            },
+        )
+
+        harness.update_relation_data(
+            rel_id,
+            "keystone",
+            {
+                "response": json.dumps(
+                    {
+                        "id": id_,
+                        "tag": "initial_heat_domain_setup",
+                        "ops": [{"name": "create_domain", "return-code": 0}],
+                    }
+                )
+            },
+        )
+        return rel_id
+
     def test_pebble_ready_handler(self):
         """Test pebble ready handler."""
+        secret_mock = MagicMock()
+        secret_mock.id = "test-secret-id"
+        secret_mock.get_content.return_value = {
+            "username": "fake-username",
+            "password": "fake-password",
+        }
+        self.harness.model.app.add_secret = MagicMock()
+        self.harness.model.app.add_secret.return_value = secret_mock
+        self.harness.model.get_secret = MagicMock()
+        self.harness.model.get_secret.return_value = secret_mock
+
         self.assertEqual(self.harness.charm.seen_events, [])
         test_utils.set_all_pebbles_ready(self.harness)
         self.assertEqual(len(self.harness.charm.seen_events), 2)
 
     def test_all_relations(self):
         """Test all integrations for operator."""
+        secret_mock = MagicMock()
+        secret_mock.id = "test-secret-id"
+        secret_mock.get_content.return_value = {
+            "username": "fake-username",
+            "password": "fake-password",
+        }
+        self.harness.model.app.add_secret = MagicMock()
+        self.harness.model.app.add_secret.return_value = secret_mock
+        self.harness.model.get_secret = MagicMock()
+        self.harness.model.get_secret.return_value = secret_mock
+
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
         # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
         test_utils.add_complete_ingress_relation(self.harness)
+        self.add_complete_identity_resource_relation(self.harness)
 
         setup_cmds = [["heat-manage", "db_sync"]]
         for cmd in setup_cmds:
