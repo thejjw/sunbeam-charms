@@ -1,0 +1,3 @@
+{% if database.connection -%}
+connection = {{ database.connection }}
+{% endif -%}

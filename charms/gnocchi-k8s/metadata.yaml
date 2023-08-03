@@ -1,0 +1,47 @@
+name: gnocchi-k8s
+summary: OpenStack gnocchi service
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  OpenStack gnocchi provides an HTTP service for managing, selecting,
+  and claiming providers of classes of inventory representing available
+  resources in a cloud.
+  .
+version: 3
+bases:
+  - name: ubuntu
+    channel: 20.04/stable
+tags:
+- openstack
+
+containers:
+  gnocchi-api:
+    resource: gnocchi-api-image
+
+resources:
+  gnocchi-api-image:
+    type: oci-image
+    description: OCI image for OpenStack gnocchi
+
+requires:
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-service:
+    interface: keystone
+  ingress-internal:
+    interface: ingress
+    optional: true
+    limit: 1
+  ingress-public:
+    interface: ingress
+    limit: 1
+  amqp:
+    interface: rabbitmq
+
+provides:
+  gnocchi:
+    interface: gnocchi
+
+peers:
+  peers:
+    interface: gnocchi-peer
