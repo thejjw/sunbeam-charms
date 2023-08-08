@@ -1,0 +1,62 @@
+bundle: kubernetes
+applications:
+
+  mysql:
+    charm: ch:mysql-k8s
+    channel: 8.0/stable
+    scale: 1
+    trust: false
+    constraints: mem=1G
+
+  # Currently traefik is required for networking things.
+  # If this isn't present, the units will hang at "installing agent".
+  traefik:
+    charm: ch:traefik-k8s
+    channel: 1.0/stable
+    scale: 1
+    trust: true
+
+  traefik-public:
+    charm: ch:traefik-k8s
+    channel: 1.0/stable
+    scale: 1
+    trust: true
+    options:
+      kubernetes-service-annotations: metallb.universe.tf/address-pool=public
+
+  keystone:
+    charm: ch:keystone-k8s
+    channel: 2023.1/edge
+    scale: 1
+    trust: true
+    options:
+      admin-role: admin
+    storage:
+      fernet-keys: 5M
+      credential-keys: 5M
+
+  gnocchi:
+    charm: ../../gnocchi-k8s.charm
+    scale: 1
+    trust: true
+    resources:
+      gnocchi-api-image: ghcr.io/openstack-snaps/gnocchi-api:2023.1
+      gnocchi-metricd-image: ghcr.io/openstack-snaps/gnocchi-metricd:2023.1
+
+relations:
+- - traefik:ingress
+  - keystone:ingress-internal
+- - traefik-public:ingress
+  - keystone:ingress-public
+
+- - mysql:database
+  - keystone:database
+
+- - mysql:database
+  - gnocchi:database
+- - keystone:identity-service
+  - gnocchi:identity-service
+- - traefik:ingress
+  - gnocchi:ingress-internal
+- - traefik-public:ingress
+  - gnocchi:ingress-public

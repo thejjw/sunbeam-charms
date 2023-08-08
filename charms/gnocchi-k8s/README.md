@@ -10,16 +10,14 @@ Use links instead.
 
 # gnocchi-k8s
 
-Charmhub package name: operator-template
+Charmhub package name: gnocchi-k8s
 More information: https://charmhub.io/gnocchi-k8s
 
-Describe your charm in one or two sentences.
+Operator for OpenStack Gnocchi.
 
 ## Other resources
 
 <!-- If your charm is documented somewhere else other than Charmhub, provide a link separately. -->
-
-- [Read more](https://example.com)
 
 - [Contributing](CONTRIBUTING.md) <!-- or link to other contribution documentation -->
 
