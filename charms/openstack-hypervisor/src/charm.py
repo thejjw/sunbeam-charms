@@ -35,27 +35,12 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
-from netifaces import AF_INET, gateways, ifaddresses
 from ops.charm import ActionEvent
 from ops.main import main
 
+from utils import get_local_ip_by_default_route
+
 logger = logging.getLogger(__name__)
-
-
-def _get_local_ip_by_default_route() -> str:
-    """Get IP address of host associated with default gateway."""
-    interface = "lo"
-    ip = "127.0.0.1"
-
-    # TOCHK: Gathering only IPv4
-    if "default" in gateways():
-        interface = gateways()["default"][AF_INET][1]
-
-    ip_list = ifaddresses(interface)[AF_INET]
-    if len(ip_list) > 0 and "addr" in ip_list[0]:
-        ip = ip_list[0]["addr"]
-
-    return ip
 
 
 class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
@@ -179,7 +164,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         self.check_relation_handlers_ready()
         config = self.model.config.get
         self.ensure_snap_present()
-        local_ip = _get_local_ip_by_default_route()
+        local_ip = get_local_ip_by_default_route()
         try:
             contexts = self.contexts()
             sb_connection_strs = list(contexts.ovsdb_cms.db_ingress_sb_connection_strs)
