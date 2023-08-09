@@ -1,0 +1,15 @@
+{% if identity_credentials.project_domain_id -%}
+[service_user]
+{% if identity_credentials.internal_auth_url -%}
+auth_url = {{ identity_credentials.internal_auth_url }}
+{% elif identity_credentials.internal_host -%}
+auth_url = {{ identity_credentials.internal_protocol }}://{{ identity_credentials.internal_host }}:{{ identity_credentials.internal_port }}
+{% endif -%}
+send_service_user_token = true
+auth_type = password
+project_domain_id = {{ identity_credentials.project_domain_id }}
+user_domain_id = {{ identity_credentials.user_domain_id }}
+project_name = {{ identity_credentials.project_name }}
+username = {{ identity_credentials.username }}
+password = {{ identity_credentials.password }}
+{% endif -%}

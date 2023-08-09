@@ -1,0 +1,46 @@
+name: ceilometer-k8s
+summary: OpenStack ceilometer service
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  OpenStack ceilometer provides an HTTP service for managing, selecting,
+  and claiming providers of classes of inventory representing available
+  resources in a cloud.
+  .
+version: 3
+bases:
+  - name: ubuntu
+    channel: 22.04/stable
+assumes:
+  - k8s-api
+  - juju >= 3.2
+tags:
+- openstack
+source: https://opendev.org/openstack/charm-ceilometer-k8s
+issues: https://bugs.launchpad.net/charm-ceilometer-k8s
+
+containers:
+  ceilometer-central:
+    resource: ceilometer-central-image
+  ceilometer-notification:
+    resource: ceilometer-notification-image
+
+resources:
+  ceilometer-central-image:
+    type: oci-image
+    description: OCI image for OpenStack ceilometer
+    upstream-source: kolla/ubuntu-binary-ceilometer-central:yoga
+  ceilometer-notification-image:
+    type: oci-image
+    description: OCI image for OpenStack ceilometer
+    upstream-source: kolla/ubuntu-binary-ceilometer-notification:yoga
+
+requires:
+  amqp:
+    interface: rabbitmq
+  identity-credentials:
+    interface: keystone-credentials
+    limit: 1
+
+peers:
+  peers:
+    interface: ceilometer-peer
