@@ -1,0 +1,16 @@
+[DEFAULT]
+debug = {{ options.debug }}
+
+gnocchi_external_project_owner = services
+{% if identity_service.service_domain -%}
+gnocchi_external_domain_name = {{ identity_service.service_domain }}
+{% endif %}
+
+{% include "parts/section-database" %}
+alarm_history_time_to_live = {{ options.alarm_history_time_to_live }}
+alarm_histories_delete_batch_size = {{ options.alarm_histories_delete_batch_size }}
+
+{% include "parts/section-identity" %}
+
+{% include "parts/section-service-user" %}
+

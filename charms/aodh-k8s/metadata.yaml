@@ -1,0 +1,77 @@
+name: aodh-k8s
+summary: OpenStack aodh service
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  OpenStack aodh provides an HTTP service for managing, selecting,
+  and claiming providers of classes of inventory representing available
+  resources in a cloud.
+  .
+version: 3
+bases:
+  - name: ubuntu
+    channel: 22.04/stable
+assumes:
+  - k8s-api
+  - juju >= 3.2
+tags:
+- openstack
+source: https://opendev.org/openstack/charm-aodh-k8s
+issues: https://bugs.launchpad.net/charm-aodh-k8s
+
+containers:
+  aodh-api:
+    resource: aodh-api-image
+  aodh-evaluator:
+    resource: aodh-evaluator-image
+  aodh-notifier:
+    resource: aodh-notifier-image
+  aodh-listener:
+    resource: aodh-listener-image
+  aodh-expirer:
+    resource: aodh-expirer-image
+
+resources:
+  aodh-api-image:
+    type: oci-image
+    description: OCI image for OpenStack aodh
+    upstream-source: kolla/ubuntu-binary-aodh-notifier:yoga
+  aodh-evaluator-image:
+    type: oci-image
+    description: OCI image for OpenStack aodh
+    upstream-source: kolla/ubuntu-binary-aodh-evaluator:yoga
+  aodh-notifier-image:
+    type: oci-image
+    description: OCI image for OpenStack aodh
+    upstream-source: kolla/ubuntu-binary-aodh-notifier:yoga
+  aodh-listener-image:
+    type: oci-image
+    description: OCI image for OpenStack aodh
+    upstream-source: kolla/ubuntu-binary-aodh-listener:yoga
+  aodh-expirer-image:
+    type: oci-image
+    description: OCI image for OpenStack aodh
+    upstream-source: kolla/ubuntu-binary-aodh-expirer:yoga
+  
+requires:
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-service:
+    interface: keystone
+  ingress-internal:
+    interface: ingress
+    optional: true
+    limit: 1
+  ingress-public:
+    interface: ingress
+    limit: 1
+  amqp:
+    interface: rabbitmq
+
+provides:
+  aodh:
+    interface: aodh
+
+peers:
+  peers:
+    interface: aodh-peer
