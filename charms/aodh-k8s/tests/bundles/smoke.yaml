@@ -40,17 +40,26 @@ applications:
     storage:
       fernet-keys: 5M
       credential-keys: 5M
-
+  gnocchi:
+    charm: gnocchi-k8s
+    channel: edge
+    scale: 1
+    trust: true
+  ceilometer:
+    charm: ceilometer-k8s
+    channel: edge
+    scale: 1
+    trust: true
   aodh:
     charm: ../../aodh-k8s.charm
     scale: 1
     trust: true
     resources:
-      aodh-api-image: kolla/ubuntu-binary-aodh-notifier:yoga
-      aodh-evaluator-image: kolla/ubuntu-binary-aodh-evaluator:yoga
-      aodh-notifier-image: kolla/ubuntu-binary-aodh-notifier:yoga
-      aodh-listener-image: kolla/ubuntu-binary-aodh-listener:yoga
-      aodh-expirer-image: kolla/ubuntu-binary-aodh-expirer:yoga
+      aodh-api-image: ghcr.io/openstack-snaps/aodh-consolidated:2023.1
+      aodh-evaluator-image: ghcr.io/openstack-snaps/aodh-consolidated:2023.1
+      aodh-notifier-image: ghcr.io/openstack-snaps/aodh-consolidated:2023.1
+      aodh-listener-image: ghcr.io/openstack-snaps/aodh-consolidated:2023.1
+      aodh-expirer-image: ghcr.io/openstack-snaps/aodh-consolidated:2023.1
 
 relations:
 - - traefik:ingress
@@ -71,4 +80,18 @@ relations:
   - aodh:ingress-internal
 - - traefik-public:ingress
   - aodh:ingress-public
+
+- - mysql:database
+  - gnocchi:database
+- - traefik:ingress
+  - gnocchi:ingress-internal
+- - traefik-public:ingress
+  - gnocchi:ingress-public
+- - keystone:identity-service
+  - gnocchi:identity-service
+
+- - rabbitmq:amqp
+  - ceilometer:amqp
+- - keystone:identity-credentials
+  - ceilometer:identity-credentials
 

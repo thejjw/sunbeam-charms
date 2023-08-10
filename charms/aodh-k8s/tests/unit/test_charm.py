@@ -89,7 +89,11 @@ class TestAodhOperatorCharm(test_utils.CharmTestCase):
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
 
-        app_setup_cmds = [["a2ensite", "wsgi-aodh-api"], ["aodh-dbsync"]]
+        app_setup_cmds = [
+            ["a2ensite", "wsgi-aodh-api"],
+            ["aodh-dbsync"],
+            ["a2dissite", "aodh-api"],
+        ]
         for cmd in app_setup_cmds:
             self.assertIn(cmd, self.container_calls.execute["aodh-api"])
 

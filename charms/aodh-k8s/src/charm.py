@@ -7,6 +7,7 @@ This charm provide Aodh services as part of an OpenStack deployment
 import logging
 from typing import List
 
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
@@ -20,6 +21,19 @@ AODH_EVALUATOR_CONTAINER = "aodh-evaluator"
 AODH_NOTIFIER_CONTAINER = "aodh-notifier"
 AODH_LISTENER_CONTAINER = "aodh-listener"
 AODH_EXPIRER_CONTAINER = "aodh-expirer"
+
+
+class AODHWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
+    """Pebble handler for AODH api service."""
+
+    def init_service(self, context) -> None:
+        """Initialise the container."""
+        try:
+            self.execute(["a2dissite", "aodh-api"], exception_on_error=True)
+        except ops.pebble.ExecError:
+            logger.exception("Failed to disable aodh-api site in apache")
+
+        super().init_service(context)
 
 
 class AODHEvaluatorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
@@ -230,7 +244,7 @@ class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         #        else:
         #            enable_expirer = False
         pebble_handlers = [
-            sunbeam_chandlers.WSGIPebbleHandler(
+            AODHWSGIPebbleHandler(
                 self,
                 AODH_WSGI_CONTAINER,
                 self.service_name,
