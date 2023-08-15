@@ -79,6 +79,18 @@ class TestCharm(test_utils.CharmTestCase):
 
     def test_all_relations(self):
         """Test all the charms relations."""
+        # Add cos-agent relation
+        self.harness.add_relation(
+            "cos-agent",
+            "grafana-agent",
+            unit_data={
+                "config": '{"metrics_alert_rules": {}, "log_alert_rules": {}, "dashboards": ["/Td6WFoAAATm1rRGAAAAABzfRCEftvN9AQAAAAAEWVo="], "metrics_scrape_jobs": [{"metrics_path": "/metrics", "static_configs": [{"targets": ["localhost:9177"]}]], "log_slots": []}',
+                "egress-subnets": "10.1.171.64/32",
+                "ingress-address": "10.1.171.64",
+                "private-address": "10.1.171.64",
+            },
+        )
+
         self.get_local_ip_by_default_route.return_value = "10.0.0.10"
         hypervisor_snap_mock = mock.MagicMock()
         hypervisor_snap_mock.present = False
@@ -127,5 +139,6 @@ class TestCharm(test_utils.CharmTestCase):
             "node.fqdn": "test.local",
             "node.ip-address": "10.0.0.10",
             "rabbitmq.url": "rabbit://hypervisor:rabbit.pass@10.0.0.13:5672/openstack",
+            "monitoring.enable": True,
         }
         hypervisor_snap_mock.set.assert_any_call(expect_settings)

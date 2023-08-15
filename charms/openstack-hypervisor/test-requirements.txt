@@ -9,3 +9,5 @@ mock
 flake8
 stestr
 ops
+cosl==0.0.5 ; python_version >= "3.8"
+pydantic==1.10.12 ; python_version >= "3.8"

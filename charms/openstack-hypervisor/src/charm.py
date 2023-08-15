@@ -35,6 +35,7 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from charms.grafana_agent.v0.cos_agent import COSAgentProvider
 from ops.charm import ActionEvent
 from ops.main import main
 
@@ -55,10 +56,41 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Run constructor."""
         super().__init__(framework)
         self._state.set_default(metadata_secret="")
+        self.enable_monitoring = self.check_relation_exists("cos-agent")
         self.framework.observe(
             self.on.set_hypervisor_local_settings_action,
             self._set_hypervisor_local_settings_action,
         )
+        self.framework.observe(
+            self.on.cos_agent_relation_joined,
+            self._on_cos_agent_relation_joined,
+        )
+        self.framework.observe(
+            self.on.cos_agent_relation_departed,
+            self._on_cos_agent_relation_departed,
+        )
+        self._grafana_agent = COSAgentProvider(
+            self,
+            metrics_endpoints=[
+                {"path": "/metrics", "port": 9177},  # libvirt exporter
+                {"path": "/metrics", "port": 9475},  # ovs exporter
+                {"path": "/metrics", "port": 12345},  # node exporter
+            ],
+        )
+
+    def check_relation_exists(self, relation_name: str) -> bool:
+        """Check if a relation exists or not."""
+        if self.model.get_relation(relation_name):
+            return True
+        return False
+
+    def _on_cos_agent_relation_joined(self, event: ops.framework.EventBase):
+        self.enable_monitoring = True
+        self.configure_charm(event)
+
+    def _on_cos_agent_relation_departed(self, event: ops.framework.EventBase):
+        self.enable_monitoring = False
+        self.configure_charm(event)
 
     def get_relation_handlers(
         self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
@@ -203,6 +235,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "node.fqdn": socket.getfqdn(),
                 "node.ip-address": config("ip-address") or local_ip,
                 "rabbitmq.url": contexts.amqp.transport_url,
+                "monitoring.enable": self.enable_monitoring,
             }
         except AttributeError as e:
             raise sunbeam_guard.WaitingExceptionError("Data missing: {}".format(e.name))
