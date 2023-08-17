@@ -98,10 +98,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         """Create keystone manager mock."""
 
         def _create_mock(p_name, p_id):
-            _mock = mock.MagicMock()
-            type(_mock).name = mock.PropertyMock(return_value=p_name)
-            type(_mock).id = mock.PropertyMock(return_value=p_id)
-            return _mock
+            return {"id": p_id, "name": p_name}
 
         def _get_domain_side_effect(name: str):
             if name == "admin_domain":
@@ -120,12 +117,11 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         admin_role_mock = _create_mock("arole_name", "arole_id")
 
         km_mock = mock.MagicMock()
-        km_mock.get_domain.side_effect = _get_domain_side_effect
-        km_mock.get_project.return_value = admin_project_mock
-        km_mock.get_user.return_value = admin_user_mock
-        km_mock.create_domain.return_value = service_domain_mock
-        km_mock.create_user.return_value = service_user_mock
-        km_mock.create_role.return_value = admin_role_mock
+        km_mock.ksclient.show_domain.side_effect = _get_domain_side_effect
+        km_mock.ksclient.show_project.return_value = admin_project_mock
+        km_mock.ksclient.show_user.return_value = admin_user_mock
+        km_mock.ksclient.create_user.return_value = service_user_mock
+        km_mock.ksclient.create_role.return_value = admin_role_mock
         km_mock.create_service_account.return_value = service_user_mock
         km_mock.read_keys.return_value = {
             "0": "Qf4vHdf6XC2dGKpEwtGapq7oDOqUWepcH2tKgQ0qOKc=",
@@ -172,7 +168,6 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
     # This function need to be moved to operator
     def get_secret_by_label(self, label: str) -> str:
         """Get secret by label from harness class."""
-        print(self.harness._backend._secrets)
         for secret in self.harness._backend._secrets:
             if secret.label == label:
                 return secret.id

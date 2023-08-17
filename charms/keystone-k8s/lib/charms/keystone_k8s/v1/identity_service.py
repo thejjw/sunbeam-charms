@@ -100,7 +100,7 @@ LIBAPI = 1
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 
 logger = logging.getLogger(__name__)
@@ -477,12 +477,12 @@ class IdentityServiceProvides(Object):
                                          service_host: str,
                                          service_port: str,
                                          service_protocol: str,
-                                         admin_domain: str,
-                                         admin_project: str,
-                                         admin_user: str,
-                                         service_domain: str,
-                                         service_project: str,
-                                         service_user: str,
+                                         admin_domain: dict,
+                                         admin_project: dict,
+                                         admin_user: dict,
+                                         service_domain: dict,
+                                         service_project: dict,
+                                         service_user: dict,
                                          internal_auth_url: str,
                                          admin_auth_url: str,
                                          public_auth_url: str,
@@ -507,17 +507,17 @@ class IdentityServiceProvides(Object):
         app_data["service-host"] = service_host
         app_data["service-port"] = str(service_port)
         app_data["service-protocol"] = service_protocol
-        app_data["admin-domain-name"] = admin_domain.name
-        app_data["admin-domain-id"] = admin_domain.id
-        app_data["admin-project-name"] = admin_project.name
-        app_data["admin-project-id"] = admin_project.id
-        app_data["admin-user-name"] = admin_user.name
-        app_data["admin-user-id"] = admin_user.id
-        app_data["service-domain-name"] = service_domain.name
-        app_data["service-domain-id"] = service_domain.id
-        app_data["service-project-name"] = service_project.name
-        app_data["service-project-id"] = service_project.id
-        app_data["service-user-id"] = service_user.id
+        app_data["admin-domain-name"] = admin_domain.get("name")
+        app_data["admin-domain-id"] = admin_domain.get("id")
+        app_data["admin-project-name"] = admin_project.get("name")
+        app_data["admin-project-id"] = admin_project.get("id")
+        app_data["admin-user-name"] = admin_user.get("name")
+        app_data["admin-user-id"] = admin_user.get("id")
+        app_data["service-domain-name"] = service_domain.get("name")
+        app_data["service-domain-id"] = service_domain.get("id")
+        app_data["service-project-name"] = service_project.get("name")
+        app_data["service-project-id"] = service_project.get("id")
+        app_data["service-user-id"] = service_user.get("id")
         app_data["internal-auth-url"] = internal_auth_url
         app_data["admin-auth-url"] = admin_auth_url
         app_data["public-auth-url"] = public_auth_url

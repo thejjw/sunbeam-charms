@@ -15,7 +15,10 @@
 """Manager for interacting with keystone."""
 
 import logging
-import typing
+from typing import (
+    Mapping,
+    Optional,
+)
 
 import ops.pebble
 import ops_sunbeam.guard as sunbeam_guard
@@ -28,27 +31,6 @@ from keystoneauth1.identity import (
 from keystoneclient.v3 import (
     client,
 )
-from keystoneclient.v3.domains import (
-    Domain,
-)
-from keystoneclient.v3.endpoints import (
-    Endpoint,
-)
-from keystoneclient.v3.projects import (
-    Project,
-)
-from keystoneclient.v3.regions import (
-    Region,
-)
-from keystoneclient.v3.roles import (
-    Role,
-)
-from keystoneclient.v3.services import (
-    Service,
-)
-from keystoneclient.v3.users import (
-    User,
-)
 from ops import (
     framework,
 )
@@ -56,13 +38,12 @@ from ops.model import (
     MaintenanceStatus,
 )
 
+from utils.client import (
+    KeystoneClient,
+    KeystoneExceptionError,
+)
+
 logger = logging.getLogger(__name__)
-
-
-class KeystoneExceptionError(Exception):
-    """Error interacting with Keystone."""
-
-    pass
 
 
 class KeystoneManager(framework.Object):
@@ -74,6 +55,7 @@ class KeystoneManager(framework.Object):
         self.charm = charm
         self.container_name = container_name
         self._api = None
+        self._ksclient = None
 
     def run_cmd(self, cmd, exception_on_error=True, **kwargs):
         """Run command in container."""
@@ -107,6 +89,14 @@ class KeystoneManager(framework.Object):
             endpoint_override="http://localhost:5000/v3",
         )
         return self._api
+
+    @property
+    def ksclient(self) -> KeystoneClient:
+        """Keystone client."""
+        if self._ksclient:
+            return self._ksclient
+
+        return KeystoneClient(self.api)
 
     @property
     def admin_endpoint(self):
@@ -202,15 +192,13 @@ class KeystoneManager(framework.Object):
                 ]
             )
 
-    def read_keys(self, key_repository: str) -> typing.Mapping[str, str]:
+    def read_keys(self, key_repository: str) -> Mapping[str, str]:
         """Pull the fernet keys from the on-disk repository."""
         container = self.charm.unit.get_container(self.container_name)
         files = container.list_files(key_repository)
         return {file.name: container.pull(file.path).read() for file in files}
 
-    def write_keys(
-        self, key_repository: str, keys: typing.Mapping[str, str]
-    ) -> None:
+    def write_keys(self, key_repository: str, keys: Mapping[str, str]) -> None:
         """Update the local fernet key repository with the provided keys."""
         container = self.charm.unit.get_container(self.container_name)
 
@@ -375,108 +363,107 @@ class KeystoneManager(framework.Object):
     def _setup_admin_accounts(self):
         """Setup admin accounts."""
         # Get the default domain id
-        default_domain = self.get_domain("default")
+        default_domain = self.ksclient.get_domain_object("default")
         logger.debug(f"Default domain id: {default_domain.id}")
         self.charm._state.default_domain_id = default_domain.id  # noqa
 
         # Get the admin domain id
-        admin_domain = self.create_domain(name="admin_domain", may_exist=True)
-        logger.debug(f"Admin domain id: {admin_domain.id}")
-        self.charm._state.admin_domain_id = admin_domain.id  # noqa
-        self.charm._state.admin_domain_name = admin_domain.name  # noqa
+        admin_domain = self.ksclient.create_domain(name="admin_domain")
+        admin_domain_id = admin_domain.get("id")
+        logger.debug(f"Admin domain id: {admin_domain_id}")
+        self.charm._state.admin_domain_id = admin_domain_id  # noqa
+        self.charm._state.admin_domain_name = admin_domain.get("name")  # noqa
 
         # Ensure that we have the necessary projects: admin and service
-        admin_project = self.create_project(
-            name="admin", domain=admin_domain, may_exist=True
+        admin_project = self.ksclient.create_project(
+            name="admin", domain=self.charm.admin_domain_name
         )
 
         logger.debug("Ensuring admin user exists")
-        admin_user = self.create_user(
+        self.ksclient.create_user(
             name=self.charm.admin_user,
             password=self.charm.admin_password,
-            domain=admin_domain,
-            may_exist=True,
+            domain=self.charm.admin_domain_name,
         )
 
         logger.debug("Ensuring roles exist for admin")
         # I seem to recall all kinds of grief between Member and member and
         # _member_ and inconsistencies in what other projects expect.
-        member_role = self.create_role(name="member", may_exist=True)
-        admin_role = self.create_role(
-            name=self.charm.admin_role, may_exist=True
-        )
+        member_role = self.ksclient.create_role(name="member")
+        self.ksclient.create_role(name=self.charm.admin_role)
 
         logger.debug("Granting roles to admin user")
         # Make the admin a member of the admin project
-        self.grant_role(
-            role=member_role,
-            user=admin_user,
-            project=admin_project,
-            may_exist=True,
+        self.ksclient.grant_role(
+            role=member_role.get("name"),
+            user=self.charm.admin_user,
+            project=admin_project.get("name"),
+            project_domain=self.charm.admin_domain_name,
+            user_domain=self.charm.admin_domain_name,
         )
         # Make the admin an admin of the admin project
-        self.grant_role(
-            role=admin_role,
-            user=admin_user,
-            project=admin_project,
-            may_exist=True,
+        self.ksclient.grant_role(
+            role=self.charm.admin_role,
+            user=self.charm.admin_user,
+            project=admin_project.get("name"),
+            project_domain=self.charm.admin_domain_name,
+            user_domain=self.charm.admin_domain_name,
         )
         # Make the admin a domain-level admin
-        self.grant_role(
-            role=admin_role,
-            user=admin_user,
-            domain=admin_domain,
-            may_exist=True,
+        self.ksclient.grant_role(
+            role=self.charm.admin_role,
+            user=self.charm.admin_user,
+            domain=self.charm.admin_domain_name,
+            user_domain=self.charm.admin_domain_name,
         )
 
     def _setup_service_accounts(self):
         """Create service accounts."""
         # Get the service domain id
-        service_domain = self.create_domain(
+        service_domain = self.ksclient.create_domain(
             name="service_domain", may_exist=True
         )
-        logger.debug(f"Service domain id: {service_domain.id}.")
+        service_domain_id = service_domain.get("id")
+        logger.debug(f"Service domain id: {service_domain_id}.")
 
-        service_project = self.create_project(
+        service_project = self.ksclient.create_project(
             name=self.charm.service_project,
-            domain=service_domain,
-            may_exist=True,
+            domain=service_domain.get("name"),
         )
-        logger.debug(f"Service project id: {service_project.id}.")
-        self.charm._state.service_project_id = service_project.id  # noqa
+        service_project_id = service_project.get("id")
+        logger.debug(f"Service project id: {service_project_id}.")
+        self.charm._state.service_project_id = service_project_id  # noqa
 
     def create_service_account(
         self,
         username: str,
         password: str,
-        project: "Project" = None,
-        domain: "Domain" = None,
-    ) -> "User":
+        project: Optional[str] = None,
+        domain: Optional[str] = None,
+    ) -> dict:
         """Helper function to create service account."""
         if not domain:
-            domain = self.get_domain(name="service_domain")
+            domain = "service_domain"
         if not project:
-            project = self.get_project(
-                name=self.charm.service_project, domain=domain
-            )
-        admin_role = self.get_role(name=self.charm.admin_role)
-        service_user = self.create_user(
+            project = self.charm_service_project
+
+        service_user = self.ksclient.create_user(
             name=username,
             password=password,
-            domain=domain.id,
-            may_exist=True,
+            domain=domain,
         )
-        self.grant_role(
-            role=admin_role,
-            user=service_user,
-            project=project,
-            may_exist=True,
+        self.ksclient.grant_role(
+            role=self.charm.admin_role,
+            project=self.charm.service_project,
+            user=service_user.get("name"),
+            project_domain="service_domain",
+            user_domain="service_domain",
         )
         return service_user
 
     def update_service_catalog_for_keystone(self):
         """Create identity service in catalogue."""
-        service = self.create_service(
+        service = self.ksclient.create_service(
             name="keystone",
             service_type="identity",
             description="Keystone Identity Service",
@@ -494,314 +481,10 @@ class KeystoneManager(framework.Object):
                 continue
 
             for interface, url in endpoints.items():
-                self.create_endpoint(
+                self.ksclient.create_endpoint(
                     service=service,
                     interface=interface,
                     url=url,
                     region=region,
                     may_exist=True,
                 )
-
-    def get_domain(self, name: str) -> "Domain":
-        """Get domain by name.
-
-        Returns the domain specified by the name, or None if a matching
-        domain could not be found.
-
-        :param name: the name of the domain
-        :type name: str
-        :rtype: 'Domain' or None
-        """
-        for domain in self.api.domains.list():
-            if domain.name.lower() == name.lower():
-                return domain
-
-        return None
-
-    def create_domain(
-        self,
-        name: str,
-        description: str = "Created by Juju",
-        may_exist: bool = False,
-    ) -> "Domain":
-        """Create a domain."""
-        if may_exist:
-            domain = self.get_domain(name)
-            if domain:
-                logger.debug(
-                    f"Domain {name} already exists with domain "
-                    f"id {domain.id}."
-                )
-                return domain
-
-        domain = self.api.domains.create(name=name, description=description)
-        logger.debug(f"Created domain {name} with id {domain.id}")
-        return domain
-
-    def create_project(
-        self,
-        name: str,
-        domain: str,
-        description: str = "Created by Juju",
-        may_exist: bool = False,
-    ) -> "Project":
-        """Create a project."""
-        if may_exist:
-            for project in self.api.projects.list(domain=domain):
-                if project.name.lower() == name.lower():
-                    logger.debug(
-                        f"Project {name} already exists with project "
-                        f"id {project.id}."
-                    )
-                    return project
-
-        project = self.api.projects.create(
-            name=name, description=description, domain=domain
-        )
-        logger.debug(f"Created project {name} with id {project.id}")
-        return project
-
-    def get_project(
-        self, name: str, domain: typing.Union[str, "Domain"] = None
-    ):
-        """Get a project from name."""
-        projects = self.api.projects.list(domain=domain)
-        for project in projects:
-            if project.name.lower() == name.lower():
-                return project
-        return None
-
-    def create_user(
-        self,
-        name: str,
-        password: str,
-        email: str = None,
-        project: "Project" = None,
-        domain: "Domain" = None,
-        may_exist: bool = False,
-    ) -> "User":
-        """Create a user."""
-        if may_exist:
-            user = self.get_user(name, project=project, domain=domain)
-            if user:
-                logger.debug(
-                    f"User {name} already exists with user " f"id {user.id}."
-                )
-                return user
-
-        user = self.api.users.create(
-            name=name,
-            default_project=project,
-            domain=domain,
-            password=password,
-            email=email,
-        )
-        logger.debug(f"Created user {user.name} with id {user.id}.")
-        return user
-
-    def get_user(
-        self,
-        name: str,
-        project: "Project" = None,
-        domain: typing.Union[str, "Domain"] = None,
-    ) -> "User":
-        """Get a user from name."""
-        users = self.api.users.list(default_project=project, domain=domain)
-        for user in users:
-            if user.name.lower() == name.lower():
-                return user
-
-        return None
-
-    def update_user(
-        self,
-        name: str,
-        password: str,
-        email: str = None,
-        project: "Project" = None,
-        domain: "Domain" = None,
-    ) -> "User":
-        """Update password for user."""
-        user = self.get_user(name=name, domain=domain, project=project)
-        user = self.api.users.update(
-            user,
-            name=name,
-            default_project=project,
-            domain=domain,
-            password=password,
-            email=email,
-        )
-        logger.debug(f"Updated user {user.name}.")
-        return user
-
-    def delete_user(
-        self,
-        name: str,
-    ) -> None:
-        """Delete a user from name."""
-        user = self.get_user(name)
-        self.api.users.delete(user)
-
-    def create_role(
-        self,
-        name: str,
-        domain: typing.Union["Domain", str] = None,
-        may_exist: bool = False,
-    ) -> "Role":
-        """Create a role."""
-        if may_exist:
-            role = self.get_role(name=name, domain=domain)
-            if role:
-                logger.debug(
-                    f"Role {name} already exists with role " f"id {role.id}"
-                )
-                return role
-
-        role = self.api.roles.create(name=name, domain=domain)
-        logger.debug(f"Created role {name} with id {role.id}.")
-        return role
-
-    def get_role(self, name: str, domain: "Domain" = None) -> "Role":
-        """Get role for user."""
-        for role in self.api.roles.list(domain=domain):
-            if role.name == name:
-                return role
-
-        return None
-
-    def get_roles(
-        self, user: "User", project: "Project" = None, domain: "Project" = None
-    ) -> typing.List["Role"]:
-        """Get Roles for user."""
-        if project and domain:
-            raise ValueError("Project and domain are mutually exclusive")
-        if not project and not domain:
-            raise ValueError("Project or domain must be specified")
-
-        if project:
-            roles = self.api.roles.list(user=user, project=project)
-        else:
-            roles = self.api.roles.list(user=user, domain=domain)
-
-        return roles
-
-    def grant_role(
-        self,
-        role: typing.Union["Role", str],
-        user: "User",
-        project: typing.Union["Project", str] = None,
-        domain: typing.Union["Domain", str] = None,
-        may_exist: bool = False,
-    ) -> "Role":
-        """Grant role to user."""
-        if project and domain:
-            raise ValueError("Project and domain are mutually exclusive")
-        if not project and not domain:
-            raise ValueError("Project or domain must be specified")
-
-        if domain:
-            ctxt_str = f"domain {domain.name}"
-        else:
-            ctxt_str = f"project {project.name}"
-
-        if may_exist:
-            roles = self.get_roles(user=user, project=project, domain=domain)
-            for r in roles:
-                if role.id == r.id:
-                    logger.debug(
-                        f"User {user.name} already has role "
-                        f"{role.name} for {ctxt_str}"
-                    )
-                    return r
-
-        role = self.api.roles.grant(
-            role=role, user=user, project=project, domain=domain
-        )
-        logger.debug(f"Granted user {user} role {role} for " f"{ctxt_str}.")
-        return role
-
-    def create_region(
-        self, name: str, description: str = None, may_exist: bool = False
-    ) -> "Region":
-        """Create Region in keystone."""
-        if may_exist:
-            for region in self.api.regions.list():
-                if region.id == name:
-                    logger.debug(f"Region {name} already exists.")
-                    return region
-
-        region = self.api.regions.create(id=name, description=description)
-        logger.debug(f"Created region {name}.")
-        return region
-
-    def create_service(
-        self,
-        name: str,
-        service_type: str,
-        description: str,
-        owner: str = None,
-        may_exist: bool = False,
-    ) -> "Service":
-        """Create service in Keystone."""
-        if may_exist:
-            services = self.api.services.list(name=name, type=service_type)
-            # TODO(wolsen) can we have more than one service with the same
-            #  service name? I don't think so, so we'll just handle the first
-            #  one for now.
-            logger.debug(f"FOUND: {services}")
-            for service in services:
-                logger.debug(
-                    f"Service {name} already exists with "
-                    f"service id {service.id}."
-                )
-                return service
-
-        service = self.api.services.create(
-            name=name, type=service_type, description=description
-        )
-        logger.debug(f"Created service {service.name} with id {service.id}")
-        return service
-
-    def create_endpoint(
-        self,
-        service: "Service",
-        url: str,
-        interface: str,
-        region: str,
-        may_exist: bool = False,
-    ) -> "Endpoint":
-        """Create endpoint in keystone."""
-        ep_string = (
-            f"{interface} endpoint for service {service} in "
-            f"region {region}"
-        )
-        if may_exist:
-            endpoints = self.api.endpoints.list(
-                service=service, interface=interface, region=region
-            )
-            if endpoints:
-                # NOTE(wolsen) if we have endpoints found, there should be only
-                # one endpoint; but assert it to make sure
-                assert len(endpoints) == 1
-                endpoint = endpoints[0]
-                if endpoint.url != url:
-                    logger.debug(
-                        f"{ep_string} ({endpoint.url}) does "
-                        f"not match requested url ({url}). Updating."
-                    )
-                    endpoint = self.api.endpoints.update(
-                        endpoint=endpoint, url=url
-                    )
-                    logger.debug(f"Endpoint updated to use {url}")
-                else:
-                    logger.debug(
-                        f"Endpoint {ep_string} already exists with "
-                        f"id {endpoint.id}"
-                    )
-                return endpoint
-
-        endpoint = self.api.endpoints.create(
-            service=service, url=url, interface=interface, region=region
-        )
-        logger.debug(f"Created endpoint {ep_string} with id {endpoint.id}")
-        return endpoint

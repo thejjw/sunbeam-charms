@@ -33,6 +33,7 @@ from typing import (
 )
 
 import charms.keystone_k8s.v0.identity_credentials as sunbeam_cc_svc
+import charms.keystone_k8s.v0.identity_resource as sunbeam_ops_svc
 import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
 import ops.charm
 import ops.pebble
@@ -201,6 +202,40 @@ class IdentityCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+class IdentityResourceProvidesHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for identity resource relation."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+    ):
+        super().__init__(charm, relation_name, callback_f)
+
+    def setup_event_handler(self):
+        """Configure event handlers for an Identity resource relation."""
+        logger.debug("Setting up Identity Resource event handler")
+        ops_svc = sunbeam_ops_svc.IdentityResourceProvides(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            ops_svc.on.process_op,
+            self._on_process_op,
+        )
+        return ops_svc
+
+    def _on_process_op(self, event) -> None:
+        """Handles keystone ops events."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Check if handler is ready."""
+        return True
+
+
 class WSGIKeystonePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Keystone Pebble Handler."""
 
@@ -242,6 +277,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     ]
     IDSVC_RELATION_NAME = "identity-service"
     IDCREDS_RELATION_NAME = "identity-credentials"
+    IDOPS_RELATION_NAME = "identity-ops"
 
     def __init__(self, framework):
         super().__init__(framework)
@@ -370,26 +406,26 @@ export OS_AUTH_VERSION=3
         except SecretNotFoundError:
             logger.warning("Secret for {username} not found")
 
-        service_domain = self.keystone_manager.get_domain(
+        service_domain = self.keystone_manager.ksclient.show_domain(
             name="service_domain"
         )
-        service_project = self.keystone_manager.get_project(
-            name=self.service_project, domain=service_domain
+        service_project = self.keystone_manager.ksclient.show_project(
+            name=self.service_project, domain=service_domain.get("name")
         )
         self.keystone_manager.create_service_account(
             username=username,
             password=user_password,
-            project=service_project,
-            domain=service_domain,
+            project=service_project.get("name"),
+            domain=service_domain.get("name"),
         )
 
         event.set_results(
             {
                 "username": username,
                 "password": user_password,
-                "user-domain-name": service_domain.name,
-                "project-name": service_project.name,
-                "project-domain-name": service_domain.name,
+                "user-domain-name": service_domain.get("name"),
+                "project-name": service_project.get("name"),
+                "project-domain-name": service_domain.get("name"),
                 "region": self.model.config["region"],
                 "internal-endpoint": self.internal_endpoint,
                 "public-endpoint": self.public_endpoint,
@@ -412,7 +448,9 @@ export OS_AUTH_VERSION=3
             credentials_id = self._retrieve_or_set_secret(username)
             credentials = self.model.get_secret(id=credentials_id)
             password = pwgen.pwgen(12)
-            self.keystone_manager.update_user(name=username, password=password)
+            self.keystone_manager.ksclient.update_user(
+                user=username, password=password
+            )
             credentials.set_content(
                 {"username": username, "password": password}
             )
@@ -632,7 +670,7 @@ export OS_AUTH_VERSION=3
                     event.secret.label
                 ):
                     logger.info(f"Deleting user {user} from keystone")
-                    self.keystone_manager.delete_user(user)
+                    self.keystone_manager.ksclient.delete_user(user)
                     deleted_users.append(user)
             service_users_to_delete = [
                 x for x in service_users_to_delete if x not in deleted_users
@@ -675,6 +713,14 @@ export OS_AUTH_VERSION=3
                 self.add_credentials_from_event,
             )
             handlers.append(self.cc_svc)
+
+        if self.can_add_handler(self.IDOPS_RELATION_NAME, handlers):
+            self.ops_svc = IdentityResourceProvidesHandler(
+                self,
+                self.IDOPS_RELATION_NAME,
+                self.handle_ops_from_event,
+            )
+            handlers.append(self.ops_svc)
 
         return super().get_relation_handlers(handlers)
 
@@ -721,11 +767,8 @@ export OS_AUTH_VERSION=3
             )
             return False
 
-    def check_outstanding_requests(self) -> bool:
-        """Process any outstanding client requests."""
-        logger.debug("Checking for outstanding client requests")
-        if not self.can_service_requests():
-            return
+    def check_outstanding_identity_service_requests(self) -> None:
+        """Check requests from identity service relation."""
         for relation in self.framework.model.relations[
             self.IDSVC_RELATION_NAME
         ]:
@@ -755,6 +798,9 @@ export OS_AUTH_VERSION=3
                         "Cannot process client request, 'service-endpoints' "
                         "not supplied"
                     )
+
+    def check_outstanding_identity_credentials_requests(self) -> None:
+        """Check requests from identity credentials relation."""
         for relation in self.framework.model.relations[
             self.IDCREDS_RELATION_NAME
         ]:
@@ -780,6 +826,38 @@ export OS_AUTH_VERSION=3
                         "Cannot process client request, 'username' not "
                         "supplied"
                     )
+
+    def check_outstanding_identity_ops_requests(self) -> None:
+        """Check requests from identity ops relation."""
+        for relation in self.framework.model.relations[
+            self.IDOPS_RELATION_NAME
+        ]:
+            app_data = relation.data[relation.app]
+            request = {}
+            response = {}
+            if app_data.get("request"):
+                request = json.loads(app_data.get("request"))
+            if relation.data[self.app].get("response"):
+                response = json.loads(relation.data[self.app].get("response"))
+
+            request_id = request.get("id")
+            if request_id != response.get("id"):
+                logger.debug(
+                    "Processing identity ops request from"
+                    f"{relation.app.name} {relation.name}/{relation.id}"
+                    f" for request id {request_id}"
+                )
+                self.handle_op_request(relation.id, relation.name, request)
+
+    def check_outstanding_requests(self) -> bool:
+        """Process any outstanding client requests."""
+        logger.debug("Checking for outstanding client requests")
+        if not self.can_service_requests():
+            return
+
+        self.check_outstanding_identity_service_requests()
+        self.check_outstanding_identity_credentials_requests()
+        self.check_outstanding_identity_ops_requests()
 
     def register_service_from_event(self, event):
         """Process service request event.
@@ -810,20 +888,23 @@ export OS_AUTH_VERSION=3
         binding = self.framework.model.get_binding(relation)
         ingress_address = str(binding.network.ingress_address)
 
-        service_domain = self.keystone_manager.get_domain(
+        service_domain = self.keystone_manager.ksclient.show_domain(
             name="service_domain"
         )
-        service_project = self.keystone_manager.get_project(
-            name=self.service_project, domain=service_domain
+        admin_domain = self.keystone_manager.ksclient.show_domain(
+            name="admin_domain"
         )
-        admin_domain = self.keystone_manager.get_domain(name="admin_domain")
-        admin_project = self.keystone_manager.get_project(
-            name="admin", domain=admin_domain
+        service_project = self.keystone_manager.ksclient.show_project(
+            name=self.service_project, domain=service_domain.get("name")
         )
-        admin_user = self.keystone_manager.get_user(
+        admin_project = self.keystone_manager.ksclient.show_project(
+            name="admin", domain=admin_domain.get("name")
+        )
+        admin_user = self.keystone_manager.ksclient.show_user(
             name=self.model.config["admin-user"],
-            project=admin_project,
-            domain=admin_domain,
+            domain=admin_domain.get("name"),
+            project=admin_project.get("name"),
+            project_domain=admin_domain.get("name"),
         )
 
         for ep_data in service_endpoints:
@@ -853,18 +934,18 @@ export OS_AUTH_VERSION=3
             service_user = self.keystone_manager.create_service_account(
                 username=service_username,
                 password=service_password,
-                project=service_project,
-                domain=service_domain,
+                project=service_project.get("name"),
+                domain=service_domain.get("name"),
             )
 
-            service = self.keystone_manager.create_service(
+            service = self.keystone_manager.ksclient.create_service(
                 name=ep_data["service_name"],
                 service_type=ep_data["type"],
                 description=ep_data["description"],
                 may_exist=True,
             )
             for interface in ["admin", "internal", "public"]:
-                self.keystone_manager.create_endpoint(
+                self.keystone_manager.ksclient.create_endpoint(
                     service=service,
                     interface=interface,
                     url=ep_data[f"{interface}_url"],
@@ -930,17 +1011,17 @@ export OS_AUTH_VERSION=3
         except SecretNotFoundError:
             logger.warning(f"Secret for {username} not found")
 
-        service_domain = self.keystone_manager.get_domain(
+        service_domain = self.keystone_manager.ksclient.show_domain(
             name="service_domain"
         )
-        service_project = self.keystone_manager.get_project(
-            name=self.service_project, domain=service_domain
+        service_project = self.keystone_manager.ksclient.show_project(
+            name=self.service_project, domain=service_domain.get("name")
         )
         self.keystone_manager.create_service_account(
             username=username,
             password=user_password,
-            project=service_project,
-            domain=service_domain,
+            project=service_project.get("name"),
+            domain=service_domain.get("name"),
         )
 
         self.cc_svc.interface.set_identity_credentials(
@@ -954,12 +1035,12 @@ export OS_AUTH_VERSION=3
             internal_port=self.default_public_ingress_port,
             internal_protocol="http",
             credentials=credentials_id,
-            project_name=service_project.name,
-            project_id=service_project.id,
-            user_domain_name=service_domain.name,
-            user_domain_id=service_domain.id,
-            project_domain_name=service_domain.name,
-            project_domain_id=service_domain.id,
+            project_name=service_project.get("name"),
+            project_id=service_project.get("id"),
+            user_domain_name=service_domain.get("name"),
+            user_domain_id=service_domain.get("id"),
+            project_domain_name=service_domain.get("name"),
+            project_domain_id=service_domain.get("id"),
             region=self.model.config["region"],  # XXX(wolsen) region matters?
             admin_role=self.admin_role,
         )
@@ -1264,6 +1345,49 @@ export OS_AUTH_VERSION=3
         if self.bootstrapped():
             self.keystone_manager.update_service_catalog_for_keystone()
         self.configure_charm(event)
+
+    def handle_ops_from_event(self, event):
+        """Process ops request event."""
+        logger.debug("Handle ops from event")
+        if not self.can_service_requests():
+            logger.debug(
+                f"handle_ops_from_event: Service not ready, request {event.request} not processed"
+            )
+            return
+
+        request = json.loads(event.request)
+        self.handle_op_request(
+            event.relation_id, event.relation_name, request=request
+        )
+
+    def handle_op_request(
+        self, relation_id: str, relation_name: str, request: dict
+    ):
+        """Process op request."""
+        response = {}
+        response["id"] = request.get("id")
+        response["tag"] = request.get("tag")
+        response["ops"] = [
+            {"name": op.get("name"), "return-code": -2, "value": None}
+            for op in request.get("ops", [])
+        ]
+
+        for idx, op in enumerate(request.get("ops", [])):
+            try:
+                func_name = op.get("name")
+                func = getattr(self.keystone_manager.ksclient, func_name)
+                params = op.get("params", {})
+                result = func(**params)
+                response["ops"][idx]["return-code"] = 0
+                response["ops"][idx]["value"] = result
+            except Exception as e:
+                response["ops"][idx]["return-code"] = -1
+                response["ops"][idx]["value"] = str(e)
+
+        logger.debug(f"handle_op_request: Sending response {response}")
+        self.ops_svc.interface.set_ops_response(
+            relation_id, relation_name, ops_response=response
+        )
 
 
 if __name__ == "__main__":

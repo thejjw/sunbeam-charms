@@ -27,6 +27,8 @@ provides:
     interface: keystone
   identity-credentials:
     interface: keystone-credentials
+  identity-ops:
+    interface: keystone-resources
 
 requires:
   database:
