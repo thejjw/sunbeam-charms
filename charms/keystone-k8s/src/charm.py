@@ -58,6 +58,7 @@ from ops.main import (
 from ops.model import (
     ActiveStatus,
     MaintenanceStatus,
+    ModelError,
     SecretNotFoundError,
     SecretRotate,
 )
@@ -71,6 +72,7 @@ logger = logging.getLogger(__name__)
 KEYSTONE_CONTAINER = "keystone"
 FERNET_KEYS_PREFIX = "fernet-"
 CREDENTIALS_SECRET_PREFIX = "credentials_"
+SECRET_PREFIX = "secret://"
 
 
 KEYSTONE_CONF = "/etc/keystone/keystone.conf"
@@ -1346,12 +1348,34 @@ export OS_AUTH_VERSION=3
             self.keystone_manager.update_service_catalog_for_keystone()
         self.configure_charm(event)
 
+    def _sanitize_secrets(self, request: dict) -> dict:
+        """Sanitize any secrets.
+
+        Look for any secrets in op parameters and retrieve the secret value.
+        Use the same parameter name while retrieving value from secret.
+        """
+        for op in request.get("ops", []):
+            for param, value in op.get("params", {}).items():
+                if isinstance(value, str) and value.startswith(SECRET_PREFIX):
+                    try:
+                        credentials = self.model.get_secret(id=value)
+                        op["params"][param] = credentials.get_content().get(
+                            param
+                        )
+                    except (ModelError, SecretNotFoundError) as e:
+                        logger.debug(
+                            f"Not able to retrieve secret {value}: {str(e)}"
+                        )
+
+        return request
+
     def handle_ops_from_event(self, event):
         """Process ops request event."""
         logger.debug("Handle ops from event")
         if not self.can_service_requests():
             logger.debug(
-                f"handle_ops_from_event: Service not ready, request {event.request} not processed"
+                "handle_ops_from_event: Service not ready, request "
+                f"{event.request} not processed"
             )
             return
 
@@ -1372,6 +1396,7 @@ export OS_AUTH_VERSION=3
             for op in request.get("ops", [])
         ]
 
+        request = self._sanitize_secrets(request)
         for idx, op in enumerate(request.get("ops", [])):
             try:
                 func_name = op.get("name")
