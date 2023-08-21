@@ -869,17 +869,20 @@ class KeystoneClient:
         self,
         name: str,
         domain: Optional[str] = None,
-    ) -> None:
+    ) -> dict:
         """Delete a user using name.
 
         :param name: User name
         :param type: str
         :param domain: Domain name
         :param type: str | None
+        :rtype: dict
         """
         user = self.get_user_object(name, domain=domain)
         self.api.users.delete(user)
         logger.debug("Deleted user {user}")
+        # Return deleted users name
+        return {"name": name}
 
     def list_role(self, domain: Optional[str] = None) -> list:
         """List roles in domain.
