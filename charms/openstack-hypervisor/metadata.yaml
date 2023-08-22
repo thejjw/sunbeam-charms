@@ -22,4 +22,4 @@ requires:
 # hundreds of units and this is limited by the peer relation.
 
 assumes:
-  - juju >= 3.2
+  - juju >= 3.1
