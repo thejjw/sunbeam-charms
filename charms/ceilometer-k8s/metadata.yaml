@@ -28,11 +28,11 @@ resources:
   ceilometer-central-image:
     type: oci-image
     description: OCI image for OpenStack ceilometer
-    upstream-source: kolla/ubuntu-binary-ceilometer-central:yoga
+    upstream-source: ghcr.io/openstack-snaps/ceilometer-consolidated:2023.1
   ceilometer-notification-image:
     type: oci-image
     description: OCI image for OpenStack ceilometer
-    upstream-source: kolla/ubuntu-binary-ceilometer-notification:yoga
+    upstream-source: ghcr.io/openstack-snaps/ceilometer-consolidated:2023.1
 
 requires:
   amqp:
