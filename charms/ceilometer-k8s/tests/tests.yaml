@@ -3,8 +3,9 @@ gate_bundles:
 smoke_bundles:
   - smoke
 configure:
-  - zaza.openstack.charm_tests.keystone.setup.add_tempest_roles
-tests: []
+  - zaza.charm_tests.noop.setup.basic_setup
+tests:
+  - zaza.charm_tests.noop.tests.NoopTest
 tests_options:
   trust:
     - smoke
@@ -15,4 +16,28 @@ tests_options:
     default:
       smoke: True
 
-target_deploy_status: []
+target_deploy_status:
+  traefik:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  traefik-public:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  keystone:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  mysql:
+    workload-status: active
+    workload-status-message-regex: '^.*$'
+  rabbitmq:
+    workload-status: active
+    workload-status-message-regex: '^.*$'
+  ceilometer:
+    workload-status: active
+    workload-status-message-regex: '^.*$'
+  aodh:
+    workload-status: active
+    workload-status-message-regex: '^.*$'
+  gnocchi:
+    workload-status: blocked
+    workload-status-message-regex: '^.*ceph.*$'

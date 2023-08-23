@@ -12,7 +12,7 @@ bases:
     channel: 22.04/stable
 assumes:
   - k8s-api
-  - juju >= 3.2
+  - juju >= 3.1
 tags:
 - openstack
 source: https://opendev.org/openstack/charm-ceilometer-k8s

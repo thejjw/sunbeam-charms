@@ -1,0 +1,93 @@
+bundle: kubernetes
+applications:
+
+  mysql:
+    charm: ch:mysql-k8s
+    channel: 8.0/stable
+    scale: 1
+    trust: false
+
+  # Currently traefik is required for networking things.
+  # If this isn't present, the units will hang at "installing agent".
+  traefik:
+    charm: ch:traefik-k8s
+    channel: 1.0/stable
+    scale: 1
+    trust: true
+
+  traefik-public:
+    charm: ch:traefik-k8s
+    channel: 1.0/stable
+    scale: 1
+    trust: true
+    options:
+      kubernetes-service-annotations: metallb.universe.tf/address-pool=public
+
+  # required for nova
+  rabbitmq:
+    charm: ch:rabbitmq-k8s
+    channel: 3.9/edge
+    scale: 1
+    trust: true
+
+  keystone:
+    charm: ch:keystone-k8s
+    channel: 2023.1/edge
+    scale: 1
+    trust: true
+    options:
+      admin-role: admin
+    storage:
+      fernet-keys: 5M
+      credential-keys: 5M
+  gnocchi:
+    charm: ch:gnocchi-k8s
+    channel: 2023.1/edge
+    scale: 1
+    trust: true
+  ceilometer:
+    charm: ../../ceilometer-k8s.charm
+    scale: 1
+    trust: true
+    resources:
+      ceilometer-central-image: ghcr.io/openstack-snaps/ceilometer-consolidated:2023.1
+      ceilometer-notification-image: ghcr.io/openstack-snaps/ceilometer-consolidated:2023.1
+  aodh:
+    charm: ch:aodh-k8s
+    channel: 2023.1/edge
+    scale: 1
+    trust: true
+
+relations:
+- - traefik:ingress
+  - keystone:ingress-internal
+- - traefik-public:ingress
+  - keystone:ingress-public
+
+- - mysql:database
+  - keystone:database
+
+- - mysql:database
+  - aodh:database
+- - rabbitmq:amqp
+  - aodh:amqp
+- - keystone:identity-service
+  - aodh:identity-service
+- - traefik:ingress
+  - aodh:ingress-internal
+- - traefik-public:ingress
+  - aodh:ingress-public
+
+- - mysql:database
+  - gnocchi:database
+- - traefik:ingress
+  - gnocchi:ingress-internal
+- - traefik-public:ingress
+  - gnocchi:ingress-public
+- - keystone:identity-service
+  - gnocchi:identity-service
+
+- - rabbitmq:amqp
+  - ceilometer:amqp
+- - keystone:identity-credentials
+  - ceilometer:identity-credentials
