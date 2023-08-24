@@ -1,0 +1,88 @@
+bundle: kubernetes
+applications:
+  mysql:
+    charm: ch:mysql-k8s
+    channel: 8.0/stable
+    scale: 1
+    trust: true
+
+  # Currently traefik is required for networking things.
+  # If this isn't present, the units will hang at "installing agent".
+  traefik:
+    charm: ch:traefik-k8s
+    channel: 1.0/stable
+    scale: 1
+    trust: true
+    options:
+      kubernetes-service-annotations: metallb.universe.tf/address-pool=public
+
+  # required for barbican and magnum
+  rabbitmq:
+    charm: ch:rabbitmq-k8s
+    channel: 3.9/edge
+    scale: 1
+    trust: true
+
+  keystone:
+    charm: ch:keystone-k8s
+    channel: 2023.1/edge
+    scale: 1
+    trust: false
+    options:
+      admin-role: admin
+    storage:
+      fernet-keys: 5M
+      credential-keys: 5M
+
+  vault:
+    charm: ch:vault-k8s
+    scale: 1
+    trust: false
+
+  barbican:
+    charm: ch:barbican-k8s
+    scale: 1
+    trust: false
+  
+  magnum:
+    charm: ../../magnum-k8s.charm
+    scale: 1
+    trust: false
+    resources:
+      magnum-api-image: ghcr.io/openstack-snaps/magnum-consolidated:2023.1
+      magnum-conductor-image: ghcr.io/openstack-snaps/magnum-consolidated:2023.1
+
+
+relations:
+- - traefik:ingress
+  - keystone:ingress-internal
+- - traefik:ingress
+  - keystone:ingress-public
+
+- - mysql:database
+  - keystone:database
+
+- - mysql:database
+  - barbican:database
+- - rabbitmq:amqp
+  - barbican:amqp
+- - keystone:identity-service
+  - barbican:identity-service
+- - traefik:ingress
+  - barbican:ingress-internal
+- - traefik:ingress
+  - barbican:ingress-public
+
+- - vault:secrets
+  - barbican:secrets
+
+- - mysql:database
+  - magnum:database
+- - rabbitmq:amqp
+  - magnum:amqp
+- - keystone:identity-service
+  - magnum:identity-service
+- - traefik:ingress
+  - magnum:ingress-internal
+- - traefik:ingress
+  - magnum:ingress-public
