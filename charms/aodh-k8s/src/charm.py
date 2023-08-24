@@ -222,7 +222,7 @@ class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return [
             {
                 "service_name": "aodh",
-                "type": "aodh",
+                "type": "alarming",
                 "description": "OpenStack Aodh API",
                 "internal_url": f"{self.internal_url}",
                 "public_url": f"{self.public_url}",
