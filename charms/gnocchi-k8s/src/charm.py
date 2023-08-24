@@ -153,7 +153,7 @@ class GnocchiOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return [
             {
                 "service_name": "gnocchi",
-                "type": "gnocchi",
+                "type": "metric",
                 "description": "OpenStack Gnocchi API",
                 "internal_url": f"{self.internal_url}",
                 "public_url": f"{self.public_url}",
