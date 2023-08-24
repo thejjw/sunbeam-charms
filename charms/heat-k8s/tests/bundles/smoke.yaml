@@ -45,8 +45,8 @@ applications:
     scale: 1
     trust: true
     resources:
-      heat-api-image: ghcr.io/openstack-snaps/heat-api:2023.1
-      heat-engine-image:  ghcr.io/openstack-snaps/heat-engine:2023.1
+      heat-api-image: ghcr.io/openstack-snaps/heat-consolidated:2023.1
+      heat-engine-image:  ghcr.io/openstack-snaps/heat-consolidated:2023.1
 
   heat-cfn:
     charm: ../../heat-k8s.charm
@@ -55,8 +55,8 @@ applications:
     options:
       api_service: heat-api-cfn
     resources:
-      heat-api-image: ghcr.io/openstack-snaps/heat-api:2023.1
-      heat-engine-image:  ghcr.io/openstack-snaps/heat-engine:2023.1
+      heat-api-image: ghcr.io/openstack-snaps/heat-consolidated:2023.1
+      heat-engine-image:  ghcr.io/openstack-snaps/heat-consolidated:2023.1
 
 relations:
 - - traefik:ingress
