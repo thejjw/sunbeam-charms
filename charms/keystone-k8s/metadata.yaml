@@ -41,6 +41,9 @@ requires:
   ingress-public:
     interface: ingress
     limit: 1
+  amqp:
+    interface: rabbitmq
+    optional: true
 
 peers:
   peers:

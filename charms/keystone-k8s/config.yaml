@@ -64,3 +64,7 @@ options:
     description: |
       Keystone identity backend, valid options are sql and pam
 
+  enable-telemetry-notifications:
+    type: boolean
+    default: False
+    description: Enable notifications to send to telemetry.

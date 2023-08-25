@@ -54,6 +54,9 @@ relations:
 - - traefik:ingress
   - glance:ingress-public
 
+- - rabbitmq:amqp
+  - keystone:amqp
+
 - - mysql:database
   - keystone:database
 

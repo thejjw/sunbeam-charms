@@ -729,12 +729,14 @@ export OS_AUTH_VERSION=3
     @property
     def config_contexts(self) -> List[sunbeam_contexts.ConfigContext]:
         """Configuration adapters for the operator."""
-        return [
-            KeystoneConfigAdapter(self, "ks_config"),
-            KeystoneLoggingAdapter(self, "ks_logging"),
-            sunbeam_contexts.WSGIWorkerConfigContext(self, "wsgi_config"),
-            sunbeam_contexts.CharmConfigContext(self, "options"),
-        ]
+        contexts = super().config_contexts
+        contexts.extend(
+            [
+                KeystoneConfigAdapter(self, "ks_config"),
+                KeystoneLoggingAdapter(self, "ks_logging"),
+            ]
+        )
+        return contexts
 
     @property
     def container_configs(self):

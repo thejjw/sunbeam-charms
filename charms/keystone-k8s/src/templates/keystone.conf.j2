@@ -7,6 +7,10 @@
 log_config_append = /etc/keystone/logging.conf
 debug = {{ options.debug }}
 
+{% if amqp -%}
+transport_url = {{ amqp.transport_url }}
+{%- endif %}
+
 [identity]
 driver = {{ ks_config.identity_backend }}
 {% if ks_config.default_domain_id -%}
@@ -106,3 +110,5 @@ admin_project_name = admin
 # This goes in the section above, selectively
 # Bug #1819134
 max_request_body_size = 114688
+
+{% include "parts/section-oslo-notifications" %}
