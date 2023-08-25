@@ -53,7 +53,9 @@ class TestAodhOperatorCharm(test_utils.CharmTestCase):
         # clean up events that were dynamically defined,
         # otherwise we get issues because they'll be redefined,
         # which is not allowed.
-        from charms.data_platform_libs.v0.database_requires import DatabaseEvents
+        from charms.data_platform_libs.v0.database_requires import (
+            DatabaseEvents,
+        )
 
         for attr in (
             "database_database_created",
@@ -78,16 +80,9 @@ class TestAodhOperatorCharm(test_utils.CharmTestCase):
     def test_all_relations(self):
         """Test all the charms relations."""
         self.harness.begin_with_initial_hooks()
-        test_utils.add_db_relation_credentials(
-            self.harness, test_utils.add_base_db_relation(self.harness)
-        )
-        test_utils.add_identity_service_relation_response(
-            self.harness,
-            test_utils.add_base_identity_service_relation(self.harness),
-        )
-
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
+        test_utils.add_api_relations(self.harness)
 
         app_setup_cmds = [
             ["a2ensite", "wsgi-aodh-api"],
@@ -97,5 +92,11 @@ class TestAodhOperatorCharm(test_utils.CharmTestCase):
         for cmd in app_setup_cmds:
             self.assertIn(cmd, self.container_calls.execute["aodh-api"])
 
-        for c in ["aodh-api", "aodh-evaluator", "aodh-notifier", "aodh-listener", "aodh-expirer"]:
+        for c in [
+            "aodh-api",
+            "aodh-evaluator",
+            "aodh-notifier",
+            "aodh-listener",
+            "aodh-expirer",
+        ]:
             self.check_file(c, "/etc/aodh/aodh.conf")

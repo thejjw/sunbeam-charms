@@ -1,18 +1,38 @@
 #!/usr/bin/env python3
+# Copyright 2023 Canonical Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 """Aodh Operator Charm.
 
 This charm provide Aodh services as part of an OpenStack deployment
 """
 
 import logging
-from typing import List
+from typing import (
+    List,
+)
 
 import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
-from ops.framework import StoredState
-from ops.main import main
+from ops.framework import (
+    StoredState,
+)
+from ops.main import (
+    main,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -169,7 +189,9 @@ class AODHExpirerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "aodh-expirer": {
                     "override": "replace",
                     "summary": "AODH Expirer",
-                    "command": ('/bin/bash -c "while true; do   aodh-expirer; sleep 60; done"'),
+                    "command": (
+                        '/bin/bash -c "while true; do   aodh-expirer; sleep 60; done"'
+                    ),
                     "startup": "enabled",
                     "user": "aodh",
                     "group": "aodh",
@@ -200,6 +222,13 @@ class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_public_script = "/usr/share/aodh/app.wsgi"
 
     db_sync_cmds = [["aodh-dbsync"]]
+
+    mandatory_relations = {
+        "database",
+        "identity-service",
+        "ingress-public",
+        "amqp",
+    }
 
     @property
     def service_conf(self) -> str:
