@@ -24,6 +24,8 @@ connection = {{ database.connection }}
 {% endif -%}
 connection_recycle_time = 200
 
+{% include "parts/section-oslo-notifications" %}
+
 [{{ cinder_ceph.backend_name }}]
 volume_driver = cinder.volume.drivers.rbd.RBDDriver
 rbd_exclusive_cinder_pool = True

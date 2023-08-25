@@ -246,3 +246,7 @@ options:
     type: string
     default:
     description: RabbitMQ virtual host to request access on rabbitmq-server.
+  enable-telemetry-notifications:
+    type: boolean
+    default: False
+    description: Enable notifications to send to telemetry.
