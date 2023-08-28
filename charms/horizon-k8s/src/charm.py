@@ -19,6 +19,7 @@ This charm provide Horizon services as part of an OpenStack
 deployment
 """
 
+import json
 import logging
 from typing import (
     List,
@@ -30,6 +31,7 @@ import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.guard as sunbeam_guard
 from ops.main import (
     main,
 )
@@ -51,6 +53,35 @@ def exec(container: ops.model.Container, cmd: str):
         logging.debug(f"Output from {cmd!r}: \n{out}")
     except ops.pebble.ExecError:
         logger.exception(f"Command {cmd!r} failed")
+
+
+def manage_plugins(
+    container: ops.model.Container, plugins: List[str], enable: bool
+) -> bool:
+    """Enable or disable plugins based on enable flag.
+
+    Return if any changes were made.
+    """
+    command = "enable" if enable else "disable"
+    cmd = [
+        "/usr/bin/plugin_management.py",
+        command,
+    ] + plugins
+    logger.debug("%s plugins: %r", command, plugins)
+    try:
+        process = container.exec(cmd, timeout=1 * 60)
+        out, err = process.wait_output()
+    except ops.pebble.ExecError as e:
+        logger.debug(
+            "Error using %r on plugins: %r", command, plugins, exc_info=True
+        )
+        raise sunbeam_guard.BlockedExceptionError(
+            f"Error using {command!r} on plugins: {plugins!r}"
+        ) from e
+    if err:
+        logger.warning("Warning when using %r on plugins: %s", command, err)
+    tag = "Enabled" if enable else "Disabled"
+    return tag in out
 
 
 class WSGIHorizonPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
@@ -94,6 +125,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def __init__(self, framework):
         super().__init__(framework)
+        self._state.set_default(plugins=[])
         self.framework.observe(
             self.on.get_dashboard_url_action,
             self._get_dashboard_url_action,
@@ -160,6 +192,35 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.model.app.status = ops.model.ActiveStatus(
                     self.ingress_public.url
                 )
+
+    def configure_unit(self, event: ops.framework.EventBase) -> None:
+        """Run configuration on this unit."""
+        self.check_leader_ready()
+        self.check_relation_handlers_ready()
+        self.init_container_services()
+        self.check_pebble_handlers_ready()
+        self.run_db_sync()
+        self.configure_plugins(event)
+        self._state.unit_bootstrapped = True
+
+    def configure_plugins(self, event: ops.framework.EventBase) -> None:
+        """Configure plugins for horizon."""
+        plugins = sorted(json.loads(self.config.get("plugins", "[]")))
+        container = self.model.unit.get_container(self.service_name)
+        if not container.can_connect():
+            logger.debug("Container not ready, skipping plugin configuration")
+            return
+
+        old_plugins: List[str] = self._state.plugins  # type: ignore
+        disabled_plugins = list(set(old_plugins) - set(plugins))
+        any_changes = False
+        if disabled_plugins:
+            any_changes |= manage_plugins(container, disabled_plugins, False)
+        if plugins:
+            any_changes |= manage_plugins(container, plugins, True)
+        self._state.plugins = plugins
+        if any_changes:
+            container.restart("wsgi-" + self.service_name)
 
     @property
     def healthcheck_period(self) -> str:

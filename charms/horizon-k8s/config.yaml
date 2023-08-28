@@ -179,3 +179,9 @@ options:
     description: |
       This option can be used to set the instance sorting to either ascending or descending.
       Set True to sort in ascending order or False for descending order.
+  plugins:
+    type: string
+    default: '[]'
+    description: |
+      This option can be used to enable plugins for Horizon. The value should be a
+      JSON formatted list of plugin names.
