@@ -169,7 +169,13 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def healthcheck_http_url(self) -> str:
         """Healthcheck HTTP URL for the service."""
-        return super().healthcheck_http_url + "openstack-horizon/auth/login/"
+        return (
+            super().healthcheck_http_url
+            + self.ingress_public.context().get(
+                "ingress_path", self.model.name + "-horizon"
+            )
+            + "/auth/login/"
+        )
 
     @property
     def healthcheck_http_timeout(self) -> str:
