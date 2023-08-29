@@ -2,14 +2,7 @@
     templates:
       - openstack-python3-charm-yoga-jobs
       - openstack-cover-jobs
-#      - microk8s-func-test
-    check:
-      jobs:
-        - charmbuild:
-            nodeset: ubuntu-focal
-        - zaza-smoke-test:
-            nodeset: ubuntu-focal
-            voting: false
+      - microk8s-func-test
     vars:
       charm_build_name: nova-k8s
       juju_channel: 3.1/stable
