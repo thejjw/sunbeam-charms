@@ -21,15 +21,22 @@ This charm provide Ceilometer services as part of an OpenStack deployment
 import logging
 import uuid
 from typing import (
+    Callable,
     List,
 )
 
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
-import ops_sunbeam.container_handlers as container_handlers
+import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from charms.ceilometer_k8s.v0.ceilometer_service import (
+    CeilometerConfigRequestEvent,
+    CeilometerServiceProvides,
+)
 from ops.charm import (
     ActionEvent,
+    CharmBase,
 )
 from ops.main import (
     main,
@@ -41,7 +48,41 @@ CEILOMETER_CENTRAL_CONTAINER = "ceilometer-central"
 CEILOMETER_NOTIFICATION_CONTAINER = "ceilometer-notification"
 
 
-class CeilometerCentralPebbleHandler(container_handlers.ServicePebbleHandler):
+class CeilometerServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for ceilometer service relation."""
+
+    def __init__(
+        self,
+        charm: CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+    ):
+        super().__init__(charm, relation_name, callback_f)
+
+    def setup_event_handler(self):
+        """Configure event handlers for an Ceilometer service relation."""
+        logger.debug("Setting up Ceilometer service event handler")
+        svc = CeilometerServiceProvides(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            svc.on.config_request,
+            self._on_config_request,
+        )
+        return svc
+
+    def _on_config_request(self, event: CeilometerConfigRequestEvent) -> None:
+        """Handle Config request event."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return True
+
+
+class CeilometerCentralPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for ceilometer-central service."""
 
     def get_layer(self) -> dict:
@@ -77,7 +118,7 @@ class CeilometerCentralPebbleHandler(container_handlers.ServicePebbleHandler):
 
 
 class CeilometerNotificationPebbleHandler(
-    container_handlers.ServicePebbleHandler
+    sunbeam_chandlers.ServicePebbleHandler
 ):
     """Pebble handler for ceilometer-notification service."""
 
@@ -163,6 +204,7 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             if self.unit.is_leader():
                 logger.debug("Creating metering secret")
                 self.set_shared_meteringsecret()
+                self.set_config_on_update()
             else:
                 logger.debug("Metadata secret not ready")
                 return
@@ -191,7 +233,7 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         ]
         return _cconfigs
 
-    def get_pebble_handlers(self) -> List[container_handlers.PebbleHandler]:
+    def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the operator."""
         return [
             CeilometerCentralPebbleHandler(
@@ -211,6 +253,41 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 self.configure_charm,
             ),
         ]
+
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = handlers or []
+        if self.can_add_handler("ceilometer-service", handlers):
+            self.config_svc = CeilometerServiceProvidesHandler(
+                self,
+                "ceilometer-service",
+                self.set_config_from_event,
+            )
+            handlers.append(self.config_svc)
+
+        return super().get_relation_handlers(handlers)
+
+    def set_config_from_event(self, event: ops.framework.EventBase) -> None:
+        """Set config in relation data."""
+        telemetry_secret = self.get_shared_meteringsecret()
+        if telemetry_secret:
+            self.config_svc.interface.set_config(
+                relation=event.relation, telemetry_secret=telemetry_secret
+            )
+        else:
+            logging.debug("Telemetry secret not yet set, not sending config")
+
+    def set_config_on_update(self) -> None:
+        """Set config on relation on update of local data."""
+        telemetry_secret = self.get_shared_meteringsecret()
+        if telemetry_secret:
+            self.config_svc.interface.set_config(
+                relation=None, telemetry_secret=telemetry_secret
+            )
+        else:
+            logging.debug("Telemetry secret not yet set, not sending config")
 
     def _ceilometer_upgrade_action(self, event: ActionEvent) -> None:
         """Run ceilometer-upgrade.

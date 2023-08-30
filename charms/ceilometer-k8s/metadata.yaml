@@ -34,6 +34,10 @@ resources:
     description: OCI image for OpenStack ceilometer
     upstream-source: ghcr.io/openstack-snaps/ceilometer-consolidated:2023.1
 
+provides:
+  ceilometer-service:
+    interface: ceilometer
+
 requires:
   amqp:
     interface: rabbitmq
