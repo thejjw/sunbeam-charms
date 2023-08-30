@@ -21,7 +21,6 @@ This charm provide hypervisor services as part of an OpenStack deployment
 """
 
 import base64
-import json
 import logging
 import os
 import secrets
@@ -142,7 +141,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 new_settings[k] = snap_data[k]
         if new_settings:
             logger.debug(f"Applying new snap settings {new_settings}")
-            hypervisor.set(new_settings)
+            hypervisor.set(new_settings, typed=True)
         else:
             logger.debug("Snap settings do not need updating")
 
@@ -185,10 +184,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "identity.user-domain-id": contexts.identity_credentials.user_domain_id,
                 "identity.user-domain-name": contexts.identity_credentials.user_domain_name,
                 "identity.username": contexts.identity_credentials.username,
-                "logging.debug": json.dumps(config("debug")),
+                "logging.debug": config("debug"),
                 "network.dns-domain": config("dns-domain"),
                 "network.dns-servers": config("dns-servers"),
-                "network.enable-gateway": json.dumps(config("enable-gateway")),
+                "network.enable-gateway": config("enable-gateway"),
                 "network.external-bridge": config("external-bridge"),
                 "network.external-bridge-address": config("external-bridge-address")
                 or "10.20.20.1/24",

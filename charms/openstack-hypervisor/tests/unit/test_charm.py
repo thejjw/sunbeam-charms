@@ -112,10 +112,10 @@ class TestCharm(test_utils.CharmTestCase):
             "identity.user-domain-id": "udomain-id",
             "identity.user-domain-name": "udomain-name",
             "identity.username": "username",
-            "logging.debug": "false",
+            "logging.debug": False,
             "network.dns-domain": "openstack.local",
             "network.dns-servers": "8.8.8.8",
-            "network.enable-gateway": "false",
+            "network.enable-gateway": False,
             "network.external-bridge": "br-ex",
             "network.external-bridge-address": "10.20.20.1/24",
             "network.ip-address": "10.0.0.10",
@@ -128,4 +128,4 @@ class TestCharm(test_utils.CharmTestCase):
             "node.ip-address": "10.0.0.10",
             "rabbitmq.url": "rabbit://hypervisor:rabbit.pass@10.0.0.13:5672/openstack",
         }
-        hypervisor_snap_mock.set.assert_any_call(expect_settings)
+        hypervisor_snap_mock.set.assert_any_call(expect_settings, typed=True)
