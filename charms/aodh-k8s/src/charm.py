@@ -190,7 +190,7 @@ class AODHExpirerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "summary": "AODH Expirer",
                     "command": (
-                        '/bin/bash -c "while true; do   aodh-expirer; sleep 60; done"'
+                        '/bin/bash -c "while true; do   aodh-expirer; sleep 86400; done"'
                     ),
                     "startup": "enabled",
                     "user": "aodh",
