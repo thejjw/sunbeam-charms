@@ -17,6 +17,9 @@ requires:
   certificates:
     interface: tls-certificates
     optional: true
+  ceilometer-service:
+    interface: ceilometer
+    optional: true
 
 provides:
   cos-agent:

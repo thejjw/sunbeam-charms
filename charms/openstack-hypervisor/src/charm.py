@@ -34,6 +34,10 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from charms.ceilometer_k8s.v0.ceilometer_service import (
+    CeilometerConfigChangedEvent,
+    CeilometerServiceGoneAwayEvent,
+)
 from charms.grafana_agent.v0.cos_agent import COSAgentProvider
 from ops.charm import ActionEvent
 from ops.main import main
@@ -56,6 +60,8 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         super().__init__(framework)
         self._state.set_default(metadata_secret="")
         self.enable_monitoring = self.check_relation_exists("cos-agent")
+        # Enable telemetry when ceilometer-service relation is joined
+        self.enable_telemetry = self.check_relation_exists("ceilometer-service")
         self.framework.observe(
             self.on.set_hypervisor_local_settings_action,
             self._set_hypervisor_local_settings_action,
@@ -104,6 +110,14 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "ovsdb-cms" in self.mandatory_relations,
             )
             handlers.append(self.ovsdb_cms)
+        if self.can_add_handler("ceilometer-service", handlers):
+            self.ceilometer = sunbeam_rhandlers.CeilometerServiceRequiresHandler(
+                self,
+                "ceilometer-service",
+                self.handle_ceilometer_events,
+                "ceilometer-service" in self.mandatory_relations,
+            )
+            handlers.append(self.ceilometer)
         handlers = super().get_relation_handlers(handlers)
         return handlers
 
@@ -238,9 +252,34 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             }
         except AttributeError as e:
             raise sunbeam_guard.WaitingExceptionError("Data missing: {}".format(e.name))
+
+        # Handle optional config contexts
+        try:
+            if contexts.ceilometer_service.telemetry_secret:
+                snap_data.update(
+                    {
+                        "telemetry.enable": self.enable_telemetry,
+                        "telemetry.publisher-secret": contexts.ceilometer_service.telemetry_secret,
+                    }
+                )
+            else:
+                snap_data.update({"telemetry.enable": self.enable_telemetry})
+        except AttributeError:
+            logger.debug("ceilometer_service relation not integrated")
+            snap_data.update({"telemetry.enable": self.enable_telemetry})
+
         self.set_snap_data(snap_data)
         self.ensure_services_running()
         self._state.unit_bootstrapped = True
+
+    def handle_ceilometer_events(self, event: ops.framework.EventBase) -> None:
+        """Handle ceilometer events."""
+        if isinstance(event, CeilometerConfigChangedEvent):
+            self.enable_telemetry = True
+            self.configure_charm(event)
+        elif isinstance(event, CeilometerServiceGoneAwayEvent):
+            self.enable_telemetry = False
+            self.configure_charm(event)
 
 
 if __name__ == "__main__":  # pragma: no cover
