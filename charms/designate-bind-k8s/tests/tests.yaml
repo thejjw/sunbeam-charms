@@ -1,0 +1,22 @@
+gate_bundles:
+  - smoke
+smoke_bundles:
+  - smoke
+configure:
+  - zaza.charm_tests.noop.setup.basic_setup
+tests:
+  - smoke
+tests_options:
+  trust:
+    - smoke
+  ignore_hard_deploy_errors:
+    - smoke
+
+  tempest:
+    default:
+      smoke: True
+
+target_deploy_status:
+  bind9:
+    workload-status: active
+    workload-status-message-regex: '^$'

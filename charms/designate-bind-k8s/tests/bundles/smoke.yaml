@@ -1,0 +1,8 @@
+bundle: kubernetes
+applications:
+  bind9:
+    charm: ../../bind9-k8s.charm
+    scale: 1
+    trust: false
+    resources:
+      bind9-image: ubuntu/bind9:9.18-22.04_beta
