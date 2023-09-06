@@ -39,13 +39,16 @@ class _BindTestOperatorCharm(charm.BindOperatorCharm):
         return "bind.juju"
 
 
-class TestCharm(test_utils.CharmTestCase):
+class TestBindOperatorCharm(test_utils.CharmTestCase):
     """Test charm."""
 
-    PATCHES = []
+    PATCHES = [
+        "kubernetes_service_patch",
+    ]
 
     def setUp(self):
         """Test setup."""
+        super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
             _BindTestOperatorCharm, container_calls=self.container_calls
         )

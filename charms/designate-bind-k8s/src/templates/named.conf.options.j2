@@ -27,7 +27,7 @@ options {
 {%- if options.debug %}
 logging {
         channel charm_log {
-                syslog daemon;
+                stderr;
                 severity debug;
         };
         category default {

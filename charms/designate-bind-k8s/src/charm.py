@@ -28,6 +28,8 @@ from typing import (
 )
 
 import charms.bind9_k8s.v0.bind_rndc as bind_rndc
+import charms.observability_libs.v1.kubernetes_service_patch as kubernetes_service_patch
+import lightkube.models.core_v1 as core_v1
 import ops.charm
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
@@ -159,6 +161,18 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def __init__(self, *args):
         super().__init__(*args)
         self.framework.observe(self.on.secret_rotate, self._on_secret_rotate)
+        self.service = kubernetes_service_patch.KubernetesServicePatch(
+            self,
+            ports=[
+                core_v1.ServicePort(
+                    53, appProtocol="domain", name="bind", protocol="UDP"
+                ),
+                core_v1.ServicePort(
+                    953, appProtocol="rndc", name="rndc", protocol="TCP"
+                ),
+            ],
+            service_type="LoadBalancer",
+        )
 
     def _on_secret_rotate(self, event: ops.SecretRotateEvent):
         """Handle secret rotate event."""
@@ -245,11 +259,6 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         :returns: str: Algorithm used to encode rndc secret
         """
         return "hmac-sha256"
-
-    def open_ports(self):
-        """Register ports in underlying cloud."""
-        self.unit.open_port("udp", self.default_public_ingress_port)
-        self.unit.open_port("tcp", 953)  # rndc port
 
     def can_service_requests(self) -> bool:
         """Check if unit can process client requests."""
