@@ -1,24 +1,50 @@
 # Copyright 2023 Canonical Ltd.
 # See LICENSE file for licensing details.
-"""TODO: Add a proper docstring here.
+"""BindRndc Provides and Requires module.
 
-This is a placeholder docstring for this charm library. Docstrings are
-presented on Charmhub and updated whenever you push a new version of the
-library.
-
-Complete documentation about creating and documenting libraries can be found
-in the SDK docs at https://juju.is/docs/sdk/libraries.
-
-See `charmcraft publish-lib` and `charmcraft fetch-lib` for details of how to
-share and consume charm libraries. They serve to enhance collaboration
-between charmers. Use a charmer's libraries for classes that handle
-integration with their charm.
-
-Bear in mind that new revisions of the different major API versions (v0, v1,
-v2 etc) are maintained independently.  You can continue to update v0 and v1
-after you have pushed v3.
-
-Markdown is supported, following the CommonMark specification.
+This library contains the Requires and Provides classes for handling
+the bind_rndc interface.
+Import `BindRndcRequires` in your charm, with the charm object and the
+relation name:
+    - self
+    - "dns-backend"
+Two events are also available to respond to:
+    - bind_rndc_ready
+    - goneaway
+A basic example showing the usage of this relation follows:
+```
+from charms.bind9_k8s.v0.bind_rndc import (
+    BindRndcRequires
+)
+class BindRndcClientCharm(CharmBase):
+    def __init__(self, *args):
+        super().__init__(*args)
+        # BindRndc Requires
+        self.bind_rndc = BindRndcRequires(
+            self, "dns-backend"
+        )
+        self.framework.observe(
+            self.bind_rndc.on.bind_rndc_ready,
+            self._on_bind_rndc_ready
+        )
+        self.framework.observe(
+            self.bind_rndc.on.goneaway,
+            self._on_bind_rndc_goneaway
+        )
+    def _on_bind_rndc_ready(self, event):
+        '''React to the Bind Rndc Ready event.
+        This event happens when BindRndc relation is added to the
+        model, relation is ready and/or relation data is changed.
+        '''
+        # Do something with the configuration provided by relation.
+        pass
+    def _on_bind_rndc_goneaway(self, event):
+        '''React to the BindRndc goneaway event.
+        This event happens when BindRndc relation is removed.
+        '''
+        # BindRndc Relation has goneaway.
+        pass
+```
 """
 
 import json
@@ -78,10 +104,17 @@ class BindRndcReadyEvent(ops.EventBase):
         self.secret = snapshot["secret"]
 
 
+class BindRndcGoneAwayEvent(ops.EventBase):
+    """Bind rndc gone away event."""
+
+    pass
+
+
 class BindRndcRequirerEvents(ops.ObjectEvents):
     """List of events that the BindRndc requires charm can leverage."""
 
     bind_rndc_ready = ops.EventSource(BindRndcReadyEvent)
+    goneaway = ops.EventSource(BindRndcGoneAwayEvent)
 
 
 class BindRndcRequires(ops.Object):
@@ -102,6 +135,10 @@ class BindRndcRequires(ops.Object):
         self.framework.observe(
             self.charm.on[relation_name].relation_changed,
             self._on_relation_changed,
+        )
+        self.framework.observe(
+            self.charm.on[relation_name].relation_broken,
+            self._on_relation_broken,
         )
 
     def _on_relation_joined(self, event: ops.RelationJoinedEvent):
@@ -125,6 +162,10 @@ class BindRndcRequires(ops.Object):
                 algorithm,
                 secret,
             )
+
+    def _on_relation_broken(self, event: ops.RelationBrokenEvent):
+        """Handle relation broken event."""
+        self.on.goneaway.emit()
 
     def host(self, relation: ops.Relation) -> str | None:
         """Return host from relation."""
