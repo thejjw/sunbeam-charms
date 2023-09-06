@@ -4,6 +4,8 @@ pyroute2
 netifaces
 jsonschema
 jinja2
+cosl==0.0.5 ; python_version >= "3.8"
+pydantic==1.10.12 ; python_version >= "3.8"
 git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
 
 # This charm does not use lightkube* but ops_sunbeam requires it atm
