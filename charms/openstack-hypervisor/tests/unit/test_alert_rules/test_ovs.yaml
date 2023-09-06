@@ -1,0 +1,90 @@
+rule_files:
+  - ../../../src/prometheus_alert_rules/ovs.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - interval: 1m
+    input_series:
+      - series: ovs_up{instance="ubuntu-0"}
+        values: '0x15'
+      - series: ovs_up{instance="ubuntu-1"}
+        values: '1x15'
+
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: OVSServiceDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: ubuntu-0
+            exp_annotations:
+              summary: OVS service is down. (instance ubuntu-0)
+              description: |
+                OVS service is down.
+                  LABELS = map[__name__:ovs_up instance:ubuntu-0]
+
+
+  - interval: 1m
+    input_series:
+      - series: ovs_failed_req_count{instance="ubuntu-0"}
+        values: '0x15'
+      - series: ovs_failed_req_count{instance="ubuntu-1"}
+        values: '3x15'
+
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: OVSReqFailed
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: ubuntu-1
+            exp_annotations:
+              summary: Request(s) to OVS failed. (instance ubuntu-1)
+              description: |
+                Request(s) to OVS failed.
+                  LABELS = map[__name__:ovs_failed_req_count instance:ubuntu-1]
+
+
+  - interval: 1m
+    input_series:
+      - series: ovs_log_event_count{instance="ubuntu-0", severity="info"}
+        values: '1x15'
+      - series: ovs_log_event_count{instance="ubuntu-1", severity="warning"}
+        values: '3x15'
+
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: OVSWarningLogDetected
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              instance: ubuntu-1
+            exp_annotations:
+              summary: Warning Log found in OVS logs. (instance ubuntu-1)
+              description: |
+                Warning Log found in OVS logs.
+                  LOGS_COUNT = 3
+                  LABELS = map[__name__:ovs_log_event_count instance:ubuntu-1 severity:warning]
+
+
+  - interval: 1m
+    input_series:
+      - series: ovs_log_event_count{instance="ubuntu-0", severity="info"}
+        values: '1x15'
+      - series: ovs_log_event_count{instance="ubuntu-1", severity="Error"}
+        values: '2x15'
+
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: OVSErrorLogDetected
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: ubuntu-1
+            exp_annotations:
+              summary: Error Log found in OVS logs. (instance ubuntu-1)
+              description: |
+                Error Log found in OVS logs.
+                  LOGS_COUNT = 2
+                  LABELS = map[__name__:ovs_log_event_count instance:ubuntu-1 severity:Error]
