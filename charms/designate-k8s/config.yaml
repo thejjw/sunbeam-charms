@@ -1,0 +1,34 @@
+options:
+  debug:
+    default: False
+    description: Enable debug logging.
+    type: boolean
+  os-admin-hostname:
+    default: designate.juju
+    description: |
+      The hostname or address of the admin endpoints that should be advertised
+      in the designate image provider.
+    type: string
+  os-internal-hostname:
+    default: designate.juju
+    description: |
+      The hostname or address of the internal endpoints that should be advertised
+      in the designate image provider.
+    type: string
+  os-public-hostname:
+    default: designate.juju
+    description: |
+      The hostname or address of the internal endpoints that should be advertised
+      in the designate image provider.
+    type: string
+  region:
+    default: RegionOne
+    description: Space delimited list of OpenStack regions
+    type: string
+  nameservers:
+    type: string
+    default:
+    description: |
+      Space delimited list of nameservers. These are the nameservers that have
+      been provided to the domain registrar in order to delegate the domain to
+      Designate. e.g. "ns1.example.com. ns2.example.com."

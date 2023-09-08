@@ -1,0 +1,24 @@
+[DEFAULT]
+debug = {{ options.debug }}
+lock_path = /var/lock/designate
+state_path = /var/lib/designate
+
+transport_url = {{ amqp.transport_url }}
+
+{% include "parts/section-identity" %}
+
+{% include "parts/section-service-user" %}
+
+[service:api]
+auth_strategy = keystone
+enable_api_v2 = True
+enable_api_admin = True
+enable_host_header = True
+enabled_extensions_admin = reports, quotas, counts, tenants, zones
+
+[service:worker]
+enabled = True
+
+[storage:sqlalchemy]
+{% include "parts/database-connection" %}
+db_auto_create = false

@@ -1,0 +1,4 @@
+[database]
+{% include "parts/database-connection" %}
+connection_recycle_time = 200
+db_auto_create = false

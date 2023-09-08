@@ -1,0 +1,5 @@
+ops
+jsonschema
+jinja2
+git+https://github.com/openstack/charm-ops-sunbeam#egg=ops_sunbeam
+lightkube

@@ -1,0 +1,51 @@
+name: designate-k8s
+summary: OpenStack designate service
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  Designate is a multi-tenant DNSaaS service for OpenStack. It provides a REST API with integrated Keystone authentication.
+  It can be configured to auto-generate records based on Nova and Neutron actions.
+  Designate supports a variety of DNS servers including Bind9 and PowerDNS 4.
+version: 3
+bases:
+  - name: ubuntu
+    channel: 22.04/stable
+assumes:
+  - k8s-api
+  - juju >= 3.1
+tags:
+- openstack
+source: https://opendev.org/openstack/charm-designate-k8s
+issues: https://bugs.launchpad.net/charm-designate-k8s
+
+containers:
+  designate:
+    resource: designate-image
+
+resources:
+  designate-image:
+    type: oci-image
+    description: OCI image for OpenStack designate
+    upstream: ghcr.io/canonical/designate-consolidated:2023.1
+
+requires:
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-service:
+    interface: keystone
+  ingress-internal:
+    interface: ingress
+    optional: true
+    limit: 1
+  ingress-public:
+    interface: ingress
+    limit: 1
+  amqp:
+    interface: rabbitmq
+  dns-backend:
+    interface: bind-rndc
+    limit: 1
+
+peers:
+  peers:
+    interface: designate-peer

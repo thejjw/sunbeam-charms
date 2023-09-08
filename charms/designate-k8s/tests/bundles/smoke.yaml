@@ -1,0 +1,69 @@
+bundle: kubernetes
+applications:
+  mysql:
+    charm: ch:mysql-k8s
+    channel: 8.0/stable
+    scale: 1
+    trust: true
+
+  # Currently traefik is required for networking things.
+  # If this isn't present, the units will hang at "installing agent".
+  traefik:
+    charm: ch:traefik-k8s
+    channel: 1.0/stable
+    scale: 1
+    trust: true
+    options:
+      kubernetes-service-annotations: metallb.universe.tf/address-pool=public
+
+  rabbitmq:
+    charm: ch:rabbitmq-k8s
+    channel: 3.9/edge
+    scale: 1
+    trust: true
+
+  keystone:
+    charm: ch:keystone-k8s
+    channel: 2023.1/edge
+    scale: 1
+    trust: false
+    options:
+      admin-role: admin
+    storage:
+      fernet-keys: 5M
+      credential-keys: 5M
+
+  bind9:
+    charm: ch:bind9-k8s
+    channel: latest/edge
+    scale: 1
+    trust: false
+
+  designate:
+    charm: ../../designate-k8s.charm
+    scale: 1
+    trust: false
+    resources:
+      designate-image: ghcr.io/canonical/designate-consolidated:2023.1
+
+relations:
+- - traefik:ingress
+  - keystone:ingress-internal
+- - traefik:ingress
+  - keystone:ingress-public
+
+- - mysql:database
+  - keystone:database
+
+- - mysql:database
+  - designate:database
+- - rabbitmq:amqp
+  - designate:amqp
+- - keystone:identity-service
+  - designate:identity-service
+- - traefik:ingress
+  - designate:ingress-internal
+- - traefik:ingress
+  - designate:ingress-public
+- - bind9:dns-backend
+  - designate:dns-backend
