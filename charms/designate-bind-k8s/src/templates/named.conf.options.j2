@@ -20,6 +20,8 @@ options {
         listen-on-v6 { any; };
         allow-new-zones yes;
         request-ixfr no;
+        allow-query { any; };
+        allow-notify { any; };
 
         statistics-file "/var/cache/bind/named.stats";
         zone-statistics yes;
