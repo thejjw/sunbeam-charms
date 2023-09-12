@@ -93,7 +93,25 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
 
     def _on_bind_client_updated(self, event: bind_rndc.BindClientUpdatedEvent):
         """Handle bind client updated event."""
+        self.refresh_address()
         self.callback_f(event)
+
+    def refresh_address(self):
+        """Refresh address on every instance of the relation."""
+        if not self.charm.unit.is_leader():
+            logger.debug("Not leader, skipping refresh_address")
+            return
+        for relation in self._relations:
+            binding = self.model.get_binding(relation)
+            if binding is None:
+                logger.warning(
+                    "No binding found for relation '%s:%d'",
+                    relation.name,
+                    relation.id,
+                )
+                continue
+            address = binding.network.ingress_address
+            self.interface.set_host(relation, str(address))
 
     @property
     def _relations(self) -> list[ops.Relation]:
@@ -135,7 +153,7 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
 
     @property
     def ready(self) -> bool:
-        """Determine with the relation is ready for use."""
+        """Determine if the relation is ready for use."""
         try:
             return len(self._relations) > 0
         except Exception:
@@ -202,6 +220,21 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 "bind",
             ),
         ]
+
+    def update_owned_relation_data(self):
+        """Update owned relation data."""
+        self.bind_rndc.refresh_address()
+
+    def configure_unit(self, event: ops.framework.EventBase) -> None:
+        """Run configuration on this unit."""
+        self.check_leader_ready()
+        self.check_relation_handlers_ready()
+        self.update_owned_relation_data()
+        self.open_ports()
+        self.init_container_services()
+        self.check_pebble_handlers_ready()
+        self.run_db_sync()
+        self._state.unit_bootstrapped = True
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the operator."""

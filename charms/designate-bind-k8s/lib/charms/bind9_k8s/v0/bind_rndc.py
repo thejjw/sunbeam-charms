@@ -66,7 +66,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 
 class BindRndcReadyEvent(ops.EventBase):
@@ -285,18 +285,18 @@ class BindRndcProvides(ops.Object):
         self.on.new_bind_client_attached.emit(
             event.relation.id, event.relation.name
         )
-        if not self.charm.unit.is_leader():
-            return
-        binding = self.model.get_binding(event.relation)
-        if binding is None:
-            raise Exception("No binding found")
-        address = binding.network.ingress_address
-        event.relation.data[self.charm.app]["host"] = str(address)
 
     def _on_relation_changed(self, event: ops.RelationChangedEvent):
         self.on.bind_client_updated.emit(
             event.relation.id, event.relation.name
         )
+
+    def set_host(self, relation: ops.Relation, host: str):
+        """Set host on the relation."""
+        if not self.charm.unit.is_leader():
+            logger.debug("Not leader, skipping set_host")
+            return
+        relation.data[self.charm.app]["host"] = host
 
     def get_rndc_keys(self, relation: ops.Relation) -> dict:
         """Get rndc keys."""
