@@ -1,0 +1,16 @@
+# Prometheus alert rules related to libvirt
+
+groups:
+- name: Libvirt
+  rules:
+
+    - alert: LibvirtdServiceDown
+      expr: libvirt_up != 1
+      for: 0m
+      labels:
+        severity: critical
+      annotations:
+        summary: Libvirtd service is down. (instance {{ $labels.instance }})
+        description: |
+          Libvirtd service is down.
+            LABELS = {{ $labels }}
