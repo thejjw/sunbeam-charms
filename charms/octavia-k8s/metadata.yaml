@@ -1,11 +1,8 @@
 name: octavia-k8s
-summary: OpenStack octavia service
+summary: OpenStack Octavia service
 maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
 description: |
-  OpenStack octavia provides an HTTP service for managing, selecting,
-  and claiming providers of classes of inventory representing available
-  resources in a cloud.
-  .
+  OpenStack Octavia provides loadbalancing service for an OpenStack cloud.
 version: 3
 bases:
   - name: ubuntu
