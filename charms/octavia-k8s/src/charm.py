@@ -1,0 +1,296 @@
+#!/usr/bin/env python3
+# Copyright 2023 Canonical Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+"""Octavia Operator Charm.
+
+This charm provide Octavia services as part of an OpenStack deployment
+"""
+
+import logging
+from typing import (
+    List,
+)
+
+import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.config_contexts as sunbeam_config_contexts
+import ops_sunbeam.container_handlers as sunbeam_chandlers
+import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from ops.framework import (
+    StoredState,
+)
+from ops.main import (
+    main,
+)
+
+logger = logging.getLogger(__name__)
+OCTAVIA_API_CONTAINER = "octavia-api"
+OCTAVIA_DRIVER_AGENT_CONTAINER = "octavia-driver-agent"
+OCTAVIA_HOUSEKEEPING_CONTAINER = "octavia-housekeeping"
+
+
+class OctaviaDriverAgentPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+    """Pebble handler for Octavia Driver Agent."""
+
+    def get_layer(self) -> dict:
+        """Octavia Driver Agent service layer.
+
+        :returns: pebble layer configuration for driver agent service
+        :rtype: dict
+        """
+        return {
+            "summary": "octavia driver agent layer",
+            "description": "pebble configuration for octavia-driver-agent service",
+            "services": {
+                "octavia-driver-agent": {
+                    "override": "replace",
+                    "summary": "Octavia Driver Agent",
+                    "command": "octavia-driver-agent",
+                    "startup": "enabled",
+                    "user": self.charm.service_user,
+                    "group": self.charm.service_group,
+                }
+            },
+        }
+
+
+class OctaviaHousekeepingPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+    """Pebble handler for Octavia Housekeeping."""
+
+    def get_layer(self) -> dict:
+        """Octavia Housekeeping service layer.
+
+        :returns: pebble layer configuration for housekeeping service
+        :rtype: dict
+        """
+        return {
+            "summary": "octavia housekeeping layer",
+            "description": "pebble configuration for octavia-housekeeping service",
+            "services": {
+                "octavia-housekeeping": {
+                    "override": "replace",
+                    "summary": "Octavia Housekeeping",
+                    "command": "octavia-housekeeping",
+                    "startup": "enabled",
+                    "user": self.charm.service_user,
+                    "group": self.charm.service_group,
+                }
+            },
+        }
+
+
+class OVNContext(sunbeam_config_contexts.ConfigContext):
+    """OVN configuration."""
+
+    def context(self) -> dict:
+        """Configuration context."""
+        return {
+            "ovn_key": "/etc/octavia/ovn_private_key.pem",
+            "ovn_cert": "/etc/octavia/ovn_certificate.pem",
+            "ovn_ca_cert": "/etc/octavia/ovn_ca_cert.pem",
+        }
+
+
+class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
+    """Charm the service."""
+
+    _state = StoredState()
+    service_name = "octavia-api"
+    wsgi_admin_script = "/usr/bin/octavia-wsgi"
+    wsgi_public_script = "/usr/bin/octavia-wsgi"
+
+    db_sync_cmds = [
+        [
+            "octavia-db-manage",
+            "--config-file",
+            "/etc/octavia/octavia.conf",
+            "upgrade",
+            "head",
+        ]
+    ]
+
+    @property
+    def service_conf(self) -> str:
+        """Service default configuration file."""
+        return "/etc/octavia/octavia.conf"
+
+    @property
+    def service_user(self) -> str:
+        """Service user file and directory ownership."""
+        return "octavia"
+
+    @property
+    def service_group(self) -> str:
+        """Service group file and directory ownership."""
+        return "octavia"
+
+    @property
+    def service_endpoints(self):
+        """Return service endpoints for the service."""
+        return [
+            {
+                "service_name": "octavia",
+                "type": "load-balancer",
+                "description": "OpenStack Octavia API",
+                "internal_url": f"{self.internal_url}",
+                "public_url": f"{self.public_url}",
+                "admin_url": f"{self.admin_url}",
+            }
+        ]
+
+    @property
+    def default_public_ingress_port(self):
+        """Ingress Port for API service."""
+        return 9876
+
+    def get_pebble_handlers(
+        self,
+    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+        """Pebble handlers for operator."""
+        pebble_handlers = [
+            sunbeam_chandlers.WSGIPebbleHandler(
+                self,
+                OCTAVIA_API_CONTAINER,
+                self.service_name,
+                self.default_container_configs(),
+                self.template_dir,
+                self.configure_charm,
+                f"wsgi-{self.service_name}",
+            ),
+            OctaviaHousekeepingPebbleHandler(
+                self,
+                OCTAVIA_HOUSEKEEPING_CONTAINER,
+                "octavia-housekeeping",
+                self.default_container_configs(),
+                self.template_dir,
+                self.configure_charm,
+            ),
+        ]
+        return pebble_handlers
+
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = handlers or []
+        if self.can_add_handler("ovsdb-cms", handlers):
+            self.ovsdb_cms = ovn_rhandlers.OVSDBCMSRequiresHandler(
+                self,
+                "ovsdb-cms",
+                self.configure_charm,
+                "ovsdb-cms" in self.mandatory_relations,
+            )
+            handlers.append(self.ovsdb_cms)
+        handlers = super().get_relation_handlers(handlers)
+        return handlers
+
+    def default_container_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
+        """Container configurations for handler."""
+        # Update with configs that are common for all containers
+        return [
+            sunbeam_core.ContainerConfigFile(
+                "/etc/octavia/octavia.conf",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
+        ]
+
+
+class OctaviaOVNOperatorCharm(OctaviaOperatorCharm):
+    """Charm the Octavia service with OVN provider."""
+
+    mandatory_relations = {
+        "database",
+        "ovsdb-cms",
+        "identity-service",
+        "ingress-public",
+    }
+
+    @property
+    def config_contexts(self) -> List[sunbeam_config_contexts.ConfigContext]:
+        """Configuration contexts for the operator."""
+        contexts = super().config_contexts
+        contexts.append(OVNContext(self, "ovn"))
+        return contexts
+
+    def get_pebble_handlers(
+        self,
+    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+        """Pebble handlers for operator."""
+        pebble_handlers = super().get_pebble_handlers()
+        pebble_handlers.append(
+            OctaviaDriverAgentPebbleHandler(
+                self,
+                OCTAVIA_DRIVER_AGENT_CONTAINER,
+                "octavia-driver-agent",
+                self.default_container_configs(),
+                self.template_dir,
+                self.configure_charm,
+            ),
+        )
+        return pebble_handlers
+
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = handlers or []
+        if self.can_add_handler("ovsdb-cms", handlers):
+            self.ovsdb_cms = ovn_rhandlers.OVSDBCMSRequiresHandler(
+                self,
+                "ovsdb-cms",
+                self.configure_charm,
+                "ovsdb-cms" in self.mandatory_relations,
+            )
+            handlers.append(self.ovsdb_cms)
+        handlers = super().get_relation_handlers(handlers)
+        return handlers
+
+    def default_container_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
+        """Container configurations for handler."""
+        cc_configs = super().default_container_configs()
+        cc_configs.extend(
+            [
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/octavia/ovn_private_key.pem",
+                    self.service_user,
+                    self.service_group,
+                    0o640,
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/octavia/ovn_certificate.pem",
+                    self.service_user,
+                    self.service_group,
+                    0o640,
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/octavia/ovn_ca_cert.pem",
+                    self.service_user,
+                    self.service_group,
+                    0o640,
+                ),
+            ]
+        )
+        return cc_configs
+
+
+if __name__ == "__main__":
+    main(OctaviaOVNOperatorCharm)

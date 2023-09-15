@@ -1,0 +1,33 @@
+[DEFAULT]
+debug = {{ options.debug }}
+
+[api_settings]
+{% if ovn -%}
+enabled_provider_drivers = ovn:Octavia OVN driver
+default_provider_driver = ovn
+{%- endif %}
+
+[driver_agent]
+{% if ovn -%}
+enabled_provider_agents = ovn
+{%- endif %}
+
+[ovn]
+{% if ovn -%}
+ovn_nb_connection = {{ ovsdb_cms.db_nb_connection_strs }}
+ovn_nb_private_key = {{ ovn.ovn_key }}
+ovn_nb_certificate = {{ ovn.ovn_cert }}
+ovn_nb_ca_cert = {{ ovn.ovn_ca_cert }}
+
+ovn_sb_connection = {{ ovsdb_cms.db_sb_connection_strs }}
+ovn_sb_private_key = {{ ovn.ovn_key }}
+ovn_sb_certificate = {{ ovn.ovn_cert }}
+ovn_sb_ca_cert = {{ ovn.ovn_ca_cert }}
+{%- endif %}
+
+{% include "parts/section-database" %}
+
+[service_auth]
+auth_section = keystone_authtoken
+
+{% include "parts/section-identity" %}

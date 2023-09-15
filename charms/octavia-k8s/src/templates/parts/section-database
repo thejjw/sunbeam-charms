@@ -1,0 +1,3 @@
+[database]
+{% include "parts/database-connection" %}
+connection_recycle_time = 200
