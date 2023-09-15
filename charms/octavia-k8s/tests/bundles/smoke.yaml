@@ -34,7 +34,7 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
   neutron:
-    charm: ch:neutron-k8s.charm
+    charm: ch:neutron-k8s
     channel: 2023.1/edge
     scale: 1
     trust: true
@@ -45,9 +45,9 @@ applications:
     scale: 1
     trust: true
     resources:
-      octavia-api-image: ghcr.io/openstack-snaps/octavia-consolidated:2023.1
-      octavia-driver-manager-image: ghcr.io/openstack-snaps/octavia-consolidated:2023.1
-      octavia-housekeeping-image: ghcr.io/openstack-snaps/octavia-consolidated:2023.1
+      octavia-api-image: ghcr.io/canonical/octavia-consolidated:2023.1
+      octavia-driver-agent-image: ghcr.io/canonical/octavia-consolidated:2023.1
+      octavia-housekeeping-image: ghcr.io/canonical/octavia-consolidated:2023.1
   ovn-central:
     charm: ch:ovn-central-k8s
     channel: 23.03/edge
@@ -86,3 +86,16 @@ relations:
 
 - - tls-operator:certificates
   - ovn-central:certificates
+
+- - mysql:database
+  - octavia:database
+- - keystone:identity-service
+  - octavia:identity-service
+- - traefik:ingress
+  - octavia:ingress-internal
+- - traefik-public:ingress
+  - octavia:ingress-public
+- - tls-operator:certificates
+  - octavia:certificates
+- - octavia:ovsdb-cms
+  - ovn-central:ovsdb-cms

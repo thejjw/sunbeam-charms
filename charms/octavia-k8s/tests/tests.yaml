@@ -3,8 +3,9 @@ gate_bundles:
 smoke_bundles:
   - smoke
 configure:
-  - zaza.openstack.charm_tests.keystone.setup.add_tempest_roles
-tests: []
+  - zaza.charm_tests.noop.setup.basic_setup
+tests:
+  - zaza.openstack.charm_tests.octavia.tests.OctaviaTempestTestK8S
 tests_options:
   trust:
     - smoke
