@@ -8,3 +8,5 @@ coverage
 mock
 flake8
 stestr
+# Subunit 1.4.3+ requires extras
+extras
