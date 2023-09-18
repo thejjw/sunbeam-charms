@@ -65,11 +65,10 @@ applications:
       ovn-nb-db-server-image: ghcr.io/openstack-snaps/ovn-consolidated:23.03
       ovn-northd-image: ghcr.io/openstack-snaps/ovn-consolidated:23.03
   tls-operator:
-    charm: tls-certificates-operator
+    charm: self-signed-certificates
     channel: edge
     scale: 1
     options:
-      generate-self-signed-certificates: true
       ca-common-name: internal-ca
 
 relations:
