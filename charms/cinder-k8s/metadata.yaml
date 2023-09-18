@@ -58,10 +58,6 @@ requires:
     interface: glance
     optional: true
 
-provides:
-  ceph-access:
-    interface: cinder-ceph-key
-
 peers:
   peers:
     interface: cinder-peer
