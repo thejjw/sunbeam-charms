@@ -11,3 +11,5 @@ stestr
 ops
 cosl==0.0.5 ; python_version >= "3.8"
 pydantic==1.10.12 ; python_version >= "3.8"
+# Subunit 1.4.3+ requires extras
+extras
