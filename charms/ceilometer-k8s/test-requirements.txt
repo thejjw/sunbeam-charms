@@ -7,3 +7,5 @@ mock
 flake8
 stestr
 ops
+# Subunit 1.4.3+ requires extras
+extras
