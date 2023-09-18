@@ -12,3 +12,5 @@ git+https://github.com/openstack-charmers/zaza.git@libjuju-3.1#egg=zaza
 git+https://github.com/openstack-charmers/zaza-openstack-tests.git#egg=zaza.openstack
 git+https://opendev.org/openstack/tempest.git#egg=tempest
 ops
+# Subunit 1.4.3+ requires extras
+extras
