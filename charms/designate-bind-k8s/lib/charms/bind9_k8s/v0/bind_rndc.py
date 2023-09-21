@@ -52,6 +52,10 @@ import logging
 import secrets
 from typing import (
     Any,
+    Dict,
+    List,
+    Optional,
+    Union,
 )
 
 import ops
@@ -66,7 +70,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 2
+LIBPATCH = 3
 
 
 class BindRndcReadyEvent(ops.EventBase):
@@ -95,7 +99,7 @@ class BindRndcReadyEvent(ops.EventBase):
             "secret": self.secret,
         }
 
-    def restore(self, snapshot: dict[str, Any]):
+    def restore(self, snapshot: Dict[str, Any]):
         """Restore the value state from a given snapshot."""
         super().restore(snapshot)
         self.relation_id = snapshot["relation_id"]
@@ -167,7 +171,7 @@ class BindRndcRequires(ops.Object):
         """Handle relation broken event."""
         self.on.goneaway.emit()
 
-    def host(self, relation: ops.Relation) -> str | None:
+    def host(self, relation: ops.Relation) -> Optional[str]:
         """Return host from relation."""
         if relation.app is None:
             return None
@@ -177,7 +181,7 @@ class BindRndcRequires(ops.Object):
         """Return nonce from stored state."""
         return self._stored.nonce
 
-    def get_rndc_key(self, relation: ops.Relation) -> dict | None:
+    def get_rndc_key(self, relation: ops.Relation) -> Optional[dict]:
         """Get rndc keys."""
         if relation.app is None:
             return None
@@ -222,7 +226,7 @@ class NewBindClientAttachedEvent(ops.EventBase):
             "relation_name": self.relation_name,
         }
 
-    def restore(self, snapshot: dict[str, Any]):
+    def restore(self, snapshot: Dict[str, Any]):
         """Restore the value state from a given snapshot."""
         super().restore(snapshot)
         self.relation_id = snapshot["relation_id"]
@@ -249,7 +253,7 @@ class BindClientUpdatedEvent(ops.EventBase):
             "relation_name": self.relation_name,
         }
 
-    def restore(self, snapshot: dict[str, Any]):
+    def restore(self, snapshot: Dict[str, Any]):
         """Restore the value state from a given snapshot."""
         super().restore(snapshot)
         self.relation_id = snapshot["relation_id"]
@@ -332,7 +336,7 @@ class BindRndcProvides(ops.Object):
     def remove_rndc_client_key(
         self,
         relation: ops.Relation,
-        client: str | list[str],
+        client: Union[str, List[str]],
     ):
         """Remove rndc key from the relation."""
         if not self.charm.unit.is_leader():
