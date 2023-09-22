@@ -86,10 +86,19 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
         """Setup event handler for the relation."""
         interface = bind_rndc.BindRndcProvides(self.charm, BIND_RNDC_RELATION)
         self.framework.observe(
+            interface.on.new_bind_client_attached,
+            self._on_bind_client_attached,
+        )
+        self.framework.observe(
             interface.on.bind_client_updated,
             self._on_bind_client_updated,
         )
         return interface
+    
+    def _on_bind_client_attached(self, event: bind_rndc.NewBindClientAttachedEvent):
+        """Handle bind client attached event."""
+        self.refresh_address()
+        self.callback_f(event)
 
     def _on_bind_client_updated(self, event: bind_rndc.BindClientUpdatedEvent):
         """Handle bind client updated event."""
