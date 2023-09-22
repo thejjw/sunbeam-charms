@@ -1,0 +1,17 @@
+# This file is managed centrally by release-tools and should not be modified
+# within individual charm repos.  See the 'global' dir contents for available
+# choices of *requirements.txt files for OpenStack Charms:
+#     https://github.com/openstack-charmers/release-tools
+#
+
+cryptography
+jinja2
+jsonschema
+lightkube
+lightkube-models
+ops
+pwgen
+
+git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
+
+python-keystoneclient  # keystone-k8s

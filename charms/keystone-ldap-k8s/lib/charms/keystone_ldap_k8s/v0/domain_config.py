@@ -1,0 +1,190 @@
+"""TODO: Add a proper docstring here.
+
+This is a placeholder docstring for this charm library. Docstrings are
+presented on Charmhub and updated whenever you push a new version of the
+library.
+
+Complete documentation about creating and documenting libraries can be found
+in the SDK docs at https://juju.is/docs/sdk/libraries.
+
+See `charmcraft publish-lib` and `charmcraft fetch-lib` for details of how to
+share and consume charm libraries. They serve to enhance collaboration
+between charmers. Use a charmer's libraries for classes that handle
+integration with their charm.
+
+Bear in mind that new revisions of the different major API versions (v0, v1,
+v2 etc) are maintained independently.  You can continue to update v0 and v1
+after you have pushed v3.
+
+Markdown is supported, following the CommonMark specification.
+"""
+
+import logging
+from typing import (
+    Optional,
+)
+
+from ops.charm import (
+    CharmBase,
+    RelationBrokenEvent,
+    RelationChangedEvent,
+    RelationEvent,
+)
+from ops.framework import (
+    EventSource,
+    Object,
+    ObjectEvents,
+)
+from ops.model import (
+    Relation,
+)
+import base64
+logger = logging.getLogger(__name__)
+
+# The unique Charmhub library identifier, never change it
+LIBID = "589e0b16e4164e829aa8eb232628429c"
+
+# Increment this major API version when introducing breaking changes
+LIBAPI = 0
+
+# Increment this PATCH version before using `charmcraft publish-lib` or reset
+# to 0 if you are raising the major API version
+LIBPATCH = 1
+
+class DomainConfigRequestEvent(RelationEvent):
+    """DomainConfigRequest Event."""
+    pass
+
+class DomainConfigProviderEvents(ObjectEvents):
+    """Events class for `on`."""
+
+    remote_ready = EventSource(DomainConfigRequestEvent)
+
+class DomainConfigProvides(Object):
+    """DomainConfigProvides class."""
+
+    on = DomainConfigProviderEvents()
+
+    def __init__(self, charm: CharmBase, relation_name: str):
+        super().__init__(charm, relation_name)
+        self.charm = charm
+        self.relation_name = relation_name
+        self.framework.observe(
+            self.charm.on[relation_name].relation_changed,
+            self._on_domain_config_relation_changed,
+        )
+
+    def _on_domain_config_relation_changed(
+        self, event: RelationChangedEvent
+    ):
+        """Handle DomainConfig relation changed."""
+        logging.debug("DomainConfig relation changed")
+        self.on.remote_ready.emit(event.relation)
+
+    def set_domain_info(
+        self, domain_name: str, config_contents: str
+    ) -> None:
+        """Set ceilometer configuration on the relation."""
+        if not self.charm.unit.is_leader():
+            logging.debug("Not a leader unit, skipping set config")
+            return
+        for relation in self.relations:
+            relation.data[self.charm.app]["domain-name"] = domain_name
+            relation.data[self.charm.app]["config-contents"] = base64.b64encode(config_contents.encode()).decode()
+
+    @property
+    def relations(self):
+        return self.framework.model.relations[self.relation_name]
+
+class DomainConfigChangedEvent(RelationEvent):
+    """DomainConfigChanged Event."""
+
+    pass
+
+
+class DomainConfigGoneAwayEvent(RelationEvent):
+    """DomainConfigGoneAway Event."""
+
+    pass
+
+
+class DomainConfigRequirerEvents(ObjectEvents):
+    """Events class for `on`."""
+
+    config_changed = EventSource(DomainConfigChangedEvent)
+    goneaway = EventSource(DomainConfigGoneAwayEvent)
+
+
+class DomainConfigRequires(Object):
+    """DomainConfigRequires class."""
+
+    on = DomainConfigRequirerEvents()
+
+    def __init__(self, charm: CharmBase, relation_name: str):
+        super().__init__(charm, relation_name)
+        self.charm = charm
+        self.relation_name = relation_name
+        self.framework.observe(
+            self.charm.on[relation_name].relation_changed,
+            self._on_domain_config_relation_changed,
+        )
+        self.framework.observe(
+            self.charm.on[relation_name].relation_broken,
+            self._on_domain_config_relation_broken,
+        )
+
+    def _on_domain_config_relation_changed(
+        self, event: RelationChangedEvent
+    ):
+        """Handle DomainConfig relation changed."""
+        logging.debug("DomainConfig config data changed")
+        self.on.config_changed.emit(event.relation)
+
+    def _on_domain_config_relation_broken(
+        self, event: RelationBrokenEvent
+    ):
+        """Handle DomainConfig relation changed."""
+        logging.debug("DomainConfig on_broken")
+        self.on.goneaway.emit(event.relation)
+
+    @property
+    def _domain_config_rel(self) -> Optional[Relation]:
+        """The ceilometer service relation."""
+        return self.framework.model.get_relation(self.relation_name)
+
+    def get_remote_app_data(self, key: str) -> Optional[str]:
+        """Return the value for the given key from remote app data."""
+        if self._domain_config_rel:
+            data = self._domain_config_rel.data[
+                self._domain_config_rel.app
+            ]
+            return data.get(key)
+
+        return None
+
+    @property
+    def domain_name(self) -> Optional[str]:
+        """Return the domain name."""
+        return self.get_remote_app_data("domain-name")
+
+    @property
+    def config_contents(self) -> Optional[str]:
+        """Return the config contents."""
+        return base64.b64decode(self.get_remote_app_data("config-contents")).decode()
+
+    def get_domain_configs(self):
+        configs = []
+        for relation in self.relations:
+            domain_name = relation.data[relation.app].get("domain-name")
+            raw_config_contents = relation.data[relation.app].get("config-contents")
+            if not all([domain_name, raw_config_contents]):
+                continue
+            configs.append({
+                "domain-name": domain_name,
+                "config-contents": base64.b64decode(raw_config_contents).decode()})
+        return configs
+
+    @property
+    def relations(self):
+        return self.framework.model.relations[self.relation_name]
+
