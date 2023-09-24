@@ -16,12 +16,11 @@
 
 """Define keystone tests."""
 
+import base64
 import json
-import os
-from unittest.mock import ANY, MagicMock
 
-import mock
 import ops_sunbeam.test_utils as test_utils
+from ops.testing import Harness
 
 import charm
 
@@ -43,3 +42,41 @@ class _KeystoneLDAPK8SCharm(charm.KeystoneLDAPK8SCharm):
     @property
     def public_ingress_address(self) -> str:
         return "10.0.0.10"
+
+
+class TestKeystoneLDAPK8SCharm(test_utils.CharmTestCase):
+    def setUp(self):
+        """Run test setup."""
+        self.harness = Harness(charm.KeystoneLDAPK8SCharm)
+        self.addCleanup(self.harness.cleanup)
+        self.harness.begin()
+
+    def test_charm(self):
+        """Test pebble ready handler."""
+        self.harness.set_leader()
+        rel_id = self.harness.add_relation("domain-config", "keystone")
+        self.harness.add_relation_unit(rel_id, "keystone/0")
+        rel_data = self.harness.get_relation_data(rel_id, self.harness.charm.unit.app.name)
+        ldap_config_flags = json.dumps(
+            {
+                "group_tree_dn": "ou=groups,dc=test,dc=com",
+                "group_objectclass": "posixGroup",
+                "group_name_attribute": "cn",
+                "group_member_attribute": "memberUid",
+                "group_members_are_ids": "true",
+            }
+        )
+        self.harness.update_config(
+            {
+                "ldap-server": "ldap://10.1.176.184",
+                "ldap-user": "cn=admin,dc=test,dc=com",
+                "ldap-password": "crapper",
+                "ldap-suffix": "dc=test,dc=com",
+                "domain-name": "userdomain",
+                "ldap-config-flags": ldap_config_flags,
+            }
+        )
+        self.assertEqual("userdomain", rel_data["domain-name"])
+        contents = base64.b64decode(rel_data["config-contents"]).decode()
+        self.assertIn("password = crapper", contents)
+        self.assertIn("group_objectclass = posixGroup", contents)
