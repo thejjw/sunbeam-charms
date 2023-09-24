@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Copyright 2021 Canonical Ltd.
+# Copyright 2023 Canonical Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,46 +17,91 @@
 #
 # Learn more at: https://juju.is/docs/sdk
 
-"""Charm the service.
+"""Keystone LDAP configuration.
 
-Refer to the following post for a quick-start guide that will help you
-develop a new k8s charm using the Operator Framework:
-
-    https://discourse.charmhub.io/t/4208
+Send domain configuration to the keystone charm.
 """
-import jinja2
+import json
 import logging
-from typing import (
-    Callable,
-    List,
-    Mapping,
-)
+from typing import Callable, List, Mapping
 
+import charms.keystone_ldap_k8s.v0.domain_config as sunbeam_dc_svc
+import jinja2
 import ops.charm
+import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.config_contexts as config_contexts
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 from ops.main import main
-from ops.model import ActiveStatus, BlockedStatus, WaitingStatus
 
 # Log messages can be retrieved using juju debug-log
 logger = logging.getLogger(__name__)
 
-VALID_LOG_LEVELS = ["info", "debug", "warning", "error", "critical"]
-import ops_sunbeam.charm as sunbeam_charm
-import ops_sunbeam.relation_handlers as sunbeam_rhandlers
-import charms.keystone_ldap_k8s.v0.domain_config as sunbeam_dc_svc
-import ops_sunbeam.config_contexts as config_contexts
-import json
+LDAP_OPTINONS = [
+    "server",
+    "user",
+    "password",
+    "suffix",
+    "readonly",
+    "query_scope",
+    "user_tree_dn",
+    "user_filter",
+    "user_objectclass",
+    "user_id_attribute",
+    "user_name_attribute",
+    "user_enabled_attribute",
+    "user_enabled_invert",
+    "user_enabled_mask",
+    "user_enabled_default",
+    "user_enabled_emulation",
+    "user_enabled_emulation_dn",
+    "group_tree_dn",
+    "group_objectclass",
+    "group_id_attribute",
+    "group_name_attribute",
+    "group_member_attribute",
+    "group_members_are_ids",
+    "use_pool",
+    "pool_size",
+    "pool_retry_max",
+    "pool_connection_timeout",
+]
 
-class LDAPConfigFlagsContext(config_contexts.ConfigContext):
+
+class LDAPConfigContext(config_contexts.ConfigContext):
     """Configuration context for cinder parameters."""
 
     def context(self) -> dict:
         """Generate context information for cinder config."""
+        # LDAP config follows the patterns that if a user has
+        # explicitly set a value then it should be rendered
+        # otherwise the option is omitted. This is slighttly
+        # complicated by the fact that the model.config does
+        # not include settings that have not been set.
+        context = {}
         config_flags = {}
         config = self.charm.model.config.get
+        for option in LDAP_OPTINONS:
+            config_option = "ldap-" + option.replace("_", "-")
+            config_value = config(config_option)
+            if config_value is not None and config_value != "":
+                context[option] = config_value
         raw_config_flags = config("ldap-config-flags")
         if raw_config_flags:
             config_flags = json.loads(raw_config_flags)
-        return {'flags': config_flags}
+        for key, value in config_flags.items():
+            if key in context.keys():
+                logger.warning(
+                    "Ignoring {} passed via ldap-config-flags, please use charm config to manage this setting".format(
+                        key
+                    )
+                )
+            else:
+                context[key] = value
+        if context.get("server"):
+            # Should probably change the config.yaml rather than having to
+            # rename the key
+            context["url"] = context.pop("server")
+        return {"config": context}
 
 
 class DomainConfigProvidesHandler(sunbeam_rhandlers.RelationHandler):
@@ -95,15 +140,13 @@ class DomainConfigProvidesHandler(sunbeam_rhandlers.RelationHandler):
 
 class KeystoneLDAPK8SCharm(sunbeam_charm.OSBaseOperatorCharm):
     """Charm the service."""
+
     DOMAIN_CONFIG_RELATION_NAME = "domain-config"
 
     def __init__(self, *args):
         super().__init__(*args)
-        self.send_domain_config()
 
-    def get_relation_handlers(
-        self, handlers=None
-    ) -> List[sunbeam_rhandlers.RelationHandler]:
+    def get_relation_handlers(self, handlers=None) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
         if self.can_add_handler(self.DOMAIN_CONFIG_RELATION_NAME, handlers):
@@ -115,37 +158,40 @@ class KeystoneLDAPK8SCharm(sunbeam_charm.OSBaseOperatorCharm):
             handlers.append(self.dc_handler)
         return super().get_relation_handlers(handlers)
 
-
     @property
     def config_contexts(self) -> List[config_contexts.ConfigContext]:
         """Configuration contexts for the operator."""
         contexts = super().config_contexts
-        contexts.append(LDAPConfigFlagsContext(self, "ldap_config_flags"))
+        contexts.append(LDAPConfigContext(self, "ldap_config"))
         return contexts
 
-
-    def send_domain_config(self, event=None):
-       try:
-            domain_name = self.config['domain-name']
+    def send_domain_config(self, event=None) -> None:
+        """Send domain configuration to keystone."""
+        try:
+            domain_name = self.config["domain-name"]
         except KeyError:
             return
         loader = jinja2.FileSystemLoader(self.template_dir)
         _tmpl_env = jinja2.Environment(loader=loader)
         template = _tmpl_env.get_template("keystone.conf")
         self.dc_handler.domain_config.set_domain_info(
-            domain_name=domain_name,
-            config_contents=template.render(self.contexts()))
+            domain_name=domain_name, config_contents=template.render(self.contexts())
+        )
 
-    def configure_app_leader(self, event):
+    def configure_app_leader(self, event) -> None:
+        """Configure application."""
         self.send_domain_config()
         self.set_leader_ready()
 
     @property
     def databases(self) -> Mapping[str, str]:
+        """Config charm has no databases."""
         return {}
 
     def get_pebble_handlers(self):
+        """Config charm has no containers."""
         return []
+
 
 if __name__ == "__main__":  # pragma: nocover
     main(KeystoneLDAPK8SCharm)
