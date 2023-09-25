@@ -16,7 +16,7 @@ applications:
     options:
       kubernetes-service-annotations: metallb.universe.tf/address-pool=public
 
-  # required for barbican and magnum
+  # required for magnum
   rabbitmq:
     charm: ch:rabbitmq-k8s
     channel: 3.9/edge
@@ -34,16 +34,14 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
 
-  vault:
-    charm: ch:vault-k8s
+  glance:
+    charm: ch:glance-k8s
+    channel: 2023.1/edge
     scale: 1
     trust: false
+    storage:
+      local-repository: 5G
 
-  barbican:
-    charm: ch:barbican-k8s
-    scale: 1
-    trust: false
-  
   magnum:
     charm: ../../magnum-k8s.charm
     scale: 1
@@ -62,19 +60,14 @@ relations:
 - - mysql:database
   - keystone:database
 
-- - mysql:database
-  - barbican:database
 - - rabbitmq:amqp
-  - barbican:amqp
+  - glance:amqp
 - - keystone:identity-service
-  - barbican:identity-service
+  - glance:identity-service
 - - traefik:ingress
-  - barbican:ingress-internal
-- - traefik:ingress
-  - barbican:ingress-public
-
-- - vault:secrets
-  - barbican:secrets
+  - glance:ingress-public
+- - mysql:database
+  - glance:database
 
 - - mysql:database
   - magnum:database
@@ -82,6 +75,8 @@ relations:
   - magnum:amqp
 - - keystone:identity-service
   - magnum:identity-service
+- - keystone:identity-ops
+  - magnum:identity-ops
 - - traefik:ingress
   - magnum:ingress-internal
 - - traefik:ingress

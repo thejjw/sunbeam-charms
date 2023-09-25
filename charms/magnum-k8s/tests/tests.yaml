@@ -4,9 +4,9 @@ smoke_bundles:
   - smoke
 # There is no storage provider at the moment so cannot run tests.
 configure:
-  - zaza.charm_tests.noop.setup.basic_setup
+  - zaza.openstack.charm_tests.keystone.setup.add_tempest_roles
 tests:
-  - zaza.openstack.charm_tests.magnum.tests.magnumTempestTestK8S
+  - zaza.openstack.charm_tests.magnum.tests.MagnumTempestTestK8S
 tests_options:
   trust:
     - smoke
@@ -30,15 +30,12 @@ target_deploy_status:
   keystone:
     workload-status: active
     workload-status-message-regex: '^$'
+  glance:
+    workload-status: active
+    workload-status-message-regex: '^$'
   mysql:
     workload-status: active
     workload-status-message-regex: '^.*$'
-  barbican:
-    workload-status: active
-    workload-status-message-regex: '^$'
-  vault:
-    workload-status: active
-    workload-status-message-regex: '^$'
   magnum:
     workload-status: active
     workload-status-message-regex: '^$'
