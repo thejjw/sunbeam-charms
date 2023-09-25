@@ -26,9 +26,11 @@ applications:
   # required for nova
   rabbitmq:
     charm: ch:rabbitmq-k8s
-    channel: 3.9/edge
+    channel: 3.12/edge
     scale: 1
     trust: true
+    options:
+      minimum-replicas: 1
 
   keystone:
     charm: ch:keystone-k8s
