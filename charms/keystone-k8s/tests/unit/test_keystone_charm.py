@@ -18,6 +18,7 @@
 
 import json
 import os
+import textwrap
 from unittest.mock import (
     ANY,
     MagicMock,
@@ -515,4 +516,52 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "api-version": 3,
                 "openrc": ANY,
             }
+        )
+
+    def test_domain_config(self):
+        """Test domain config."""
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        rel_id = self.harness.add_relation("peers", "keystone-k8s")
+        self.harness.add_relation_unit(rel_id, "keystone-k8s/1")
+        self.harness.container_pebble_ready("keystone")
+        test_utils.add_db_relation_credentials(
+            self.harness, test_utils.add_base_db_relation(self.harness)
+        )
+        dc_id = self.harness.add_relation("domain-config", "keystone-ldap-k8s")
+        self.harness.add_relation_unit(dc_id, "keystone-ldap-k8s/0")
+        b64file = (
+            "W2xkYXBdCmdyb3VwX21lbWJlcl9hdHRyaWJ1dGUgPSBtZW1iZXJVaWQKZ3JvdXBf"
+            "bWVtYmVyc19hcmVfaWRzID0gdHJ1ZQpncm91cF9uYW1lX2F0dHJpYnV0ZSA9IGNu"
+            "Cmdyb3VwX29iamVjdGNsYXNzID0gcG9zaXhHcm91cApncm91cF90cmVlX2RuID0g"
+            "b3U9Z3JvdXBzLGRjPXRlc3QsZGM9Y29tCnBhc3N3b3JkID0gY3JhcHBlcgpzdWZm"
+            "aXggPSBkYz10ZXN0LGRjPWNvbQp1cmwgPSBsZGFwOi8vMTAuMS4xNzYuMTg0CnVz"
+            "ZXIgPSBjbj1hZG1pbixkYz10ZXN0LGRjPWNvbQpbaWRlbnRpdHldCmRyaXZlciA9"
+            "IGxkYXA="
+        )
+        domain_config = {
+            "domain-name": "mydomain",
+            "config-contents": b64file,
+        }
+        self.harness.update_relation_data(
+            dc_id, "keystone-ldap-k8s", domain_config
+        )
+        expect_entries = """
+        [ldap]
+        group_member_attribute = memberUid
+        group_members_are_ids = true
+        group_name_attribute = cn
+        group_objectclass = posixGroup
+        group_tree_dn = ou=groups,dc=test,dc=com
+        password = crapper
+        suffix = dc=test,dc=com
+        url = ldap://10.1.176.184
+        user = cn=admin,dc=test,dc=com
+        [identity]
+        driver = ldap"""
+        self.maxDiff = None
+        self.check_file(
+            "keystone",
+            "/etc/keystone/domains/keystone.mydomain.conf",
+            contents=textwrap.dedent(expect_entries).lstrip(),
         )

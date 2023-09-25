@@ -44,6 +44,8 @@ requires:
   amqp:
     interface: rabbitmq
     optional: true
+  domain-config:
+    interface: keystone-domain-config
 
 peers:
   peers:
