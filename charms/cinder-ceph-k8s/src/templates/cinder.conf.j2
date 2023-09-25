@@ -40,3 +40,5 @@ rbd_secret_uuid = {{ cinder_ceph.secret_uuid }}
 {% if cinder_ceph.backend_availability_zone %}
 backend_availability_zone = {{ cinder_ceph.backend_availability_zone }}
 {% endif %}
+
+{% include "parts/section-oslo-messaging-rabbit" %}
