@@ -4,6 +4,7 @@ git+https://github.com/openstack/charm-ops-sunbeam#egg=ops_sunbeam
 lightkube
 netifaces
 jsonschema
+pydantic<2.0
 
 git+https://github.com/openstack/charm-ops-interface-ceph-client#egg=interface_ceph_client
 git+https://github.com/juju/charm-helpers.git#egg=charmhelpers
