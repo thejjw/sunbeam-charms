@@ -17,9 +17,6 @@
 """Unit tests for Designate operator."""
 
 import json
-from unittest.mock import (
-    patch,
-)
 
 import ops_sunbeam.test_utils as test_utils
 from ops.testing import (
@@ -86,12 +83,9 @@ class TestDesignateOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         self.assertEqual(len(self.harness.charm.seen_events), 1)
 
-    @patch(
-        "secrets.token_hex",
-    )
-    def test_all_relations(self, token_hex):
+    def test_all_relations(self):
         """Test all integrations for operator."""
-        token_hex.return_value = "abfcdfea12"
+        self.harness.charm.on.install.emit()
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
         # this adds all the default/common relations

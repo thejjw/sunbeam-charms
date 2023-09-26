@@ -13,7 +13,7 @@ Two events are also available to respond to:
     - goneaway
 A basic example showing the usage of this relation follows:
 ```
-from charms.bind9_k8s.v0.bind_rndc import (
+from charms.designate_bind_k8s.v0.bind_rndc import (
     BindRndcRequires
 )
 class BindRndcClientCharm(CharmBase):
@@ -31,6 +31,13 @@ class BindRndcClientCharm(CharmBase):
             self.bind_rndc.on.goneaway,
             self._on_bind_rndc_goneaway
         )
+    def _on_bind_rndc_connected(self, event):
+        '''React to the Bind Rndc Connected event.
+        This event happens when BindRndc relation is added to the
+        model.
+        '''
+        # Request the rndc key from the Bind Rndc relation.
+        self.bind_rndc.request_rndc_key("generated nonce")
     def _on_bind_rndc_ready(self, event):
         '''React to the Bind Rndc Ready event.
         This event happens when BindRndc relation is added to the
@@ -49,7 +56,6 @@ class BindRndcClientCharm(CharmBase):
 
 import json
 import logging
-import secrets
 from typing import (
     Any,
     Dict,
@@ -63,14 +69,41 @@ import ops
 logger = logging.getLogger(__name__)
 
 # The unique Charmhub library identifier, never change it
-LIBID = "0fb2f64f2a1344feb80044cee22ef3a8"
+LIBID = "1cb766c981874e7383d17cf54148b3d4"
 
 # Increment this major API version when introducing breaking changes
 LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 3
+LIBPATCH = 1
+
+
+class BindRndcConnectedEvent(ops.EventBase):
+    """Bind rndc connected event."""
+
+    def __init__(
+        self,
+        handle: ops.Handle,
+        relation_id: int,
+        relation_name: str,
+    ):
+        super().__init__(handle)
+        self.relation_id = relation_id
+        self.relation_name = relation_name
+
+    def snapshot(self) -> dict:
+        """Return snapshot data that should be persisted."""
+        return {
+            "relation_id": self.relation_id,
+            "relation_name": self.relation_name,
+        }
+
+    def restore(self, snapshot: Dict[str, Any]):
+        """Restore the value state from a given snapshot."""
+        super().restore(snapshot)
+        self.relation_id = snapshot["relation_id"]
+        self.relation_name = snapshot["relation_name"]
 
 
 class BindRndcReadyEvent(ops.EventBase):
@@ -81,22 +114,16 @@ class BindRndcReadyEvent(ops.EventBase):
         handle: ops.Handle,
         relation_id: int,
         relation_name: str,
-        algorithm: str,
-        secret: str,
     ):
         super().__init__(handle)
         self.relation_id = relation_id
         self.relation_name = relation_name
-        self.algorithm = algorithm
-        self.secret = secret
 
     def snapshot(self) -> dict:
         """Return snapshot data that should be persisted."""
         return {
             "relation_id": self.relation_id,
             "relation_name": self.relation_name,
-            "algorithm": self.algorithm,
-            "secret": self.secret,
         }
 
     def restore(self, snapshot: Dict[str, Any]):
@@ -104,8 +131,6 @@ class BindRndcReadyEvent(ops.EventBase):
         super().restore(snapshot)
         self.relation_id = snapshot["relation_id"]
         self.relation_name = snapshot["relation_name"]
-        self.algorithm = snapshot["algorithm"]
-        self.secret = snapshot["secret"]
 
 
 class BindRndcGoneAwayEvent(ops.EventBase):
@@ -117,7 +142,8 @@ class BindRndcGoneAwayEvent(ops.EventBase):
 class BindRndcRequirerEvents(ops.ObjectEvents):
     """List of events that the BindRndc requires charm can leverage."""
 
-    bind_rndc_ready = ops.EventSource(BindRndcReadyEvent)
+    connected = ops.EventSource(BindRndcConnectedEvent)
+    ready = ops.EventSource(BindRndcReadyEvent)
     goneaway = ops.EventSource(BindRndcGoneAwayEvent)
 
 
@@ -125,13 +151,11 @@ class BindRndcRequires(ops.Object):
     """Class to be instantiated by the requiring side of the relation."""
 
     on = BindRndcRequirerEvents()
-    _stored = ops.StoredState()
 
     def __init__(self, charm: ops.CharmBase, relation_name: str):
         super().__init__(charm, relation_name)
         self.charm = charm
         self.relation_name = relation_name
-        self._stored.set_default(nonce="")
         self.framework.observe(
             self.charm.on[relation_name].relation_joined,
             self._on_relation_joined,
@@ -147,24 +171,20 @@ class BindRndcRequires(ops.Object):
 
     def _on_relation_joined(self, event: ops.RelationJoinedEvent):
         """Handle relation joined event."""
-        self._request_rndc_key(event.relation)
+        self.on.connected.emit(
+            event.relation.id,
+            event.relation.name,
+        )
 
     def _on_relation_changed(self, event: ops.RelationJoinedEvent):
         """Handle relation changed event."""
         host = self.host(event.relation)
         rndc_key = self.get_rndc_key(event.relation)
-        if rndc_key is None:
-            self._request_rndc_key(event.relation)
-            return
 
-        if host is not None:
-            algorithm = rndc_key["algorithm"]
-            secret = rndc_key["secret"]
-            self.on.bind_rndc_ready.emit(
+        if all((host, rndc_key)):
+            self.on.ready.emit(
                 event.relation.id,
                 event.relation.name,
-                algorithm,
-                secret,
             )
 
     def _on_relation_broken(self, event: ops.RelationBrokenEvent):
@@ -177,33 +197,25 @@ class BindRndcRequires(ops.Object):
             return None
         return relation.data[relation.app].get("host")
 
-    def nonce(self) -> str:
-        """Return nonce from stored state."""
-        return self._stored.nonce
+    def nonce(self, relation: ops.Relation) -> Optional[str]:
+        """Return nonce from relation."""
+        return relation.data[self.charm.unit].get("nonce")
 
     def get_rndc_key(self, relation: ops.Relation) -> Optional[dict]:
         """Get rndc keys."""
         if relation.app is None:
             return None
-        if self._stored.nonce == "":
+        if self.nonce(relation) is None:
             logger.debug("No nonce set for unit yet")
             return None
 
         return json.loads(
             relation.data[relation.app].get("rndc_keys", "{}")
-        ).get(self._stored.nonce)
+        ).get(self.nonce(relation))
 
-    def _request_rndc_key(self, relation: ops.Relation):
+    def request_rndc_key(self, relation: ops.Relation, nonce: str):
         """Request rndc key over the relation."""
-        if self._stored.nonce == "":
-            self._stored.nonce = secrets.token_hex(16)
-            relation.data[self.charm.unit]["nonce"] = self._stored.nonce
-
-    def reconcile_rndc_key(self, relation: ops.Relation):
-        """Reconcile rndc key over the relation."""
-        if self._stored.nonce != relation.data[self.charm.unit].get("nonce"):
-            self._stored.nonce = secrets.token_hex(16)
-            relation.data[self.charm.unit]["nonce"] = self._stored.nonce
+        relation.data[self.charm.unit]["nonce"] = nonce
 
 
 class NewBindClientAttachedEvent(ops.EventBase):

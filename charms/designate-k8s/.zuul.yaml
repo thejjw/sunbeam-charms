@@ -7,5 +7,5 @@
       charm_build_name: designate-k8s
       juju_channel: 3.1/stable
       juju_classic_mode: false
-      microk8s_channel: 1.26-strict/stable
+      microk8s_channel: 1.28-strict/stable
       microk8s_classic_mode: false

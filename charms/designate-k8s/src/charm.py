@@ -23,13 +23,15 @@ This charm provide Designate services as part of an OpenStack deployment
 """
 
 import logging
+import secrets
 from typing import (
     Callable,
     List,
     Mapping,
+    Optional,
 )
 
-import charms.bind9_k8s.v0.bind_rndc as bind_rndc
+import charms.designate_bind_k8s.v0.bind_rndc as bind_rndc
 import ops
 import ops.charm
 import ops_sunbeam.charm as sunbeam_charm
@@ -47,6 +49,13 @@ logger = logging.getLogger(__name__)
 DESIGNATE_CONTAINER = "designate"
 BIND_RNDC_RELATION = "dns-backend"
 RNDC_SECRET_PREFIX = "rndc_"
+NONCE_SECRET_LABEL = "nonce-rndc"
+
+
+class NoRelationError(Exception):
+    """No relation found."""
+
+    pass
 
 
 class DesignatePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
@@ -175,14 +184,32 @@ class BindRndcRequiresRelationHandler(sunbeam_rhandlers.RelationHandler):
         """Setup event handler for the relation."""
         interface = bind_rndc.BindRndcRequires(self.charm, BIND_RNDC_RELATION)
         self.framework.observe(
-            interface.on.bind_rndc_ready,
+            interface.on.connected,
+            self._on_bind_rndc_connected,
+        )
+        self.framework.observe(
+            interface.on.ready,
             self._on_bind_rndc_ready,
         )
         self.framework.observe(
             interface.on.goneaway,
             self._on_bind_rndc_goneaway,
         )
+
+        try:
+            self.request_rndc_key(interface, self._relation)
+        except NoRelationError:
+            pass
+
         return interface
+
+    def _on_bind_rndc_connected(self, event: bind_rndc.BindRndcConnectedEvent):
+        """Handle bind rndc connected event."""
+        relation = self.model.get_relation(
+            event.relation_name, event.relation_id
+        )
+        if relation is not None:
+            self.request_rndc_key(self.interface, relation)
 
     def _on_bind_rndc_ready(self, event: bind_rndc.BindRndcReadyEvent):
         """Handle bind rndc ready event."""
@@ -192,12 +219,21 @@ class BindRndcRequiresRelationHandler(sunbeam_rhandlers.RelationHandler):
         """Handle bind rndc goneaway event."""
         self.callback_f(event)
 
+    def request_rndc_key(
+        self, interface: bind_rndc.BindRndcRequires, relation: ops.Relation
+    ):
+        """Request credentials from vault-kv relation."""
+        nonce = self.charm.get_nonce()
+        if nonce is None:
+            return
+        interface.request_rndc_key(relation, nonce)
+
     @property
     def _relation(self) -> ops.Relation:
         """Get relation."""
         relation = self.framework.model.get_relation(self.relation_name)
         if relation is None:
-            raise Exception("Relation not found")
+            raise NoRelationError("Relation not found")
         return relation
 
     @property
@@ -205,7 +241,6 @@ class BindRndcRequiresRelationHandler(sunbeam_rhandlers.RelationHandler):
         """Ready when a key is available for current unit."""
         try:
             relation = self._relation
-            self.interface.reconcile_rndc_key(relation)
             return self.interface.get_rndc_key(relation) is not None
         except Exception:
             return False
@@ -224,7 +259,7 @@ class BindRndcRequiresRelationHandler(sunbeam_rhandlers.RelationHandler):
         )
         secret_value = secret.get_content()["secret"]
         rndc_key["secret"] = secret_value
-        rndc_key["name"] = self.interface.nonce()
+        rndc_key["name"] = self.interface.nonce(self._relation)
 
         return rndc_key
 
@@ -284,7 +319,19 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         BIND_RNDC_RELATION,
     }
 
-    def configure_unit(self, event: ops.framework.EventBase) -> None:
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.framework.observe(self.on.install, self._on_install)
+
+    def _on_install(self, event: ops.EventBase) -> None:
+        """Handle install event."""
+        self.unit.add_secret(
+            {"nonce": secrets.token_hex(16)},
+            label=NONCE_SECRET_LABEL,
+            description="nonce for bind-rndc relation",
+        )
+
+    def configure_unit(self, event: ops.EventBase) -> None:
         """Run configuration on this unit."""
         self.check_leader_ready()
         self.check_relation_handlers_ready()
@@ -419,6 +466,14 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 raise sunbeam_guard.BlockedExceptionError(
                     "Updating pools failed"
                 )
+
+    def get_nonce(self) -> Optional[str]:
+        """Return nonce stored in secret."""
+        try:
+            secret = self.model.get_secret(label=NONCE_SECRET_LABEL)
+            return secret.get_content()["nonce"]
+        except ops.SecretNotFoundError:
+            return None
 
 
 if __name__ == "__main__":

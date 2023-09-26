@@ -10,7 +10,7 @@ applications:
   # If this isn't present, the units will hang at "installing agent".
   traefik:
     charm: ch:traefik-k8s
-    channel: 1.0/stable
+    channel: 1.0/candidate
     scale: 1
     trust: true
     options:
@@ -35,9 +35,9 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
 
-  bind9:
-    charm: ch:bind9-k8s
-    channel: latest/edge
+  designate-bind:
+    charm: ch:designate-bind-k8s
+    channel: 9/edge
     scale: 1
     trust: false
 
@@ -67,5 +67,5 @@ relations:
   - designate:ingress-internal
 - - traefik:ingress
   - designate:ingress-public
-- - bind9:dns-backend
+- - designate-bind:dns-backend
   - designate:dns-backend
