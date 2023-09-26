@@ -85,7 +85,6 @@ class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "summary": "Nova Scheduler",
                     "command": "nova-scheduler",
-                    "startup": "enabled",
                     "user": "nova",
                     "group": "nova",
                 }
@@ -133,7 +132,6 @@ class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "summary": "Nova Conductor",
                     "command": "nova-conductor",
-                    "startup": "enabled",
                     "user": "nova",
                     "group": "nova",
                 }
