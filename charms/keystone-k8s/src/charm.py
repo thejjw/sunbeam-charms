@@ -1310,6 +1310,13 @@ export OS_AUTH_VERSION=3
             )
         except AttributeError:
             return False
+        except ops.pebble.ConnectionError as e:
+            logger.debug(
+                "Pebble is not ready, cannot check fernet keys, reason: %s",
+                e,
+            )
+            return False
+
         if existing_keys:
             logger.debug("Keys found")
             return True
