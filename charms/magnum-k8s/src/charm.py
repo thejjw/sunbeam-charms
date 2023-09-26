@@ -110,11 +110,6 @@ class MagnumConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "magnum",
             ),
             sunbeam_core.ContainerConfigFile(
-                "/etc/magnum/api-paste.ini",
-                "magnum",
-                "magnum",
-            ),
-            sunbeam_core.ContainerConfigFile(
                 "/etc/magnum/keystone_auth_default_policy.json",
                 "magnum",
                 "magnum",
@@ -182,9 +177,9 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "service_name": "magnum",
                 "type": "container-infra",
                 "description": "OpenStack Magnum API",
-                "internal_url": self.internal_url,
-                "public_url": self.public_url,
-                "admin_url": self.admin_url,
+                "internal_url": self.internal_url + "/v1",
+                "public_url": self.public_url + "/v1",
+                "admin_url": self.admin_url + "/v1",
             }
         ]
 
@@ -215,6 +210,31 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         )
         handlers.append(self.id_ops)
         return handlers
+
+    @property
+    def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
+        """Container configuration files for the service."""
+        _cconfigs = super().container_configs
+        _cconfigs.extend(
+            [
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/magnum/api-paste.ini",
+                    "magnum",
+                    "magnum",
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/magnum/keystone_auth_default_policy.json",
+                    "magnum",
+                    "magnum",
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/magnum/policy.json",
+                    "magnum",
+                    "magnum",
+                ),
+            ]
+        )
+        return _cconfigs
 
     def get_pebble_handlers(
         self,
