@@ -12,6 +12,8 @@ stack_user_domain_name={{ heat.stack_domain_name }}
 
 transport_url = {{ amqp.transport_url }}
 
+num_engine_workers = 4
+
 {% include "parts/section-database" %}
 
 {% include "parts/section-identity" %}
@@ -21,10 +23,12 @@ transport_url = {{ amqp.transport_url }}
 api_paste_config=/etc/heat/api-paste.ini
 
 [heat_api]
-bind_port=8004
+bind_port = 8004
+workers = 4
 
 [heat_api_cfn]
-bind_port=8000
+bind_port = 8000
+workers = 4
 
 {% include "parts/section-oslo-messaging-rabbit" %}
 
