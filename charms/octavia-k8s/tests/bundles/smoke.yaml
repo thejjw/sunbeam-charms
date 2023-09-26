@@ -3,12 +3,12 @@ bundle: kubernetes
 applications:
   traefik:
     charm: ch:traefik-k8s
-    channel: 1.0/stable
+    channel: 1.0/candidate
     scale: 1
     trust: true
   traefik-public:
     charm: ch:traefik-k8s
-    channel: 1.0/stable
+    channel: 1.0/candidate
     scale: 1
     trust: true
     options:
