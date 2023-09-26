@@ -6,4 +6,4 @@ charmcraft fetch-lib charms.data_platform_libs.v0.database_requires
 #charmcraft fetch-lib charms.sunbeam_keystone_operator.v1.identity_service
 #charmcraft fetch-lib charms.sunbeam_keystone_operator.v0.identity_credentials
 charmcraft fetch-lib charms.rabbitmq_k8s.v0.rabbitmq
-charmcraft fetch-lib charms.traefik_k8s.v1.ingress
+charmcraft fetch-lib charms.traefik_k8s.v2.ingress
