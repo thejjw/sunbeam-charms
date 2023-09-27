@@ -36,72 +36,17 @@ from ops.main import main
 # Log messages can be retrieved using juju debug-log
 logger = logging.getLogger(__name__)
 
-LDAP_OPTINONS = [
-    "server",
-    "user",
-    "password",
-    "suffix",
-    "readonly",
-    "query_scope",
-    "user_tree_dn",
-    "user_filter",
-    "user_objectclass",
-    "user_id_attribute",
-    "user_name_attribute",
-    "user_enabled_attribute",
-    "user_enabled_invert",
-    "user_enabled_mask",
-    "user_enabled_default",
-    "user_enabled_emulation",
-    "user_enabled_emulation_dn",
-    "group_tree_dn",
-    "group_objectclass",
-    "group_id_attribute",
-    "group_name_attribute",
-    "group_member_attribute",
-    "group_members_are_ids",
-    "use_pool",
-    "pool_size",
-    "pool_retry_max",
-    "pool_connection_timeout",
-]
-
 
 class LDAPConfigContext(config_contexts.ConfigContext):
     """Configuration context for cinder parameters."""
 
     def context(self) -> dict:
         """Generate context information for cinder config."""
-        # LDAP config follows the patterns that if a user has
-        # explicitly set a value then it should be rendered
-        # otherwise the option is omitted. This is slighttly
-        # complicated by the fact that the model.config does
-        # not include settings that have not been set.
-        context = {}
-        config_flags = {}
-        config = self.charm.model.config.get
-        for option in LDAP_OPTINONS:
-            config_option = "ldap-" + option.replace("_", "-")
-            config_value = config(config_option)
-            if config_value is not None and config_value != "":
-                context[option] = config_value
-        raw_config_flags = config("ldap-config-flags")
+        config = {}
+        raw_config_flags = self.charm.model.config["ldap-config-flags"]
         if raw_config_flags:
-            config_flags = json.loads(raw_config_flags)
-        for key, value in config_flags.items():
-            if key in context.keys():
-                logger.warning(
-                    "Ignoring {} passed via ldap-config-flags, please use charm config to manage this setting".format(
-                        key
-                    )
-                )
-            else:
-                context[key] = value
-        if context.get("server"):
-            # Should probably change the config.yaml rather than having to
-            # rename the key
-            context["url"] = context.pop("server")
-        return {"config": context}
+            config = json.loads(raw_config_flags)
+        return {"config": config}
 
 
 class DomainConfigProvidesHandler(sunbeam_rhandlers.RelationHandler):

@@ -64,14 +64,14 @@ class TestKeystoneLDAPK8SCharm(test_utils.CharmTestCase):
                 "group_name_attribute": "cn",
                 "group_member_attribute": "memberUid",
                 "group_members_are_ids": "true",
+                "url": "ldap://10.1.176.184",
+                "user": "cn=admin,dc=test,dc=com",
+                "password": "crapper",
+                "suffix": "dc=test,dc=com",
             }
         )
         self.harness.update_config(
             {
-                "ldap-server": "ldap://10.1.176.184",
-                "ldap-user": "cn=admin,dc=test,dc=com",
-                "ldap-password": "crapper",
-                "ldap-suffix": "dc=test,dc=com",
                 "domain-name": "userdomain",
                 "ldap-config-flags": ldap_config_flags,
             }
