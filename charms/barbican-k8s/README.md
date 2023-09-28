@@ -19,6 +19,7 @@ messaging and keystone identity operators:
     juju relate mysql:database barbican:database
     juju relate rabbitmq:amqp barbican:amqp
     juju relate keystone:identity-service barbican:identity-service
+    juju relate vault:vault-kv barbican:vault-kv
 
 ### Configuration
 
@@ -43,13 +44,13 @@ barbican-k8s requires the following relations:
 `identity-service`: To register endpoints in Keystone
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network
+`vault-kv`: To store secrets in a Vault key-value store
 
 ## OCI Images
 
 The charm by default uses following images:
 
-    `docker.io/kolla/ubuntu-binary-barbican-api:yoga`
-    `docker.io/kolla/ubuntu-binary-barbican-worker:yoga`
+    `ghcr.io/canonical/barbican-consolidated:2023.1`
 
 ## Contributing
 

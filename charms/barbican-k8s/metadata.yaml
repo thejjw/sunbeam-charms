@@ -13,6 +13,14 @@ bases:
   - name: ubuntu
     channel: 22.04/stable
 
+assumes:
+  - k8s-api
+  - juju >= 3.1
+tags:
+  - openstack
+  - secrets
+  - misc
+
 requires:
   ingress-internal:
     interface: ingress
@@ -28,6 +36,9 @@ requires:
     interface: keystone
   amqp:
     interface: rabbitmq
+  vault-kv:
+    interface: vault-kv
+    limit: 1
 
 peers:
   peers:
@@ -43,8 +54,8 @@ resources:
   barbican-api-image:
     type: oci-image
     description: OCI image for OpenStack Barbican API
-    upstream-source: ghcr.io/openstack-snaps/barbican-consolidated:2023.1
+    upstream-source: ghcr.io/canonical/barbican-consolidated:2023.1
   barbican-worker-image:
     type: oci-image
     description: OCI image for OpenStack Barbican worker
-    upstream-source: ghcr.io/openstack-snaps/barbican-consolidated:2023.1
+    upstream-source: ghcr.io/canonical/barbican-consolidated:2023.1

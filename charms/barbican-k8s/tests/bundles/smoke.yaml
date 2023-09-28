@@ -34,13 +34,19 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
 
+  vault:
+    charm: ch:vault-k8s
+    channel: latest/edge
+    scale: 1
+    trust: false
+
   barbican:
     charm: ../../barbican-k8s.charm
     scale: 1
     trust: false
     resources:
-      barbican-api-image: ghcr.io/openstack-snaps/barbican-consolidated:2023.1
-      barbican-worker-image: ghcr.io/openstack-snaps/barbican-consolidated:2023.1
+      barbican-api-image: ghcr.io/canonical/barbican-consolidated:2023.1
+      barbican-worker-image: ghcr.io/canonical/barbican-consolidated:2023.1
 
 relations:
 - - traefik:ingress
@@ -61,3 +67,5 @@ relations:
   - barbican:ingress-internal
 - - traefik:ingress
   - barbican:ingress-public
+- - vault:vault-kv
+  - barbican:vault-kv
