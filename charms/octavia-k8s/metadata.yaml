@@ -3,6 +3,7 @@ summary: OpenStack Octavia service
 maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
 description: |
   OpenStack Octavia provides loadbalancing service for an OpenStack cloud.
+  Currently OVN Octavia provider driver is supported.
 version: 3
 bases:
   - name: ubuntu
