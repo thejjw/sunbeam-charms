@@ -27,12 +27,14 @@ containers:
 resources:
   ceilometer-central-image:
     type: oci-image
-    description: OCI image for OpenStack ceilometer
-    upstream-source: ghcr.io/openstack-snaps/ceilometer-consolidated:2023.1
+    description: OCI image for OpenStack ceilometer central
+    # ghcr.io/canonical/ceilometer-central:2023.1
+    upstream-source: ghcr.io/canonical/ceilometer-consolidated:2023.1
   ceilometer-notification-image:
     type: oci-image
-    description: OCI image for OpenStack ceilometer
-    upstream-source: ghcr.io/openstack-snaps/ceilometer-consolidated:2023.1
+    description: OCI image for OpenStack ceilometer notification
+    # ghcr.io/canonical/ceilometer-notification:2023.1
+    upstream-source: ghcr.io/canonical/ceilometer-consolidated:2023.1
 
 provides:
   ceilometer-service:

@@ -11,13 +11,13 @@ applications:
   # If this isn't present, the units will hang at "installing agent".
   traefik:
     charm: ch:traefik-k8s
-    channel: 1.0/stable
+    channel: 1.0/candidate
     scale: 1
     trust: true
 
   traefik-public:
     charm: ch:traefik-k8s
-    channel: 1.0/stable
+    channel: 1.0/candidate
     scale: 1
     trust: true
     options:
@@ -52,8 +52,8 @@ applications:
     scale: 1
     trust: true
     resources:
-      ceilometer-central-image: ghcr.io/openstack-snaps/ceilometer-consolidated:2023.1
-      ceilometer-notification-image: ghcr.io/openstack-snaps/ceilometer-consolidated:2023.1
+      ceilometer-central-image: ghcr.io/canonical/ceilometer-consolidated:2023.1
+      ceilometer-notification-image: ghcr.io/canonical/ceilometer-consolidated:2023.1
   aodh:
     charm: ch:aodh-k8s
     channel: 2023.1/edge
