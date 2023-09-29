@@ -12,13 +12,13 @@ applications:
   # If this isn't present, the units will hang at "installing agent".
   traefik:
     charm: ch:traefik-k8s
-    channel: 1.0/stable
+    channel: 1.0/candidate
     scale: 1
     trust: true
 
   traefik-public:
     charm: ch:traefik-k8s
-    channel: 1.0/stable
+    channel: 1.0/candidate
     scale: 1
     trust: true
     options:
@@ -40,8 +40,8 @@ applications:
     scale: 1
     trust: true
     resources:
-      gnocchi-api-image: ghcr.io/openstack-snaps/gnocchi-api:2023.1
-      gnocchi-metricd-image: ghcr.io/openstack-snaps/gnocchi-metricd:2023.1
+      gnocchi-api-image: ghcr.io/canonical/gnocchi-consolidated:2023.1
+      gnocchi-metricd-image: ghcr.io/canonical/gnocchi-consolidated:2023.1
 
 relations:
 - - traefik:ingress
