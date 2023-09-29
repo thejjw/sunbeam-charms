@@ -57,11 +57,11 @@ applications:
     scale: 1
     trust: true
     resources:
-      aodh-api-image: ghcr.io/openstack-snaps/aodh-consolidated:2023.1
-      aodh-evaluator-image: ghcr.io/openstack-snaps/aodh-consolidated:2023.1
-      aodh-notifier-image: ghcr.io/openstack-snaps/aodh-consolidated:2023.1
-      aodh-listener-image: ghcr.io/openstack-snaps/aodh-consolidated:2023.1
-      aodh-expirer-image: ghcr.io/openstack-snaps/aodh-consolidated:2023.1
+      aodh-api-image: ghcr.io/canonical/aodh-consolidated:2023.1
+      aodh-evaluator-image: ghcr.io/canonical/aodh-consolidated:2023.1
+      aodh-notifier-image: ghcr.io/canonical/aodh-consolidated:2023.1
+      aodh-listener-image: ghcr.io/canonical/aodh-consolidated:2023.1
+      aodh-expirer-image: ghcr.io/canonical/aodh-consolidated:2023.1
 
 relations:
 - - traefik:ingress
