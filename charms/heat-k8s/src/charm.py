@@ -465,7 +465,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return True
 
     def get_stack_admin_credentials_to_configure(self) -> tuple:
-        """Get domain admin credentials to configiure in heat conf."""
+        """Get domain admin credentials to configure in heat conf."""
         label = (
             f"{CREDENTIALS_SECRET_PREFIX}configure_"
             f"{self.stack_domain_admin_user}"
