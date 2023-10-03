@@ -5,4 +5,4 @@ applications:
     scale: 1
     trust: false
     resources:
-      designate-bind-image: ubuntu/designate-bind:9.18-22.04_beta
+      designate-bind-image: ubuntu/bind9:9.18-22.04_beta

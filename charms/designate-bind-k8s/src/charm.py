@@ -24,7 +24,9 @@ import logging
 import secrets
 from typing import (
     Callable,
+    Dict,
     List,
+    Optional,
 )
 
 import charms.designate_bind_k8s.v0.bind_rndc as bind_rndc
@@ -94,8 +96,10 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
             self._on_bind_client_updated,
         )
         return interface
-    
-    def _on_bind_client_attached(self, event: bind_rndc.NewBindClientAttachedEvent):
+
+    def _on_bind_client_attached(
+        self, event: bind_rndc.NewBindClientAttachedEvent
+    ):
         """Handle bind client attached event."""
         self.refresh_address()
         self.callback_f(event)
@@ -123,11 +127,11 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
             self.interface.set_host(relation, str(address))
 
     @property
-    def _relations(self) -> list[ops.Relation]:
+    def _relations(self) -> List[ops.Relation]:
         """Get relations."""
         return self.model.relations[self.relation_name]
 
-    def keys(self, rndc_keys: dict[str, dict[str, str]]) -> str:
+    def keys(self, rndc_keys: Dict[str, Dict[str, str]]) -> str:
         """Get rndc keys formatted for named.conf allowed keys.
 
         Format is "key1";"key2";"key3";
@@ -398,8 +402,8 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def _create_or_update_secret(
         self,
         label: str,
-        content: dict[str, str],
-        relation: ops.Relation | None = None,
+        content: Dict[str, str],
+        relation: Optional[ops.Relation] = None,
     ) -> ops.Secret:
         """Create or update a secret.
 

@@ -5,16 +5,12 @@ smoke_bundles:
 configure:
   - zaza.charm_tests.noop.setup.basic_setup
 tests:
-  - smoke
+  - zaza.charm_tests.noop.tests.NoopTest
 tests_options:
   trust:
     - smoke
   ignore_hard_deploy_errors:
     - smoke
-
-  tempest:
-    default:
-      smoke: True
 
 target_deploy_status:
   designate-bind:
