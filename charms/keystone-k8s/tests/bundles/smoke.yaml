@@ -34,7 +34,7 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
     resources:
-      keystone-image: ghcr.io/openstack-snaps/keystone:2023.1
+      keystone-image: ghcr.io/canonical/keystone:2023.2
       # NOTE: should be in sync with resources described in ../../metadata.yaml
 
   glance:

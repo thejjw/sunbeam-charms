@@ -72,7 +72,7 @@ developers:
 
 ## OCI Images
 
-The charm by default uses `ghcr.io/openstack-snaps/keystone:2023.1` image.
+The charm by default uses `ghcr.io/canonical/keystone:2023.2` image.
 
 ## Contributing
 
