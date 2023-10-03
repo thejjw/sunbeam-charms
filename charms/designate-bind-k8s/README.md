@@ -8,10 +8,10 @@ Avoid using this README file for information that is maintained or published els
 Use links instead.
 -->
 
-# charm-bind9
+# designate-bind-k8s
 
 Charmhub package name: operator-template
-More information: https://charmhub.io/charm-bind9
+More information: https://charmhub.io/designate-bind-k8s
 
 Describe your charm in one or two sentences.
 

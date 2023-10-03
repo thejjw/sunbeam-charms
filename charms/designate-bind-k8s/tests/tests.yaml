@@ -17,6 +17,6 @@ tests_options:
       smoke: True
 
 target_deploy_status:
-  bind9:
+  designate-bind:
     workload-status: active
     workload-status-message-regex: '^$'

@@ -1,5 +1,5 @@
-name: bind9-k8s
-summary: OpenStack bind9 service
+name: designate-bind-k8s
+summary: OpenStack designate-bind service
 maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
 description: |
   Domain Name Service (DNS) is an Internet service that maps IP addresses and fully qualified domain names (FQDN) to one another.
@@ -14,15 +14,15 @@ assumes:
   - juju >= 3.1
 tags:
 - openstack
-source: https://opendev.org/openstack/charm-bind9-k8s
-issues: https://bugs.launchpad.net/charm-bind9-k8s
+source: https://opendev.org/openstack/charm-designate-bind-k8s
+issues: https://bugs.launchpad.net/charm-designate-bind-k8s
 
 containers:
-  bind9:
-    resource: bind9-image
+  designate-bind:
+    resource: designate-bind-image
 
 resources:
-  bind9-image:
+  designate-bind-image:
     type: oci-image
     description: OCI image for bind9
     upstream-source: ubuntu/bind9:9.18-22.04_beta

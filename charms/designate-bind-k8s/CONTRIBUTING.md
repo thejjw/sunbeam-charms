@@ -1,4 +1,4 @@
-# bind9-k8s
+# designate-bind-k8s
 
 ## Developing
 
@@ -13,12 +13,12 @@ Create and activate a virtualenv with the development requirements:
 Get familiarise with [Charmed Operator Framework](https://juju.is/docs/sdk)
 and [Sunbeam documentation](sunbeam-docs).
 
-bind9-k8s charm uses the ops\_sunbeam library and extends
+designate-bind-k8s charm uses the ops\_sunbeam library and extends
 OSBaseOperatorAPICharm from the library.
 
 ## Intended use case
 
-bind9-k8s charm deploys and configures OpenStack Identity service
+designate-bind-k8s charm deploys and configures OpenStack Identity service
 on a kubernetes based environment.
 
 ## Roadmap
@@ -41,11 +41,11 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./bind9-k8s_ubuntu-20.04-amd64.charm --trust --resource bind9-image=ghcr.io/openstack-snaps/bind9:2023.1
+    juju deploy ./designate-bind-k8s_ubuntu-20.04-amd64.charm --trust --resource designate-bind-image=ghcr.io/openstack-snaps/designate-bind:2023.1
 
 <!-- LINKS -->
 
-[bind9-k8s-libs-docs]: https://charmhub.io/sunbeam-bind9-operator/libraries/identity_service
+[designate-bind-k8s-libs-docs]: https://charmhub.io/sunbeam-designate-bind-operator/libraries/identity_service
 [sunbeam-docs]: https://opendev.org/openstack/charm-ops-sunbeam/src/branch/main/README.rst
 
 

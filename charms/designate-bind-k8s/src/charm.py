@@ -12,9 +12,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Bind9 Operator Charm.
+"""designate-bind Operator Charm.
 
-This charm provide Bind9 services
+This charm provide designate-bind services
 """
 
 import base64
@@ -27,7 +27,7 @@ from typing import (
     List,
 )
 
-import charms.bind9_k8s.v0.bind_rndc as bind_rndc
+import charms.designate_bind_k8s.v0.bind_rndc as bind_rndc
 import charms.observability_libs.v1.kubernetes_service_patch as kubernetes_service_patch
 import lightkube.models.core_v1 as core_v1
 import ops.charm
@@ -50,17 +50,17 @@ RNDC_REVISION_KEY = "rndc_revision"
 
 
 class BindPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
-    """Pebble handler for bind9 service."""
+    """Pebble handler for designate-bind service."""
 
     def get_layer(self) -> dict:
         """Pebble layer for bind 9 service."""
         return {
-            "summary": "bind9 layer",
-            "description": "pebble config layer for bind9",
+            "summary": "designate-bind layer",
+            "description": "pebble config layer for designate-bind",
             "services": {
-                "bind9": {
+                "designate-bind": {
                     "override": "replace",
-                    "summary": "bind9",
+                    "summary": "designate-bind",
                     "command": "/usr/sbin/named -g -u bind",
                     "startup": "enabled",
                 }
@@ -181,7 +181,7 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 
     _state = StoredState()
-    service_name = "bind9"
+    service_name = "designate-bind"
 
     # mandatory_relations = {}
 
