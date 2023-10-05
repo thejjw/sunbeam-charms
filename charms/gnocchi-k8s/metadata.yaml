@@ -28,13 +28,13 @@ resources:
   gnocchi-api-image:
     type: oci-image
     description: OCI image for OpenStack Gnocchi api service
-    # ghcr.io/canonical/gnocchi-api:2023.1
-    upstream-source: ghcr.io/canonical/gnocchi-consolidated:2023.1
+    # ghcr.io/canonical/gnocchi-api:2023.2
+    upstream-source: ghcr.io/canonical/gnocchi-consolidated:2023.2
   gnocchi-metricd-image:
     type: oci-image
     description: OCI image for OpenStack Gnocchi Metric service
-    # ghcr.io/canonical/gnocchi-metricd:2023.1
-    upstream-source: ghcr.io/canonical/gnocchi-consolidated:2023.1
+    # ghcr.io/canonical/gnocchi-metricd:2023.2
+    upstream-source: ghcr.io/canonical/gnocchi-consolidated:2023.2
 
 requires:
   database:
