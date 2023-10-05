@@ -7,4 +7,4 @@
       build_type: charmcraft
       publish_charm: true
       charmcraft_channel: 2.0/stable
-      publish_channel: 2023.1/edge
+      publish_channel: 2023.2/edge
