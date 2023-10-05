@@ -34,7 +34,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
     options:
@@ -44,7 +44,7 @@ applications:
       credential-keys: 5M
   gnocchi:
     charm: ch:gnocchi-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
   ceilometer:
@@ -52,11 +52,11 @@ applications:
     scale: 1
     trust: true
     resources:
-      ceilometer-central-image: ghcr.io/canonical/ceilometer-consolidated:2023.1
-      ceilometer-notification-image: ghcr.io/canonical/ceilometer-consolidated:2023.1
+      ceilometer-central-image: ghcr.io/canonical/ceilometer-consolidated:2023.2
+      ceilometer-notification-image: ghcr.io/canonical/ceilometer-consolidated:2023.2
   aodh:
     charm: ch:aodh-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
 
