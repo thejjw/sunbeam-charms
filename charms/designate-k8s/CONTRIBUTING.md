@@ -46,7 +46,7 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./designate-k8s_ubuntu-20.04-amd64.charm --trust --resource designate-image=ghcr.io/canonical/designate:2023.1
+    juju deploy ./designate-k8s_ubuntu-20.04-amd64.charm --trust --resource designate-image=ghcr.io/canonical/designate:2023.2
 
 <!-- LINKS -->
 

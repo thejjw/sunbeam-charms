@@ -26,7 +26,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: false
     options:
@@ -46,7 +46,7 @@ applications:
     scale: 1
     trust: false
     resources:
-      designate-image: ghcr.io/canonical/designate-consolidated:2023.1
+      designate-image: ghcr.io/canonical/designate-consolidated:2023.2
 
 relations:
 - - traefik:ingress
