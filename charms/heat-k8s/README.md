@@ -60,7 +60,7 @@ heat-k8s requires the following relations:
 
 The charm by default uses following images:
 
-    ghcr.io/canonical/heat-consolidated:2023.1
+    ghcr.io/canonical/heat-consolidated:2023.2
 
 ## Contributing
 

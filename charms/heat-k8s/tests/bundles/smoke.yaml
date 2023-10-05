@@ -33,7 +33,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
     options:
@@ -47,8 +47,8 @@ applications:
     scale: 1
     trust: true
     resources:
-      heat-api-image: ghcr.io/canonical/heat-consolidated:2023.1
-      heat-engine-image:  ghcr.io/canonical/heat-consolidated:2023.1
+      heat-api-image: ghcr.io/canonical/heat-consolidated:2023.2
+      heat-engine-image:  ghcr.io/canonical/heat-consolidated:2023.2
 
   heat-cfn:
     charm: ../../heat-k8s.charm
@@ -57,8 +57,8 @@ applications:
     options:
       api_service: heat-api-cfn
     resources:
-      heat-api-image: ghcr.io/canonical/heat-consolidated:2023.1
-      heat-engine-image:  ghcr.io/canonical/heat-consolidated:2023.1
+      heat-api-image: ghcr.io/canonical/heat-consolidated:2023.2
+      heat-engine-image:  ghcr.io/canonical/heat-consolidated:2023.2
 
 relations:
 - - traefik:ingress
