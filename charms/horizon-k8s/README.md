@@ -44,7 +44,7 @@ horizon-k8s requires the following relations:
 
 ## OCI Images
 
-The charm by default uses `ghcr.io/canonical/horizon:2023.1` image.
+The charm by default uses `ghcr.io/canonical/horizon:2023.2` image.
 
 ## Contributing
 
