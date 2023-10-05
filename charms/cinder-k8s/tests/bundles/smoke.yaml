@@ -11,13 +11,13 @@ applications:
   # If this isn't present, the units will hang at "installing agent".
   traefik:
     charm: ch:traefik-k8s
-    channel: 1.0/stable
+    channel: 1.0/candidate
     scale: 1
     trust: true
 
   traefik-public:
     charm: ch:traefik-k8s
-    channel: 1.0/stable
+    channel: 1.0/candidate
     scale: 1
     trust: true
     options:
@@ -33,7 +33,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
     options:
@@ -47,8 +47,8 @@ applications:
     scale: 1
     trust: true
     resources:
-      cinder-api-image: ghcr.io/openstack-snaps/cinder-consolidated:2023.1
-      cinder-scheduler-image: ghcr.io/openstack-snaps/cinder-consolidated:2023.1
+      cinder-api-image: ghcr.io/canonical/cinder-consolidated:2023.2
+      cinder-scheduler-image: ghcr.io/canonical/cinder-consolidated:2023.2
 
 relations:
 - - traefik:ingress
