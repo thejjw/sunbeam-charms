@@ -32,7 +32,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
     options:
@@ -43,7 +43,7 @@ applications:
 
   nova:
     charm: ch:nova-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
 
@@ -52,7 +52,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      placement-api-image: ghcr.io/openstack-snaps/placement-api:2023.1
+      placement-api-image: ghcr.io/canonical/placement-api:2023.2
 
 relations:
 - - traefik:ingress
