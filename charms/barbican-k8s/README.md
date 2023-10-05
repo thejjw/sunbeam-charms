@@ -50,7 +50,7 @@ barbican-k8s requires the following relations:
 
 The charm by default uses following images:
 
-    `ghcr.io/canonical/barbican-consolidated:2023.1`
+    `ghcr.io/canonical/barbican-consolidated:2023.2`
 
 ## Contributing
 
