@@ -34,7 +34,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
     options:
@@ -47,13 +47,13 @@ applications:
     scale: 1
     trust: true
     resources:
-      nova-api-image: ghcr.io/openstack-snaps/nova-consolidated:2023.1
-      nova-scheduler-image: ghcr.io/openstack-snaps/nova-consolidated:2023.1
-      nova-conductor-image: ghcr.io/openstack-snaps/nova-consolidated:2023.1
+      nova-api-image: ghcr.io/canonical/nova-consolidated:2023.2
+      nova-scheduler-image: ghcr.io/canonical/nova-consolidated:2023.2
+      nova-conductor-image: ghcr.io/canonical/nova-consolidated:2023.2
 
   placement:
     charm: ch:placement-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
 

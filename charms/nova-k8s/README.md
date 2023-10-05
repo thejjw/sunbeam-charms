@@ -50,9 +50,9 @@ nova-k8s requires the following relations:
 
 The charm by default uses following images:
 
-    `ghcr.io/openstack-snaps/nova-api:2023.1`
-    `ghcr.io/openstack-snaps/nova-scheduler:2023.1`
-    `ghcr.io/openstack-snaps/nova-conductor:2023.1`
+    `ghcr.io/canonical/nova-api:2023.2`
+    `ghcr.io/canonical/nova-scheduler:2023.2`
+    `ghcr.io/canonical/nova-conductor:2023.2`
 
 ## Contributing
 
