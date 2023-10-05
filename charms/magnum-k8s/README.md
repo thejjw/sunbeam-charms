@@ -49,7 +49,7 @@ magnum-k8s requires the following relations:
 
 The charm by default uses following images:
 
-    `ghcr.io/openstack-snaps/magnum-consolidated:2023.1`
+    `ghcr.io/canonical/magnum-consolidated:2023.2`
 
 ## Contributing
 
