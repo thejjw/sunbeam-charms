@@ -36,8 +36,8 @@ resources:
   glance-api-image:
     type: oci-image
     description: OCI image for OpenStack Glance
-    # ghcr.io/openstack-snaps/glance-api:2023.1
-    upstream-source: ghcr.io/openstack-snaps/glance-api:2023.1
+    # ghcr.io/canonical/glance-api:2023.2
+    upstream-source: ghcr.io/canonical/glance-api:2023.2
 
 storage:
   local-repository:

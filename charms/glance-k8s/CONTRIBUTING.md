@@ -47,7 +47,7 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./glance-k8s_ubuntu-20.04-amd64.charm --trust --resource glance-image=ghcr.io/openstack-snaps/glance-api:2023.1
+    juju deploy ./glance-k8s_ubuntu-20.04-amd64.charm --trust --resource glance-image=ghcr.io/canonical/glance-api:2023.2
 
 <!-- LINKS -->
 

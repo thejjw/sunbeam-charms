@@ -34,7 +34,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
     options:
@@ -47,7 +47,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      glance-api-image: ghcr.io/openstack-snaps/glance-api:2023.1
+      glance-api-image: ghcr.io/canonical/glance-api:2023.2
     storage:
       local-repository: 5G
 
