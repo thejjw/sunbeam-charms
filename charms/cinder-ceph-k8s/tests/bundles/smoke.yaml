@@ -34,7 +34,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
     options:
@@ -45,7 +45,7 @@ applications:
 
   cinder:
     charm: ch:cinder-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
 
@@ -55,7 +55,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      cinder-volume-image: ghcr.io/openstack-snaps/cinder-consolidated:2023.1
+      cinder-volume-image: ghcr.io/canonical/cinder-consolidated:2023.2
 
 relations:
 - - traefik:ingress
