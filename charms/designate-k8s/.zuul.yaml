@@ -1,6 +1,6 @@
 - project:
     templates:
-      - openstack-python3-charm-yoga-jobs
+      - openstack-python3-charm-jobs
       - openstack-cover-jobs
       - microk8s-func-test
     vars:
