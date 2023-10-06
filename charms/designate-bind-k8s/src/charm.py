@@ -25,8 +25,10 @@ import secrets
 from typing import (
     Callable,
     Dict,
+    Iterable,
     List,
     Optional,
+    Union,
 )
 
 import charms.designate_bind_k8s.v0.bind_rndc as bind_rndc
@@ -238,7 +240,7 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Update owned relation data."""
         self.bind_rndc.refresh_address()
 
-    def configure_unit(self, event: ops.framework.EventBase) -> None:
+    def configure_unit(self, event: ops.EventBase) -> None:
         """Run configuration on this unit."""
         self.check_leader_ready()
         self.check_relation_handlers_ready()
@@ -248,6 +250,11 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.check_pebble_handlers_ready()
         self.run_db_sync()
         self._state.unit_bootstrapped = True
+
+    def configure_app_leader(self, event: ops.EventBase) -> None:
+        """Catchall handler to configure charm services."""
+        super().configure_app_leader(event)
+        self.service_rndc_requests(BIND_RNDC_RELATION)
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the operator."""
@@ -271,7 +278,7 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             self.bind_rndc = BindRndcProvidesRelationHandler(
                 self,
                 BIND_RNDC_RELATION,
-                self.register_rndc_client_from_event,
+                self.service_rndc_request_from_event,
                 BIND_RNDC_RELATION in self.mandatory_relations,
             )
             handlers.append(self.bind_rndc)
@@ -328,24 +335,43 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         ).digest()
         return base64.b64encode(dig).decode()
 
-    def register_rndc_client_from_event(
+    def service_rndc_request_from_event(
         self,
         event: bind_rndc.NewBindClientAttachedEvent,
     ):
         """Register rndc client from event."""
-        if self.can_service_requests():
-            any_change = self.register_rndc_client(
-                event.relation_name, event.relation_id
-            )
-            any_change |= self.cleanup_rndc_clients(
-                event.relation_name, event.relation_id
-            )
-            if any_change:
-                self.configure_charm(event)
-                if self.unit.is_leader():
-                    self.leader_set(
-                        {RNDC_REVISION_KEY: self.new_rndc_revision()}
-                    )
+        reconfigure = self.service_rndc_requests(
+            event.relation_name, event.relation_id
+        )
+        if reconfigure:
+            self.configure_charm(event)
+
+    def service_rndc_requests(
+        self,
+        relation_name: str,
+        relation_id: Optional[Union[int, Iterable[int]]] = None,
+    ) -> bool:
+        """Service rndc requests."""
+        if not self.can_service_requests():
+            return False
+
+        if relation_id is None:
+            relation_id = [
+                rel.id for rel in self.model.relations[relation_name]
+            ]
+
+        if isinstance(relation_id, int):
+            relation_id = [relation_id]
+
+        any_change = False
+        for rel_id in relation_id:
+            any_change |= self.register_rndc_client(relation_name, rel_id)
+            any_change |= self.cleanup_rndc_clients(relation_name, rel_id)
+
+        if any_change:
+            if self.unit.is_leader():
+                self.leader_set({RNDC_REVISION_KEY: self.new_rndc_revision()})
+        return any_change
 
     def new_rndc_revision(self) -> str:
         """Compute new revision for rndc keys."""
