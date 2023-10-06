@@ -1,6 +1,6 @@
 options:
   snap-channel:
-    default: "2023.1/edge"
+    default: "2023.2/edge"
     type: string
   debug:
     default: False
