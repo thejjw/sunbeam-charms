@@ -45,7 +45,10 @@ class LDAPConfigContext(config_contexts.ConfigContext):
         config = {}
         raw_config_flags = self.charm.model.config["ldap-config-flags"]
         if raw_config_flags:
-            config = json.loads(raw_config_flags)
+            try:
+                config = json.loads(raw_config_flags)
+            except json.decoder.JSONDecodeError:
+                logger.error("JSON Error, cannot load config flags")
         return {"config": config}
 
 

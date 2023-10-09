@@ -102,7 +102,7 @@ class DomainConfigChangedEvent(RelationEvent):
     pass
 
 
-class DomainConfigGoneAwayEvent(RelationEvent):
+class DomainConfigGoneAwayEvent(RelationBrokenEvent):
     """DomainConfigGoneAway Event."""
 
     pass
@@ -147,35 +147,17 @@ class DomainConfigRequires(Object):
         logging.debug("DomainConfig on_broken")
         self.on.goneaway.emit(event.relation)
 
-    @property
-    def _domain_config_rel(self) -> Optional[Relation]:
-        """The ceilometer service relation."""
-        return self.framework.model.get_relation(self.relation_name)
-
-    def get_remote_app_data(self, key: str) -> Optional[str]:
-        """Return the value for the given key from remote app data."""
-        if self._domain_config_rel:
-            data = self._domain_config_rel.data[
-                self._domain_config_rel.app
-            ]
-            return data.get(key)
-
-        return None
-
-    @property
-    def domain_name(self) -> Optional[str]:
-        """Return the domain name."""
-        return self.get_remote_app_data("domain-name")
-
-    @property
-    def config_contents(self) -> Optional[str]:
-        """Return the config contents."""
-        return base64.b64decode(self.get_remote_app_data("config-contents")).decode()
-
-    def get_domain_configs(self):
+    def get_domain_configs(self, exclude=None):
+        exclude = exclude or []
         configs = []
         for relation in self.relations:
-            domain_name = relation.data[relation.app].get("domain-name")
+            if relation in exclude:
+                continue
+            try:
+                domain_name = relation.data[relation.app].get("domain-name")
+            except KeyError:
+                logging.debug("Key error accessing app data")
+                continue
             raw_config_contents = relation.data[relation.app].get("config-contents")
             if not all([domain_name, raw_config_contents]):
                 continue
