@@ -52,6 +52,13 @@ requires:
     interface: rabbitmq
   identity-ops:
     interface: keystone-resources
+  heat-config:
+    interface: heat-shared-config
+    optional: true
+
+provides:
+  heat-service:
+    interface: heat-shared-config
 
 peers:
   peers:

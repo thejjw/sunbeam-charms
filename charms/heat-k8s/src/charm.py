@@ -22,10 +22,11 @@ import hashlib
 import json
 import logging
 import secrets
-import string
 from typing import (
+    Callable,
     List,
     Mapping,
+    Optional,
 )
 
 import ops_sunbeam.charm as sunbeam_charm
@@ -34,12 +35,19 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import pwgen
+from charms.heat_k8s.v0.heat_shared_config import (
+    HeatSharedConfigChangedEvent,
+    HeatSharedConfigProvides,
+    HeatSharedConfigRequestEvent,
+    HeatSharedConfigRequires,
+)
 from charms.keystone_k8s.v0.identity_resource import (
     IdentityOpsProviderGoneAwayEvent,
     IdentityOpsProviderReadyEvent,
     IdentityOpsResponseEvent,
 )
 from ops.charm import (
+    CharmBase,
     RelationEvent,
     SecretChangedEvent,
     SecretRemoveEvent,
@@ -64,6 +72,120 @@ CREDENTIALS_SECRET_PREFIX = "credentials_"
 HEAT_API_CONTAINER = "heat-api"
 HEAT_ENGINE_CONTAINER = "heat-engine"
 HEAT_API_SERVICE_KEY = "api-service"
+HEAT_API_SERVICE_NAME = "heat-api"
+HEAT_CFN_SERVICE_NAME = "heat-api-cfn"
+
+
+class HeatSharedConfigProvidesHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for heat shared config relation on provider side."""
+
+    def __init__(
+        self,
+        charm: CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+    ):
+        """Create a new heat-shared-config handler.
+
+        Create a new HeatSharedConfigProvidesHandler that updates heat config
+        auth-encryption-key on the related units.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param callback_f: the function to call when the nodes are connected
+        :type callback_f: Callable
+        """
+        super().__init__(charm, relation_name, callback_f)
+
+    def setup_event_handler(self):
+        """Configure event handlers for Heat shared config relation."""
+        logger.debug("Setting up Heat shared config event handler")
+        svc = HeatSharedConfigProvides(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            svc.on.config_request,
+            self._on_config_request,
+        )
+        return svc
+
+    def _on_config_request(self, event: HeatSharedConfigRequestEvent) -> None:
+        """Handle Config request event."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return True
+
+
+class HeatSharedConfigRequiresHandler(sunbeam_rhandlers.RelationHandler):
+    """Handle heat shared config relation on the requires side."""
+
+    def __init__(
+        self,
+        charm: CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+        mandatory: bool = False,
+    ):
+        """Create a new heat-shared-config handler.
+
+        Create a new HeatSharedConfigRequiresHandler that handles initial
+        events from the relation and invokes the provided callbacks based on
+        the event raised.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param callback_f: the function to call when the nodes are connected
+        :type callback_f: Callable
+        :param mandatory: If the relation is mandatory to proceed with
+                          configuring charm
+        :type mandatory: bool
+        """
+        super().__init__(charm, relation_name, callback_f, mandatory)
+
+    def setup_event_handler(self) -> None:
+        """Configure event handlers for Heat shared config relation."""
+        logger.debug("Setting up Heat shared config event handler")
+        svc = HeatSharedConfigRequires(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            svc.on.config_changed,
+            self._on_config_changed,
+        )
+        self.framework.observe(
+            svc.on.goneaway,
+            self._on_goneaway,
+        )
+        return svc
+
+    def _on_config_changed(self, event: RelationEvent) -> None:
+        """Handle config_changed  event."""
+        logger.debug(
+            "Heat shared config provider config changed event received"
+        )
+        self.callback_f(event)
+
+    def _on_goneaway(self, event: RelationEvent) -> None:
+        """Handle gone_away  event."""
+        logger.debug("Heat shared config relation is departed/broken")
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Whether handler is ready for use."""
+        try:
+            return bool(self.interface.auth_encryption_key)
+        except (AttributeError, KeyError):
+            return False
 
 
 class HeatAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
@@ -75,7 +197,7 @@ class HeatAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         :returns: pebble service layer configuration for heat api service
         :rtype: dict
         """
-        if self.charm.service_name == "heat-api-cfn":
+        if self.charm.service_name == HEAT_CFN_SERVICE_NAME:
             return {
                 "summary": "heat api cfn layer",
                 "description": "pebble configuration for heat api cfn service",
@@ -162,6 +284,7 @@ class HeatConfigurationContext(sunbeam_config_contexts.ConfigContext):
             "stack_domain_name": self.charm.stack_domain_name,
             "stack_domain_admin_user": username,
             "stack_domain_admin_password": password,
+            "auth_encryption_key": self.charm.get_heat_auth_encryption_key(),
         }
 
 
@@ -201,6 +324,27 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             mandatory="identity-ops" in self.mandatory_relations,
         )
         handlers.append(self.id_ops)
+
+        if self.service_name == HEAT_CFN_SERVICE_NAME:
+            # heat-config is not a mandatory relation.
+            # If instance of heat-k8s deployed with service heat-api-cfn and
+            # without any heat-api, heat-api-cfn workload should still come
+            # to active using internally generated auth-encryption-key
+            self.heat_config_receiver = HeatSharedConfigRequiresHandler(
+                self,
+                "heat-config",
+                self.handle_heat_config_events,
+                "heat-config" in self.mandatory_relations,
+            )
+            handlers.append(self.heat_config_receiver)
+        else:
+            self.config_svc = HeatSharedConfigProvidesHandler(
+                self,
+                "heat-service",
+                self.set_config_from_event,
+            )
+            handlers.append(self.config_svc)
+
         return handlers
 
     def get_pebble_handlers(
@@ -227,15 +371,36 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ]
         return pebble_handlers
 
-    def get_heat_auth_encryption_key(self):
-        """Return the shared metadata secret."""
+    def get_heat_auth_encryption_key_secret(self) -> Optional[str]:
+        """Return the auth encryption key secret id."""
         return self.leader_get(self.heat_auth_encryption_key)
 
+    def get_heat_auth_encryption_key(self) -> Optional[str]:
+        """Return the auth encryption key."""
+        secret_id = self.leader_get(self.heat_auth_encryption_key)
+        if secret_id:
+            key = self.model.get_secret(id=secret_id)
+            return key.get_content().get(self.heat_auth_encryption_key)
+
+        return None
+
     def set_heat_auth_encryption_key(self):
-        """Store the shared metadata secret."""
-        alphabet = string.ascii_letters + string.digits
-        key = "".join(secrets.choice(alphabet) for i in range(32))
-        self.leader_set({self.heat_auth_encryption_key: key})
+        """Generate and Store the auth encryption key in app data."""
+        try:
+            label = self.heat_auth_encryption_key
+            credentials_id = self.leader_get(label)
+            # Auth encryption key already generated, nothing to do
+            if credentials_id:
+                return
+
+            key = secrets.token_hex(32)
+            credentials_secret = self.model.app.add_secret(
+                {label: key},
+                label=label,
+            )
+            self.leader_set({label: credentials_secret.id})
+        except ModelError as e:
+            logger.debug(str(e))
 
     def configure_charm(self, event):
         """Configure charm.
@@ -244,12 +409,15 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         to start.
         """
         if self.unit.is_leader():
-            auth_key = self.get_heat_auth_encryption_key()
+            auth_key = self.get_heat_auth_encryption_key_secret()
             if auth_key:
                 logger.debug("Found auth key in leader DB")
             else:
                 logger.debug("Creating auth key")
                 self.set_heat_auth_encryption_key()
+                if self.service_name == HEAT_API_SERVICE_NAME:
+                    # Send Auth encryption key over heat-service relation
+                    self.set_config_on_update()
 
         super().configure_charm(event)
 
@@ -262,8 +430,8 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         super().configure_app_leader(event)
 
         # Update service name in application data
-        if not self.peers.get_app_data(HEAT_API_SERVICE_KEY):
-            self.peers.set_app_data({HEAT_API_SERVICE_KEY: self.service_name})
+        if not self.leader_get(HEAT_API_SERVICE_KEY):
+            self.leader_set({HEAT_API_SERVICE_KEY: self.service_name})
 
     @property
     def databases(self) -> Mapping[str, str]:
@@ -285,15 +453,18 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """
         service_name = None
         if hasattr(self, "peers"):
-            service_name = self.peers.get_app_data(HEAT_API_SERVICE_KEY)
+            service_name = self.leader_get(HEAT_API_SERVICE_KEY)
 
         if not service_name:
             service_name = self.config.get("api_service")
-            if service_name not in ["heat-api", "heat-api-cfn"]:
+            if service_name not in [
+                HEAT_API_SERVICE_NAME,
+                HEAT_CFN_SERVICE_NAME,
+            ]:
                 logger.warning(
                     "Config parameter api_service should be one of heat-api, heat-api-cfn, defaulting to heat-api."
                 )
-                service_name = "heat-api"
+                service_name = HEAT_API_SERVICE_NAME
 
         return service_name
 
@@ -315,7 +486,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def service_endpoints(self):
         """Return heat service endpoints."""
-        if self.service_name == "heat-api-cfn":
+        if self.service_name == HEAT_CFN_SERVICE_NAME:
             return [
                 {
                     "service_name": "heat-cfn",
@@ -342,7 +513,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def default_public_ingress_port(self):
         """Port for Heat API service."""
         # Port 8000 if api service is heat-api-cfn
-        if self.service_name == "heat-api-cfn":
+        if self.service_name == HEAT_CFN_SERVICE_NAME:
             return 8000
 
         # Default heat-api port
@@ -362,7 +533,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def stack_domain_admin_user(self) -> str:
         """User to manage users and projects in stack_domain_name."""
-        if self.service_name == "heat-api-cfn":
+        if self.service_name == HEAT_CFN_SERVICE_NAME:
             return "heat_domain_admin_cfn"
         else:
             return "heat_domain_admin"
@@ -393,7 +564,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def _get_stack_admin_credentials_to_ops_secret(self) -> str:
         """Get stack domain admin secret sent to ops."""
         label = f"{CREDENTIALS_SECRET_PREFIX}{self.stack_domain_admin_user}"
-        credentials_id = self.peers.get_app_data(label)
+        credentials_id = self.leader_get(label)
 
         if not credentials_id:
             credentials_id = self._retrieve_or_set_secret(
@@ -445,7 +616,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             f"{self.stack_domain_admin_user}"
         )
         try:
-            credentials_id = self.peers.get_app_data(label)
+            credentials_id = self.leader_get(label)
             username, password = self.get_stack_admin_credentials_to_ops()
             if credentials_id:
                 credentials = self.model.get_secret(id=credentials_id)
@@ -457,7 +628,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                     {"username": username, "password": password},
                     label=label,
                 )
-                self.peers.set_app_data({label: credentials_secret.id})
+                self.leader_set({label: credentials_secret.id})
         except (ModelError, SecretNotFoundError) as e:
             logger.debug(str(e))
             return False
@@ -471,7 +642,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             f"{self.stack_domain_admin_user}"
         )
         try:
-            credentials_id = self.peers.get_app_data(label)
+            credentials_id = self.leader_get(label)
             if credentials_id:
                 credentials = self.model.get_secret(id=credentials_id)
                 credentials = credentials.get_content()
@@ -488,13 +659,13 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     ) -> None:
         """Update users list to delete."""
         logger.debug(f"Adding stack user to delete list {old_stack_user}")
-        old_stack_users = self.peers.get_app_data("old_stack_users")
+        old_stack_users = self.leader_get("old_stack_users")
         stack_users_to_delete = (
             json.loads(old_stack_users) if old_stack_users else []
         )
         if old_stack_user not in stack_users_to_delete:
             stack_users_to_delete.append(old_stack_user)
-            self.peers.set_app_data(
+            self.leader_set(
                 {"old_stack_users": json.dumps(stack_users_to_delete)}
             )
 
@@ -506,7 +677,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     ) -> str:
         """Retrieve or create a secret."""
         label = f"{CREDENTIALS_SECRET_PREFIX}{username}"
-        credentials_id = self.peers.get_app_data(label)
+        credentials_id = self.leader_get(label)
         if credentials_id:
             return credentials_id
 
@@ -519,7 +690,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             label=label,
             rotate=rotate,
         )
-        self.peers.set_app_data(
+        self.leader_set(
             {
                 label: credentials_secret.id,
             }
@@ -637,14 +808,14 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             f"{not_deleted_users}"
         )
 
-        old_stack_users = self.peers.get_app_data("old_stack_users")
+        old_stack_users = self.leader_get("old_stack_users")
         stack_users_to_delete = (
             json.loads(old_stack_users) if old_stack_users else []
         )
         new_stack_users_to_delete = [
             x for x in stack_users_to_delete if x not in deleted_users
         ]
-        self.peers.set_app_data(
+        self.leader_set(
             {"old_stack_users": json.dumps(new_stack_users_to_delete)}
         )
 
@@ -762,7 +933,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         )
         # Secret remove on configured stack admin secret
         if event.secret.label == stack_user_label:
-            old_stack_users = self.peers.get_app_data("old_stack_users")
+            old_stack_users = self.leader_get("old_stack_users")
             stack_users_to_delete = (
                 json.loads(old_stack_users) if old_stack_users else []
             )
@@ -786,6 +957,80 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "Ignoring the secret-remove event for label "
                 f"{event.secret.label}"
             )
+
+    def _set_config(self, key: str, relation: Relation) -> None:
+        """Set config key over the relation."""
+        logger.debug(
+            f"Setting config on relation {relation.app.name} {relation.name}/{relation.id}"
+        )
+        try:
+            secret = self.model.get_secret(id=key)
+            logger.debug(
+                f"Granting access to secret {key} for relation "
+                f"{relation.app.name} {relation.name}/{relation.id}"
+            )
+            secret.grant(relation)
+            self.config_svc.interface.set_config(
+                relation=relation,
+                auth_encryption_key=key,
+            )
+        except (ModelError, SecretNotFoundError) as e:
+            logger.debug(
+                f"Error during granting access to secret {key} for "
+                f"relation {relation.app.name} {relation.name}/{relation.id}: "
+                f"{str(e)}"
+            )
+
+    def set_config_from_event(self, event: RelationEvent) -> None:
+        """Set config in relation data."""
+        if not self.unit.is_leader():
+            logger.debug("Not a leader unit, skipping set config")
+            return
+
+        key = self.get_heat_auth_encryption_key_secret()
+        if not key:
+            logger.debug("Auth encryption key not yet set, not sending config")
+            return
+
+        self._set_config(key, event.relation)
+
+    def set_config_on_update(self) -> None:
+        """Set config on relation on update of local data."""
+        logger.debug(
+            "Update config on all connected heat-shared-config relations"
+        )
+        key = self.get_heat_auth_encryption_key_secret()
+        if not key:
+            logger.info("Auth encryption key not yet set, not sending config")
+            return
+
+        # Send config on all joined heat-service relations
+        for relation in self.framework.model.relations["heat-service"]:
+            self._set_config(key, relation)
+
+    def handle_heat_config_events(self, event: RelationEvent) -> None:
+        """Handle heat config events.
+
+        This function is called only for heat-k8s instances with api_service
+        heat-api-cfn. Receives auth_encryption_key update from heat-api
+        service via interface heat-service.
+        Update the peer appdata and configure charm for the leader unit.
+        For non-leader units, peer changed event should get triggered which
+        calls configure_charm.
+        """
+        logger.debug(f"Received event {event}")
+        if isinstance(event, HeatSharedConfigChangedEvent):
+            key = self.heat_config_receiver.interface.auth_encryption_key
+            # Update appdata with auth-encryption-key from heat-api
+            if self.unit.is_leader():
+                logger.debug(
+                    "Update Auth encryption key in appdata received from "
+                    "heat-service relation event"
+                )
+                self.leader_set({self.heat_auth_encryption_key: key})
+                self.configure_charm(event)
+            else:
+                logger.debug("Not a leader unit, nothing to do")
 
 
 if __name__ == "__main__":

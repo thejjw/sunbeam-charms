@@ -113,6 +113,16 @@ class TestHeatOperatorCharm(test_utils.CharmTestCase):
         )
         return rel_id
 
+    def add_complete_heat_shared_config_relation(
+        self, harness: Harness
+    ) -> None:
+        """Add complete Heat shared config relation."""
+        harness.add_relation(
+            "heat-config",
+            "heat",
+            app_data={"auth-encryption-key": "fake-secret"},
+        )
+
     def test_pebble_ready_handler(self):
         """Test pebble ready handler."""
         secret_mock = MagicMock()
@@ -149,6 +159,7 @@ class TestHeatOperatorCharm(test_utils.CharmTestCase):
         test_utils.add_all_relations(self.harness)
         test_utils.add_complete_ingress_relation(self.harness)
         self.add_complete_identity_resource_relation(self.harness)
+        self.add_complete_heat_shared_config_relation(self.harness)
 
         setup_cmds = [["heat-manage", "db_sync"]]
         for cmd in setup_cmds:

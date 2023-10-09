@@ -94,4 +94,5 @@ relations:
   - heat-cfn:ingress-public
 - - rabbitmq:amqp
   - heat-cfn:amqp
-
+- - heat:heat-service
+  - heat-cfn:heat-config
