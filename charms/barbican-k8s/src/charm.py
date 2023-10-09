@@ -17,6 +17,8 @@
 
 This charm provide Barbican services as part of an OpenStack deployment
 """
+import hashlib
+import json
 import logging
 import secrets
 from typing import (
@@ -24,6 +26,7 @@ from typing import (
     Optional,
 )
 
+import charms.keystone_k8s.v0.identity_resource as identity_resource
 import ops
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
@@ -255,6 +258,79 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Run configuration on this unit."""
         self.disable_barbican_config()
         super().configure_unit(event)
+
+    def get_relation_handlers(
+        self,
+        handlers: Optional[List[sunbeam_rhandlers.RelationHandler]] = None,
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = super().get_relation_handlers(handlers)
+        self.id_ops = sunbeam_rhandlers.IdentityResourceRequiresHandler(
+            self,
+            "identity-ops",
+            self.handle_keystone_ops,
+            mandatory="identity-ops" in self.mandatory_relations,
+        )
+        handlers.append(self.id_ops)
+        return handlers
+
+    def handle_keystone_ops(self, event: ops.EventBase) -> None:
+        """Event handler for identity ops."""
+        if isinstance(event, identity_resource.IdentityOpsProviderReadyEvent):
+            self._state.identity_ops_ready = True
+
+            if not self.unit.is_leader():
+                return
+
+            # Send op request only by leader unit
+            ops = self._get_barbican_role_ops()
+            id_ = self.hash_ops(ops)
+            request = {
+                "id": id_,
+                "tag": "barbican_roles_setup",
+                "ops": ops,
+            }
+            logger.debug("Sending ops request: %r", request)
+            self.id_ops.interface.request_ops(request)
+        elif isinstance(
+            event,
+            identity_resource.IdentityOpsProviderGoneAwayEvent,
+        ):
+            self._state.identity_ops_ready = False
+        elif isinstance(event, identity_resource.IdentityOpsResponseEvent):
+            if not self.unit.is_leader():
+                return
+            response = self.id_ops.interface.response
+            logger.debug("Got response from keystone: %r", response)
+            request_tag = response.get("tag")
+            if request_tag == "barbican_roles_setup":
+                self._handle_barbican_roles_setup(event)
+
+    def _handle_barbican_roles_setup(
+        self,
+        event: ops.EventBase,
+    ) -> None:
+        """Handle roles setup response from identity-ops."""
+        if {
+            op.get("return-code")
+            for op in self.id_ops.interface.response.get(
+                "ops",
+                [],
+            )
+        } != {0}:
+            logger.error("Failed to setup barbican roles")
+
+    def hash_ops(self, ops: list) -> str:
+        """Return the sha1 of the requested ops."""
+        return hashlib.sha1(json.dumps(ops).encode()).hexdigest()
+
+    def _get_barbican_role_ops(self) -> list:
+        """Generate ops request for domain setup."""
+        roles = ["key-manager:service-admin", "creator", "observer", "audit"]
+        ops = [
+            {"name": "create_role", "params": {"name": name}} for name in roles
+        ]
+        return ops
 
     @property
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:

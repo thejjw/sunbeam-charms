@@ -65,6 +65,8 @@ relations:
   - barbican:amqp
 - - keystone:identity-service
   - barbican:identity-service
+- - keystone:identity-ops
+  - barbican:identity-ops
 - - traefik:ingress
   - barbican:ingress-internal
 - - traefik:ingress

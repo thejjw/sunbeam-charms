@@ -42,6 +42,7 @@ barbican-k8s requires the following relations:
 `database`: To connect to MySQL
 `amqp`: To connect to RabbitMQ
 `identity-service`: To register endpoints in Keystone
+`identity-ops`: To register roles in Keystone (optional)
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network
 `vault-kv`: To store secrets in a Vault key-value store
