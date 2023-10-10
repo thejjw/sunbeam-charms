@@ -20,6 +20,7 @@ This charm provide Gnocchi services as part of an OpenStack deployment
 
 import logging
 from typing import (
+    Callable,
     List,
 )
 
@@ -30,7 +31,16 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from charms.gnocchi_k8s.v0.gnocchi_service import (
+    GnocchiServiceProvides,
+    GnocchiServiceReadinessRequestEvent,
+)
+from ops.charm import (
+    CharmBase,
+    RelationEvent,
+)
 from ops.framework import (
+    EventBase,
     StoredState,
 )
 from ops.main import (
@@ -41,6 +51,54 @@ logger = logging.getLogger(__name__)
 
 GNOCHHI_WSGI_CONTAINER = "gnocchi-api"
 GNOCCHI_METRICD_CONTAINER = "gnocchi-metricd"
+
+
+class GnocchiServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for Gnocchi service relation on provider side."""
+
+    def __init__(
+        self,
+        charm: CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+    ):
+        """Create a new gnocchi service handler.
+
+        Create a new GnocchiServiceProvidesHandler that updates service
+        readiness on the related units.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param callback_f: the function to call when the nodes are connected
+        :type callback_f: Callable
+        """
+        super().__init__(charm, relation_name, callback_f)
+
+    def setup_event_handler(self):
+        """Configure event handlers for Gnocchi service relation."""
+        logger.debug("Setting up Gnocchi service event handler")
+        svc = GnocchiServiceProvides(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            svc.on.service_readiness,
+            self._on_service_readiness,
+        )
+        return svc
+
+    def _on_service_readiness(
+        self, event: GnocchiServiceReadinessRequestEvent
+    ) -> None:
+        """Handle service readiness request event."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return True
 
 
 class GnocchiWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
@@ -173,6 +231,18 @@ class GnocchiOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             f"http://localhost:{self.default_public_ingress_port}/healthcheck"
         )
 
+    def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = super().get_relation_handlers()
+        self.svc_ready_handler = GnocchiServiceProvidesHandler(
+            self,
+            "gnocchi-service",
+            self.handle_readiness_request_from_event,
+        )
+        handlers.append(self.svc_ready_handler)
+
+        return handlers
+
     def get_pebble_handlers(
         self,
     ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
@@ -211,6 +281,31 @@ class GnocchiOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 0o640,
             ),
         ]
+
+    def configure_app_leader(self, event: EventBase):
+        """Run global app setup.
+
+        These are tasks that should only be run once per application and only
+        the leader runs them.
+        """
+        super().configure_app_leader(event)
+        self.set_readiness_on_related_units()
+
+    def handle_readiness_request_from_event(
+        self, event: RelationEvent
+    ) -> None:
+        """Set service readiness in relation data."""
+        self.svc_ready_handler.interface.set_service_status(
+            event.relation, self.bootstrapped()
+        )
+
+    def set_readiness_on_related_units(self) -> None:
+        """Set service readiness on gnocchi-service related units."""
+        logger.debug(
+            "Set service readiness on all connected gnocchi-service relations"
+        )
+        for relation in self.framework.model.relations["gnocchi-service"]:
+            self.svc_ready_handler.interface.set_service_status(relation, True)
 
 
 class GnocchiCephOperatorCharm(GnocchiOperatorCharm):

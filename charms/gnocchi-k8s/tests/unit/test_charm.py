@@ -85,6 +85,7 @@ class TestGnocchiCephOperatorCharm(test_utils.CharmTestCase):
         self.harness.update_relation_data(
             ceph_rel_id, "ceph-mon/0", {"ingress-address": "10.0.0.33"}
         )
+        self.harness.add_relation("gnocchi-service", "ceilometer", app_data={})
         test_utils.add_ceph_relation_credentials(self.harness, ceph_rel_id)
         test_utils.add_db_relation_credentials(
             self.harness, test_utils.add_base_db_relation(self.harness)

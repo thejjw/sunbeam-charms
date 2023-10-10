@@ -52,6 +52,10 @@ requires:
   ceph:
     interface: ceph-client
 
+provides:
+  gnocchi-service:
+    interface: gnocchi
+
 peers:
   peers:
     interface: gnocchi-peer
