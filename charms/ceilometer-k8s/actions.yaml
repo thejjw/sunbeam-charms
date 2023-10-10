@@ -1,7 +1,2 @@
-# Copyright 2023 Canonical Ltd.
-# See LICENSE file for licensing details.
-
-ceilometer-upgrade:
-  description: |
-    Perform ceilometer-upgrade. This action will update Ceilometer data store
-    configuration.
+# NOTE: no actions yet!
+{ }

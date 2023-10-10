@@ -60,6 +60,9 @@ class TestCeilometerOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_complete_identity_credentials_relation(self.harness)
         test_utils.add_complete_amqp_relation(self.harness)
+        self.harness.add_relation(
+            "gnocchi-db", "gnocchi", app_data={"ready": "true"}
+        )
 
         for c in ["ceilometer-central", "ceilometer-notification"]:
             self.check_file(c, "/etc/ceilometer/ceilometer.conf")

@@ -25,6 +25,7 @@ from typing import (
     List,
 )
 
+import ops.charm
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
@@ -34,18 +35,89 @@ from charms.ceilometer_k8s.v0.ceilometer_service import (
     CeilometerConfigRequestEvent,
     CeilometerServiceProvides,
 )
+from charms.gnocchi_k8s.v0.gnocchi_service import (
+    GnocchiServiceRequires,
+)
 from ops.charm import (
-    ActionEvent,
     CharmBase,
+    RelationEvent,
 )
 from ops.main import (
     main,
+)
+from ops.model import (
+    BlockedStatus,
 )
 
 logger = logging.getLogger(__name__)
 
 CEILOMETER_CENTRAL_CONTAINER = "ceilometer-central"
 CEILOMETER_NOTIFICATION_CONTAINER = "ceilometer-notification"
+
+
+class GnocchiServiceRequiresHandler(sunbeam_rhandlers.RelationHandler):
+    """Handle gnocchi service relation on the requires side."""
+
+    def __init__(
+        self,
+        charm: CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+        mandatory: bool = False,
+    ):
+        """Create a new gnocchi service handler.
+
+        Create a new GnocchiServiceRequiresHandler that handles initial
+        events from the relation and invokes the provided callbacks based on
+        the event raised.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param callback_f: the function to call when the nodes are connected
+        :type callback_f: Callable
+        :param mandatory: If the relation is mandatory to proceed with
+                          configuring charm
+        :type mandatory: bool
+        """
+        super().__init__(charm, relation_name, callback_f, mandatory)
+
+    def setup_event_handler(self) -> ops.charm.Object:
+        """Configure event handlers for Gnocchi service relation."""
+        logger.debug("Setting up Gnocchi service event handler")
+        svc = GnocchiServiceRequires(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            svc.on.readiness_changed,
+            self._on_gnocchi_service_readiness_changed,
+        )
+        self.framework.observe(
+            svc.on.goneaway,
+            self._on_gnocchi_service_goneaway,
+        )
+        return svc
+
+    def _on_gnocchi_service_readiness_changed(
+        self, event: RelationEvent
+    ) -> None:
+        """Handle config_changed  event."""
+        logger.debug("Gnocchi service readiness changed event received")
+        self.callback_f(event)
+
+    def _on_gnocchi_service_goneaway(self, event: RelationEvent) -> None:
+        """Handle gone_away  event."""
+        logger.debug("Gnocchi service gone away event received")
+        self.callback_f(event)
+        if self.mandatory:
+            self.status.set(BlockedStatus("integration missing"))
+
+    @property
+    def ready(self) -> bool:
+        """Whether handler is ready for use."""
+        return self.interface.service_ready
 
 
 class CeilometerServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
@@ -177,13 +249,11 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     service_name = "ceilometer"
     shared_metering_secret_key = "shared-metering-secret"
 
-    mandatory_relations = {"amqp", "identity-credentials"}
+    db_sync_cmds = [["ceilometer-upgrade"]]
+    mandatory_relations = {"amqp", "identity-credentials", "gnocchi-db"}
 
     def __init__(self, framework: ops.framework):
         super().__init__(framework)
-        self.framework.observe(
-            self.on.ceilometer_upgrade_action, self._ceilometer_upgrade_action
-        )
 
     def get_shared_meteringsecret(self):
         """Return the shared metering secret."""
@@ -209,6 +279,11 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 logger.debug("Metadata secret not ready")
                 return
         super().configure_charm(event)
+
+    @property
+    def db_sync_container_name(self) -> str:
+        """Name of Containerto run db sync from."""
+        return CEILOMETER_NOTIFICATION_CONTAINER
 
     @property
     def service_user(self) -> str:
@@ -266,6 +341,14 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 self.set_config_from_event,
             )
             handlers.append(self.config_svc)
+        if self.can_add_handler("gnocchi-db", handlers):
+            self.gnocchi_svc = GnocchiServiceRequiresHandler(
+                self,
+                "gnocchi-db",
+                self.configure_charm,
+                "gnocchi-db" in self.mandatory_relations,
+            )
+            handlers.append(self.gnocchi_svc)
 
         return super().get_relation_handlers(handlers)
 
@@ -288,30 +371,6 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             )
         else:
             logging.debug("Telemetry secret not yet set, not sending config")
-
-    def _ceilometer_upgrade_action(self, event: ActionEvent) -> None:
-        """Run ceilometer-upgrade.
-
-        This action will upgrade the data store configuration in gnocchi.
-        """
-        try:
-            logger.info("Syncing database...")
-            cmd = ["ceilometer-upgrade"]
-            container = self.unit.get_container(
-                CEILOMETER_NOTIFICATION_CONTAINER
-            )
-            process = container.exec(cmd, timeout=5 * 60)
-            out, warnings = process.wait_output()
-            logging.debug("Output from database sync: \n%s", out)
-            if warnings:
-                for line in warnings.splitlines():
-                    logger.warning("DB Sync Out: %s", line.strip())
-                event.fail(f"Error in running ceilometer-upgrade: {warnings}")
-            else:
-                event.set_results({"message": "ceilometer-upgrade successful"})
-        except Exception as e:
-            logger.exception(e)
-            event.fail(f"Error in running ceilometer-updgrade: {e}")
 
 
 if __name__ == "__main__":

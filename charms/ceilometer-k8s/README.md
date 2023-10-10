@@ -14,11 +14,12 @@ ceilometer-k8s is deployed using below command:
 
     juju deploy ceilometer-k8s ceilometer --trust
 
-Now connect the ceilometer operator to keystone identity and rabbitmq
-operators:
+Now connect the ceilometer operator to keystone identity, rabbitmq
+and gnocchi operators:
 
     juju relate keystone:identity-service ceilometer:identity-service
     juju relate rabbitmq:amqp ceilometer:amqp
+    juju relate gnocchi:gnocchi-service ceilometer:gnocchi-db
 
 ### Configuration
 
@@ -40,12 +41,13 @@ ceilometer-k8s requires the following relations:
 
 `identity-service`: To register endpoints in Keystone
 `amqp`: To connect to Rabbitmq
+`gnocchi-db`: To connect to Gnocchi database
 
 ## OCI Images
 
 The charm by default uses following images:
 
-    ghcr.io/canonical/ceilometer-consolidated:2023.1
+    ghcr.io/canonical/ceilometer-consolidated:2023.2
 
 ## Contributing
 

@@ -47,6 +47,8 @@ requires:
   identity-credentials:
     interface: keystone-credentials
     limit: 1
+  gnocchi-db:
+    interface: gnocchi
 
 peers:
   peers:

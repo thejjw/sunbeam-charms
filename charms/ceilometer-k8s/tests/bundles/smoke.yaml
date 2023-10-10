@@ -93,3 +93,5 @@ relations:
   - ceilometer:amqp
 - - keystone:identity-credentials
   - ceilometer:identity-credentials
+- - gnocchi:gnocchi-service
+  - ceilometer:gnocchi-db
