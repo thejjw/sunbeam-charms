@@ -393,7 +393,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             if credentials_id:
                 return
 
-            key = secrets.token_hex(32)
+            key = secrets.token_hex(16)
             credentials_secret = self.model.app.add_secret(
                 {label: key},
                 label=label,
