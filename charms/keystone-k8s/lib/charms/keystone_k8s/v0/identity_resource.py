@@ -1,6 +1,5 @@
 """IdentityResourceProvides and Requires module.
 
-
 This library contains the Requires and Provides classes for handling
 the identity_ops interface.
 
@@ -85,9 +84,16 @@ The secret content should hold the sensitive data with same name as param name.
 
 import json
 import logging
+from typing import (
+    Optional,
+)
 
 from ops.charm import (
+    CharmBase,
+    RelationBrokenEvent,
+    RelationChangedEvent,
     RelationEvent,
+    RelationJoinedEvent,
 )
 from ops.framework import (
     EventBase,
@@ -111,7 +117,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 2
+LIBPATCH = 3
 
 
 REQUEST_NOT_SENT = 1
@@ -151,7 +157,7 @@ class IdentityResourceRequires(Object):
     on = IdentityResourceResponseEvents()
     _stored = StoredState()
 
-    def __init__(self, charm, relation_name):
+    def __init__(self, charm: CharmBase, relation_name: str):
         super().__init__(charm, relation_name)
         self.charm = charm
         self.relation_name = relation_name
@@ -169,24 +175,30 @@ class IdentityResourceRequires(Object):
             self._on_identity_resource_relation_broken,
         )
 
-    def _on_identity_resource_relation_joined(self, event):
+    def _on_identity_resource_relation_joined(
+        self, event: RelationJoinedEvent
+    ):
         """Handle IdentityResource joined."""
         self._stored.provider_ready = True
         self.on.provider_ready.emit(event.relation)
 
-    def _on_identity_resource_relation_changed(self, event):
+    def _on_identity_resource_relation_changed(
+        self, event: RelationChangedEvent
+    ):
         """Handle IdentityResource changed."""
         id_ = self.response.get("id")
         self.save_request_in_store(id_, None, None, REQUEST_PROCESSED)
         self.on.response_available.emit(event.relation)
 
-    def _on_identity_resource_relation_broken(self, event):
+    def _on_identity_resource_relation_broken(
+        self, event: RelationBrokenEvent
+    ):
         """Handle IdentityResource broken."""
         self._stored.provider_ready = False
         self.on.provider_goneaway.emit(event.relation)
 
     @property
-    def _identity_resource_rel(self) -> Relation:
+    def _identity_resource_rel(self) -> Optional[Relation]:
         """The IdentityResource relation."""
         return self.framework.model.get_relation(self.relation_name)
 
@@ -204,7 +216,9 @@ class IdentityResourceRequires(Object):
 
         return {}
 
-    def save_request_in_store(self, id: str, tag: str, ops: list, state: int):
+    def save_request_in_store(
+        self, id: str, tag: str, ops: list, state: int
+    ) -> None:
         """Save request in the store."""
         if id is None:
             return
@@ -242,12 +256,15 @@ class IdentityResourceRequires(Object):
 
         return False
 
-    def get_remote_app_data(self, key: str) -> str:
+    def get_remote_app_data(self, key: str) -> Optional[str]:
         """Return the value for the given key from remote app data."""
-        data = self._identity_resource_rel.data[
-            self._identity_resource_rel.app
-        ]
-        return data.get(key)
+        if self._identity_resource_rel:
+            data = self._identity_resource_rel.data[
+                self._identity_resource_rel.app
+            ]
+            return data.get(key)
+
+        return None
 
     def ready(self) -> bool:
         """Interface is ready or not.
@@ -337,7 +354,7 @@ class IdentityResourceProvides(Object):
 
     on = IdentityResourceProviderEvents()
 
-    def __init__(self, charm, relation_name):
+    def __init__(self, charm: CharmBase, relation_name: str):
         super().__init__(charm, relation_name)
         self.charm = charm
         self.relation_name = relation_name
@@ -346,7 +363,9 @@ class IdentityResourceProvides(Object):
             self._on_identity_resource_relation_changed,
         )
 
-    def _on_identity_resource_relation_changed(self, event):
+    def _on_identity_resource_relation_changed(
+        self, event: RelationChangedEvent
+    ):
         """Handle IdentityResource changed."""
         request = event.relation.data[event.relation.app].get("request", {})
         self.on.process_op.emit(
@@ -355,7 +374,7 @@ class IdentityResourceProvides(Object):
 
     def set_ops_response(
         self, relation_id: str, relation_name: str, ops_response: dict
-    ):
+    ) -> None:
         """Set response to ops request."""
         if not self.model.unit.is_leader():
             logger.debug("Not a leader unit, not sending response")
