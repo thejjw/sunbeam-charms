@@ -3,12 +3,12 @@ bundle: kubernetes
 applications:
   traefik:
     charm: ch:traefik-k8s
-    channel: 1.0/stable
+    channel: 1.0/candidate
     scale: 1
     trust: true
   traefik-public:
     charm: ch:traefik-k8s
-    channel: 1.0/stable
+    channel: 1.0/candidate
     scale: 1
     trust: true
     options:
@@ -20,12 +20,12 @@ applications:
     trust: false
   rabbitmq:
     charm: ch:rabbitmq-k8s
-    channel: 3.9/edge
+    channel: 3.12/edge
     scale: 1
     trust: true
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
     options:
@@ -35,24 +35,24 @@ applications:
       credential-keys: 5M
   glance:
     charm: ch:glance-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
     storage:
       local-repository: 5G
   nova:
     charm: ch:nova-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
   placement:
     charm: ch:placement-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
   neutron:
     charm: ch:neutron-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
   ovn-central:
@@ -61,9 +61,9 @@ applications:
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: ghcr.io/openstack-snaps/ovn-consolidated:23.03
-      ovn-nb-db-server-image: ghcr.io/openstack-snaps/ovn-consolidated:23.03
-      ovn-northd-image: ghcr.io/openstack-snaps/ovn-consolidated:23.03
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:23.09
+      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:23.09
+      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:23.09
   tls-operator:
     charm: self-signed-certificates
     channel: edge
