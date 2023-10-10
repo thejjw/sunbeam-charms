@@ -86,7 +86,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 
 class GnocchiServiceReadinessRequestEvent(RelationEvent):
@@ -197,7 +197,7 @@ class GnocchiServiceRequires(Object):
 
     @property
     def service_ready(self) -> bool:
-        """Return the auth_encryption_key."""
+        """Return if gnocchi service is ready or not."""
         is_ready = self.get_remote_app_data("ready")
         if is_ready:
             return json.loads(is_ready)
