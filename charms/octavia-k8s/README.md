@@ -42,10 +42,12 @@ octavia-k8s requires the following relations:
 
 `database`: To connect to MySQL
 `identity-service`: To register endpoints in Keystone
+`identity-ops`: To register roles in Keystone (optional)
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network
 `ovsdb-cms`: To connect to OVN
 `certificates`: To retreive generated certificates
+
 
 ## OCI Images
 

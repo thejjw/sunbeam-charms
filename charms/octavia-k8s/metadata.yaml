@@ -73,6 +73,9 @@ requires:
   certificates:
     interface: tls-certificates
     optional: true
+  identity-ops:
+    interface: keystone-resources
+    optional: true
 
 peers:
   peers:

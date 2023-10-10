@@ -92,6 +92,8 @@ relations:
   - octavia:database
 - - keystone:identity-service
   - octavia:identity-service
+- - keystone:identity-ops
+  - octavia:identity-ops
 - - traefik:ingress
   - octavia:ingress-internal
 - - traefik-public:ingress
