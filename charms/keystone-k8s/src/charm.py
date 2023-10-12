@@ -1130,33 +1130,33 @@ export OS_AUTH_VERSION=3
             admin_hostname = self.model.get_binding(
                 self.IDSVC_RELATION_NAME
             ).network.ingress_address
-        return f"http://{admin_hostname}:{self.service_port}"
+        return f"http://{admin_hostname}:{self.service_port}/v3"
 
     @property
     def internal_endpoint(self):
         """Internal endpoint for keystone api."""
         if self.ingress_internal and self.ingress_internal.url:
-            return self.ingress_internal.url
+            return self.ingress_internal.url + "/v3"
 
         internal_hostname = self.model.config.get("os-internal-hostname")
         if not internal_hostname:
             internal_hostname = self.model.get_binding(
                 self.IDSVC_RELATION_NAME
             ).network.ingress_address
-        return f"http://{internal_hostname}:{self.service_port}"
+        return f"http://{internal_hostname}:{self.service_port}/v3"
 
     @property
     def public_endpoint(self):
         """Public endpoint for keystone api."""
         if self.ingress_public and self.ingress_public.url:
-            return self.ingress_public.url
+            return self.ingress_public.url + "/v3"
 
         address = self.public_ingress_address
         if not address:
             address = self.model.get_binding(
                 self.IDSVC_RELATION_NAME
             ).network.ingress_address
-        return f"http://{address}:{self.service_port}"
+        return f"http://{address}:{self.service_port}/v3"
 
     @property
     def healthcheck_http_url(self) -> str:

@@ -198,7 +198,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(
             rel_data,
             {
-                "admin-auth-url": "http://10.0.0.10:5000",
+                "admin-auth-url": "http://10.0.0.10:5000/v3",
                 "admin-domain-id": "adomain_id",
                 "admin-domain-name": "adomain_name",
                 "admin-project-id": "aproject_id",
@@ -210,11 +210,11 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "auth-host": "10.0.0.10",
                 "auth-port": "5000",
                 "auth-protocol": "http",
-                "internal-auth-url": "http://internal-url",
+                "internal-auth-url": "http://internal-url/v3",
                 "internal-host": "10.0.0.10",
                 "internal-port": "5000",
                 "internal-protocol": "http",
-                "public-auth-url": "http://public-url",
+                "public-auth-url": "http://public-url/v3",
                 "service-domain-id": "sdomain_id",
                 "service-domain-name": "sdomain_name",
                 "service-host": "10.0.0.10",
@@ -484,8 +484,8 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "project-name": "aproject_name",
                 "project-domain-name": "sdomain_name",
                 "region": "RegionOne",
-                "internal-endpoint": "http://10.0.0.10:5000",
-                "public-endpoint": "http://10.0.0.10:5000",
+                "internal-endpoint": "http://10.0.0.10:5000/v3",
+                "public-endpoint": "http://10.0.0.10:5000/v3",
                 "api-version": 3,
             }
         )
@@ -510,8 +510,8 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "project-name": "admin",
                 "project-domain-name": "admin_domain",
                 "region": "RegionOne",
-                "internal-endpoint": "http://10.0.0.10:5000",
-                "public-endpoint": "http://10.0.0.10:5000",
+                "internal-endpoint": "http://10.0.0.10:5000/v3",
+                "public-endpoint": "http://10.0.0.10:5000/v3",
                 "api-version": 3,
                 "openrc": ANY,
             }
