@@ -1,0 +1,38 @@
+name: openstack-exporter-k8s
+summary: OpenStack openstack-exporter service
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  OpenStack openstack-exporter provides endpoint metrics ma boi 
+version: 3
+bases:
+  - name: ubuntu
+    channel: 22.04/stable
+assumes:
+  - k8s-api
+  - juju >= 3.1
+tags:
+- openstack
+source: https://opendev.org/openstack/charm-openstack-exporter-k8s
+issues: https://bugs.launchpad.net/charm-openstack-exporter-k8s
+
+containers:
+  openstack-exporter:
+    resource: openstack-exporter-image
+
+resources:
+  openstack-exporter-image:
+    type: oci-image
+    description: OCI image for OpenStack openstack-exporter
+    upstream-source: ghcr.io/canonical/openstack-exporter:2023.2
+
+requires:
+  # identity-service:
+  #   interface: keystone
+  identity-ops:
+    interface: keystone-resources
+  # certificates:
+  #   interface: tls-certificates
+
+peers:
+  peers:
+    interface: openstack-exporter-peer
