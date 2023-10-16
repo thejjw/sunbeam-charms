@@ -189,9 +189,12 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if self.bootstrapped():
             self.status.set(ops.model.ActiveStatus(""))
             if self.model.unit.is_leader():
-                self.model.app.status = ops.model.ActiveStatus(
-                    self.ingress_public.url
-                )
+                if self.ingress_public.url:
+                    self.model.app.status = ops.model.ActiveStatus(
+                        self.ingress_public.url
+                    )
+                else:
+                    self.model.app.status = ops.model.ActiveStatus()
 
     def configure_unit(self, event: ops.framework.EventBase) -> None:
         """Run configuration on this unit."""
