@@ -1,0 +1,2 @@
+service_token_roles = {{ identity_service.admin_role }}
+service_token_roles_required = True

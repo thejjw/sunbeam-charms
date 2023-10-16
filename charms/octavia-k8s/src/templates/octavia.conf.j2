@@ -28,6 +28,6 @@ ovn_sb_ca_cert = {{ ovn.ovn_ca_cert }}
 {% include "parts/section-database" %}
 
 [service_auth]
-auth_section = keystone_authtoken
+{% include "parts/identity-data" %}
 
 {% include "parts/section-identity" %}

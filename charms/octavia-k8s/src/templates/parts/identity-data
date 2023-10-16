@@ -19,5 +19,3 @@ user_domain_name = {{ identity_service.service_domain_name }}
 project_name = {{ identity_service.service_project_name }}
 username = {{ identity_service.service_user_name }}
 password = {{ identity_service.service_password }}
-service_token_roles = {{ identity_service.admin_role }}
-service_token_roles_required = True
