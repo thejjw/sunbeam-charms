@@ -2,7 +2,7 @@ name: openstack-exporter-k8s
 summary: OpenStack openstack-exporter service
 maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
 description: |
-  OpenStack openstack-exporter provides endpoint metrics ma boi 
+  OpenStack openstack-exporter provides endpoint metrics for OpenStack services.
 version: 3
 bases:
   - name: ubuntu
@@ -23,15 +23,17 @@ resources:
   openstack-exporter-image:
     type: oci-image
     description: OCI image for OpenStack openstack-exporter
-    upstream-source: ghcr.io/canonical/openstack-exporter:2023.2
+    upstream-source: ghcr.io/canonical/openstack-exporter:1.6.0-7533071
 
 requires:
-  # identity-service:
-  #   interface: keystone
   identity-ops:
     interface: keystone-resources
-  # certificates:
-  #   interface: tls-certificates
+
+provides:
+  metrics-endpoint:
+    interface: prometheus_scrape
+  grafana-dashboard:
+    interface: grafana_dashboard
 
 peers:
   peers:

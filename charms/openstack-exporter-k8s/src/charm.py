@@ -1,29 +1,45 @@
 #!/usr/bin/env python3
+# Copyright 2023 Canonical Ltd.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 """Openstack-exporter Operator Charm.
 
 This charm provide Openstack-exporter services as part of an OpenStack deployment
 """
 
-import hashlib
-import json
 import logging
-from typing import TYPE_CHECKING, List, Optional
+from typing import (
+    TYPE_CHECKING,
+    List,
+    Optional,
+)
 
+import charms.grafana_k8s.v0.grafana_dashboard as grafana_dashboard
+import charms.prometheus_k8s.v0.prometheus_scrape as prometheus_scrape
 import ops
-import pwgen
-from ops.main import main
-
-import charms.keystone_k8s.v0.identity_resource as identity_resource
-import ops_sunbeam.container_handlers as sunbeam_chandlers
+import ops.charm
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_config_contexts
+import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
-
+from ops.main import (
+    main,
+)
 
 logger = logging.getLogger(__name__)
 
-CREDENTIALS_SECRET_PREFIX = "credentials_"
+CONFIGURE_SECRET_PREFIX = "configure-"
 CONTAINER = "openstack-exporter"
 
 
@@ -36,21 +52,32 @@ class OSExporterConfigurationContext(sunbeam_config_contexts.ConfigContext):
     @property
     def ready(self) -> bool:
         """Whether the context has all the data is needs."""
-        return self.charm.auth_url is not None
+        return all(
+            (
+                self.charm.auth_url is not None,
+                self.charm.user_id_ops.ready,
+            )
+        )
 
     def context(self) -> dict:
         """OS Exporter configuration context."""
-        username, password = self.charm.user_credentials
+        credentials = self.charm.user_id_ops.get_config_credentials()
+        auth_url = self.charm.auth_url
+        if credentials is None or auth_url is None:
+            return {}
+        username, password = credentials
         return {
             "domain_name": self.charm.domain,
             "project_name": self.charm.project,
             "username": username,
             "password": password,
-            "auth_url": self.charm.auth_url,
+            "auth_url": auth_url,
         }
 
 
 class OSExporterPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+    """Pebble handler for the container."""
+
     def get_layer(self) -> dict:
         """Pebble configuration layer for the container."""
         return {
@@ -63,19 +90,64 @@ class OSExporterPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "command": (
                         "openstack-exporter"
                         " --os-client-config /etc/os-exporter/clouds.yaml"
-                        " --multi-cloud"
+                        # Using legacy mode as params are not
+                        # supported by prometheus_scrape interface
+                        " default"
                     ),
+                    "user": "_daemon_",
+                    "group": "_daemon_",
                     "startup": "disabled",
                 },
             },
         }
 
 
+class MetricsEndpointRelationHandler(sunbeam_rhandlers.RelationHandler):
+    """Relation handler for Metrics Endpoint relation."""
+
+    if TYPE_CHECKING:
+        charm: "OSExporterOperatorCharm"
+    interface: prometheus_scrape.MetricsEndpointProvider
+
+    def setup_event_handler(self) -> ops.Object:
+        """Configure event handlers for the relation."""
+        logger.debug("Setting up Metrics Endpoint event handler")
+        interface = prometheus_scrape.MetricsEndpointProvider(
+            self.charm, jobs=self.charm._scrape_jobs
+        )
+
+        return interface
+
+    @property
+    def ready(self) -> bool:
+        """Determine with the relation is ready for use."""
+        return True
+
+
+class GrafanaDashboardsRelationHandler(sunbeam_rhandlers.RelationHandler):
+    """Relation handler for Grafana Dashboards relation."""
+
+    interface: grafana_dashboard.GrafanaDashboardProvider
+
+    def setup_event_handler(self) -> ops.Object:
+        """Configure event handlers for the relation."""
+        logger.debug("Setting up Grafana Dashboard event handler")
+        interface = grafana_dashboard.GrafanaDashboardProvider(
+            self.charm,
+        )
+
+        return interface
+
+    @property
+    def ready(self) -> bool:
+        """Determine with the relation is ready for use."""
+        return True
+
+
 class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 
     mandatory_relations = {
-        # "certificates",
         "identity-ops",
     }
     service_name = "openstack-exporter"
@@ -89,11 +161,6 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 "_daemon_",
                 "_daemon_",
             ),
-            # sunbeam_core.ContainerConfigFile(
-            #     "/etc/ssl/ca.pem",
-            #     "_daemon_",
-            #     "_daemon_",
-            # ),
         ]
 
     @property
@@ -131,42 +198,92 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     @property
     def domain(self):
         """Domain name for openstack-exporter."""
-        return "default"
+        return "admin_domain"
 
     @property
     def project(self):
         """Project name for openstack-exporter."""
-        return "services"
+        return "admin"
 
     @property
-    def user_credentials(self) -> tuple:
-        """Credentials for domain admin user."""
-        credentials_id = self._get_os_exporter_credentials_secret()
-        credentials = self.model.get_secret(id=credentials_id)
-        username = credentials.get_content().get("username")
-        user_password = credentials.get_content().get("password")
-        return (username, user_password)
+    def _scrape_jobs(self) -> list:
+        return [
+            # # params not supported by prometheus_scrape interface
+            # {
+            #     "job_name": "openstack-cloud-metrics",
+            #     "metrics_path": "/probe",
+            #     # "params": {
+            #     #     "cloud": ["default"],
+            #     # },
+            #     "scrape_timeout": "30s",
+            #     "static_configs": [
+            #         {
+            #             "targets": [
+            #                 f"*:{self.default_public_ingress_port}",
+            #             ]
+            #         }
+            #     ],
+            # },
+            {
+                # this will become the internal exporter metrics when
+                # probe can be configured with params
+                "job_name": "openstack-cloud-metrics",
+                "scrape_timeout": "60s",
+                "static_configs": [
+                    {
+                        "targets": [
+                            f"*:{self.default_public_ingress_port}",
+                        ]
+                    }
+                ],
+            },
+        ]
 
     @property
     def auth_url(self) -> Optional[str]:
         """Auth url for openstack-exporter."""
-        for op in self.id_ops.interface.response.get("ops"):
-            if op.get("name") != "list_endpoint":
-                continue
-            for endpoint in op.get("value", []):
-                return endpoint.get("url")
-        return None
+        label = CONFIGURE_SECRET_PREFIX + "auth-url"
+        secret_id = self.leader_get(label)
+        if not secret_id:
+            return None
+        secret = self.model.get_secret(id=secret_id)
+        return secret.get_content()["auth-url"]
 
     def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = super().get_relation_handlers()
-        self.id_ops = sunbeam_rhandlers.IdentityResourceRequiresHandler(
-            self,
-            "identity-ops",
-            self.handle_keystone_ops,
-            mandatory="identity-ops" in self.mandatory_relations,
+        self.user_id_ops = (
+            sunbeam_rhandlers.UserIdentityResourceRequiresHandler(
+                self,
+                "identity-ops",
+                self.configure_charm,
+                mandatory="identity-ops" in self.mandatory_relations,
+                name=self.os_exporter_user,
+                domain=self.domain,
+                project=self.project,
+                project_domain=self.domain,
+                role="admin",
+                add_suffix=True,
+                rotate=ops.SecretRotate.MONTHLY,
+                extra_ops=self._get_list_endpoint_ops(),
+                extra_ops_process=self._handle_list_endpoint_response,
+            )
         )
-        handlers.append(self.id_ops)
+        handlers.append(self.user_id_ops)
+        self.metrics_endpoint = MetricsEndpointRelationHandler(
+            self,
+            "metrics-endpoint",
+            self.configure_charm,
+            mandatory="metrics-endpoint" in self.mandatory_relations,
+        )
+        handlers.append(self.metrics_endpoint)
+        self.grafana_dashboard = GrafanaDashboardsRelationHandler(
+            self,
+            "grafana-dashboard",
+            self.configure_charm,
+            mandatory="grafana-dashboard" in self.mandatory_relations,
+        )
+        handlers.append(self.grafana_dashboard)
         return handlers
 
     def get_pebble_handlers(
@@ -184,106 +301,52 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             ),
         ]
 
-    def hash_ops(self, ops: list) -> str:
-        """Return the sha1 of the requested ops."""
-        return hashlib.sha1(json.dumps(ops).encode()).hexdigest()
+    def _get_list_endpoint_ops(self) -> list:
+        """Generate ops request for list endpoint."""
+        return [
+            {
+                "name": "list_endpoint",
+                "params": {"name": "keystone", "interface": "admin"},
+            }
+        ]
 
-    def _grant_os_exporter_credentials_secret(
+    def _retrieve_or_set_config_secret(
         self,
-        relation: ops.Relation,
-    ) -> None:
-        """Grant secret access to the related units."""
-        credentials_id = None
-        try:
-            credentials_id = self._get_os_exporter_credentials_secret()
-            secret = self.model.get_secret(id=credentials_id)
-            logger.debug(
-                f"Granting access to secret {credentials_id} for relation "
-                f"{relation.app.name} {relation.name}/{relation.id}"
-            )
-            secret.grant(relation)
-        except (ops.ModelError, ops.SecretNotFoundError) as e:
-            logger.debug(
-                f"Error during granting access to secret {credentials_id} for "
-                f"relation {relation.app.name} {relation.name}/{relation.id}: "
-                f"{str(e)}"
-            )
-
-    def _retrieve_or_set_secret(
-        self,
-        username: str,
+        key: str,
+        value: str,
         rotate: ops.SecretRotate = ops.SecretRotate.NEVER,
-        add_suffix_to_username: bool = False,
     ) -> str:
         """Retrieve or create a secret."""
-        label = f"{CREDENTIALS_SECRET_PREFIX}{username}"
-        credentials_id = self.peers.get_app_data(label)
+        label = CONFIGURE_SECRET_PREFIX + key
+        credentials_id = self.leader_get(label)
         if credentials_id:
+            secret = self.model.get_secret(id=credentials_id)
+            content = secret.get_content()
+            if content[key] != value:
+                content[key] = value
+                secret.set_content(content)
             return credentials_id
 
-        password = str(pwgen.pwgen(12))
-        if add_suffix_to_username:
-            suffix = pwgen.pwgen(6)
-            username = f"{username}-{suffix}"
         credentials_secret = self.model.app.add_secret(
-            {"username": username, "password": password},
+            {key: value},
             label=label,
             rotate=rotate,
         )
-        self.peers.set_app_data(
+        self.leader_set(
             {
                 label: credentials_secret.id,
             }
         )
         return credentials_secret.id
 
-    def _get_os_exporter_credentials_secret(self) -> str:
-        """Get domain admin secret."""
-        label = f"{CREDENTIALS_SECRET_PREFIX}{self.os_exporter_user}"
-        credentials_id = self.peers.get_app_data(label)
-
-        if not credentials_id:
-            credentials_id = self._retrieve_or_set_secret(
-                self.os_exporter_user,
-            )
-
-        return credentials_id
-
-    def _get_os_exporter_user_ops(self) -> list:
-        """Generate ops request for domain setup."""
-        credentials_id = self._get_os_exporter_credentials_secret()
-        ops = [
-            # show domain default
-            {
-                "name": "show_domain",
-                "params": {"name": "default"},
-            },
-            # fetch keystone endpoint
-            {
-                "name": "list_endpoint",
-                "params": {"name": "keystone", "interface": "admin"},
-            },
-            # Create user openstack exporter
-            {
-                "name": "create_user",
-                "params": {
-                    "name": self.os_exporter_user,
-                    "password": credentials_id,
-                    "domain": "default",
-                },
-            },
-            # check with reader system scoped permissions
-        ]
-        return ops
-
-    def _handle_initial_os_exporter_user_setup_response(
-        self,
-        event: ops.RelationEvent,
+    def _handle_list_endpoint_response(
+        self, event: ops.EventBase, response: dict
     ) -> None:
-        """Handle domain setup response from identity-ops."""
+        """Handle response from identity-ops."""
+        logger.info("%r", response)
         if {
             op.get("return-code")
-            for op in self.id_ops.interface.response.get(
+            for op in response.get(
                 "ops",
                 [],
             )
@@ -292,40 +355,16 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 "Initial openstack exporter user setup commands completed,"
                 " running configure charm"
             )
-            self.configure_charm(event)
-
-    def handle_keystone_ops(self, event: ops.RelationEvent) -> None:
-        """Event handler for identity ops."""
-        if isinstance(event, identity_resource.IdentityOpsProviderReadyEvent):
-            self._state.identity_ops_ready = True
-
-            if not self.unit.is_leader():
-                return
-
-            # Send op request only by leader unit
-            ops = self._get_os_exporter_user_ops()
-            id_ = self.hash_ops(ops)
-            self._grant_os_exporter_credentials_secret(event.relation)
-            request = {
-                "id": id_,
-                "tag": "initial_openstack_exporter_user_setup",
-                "ops": ops,
-            }
-            logger.debug(f"Sending ops request: {request}")
-            self.id_ops.interface.request_ops(request)
-        elif isinstance(
-            event,
-            identity_resource.IdentityOpsProviderGoneAwayEvent,
-        ):
-            self._state.identity_ops_ready = False
-        elif isinstance(event, identity_resource.IdentityOpsResponseEvent):
-            if not self.unit.is_leader():
-                return
-            response = self.id_ops.interface.response
-            logger.debug(f"Got response from keystone: {response}")
-            request_tag = response.get("tag")
-            if request_tag == "initial_openstack_exporter_user_setup":
-                self._handle_initial_os_exporter_user_setup_response(event)
+            for op in response.get("ops", []):
+                if op.get("name") != "list_endpoint":
+                    continue
+                for endpoint in op.get("value", []):
+                    url = endpoint.get("url")
+                    logger.info("url %r", url)
+                    if url is not None:
+                        self._retrieve_or_set_config_secret("auth-url", url)
+                        self.configure_charm(event)
+                        break
 
 
 if __name__ == "__main__":

@@ -117,7 +117,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 3
+LIBPATCH = 4
 
 
 REQUEST_NOT_SENT = 1
@@ -367,10 +367,11 @@ class IdentityResourceProvides(Object):
         self, event: RelationChangedEvent
     ):
         """Handle IdentityResource changed."""
-        request = event.relation.data[event.relation.app].get("request", {})
-        self.on.process_op.emit(
-            event.relation.id, event.relation.name, request
-        )
+        request = event.relation.data[event.relation.app].get("request")
+        if request is not None:
+            self.on.process_op.emit(
+                event.relation.id, event.relation.name, request
+            )
 
     def set_ops_response(
         self, relation_id: str, relation_name: str, ops_response: dict

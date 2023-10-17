@@ -14,14 +14,8 @@ parts:
       apt install -y ca-certificates
       update-ca-certificates
 
-  dashboards:
-    plugin: dump
-    source: https://github.com/openstack-exporter/grafana-dashboards
-    source-type: git
-    source-depth: 1
-
   charm:
-    after: [update-certificates, dashboards]
+    after: [update-certificates]
     build-packages:
       - git
       - libffi-dev
@@ -34,4 +28,4 @@ parts:
       - jsonschema
       - pydantic<2.0
       - jinja2
-      - git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
+      - git+https://github.com/gboutry/charm-ops-sunbeam@feat/user-id-ops#egg=ops_sunbeam

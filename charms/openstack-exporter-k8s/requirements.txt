@@ -1,4 +1,5 @@
 ops
 jinja2
-git+https://github.com/openstack/charm-ops-sunbeam#egg=ops_sunbeam
-pwgen
+git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
+# COS requirement
+cosl
