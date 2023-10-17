@@ -797,16 +797,14 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     ) -> None:
         """Handle delete stack user response from identity-ops."""
         deleted_users = []
-        not_deleted_users = []
         for op in self.id_ops.interface.response.get("ops", []):
             if op.get("return-code") == 0:
                 deleted_users.append(op.get("value").get("name"))
             else:
-                not_deleted_users.append(op.get("value").get("name"))
-        logger.debug(
-            f"Deleted users: {deleted_users}, not_deleted_users: "
-            f"{not_deleted_users}"
-        )
+                logger.debug("Error in running delete stack user for op {op}")
+
+        if deleted_users:
+            logger.debug(f"Deleted users: {deleted_users}")
 
         old_stack_users = self.leader_get("old_stack_users")
         stack_users_to_delete = (
@@ -836,7 +834,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "tag": "initial_heat_domain_setup",
                 "ops": ops,
             }
-            logger.debug(f"Sending ops request: {request}")
+            logger.info(f"Sending ops request: {request}")
             self.id_ops.interface.request_ops(request)
         elif isinstance(event, IdentityOpsProviderGoneAwayEvent):
             self._state.identity_ops_ready = False
@@ -844,7 +842,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             if not self.unit.is_leader():
                 return
 
-            logger.debug(
+            logger.info(
                 f"Got response from keystone: {self.id_ops.interface.response}"
             )
             request_tag = self.id_ops.interface.response.get("tag")
