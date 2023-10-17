@@ -57,6 +57,16 @@ class KeystoneClient:
     def __init__(self, api: Client):
         self.api = api
 
+    def _convert_endpoint_to_dict(self, endpoint: Endpoint) -> dict:
+        return {
+            "id": endpoint.id,
+            "service_id": endpoint.service_id,
+            "interface": endpoint.interface,
+            "region": endpoint.region,
+            "url": endpoint.url,
+            "enabled": endpoint.enabled,
+        }
+
     def _convert_domain_to_dict(self, domain: Domain) -> dict:
         return {
             "id": domain.id,
@@ -316,6 +326,54 @@ class KeystoneClient:
         )
         logger.debug(f"Created endpoint {ep_string} with id {endpoint.id}")
         return endpoint
+
+    def list_endpoint(
+        self,
+        name: Optional[str] = None,
+        interface: Optional[str] = None,
+    ) -> list:
+        """List endpoints.
+
+        Returns all the endpoints by default.
+        If name is specified, returns the corresponding endpoints.
+        If interface is specified, returns the corresponding endpoints.
+        Response is in the format
+        [
+            {
+                "id": <>,
+                "service_id": <>,
+                "interface": <>,
+                "region": <>,
+                "url": <>,
+                "enabled": <>,
+            }
+            ...
+        ]
+
+        :param name: Endpoint name name
+        :param type: str | None
+        :param interface: Endpoint interface
+        :param type: str | None
+        :rtype: list
+        """
+        options = {
+            "interface": interface,
+        }
+        if name is not None:
+            services = self.api.services.list(name=name)
+            if len(services) != 1:
+                return []
+            options["service"] = services[0]
+        endpoints = self.api.endpoints.list(**options)
+        if endpoints is None:
+            return []
+
+        endpoint_list = [
+            self._convert_endpoint_to_dict(endpoint) for endpoint in endpoints
+        ]
+
+        logger.debug(f"Endpoint list: {endpoint_list}")
+        return endpoint_list
 
     # Operations exposed via identity-ops relation
 
