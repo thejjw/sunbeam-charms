@@ -17,6 +17,9 @@
 """Tests for glance charm."""
 
 import ops_sunbeam.test_utils as test_utils
+from mock import (
+    patch,
+)
 
 import charm
 
@@ -49,6 +52,10 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
         self.harness = test_utils.get_harness(
             _GlanceOperatorCharm, container_calls=self.container_calls
         )
+        mock_get_platform = patch(
+            "charmhelpers.osplatform.get_platform", return_value="ubuntu"
+        )
+        mock_get_platform.start()
 
         # clean up events that were dynamically defined,
         # otherwise we get issues because they'll be redefined,
@@ -67,6 +74,7 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
             except AttributeError:
                 pass
 
+        self.addCleanup(mock_get_platform.stop)
         self.addCleanup(self.harness.cleanup)
         test_utils.add_complete_ingress_relation(self.harness)
 
