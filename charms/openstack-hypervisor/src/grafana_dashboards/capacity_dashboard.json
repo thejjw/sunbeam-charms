@@ -1,0 +1,1575 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 13,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 16,
+      "panels": [],
+      "title": "Capacity across hosts",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheusds}"
+      },
+      "description": "Days until  storage reaches ${resource_usage_threshold}%.\nEstimated based on the last ${days_of_estimation} days of data.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "noValue": "Stable",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 30
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 18,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "editorMode": "code",
+          "expr": "min((sum by (agent_hostname) (node_filesystem_size_bytes{agent_hostname=~\"$agent_hostname\", device=~\"/dev/.*\"} * ($resource_usage_threshold / 100) - (node_filesystem_size_bytes{agent_hostname=~\"$agent_hostname\", device=~\"/dev/.*\"}-node_filesystem_avail_bytes{agent_hostname=~\"$agent_hostname\", device=~\"/dev/.*\"}))) \n/ \n((sum by (agent_hostname) (delta((node_filesystem_size_bytes{agent_hostname=~\"$agent_hostname\", device=~\"/dev/.*\"}-node_filesystem_avail_bytes{agent_hostname=~\"$agent_hostname\", device=~\"/dev/.*\"})[${days_of_estimation}d:])) > 0) / $days_of_estimation))",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Days until  storage reaches ${resource_usage_threshold}%",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheusds}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 100,
+            "axisSoftMin": 1,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "area"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 7,
+        "x": 4,
+        "y": 1
+      },
+      "id": 24,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "editorMode": "code",
+          "expr": "100 - ((sum by (agent_hostname)(node_filesystem_avail_bytes{agent_hostname=~\"$agent_hostname\", fstype!=\"tmpfs\"} / 1024^3 )\n/\nsum by (agent_hostname) (node_filesystem_size_bytes{agent_hostname=~\"$agent_hostname\", fstype!=\"tmpfs\"} / 1024^3 )) * 100)",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Disk usage (total size: $total_disk_aggregate GB)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheusds}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "area"
+            }
+          },
+          "mappings": [],
+          "max": 100,
+          "thresholds": {
+            "mode": "percentage",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              },
+              {
+                "color": "transparent",
+                "value": 100
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 7,
+        "x": 11,
+        "y": 1
+      },
+      "id": 34,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "editorMode": "code",
+          "expr": "((sum(((node_memory_MemUsed_percentage{agent_hostname=~\"$agent_hostname\"}/100) * on(agent_hostname) node_memory_MemTotal_bytes{agent_hostname=~\"$agent_hostname\"}))) / (sum(node_memory_MemTotal_bytes{agent_hostname=~\"$agent_hostname\"}))) * 100",
+          "legendFormat": "Total memory used",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "editorMode": "code",
+          "expr": "((sum((node_memory_HugePages_Total{agent_hostname=~\"$agent_hostname\"} * node_memory_Hugepagesize_bytes{agent_hostname=~\"$agent_hostname\"}) / 1024^3)) / (sum(node_memory_MemTotal_bytes{agent_hostname=~\"$agent_hostname\"} / 1024^3))) * 100",
+          "hide": false,
+          "legendFormat": "Memory assigned to hugepages",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "editorMode": "code",
+          "expr": "((sum((node_memory_HugePages_Total{agent_hostname=~\"$agent_hostname\"} * node_memory_Hugepagesize_bytes{agent_hostname=~\"$agent_hostname\"} - node_memory_HugePages_Free{agent_hostname=~\"$agent_hostname\"} * node_memory_Hugepagesize_bytes{agent_hostname=~\"$agent_hostname\"}) / 1024^3)) / (sum(node_memory_MemTotal_bytes{agent_hostname=~\"$agent_hostname\"} / 1024^3))) * 100",
+          "hide": false,
+          "legendFormat": "Used hugepages memory",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Memory usage (total memory: $total_memory_aggregate GB)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheusds}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "axisSoftMax": 100,
+            "axisSoftMin": 0.1,
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "area"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "transparent",
+                "value": null
+              },
+              {
+                "color": "#EAB839",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 28,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "editorMode": "code",
+          "expr": "(1 - avg by (agent_hostname)(rate(node_cpu_seconds_total{agent_hostname=~\"$agent_hostname\", mode=\"idle\"}[5m]))) * 100",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Usage (total number of cores: $cpu_count_aggregate)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheusds}"
+      },
+      "description": "Days until memory reaches ${resource_usage_threshold}% of capacity.\nEstimated based on the last ${days_of_estimation} days of data.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "noValue": "Stable",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 30
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 4
+      },
+      "id": 20,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "editorMode": "code",
+          "expr": "min((100 * ($resource_usage_threshold / 100) - (node_memory_MemUsed_percentage{agent_hostname=~\"$agent_hostname\"}))\n/ \n((delta((node_memory_MemUsed_percentage{agent_hostname=~\"$agent_hostname\"})[${days_of_estimation}d:]) > 0) / $days_of_estimation))",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Days until memory reaches ${resource_usage_threshold}%",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheusds}"
+      },
+      "description": "Days until CPU usage reaches ${resource_usage_threshold}% of capacity.\nEstimated based on the last ${days_of_estimation} days of data.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "noValue": "Stable",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 30
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 0,
+        "y": 7
+      },
+      "id": 22,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "editorMode": "code",
+          "expr": "min(avg by (agent_hostname)(1*($resource_usage_threshold / 100) - (1 - avg(rate(node_cpu_seconds_total{agent_hostname=~\"$agent_hostname\", mode=\"idle\"}[5m]))))\n/\n(avg by (agent_hostname)(delta((1 - avg(rate(node_cpu_seconds_total{agent_hostname=~\"$agent_hostname\", mode=\"idle\"}[5m])))[${days_of_estimation}d:]) > 0 ) / $days_of_estimation ))",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Days until CPU usage reaches ${resource_usage_threshold}% ",
+      "type": "stat"
+    },
+    {
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 2,
+      "panels": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "description": "Days until  storage reaches ${resource_usage_threshold}%.\nEstimated based on the last ${days_of_estimation} days of data.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "noValue": "Stable",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red"
+                  },
+                  {
+                    "color": "green",
+                    "value": 30
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 4,
+            "x": 0,
+            "y": 11
+          },
+          "id": 30,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "pluginVersion": "9.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${prometheusds}"
+              },
+              "editorMode": "code",
+              "expr": "(sum(node_filesystem_size_bytes{agent_hostname=\"$agent_hostname\", device=~\"/dev/.*\"} * ($resource_usage_threshold / 100) - (node_filesystem_size_bytes{agent_hostname=\"$agent_hostname\", device=~\"/dev/.*\"}-node_filesystem_avail_bytes{agent_hostname=\"$agent_hostname\", device=~\"/dev/.*\"}))) \n/ \n((sum(delta((node_filesystem_size_bytes{agent_hostname=\"$agent_hostname\", device=~\"/dev/.*\"}-node_filesystem_avail_bytes{agent_hostname=\"$agent_hostname\", device=~\"/dev/.*\"})[${days_of_estimation}d:])) > 0) / $days_of_estimation)",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Days until  storage reaches ${resource_usage_threshold}%",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMax": 100,
+                "axisSoftMin": 1,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "always",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "area"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "transparent"
+                  },
+                  {
+                    "color": "#EAB839",
+                    "value": 70
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 7,
+            "x": 4,
+            "y": 11
+          },
+          "id": 6,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${prometheusds}"
+              },
+              "editorMode": "code",
+              "expr": "100 - ((node_filesystem_avail_bytes{agent_hostname=\"$agent_hostname\", fstype!=\"tmpfs\"} / 1024^3 )\n/\n(node_filesystem_size_bytes{agent_hostname=\"$agent_hostname\", fstype!=\"tmpfs\"} / 1024^3)) * 100",
+              "legendFormat": "{{device}}",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Disk usage (total size: ${total_disk_machine} GB)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "area"
+                }
+              },
+              "mappings": [],
+              "max": 100,
+              "thresholds": {
+                "mode": "percentage",
+                "steps": [
+                  {
+                    "color": "transparent"
+                  },
+                  {
+                    "color": "#EAB839",
+                    "value": 70
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  },
+                  {
+                    "color": "transparent",
+                    "value": 100
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 7,
+            "x": 11,
+            "y": 11
+          },
+          "id": 32,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${prometheusds}"
+              },
+              "editorMode": "code",
+              "expr": "node_memory_MemUsed_percentage{agent_hostname=\"$agent_hostname\"}",
+              "legendFormat": "Total memory used",
+              "range": true,
+              "refId": "A"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${prometheusds}"
+              },
+              "editorMode": "code",
+              "expr": "((node_memory_HugePages_Total{agent_hostname=~\"$agent_hostname\"} * node_memory_Hugepagesize_bytes{agent_hostname=~\"$agent_hostname\"}) / (node_memory_MemTotal_bytes{agent_hostname=\"$agent_hostname\"})) * 100",
+              "hide": false,
+              "legendFormat": "Memory assigned to hugepages",
+              "range": true,
+              "refId": "B"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${prometheusds}"
+              },
+              "editorMode": "code",
+              "expr": "(((node_memory_HugePages_Total{agent_hostname=~\"$agent_hostname\"} * node_memory_Hugepagesize_bytes{agent_hostname=~\"$agent_hostname\"}) - (node_memory_HugePages_Free{agent_hostname=~\"$agent_hostname\"} * node_memory_Hugepagesize_bytes{agent_hostname=~\"$agent_hostname\"})) / (node_memory_MemTotal_bytes{agent_hostname=\"$agent_hostname\"})) * 100",
+              "hide": false,
+              "legendFormat": "Used hugepages memory",
+              "range": true,
+              "refId": "C"
+            }
+          ],
+          "title": "Memory usage (total memory: $total_memory GB)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "palette-classic"
+              },
+              "custom": {
+                "axisCenteredZero": false,
+                "axisColorMode": "text",
+                "axisLabel": "",
+                "axisPlacement": "auto",
+                "axisSoftMax": 100,
+                "axisSoftMin": 0.1,
+                "barAlignment": 0,
+                "drawStyle": "line",
+                "fillOpacity": 0,
+                "gradientMode": "none",
+                "hideFrom": {
+                  "legend": false,
+                  "tooltip": false,
+                  "viz": false
+                },
+                "lineInterpolation": "linear",
+                "lineWidth": 2,
+                "pointSize": 5,
+                "scaleDistribution": {
+                  "type": "linear"
+                },
+                "showPoints": "auto",
+                "spanNulls": false,
+                "stacking": {
+                  "group": "A",
+                  "mode": "none"
+                },
+                "thresholdsStyle": {
+                  "mode": "area"
+                }
+              },
+              "mappings": [],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "transparent"
+                  },
+                  {
+                    "color": "#EAB839",
+                    "value": 70
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              },
+              "unit": "percent"
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 9,
+            "w": 6,
+            "x": 18,
+            "y": 11
+          },
+          "id": 10,
+          "options": {
+            "legend": {
+              "calcs": [],
+              "displayMode": "list",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${prometheusds}"
+              },
+              "editorMode": "code",
+              "expr": "label_replace((1 - avg(rate(node_cpu_seconds_total{agent_hostname=\"$agent_hostname\",mode=\"idle\"}[5m]))) * 100, \"__name__\", \"$agent_hostname\", \"__name__\", \"\")",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "CPU Usage (total number of cores: $cpu_count)",
+          "type": "timeseries"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "description": "Days until memory reaches ${resource_usage_threshold}% of capacity.\nEstimated based on the last ${days_of_estimation} days of data.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "noValue": "Stable",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red"
+                  },
+                  {
+                    "color": "green",
+                    "value": 30
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 4,
+            "x": 0,
+            "y": 14
+          },
+          "id": 12,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "pluginVersion": "9.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${prometheusds}"
+              },
+              "editorMode": "code",
+              "expr": "(100 * ($resource_usage_threshold / 100) - (node_memory_MemUsed_percentage{agent_hostname=\"$agent_hostname\"}))\n/ \n((delta((node_memory_MemUsed_percentage{agent_hostname=\"$agent_hostname\"})[${days_of_estimation}d:]) > 0) / $days_of_estimation)",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Days until memory reaches ${resource_usage_threshold}%",
+          "type": "stat"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "description": "Days until CPU usage reaches ${resource_usage_threshold}% of capacity.\nEstimated based on the last ${days_of_estimation} days of data.",
+          "fieldConfig": {
+            "defaults": {
+              "color": {
+                "mode": "thresholds"
+              },
+              "mappings": [],
+              "noValue": "Stable",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red"
+                  },
+                  {
+                    "color": "green",
+                    "value": 30
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "gridPos": {
+            "h": 3,
+            "w": 4,
+            "x": 0,
+            "y": 17
+          },
+          "id": 14,
+          "options": {
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto",
+            "orientation": "auto",
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "textMode": "auto"
+          },
+          "pluginVersion": "9.2.1",
+          "targets": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${prometheusds}"
+              },
+              "editorMode": "code",
+              "expr": "avg(1*($resource_usage_threshold / 100) - (1 - avg(rate(node_cpu_seconds_total{agent_hostname=\"$agent_hostname\", mode=\"idle\"}[5m]))))\n/\n(avg(delta((1 - avg(rate(node_cpu_seconds_total{agent_hostname=\"$agent_hostname\", mode=\"idle\"}[5m])))[${days_of_estimation}d:]) > 0) / $days_of_estimation )",
+              "legendFormat": "__auto",
+              "range": true,
+              "refId": "A"
+            }
+          ],
+          "title": "Days until CPU usage reaches ${resource_usage_threshold}% ",
+          "type": "stat"
+        }
+      ],
+      "repeat": "agent_hostname",
+      "repeatDirection": "h",
+      "title": "Host - $agent_hostname",
+      "type": "row"
+    }
+  ],
+  "schemaVersion": 37,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 2,
+        "includeAll": true,
+        "label": "Loki datasource",
+        "multi": true,
+        "name": "lokids",
+        "options": [],
+        "query": "loki",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "uid": "${prometheusds}"
+        },
+        "definition": "label_values(up{juju_model=~\"$juju_model\",juju_model_uuid=~\"$juju_model_uuid\",juju_application=~\"$juju_application\"},juju_unit)",
+        "hide": 2,
+        "includeAll": true,
+        "label": "Juju unit",
+        "multi": true,
+        "name": "juju_unit",
+        "options": [],
+        "query": {
+          "query": "label_values(up{juju_model=~\"$juju_model\",juju_model_uuid=~\"$juju_model_uuid\",juju_application=~\"$juju_application\"},juju_unit)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "uid": "${prometheusds}"
+        },
+        "definition": "label_values(up{juju_model=~\"$juju_model\",juju_model_uuid=~\"$juju_model_uuid\"},juju_application)",
+        "hide": 2,
+        "includeAll": true,
+        "label": "Juju application",
+        "multi": true,
+        "name": "juju_application",
+        "options": [],
+        "query": {
+          "query": "label_values(up{juju_model=~\"$juju_model\",juju_model_uuid=~\"$juju_model_uuid\"},juju_application)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "uid": "${prometheusds}"
+        },
+        "definition": "label_values(up{juju_model=~\"$juju_model\"},juju_model_uuid)",
+        "hide": 2,
+        "includeAll": true,
+        "label": "Juju model uuid",
+        "multi": true,
+        "name": "juju_model_uuid",
+        "options": [],
+        "query": {
+          "query": "label_values(up{juju_model=~\"$juju_model\"},juju_model_uuid)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "uid": "${prometheusds}"
+        },
+        "definition": "label_values(up,juju_model)",
+        "hide": 2,
+        "includeAll": true,
+        "label": "Juju model",
+        "multi": true,
+        "name": "juju_model",
+        "options": [],
+        "query": {
+          "query": "label_values(up,juju_model)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": "",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${prometheusds}"
+        },
+        "definition": "label_values(agent_hostname)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Hostname",
+        "multi": true,
+        "name": "agent_hostname",
+        "options": [],
+        "query": {
+          "query": "label_values(agent_hostname)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 2,
+        "includeAll": true,
+        "label": "Prometheus data source",
+        "multi": false,
+        "name": "prometheusds",
+        "options": [],
+        "query": "prometheus",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "90",
+          "value": "90"
+        },
+        "description": "Threshold on resource usage in percentage",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Resource Usage Threshold",
+        "multi": false,
+        "name": "resource_usage_threshold",
+        "options": [
+          {
+            "selected": false,
+            "text": "50",
+            "value": "50"
+          },
+          {
+            "selected": false,
+            "text": "60",
+            "value": "60"
+          },
+          {
+            "selected": false,
+            "text": "70",
+            "value": "70"
+          },
+          {
+            "selected": false,
+            "text": "80",
+            "value": "80"
+          },
+          {
+            "selected": true,
+            "text": "90",
+            "value": "90"
+          },
+          {
+            "selected": false,
+            "text": "100",
+            "value": "100"
+          }
+        ],
+        "query": "50,60,70,80,90,100",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "360",
+          "value": "360"
+        },
+        "description": "Days used to make the estimation of remaining time",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Days of Estimation",
+        "multi": false,
+        "name": "days_of_estimation",
+        "options": [
+          {
+            "selected": false,
+            "text": "7",
+            "value": "7"
+          },
+          {
+            "selected": false,
+            "text": "14",
+            "value": "14"
+          },
+          {
+            "selected": false,
+            "text": "30",
+            "value": "30"
+          },
+          {
+            "selected": false,
+            "text": "90",
+            "value": "90"
+          },
+          {
+            "selected": false,
+            "text": "180",
+            "value": "180"
+          },
+          {
+            "selected": true,
+            "text": "360",
+            "value": "360"
+          }
+        ],
+        "query": "7,14,30,90,180,360",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "29.19",
+          "value": "29.19"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${prometheusds}"
+        },
+        "definition": "query_result(round(sum by (agent_hostname)(node_memory_MemTotal_bytes{agent_hostname=~\"$agent_hostname\"}) / 1024^3, 0.01))",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Total memory",
+        "multi": false,
+        "name": "total_memory",
+        "options": [],
+        "query": {
+          "query": "query_result(round(sum by (agent_hostname)(node_memory_MemTotal_bytes{agent_hostname=~\"$agent_hostname\"}) / 1024^3, 0.01))",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/.* ([^\\ ]*) .*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "87.6",
+          "value": "87.6"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${prometheusds}"
+        },
+        "definition": "query_result(round(sum(node_memory_MemTotal_bytes{agent_hostname=~\"$agent_hostname\"}) / 1024^3, 0.1))",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Total memory across hosts",
+        "multi": false,
+        "name": "total_memory_aggregate",
+        "options": [],
+        "query": {
+          "query": "query_result(round(sum(node_memory_MemTotal_bytes{agent_hostname=~\"$agent_hostname\"}) / 1024^3, 0.1))",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/.* ([^\\ ]*) .*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "104.67",
+          "value": "104.67"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${prometheusds}"
+        },
+        "definition": "query_result(round(sum by (agent_hostname)(node_filesystem_size_bytes{agent_hostname=~\"$agent_hostname\", fstype!=\"tmpfs\"} / 1024^3), 0.01))",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Total disk in a host",
+        "multi": false,
+        "name": "total_disk_machine",
+        "options": [],
+        "query": {
+          "query": "query_result(round(sum by (agent_hostname)(node_filesystem_size_bytes{agent_hostname=~\"$agent_hostname\", fstype!=\"tmpfs\"} / 1024^3), 0.01))",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/.* ([^\\ ]*) .*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "314.01",
+          "value": "314.01"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${prometheusds}"
+        },
+        "definition": "query_result(round(sum(node_filesystem_size_bytes{agent_hostname=~\"$agent_hostname\", fstype!=\"tmpfs\"} / 1024^3), 0.01))",
+        "hide": 2,
+        "includeAll": false,
+        "label": "Total disk across hosts",
+        "multi": false,
+        "name": "total_disk_aggregate",
+        "options": [],
+        "query": {
+          "query": "query_result(round(sum(node_filesystem_size_bytes{agent_hostname=~\"$agent_hostname\", fstype!=\"tmpfs\"} / 1024^3), 0.01))",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/.* ([^\\ ]*) .*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "8",
+          "value": "8"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${prometheusds}"
+        },
+        "definition": "query_result(count(count(node_cpu_seconds_total{agent_hostname=~\"$agent_hostname\"}) without (mode,instance,job)) without (cpu))",
+        "hide": 2,
+        "includeAll": false,
+        "label": "CPU count in a host",
+        "multi": false,
+        "name": "cpu_count",
+        "options": [],
+        "query": {
+          "query": "query_result(count(count(node_cpu_seconds_total{agent_hostname=~\"$agent_hostname\"}) without (mode,instance,job)) without (cpu))",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "/.* ([^\\ ]*) .*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "24",
+          "value": "24"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${prometheusds}"
+        },
+        "definition": "query_result(sum(count(count(node_cpu_seconds_total{agent_hostname=~\"$agent_hostname\"}) without (mode,instance,job)) without (cpu)))",
+        "hide": 2,
+        "includeAll": false,
+        "label": "CPU count across host",
+        "multi": false,
+        "name": "cpu_count_aggregate",
+        "options": [],
+        "query": {
+          "query": "query_result(sum(count(count(node_cpu_seconds_total{agent_hostname=~\"$agent_hostname\"}) without (mode,instance,job)) without (cpu)))",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "/.* ([^\\ ]*) .*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-7d",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Capacity Dashboard",
+  "uid": "6nJ1jg7Iz",
+  "version": 7,
+  "weekStart": ""
+}
