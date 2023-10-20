@@ -19,6 +19,9 @@
 import json
 
 import ops_sunbeam.test_utils as test_utils
+from mock import (
+    patch,
+)
 from ops.testing import (
     Harness,
 )
@@ -82,6 +85,11 @@ class TestCinderCephOperatorCharm(test_utils.CharmTestCase):
         self.harness = test_utils.get_harness(
             _CinderCephOperatorCharm, container_calls=self.container_calls
         )
+        mock_get_platform = patch(
+            "charmhelpers.osplatform.get_platform", return_value="ubuntu"
+        )
+        mock_get_platform.start()
+
         # clean up events that were dynamically defined,
         # otherwise we get issues because they'll be redefined,
         # which is not allowed.
@@ -99,6 +107,7 @@ class TestCinderCephOperatorCharm(test_utils.CharmTestCase):
             except AttributeError:
                 pass
 
+        self.addCleanup(mock_get_platform.stop)
         self.addCleanup(self.harness.cleanup)
 
     def test_all_relations(self):
