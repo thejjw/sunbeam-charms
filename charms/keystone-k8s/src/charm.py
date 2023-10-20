@@ -27,14 +27,19 @@ develop a new k8s charm using the Operator Framework:
 
 import json
 import logging
+from pathlib import (
+    Path,
+)
 from typing import (
     Callable,
+    Dict,
     List,
 )
 
 import charms.keystone_k8s.v0.identity_credentials as sunbeam_cc_svc
 import charms.keystone_k8s.v0.identity_resource as sunbeam_ops_svc
 import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
+import charms.keystone_ldap_k8s.v0.domain_config as sunbeam_dc_svc
 import ops.charm
 import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
@@ -126,7 +131,7 @@ class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
             "fernet_max_active_keys": 4,  # adjusted to make rotation daily
             "public_endpoint": self.charm.public_endpoint,
             "admin_endpoint": self.charm.admin_endpoint,
-            "domain_config_dir": "/etc/keystone/domains",
+            "domain_config_dir": self.charm.domain_config_dir,
             "log_config": "/etc/keystone/logging.conf.j2",
             "paste_config_file": "/etc/keystone/keystone-paste.ini",
         }
@@ -166,6 +171,48 @@ class IdentityServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     def ready(self) -> bool:
         """Report if relation is ready."""
         return True
+
+
+class DomainConfigHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for domain config relation."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+    ):
+        super().__init__(charm, relation_name, callback_f)
+
+    def setup_event_handler(self) -> ops.charm.Object:
+        """Configure event handlers for an Identity service relation."""
+        logger.debug("Setting up Identity Service event handler")
+        self.dc = sunbeam_dc_svc.DomainConfigRequires(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            self.dc.on.config_changed,
+            self._on_dc_config_changed,
+        )
+        self.framework.observe(
+            self.dc.on.goneaway,
+            self._on_dc_config_changed,
+        )
+        return self.dc
+
+    def _on_dc_config_changed(self, event) -> Dict:
+        """Handles relation data changed events."""
+        self.callback_f(event)
+
+    def get_domain_configs(self, exclude=None):
+        """Return domain config from relations."""
+        return self.dc.get_domain_configs(exclude=exclude)
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return bool(self.get_domain_configs())
 
 
 class IdentityCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
@@ -264,6 +311,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     service_name = "keystone"
     wsgi_admin_script = "/usr/bin/keystone-wsgi-admin"
     wsgi_public_script = "/usr/bin/keystone-wsgi-public"
+    domain_config_dir = Path("/etc/keystone/domains")
     service_port = 5000
     mandatory_relations = {"database", "ingress-public"}
     db_sync_cmds = [
@@ -724,6 +772,14 @@ export OS_AUTH_VERSION=3
             )
             handlers.append(self.ops_svc)
 
+        if self.can_add_handler("domain-config", handlers):
+            self.dc = DomainConfigHandler(
+                self,
+                "domain-config",
+                self.configure_charm,
+            )
+            handlers.append(self.dc)
+
         return super().get_relation_handlers(handlers)
 
     @property
@@ -830,6 +886,69 @@ export OS_AUTH_VERSION=3
                         "Cannot process client request, 'username' not "
                         "supplied"
                     )
+
+    def remove_old_domains(
+        self, domain_configs: dict, container: ops.model.Container
+    ) -> List[str]:
+        """Remove domain files from domains no longer related."""
+        active_domains = [c["domain-name"] for c in domain_configs]
+        removed_domains = []
+        for domain_file in container.list_files(self.domain_config_dir):
+            domain_on_disk = domain_file.name.split(".")[1]
+            if domain_on_disk in active_domains:
+                logger.debug("Keeping {}".format(domain_file.name))
+            else:
+                container.remove_path(domain_file.path)
+                removed_domains.append(domain_on_disk)
+        return removed_domains
+
+    def update_domain_config(
+        self, domain_configs: dict, container: ops.model.Container
+    ) -> List[str]:
+        """Update domain configuration."""
+        updated_domains = []
+        for domain_config in domain_configs:
+            domain_name = domain_config["domain-name"]
+            domain = self.keystone_manager.ksclient.get_domain_object(
+                domain_name
+            )
+            if not domain:
+                self.keystone_manager.ksclient.create_domain(name=domain_name)
+            domain_config_file = (
+                self.domain_config_dir / f"keystone.{domain_name}.conf"
+            )
+            try:
+                original_contents = container.pull(domain_config_file).read()
+            except (ops.pebble.PathError, FileNotFoundError):
+                original_contents = None
+            if original_contents != domain_config["config-contents"]:
+                container.push(
+                    domain_config_file,
+                    domain_config["config-contents"],
+                    **{
+                        "user": "keystone",
+                        "group": "keystone",
+                        "permissions": 0o600,
+                    },
+                )
+                updated_domains.append(domain_name)
+        return updated_domains
+
+    def configure_domains(self, event: ops.framework.EventBase = None) -> None:
+        """Configure LDAP backed domains."""
+        if isinstance(event, sunbeam_dc_svc.DomainConfigGoneAwayEvent):
+            exclude = [event.relation]
+        else:
+            exclude = []
+        container = self.unit.get_container(KEYSTONE_CONTAINER)
+        if not container.isdir(self.domain_config_dir):
+            container.make_dir(self.domain_config_dir, make_parents=True)
+        domain_configs = self.dc.get_domain_configs(exclude=exclude)
+        removed_domains = self.remove_old_domains(domain_configs, container)
+        updated_domains = self.update_domain_config(domain_configs, container)
+        if removed_domains or updated_domains:
+            ph = self.get_named_pebble_handler(KEYSTONE_CONTAINER)
+            ph.start_all(restart=True)
 
     def check_outstanding_identity_ops_requests(self) -> None:
         """Check requests from identity ops relation."""
@@ -1340,6 +1459,7 @@ export OS_AUTH_VERSION=3
             container = self.unit.get_container(self.wsgi_container_name)
             container.stop("wsgi-keystone")
             container.start("wsgi-keystone")
+        self.configure_domains(event)
         self._state.unit_bootstrapped = True
 
     def bootstrapped(self) -> bool:
