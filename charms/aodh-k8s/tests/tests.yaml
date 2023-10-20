@@ -33,8 +33,8 @@ target_deploy_status:
     workload-status: active
     workload-status-message-regex: '^.*$'
   ceilometer:
-    workload-status: active
-    workload-status-message-regex: '^.*$'
+    workload-status: waiting
+    workload-status-message-regex: '^.*Not all relations are ready$'
   aodh:
     workload-status: active
     workload-status-message-regex: '^.*$'
