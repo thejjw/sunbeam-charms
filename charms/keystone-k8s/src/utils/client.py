@@ -102,44 +102,51 @@ class KeystoneClient:
             "description": role.description,
         }
 
-    def get_domain_object(self, name: str) -> Optional[Domain]:
-        """Returns domain object from domain name.
+    def get_domain_object(self, identifier: str) -> Optional[Domain]:
+        """Returns domain object from domain name or id.
 
         Look for domain in domain list and return domain object.
         Returns None if domain does not exist.
 
-        :param name: Domain name
-        :type name: str
+        :param identifier: Domain name or id
+        :type identifier: str
         :rtype: Domain | None
         """
-        if name is None:
+        if identifier is None:
             return None
 
         domains = self.api.domains.list()
         logger.debug(f"Domains list: {domains}")
+        if domains is None:
+            return None
         for domain in domains:
-            if domain.name.lower() == name.lower():
-                logger.debug(f"Domain object for domain {name}: {domain}")
+            if (
+                domain.id == identifier
+                or domain.name.lower() == identifier.lower()
+            ):
+                logger.debug(
+                    f"Domain object for domain {identifier}: {domain}"
+                )
                 return domain
 
         return None
 
     def get_project_object(
-        self, name: str, domain: Optional[Union[Domain, str]] = None
+        self, identifier: str, domain: Optional[Union[Domain, str]] = None
     ) -> Optional[Project]:
-        """Returns project object from name.
+        """Returns project object from name or id.
 
         Look for project in project list and return project object.
         Returns None if project does not exist.
 
-        :param name: Project name
-        :type name: str
-        :param domain: Domain object or name
+        :param identifier: Project name or id
+        :type identifier: str
+        :param domain: Domain object, name or id
         :type name: Domain | str | None
         :rtype: Project | None
         :raises: KeystoneExceptionError
         """
-        if name is None:
+        if identifier is None:
             return None
 
         if not isinstance(domain, Domain):
@@ -147,16 +154,23 @@ class KeystoneClient:
 
         projects = self.api.projects.list(domain=domain)
         logger.debug(f"Projects list in domain {domain}: {projects}")
+        if projects is None:
+            return None
         projects_list = [
             project
             for project in projects
-            if project.name.lower() == name.lower()
+            if any(
+                (
+                    project.id == identifier,
+                    project.name.lower() == identifier.lower(),
+                )
+            )
         ]
 
         count = len(projects_list)
         if count == 1:
             logger.debug(
-                f"Project object for project {name}: {projects_list[0]}"
+                f"Project object for project {identifier}: {projects_list[0]}"
             )
             return projects_list[0]
         elif count > 1:
@@ -168,25 +182,25 @@ class KeystoneClient:
 
     def get_user_object(
         self,
-        name: str,
+        identifier: str,
         domain: Optional[Union[Domain, str]] = None,
         project: Optional[Union[Project, str]] = None,
     ) -> Optional[User]:
-        """Returns user object from name.
+        """Returns user object from name or id.
 
         Look for user in users list and return user object.
         Returns None if user does not exist.
 
-        :param name: User name
-        :type name: str
-        :param domain: Domain object or name
+        :param identifier: User name or id
+        :type identifier: str
+        :param domain: Domain object, name or id
         :type name: Domain | str | None
-        :param project: Project object or name
+        :param project: Project object, name or id
         :type name: Project | str | None
         :rtype: User | None
         :raises: KeystoneExceptionError
         """
-        if name is None:
+        if identifier is None:
             return None
 
         if not isinstance(domain, Domain):
@@ -200,8 +214,17 @@ class KeystoneClient:
         logger.debug(
             f"Users list in domain {domain}, project {project}: {users}"
         )
+        if users is None:
+            return
         users_list = [
-            user for user in users if user.name.lower() == name.lower()
+            user
+            for user in users
+            if any(
+                (
+                    identifier == user.id,
+                    user.name.lower() == identifier.lower(),
+                )
+            )
         ]
         count = len(users_list)
         if count == 1:
@@ -214,20 +237,20 @@ class KeystoneClient:
         return None
 
     def get_role_object(
-        self, name: str, domain: Optional[Union[Domain, str]] = None
+        self, identifier: str, domain: Optional[Union[Domain, str]] = None
     ) -> Optional[Role]:
-        """Returns role object from name.
+        """Returns role object from name or id.
 
         Look for role in role list and return role object.
         Returns None if role does not exist.
 
-        :param name: Role name
-        :type name: str
-        :param domain: Domain object or name
+        :param identifier: Role name or id
+        :type identifier: str
+        :param domain: Domain object, name or id
         :type name: Domain | str | None
         :rtype: Role | None
         """
-        if name is None:
+        if identifier is None:
             return None
 
         if not isinstance(domain, Domain):
@@ -235,8 +258,13 @@ class KeystoneClient:
 
         roles = self.api.roles.list(domain=domain)
         logger.debug(f"Roles list in domain {domain}: {roles}")
+        if roles is None:
+            return None
         for role in roles:
-            if role.name.lower() == name.lower():
+            if (
+                role.id == identifier
+                or role.name.lower() == identifier.lower()
+            ):
                 return role
 
         return None
