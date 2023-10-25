@@ -16,7 +16,9 @@
 
 import base64
 import json
-from unittest import mock
+from unittest import (
+    mock,
+)
 
 import ops_sunbeam.test_utils as test_utils
 
@@ -33,6 +35,8 @@ class _HypervisorOperatorCharm(charm.HypervisorOperatorCharm):
 
 
 class TestCharm(test_utils.CharmTestCase):
+    """Test charm to test relations."""
+
     PATCHES = ["socket", "snap", "get_local_ip_by_default_route", "os"]
 
     def setUp(self):
@@ -48,6 +52,7 @@ class TestCharm(test_utils.CharmTestCase):
         self.addCleanup(self.harness.cleanup)
 
     def initial_setup(self):
+        """Setting up relations."""
         rel_id = self.harness.add_relation("certificates", "vault")
         self.harness.add_relation_unit(rel_id, "vault/0")
         self.harness.update_config({"snap-channel": "essex/stable"})
@@ -80,7 +85,9 @@ class TestCharm(test_utils.CharmTestCase):
         self.harness.add_relation_unit(ceph_rel_id, "cinder-ceph/0")
 
         credentials_content = {"uuid": "ddd", "key": "eee"}
-        credentials_id = self.harness.add_model_secret("cinder-ceph", credentials_content)
+        credentials_id = self.harness.add_model_secret(
+            "cinder-ceph", credentials_content
+        )
 
         self.harness.grant_secret(credentials_id, self.harness.charm.app.name)
         self.harness.update_relation_data(
@@ -95,20 +102,28 @@ class TestCharm(test_utils.CharmTestCase):
         hypervisor_snap_mock = mock.MagicMock()
         hypervisor_snap_mock.present = False
         self.snap.SnapState.Latest = "latest"
-        self.snap.SnapCache.return_value = {"openstack-hypervisor": hypervisor_snap_mock}
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock
+        }
         self.socket.getfqdn.return_value = "test.local"
         self.initial_setup()
         self.harness.set_leader()
-        hypervisor_snap_mock.ensure.assert_any_call("latest", channel="essex/stable")
+        hypervisor_snap_mock.ensure.assert_any_call(
+            "latest", channel="essex/stable"
+        )
         test_utils.add_complete_amqp_relation(self.harness)
         test_utils.add_complete_identity_credentials_relation(self.harness)
         metadata = self.harness.charm.metadata_secret()
-        ovn_cacert = test_utils.TEST_CA + "\n" + "\n".join(test_utils.TEST_CHAIN)
+        ovn_cacert = (
+            test_utils.TEST_CA + "\n" + "\n".join(test_utils.TEST_CHAIN)
+        )
         ovn_cacert = base64.b64encode(ovn_cacert.encode()).decode()
         private_key = base64.b64encode(
             self.harness.charm.contexts().certificates.key.encode()
         ).decode()
-        certificate = base64.b64encode(test_utils.TEST_SERVER_CERT.encode()).decode()
+        certificate = base64.b64encode(
+            test_utils.TEST_SERVER_CERT.encode()
+        ).decode()
         expect_settings = {
             "compute.cpu-mode": "host-model",
             "compute.spice-proxy-address": "10.0.0.10",
@@ -163,27 +178,37 @@ class TestCharm(test_utils.CharmTestCase):
 
         # Add ceilometer-service relation
         self.harness.add_relation(
-            "ceilometer-service", "ceilometer", app_data={"telemetry-secret": "FAKE_SECRET"}
+            "ceilometer-service",
+            "ceilometer",
+            app_data={"telemetry-secret": "FAKE_SECRET"},
         )
 
         self.get_local_ip_by_default_route.return_value = "10.0.0.10"
         hypervisor_snap_mock = mock.MagicMock()
         hypervisor_snap_mock.present = False
         self.snap.SnapState.Latest = "latest"
-        self.snap.SnapCache.return_value = {"openstack-hypervisor": hypervisor_snap_mock}
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock
+        }
         self.socket.getfqdn.return_value = "test.local"
         self.initial_setup()
         self.harness.set_leader()
-        hypervisor_snap_mock.ensure.assert_any_call("latest", channel="essex/stable")
+        hypervisor_snap_mock.ensure.assert_any_call(
+            "latest", channel="essex/stable"
+        )
         test_utils.add_complete_amqp_relation(self.harness)
         test_utils.add_complete_identity_credentials_relation(self.harness)
         metadata = self.harness.charm.metadata_secret()
-        ovn_cacert = test_utils.TEST_CA + "\n" + "\n".join(test_utils.TEST_CHAIN)
+        ovn_cacert = (
+            test_utils.TEST_CA + "\n" + "\n".join(test_utils.TEST_CHAIN)
+        )
         ovn_cacert = base64.b64encode(ovn_cacert.encode()).decode()
         private_key = base64.b64encode(
             self.harness.charm.contexts().certificates.key.encode()
         ).decode()
-        certificate = base64.b64encode(test_utils.TEST_SERVER_CERT.encode()).decode()
+        certificate = base64.b64encode(
+            test_utils.TEST_SERVER_CERT.encode()
+        ).decode()
         expect_settings = {
             "compute.cpu-mode": "host-model",
             "compute.spice-proxy-address": "10.0.0.10",

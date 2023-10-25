@@ -26,7 +26,9 @@ import os
 import secrets
 import socket
 import string
-from typing import List
+from typing import (
+    List,
+)
 
 import charms.operator_libs_linux.v2.snap as snap
 import ops.framework
@@ -38,11 +40,19 @@ from charms.ceilometer_k8s.v0.ceilometer_service import (
     CeilometerConfigChangedEvent,
     CeilometerServiceGoneAwayEvent,
 )
-from charms.grafana_agent.v0.cos_agent import COSAgentProvider
-from ops.charm import ActionEvent
-from ops.main import main
+from charms.grafana_agent.v0.cos_agent import (
+    COSAgentProvider,
+)
+from ops.charm import (
+    ActionEvent,
+)
+from ops.main import (
+    main,
+)
 
-from utils import get_local_ip_by_default_route
+from utils import (
+    get_local_ip_by_default_route,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +71,9 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         self._state.set_default(metadata_secret="")
         self.enable_monitoring = self.check_relation_exists("cos-agent")
         # Enable telemetry when ceilometer-service relation is joined
-        self.enable_telemetry = self.check_relation_exists("ceilometer-service")
+        self.enable_telemetry = self.check_relation_exists(
+            "ceilometer-service"
+        )
         self.framework.observe(
             self.on.set_hypervisor_local_settings_action,
             self._set_hypervisor_local_settings_action,
@@ -111,11 +123,13 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             )
             handlers.append(self.ovsdb_cms)
         if self.can_add_handler("ceilometer-service", handlers):
-            self.ceilometer = sunbeam_rhandlers.CeilometerServiceRequiresHandler(
-                self,
-                "ceilometer-service",
-                self.handle_ceilometer_events,
-                "ceilometer-service" in self.mandatory_relations,
+            self.ceilometer = (
+                sunbeam_rhandlers.CeilometerServiceRequiresHandler(
+                    self,
+                    "ceilometer-service",
+                    self.handle_ceilometer_events,
+                    "ceilometer-service" in self.mandatory_relations,
+                )
             )
             handlers.append(self.ceilometer)
         handlers = super().get_relation_handlers(handlers)
@@ -199,9 +213,14 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             hypervisor = cache["openstack-hypervisor"]
 
             if not hypervisor.present:
-                hypervisor.ensure(snap.SnapState.Latest, channel=config("snap-channel"))
+                hypervisor.ensure(
+                    snap.SnapState.Latest, channel=config("snap-channel")
+                )
         except snap.SnapError as e:
-            logger.error("An exception occurred when installing charmcraft. Reason: %s", e.message)
+            logger.error(
+                "An exception occurred when installing charmcraft. Reason: %s",
+                e.message,
+            )
 
     def configure_unit(self, event) -> None:
         """Run configuration on this unit."""
@@ -212,13 +231,16 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         local_ip = get_local_ip_by_default_route()
         try:
             contexts = self.contexts()
-            sb_connection_strs = list(contexts.ovsdb_cms.db_ingress_sb_connection_strs)
+            sb_connection_strs = list(
+                contexts.ovsdb_cms.db_ingress_sb_connection_strs
+            )
             if not sb_connection_strs:
                 raise AttributeError(name="ovsdb southbound ingress string")
 
             snap_data = {
                 "compute.cpu-mode": "host-model",
-                "compute.spice-proxy-address": config("ip-address") or local_ip,
+                "compute.spice-proxy-address": config("ip-address")
+                or local_ip,
                 "compute.virt-type": "kvm",
                 "credentials.ovn-metadata-proxy-shared-secret": self.metadata_secret(),
                 "identity.admin-role": contexts.identity_credentials.admin_role,
@@ -236,11 +258,17 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "network.dns-servers": config("dns-servers"),
                 "network.enable-gateway": config("enable-gateway"),
                 "network.external-bridge": config("external-bridge"),
-                "network.external-bridge-address": config("external-bridge-address")
+                "network.external-bridge-address": config(
+                    "external-bridge-address"
+                )
                 or "10.20.20.1/24",
                 "network.ip-address": config("ip-address") or local_ip,
-                "network.ovn-key": base64.b64encode(contexts.certificates.key.encode()).decode(),
-                "network.ovn-cert": base64.b64encode(contexts.certificates.cert.encode()).decode(),
+                "network.ovn-key": base64.b64encode(
+                    contexts.certificates.key.encode()
+                ).decode(),
+                "network.ovn-cert": base64.b64encode(
+                    contexts.certificates.cert.encode()
+                ).decode(),
                 "network.ovn-cacert": base64.b64encode(
                     contexts.certificates.ca_cert.encode()
                 ).decode(),
@@ -252,7 +280,9 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "monitoring.enable": self.enable_monitoring,
             }
         except AttributeError as e:
-            raise sunbeam_guard.WaitingExceptionError("Data missing: {}".format(e.name))
+            raise sunbeam_guard.WaitingExceptionError(
+                "Data missing: {}".format(e.name)
+            )
         # Handle optional config contexts
         try:
             if contexts.ceph_access.uuid:

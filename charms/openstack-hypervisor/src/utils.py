@@ -18,7 +18,9 @@
 
 
 import logging
-from typing import Optional
+from typing import (
+    Optional,
+)
 
 import netifaces
 
@@ -50,7 +52,9 @@ def _get_default_gw_iface_fallback() -> Optional[str]:
         # contents to line up. This is parsing the /proc/net/route and creating a set of
         # entries. Each entry is a dict where the keys are table header and the values
         # are the values in the table rows.
-        header = [col.strip().lower() for col in contents[0].split("\t") if col]
+        header = [
+            col.strip().lower() for col in contents[0].split("\t") if col
+        ]
         for row in contents[1:]:
             cells = [col.strip() for col in row.split("\t") if col]
             entries.append(dict(zip(header, cells)))
