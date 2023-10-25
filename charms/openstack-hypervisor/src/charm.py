@@ -28,6 +28,8 @@ import socket
 import string
 from typing import (
     List,
+    Optional,
+    Set,
 )
 
 import charms.operator_libs_linux.v2.snap as snap
@@ -64,6 +66,8 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     service_name = "hypervisor"
     METADATA_SECRET_KEY = "ovn-metadata-proxy-shared-secret"
     DEFAULT_SECRET_LENGTH = 32
+
+    mandatory_relations = {"amqp", "identity-credentials", "ovsdb-cms"}
 
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run constructor."""
@@ -323,6 +327,21 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         elif isinstance(event, CeilometerServiceGoneAwayEvent):
             self.enable_telemetry = False
             self.configure_charm(event)
+
+    def stop_services(self, relation: Optional[Set[str]]) -> None:
+        """Stop services based on relation goneaway event."""
+        snap_data = {}
+        for relation_ in relation:
+            logger.info(f"In stop_services for relation {relation_}")
+            if relation_ == "amqp":
+                logger.debug("Resetting rabbitmq url")
+                snap_data.update({"rabbitmq.url": ""})
+            elif relation_ == "ovsdb-cms":
+                logger.debug("Resetting OVN SB connection")
+                snap_data.update({"network.ovn-sb-connection": ""})
+
+        if snap_data:
+            self.set_snap_data(snap_data)
 
 
 if __name__ == "__main__":  # pragma: no cover

@@ -108,11 +108,11 @@ class TestCharm(test_utils.CharmTestCase):
         self.socket.getfqdn.return_value = "test.local"
         self.initial_setup()
         self.harness.set_leader()
+        test_utils.add_complete_amqp_relation(self.harness)
+        test_utils.add_complete_identity_credentials_relation(self.harness)
         hypervisor_snap_mock.ensure.assert_any_call(
             "latest", channel="essex/stable"
         )
-        test_utils.add_complete_amqp_relation(self.harness)
-        test_utils.add_complete_identity_credentials_relation(self.harness)
         metadata = self.harness.charm.metadata_secret()
         ovn_cacert = (
             test_utils.TEST_CA + "\n" + "\n".join(test_utils.TEST_CHAIN)
@@ -193,11 +193,11 @@ class TestCharm(test_utils.CharmTestCase):
         self.socket.getfqdn.return_value = "test.local"
         self.initial_setup()
         self.harness.set_leader()
+        test_utils.add_complete_amqp_relation(self.harness)
+        test_utils.add_complete_identity_credentials_relation(self.harness)
         hypervisor_snap_mock.ensure.assert_any_call(
             "latest", channel="essex/stable"
         )
-        test_utils.add_complete_amqp_relation(self.harness)
-        test_utils.add_complete_identity_credentials_relation(self.harness)
         metadata = self.harness.charm.metadata_secret()
         ovn_cacert = (
             test_utils.TEST_CA + "\n" + "\n".join(test_utils.TEST_CHAIN)
