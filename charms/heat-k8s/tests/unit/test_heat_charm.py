@@ -19,6 +19,7 @@
 import json
 from unittest.mock import (
     MagicMock,
+    Mock,
 )
 
 import ops_sunbeam.test_utils as test_utils
@@ -80,22 +81,12 @@ class TestHeatOperatorCharm(test_utils.CharmTestCase):
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
-    def add_complete_identity_resource_relation(
-        self, harness: Harness
-    ) -> None:
+    def add_complete_identity_resource_relation(self, harness: Harness) -> int:
         """Add complete Identity resource relation."""
         rel_id = harness.add_relation("identity-ops", "keystone")
         harness.add_relation_unit(rel_id, "keystone/0")
-        ops = harness.charm._get_heat_stack_domain_ops()
-        id_ = harness.charm.hash_ops(ops)
-        harness.update_relation_data(
-            rel_id,
-            "keystone/0",
-            {
-                "request": json.dumps(
-                    {"id": id_, "tag": "initial_heat_domain_setup", "ops": ops}
-                )
-            },
+        harness.charm.user_id_ops.get_config_credentials = Mock(
+            return_value=("test", "test")
         )
 
         harness.update_relation_data(
@@ -104,7 +95,7 @@ class TestHeatOperatorCharm(test_utils.CharmTestCase):
             {
                 "response": json.dumps(
                     {
-                        "id": id_,
+                        "id": 1,
                         "tag": "initial_heat_domain_setup",
                         "ops": [{"name": "create_domain", "return-code": 0}],
                     }

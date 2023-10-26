@@ -29,29 +29,21 @@ from typing import (
     Optional,
 )
 
+import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_config_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
-import pwgen
 from charms.heat_k8s.v0.heat_shared_config import (
     HeatSharedConfigChangedEvent,
     HeatSharedConfigProvides,
     HeatSharedConfigRequestEvent,
     HeatSharedConfigRequires,
 )
-from charms.keystone_k8s.v0.identity_resource import (
-    IdentityOpsProviderGoneAwayEvent,
-    IdentityOpsProviderReadyEvent,
-    IdentityOpsResponseEvent,
-)
 from ops.charm import (
     CharmBase,
     RelationEvent,
-    SecretChangedEvent,
-    SecretRemoveEvent,
-    SecretRotateEvent,
 )
 from ops.framework import (
     StoredState,
@@ -63,7 +55,6 @@ from ops.model import (
     ModelError,
     Relation,
     SecretNotFoundError,
-    SecretRotate,
 )
 
 logger = logging.getLogger(__name__)
@@ -274,12 +265,21 @@ class HeatEnginePebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 class HeatConfigurationContext(sunbeam_config_contexts.ConfigContext):
     """Heat configuration context."""
 
+    @property
+    def ready(self) -> bool:
+        """Whether the context has all the data is needs."""
+        return (
+            self.charm.user_id_ops.ready
+            and self.charm.get_heat_auth_encryption_key() is not None
+        )
+
     def context(self) -> dict:
         """Heat configuration context."""
-        (
-            username,
-            password,
-        ) = self.charm.get_stack_admin_credentials_to_configure()
+        credentials = self.charm.user_id_ops.get_config_credentials()
+        heat_auth_encryption_key = self.charm.get_heat_auth_encryption_key()
+        if credentials is None or heat_auth_encryption_key is None:
+            return {}
+        username, password = credentials
         return {
             "stack_domain_name": self.charm.stack_domain_name,
             "stack_domain_admin_user": username,
@@ -317,13 +317,21 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = super().get_relation_handlers()
-        self.id_ops = sunbeam_rhandlers.IdentityResourceRequiresHandler(
-            self,
-            "identity-ops",
-            self.handle_keystone_ops,
-            mandatory="identity-ops" in self.mandatory_relations,
+        self.user_id_ops = (
+            sunbeam_rhandlers.UserIdentityResourceRequiresHandler(
+                self,
+                "identity-ops",
+                self.configure_charm,
+                mandatory="identity-ops" in self.mandatory_relations,
+                name=self.stack_domain_admin_user,
+                domain=self.stack_domain_name,
+                role="admin",
+                add_suffix=True,
+                extra_ops=self._get_create_role_ops(),
+                extra_ops_process=self._handle_create_role_response,
+            )
         )
-        handlers.append(self.id_ops)
+        handlers.append(self.user_id_ops)
 
         if self.service_name == HEAT_CFN_SERVICE_NAME:
             # heat-config is not a mandatory relation.
@@ -561,400 +569,28 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ),
         ]
 
-    def _get_stack_admin_credentials_to_ops_secret(self) -> str:
-        """Get stack domain admin secret sent to ops."""
-        label = f"{CREDENTIALS_SECRET_PREFIX}{self.stack_domain_admin_user}"
-        credentials_id = self.leader_get(label)
-
-        if not credentials_id:
-            credentials_id = self._retrieve_or_set_secret(
-                self.stack_domain_admin_user,
-                rotate=SecretRotate.MONTHLY,
-                add_suffix_to_username=True,
-            )
-
-        return credentials_id
-
-    def _grant_stack_admin_credentials_to_ops_secret(
-        self, relation: Relation
-    ) -> None:
-        """Grant secret access to the related units."""
-        try:
-            credentials_id = self._get_stack_admin_credentials_to_ops_secret()
-            secret = self.model.get_secret(id=credentials_id)
-            logger.debug(
-                f"Granting access to secret {credentials_id} for relation "
-                f"{relation.app.name} {relation.name}/{relation.id}"
-            )
-            secret.grant(relation)
-        except (ModelError, SecretNotFoundError) as e:
-            logger.debug(
-                f"Error during granting access to secret {credentials_id} for "
-                f"relation {relation.app.name} {relation.name}/{relation.id}: "
-                f"{str(e)}"
-            )
-
-    # 2 secrets maintained for stack admin user credentials. One is used to
-    # sent to identity-ops to create user in keystone. Once the user is created
-    # in keystone, this charm identifies via the identity-ops available
-    # response event and updates 2nd secret. The 2nd secret is used to
-    # template the heat configuration.
-    # This separation is mainly required to handle user rotation every
-    # month in an automatic fashion.
-    def get_stack_admin_credentials_to_ops(self) -> tuple:
-        """Credentials for stack domain admin user to be sent to ops."""
-        credentials_id = self._get_stack_admin_credentials_to_ops_secret()
-        credentials = self.model.get_secret(id=credentials_id)
-        username = credentials.get_content().get("username")
-        user_password = credentials.get_content().get("password")
-        return (username, user_password)
-
-    def set_stack_admin_credentials_to_configure(self) -> bool:
-        """Set domain admin credentials to configure in heat conf."""
-        label = (
-            f"{CREDENTIALS_SECRET_PREFIX}configure_"
-            f"{self.stack_domain_admin_user}"
-        )
-        try:
-            credentials_id = self.leader_get(label)
-            username, password = self.get_stack_admin_credentials_to_ops()
-            if credentials_id:
-                credentials = self.model.get_secret(id=credentials_id)
-                credentials.set_content(
-                    {"username": username, "password": password}
-                )
-            else:
-                credentials_secret = self.model.app.add_secret(
-                    {"username": username, "password": password},
-                    label=label,
-                )
-                self.leader_set({label: credentials_secret.id})
-        except (ModelError, SecretNotFoundError) as e:
-            logger.debug(str(e))
-            return False
-
-        return True
-
-    def get_stack_admin_credentials_to_configure(self) -> tuple:
-        """Get domain admin credentials to configure in heat conf."""
-        label = (
-            f"{CREDENTIALS_SECRET_PREFIX}configure_"
-            f"{self.stack_domain_admin_user}"
-        )
-        try:
-            credentials_id = self.leader_get(label)
-            if credentials_id:
-                credentials = self.model.get_secret(id=credentials_id)
-                credentials = credentials.get_content()
-                username = credentials.get("username")
-                password = credentials.get("password")
-                return (username, password)
-        except (ModelError, SecretNotFoundError) as e:
-            logger.debug(str(e))
-
-        return None, None
-
-    def add_domain_admin_to_users_list_to_delete(
-        self, old_stack_user: str
-    ) -> None:
-        """Update users list to delete."""
-        logger.debug(f"Adding stack user to delete list {old_stack_user}")
-        old_stack_users = self.leader_get("old_stack_users")
-        stack_users_to_delete = (
-            json.loads(old_stack_users) if old_stack_users else []
-        )
-        if old_stack_user not in stack_users_to_delete:
-            stack_users_to_delete.append(old_stack_user)
-            self.leader_set(
-                {"old_stack_users": json.dumps(stack_users_to_delete)}
-            )
-
-    def _retrieve_or_set_secret(
-        self,
-        username: str,
-        rotate: SecretRotate = SecretRotate.NEVER,
-        add_suffix_to_username: bool = False,
-    ) -> str:
-        """Retrieve or create a secret."""
-        label = f"{CREDENTIALS_SECRET_PREFIX}{username}"
-        credentials_id = self.leader_get(label)
-        if credentials_id:
-            return credentials_id
-
-        password = pwgen.pwgen(12)
-        if add_suffix_to_username:
-            suffix = pwgen.pwgen(6)
-            username = f"{username}-{suffix}"
-        credentials_secret = self.model.app.add_secret(
-            {"username": username, "password": password},
-            label=label,
-            rotate=rotate,
-        )
-        self.leader_set(
+    def _get_create_role_ops(self) -> list:
+        """Generate ops request for create role."""
+        return [
             {
-                label: credentials_secret.id,
+                "name": "create_role",
+                "params": {"name": "heat_stack_user"},
             }
-        )
-        return credentials_secret.id
-
-    def _get_heat_stack_domain_ops(self) -> list:
-        """Generate ops request for domain setup."""
-        credentials_id = self._get_stack_admin_credentials_to_ops_secret()
-        username, _ = self.get_stack_admin_credentials_to_ops()
-        ops = [
-            # Create domain heat
-            {
-                "name": "create_domain",
-                "params": {"name": "heat", "enable": True},
-            },
-            # Create role heat_stack_user
-            {"name": "create_role", "params": {"name": "heat_stack_user"}},
-            # Create user heat_domain_admin
-            {
-                "name": "create_user",
-                "params": {
-                    "name": username,
-                    "password": credentials_id,
-                    "domain": "heat",
-                },
-            },
-            # Grant role admin to heat_domain_admin user
-            {
-                "name": "grant_role",
-                "params": {
-                    "role": "admin",
-                    "domain": "heat",
-                    "user": username,
-                    "user_domain": "heat",
-                },
-            },
         ]
-        return ops
 
-    def _delete_stack_users(self, users: list) -> list:
-        """Generate ops to delete stack users."""
-        ops = []
-        for user in users:
-            ops.append(
-                {
-                    "name": "delete_user",
-                    "params": {"name": user, "domain": "heat"},
-                }
-            )
-
-        return ops
-
-    def _handle_initial_heat_domain_setup_response(
-        self, event: RelationEvent
+    def _handle_create_role_response(
+        self, event: ops.EventBase, response: dict
     ) -> None:
-        """Handle domain setup response from identity-ops."""
+        """Handle response from identity-ops."""
+        logger.info("%r", response)
         if {
             op.get("return-code")
-            for op in self.id_ops.interface.response.get("ops", [])
+            for op in response.get("ops", [])
+            if op.get("name") == "create_role"
         } == {0}:
-            logger.debug(
-                "Initial heat domain setup commands completed, running "
-                "configure charm"
-            )
-            (
-                username,
-                password,
-            ) = self.get_stack_admin_credentials_to_configure()
-            if self.set_stack_admin_credentials_to_configure():
-                if username:
-                    self.add_domain_admin_to_users_list_to_delete(username)
-                self.configure_charm(event)
+            logger.debug("Heat stack user role has been created.")
         else:
-            logger.debug(
-                "Error in running initial domain setup ops "
-                f"{self.id_ops.interface.response}"
-            )
-
-    def _handle_create_stack_user_response(self, event: RelationEvent) -> None:
-        """Handle create stack user response from identity-ops."""
-        if {
-            op.get("return-code")
-            for op in self.id_ops.interface.response.get("ops", [])
-        } == {0}:
-            logger.debug(
-                "Create stack user completed, running configure charm"
-            )
-            (
-                username,
-                password,
-            ) = self.get_stack_admin_credentials_to_configure()
-            if self.set_stack_admin_credentials_to_configure():
-                if username:
-                    self.add_domain_admin_to_users_list_to_delete(username)
-        else:
-            logger.debug(
-                "Error in creation of stack user ops "
-                f"{self.id_ops.interface.response}"
-            )
-
-    def _handle_delete_stack_users_response(
-        self, event: RelationEvent
-    ) -> None:
-        """Handle delete stack user response from identity-ops."""
-        deleted_users = []
-        for op in self.id_ops.interface.response.get("ops", []):
-            if op.get("return-code") == 0:
-                deleted_users.append(op.get("value").get("name"))
-            else:
-                logger.debug("Error in running delete stack user for op {op}")
-
-        if deleted_users:
-            logger.debug(f"Deleted users: {deleted_users}")
-
-        old_stack_users = self.leader_get("old_stack_users")
-        stack_users_to_delete = (
-            json.loads(old_stack_users) if old_stack_users else []
-        )
-        new_stack_users_to_delete = [
-            x for x in stack_users_to_delete if x not in deleted_users
-        ]
-        self.leader_set(
-            {"old_stack_users": json.dumps(new_stack_users_to_delete)}
-        )
-
-    def handle_keystone_ops(self, event: RelationEvent) -> None:
-        """Event handler for identity ops."""
-        if isinstance(event, IdentityOpsProviderReadyEvent):
-            self._state.identity_ops_ready = True
-
-            if not self.unit.is_leader():
-                return
-
-            # Send op request only by leader unit
-            ops = self._get_heat_stack_domain_ops()
-            id_ = self.hash_ops(ops)
-            self._grant_stack_admin_credentials_to_ops_secret(event.relation)
-            request = {
-                "id": id_,
-                "tag": "initial_heat_domain_setup",
-                "ops": ops,
-            }
-            logger.info(f"Sending ops request: {request}")
-            self.id_ops.interface.request_ops(request)
-        elif isinstance(event, IdentityOpsProviderGoneAwayEvent):
-            self._state.identity_ops_ready = False
-        elif isinstance(event, IdentityOpsResponseEvent):
-            if not self.unit.is_leader():
-                return
-
-            logger.info(
-                f"Got response from keystone: {self.id_ops.interface.response}"
-            )
-            request_tag = self.id_ops.interface.response.get("tag")
-            if request_tag == "initial_heat_domain_setup":
-                self._handle_initial_heat_domain_setup_response(event)
-            elif request_tag == "create_stack_user":
-                self._handle_create_stack_user_response(event)
-            elif request_tag == "delete_stack_users":
-                self._handle_delete_stack_users_response(event)
-            else:
-                logger.debug("Ignore handling response for tag {request_tag}")
-
-    def _on_secret_changed(self, event: SecretChangedEvent):
-        logger.debug(
-            f"secret-changed triggered for label {event.secret.label}"
-        )
-        stack_user_label = (
-            f"{CREDENTIALS_SECRET_PREFIX}configure_"
-            f"{self.stack_domain_admin_user}"
-        )
-
-        # Secret change on configured stack admin secret
-        if event.secret.label == stack_user_label:
-            logger.debug(
-                "Calling configure charm to populate heat stack user info in "
-                "configuration files"
-            )
-            self.configure_charm(event)
-        else:
-            logger.debug(
-                "Ignoring the secret-changed event for label "
-                f"{event.secret.label}"
-            )
-
-    def _on_secret_rotate(self, event: SecretRotateEvent):
-        # All the juju secrets are created on leader unit, so return
-        # if unit is not leader at this stage instead of checking at
-        # each secret.
-        logger.debug(f"secret-rotate triggered for label {event.secret.label}")
-        if not self.unit.is_leader():
-            logger.debug("Not leader unit, no action required")
-            return
-
-        stack_user_label = (
-            f"{CREDENTIALS_SECRET_PREFIX}{self.stack_domain_admin_user}"
-        )
-        # Secret rotate on stack admin secret sent to ops
-        if event.secret.label == stack_user_label:
-            suffix = pwgen.pwgen(6)
-            username = f"{self.stack_domain_admin_user}-{suffix}"
-            password = pwgen.pwgen(12)
-            event.secret.set_content(
-                {
-                    "username": username,
-                    "password": password,
-                }
-            )
-
-            # Can reuse _get_heat_stack_domain_ops as creation of domain
-            # and role are extra steps and identity-ops is idempotent so
-            # sending those ops commands does not cause any issues.
-            ops = self._get_heat_stack_domain_ops()
-            id_ = self.hash_ops(ops)
-            request = {
-                "id": id_,
-                "tag": "create_stack_user",
-                "ops": ops,
-            }
-            logger.debug(f"Sending ops request: {request}")
-            self.id_ops.interface.request_ops(request)
-        else:
-            logger.debug(
-                "Ignoring the secret-rotate event for label "
-                f"{event.secret.label}"
-            )
-
-    def _on_secret_remove(self, event: SecretRemoveEvent):
-        logger.debug(f"secret-remove triggered for label {event.secret.label}")
-        if not self.unit.is_leader():
-            logger.debug("Not leader unit, no action required")
-            return
-
-        stack_user_label = (
-            f"{CREDENTIALS_SECRET_PREFIX}configure_"
-            f"{self.stack_domain_admin_user}"
-        )
-        # Secret remove on configured stack admin secret
-        if event.secret.label == stack_user_label:
-            old_stack_users = self.leader_get("old_stack_users")
-            stack_users_to_delete = (
-                json.loads(old_stack_users) if old_stack_users else []
-            )
-
-            if not stack_users_to_delete:
-                return
-
-            # Check if previous request is processed or not??
-            # if not, just ignore/defer sending this request
-            ops = self._delete_stack_users(stack_users_to_delete)
-            id_ = self.hash_ops(ops)
-            request = {
-                "id": id_,
-                "tag": "delete_stack_users",
-                "ops": ops,
-            }
-            logger.debug(f"Sending ops request: {request}")
-            self.id_ops.interface.request_ops(request)
-        else:
-            logger.debug(
-                "Ignoring the secret-remove event for label "
-                f"{event.secret.label}"
-            )
+            logger.warning("Heat stack user role creation failed.")
 
     def _set_config(self, key: str, relation: Relation) -> None:
         """Set config key over the relation."""
