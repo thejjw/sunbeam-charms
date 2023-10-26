@@ -249,6 +249,11 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         secret = self.model.get_secret(id=secret_id)
         return secret.get_content()["auth-url"]
 
+    def open_ports(self):
+        """Register ports in underlying cloud."""
+        super().open_ports()
+        self.unit.open_port("tcp", self.default_public_ingress_port)
+
     def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = super().get_relation_handlers()
