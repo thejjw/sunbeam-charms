@@ -1,0 +1,48 @@
+bundle: kubernetes
+applications:
+  mysql:
+    charm: ch:mysql-k8s
+    channel: 8.0/stable
+    scale: 1
+    trust: true
+
+  # Currently traefik is required for networking things.
+  # If this isn't present, the units will hang at "installing agent".
+  traefik:
+    charm: ch:traefik-k8s
+    channel: 1.0/candidate
+    scale: 1
+    trust: true
+    options:
+      kubernetes-service-annotations: metallb.universe.tf/address-pool=public
+
+  keystone:
+    charm: ch:keystone-k8s
+    channel: 2023.2/edge
+    scale: 1
+    trust: false
+    options:
+      admin-role: admin
+    storage:
+      fernet-keys: 5M
+      credential-keys: 5M
+
+  openstack-exporter:
+    charm: ../../openstack-exporter-k8s.charm
+    scale: 1
+    trust: false
+    resources:
+      openstack-exporter-image: ghcr.io/canonical/openstack-exporter:1.6.0-7533071
+
+
+relations:
+- - traefik:ingress
+  - keystone:ingress-internal
+- - traefik:ingress
+  - keystone:ingress-public
+
+- - mysql:database
+  - keystone:database
+
+- - keystone:identity-ops
+  - openstack-exporter:identity-ops
