@@ -15,16 +15,17 @@ applications:
     scale: 1
     trust: true
 
-  # required for glance
   rabbitmq:
     charm: ch:rabbitmq-k8s
-    channel: 3.9/edge
+    channel: 3.12/edge
     scale: 1
     trust: true
+    options:
+      minimum-replicas: 1
 
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.1/edge/gnuoy
+    channel: 2023.2/edge
     series: jammy
     scale: 1
     trust: true
@@ -45,7 +46,7 @@ applications:
 
   glance:
     charm: ch:glance-k8s
-    channel: 2023.1/edge
+    channel: 2023.2/edge
     scale: 1
     trust: true
     storage:

@@ -25,7 +25,7 @@ import json
 import logging
 from typing import Callable, List, Mapping
 
-import charms.keystone_ldap_k8s.v0.domain_config as sunbeam_dc_svc
+import charms.keystone_k8s.v0.domain_config as sunbeam_dc_svc
 import jinja2
 import ops.charm
 import ops_sunbeam.charm as sunbeam_charm
