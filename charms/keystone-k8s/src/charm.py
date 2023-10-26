@@ -39,10 +39,10 @@ from typing import (
     List,
 )
 
+import charms.keystone_k8s.v0.domain_config as sunbeam_dc_svc
 import charms.keystone_k8s.v0.identity_credentials as sunbeam_cc_svc
 import charms.keystone_k8s.v0.identity_resource as sunbeam_ops_svc
 import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
-import charms.keystone_ldap_k8s.v0.domain_config as sunbeam_dc_svc
 import jinja2
 import ops.charm
 import ops.pebble

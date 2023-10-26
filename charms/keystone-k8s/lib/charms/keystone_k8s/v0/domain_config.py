@@ -23,7 +23,7 @@ import base64
 logger = logging.getLogger(__name__)
 
 # The unique Charmhub library identifier, never change it
-LIBID = "589e0b16e4164e829aa8eb232628429c"
+LIBID = "dfeee73ed0b248c29ed905aeda6fd417"
 
 # Increment this major API version when introducing breaking changes
 LIBAPI = 0
