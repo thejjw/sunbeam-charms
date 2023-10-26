@@ -27,6 +27,9 @@ develop a new k8s charm using the Operator Framework:
 
 import json
 import logging
+from collections import (
+    defaultdict,
+)
 from pathlib import (
     Path,
 )
@@ -40,6 +43,7 @@ import charms.keystone_k8s.v0.identity_credentials as sunbeam_cc_svc
 import charms.keystone_k8s.v0.identity_resource as sunbeam_ops_svc
 import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
 import charms.keystone_ldap_k8s.v0.domain_config as sunbeam_dc_svc
+import jinja2
 import ops.charm
 import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
@@ -1524,19 +1528,31 @@ export OS_AUTH_VERSION=3
             {"name": op.get("name"), "return-code": -2, "value": None}
             for op in request.get("ops", [])
         ]
+        context = defaultdict(list)
 
         request = self._sanitize_secrets(request)
         for idx, op in enumerate(request.get("ops", [])):
+            func_name = op.get("name")
             try:
-                func_name = op.get("name")
                 func = getattr(self.keystone_manager.ksclient, func_name)
                 params = op.get("params", {})
-                result = func(**params)
+                computed_params = params.copy()
+                for key, value in params.items():
+                    if isinstance(value, str):
+                        templated_value = jinja2.Template(value).render(
+                            context
+                        )
+                        logger.debug(
+                            f"handle_op_request: {value} templated to {templated_value}"
+                        )
+                        computed_params[key] = templated_value
+                result = func(**computed_params)
                 response["ops"][idx]["return-code"] = 0
                 response["ops"][idx]["value"] = result
             except Exception as e:
                 response["ops"][idx]["return-code"] = -1
                 response["ops"][idx]["value"] = str(e)
+            context[func_name].append(response["ops"][idx]["value"])
 
         logger.debug(f"handle_op_request: Sending response {response}")
         self.ops_svc.interface.set_ops_response(
