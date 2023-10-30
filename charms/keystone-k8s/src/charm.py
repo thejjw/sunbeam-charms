@@ -136,6 +136,7 @@ class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
             "public_endpoint": self.charm.public_endpoint,
             "admin_endpoint": self.charm.admin_endpoint,
             "domain_config_dir": self.charm.domain_config_dir,
+            "domain_ca_dir": self.charm.domain_ca_dir,
             "log_config": "/etc/keystone/logging.conf.j2",
             "paste_config_file": "/etc/keystone/keystone-paste.ini",
         }
@@ -316,6 +317,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_admin_script = "/usr/bin/keystone-wsgi-admin"
     wsgi_public_script = "/usr/bin/keystone-wsgi-public"
     domain_config_dir = Path("/etc/keystone/domains")
+    domain_ca_dir = Path("/usr/local/share/ca-certificates")
     service_port = 5000
     mandatory_relations = {"database", "ingress-public"}
     db_sync_cmds = [
@@ -904,6 +906,12 @@ export OS_AUTH_VERSION=3
             else:
                 container.remove_path(domain_file.path)
                 removed_domains.append(domain_on_disk)
+        for domain_file in container.list_files(self.domain_ca_dir):
+            domain_on_disk = domain_file.name.split(".")[1]
+            if domain_on_disk in active_domains:
+                logger.debug("Keeping CA {}".format(domain_file.name))
+            else:
+                container.remove_path(domain_file.path)
         return removed_domains
 
     def update_domain_config(
@@ -921,6 +929,7 @@ export OS_AUTH_VERSION=3
             domain_config_file = (
                 self.domain_config_dir / f"keystone.{domain_name}.conf"
             )
+            domain_ca_file = self.domain_ca_dir / f"keystone.{domain_name}.crt"
             try:
                 original_contents = container.pull(domain_config_file).read()
             except (ops.pebble.PathError, FileNotFoundError):
@@ -936,6 +945,23 @@ export OS_AUTH_VERSION=3
                     },
                 )
                 updated_domains.append(domain_name)
+            if domain_config.get("ca"):
+                try:
+                    original_contents = container.pull(domain_ca_file).read()
+                except (ops.pebble.PathError, FileNotFoundError):
+                    original_contents = None
+                if original_contents != domain_config["ca"]:
+                    container.push(
+                        domain_ca_file,
+                        domain_config["ca"],
+                        **{
+                            "user": "keystone",
+                            "group": "keystone",
+                            "permissions": 0o644,
+                        },
+                    )
+                    updated_domains.append(domain_name)
+
         return updated_domains
 
     def configure_domains(self, event: ops.framework.EventBase = None) -> None:
@@ -945,8 +971,9 @@ export OS_AUTH_VERSION=3
         else:
             exclude = []
         container = self.unit.get_container(KEYSTONE_CONTAINER)
-        if not container.isdir(self.domain_config_dir):
-            container.make_dir(self.domain_config_dir, make_parents=True)
+        for d in [self.domain_config_dir, self.domain_ca_dir]:
+            if not container.isdir(d):
+                container.make_dir(d, make_parents=True)
         domain_configs = self.dc.get_domain_configs(exclude=exclude)
         removed_domains = self.remove_old_domains(domain_configs, container)
         updated_domains = self.update_domain_config(domain_configs, container)
