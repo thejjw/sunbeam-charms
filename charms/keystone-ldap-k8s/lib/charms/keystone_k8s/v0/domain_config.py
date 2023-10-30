@@ -63,7 +63,7 @@ class DomainConfigProvides(Object):
         self.on.remote_ready.emit(event.relation)
 
     def set_domain_info(
-        self, domain_name: str, config_contents: str
+        self, domain_name: str, config_contents: str, ca=None
     ) -> None:
         """Set ceilometer configuration on the relation."""
         if not self.charm.unit.is_leader():
@@ -72,6 +72,8 @@ class DomainConfigProvides(Object):
         for relation in self.relations:
             relation.data[self.charm.app]["domain-name"] = domain_name
             relation.data[self.charm.app]["config-contents"] = base64.b64encode(config_contents.encode()).decode()
+            if ca:
+                relation.data[self.charm.app]["ca"] = base64.b64encode(ca.encode()).decode()
 
     @property
     def relations(self):
@@ -142,9 +144,13 @@ class DomainConfigRequires(Object):
             raw_config_contents = relation.data[relation.app].get("config-contents")
             if not all([domain_name, raw_config_contents]):
                 continue
-            configs.append({
+            raw_ca = relation.data[relation.app].get("ca")
+            config = {
                 "domain-name": domain_name,
-                "config-contents": base64.b64decode(raw_config_contents).decode()})
+                "config-contents": base64.b64decode(raw_config_contents).decode()}
+            if raw_ca:
+                config["ca"] = base64.b64decode(raw_ca).decode()
+            configs.append(config)
         return configs
 
     @property

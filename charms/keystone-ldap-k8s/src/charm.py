@@ -123,7 +123,9 @@ class KeystoneLDAPK8SCharm(sunbeam_charm.OSBaseOperatorCharm):
         _tmpl_env = jinja2.Environment(loader=loader)
         template = _tmpl_env.get_template("keystone.conf")
         self.dc_handler.domain_config.set_domain_info(
-            domain_name=domain_name, config_contents=template.render(self.contexts())
+            domain_name=domain_name,
+            config_contents=template.render(self.contexts()),
+            ca=self.config.get("tls-ca-ldap"),
         )
 
     def configure_app_leader(self, event) -> None:
