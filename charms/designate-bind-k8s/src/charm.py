@@ -243,7 +243,7 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def configure_unit(self, event: ops.EventBase) -> None:
         """Run configuration on this unit."""
         self.check_leader_ready()
-        self.check_relation_handlers_ready()
+        self.check_relation_handlers_ready(event)
         self.update_owned_relation_data()
         self.open_ports()
         self.init_container_services()
