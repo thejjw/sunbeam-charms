@@ -334,7 +334,7 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def configure_unit(self, event: ops.EventBase) -> None:
         """Run configuration on this unit."""
         self.check_leader_ready()
-        self.check_relation_handlers_ready()
+        self.check_relation_handlers_ready(event)
         self.open_ports()
         self.init_container_services()
         self.check_pebble_handlers_ready()
