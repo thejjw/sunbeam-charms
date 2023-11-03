@@ -50,16 +50,6 @@ applications:
       heat-api-image: ghcr.io/canonical/heat-consolidated:2023.2
       heat-engine-image:  ghcr.io/canonical/heat-consolidated:2023.2
 
-  heat-cfn:
-    charm: ../../heat-k8s.charm
-    scale: 1
-    trust: true
-    options:
-      api_service: heat-api-cfn
-    resources:
-      heat-api-image: ghcr.io/canonical/heat-consolidated:2023.2
-      heat-engine-image:  ghcr.io/canonical/heat-consolidated:2023.2
-
 relations:
 - - traefik:ingress
   - keystone:ingress-internal
@@ -75,24 +65,9 @@ relations:
   - heat:identity-service
 - - keystone:identity-ops
   - heat:identity-ops
-- - traefik:ingress
-  - heat:ingress-internal
-- - traefik-public:ingress
-  - heat:ingress-public
+- - traefik:traefik-route
+  - heat:traefik-route-internal
+- - traefik-public:traefik-route
+  - heat:traefik-route-public
 - - rabbitmq:amqp
   - heat:amqp
-
-- - mysql:database
-  - heat-cfn:database
-- - keystone:identity-service
-  - heat-cfn:identity-service
-- - keystone:identity-ops
-  - heat-cfn:identity-ops
-- - traefik:ingress
-  - heat-cfn:ingress-internal
-- - traefik-public:ingress
-  - heat-cfn:ingress-public
-- - rabbitmq:amqp
-  - heat-cfn:amqp
-- - heat:heat-service
-  - heat-cfn:heat-config

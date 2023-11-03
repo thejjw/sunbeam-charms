@@ -4,8 +4,8 @@
 paste.composite_factory = heat.api:root_app_factory
 /: api
 /healthcheck: healthcheck
-{% if heat.ingress_path -%}
-{{ heat.ingress_path }}: api
+{% if heat.cfn_ingress_path -%}
+{{ heat.cfn_ingress_path }}: api
 {% endif -%}
 
 # heat-api composite for standalone heat
@@ -20,8 +20,8 @@ paste.composite_factory = heat.api:root_app_factory
 paste.composite_factory = heat.api:root_app_factory
 /: api
 /healthcheck: healthcheck
-{% if heat.ingress_path -%}
-{{ heat.ingress_path }}: api
+{% if heat.cfn_ingress_path -%}
+{{ heat.cfn_ingress_path }}: api
 {% endif -%}
 
 # heat-api composite for custom cloud backends
@@ -33,8 +33,8 @@ paste.composite_factory = heat.api:root_app_factory
 paste.composite_factory = heat.api:root_app_factory
 /: api
 /healthcheck: healthcheck
-{% if heat.ingress_path -%}
-{{ heat.ingress_path }}: api
+{% if heat.cfn_ingress_path -%}
+{{ heat.cfn_ingress_path }}: api
 {% endif -%}
 
 # To enable, in heat.conf:
@@ -45,8 +45,8 @@ paste.composite_factory = heat.api:root_app_factory
 paste.composite_factory = heat.api:root_app_factory
 /: api
 /healthcheck: healthcheck
-{% if heat.ingress_path -%}
-{{ heat.ingress_path }}: api
+{% if heat.cfn_ingress_path -%}
+{{ heat.cfn_ingress_path }}: api
 {% endif -%}
 
 # heat-api-cfn composite
@@ -54,8 +54,8 @@ paste.composite_factory = heat.api:root_app_factory
 paste.composite_factory = heat.api:root_app_factory
 /: api-cfn
 /healthcheck: healthcheck
-{% if heat.ingress_path -%}
-{{ heat.ingress_path }}: api-cfn
+{% if heat.cfn_ingress_path -%}
+{{ heat.cfn_ingress_path }}: api-cfn
 {% endif -%}
 
 # heat-api-cfn composite for standalone heat
@@ -64,8 +64,8 @@ paste.composite_factory = heat.api:root_app_factory
 paste.composite_factory = heat.api:root_app_factory
 /: api-cfn
 /healthcheck: healthcheck
-{% if heat.ingress_path -%}
-{{ heat.ingress_path }}: api-cfn
+{% if heat.cfn_ingress_path -%}
+{{ heat.cfn_ingress_path }}: api-cfn
 {% endif -%}
 
 [composite:api]

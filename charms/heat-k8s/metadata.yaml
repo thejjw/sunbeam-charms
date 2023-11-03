@@ -20,6 +20,8 @@ issues: https://bugs.launchpad.net/charm-heat-k8s
 containers:
   heat-api:
     resource: heat-api-image
+  heat-api-cfn:
+    resource: heat-api-image
   heat-engine:
     resource: heat-engine-image
 
@@ -41,24 +43,17 @@ requires:
     limit: 1
   identity-service:
     interface: keystone
-  ingress-internal:
-    interface: ingress
+  traefik-route-internal:
+    interface: traefik_route
     optional: true
     limit: 1
-  ingress-public:
-    interface: ingress
+  traefik-route-public:
+    interface: traefik_route
     limit: 1
   amqp:
     interface: rabbitmq
   identity-ops:
     interface: keystone-resources
-  heat-config:
-    interface: heat-shared-config
-    optional: true
-
-provides:
-  heat-service:
-    interface: heat-shared-config
 
 peers:
   peers:

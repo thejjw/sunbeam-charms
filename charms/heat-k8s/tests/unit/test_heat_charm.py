@@ -104,14 +104,17 @@ class TestHeatOperatorCharm(test_utils.CharmTestCase):
         )
         return rel_id
 
-    def add_complete_heat_shared_config_relation(
-        self, harness: Harness
-    ) -> None:
-        """Add complete Heat shared config relation."""
+    def add_complete_ingress_relation(self, harness: Harness) -> None:
+        """Add complete traefik-route relations."""
         harness.add_relation(
-            "heat-config",
+            "traefik-route-public",
             "heat",
-            app_data={"auth-encryption-key": "fake-secret"},
+            app_data={"external_host": "dummy-ip", "scheme": "http"},
+        )
+        harness.add_relation(
+            "traefik-route-internal",
+            "heat",
+            app_data={"external_host": "dummy-ip", "scheme": "http"},
         )
 
     def test_pebble_ready_handler(self):
@@ -129,7 +132,7 @@ class TestHeatOperatorCharm(test_utils.CharmTestCase):
 
         self.assertEqual(self.harness.charm.seen_events, [])
         test_utils.set_all_pebbles_ready(self.harness)
-        self.assertEqual(len(self.harness.charm.seen_events), 2)
+        self.assertEqual(len(self.harness.charm.seen_events), 3)
 
     def test_all_relations(self):
         """Test all integrations for operator."""
@@ -148,9 +151,8 @@ class TestHeatOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
-        test_utils.add_complete_ingress_relation(self.harness)
+        self.add_complete_ingress_relation(self.harness)
         self.add_complete_identity_resource_relation(self.harness)
-        self.add_complete_heat_shared_config_relation(self.harness)
 
         setup_cmds = [["heat-manage", "db_sync"]]
         for cmd in setup_cmds:
@@ -158,3 +160,9 @@ class TestHeatOperatorCharm(test_utils.CharmTestCase):
         config_files = ["/etc/heat/heat.conf", "/etc/heat/api-paste.ini"]
         for f in config_files:
             self.check_file("heat-api", f)
+        config_files = [
+            "/etc/heat/heat-api-cfn.conf",
+            "/etc/heat/api-paste-cfn.ini",
+        ]
+        for f in config_files:
+            self.check_file("heat-api-cfn", f)

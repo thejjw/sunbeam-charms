@@ -22,6 +22,7 @@ import hashlib
 import json
 import logging
 import secrets
+import socket
 from typing import (
     Callable,
     List,
@@ -35,14 +36,7 @@ import ops_sunbeam.config_contexts as sunbeam_config_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
-from charms.heat_k8s.v0.heat_shared_config import (
-    HeatSharedConfigChangedEvent,
-    HeatSharedConfigProvides,
-    HeatSharedConfigRequestEvent,
-    HeatSharedConfigRequires,
-)
 from ops.charm import (
-    CharmBase,
     RelationEvent,
 )
 from ops.framework import (
@@ -53,130 +47,74 @@ from ops.main import (
 )
 from ops.model import (
     ModelError,
-    Relation,
-    SecretNotFoundError,
 )
 
 logger = logging.getLogger(__name__)
 
-CREDENTIALS_SECRET_PREFIX = "credentials_"
 HEAT_API_CONTAINER = "heat-api"
+HEAT_API_CFN_CONTAINER = "heat-api-cfn"
 HEAT_ENGINE_CONTAINER = "heat-engine"
-HEAT_API_SERVICE_KEY = "api-service"
-HEAT_API_SERVICE_NAME = "heat-api"
-HEAT_CFN_SERVICE_NAME = "heat-api-cfn"
+HEAT_API_INGRESS_NAME = "heat"
+HEAT_API_CFN_INGRESS_NAME = "heat-cfn"
+HEAT_API_PORT = 8004
+HEAT_API_CFN_PORT = 8000
 
 
-class HeatSharedConfigProvidesHandler(sunbeam_rhandlers.RelationHandler):
-    """Handler for heat shared config relation on provider side."""
-
-    def __init__(
-        self,
-        charm: CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-    ):
-        """Create a new heat-shared-config handler.
-
-        Create a new HeatSharedConfigProvidesHandler that updates heat config
-        auth-encryption-key on the related units.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        """
-        super().__init__(charm, relation_name, callback_f)
-
-    def setup_event_handler(self):
-        """Configure event handlers for Heat shared config relation."""
-        logger.debug("Setting up Heat shared config event handler")
-        svc = HeatSharedConfigProvides(
-            self.charm,
-            self.relation_name,
-        )
-        self.framework.observe(
-            svc.on.config_request,
-            self._on_config_request,
-        )
-        return svc
-
-    def _on_config_request(self, event: HeatSharedConfigRequestEvent) -> None:
-        """Handle Config request event."""
-        self.callback_f(event)
-
-    @property
-    def ready(self) -> bool:
-        """Report if relation is ready."""
-        return True
-
-
-class HeatSharedConfigRequiresHandler(sunbeam_rhandlers.RelationHandler):
-    """Handle heat shared config relation on the requires side."""
+class TraefikRouteHandler(sunbeam_rhandlers.RelationHandler):
+    """Base class to handle traefik route relations."""
 
     def __init__(
         self,
-        charm: CharmBase,
+        charm: ops.charm.CharmBase,
         relation_name: str,
         callback_f: Callable,
         mandatory: bool = False,
-    ):
-        """Create a new heat-shared-config handler.
-
-        Create a new HeatSharedConfigRequiresHandler that handles initial
-        events from the relation and invokes the provided callbacks based on
-        the event raised.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        :param mandatory: If the relation is mandatory to proceed with
-                          configuring charm
-        :type mandatory: bool
-        """
+    ) -> None:
+        """Run constructor."""
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> None:
-        """Configure event handlers for Heat shared config relation."""
-        logger.debug("Setting up Heat shared config event handler")
-        svc = HeatSharedConfigRequires(
+    def setup_event_handler(self) -> ops.charm.Object:
+        """Configure event handlers for an Ingress relation."""
+        logger.debug("Setting up ingress event handler")
+        from charms.traefik_route_k8s.v0.traefik_route import (
+            TraefikRouteRequirer,
+        )
+
+        interface = TraefikRouteRequirer(
             self.charm,
+            self.model.get_relation(self.relation_name),
             self.relation_name,
         )
-        self.framework.observe(
-            svc.on.config_changed,
-            self._on_config_changed,
-        )
-        self.framework.observe(
-            svc.on.goneaway,
-            self._on_goneaway,
-        )
-        return svc
 
-    def _on_config_changed(self, event: RelationEvent) -> None:
-        """Handle config_changed  event."""
-        logger.debug(
-            "Heat shared config provider config changed event received"
+        self.framework.observe(interface.on.ready, self._on_ingress_ready)
+        self.framework.observe(
+            self.charm.on[self.relation_name].relation_joined,
+            self._on_traefik_relation_joined,
         )
-        self.callback_f(event)
+        return interface
 
-    def _on_goneaway(self, event: RelationEvent) -> None:
-        """Handle gone_away  event."""
-        logger.debug("Heat shared config relation is departed/broken")
-        self.callback_f(event)
+    def _on_traefik_relation_joined(self, event: RelationEvent) -> None:
+        """Handle traefik relation joined event."""
+        # This is passed as None during the init method, so update the
+        # relation attribute in TraefikRouteRequirer
+        self.interface._relation = event.relation
+
+    def _on_ingress_ready(self, event: RelationEvent) -> None:
+        """Handle ingress relation changed events.
+
+        `event` is an instance of
+        `charms.traefik_k8s.v2.ingress.IngressPerAppReadyEvent`.
+        """
+        if self.interface.is_ready():
+            self.callback_f(event)
 
     @property
     def ready(self) -> bool:
-        """Whether handler is ready for use."""
-        try:
-            return bool(self.interface.auth_encryption_key)
-        except (AttributeError, KeyError):
-            return False
+        """Whether the handler is ready for use."""
+        if self.charm.unit.is_leader():
+            return bool(self.interface.external_host)
+        else:
+            return self.interface.is_ready()
 
 
 class HeatAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
@@ -188,36 +126,20 @@ class HeatAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         :returns: pebble service layer configuration for heat api service
         :rtype: dict
         """
-        if self.charm.service_name == HEAT_CFN_SERVICE_NAME:
-            return {
-                "summary": "heat api cfn layer",
-                "description": "pebble configuration for heat api cfn service",
-                "services": {
-                    "heat-api": {
-                        "override": "replace",
-                        "summary": "Heat API CFN",
-                        "command": "heat-api-cfn",
-                        "startup": "enabled",
-                        "user": "heat",
-                        "group": "heat",
-                    }
-                },
-            }
-        else:
-            return {
-                "summary": "heat api layer",
-                "description": "pebble configuration for heat api service",
-                "services": {
-                    "heat-api": {
-                        "override": "replace",
-                        "summary": "Heat API",
-                        "command": "heat-api",
-                        "startup": "enabled",
-                        "user": "heat",
-                        "group": "heat",
-                    }
-                },
-            }
+        return {
+            "summary": "heat api layer",
+            "description": "pebble configuration for heat api service",
+            "services": {
+                "heat-api": {
+                    "override": "replace",
+                    "summary": "Heat API",
+                    "command": "heat-api",
+                    "startup": "enabled",
+                    "user": "heat",
+                    "group": "heat",
+                }
+            },
+        }
 
     def get_healthcheck_layer(self) -> dict:
         """Health check pebble layer.
@@ -230,7 +152,49 @@ class HeatAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "level": "ready",
                     "http": {
-                        "url": f"{self.charm.healthcheck_http_url}/healthcheck"
+                        "url": f"http://localhost:{HEAT_API_PORT}/healthcheck"
+                    },
+                },
+            }
+        }
+
+
+class HeatCfnAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+    """Pebble handler for Heat CFN API container."""
+
+    def get_layer(self):
+        """Heat CFN API service.
+
+        :returns: pebble service layer configuration for heat cfn api service
+        :rtype: dict
+        """
+        return {
+            "summary": "heat api cfn layer",
+            "description": "pebble configuration for heat api cfn service",
+            "services": {
+                "heat-api-cfn": {
+                    "override": "replace",
+                    "summary": "Heat API CFN",
+                    "command": "heat-api-cfn --config-file /etc/heat/heat-api-cfn.conf",
+                    "startup": "enabled",
+                    "user": "heat",
+                    "group": "heat",
+                }
+            },
+        }
+
+    def get_healthcheck_layer(self) -> dict:
+        """Health check pebble layer.
+
+        :returns: pebble health check layer configuration for heat service
+        """
+        return {
+            "checks": {
+                "online": {
+                    "override": "replace",
+                    "level": "ready",
+                    "http": {
+                        "url": f"http://localhost:{HEAT_API_CFN_PORT}/healthcheck"
                     },
                 },
             }
@@ -285,6 +249,8 @@ class HeatConfigurationContext(sunbeam_config_contexts.ConfigContext):
             "stack_domain_admin_user": username,
             "stack_domain_admin_password": password,
             "auth_encryption_key": self.charm.get_heat_auth_encryption_key(),
+            "ingress_path": f"/{self.charm.model.name}-{HEAT_API_INGRESS_NAME}",
+            "cfn_ingress_path": f"/{self.charm.model.name}-{HEAT_API_CFN_INGRESS_NAME}",
         }
 
 
@@ -302,13 +268,28 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         "database",
         "amqp",
         "identity-service",
-        "ingress-public",
+        "traefik-route-public",
         "identity-ops",
     }
 
     def __init__(self, framework):
+        self.traefik_route_public = None
+        self.traefik_route_internal = None
         super().__init__(framework)
         self._state.set_default(identity_ops_ready=False)
+        self.framework.observe(
+            self.on.peers_relation_created, self._on_peer_relation_created
+        )
+        self.framework.observe(
+            self.on["peers"].relation_departed, self._on_peer_relation_departed
+        )
+
+    def _on_peer_relation_created(self, event: ops.EventBase) -> None:
+        logger.info("Setting peer unit data")
+        self.peers.set_unit_data({"host": socket.getfqdn()})
+
+    def _on_peer_relation_departed(self, event: ops.EventBase) -> None:
+        self.handle_traefik_ready(event)
 
     def hash_ops(self, ops: list) -> str:
         """Return the sha1 of the requested ops."""
@@ -333,26 +314,20 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         )
         handlers.append(self.user_id_ops)
 
-        if self.service_name == HEAT_CFN_SERVICE_NAME:
-            # heat-config is not a mandatory relation.
-            # If instance of heat-k8s deployed with service heat-api-cfn and
-            # without any heat-api, heat-api-cfn workload should still come
-            # to active using internally generated auth-encryption-key
-            self.heat_config_receiver = HeatSharedConfigRequiresHandler(
-                self,
-                "heat-config",
-                self.handle_heat_config_events,
-                "heat-config" in self.mandatory_relations,
-            )
-            handlers.append(self.heat_config_receiver)
-        else:
-            self.config_svc = HeatSharedConfigProvidesHandler(
-                self,
-                "heat-service",
-                self.set_config_from_event,
-            )
-            handlers.append(self.config_svc)
-
+        self.traefik_route_public = TraefikRouteHandler(
+            self,
+            "traefik-route-public",
+            self.handle_traefik_ready,
+            "traefik-route-public" in self.mandatory_relations,
+        )
+        handlers.append(self.traefik_route_public)
+        self.traefik_route_internal = TraefikRouteHandler(
+            self,
+            "traefik-route-internal",
+            self.handle_traefik_ready,
+            "traefik-route-internal" in self.mandatory_relations,
+        )
+        handlers.append(self.traefik_route_internal)
         return handlers
 
     def get_pebble_handlers(
@@ -364,7 +339,15 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self,
                 HEAT_API_CONTAINER,
                 "heat-api",
-                self.default_container_configs(),
+                self.heat_api_container_configs(),
+                self.template_dir,
+                self.configure_charm,
+            ),
+            HeatCfnAPIPebbleHandler(
+                self,
+                HEAT_API_CFN_CONTAINER,
+                "heat-api-cfn",
+                self.heat_api_cfn_container_configs(),
                 self.template_dir,
                 self.configure_charm,
             ),
@@ -372,7 +355,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self,
                 HEAT_ENGINE_CONTAINER,
                 "heat-engine",
-                self.default_container_configs(),
+                self.heat_api_container_configs(),
                 self.template_dir,
                 self.configure_charm,
             ),
@@ -423,23 +406,96 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             else:
                 logger.debug("Creating auth key")
                 self.set_heat_auth_encryption_key()
-                if self.service_name == HEAT_API_SERVICE_NAME:
-                    # Send Auth encryption key over heat-service relation
-                    self.set_config_on_update()
+
+            self.handle_traefik_ready(event)
 
         super().configure_charm(event)
 
-    def configure_app_leader(self, event):
-        """Configure app leader.
+    @property
+    def traefik_config(self) -> dict:
+        """Config to publish to traefik."""
+        model = self.model.name
+        router_cfg = {}
+        # Add routers for both heat-api and heat-api-cfn
+        for app in HEAT_API_INGRESS_NAME, HEAT_API_CFN_INGRESS_NAME:
+            router_cfg.update(
+                {
+                    f"juju-{model}-{app}-router": {
+                        "rule": f"PathPrefix(`/{model}-{app}`)",
+                        "service": f"juju-{model}-{app}-service",
+                        "entryPoints": ["web"],
+                    },
+                    f"juju-{model}-{app}-router-tls": {
+                        "rule": f"PathPrefix(`/{model}-{app}`)",
+                        "service": f"juju-{model}-{app}-service",
+                        "entryPoints": ["websecure"],
+                    },
+                }
+            )
 
-        Ensure setting service_name in peer relation application data if it
-        does not exist.
-        """
-        super().configure_app_leader(event)
+        # Get host key value from all units
+        hosts = self.peers.get_all_unit_values(
+            key="host", include_local_unit=True
+        )
+        api_lb_servers = [
+            {"url": f"http://{host}:{HEAT_API_PORT}"} for host in hosts
+        ]
+        cfn_lb_servers = [
+            {"url": f"http://{host}:{HEAT_API_CFN_PORT}"} for host in hosts
+        ]
+        # Add services for heat-api and heat-api-cfn
+        service_cfg = {
+            f"juju-{model}-{HEAT_API_INGRESS_NAME}-service": {
+                "loadBalancer": {"servers": api_lb_servers},
+            },
+            f"juju-{model}-{HEAT_API_CFN_INGRESS_NAME}-service": {
+                "loadBalancer": {"servers": cfn_lb_servers},
+            },
+        }
 
-        # Update service name in application data
-        if not self.leader_get(HEAT_API_SERVICE_KEY):
-            self.leader_set({HEAT_API_SERVICE_KEY: self.service_name})
+        config = {
+            "http": {
+                "routers": router_cfg,
+                "services": service_cfg,
+            },
+        }
+        return config
+
+    def _update_service_endpoints(self):
+        try:
+            if self.id_svc.update_service_endpoints:
+                logger.info(
+                    "Updating service endpoints after ingress relation changed"
+                )
+                self.id_svc.update_service_endpoints(self.service_endpoints)
+        except (AttributeError, KeyError):
+            pass
+
+    def handle_traefik_ready(self, event: ops.EventBase):
+        """Handle Traefik route ready callback."""
+        if not self.unit.is_leader():
+            logger.debug(
+                "Not a leader unit, not updating traefik route config"
+            )
+            return
+
+        if self.traefik_route_public:
+            logger.debug("Sending traefik config for public interface")
+            self.traefik_route_public.interface.submit_to_traefik(
+                config=self.traefik_config
+            )
+
+            if self.traefik_route_public.ready:
+                self._update_service_endpoints()
+
+        if self.traefik_route_internal:
+            logger.debug("Sending traefik config for internal interface")
+            self.traefik_route_internal.interface.submit_to_traefik(
+                config=self.traefik_config
+            )
+
+            if self.traefik_route_internal.ready:
+                self._update_service_endpoints()
 
     @property
     def databases(self) -> Mapping[str, str]:
@@ -453,28 +509,8 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def service_name(self) -> str:
-        """Update service_name to heat-api or heat-api-cfn.
-
-        service_name should be updated only once. Get service name from app data if
-        it exists and ignore the charm configuration parameter api-service.
-        If app data does not exist, return with the value from charm configuration.
-        """
-        service_name = None
-        if hasattr(self, "peers"):
-            service_name = self.leader_get(HEAT_API_SERVICE_KEY)
-
-        if not service_name:
-            service_name = self.config.get("api_service")
-            if service_name not in [
-                HEAT_API_SERVICE_NAME,
-                HEAT_CFN_SERVICE_NAME,
-            ]:
-                logger.warning(
-                    "Config parameter api_service should be one of heat-api, heat-api-cfn, defaulting to heat-api."
-                )
-                service_name = HEAT_API_SERVICE_NAME
-
-        return service_name
+        """Service name."""
+        return "heat"
 
     @property
     def service_conf(self) -> str:
@@ -494,44 +530,118 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def service_endpoints(self):
         """Return heat service endpoints."""
-        if self.service_name == HEAT_CFN_SERVICE_NAME:
-            return [
-                {
-                    "service_name": "heat-cfn",
-                    "type": "cloudformation",
-                    "description": "OpenStack Heat CloudFormation API",
-                    "internal_url": f"{self.internal_url}/v1/$(tenant_id)s",
-                    "public_url": f"{self.public_url}/v1/$(tenant_id)s",
-                    "admin_url": f"{self.admin_url}/v1/$(tenant_id)s",
-                }
-            ]
+        return [
+            {
+                "service_name": HEAT_API_CFN_INGRESS_NAME,
+                "type": "cloudformation",
+                "description": "OpenStack Heat CloudFormation API",
+                "internal_url": f"{self.heat_cfn_internal_url}/v1/$(tenant_id)s",
+                "public_url": f"{self.heat_cfn_public_url}/v1/$(tenant_id)s",
+                "admin_url": f"{self.heat_cfn_admin_url}/v1/$(tenant_id)s",
+            },
+            {
+                "service_name": HEAT_API_INGRESS_NAME,
+                "type": "orchestration",
+                "description": "OpenStack Heat API",
+                "internal_url": f"{self.heat_internal_url}/v1/$(tenant_id)s",
+                "public_url": f"{self.heat_public_url}/v1/$(tenant_id)s",
+                "admin_url": f"{self.heat_admin_url}/v1/$(tenant_id)s",
+            },
+        ]
+
+    @property
+    def heat_public_url(self) -> str:
+        """Url for accessing the public endpoint for heat service."""
+        if self.traefik_route_public and self.traefik_route_public.ready:
+            scheme = self.traefik_route_public.interface.scheme
+            external_host = self.traefik_route_public.interface.external_host
+            public_url = (
+                f"{scheme}://{external_host}/{self.model.name}"
+                f"-{HEAT_API_INGRESS_NAME}"
+            )
+            return self.add_explicit_port(public_url)
         else:
-            return [
-                {
-                    "service_name": "heat",
-                    "type": "orchestration",
-                    "description": "OpenStack Heat API",
-                    "internal_url": f"{self.internal_url}/v1/$(tenant_id)s",
-                    "public_url": f"{self.public_url}/v1/$(tenant_id)s",
-                    "admin_url": f"{self.admin_url}/v1/$(tenant_id)s",
-                },
-            ]
+            return self.add_explicit_port(
+                self.service_url(self.public_ingress_address)
+            )
+
+    @property
+    def heat_cfn_public_url(self) -> str:
+        """Url for accessing the public endpoint for heat cfn service."""
+        if (
+            self.traefik_route_public
+            and self.traefik_route_public.interface.is_ready()
+        ):
+            scheme = self.traefik_route_public.interface.scheme
+            external_host = self.traefik_route_public.interface.external_host
+            public_url = (
+                f"{scheme}://{external_host}/{self.model.name}"
+                f"-{HEAT_API_CFN_INGRESS_NAME}"
+            )
+            return self.add_explicit_port(public_url)
+        else:
+            return self.add_explicit_port(
+                self.service_url(self.public_ingress_address)
+            )
+
+    @property
+    def heat_internal_url(self) -> str:
+        """Url for accessing the internal endpoint for heat service."""
+        if self.traefik_route_internal and self.traefik_route_internal.ready:
+            scheme = self.traefik_route_internal.interface.scheme
+            external_host = self.traefik_route_internal.interface.external_host
+            internal_url = (
+                f"{scheme}://{external_host}/{self.model.name}"
+                f"-{HEAT_API_INGRESS_NAME}"
+            )
+            return self.add_explicit_port(internal_url)
+        else:
+            return self.heat_admin_url
+
+    @property
+    def heat_cfn_internal_url(self) -> str:
+        """Url for accessing the internal endpoint for heat cfn service."""
+        if (
+            self.traefik_route_internal
+            and self.traefik_route_internal.interface.is_ready()
+        ):
+            scheme = self.traefik_route_internal.interface.scheme
+            external_host = self.traefik_route_internal.interface.external_host
+            internal_url = (
+                f"{scheme}://{external_host}/{self.model.name}"
+                f"-{HEAT_API_CFN_INGRESS_NAME}"
+            )
+            return self.add_explicit_port(internal_url)
+        else:
+            return self.heat_cfn_admin_url
+
+    @property
+    def heat_admin_url(self) -> str:
+        """Url for accessing the admin endpoint for heat service."""
+        hostname = self.model.get_binding(
+            "identity-service"
+        ).network.ingress_address
+        url = f"http://{hostname}:{HEAT_API_PORT}"
+        return self.add_explicit_port(url)
+
+    @property
+    def heat_cfn_admin_url(self) -> str:
+        """Url for accessing the admin endpoint for heat service."""
+        hostname = self.model.get_binding(
+            "identity-service"
+        ).network.ingress_address
+        url = f"http://{hostname}:{HEAT_API_CFN_PORT}"
+        return self.add_explicit_port(url)
 
     @property
     def default_public_ingress_port(self):
         """Port for Heat API service."""
-        # Port 8000 if api service is heat-api-cfn
-        if self.service_name == HEAT_CFN_SERVICE_NAME:
-            return 8000
-
-        # Default heat-api port
-        return 8004
+        return HEAT_API_PORT
 
     @property
     def wsgi_container_name(self) -> str:
         """Name of the WSGI application container."""
-        # Container name for both heat-api and heat-api-cfn service is heat-api
-        return "heat-api"
+        return HEAT_API_CONTAINER
 
     @property
     def stack_domain_name(self) -> str:
@@ -541,10 +651,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def stack_domain_admin_user(self) -> str:
         """User to manage users and projects in stack_domain_name."""
-        if self.service_name == HEAT_CFN_SERVICE_NAME:
-            return "heat_domain_admin_cfn"
-        else:
-            return "heat_domain_admin"
+        return "heat_domain_admin"
 
     @property
     def stack_user_role(self) -> str:
@@ -558,14 +665,37 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         _cadapters.extend([HeatConfigurationContext(self, "heat")])
         return _cadapters
 
-    def default_container_configs(self):
+    def heat_api_container_configs(self):
         """Return base container configs."""
         return [
             sunbeam_core.ContainerConfigFile(
-                "/etc/heat/heat.conf", "root", "heat"
+                "/etc/heat/heat.conf",
+                self.service_user,
+                self.service_group,
+                0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/etc/heat/api-paste.ini", "root", "heat"
+                "/etc/heat/api-paste.ini",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
+        ]
+
+    def heat_api_cfn_container_configs(self):
+        """Return base container configs."""
+        return [
+            sunbeam_core.ContainerConfigFile(
+                "/etc/heat/heat-api-cfn.conf",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/heat/api-paste-cfn.ini",
+                self.service_user,
+                self.service_group,
+                0o640,
             ),
         ]
 
@@ -591,80 +721,6 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             logger.debug("Heat stack user role has been created.")
         else:
             logger.warning("Heat stack user role creation failed.")
-
-    def _set_config(self, key: str, relation: Relation) -> None:
-        """Set config key over the relation."""
-        logger.debug(
-            f"Setting config on relation {relation.app.name} {relation.name}/{relation.id}"
-        )
-        try:
-            secret = self.model.get_secret(id=key)
-            logger.debug(
-                f"Granting access to secret {key} for relation "
-                f"{relation.app.name} {relation.name}/{relation.id}"
-            )
-            secret.grant(relation)
-            self.config_svc.interface.set_config(
-                relation=relation,
-                auth_encryption_key=key,
-            )
-        except (ModelError, SecretNotFoundError) as e:
-            logger.debug(
-                f"Error during granting access to secret {key} for "
-                f"relation {relation.app.name} {relation.name}/{relation.id}: "
-                f"{str(e)}"
-            )
-
-    def set_config_from_event(self, event: RelationEvent) -> None:
-        """Set config in relation data."""
-        if not self.unit.is_leader():
-            logger.debug("Not a leader unit, skipping set config")
-            return
-
-        key = self.get_heat_auth_encryption_key_secret()
-        if not key:
-            logger.debug("Auth encryption key not yet set, not sending config")
-            return
-
-        self._set_config(key, event.relation)
-
-    def set_config_on_update(self) -> None:
-        """Set config on relation on update of local data."""
-        logger.debug(
-            "Update config on all connected heat-shared-config relations"
-        )
-        key = self.get_heat_auth_encryption_key_secret()
-        if not key:
-            logger.info("Auth encryption key not yet set, not sending config")
-            return
-
-        # Send config on all joined heat-service relations
-        for relation in self.framework.model.relations["heat-service"]:
-            self._set_config(key, relation)
-
-    def handle_heat_config_events(self, event: RelationEvent) -> None:
-        """Handle heat config events.
-
-        This function is called only for heat-k8s instances with api_service
-        heat-api-cfn. Receives auth_encryption_key update from heat-api
-        service via interface heat-service.
-        Update the peer appdata and configure charm for the leader unit.
-        For non-leader units, peer changed event should get triggered which
-        calls configure_charm.
-        """
-        logger.debug(f"Received event {event}")
-        if isinstance(event, HeatSharedConfigChangedEvent):
-            key = self.heat_config_receiver.interface.auth_encryption_key
-            # Update appdata with auth-encryption-key from heat-api
-            if self.unit.is_leader():
-                logger.debug(
-                    "Update Auth encryption key in appdata received from "
-                    "heat-service relation event"
-                )
-                self.leader_set({self.heat_auth_encryption_key: key})
-                self.configure_charm(event)
-            else:
-                logger.debug("Not a leader unit, nothing to do")
 
 
 if __name__ == "__main__":
