@@ -229,7 +229,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def configure_unit(self, event) -> None:
         """Run configuration on this unit."""
         self.check_leader_ready()
-        self.check_relation_handlers_ready()
+        self.check_relation_handlers_ready(event)
         config = self.model.config.get
         self.ensure_snap_present()
         local_ip = get_local_ip_by_default_route()
