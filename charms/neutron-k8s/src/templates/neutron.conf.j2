@@ -1,0 +1,71 @@
+[DEFAULT]
+core_plugin = ml2
+debug = {{ options.debug }}
+state_path = /var/lib/neutron
+
+router_distributed = False
+
+api_workers = 4
+rpc_workers = 4
+
+l3_ha = False
+allow_automatic_l3agent_failover = False
+allow_automatic_dhcp_failover = True
+network_scheduler_driver = neutron.scheduler.dhcp_agent_scheduler.AZAwareWeightScheduler
+dhcp_load_type = networks
+router_scheduler_driver = neutron.scheduler.l3_agent_scheduler.AZLeastRoutersScheduler
+core_plugin = neutron.plugins.ml2.plugin.Ml2Plugin
+service_plugins = metering,segments,ovn-router
+allow_overlapping_ips = True
+dhcp_agents_per_network = 1
+
+notify_nova_on_port_status_changes = True
+notify_nova_on_port_data_changes = True
+
+
+
+global_physnet_mtu = 1500
+
+transport_url = {{ amqp.transport_url }}
+
+[oslo_concurrency]
+lock_path = $state_path/lock
+
+[agent]
+root_helper = "sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf"
+
+[cors]
+
+{% include "parts/section-database" %}
+
+{% include "parts/section-identity" %}
+
+{% include "parts/section-service-user" %}
+
+[nova]
+{% if identity_service.admin_auth_url -%}
+auth_url = {{ identity_service.admin_auth_url }}
+# Using admin for neutron -> nova communication
+endpoint_type = admin
+{% elif identity_service.internal_auth_url -%}
+auth_url = {{ identity_service.internal_auth_url }}
+# Using internal for neutron -> nova communication
+endpoint_type = internal
+{% elif identity_service.internal_host -%}
+auth_url = {{ identity_service.internal_protocol }}://{{ identity_service.internal_host }}:{{ identity_service.internal_port }}
+# Using internal for neutron -> nova communication
+endpoint_type = internal
+{% endif -%}
+{% if identity_service.public_auth_url -%}
+www_authenticate_uri = {{ identity_service.public_auth_url }}
+{% elif identity_service.internal_host -%}
+www_authenticate_uri = {{ identity_service.internal_protocol }}://{{ identity_service.internal_host }}:{{ identity_service.internal_port }}
+{% endif -%}
+auth_type = password
+project_domain_name = {{ identity_service.service_domain_name }}
+user_domain_name = {{ identity_service.service_domain_name }}
+project_name = {{ identity_service.service_project_name }}
+username = {{ identity_service.service_user_name }}
+password = {{ identity_service.service_password }}
+
+{% include "parts/section-oslo-messaging-rabbit" %}
