@@ -1,0 +1,6 @@
+ops
+jinja2
+pydantic<2.0
+git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
+lightkube
+pwgen

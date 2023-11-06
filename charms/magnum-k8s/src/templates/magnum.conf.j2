@@ -1,0 +1,29 @@
+[DEFAULT]
+debug = {{ options.debug }}
+lock_path = /var/lock/magnum
+state_path = /var/lib/magnum
+
+transport_url = {{ amqp.transport_url }}
+
+{% include "parts/database-connection" %}
+db_auto_create = false
+
+{% include "parts/section-identity" %}
+
+{% include "parts/section-service-user" %}
+
+{% include "parts/section-trust" %}
+
+[oslo_messaging_notifications]
+driver = messaging
+
+# Update region name from relations
+
+[cinder_client]
+endpoint_type = adminURL
+region_name = RegionOne
+
+[api]
+api_paste_config=/etc/magnum/api-paste.ini
+
+{% include "parts/section-oslo-messaging-rabbit" %}

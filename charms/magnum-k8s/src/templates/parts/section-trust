@@ -1,0 +1,6 @@
+[trust]
+trustee_domain_name = {{ magnum.domain_name }}
+trustee_domain_admin_name = {{ magnum.domain_admin_user }}
+trustee_domain_admin_password = {{ magnum.domain_admin_password }}
+trustee_keystone_interface = admin
+cluster_user_trust = {{ options.cluster_user_trust }}
