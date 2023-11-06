@@ -1,0 +1,20 @@
+[DEFAULT]
+debug = {{ options.debug }}
+
+[api]
+auth_mode = keystone
+
+[indexer]
+{% if database.connection -%}
+url = {{ database.connection }}
+{% endif -%}
+
+
+[storage]
+driver = ceph
+ceph_pool = gnocchi
+ceph_username = gnocchi
+ceph_conffile = /etc/ceph/ceph.conf
+
+
+{% include "parts/section-identity" %}
