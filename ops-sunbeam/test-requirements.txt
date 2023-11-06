@@ -1,0 +1,6 @@
+coverage
+mock
+stestr
+requests
+pytest
+ops-scenario>=4.0
