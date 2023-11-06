@@ -1,0 +1,27 @@
+#!/usr/bin/bash
+
+function log_msg()
+{
+    msg=$1
+    echo "$(date) [wrapper]: $msg"
+}
+
+function stop_svc()
+{
+    log_msg "Stopping"
+}
+
+log_msg "Starting"
+REMOTES={{ ovsdb_cms.db_sb_connection_strs }}
+
+ovsdb-server \
+    -vconsole:info \
+    -c {{ ovs_db.ovn_cert }} \
+    -C {{ ovs_db.ovn_ca_cert }} \
+    -p {{ ovs_db.ovn_key }} \
+    --no-chdir \
+    --pidfile=/var/run/ovn/ovn-relay.pid \
+    --unixctl=/var/run/ovn/ovn_relay.sock \
+    --remote=pssl:6642 relay:OVN_Southbound:$REMOTES
+
+trap stop_svc EXIT
