@@ -1,0 +1,44 @@
+###############################################################################
+# [ WARNING ]
+# cinder-volume configuration file maintained by cinder-ceph-operator
+# local changes will be overwritten.
+###############################################################################
+[DEFAULT]
+rootwrap_config = /etc/cinder/rootwrap.conf
+api_paste_confg = /etc/cinder/api-paste.ini
+debug = {{ options.debug }}
+use_syslog = {{ options.use_syslog }}
+auth_strategy = keystone
+state_path = /var/lib/cinder
+
+{% if amqp.transport_url %}
+transport_url = {{ amqp.transport_url }}
+{% endif %}
+
+enabled_backends = {{ cinder_ceph.backend_name }}
+cluster = {{ cinder_ceph.cluster_name }}
+
+[database]
+{% if database.connection -%}
+connection = {{ database.connection }}
+{% endif -%}
+connection_recycle_time = 200
+
+{% include "parts/section-oslo-notifications" %}
+
+[{{ cinder_ceph.backend_name }}]
+volume_driver = cinder.volume.drivers.rbd.RBDDriver
+rbd_exclusive_cinder_pool = True
+report_discard_supported = True
+rbd_flatten_volume_from_snapshot = True
+
+volume_backend_name = {{ cinder_ceph.backend_name }}
+rbd_pool = {{ cinder_ceph.rbd_pool }}
+rbd_user = {{ cinder_ceph.rbd_user }}
+rbd_secret_uuid = {{ cinder_ceph.secret_uuid }}
+
+{% if cinder_ceph.backend_availability_zone %}
+backend_availability_zone = {{ cinder_ceph.backend_availability_zone }}
+{% endif %}
+
+{% include "parts/section-oslo-messaging-rabbit" %}
