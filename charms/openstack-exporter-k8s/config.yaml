@@ -1,0 +1,5 @@
+options:
+  region:
+    default: RegionOne
+    description: Space delimited list of OpenStack regions
+    type: string
