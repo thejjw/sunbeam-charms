@@ -1,0 +1,50 @@
+###############################################################################
+# [ WARNING ]
+# glance configuration file maintained by Juju
+# local changes may be overwritten.
+###############################################################################
+[DEFAULT]
+debug = {{ options.debug }}
+{% if amqp %}
+transport_url = {{ amqp.transport_url }}
+{% endif %}
+bind_port = 9282
+
+{% if ceph.auth %}
+enabled_backends = filestore:file, ceph:rbd
+{% else %}
+enabled_backends = filestore:file
+{% endif %}
+
+{% include "parts/section-database" %}
+
+{% include "parts/section-identity" %}
+
+{% include "parts/section-service-user" %}
+
+{% include "parts/section-oslo-notifications" %}
+
+[glance_store]
+{% if ceph.auth %}
+default_backend = ceph
+{% else %}
+default_backend = filestore
+{% endif %}
+
+[filestore]
+filesystem_store_datadir = /var/lib/glance/images/
+
+{% if ceph.auth %}
+[ceph]
+rbd_store_chunk_size = 8
+rbd_store_pool = glance
+rbd_store_user = glance
+rados_connect_timeout = 0
+rbd_store_ceph_conf = /etc/ceph/ceph.conf
+{% endif %}
+
+[paste_deploy]
+flavor = keystone
+
+{% include "parts/section-oslo-messaging-rabbit" %}
+
