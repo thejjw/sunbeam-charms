@@ -1,0 +1,51 @@
+# Prometheus alert rules related to ovs
+
+groups:
+- name: OVS
+  rules:
+
+    - alert: OVSServiceDown
+      expr: ovs_up != 1
+      for: 0m
+      labels:
+        severity: critical
+      annotations:
+        summary: OVS service is down. (instance {{ $labels.instance }})
+        description: |
+          OVS service is down.
+            LABELS = {{ $labels }}
+
+    - alert: OVSReqFailed
+      expr: ovs_failed_req_count > 0
+      for: 0m
+      labels:
+        severity: critical
+      annotations:
+        summary: Request(s) to OVS failed. (instance {{ $labels.instance }})
+        description: |
+          Request(s) to OVS failed.
+            LABELS = {{ $labels }}
+
+    - alert: OVSErrorLogDetected
+      expr: ovs_log_event_count{severity=~"(?i:(error))"} > 0
+      for: 0m
+      labels:
+        severity: critical
+      annotations:
+        summary: Error Log found in OVS logs. (instance {{ $labels.instance }})
+        description: |
+          Error Log found in OVS logs.
+            LOGS_COUNT = {{ $value }}
+            LABELS = {{ $labels }}
+
+    - alert: OVSWarningLogDetected
+      expr: ovs_log_event_count{severity=~"(?i:(warning))"} > 0
+      for: 0m
+      labels:
+        severity: warning
+      annotations:
+        summary: Warning Log found in OVS logs. (instance {{ $labels.instance }})
+        description: |
+          Warning Log found in OVS logs.
+            LOGS_COUNT = {{ $value }}
+            LABELS = {{ $labels }}

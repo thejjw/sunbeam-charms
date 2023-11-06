@@ -1,0 +1,25 @@
+rule_files:
+  - ../../../src/prometheus_alert_rules/libvirt.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - interval: 1m
+    input_series:
+      - series: libvirt_up{instance="ubuntu-0"}
+        values: '0x15'
+      - series: libvirt_up{instance="ubuntu-1"}
+        values: '1x15'
+
+    alert_rule_test:
+      - eval_time: 0m
+        alertname: LibvirtdServiceDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              instance: ubuntu-0
+            exp_annotations:
+              summary: Libvirtd service is down. (instance ubuntu-0)
+              description: |
+                Libvirtd service is down.
+                  LABELS = map[__name__:libvirt_up instance:ubuntu-0]
