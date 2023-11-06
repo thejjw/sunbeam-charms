@@ -1,0 +1,116 @@
+# Victoria
+###############################################################################
+# [ WARNING ]
+# Configuration file maintained by Juju. Local changes may be overwritten.
+###############################################################################
+[DEFAULT]
+log_config_append = /etc/keystone/logging.conf
+debug = {{ options.debug }}
+
+{% if amqp -%}
+transport_url = {{ amqp.transport_url }}
+{%- endif %}
+
+[identity]
+driver = {{ ks_config.identity_backend }}
+{% if ks_config.default_domain_id -%}
+default_domain_id = {{ ks_config.default_domain_id }}
+{% endif -%}
+domain_specific_drivers_enabled = True
+domain_config_dir = {{ ks_config.domain_config_dir }}
+
+{% include "parts/section-database" %}
+[credential]
+driver = sql
+
+[trust]
+driver = sql
+
+[catalog]
+cache_time = {{ ks_config.catalog_cache_expiration }}
+driver = sql
+
+[endpoint_filter]
+
+[token]
+expiration = {{ ks_config.token_expiration }}
+allow_expired_window = {{ ks_config.allow_expired_window }}
+
+[fernet_tokens]
+max_active_keys = {{ ks_config.fernet_max_active_keys }}
+
+{% include "parts/section-signing" %}
+
+{% include "parts/section-oslo-cache" %}
+# This goes in the section above, selectively
+# Bug #1899117
+expiration_time = {{ ks_config.dogpile_cache_expiration }}
+
+[policy]
+driver = sql
+
+[assignment]
+driver = {{ ks_config.assignment_backend }}
+
+[auth]
+methods = {{ ks_config.auth_methods }}
+
+[paste_deploy]
+config_file = {{ ks_config.paste_config_file }}
+
+[extra_headers]
+Distribution = Ubuntu
+
+[ldap]
+{% if ks_config.identity_backend == 'ldap' -%}
+url = {{ ks_config.ldap_server }}
+user = {{ ks_config.ldap_user }}
+password = {{ ks_config.ldap_password }}
+suffix = {{ ks_config.ldap_suffix }}
+
+{% if ks_config.ldap_config_flags -%}
+{% for key, value in ks_config.ldap_config_flags.iteritems() -%}
+{{ key }} = {{ value }}
+{% endfor -%}
+{% endif -%}
+
+{% if ks_config.ldap_readonly -%}
+user_allow_create = False
+user_allow_update = False
+user_allow_delete = False
+
+tenant_allow_create = False
+tenant_allow_update = False
+tenant_allow_delete = False
+
+role_allow_create = False
+role_allow_update = False
+role_allow_delete = False
+
+group_allow_create = False
+group_allow_update = False
+group_allow_delete = False
+{% endif -%}
+{% endif -%}
+
+[resource]
+admin_project_domain_name = {{ ks_config.admin_domain_name }}
+admin_project_name = admin
+
+{% if ks_config.password_security_compliance %}
+[security_compliance]
+{% for k, v in ks_config.password_security_compliance.items() -%}
+{{ k }} = {{ v }}
+{% endfor -%}
+{% endif -%}
+
+{% include "parts/section-federation" %}
+
+{% include "parts/section-oslo-middleware" %}
+# This goes in the section above, selectively
+# Bug #1819134
+max_request_body_size = 114688
+
+{% include "parts/section-oslo-notifications" %}
+
+{% include "parts/section-oslo-messaging-rabbit" %}

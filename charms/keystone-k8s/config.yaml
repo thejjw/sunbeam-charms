@@ -1,0 +1,70 @@
+# Copyright 2021 Canonical Ltd.
+# See LICENSE file for licensing details.
+#
+options:
+  debug:
+    default: False
+    description: Enable debug logging.
+    type: boolean
+  log-level:
+    default: WARNING
+    type: string
+    description: Log level (WARNING, INFO, DEBUG, ERROR)
+
+  admin-user:
+    default: admin
+    description: Default admin user for keystone
+    type: string
+  admin-role:
+    default: Admin
+    description: Admin role to be associated with admin and service users
+    type: string
+  service-tenant:
+    default: services
+    description: Name of tenant to associate with service credentials
+    type: string
+
+  os-admin-hostname:
+    default:
+    description: |
+      The hostname or address of the admin endpoints that should be advertised
+      in the keystone identity provider.
+    type: string
+  os-internal-hostname:
+    default:
+    description: |
+      The hostname or address of the internal endpoints that should be advertised
+      in the keystone identity provider.
+    type: string
+  os-public-hostname:
+    default:
+    description: |
+      The hostname or address of the internal endpoints that should be advertised
+      in the keystone identity provider.
+    type: string
+  region:
+    default: RegionOne
+    description: Space delimited list of OpenStack regions
+    type: string
+
+  catalog-cache-expiration:
+    type: int
+    default: 60
+    description: Amount of time (in seconds) the catalog should be cached for.
+  dogpile-cache-expiration:
+    type: int
+    default: 60
+    description: |
+      Amount of time (in seconds) to cache items in the dogpile.cache. This only applies
+      to cached methods that do not have an explicitly defined cache expiration time.
+
+  identity-backend:
+    type: string
+    default: "sql"
+    description: |
+      Keystone identity backend, valid options are sql and pam
+
+  enable-telemetry-notifications:
+    type: boolean
+    default: False
+    description: Enable notifications to send to telemetry.
