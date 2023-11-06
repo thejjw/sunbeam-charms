@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cell_name=$1
+
+sudo -u nova nova-manage cell_v2 list_cells | \
+    awk '{FS="|"} /cell/ {print "!" $2 "!"}' | \
+    grep -E "${cell_name}\s" &> /dev/null
+if [[ $? -eq 0 ]]; then
+    echo "${cell_name} already exists"
+else
+    sudo -u nova nova-manage cell_v2 create_cell --name $cell_name --verbose
+fi

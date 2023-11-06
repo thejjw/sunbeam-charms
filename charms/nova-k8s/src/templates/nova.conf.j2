@@ -1,0 +1,58 @@
+[DEFAULT]
+lock_path = /var/lock/nova
+state_path = /var/lib/nova
+debug = {{ options.debug }}
+
+transport_url = {{ amqp.transport_url }}
+
+[api_database]
+{% if api_database.connection -%}
+connection = {{ api_database.connection }}
+{% else -%}
+connection = sqlite:////var/lib/nova/nova_api.sqlite
+{% endif -%}
+connection_recycle_time = 200
+
+[database]
+{% if database.connection -%}
+connection = {{ database.connection }}
+{% else -%}
+connection = sqlite:////var/lib/nova/nova.sqlite
+{% endif -%}
+
+[glance]
+service_type = image
+service_name = glance
+valid_interfaces = admin
+region_name = {{ options.region }}
+
+[keystone_authtoken]
+{% include "parts/section-identity" %}
+
+[neutron]
+{% include "parts/section-identity" %}
+
+[placement]
+{% include "parts/section-identity" %}
+
+{% include "parts/section-service-user" %}
+
+[cells]
+enable = False
+
+[conductor]
+workers = 4
+
+[scheduler]
+# NOTE(jamespage): perform automatic host cell mapping
+#                  until we can orchestrate this better
+#                  using the nova-cc <--> nova-compute
+#                  relation
+discover_hosts_in_cells_interval = 30
+
+workers = 4
+
+[os_region_name]
+openstack = 
+
+{% include "parts/section-oslo-messaging-rabbit" %}
