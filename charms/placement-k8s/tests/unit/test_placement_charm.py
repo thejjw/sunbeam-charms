@@ -18,9 +18,8 @@
 
 import textwrap
 
-import ops_sunbeam.test_utils as test_utils
-
 import charm
+import ops_sunbeam.test_utils as test_utils
 
 
 class _PlacementOperatorCharm(charm.PlacementOperatorCharm):
@@ -115,6 +114,8 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
 
         [placement_database]
         connection = mysql+pymysql://foo:hardpassword@10.0.0.10/placement_api
+
+
         [keystone_authtoken]
         auth_url = http://keystone.internal:5000
         interface = internal

@@ -10,6 +10,9 @@ db_auto_create = false
 
 {% include "parts/section-identity" %}
 
+[keystone_auth]
+{% include "parts/identity-data" %}
+
 {% include "parts/section-service-user" %}
 
 {% include "parts/section-trust" %}

@@ -1,3 +1,0 @@
-{% if database.connection -%}
-sql_connection = {{ database.connection }}
-{% endif -%}

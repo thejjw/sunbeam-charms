@@ -1,5 +1,0 @@
-[keystone_authtoken]
-{% include "parts/identity-data" %}
-
-[keystone_auth]
-{% include "parts/identity-data" %}

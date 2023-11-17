@@ -18,6 +18,7 @@
 
 import json
 
+import charm
 import ops_sunbeam.test_utils as test_utils
 from mock import (
     Mock,
@@ -25,8 +26,6 @@ from mock import (
 from ops.testing import (
     Harness,
 )
-
-import charm
 
 
 class _OSExporterTestOperatorCharm(charm.OSExporterOperatorCharm):
