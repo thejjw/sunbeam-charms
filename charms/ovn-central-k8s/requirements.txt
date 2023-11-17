@@ -11,4 +11,5 @@ lightkube
 lightkube-models
 ops
 
-git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
+# From ops_sunbeam
+tenacity

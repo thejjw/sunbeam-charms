@@ -12,6 +12,7 @@ lightkube-models
 ops
 pwgen
 
-git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
-
 python-keystoneclient  # keystone-k8s
+
+# From ops_sunbeam
+tenacity
