@@ -37,7 +37,6 @@ from ops import (
 from ops.model import (
     MaintenanceStatus,
 )
-
 from utils.client import (
     KeystoneClient,
     KeystoneExceptionError,
