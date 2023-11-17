@@ -1,2 +1,0 @@
-[oslo_messaging_rabbit]
-rabbit_quorum_queue = True

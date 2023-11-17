@@ -18,12 +18,11 @@
 
 import json
 
+import charm
 import ops_sunbeam.test_utils as test_utils
 from ops.testing import (
     Harness,
 )
-
-import charm
 
 
 class _DesignateTestOperatorCharm(charm.DesignateOperatorCharm):
