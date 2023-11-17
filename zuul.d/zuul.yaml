@@ -1,0 +1,12 @@
+- project:
+    templates:
+      - openstack-python3-sunbeam-jobs
+      # TODO: cover is commented, to figure out collecting
+      # cover output from individual charms
+      # - openstack-cover-jobs
+    check:
+      jobs:
+        - charm-build-keystone-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-placement-k8s:
+            nodeset: ubuntu-focal
