@@ -1,0 +1,23 @@
+publish_channels:
+  keystone-k8s: latest/edge
+  glance-k8s: latest/edge
+  nova-k8s: latest/edge
+  placement-k8s: latest/edge
+  neutron-k8s: latest/edge
+  ovn-central-k8s: latest/edge
+  ovn-relay-k8s: latest/edge
+  cinder-k8s: latest/edge
+  cinder-ceph-k8s: latest/edge
+  horizon-k8s: latest/edge
+  heat-k8s: latest/edge
+  octavia-k8s: latest/edge
+  aodh-k8s: latest/edge
+  ceilometer-k8s: latest/edge
+  gnocchi-k8s: latest/edge
+  barbican-k8s: latest/edge
+  designate-k8s: latest/edge
+  designate-bind-k8s: latest/edge
+  magnum-k8s: latest/edge
+  keystone-ldap-k8s: latest/edge
+  openstack-exporter-k8s: latest/edge
+  openstack-hypervisor: latest/edge

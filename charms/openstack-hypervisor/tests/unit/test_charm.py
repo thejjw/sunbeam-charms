@@ -20,9 +20,8 @@ from unittest import (
     mock,
 )
 
-import ops_sunbeam.test_utils as test_utils
-
 import charm
+import ops_sunbeam.test_utils as test_utils
 
 
 class _HypervisorOperatorCharm(charm.HypervisorOperatorCharm):
