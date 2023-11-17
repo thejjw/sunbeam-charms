@@ -1,4 +1,0 @@
-{% if options.enable_telemetry_notifications -%}
-[oslo_messaging_notifications]
-driver = messagingv2
-{%- endif %}

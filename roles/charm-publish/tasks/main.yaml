@@ -1,0 +1,53 @@
+- name: Get all job names from gate pipeline
+  uri:
+    url: "{{ download_artifact_api }}/builds?{{ download_artifact_query }}"
+  register: build_output
+  vars:
+    download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
+    download_artifact_query: "change={{ zuul.change }}&patchset={{ zuul.patchset }}&pipeline=gate"
+
+- name: Get relevant charm build jobs
+  set_fact:
+    relevant_charm_build_jobs: "{{ build_output.json | selectattr('job_name', 'match', '^charm-build-.*$') | map(attribute='job_name') | list }}"
+
+- name: Print relevant build jobs
+  debug:
+    msg: "Relevant charm build jobs: {{ relevant_charm_build_jobs }}"
+
+- name: built charm is present locally (artifact from gate pipeline)
+  include_role:
+    name: download-artifact
+  vars:
+    download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
+    download_artifact_type: charm
+    download_artifact_pipeline: gate
+    download_artifact_job: "{{ item }}"
+    download_artifact_directory: "{{ zuul.project.src_dir }}"
+  with_items: "{{ relevant_charm_build_jobs }}"
+
+- name: Get all downloaded charm names
+  args:
+    chdir: "{{ zuul.project.src_dir }}"
+    executable: /bin/bash
+  shell: |
+    ls *.charm | cut -d"." -f 1
+  register: built_charms
+
+- name: Prepare charm channel dict for downloaded charms
+  set_fact:
+    charm_channels: "{{ charm_channels | default({}) | combine({item.key: item.value}) }}"
+  loop: "{{ lookup('ansible.builtin.dict', publish_channels) }}"
+  when: "{{ item.key in built_charms.stdout_lines }}"
+
+- name: Print charm channel dict
+  debug:
+    msg: "Charms to be published: {{ charm_channels }}"
+
+- name: Publish charms in a loop
+  include_tasks: "publish.yaml"
+  vars:
+    charm_build_name: "{{ channel.key }}"
+    publish_channel: "{{ channel.value }}"
+  loop: "{{ charm_channels|dict2items }}"
+  loop_control:
+    loop_var: channel

@@ -24,10 +24,9 @@ from unittest.mock import (
     MagicMock,
 )
 
+import charm
 import mock
 import ops_sunbeam.test_utils as test_utils
-
-import charm
 
 
 class _KeystoneOperatorCharm(charm.KeystoneOperatorCharm):
