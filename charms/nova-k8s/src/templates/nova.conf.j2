@@ -13,12 +13,7 @@ connection = sqlite:////var/lib/nova/nova_api.sqlite
 {% endif -%}
 connection_recycle_time = 200
 
-[database]
-{% if database.connection -%}
-connection = {{ database.connection }}
-{% else -%}
-connection = sqlite:////var/lib/nova/nova.sqlite
-{% endif -%}
+{% include "parts/section-database" %}
 
 [glance]
 service_type = image
@@ -26,14 +21,16 @@ service_name = glance
 valid_interfaces = admin
 region_name = {{ options.region }}
 
-[keystone_authtoken]
 {% include "parts/section-identity" %}
+region_name = {{ options.region }}
 
 [neutron]
-{% include "parts/section-identity" %}
+{% include "parts/identity-data" %}
+region_name = {{ options.region }}
 
 [placement]
-{% include "parts/section-identity" %}
+{% include "parts/identity-data" %}
+region_name = {{ options.region }}
 
 {% include "parts/section-service-user" %}
 

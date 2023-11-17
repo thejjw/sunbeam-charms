@@ -23,7 +23,11 @@ Send domain configuration to the keystone charm.
 """
 import json
 import logging
-from typing import Callable, List, Mapping
+from typing import (
+    Callable,
+    List,
+    Mapping,
+)
 
 import charms.keystone_k8s.v0.domain_config as sunbeam_dc_svc
 import jinja2
@@ -31,7 +35,9 @@ import ops.charm
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as config_contexts
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
-from ops.main import main
+from ops.main import (
+    main,
+)
 
 # Log messages can be retrieved using juju debug-log
 logger = logging.getLogger(__name__)
@@ -94,7 +100,9 @@ class KeystoneLDAPK8SCharm(sunbeam_charm.OSBaseOperatorCharm):
     def __init__(self, *args):
         super().__init__(*args)
 
-    def get_relation_handlers(self, handlers=None) -> List[sunbeam_rhandlers.RelationHandler]:
+    def get_relation_handlers(
+        self, handlers=None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
         if self.can_add_handler(self.DOMAIN_CONFIG_RELATION_NAME, handlers):
