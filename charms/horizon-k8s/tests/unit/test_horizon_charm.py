@@ -16,10 +16,9 @@
 
 """Unit tests for Horizon operator."""
 
+import charm
 import mock
 import ops_sunbeam.test_utils as test_utils
-
-import charm
 
 
 class _HorizonOperatorCharm(charm.HorizonOperatorCharm):

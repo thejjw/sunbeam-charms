@@ -11,7 +11,6 @@ lightkube
 lightkube-models
 requests # Drop - not needed in storage backend interface.
 ops
-git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
 
 git+https://opendev.org/openstack/charm-ops-interface-tls-certificates#egg=interface_tls_certificates
 
@@ -23,3 +22,6 @@ git+https://github.com/juju/charm-helpers.git#egg=charmhelpers
 # TODO
 requests # Drop - not needed in storage backend interface.
 netifaces # Drop when charmhelpers dependency is removed.
+
+# From ops_sunbeam
+tenacity
