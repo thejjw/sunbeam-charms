@@ -16,9 +16,8 @@
 
 """Unit tests for Barbican operator."""
 
-import ops_sunbeam.test_utils as test_utils
-
 import charm
+import ops_sunbeam.test_utils as test_utils
 
 
 class _BarbicanTestOperatorCharm(charm.BarbicanOperatorCharm):
