@@ -1,0 +1,7 @@
+- hosts: all
+  tasks:
+    - name: Cat all charm build async logs
+      debug:
+        msg: "{{ item }}"
+      with_fileglob:
+        - "$HOME/.ansible_async/*"

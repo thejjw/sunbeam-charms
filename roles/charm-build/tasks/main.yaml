@@ -1,0 +1,133 @@
+- name: lxd apt packages are not present
+  apt:
+    name:
+      - lxd
+      - lxd-client
+    state: absent
+    purge: true
+  become: true
+
+- name: snapd is installed
+  apt:
+    name: snapd
+  become: true
+
+- name: lxd snap is installed
+  snap:
+    name: lxd
+    channel: latest/stable
+  become: true
+
+- name: lxd is initialised
+  command: lxd init --auto
+  become: true
+
+- name: current user is in lxd group
+  user:
+    name: "{{ ansible_user }}"
+    groups: lxd
+    append: true
+  become: true
+
+- name: reset ssh connection to apply permissions from new group
+  meta: reset_connection
+
+- name: charmcraft is installed
+  snap:
+    name: charmcraft
+    channel: latest/stable
+    classic: true
+  become: true
+
+- name: check ops_sunbeam is changed
+  register: is_ops_sunbeam_changed
+  args:
+    chdir: "{{ zuul.project.src_dir }}"
+  command:
+    git diff HEAD^ --name-only --relative=ops-sunbeam
+
+- name: Get all charms if ops_sunbeam changed
+  register: modified_charms
+  args:
+    executable: /bin/bash
+    chdir: "{{ zuul.project.src_dir }}"
+  shell: |
+    {%- if is_ops_sunbeam_changed.stdout %}
+    ls charms
+    {%- else %}
+    git diff HEAD^ --name-only --relative=charms | sed -r "s/([^/]*).+/\1/" | sort -u
+    {%- endif %}
+
+- name: git diff charms
+  register: diff_charms
+  args:
+    chdir: "{{ zuul.project.src_dir }}"
+  command:
+    git diff HEAD^ --name-only --relative=charms
+
+- name: Print is_ops_sunbeam_changed
+  debug:
+    msg: "Is ops sunbeam changed: {{ is_ops_sunbeam_changed }}"
+
+- name: Print diff charms
+  debug:
+    msg: "Diff charms: {{ diff_charms }}"
+
+- name: Print charms
+  debug:
+    msg: "Modified charms: {{ modified_charms }}"
+
+- name: Print tox executable
+  debug:
+    msg: "Tox: {{ tox_executable }}"
+
+- name: Build charms
+  command:
+    cmd: "{{ tox_executable }} -e build"
+    chdir: "{{ zuul.project.src_dir }}/charms/{{ item }}"
+  async: 1200
+  poll: 0
+  with_items: "{{ modified_charms.stdout.split('\n') }}"
+  register: async_results
+  when: modified_charms.stdout != ""
+ 
+- name: Wait on charmcraft pack completion
+  async_status:
+    jid: "{{ async_result_item.ansible_job_id }}"
+  loop: "{{ async_results.results }}"
+  loop_control:
+    loop_var: "async_result_item"
+  register: async_poll_results
+  until: async_poll_results.finished
+  retries: 20
+  delay: 60
+  when: not async_results.skipped
+
+- name: Compress built charm
+  archive:
+    dest: "{{ zuul.project.src_dir }}/charms/{{ item }}/{{ item }}.charm.gz"
+    path: "{{ zuul.project.src_dir }}/charms/{{ item }}/{{ item }}.charm"
+    format: gz
+  with_items: "{{ modified_charms.stdout.split('\n') }}"
+  when: modified_charms.stdout != ""
+
+- name: built charm is available in the zuul log root for auto artifact upload
+  fetch:
+    src: "{{ zuul.project.src_dir }}/charms/{{ item }}/{{ item }}.charm.gz"
+    dest: "{{ zuul.executor.log_root }}/"
+    flat: true
+  become: true
+  with_items: "{{ modified_charms.stdout.split('\n') }}"
+  when: modified_charms.stdout != ""
+
+- name: Upload artifacts
+  zuul_return:
+    data:
+      zuul:
+        artifacts:
+          - name: "{{ item }}"
+            url: "{{ item }}.charm.gz"
+            metadata:
+              type: charm
+  with_items: "{{ modified_charms.stdout.split('\n') }}"
+  when: modified_charms.stdout != ""
