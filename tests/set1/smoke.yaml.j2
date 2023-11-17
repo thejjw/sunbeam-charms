@@ -1,0 +1,218 @@
+bundle: kubernetes
+
+applications:
+  traefik:
+    charm: ch:traefik-k8s
+    channel: 1.0/candidate
+    scale: 1
+    trust: true
+    options:
+      kubernetes-service-annotations: metallb.universe.tf/address-pool=public
+  mysql:
+    charm: ch:mysql-k8s
+    channel: 8.0/stable
+    scale: 1
+    trust: false
+  rabbitmq:
+    charm: ch:rabbitmq-k8s
+    channel: 3.12/edge
+    scale: 1
+    trust: true
+    options:
+      minimum-replicas: 1
+  keystone:
+    {% if keystone_k8s is defined and keystone_k8s is sameas true -%}
+    charm: ../../../keystone-k8s.charm
+    {% else -%}
+    charm: ch:keystone-k8s
+    channel: 2023.2/edge
+    {% endif -%}
+    scale: 1
+    trust: true
+    options:
+      admin-role: admin
+    storage:
+      fernet-keys: 5M
+      credential-keys: 5M
+    resources:
+      keystone-image: ghcr.io/canonical/keystone:2023.2
+  neutron:
+    {% if neutron_k8s is defined and neutron_k8s is sameas true -%}
+    charm: ../../../neutron-k8s.charm
+    {% else -%}
+    charm: ch:neutron-k8s
+    channel: 2023.2/edge
+    {% endif -%}
+    scale: 1
+    trust: true
+    options:
+      debug: true
+    resources:
+      neutron-server-image: ghcr.io/canonical/neutron-server:2023.2
+  ovn-central:
+    {% if ovn_central_k8s is defined and ovn_central_k8s is sameas true -%}
+    charm: ../../../ovn-central-k8s.charm
+    {% else -%}
+    charm: ch:ovn-central-k8s
+    channel: 23.03/edge
+    {% endif -%}
+    scale: 1
+    trust: true
+    resources:
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:23.09
+      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:23.09
+      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:23.09
+  tls-operator:
+    charm: self-signed-certificates
+    channel: edge
+    scale: 1
+    options:
+      ca-common-name: internal-ca
+  nova:
+    {% if nova_k8s is defined and nova_k8s is sameas true -%}
+    charm: ../../../nova-k8s.charm
+    {% else -%}
+    charm: ch:nova-k8s
+    channel: 2023.2/edge
+    {% endif -%}
+    scale: 1
+    trust: true
+    resources:
+      nova-api-image: ghcr.io/canonical/nova-consolidated:2023.2
+      nova-scheduler-image: ghcr.io/canonical/nova-consolidated:2023.2
+      nova-conductor-image: ghcr.io/canonical/nova-consolidated:2023.2
+  placement:
+    {% if placement_k8s is defined and placement_k8s is sameas true -%}
+    charm: ../../../placement-k8s.charm
+    {% else -%}
+    charm: ch:placement-k8s
+    channel: 2023.2/edge
+    {% endif -%}
+    scale: 1
+    trust: true
+    resources:
+      placement-api-image: ghcr.io/canonical/placement-api:2023.2
+  glance:
+    {% if glance_k8s is defined and glance_k8s is sameas true -%}
+    charm: ../../../glance-k8s.charm
+    {% else -%}
+    charm: ch:glance-k8s
+    channel: 2023.2/edge
+    {% endif -%}
+    scale: 1
+    trust: true
+    storage:
+      local-repository: 5G
+    resources:
+      glance-api-image: ghcr.io/canonical/glance-api:2023.2
+  ovn-relay:
+    {% if ovn_relay_k8s is defined and ovn_relay_k8s is sameas true -%}
+    charm: ../../../ovn-relay-k8s.charm
+    {% else -%}
+    charm: ch:ovn-relay-k8s
+    channel: 23.03/edge
+    {% endif -%}
+    scale: 1
+    trust: true
+    resources:
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:23.09
+  horizon:
+    {% if horizon_k8s is defined and horizon_k8s is sameas true -%}
+    charm: ../../../horizon-k8s.charm
+    {% else -%}
+    charm: ch:horizon-k8s
+    channel: 2023.2/edge
+    {% endif -%}
+    scale: 1
+    trust: true
+    resources:
+      horizon-image: ghcr.io/canonical/horizon:2023.2
+  octavia:
+    {% if octavia_k8s is defined and octavia_k8s is sameas true -%}
+    charm: ../../../octavia-k8s.charm
+    {% else -%}
+    charm: ch:octavia-k8s
+    channel: 2023.2/edge
+    {% endif -%}
+    scale: 1
+    trust: true
+    resources:
+      octavia-api-image: ghcr.io/canonical/octavia-consolidated:2023.2
+      octavia-driver-agent-image: ghcr.io/canonical/octavia-consolidated:2023.2
+      octavia-housekeeping-image: ghcr.io/canonical/octavia-consolidated:2023.2
+
+relations:
+- - mysql:database
+  - keystone:database
+- - traefik:ingress
+  - keystone:ingress-public
+
+- - mysql:database
+  - neutron:database
+- - rabbitmq:amqp
+  - neutron:amqp
+- - keystone:identity-service
+  - neutron:identity-service
+- - traefik:ingress
+  - neutron:ingress-public
+- - tls-operator:certificates
+  - neutron:certificates
+- - neutron:ovsdb-cms
+  - ovn-central:ovsdb-cms
+
+- - tls-operator:certificates
+  - ovn-central:certificates
+
+- - mysql:database
+  - nova:database
+- - mysql:database
+  - nova:api-database
+- - mysql:database
+  - nova:cell-database
+- - rabbitmq:amqp
+  - nova:amqp
+- - keystone:identity-service
+  - nova:identity-service
+- - traefik:ingress
+  - nova:ingress-public
+
+- - mysql:database
+  - placement:database
+- - keystone:identity-service
+  - placement:identity-service
+- - traefik:ingress
+  - placement:ingress-public
+
+- - mysql:database
+  - glance:database
+- - keystone:identity-service
+  - glance:identity-service
+- - rabbitmq:amqp
+  - glance:amqp
+- - traefik:ingress
+  - glance:ingress-public
+
+- - tls-operator:certificates
+  - ovn-relay:certificates
+- - ovn-relay:ovsdb-cms
+  - ovn-central:ovsdb-cms
+
+- - mysql:database
+  - horizon:database
+- - keystone:identity-credentials
+  - horizon:identity-credentials
+- - traefik:ingress
+  - horizon:ingress-public
+
+- - mysql:database
+  - octavia:database
+- - keystone:identity-service
+  - octavia:identity-service
+- - keystone:identity-ops
+  - octavia:identity-ops
+- - traefik:ingress
+  - octavia:ingress-public
+- - tls-operator:certificates
+  - octavia:certificates
+- - octavia:ovsdb-cms
+  - ovn-central:ovsdb-cms
