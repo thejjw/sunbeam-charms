@@ -1,0 +1,51 @@
+- job:
+    name: charm-build-keystone-k8s
+    run: playbooks/charm/build.yaml
+    timeout: 1800
+    match-on-config-updates: false
+    files:
+      - charms/keystone-k8s/*
+    tags: charm-build
+    vars:
+      charm: keystone-k8s
+- job:
+    name: charm-build-placement-k8s
+    run: playbooks/charm/build.yaml
+    timeout: 1800
+    match-on-config-updates: false
+    files:
+      - charms/placement-k8s/src/*
+    tags: charm-build
+    vars:
+      charm: placement-k8s
+- job:
+    name: charm-build-glance-k8s
+    run: playbooks/charm/build.yaml
+    timeout: 1800
+    match-on-config-updates: false
+    files:
+      - charms/glance-k8s/*
+    tags: charm-build
+    vars:
+      charm: glance-k8s
+- job:
+    name: func-test
+    description: |
+      Zaza smoke test for all the sunbeam charms that
+      requires OVN.
+    timeout: 3600
+    run: playbooks/zaza-func-test.yaml
+    post-run: playbooks/collect-run-data.yaml
+    dependencies:
+      - name: charm-build-keystone-k8s
+        soft: true
+      - name: charm-build-placement-k8s
+        soft: true
+      - name: charm-build-glance-k8s
+        soft: true
+    vars:
+      charm_jobs:
+        - charm-build-keystone-k8s
+        - charm-build-placement-k8s
+        - charm-build-glance-k8s
+      test_dir: ./tests/set1
