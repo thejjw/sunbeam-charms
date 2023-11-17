@@ -1,0 +1,6 @@
+- hosts: all
+  roles:
+    - ensure-tox
+    - role: charm-build
+      vars:
+        charm_build_name: "{{ charm }}"
