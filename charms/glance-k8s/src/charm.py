@@ -338,7 +338,8 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def configure_charm(self, event) -> None:
         """Catchall handler to configure charm services."""
-        if not self.relation_handlers_ready():
+        not_ready_relations = self.get_mandatory_relations_not_ready(event)
+        if not_ready_relations:
             logger.debug("Deferring configuration, charm relations not ready")
             return
 

@@ -1,0 +1,18 @@
+- job:
+    name: charm-build-keystone-k8s
+    run: playbooks/charm/build.yaml
+    provides: charm-keystone-k8s
+    timeout: 1800
+    files:
+      - charms/keystone-k8s/*
+    vars:
+      charm: keystone-k8s
+- job:
+    name: charm-build-placement-k8s
+    run: playbooks/charm/build.yaml
+    provides: charm-placement-k8s
+    timeout: 1800
+    files:
+      - charms/placement-k8s/src/charm.py
+    vars:
+      charm: placement-k8s
