@@ -1,0 +1,410 @@
+- job:
+    name: charm-build-keystone-k8s
+    description: Build sunbeam keystone-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/keystone-k8s/*
+    vars:
+      charm: keystone-k8s
+- job:
+    name: charm-build-glance-k8s
+    description: Build sunbeam glance-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/glance-k8s/*
+    vars:
+      charm: glance-k8s
+- job:
+    name: charm-build-nova-k8s
+    description: Build sunbeam nova-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/nova-k8s/*
+    vars:
+      charm: nova-k8s
+- job:
+    name: charm-build-placement-k8s
+    description: Build sunbeam placement-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/placement-k8s/*
+    vars:
+      charm: placement-k8s
+- job:
+    name: charm-build-neutron-k8s
+    description: Build sunbeam neutron-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/neutron-k8s/*
+    vars:
+      charm: neutron-k8s
+- job:
+    name: charm-build-ovn-central-k8s
+    description: Build sunbeam ovn-central-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/ovn-central-k8s/*
+    vars:
+      charm: ovn-central-k8s
+- job:
+    name: charm-build-ovn-relay-k8s
+    description: Build sunbeam ovn-relay-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/ovn-relay-k8s/*
+    vars:
+      charm: ovn-relay-k8s
+- job:
+    name: charm-build-cinder-k8s
+    description: Build sunbeam cinder-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/cinder-k8s/*
+    vars:
+      charm: cinder-k8s
+- job:
+    name: charm-build-cinder-ceph-k8s
+    description: Build sunbeam cinder-ceph-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/cinder-ceph-k8s/*
+    vars:
+      charm: cinder-ceph-k8s
+- job:
+    name: charm-build-horizon-k8s
+    description: Build sunbeam horizon-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/horizon-k8s/*
+    vars:
+      charm: horizon-k8s
+- job:
+    name: charm-build-heat-k8s
+    description: Build sunbeam heat-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/heat-k8s/*
+    vars:
+      charm: heat-k8s
+- job:
+    name: charm-build-octavia-k8s
+    description: Build sunbeam octavia-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/octavia-k8s/*
+    vars:
+      charm: octavia-k8s
+- job:
+    name: charm-build-aodh-k8s
+    description: Build sunbeam aodh-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/aodh-k8s/*
+    vars:
+      charm: aodh-k8s
+- job:
+    name: charm-build-ceilometer-k8s
+    description: Build sunbeam ceilometer-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/ceilometer-k8s/*
+    vars:
+      charm: ceilometer-k8s
+- job:
+    name: charm-build-gnocchi-k8s
+    description: Build sunbeam gnocchi-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/gnocchi-k8s/*
+    vars:
+      charm: gnocchi-k8s
+- job:
+    name: charm-build-barbican-k8s
+    description: Build sunbeam barbican-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/barbican-k8s/*
+    vars:
+      charm: barbican-k8s
+- job:
+    name: charm-build-magnum-k8s
+    description: Build sunbeam magnum-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/magnum-k8s/*
+    vars:
+      charm: magnum-k8s
+- job:
+    name: charm-build-designate-k8s
+    description: Build sunbeam designate-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/designate-k8s/*
+    vars:
+      charm: designate-k8s
+- job:
+    name: charm-build-designate-bind-k8s
+    description: Build sunbeam designate-bind-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/designate-bind-k8s/*
+    vars:
+      charm: designate-bind-k8s
+- job:
+    name: charm-build-keystone-ldap-k8s
+    description: Build sunbeam keystone-ldap-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/keystone-ldap-k8s/*
+    vars:
+      charm: keystone-ldap-k8s
+- job:
+    name: charm-build-openstack-exporter-k8s
+    description: Build sunbeam openstack-exporter-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/openstack-exporter-k8s/*
+    vars:
+      charm: openstack-exporter-k8s
+- job:
+    name: charm-build-openstack-hypervisor
+    description: Build sunbeam openstack-hypervisor charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/openstack-hypervisor/*
+    vars:
+      charm: openstack-hypervisor
+
+- job:
+    name: func-test-core
+    description: |
+      Zaza smoke test for all the core sunbeam charms.
+    timeout: 3600
+    run: playbooks/zaza-func-test.yaml
+    post-run: playbooks/collect-run-data.yaml
+    dependencies:
+      - name: charm-build-keystone-k8s
+        soft: true
+      - name: charm-build-glance-k8s
+        soft: true
+      - name: charm-build-nova-k8s
+        soft: true
+      - name: charm-build-placement-k8s
+        soft: true
+      - name: charm-build-neutron-k8s
+        soft: true
+      - name: charm-build-ovn-central-k8s
+        soft: true
+      - name: charm-build-ovn-relay-k8s
+        soft: true
+      - name: charm-build-horizon-k8s
+        soft: true
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/keystone-k8s/*
+      - charms/glance-k8s/*
+      - charms/nova-k8s/*
+      - charms/neutron-k8s/*
+      - charms/placement-k8s/*
+      - charms/ovn-central-k8s/*
+      - charms/ovn-relay-k8s/*
+      - charms/horizon-k8s/*
+    vars:
+      # Artifacts will be downloaded from below charm jobs
+      charm_jobs:
+        - charm-build-keystone-k8s
+        - charm-build-glance-k8s
+        - charm-build-nova-k8s
+        - charm-build-placement-k8s
+        - charm-build-neutron-k8s
+        - charm-build-ovn-central-k8s
+        - charm-build-ovn-relay-k8s
+        - charm-build-horizon-k8s
+      # test_dir relative to project src dir
+      test_dir: tests/core
+- job:
+    name: func-test-ceph
+    description: |
+      Zaza smoke test for all the sunbeam charms that
+      requires storage/ceph.
+    timeout: 3600
+    run: playbooks/zaza-func-test.yaml
+    post-run: playbooks/collect-run-data.yaml
+    dependencies:
+      - name: charm-build-cinder-k8s
+        soft: true
+      - name: charm-build-cinder-ceph-k8s
+        soft: true
+      - name: charm-build-gnocchi-k8s
+        soft: true
+      - name: charm-build-ceilometer-k8s
+        soft: true
+      - name: charm-build-aodh-k8s
+        soft: true
+      - name: charm-build-keystone-k8s
+        soft: true
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/cinder-k8s/*
+      - charms/cinder-ceph-k8s/*
+      - charms/gnocchi-k8s/*
+      - charms/ceilometer-k8s/*
+      - charms/aodh-k8s/*
+    vars:
+      charm_jobs:
+        - charm-build-cinder-k8s
+        - charm-build-cinder-ceph-k8s
+        - charm-build-gnocchi-k8s
+        - charm-build-ceilometer-k8s
+        - charm-build-aodh-k8s
+        - charm-build-keystone-k8s
+      test_dir: tests/ceph
+- job:
+    name: func-test-caas
+    description: |
+      Zaza smoke test for magnum and dependent charms
+      like heat, octavia, barbican.
+    timeout: 3600
+    run: playbooks/zaza-func-test.yaml
+    post-run: playbooks/collect-run-data.yaml
+    dependencies:
+      - name: charm-build-heat-k8s
+        soft: true
+      - name: charm-build-octavia-k8s
+        soft: true
+      - name: charm-build-barbican-k8s
+        soft: true
+      - name: charm-build-magnum-k8s
+        soft: true
+      - name: charm-build-keystone-k8s
+        soft: true
+      - name: charm-build-glance-k8s
+        soft: true
+      - name: charm-build-ovn-central-k8s
+        soft: true
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/heat-k8s/*
+      - charms/octavia-k8s/*
+      - charms/barbican-k8s/*
+      - charms/magnum-k8s/*
+    vars:
+      charm_jobs:
+        - charm-build-heat-k8s
+        - charm-build-octavia-k8s
+        - charm-build-barbican-k8s
+        - charm-build-magnum-k8s
+        - charm-build-keystone-k8s
+        - charm-build-glance-k8s
+        - charm-build-ovn-central-k8s
+      test_dir: tests/caas
+- job:
+    name: func-test-misc
+    description: |
+      Zaza smoke test for designate, desginate-bind,
+      keystone-ldap, openstack-exporter charms.
+    timeout: 3600
+    run: playbooks/zaza-func-test.yaml
+    post-run: playbooks/collect-run-data.yaml
+    dependencies:
+      - name: charm-build-designate-k8s
+        soft: true
+      - name: charm-build-designate-bind-k8s
+        soft: true
+      - name: charm-build-keystone-k8s
+        soft: true
+      - name: charm-build-keystone-ldap-k8s
+        soft: true
+      - name: charm-build-openstack-exporter-k8s
+        soft: true
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/designate-k8s/*
+      - charms/designate-bind-k8s/*
+      - charms/keystone-ldap-k8s/*
+      - charms/openstack-exporter-k8s/*
+    vars:
+      charm_jobs:
+        - charm-build-designate-k8s
+        - charm-build-designate-bind-k8s
+        - charm-build-keystone-ldap-k8s
+        - charm-build-openstack-exporter-k8s
+        - charm-build-keystone-k8s
+      test_dir: tests/misc
+
+- job:
+    name: publish-charms
+    description: |
+      Publish all the charms built in the gate
+      pipeline.
+    post-review: true
+    run: playbooks/charm/publish.yaml
+    secrets:
+      charmhub_token
+    timeout: 3600
