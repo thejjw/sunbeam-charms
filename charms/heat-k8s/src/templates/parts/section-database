@@ -1,7 +1,0 @@
-[database]
-{% if database.connection -%}
-connection = {{ database.connection }}
-{% else -%}
-connection = sqlite:////var/lib/cinder/cinder.db
-{% endif -%}
-connection_recycle_time = 200

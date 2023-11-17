@@ -1,7 +1,0 @@
-[database]
-{% if database.connection -%}
-connection = {{ database.connection }}
-{% else -%}
-connection = sqlite:////var/lib/keystone/keystone.db
-{% endif -%}
-connection_recycle_time = 200

@@ -1,0 +1,48 @@
+- project:
+    templates:
+      - openstack-python3-sunbeam-jobs
+      - openstack-cover-jobs
+      - openstack-sunbeam-charm-build-jobs
+    check:
+      jobs:
+        - func-test-core:
+            nodeset: ubuntu-focal
+            voting: false
+        - func-test-ceph:
+            nodeset: ubuntu-focal
+            voting: false
+        - func-test-caas:
+            nodeset: ubuntu-focal
+            voting: false
+        - func-test-misc:
+            nodeset: ubuntu-focal
+            voting: false
+    vars:
+      juju_channel: 3.2/stable
+      juju_classic_mode: false
+      microk8s_channel: 1.28-strict/stable
+      microk8s_classic_mode: false
+      charmcraft_channel: 2.0/stable
+      publish_channels:
+        keystone-k8s: 2023.2/edge
+        glance-k8s: 2023.2/edge
+        nova-k8s: 2023.2/edge
+        placement-k8s: 2023.2/edge
+        neutron-k8s: 2023.2/edge
+        ovn-central-k8s: 23.09/edge
+        ovn-relay-k8s: 23.09/edge
+        cinder-k8s: 2023.2/edge
+        cinder-ceph-k8s: 2023.2/edge
+        horizon-k8s: 2023.2/edge
+        heat-k8s: 2023.2/edge
+        octavia-k8s: 2023.2/edge
+        aodh-k8s: 2023.2/edge
+        ceilometer-k8s: 2023.2/edge
+        gnocchi-k8s: 2023.2/edge
+        barbican-k8s: 2023.2/edge
+        designate-k8s: 2023.2/edge
+        designate-bind-k8s: 9/edge
+        magnum-k8s: 2023.2/edge
+        keystone-ldap-k8s: 2023.2/edge
+        openstack-exporter-k8s: 2023.2/edge
+        openstack-hypervisor: 2023.2/edge
