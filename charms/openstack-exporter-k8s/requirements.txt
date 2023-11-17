@@ -1,5 +1,7 @@
 ops
 jinja2
-git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
 # COS requirement
 cosl
+
+# From ops_sunbeam
+tenacity
