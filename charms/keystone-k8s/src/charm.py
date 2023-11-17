@@ -71,7 +71,6 @@ from ops.model import (
     SecretNotFoundError,
     SecretRotate,
 )
-
 from utils import (
     manager,
 )

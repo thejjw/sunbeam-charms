@@ -35,6 +35,8 @@ import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ovn
+import ovsdb as ch_ovsdb
 import tenacity
 from ops.framework import (
     StoredState,
@@ -42,9 +44,6 @@ from ops.framework import (
 from ops.main import (
     main,
 )
-
-import ovn
-import ovsdb as ch_ovsdb
 
 logger = logging.getLogger(__name__)
 
