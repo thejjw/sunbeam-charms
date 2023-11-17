@@ -16,9 +16,8 @@
 
 """Tests for OVN relay."""
 
-import ops_sunbeam.test_utils as test_utils
-
 import charm
+import ops_sunbeam.test_utils as test_utils
 
 
 class _OVNRelayOperatorCharm(charm.OVNRelayOperatorCharm):

@@ -19,10 +19,11 @@
 import base64
 import json
 
-import ops_sunbeam.test_utils as test_utils
-from ops.testing import Harness
-
 import charm
+import ops_sunbeam.test_utils as test_utils
+from ops.testing import (
+    Harness,
+)
 
 
 class _KeystoneLDAPK8SCharm(charm.KeystoneLDAPK8SCharm):
@@ -45,6 +46,8 @@ class _KeystoneLDAPK8SCharm(charm.KeystoneLDAPK8SCharm):
 
 
 class TestKeystoneLDAPK8SCharm(test_utils.CharmTestCase):
+    """Create Keystone Ldap test charm."""
+
     def setUp(self):
         """Run test setup."""
         self.harness = Harness(charm.KeystoneLDAPK8SCharm)
@@ -56,7 +59,9 @@ class TestKeystoneLDAPK8SCharm(test_utils.CharmTestCase):
         self.harness.set_leader()
         rel_id = self.harness.add_relation("domain-config", "keystone")
         self.harness.add_relation_unit(rel_id, "keystone/0")
-        rel_data = self.harness.get_relation_data(rel_id, self.harness.charm.unit.app.name)
+        rel_data = self.harness.get_relation_data(
+            rel_id, self.harness.charm.unit.app.name
+        )
         ldap_config_flags = json.dumps(
             {
                 "group_tree_dn": "ou=groups,dc=test,dc=com",
