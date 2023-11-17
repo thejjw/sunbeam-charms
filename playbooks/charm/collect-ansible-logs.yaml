@@ -1,0 +1,11 @@
+- hosts: all
+  tasks:
+    - name: Get all charm build async logs
+      register: async_output
+      shell: |
+        echo {{ item }}
+        cat {{ item }}
+      with_fileglob:
+        - "{{ lookup('ansible.builtin.env', 'HOME') }}/.ansible_async/*"
+    - debug:
+        msg: "{{ async_output }}"
