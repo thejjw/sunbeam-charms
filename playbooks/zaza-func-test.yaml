@@ -1,0 +1,6 @@
+- hosts: all
+  roles:
+    - ensure-tox
+    - use-docker-mirror
+    - microk8s-cloud
+    - zaza-func-test
