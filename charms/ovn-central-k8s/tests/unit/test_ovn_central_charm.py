@@ -16,10 +16,9 @@
 
 """Tests for OVN central charm."""
 
+import charm
 import mock
 import ops_sunbeam.test_utils as test_utils
-
-import charm
 
 
 class _OVNCentralOperatorCharm(charm.OVNCentralOperatorCharm):
