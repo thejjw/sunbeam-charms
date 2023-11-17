@@ -1,0 +1,8 @@
+- hosts: all
+  roles:
+    - ensure-tox
+    - use-docker-mirror
+    - microk8s-cloud
+    - role: zaza-func-test
+      vars:
+        charm_jobs: "{{ charm_jobs }}"
