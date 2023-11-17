@@ -13,4 +13,6 @@ lightkube-models
 ops
 pwgen
 pytest-interface-tester
-git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
+
+# From ops_sunbeam
+tenacity
