@@ -1,0 +1,127 @@
+- project-template:
+    name: openstack-python3-sunbeam-jobs
+    # NOTE(hemanth): This template is used in openstack sunbeam charms since
+    # stable/2023.1. The stable/2023.1 and stable/2023.2 charm branches
+    # support py310 unit tests and main support py310, py311 tests.
+    description: |
+      Runs unit tests for an OpenStack Sunbeam project under the CPython
+      version 3 releases designated for testing the latest release.
+    check:
+      jobs:
+        - openstack-tox-pep8
+        - openstack-tox-py310:
+            branches:
+              - stable/2023.1
+              - stable/2023.2
+              - main
+        - openstack-tox-py311:
+            branches:
+              - main
+    gate:
+      jobs:
+        - openstack-tox-pep8
+        - openstack-tox-py310:
+            branches:
+              - stable/2023.1
+              - stable/2023.2
+              - main
+        - openstack-tox-py311:
+            branches:
+              - main
+
+- project-template:
+    name: openstack-sunbeam-charm-build-jobs
+    description: |
+      Build the charms in OpenStack Sunbeam project.
+    check:
+      jobs:
+        - charm-build-keystone-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-glance-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-nova-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-placement-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-neutron-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-ovn-central-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-ovn-relay-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-cinder-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-cinder-ceph-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-horizon-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-heat-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-octavia-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-aodh-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-ceilometer-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-gnocchi-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-barbican-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-magnum-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-designate-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-designate-bind-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-keystone-ldap-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-openstack-exporter-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-openstack-hypervisor:
+            nodeset: ubuntu-focal
+    gate:
+      jobs:
+        - charm-build-keystone-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-glance-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-nova-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-placement-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-neutron-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-ovn-central-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-ovn-relay-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-cinder-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-cinder-ceph-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-horizon-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-heat-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-octavia-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-aodh-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-ceilometer-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-gnocchi-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-barbican-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-magnum-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-designate-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-designate-bind-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-keystone-ldap-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-openstack-exporter-k8s:
+            nodeset: ubuntu-focal
+        - charm-build-openstack-hypervisor:
+            nodeset: ubuntu-focal

@@ -51,7 +51,6 @@ from ops.charm import (
 from ops.main import (
     main,
 )
-
 from utils import (
     get_local_ip_by_default_route,
 )

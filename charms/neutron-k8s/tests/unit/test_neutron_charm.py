@@ -16,9 +16,8 @@
 
 """Tests for neutron charm."""
 
-import ops_sunbeam.test_utils as test_utils
-
 import charm
+import ops_sunbeam.test_utils as test_utils
 
 
 class _NeutronOVNOperatorCharm(charm.NeutronOVNOperatorCharm):

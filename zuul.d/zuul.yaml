@@ -1,0 +1,20 @@
+- project:
+    templates:
+      - openstack-python3-sunbeam-jobs
+      - openstack-cover-jobs
+      - openstack-sunbeam-charm-build-jobs
+    check:
+      jobs:
+        - func-test-core:
+            nodeset: ubuntu-focal
+        - func-test-ceph:
+            nodeset: ubuntu-focal
+        - func-test-caas:
+            nodeset: ubuntu-focal
+        - func-test-misc:
+            nodeset: ubuntu-focal
+    vars:
+      juju_channel: 3.1/stable
+      juju_classic_mode: false
+      microk8s_channel: 1.28-strict/stable
+      microk8s_classic_mode: false
