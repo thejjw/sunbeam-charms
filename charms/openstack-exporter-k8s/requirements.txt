@@ -1,5 +1,9 @@
 ops
 jinja2
-git+https://opendev.org/openstack/charm-ops-sunbeam#egg=ops_sunbeam
+lightkube
+lightkube-models
 # COS requirement
 cosl
+
+# From ops_sunbeam
+tenacity

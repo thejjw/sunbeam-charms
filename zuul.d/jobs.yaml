@@ -1,0 +1,6 @@
+- job:
+    name: build-charm
+    run: playbooks/charm/build.yaml
+    post-run: playbooks/charm/collect-ansible-logs.yaml
+    provides: charm
+    timeout: 3600
