@@ -18,15 +18,15 @@
 
 import json
 
+import charm
 import ops_sunbeam.test_utils as test_utils
 from mock import (
+    MagicMock,
     patch,
 )
 from ops.testing import (
     Harness,
 )
-
-import charm
 
 
 class _CinderCephOperatorCharm(charm.CinderCephOperatorCharm):
@@ -82,6 +82,7 @@ class TestCinderCephOperatorCharm(test_utils.CharmTestCase):
     def setUp(self):
         """Setup fixtures ready for testing."""
         super().setUp(charm, self.PATCHES)
+        self.mock_event = MagicMock()
         self.harness = test_utils.get_harness(
             _CinderCephOperatorCharm, container_calls=self.container_calls
         )
@@ -118,7 +119,13 @@ class TestCinderCephOperatorCharm(test_utils.CharmTestCase):
         test_utils.add_complete_db_relation(self.harness)
         add_complete_storage_backend_relation(self.harness)
         test_utils.set_all_pebbles_ready(self.harness)
-        self.assertTrue(self.harness.charm.relation_handlers_ready())
+        self.assertSetEqual(
+            self.harness.charm.get_mandatory_relations_not_ready(
+                self.mock_event
+            ),
+            set(),
+        )
+        # self.assertTrue(self.harness.charm.relation_handlers_ready())
 
     def test_ceph_access(self):
         """Test charm provides secret via ceph-access."""
@@ -132,7 +139,13 @@ class TestCinderCephOperatorCharm(test_utils.CharmTestCase):
         )
         add_complete_storage_backend_relation(self.harness)
         test_utils.set_all_pebbles_ready(self.harness)
-        self.assertTrue(self.harness.charm.relation_handlers_ready())
+        # self.assertTrue(self.harness.charm.relation_handlers_ready())
+        self.assertSetEqual(
+            self.harness.charm.get_mandatory_relations_not_ready(
+                self.mock_event
+            ),
+            set(),
+        )
         rel_data = self.harness.get_relation_data(
             access_rel, self.harness.charm.unit.app.name
         )
