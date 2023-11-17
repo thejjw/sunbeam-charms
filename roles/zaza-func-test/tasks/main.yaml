@@ -1,0 +1,24 @@
+- name: built charm is present locally (artefact from previous job)
+  include_role:
+    name: download-artifact
+  vars:
+    download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
+    download_artifact_type: charm
+    download_artifact_pipeline: check
+    download_artifact_job: "{{ item }}"
+    download_artifact_directory: "{{ zuul.project.src_dir }}"
+  with_items:
+    - charm-build-keystone-k8s
+    - charm-build-placement-k8s
+
+- name: list files
+  register: files_list
+  command: "ls -la {{ zuul.project.src_dir }}"
+
+- debug:
+    msg: "{{ files_list }}"
+
+- name: run smoke tests
+  command:
+    cmd: "{{ tox_executable }} -e func-smoke"
+    chdir: "{{ zuul.project.src_dir }}"
