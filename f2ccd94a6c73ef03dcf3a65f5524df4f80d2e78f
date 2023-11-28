@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9664d237_772ed253",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 63
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2023-11-28T03:40:19Z",
+      "side": 1,
+      "message": "recheck\n\nIntermittent CI job failures",
+      "revId": "f2ccd94a6c73ef03dcf3a65f5524df4f80d2e78f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
