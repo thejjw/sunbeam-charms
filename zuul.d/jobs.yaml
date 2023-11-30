@@ -403,8 +403,7 @@
     description: |
       Publish all the charms built in the gate
       pipeline.
-    post-review: true
     run: playbooks/charm/publish.yaml
     secrets:
-      charmhub_token
+      - charmhub_token
     timeout: 3600
