@@ -37,96 +37,96 @@
       fail-fast: true
       jobs:
         - charm-build-keystone-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-glance-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-nova-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-placement-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-neutron-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-ovn-central-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-ovn-relay-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-cinder-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-cinder-ceph-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-horizon-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-heat-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-octavia-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-aodh-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-ceilometer-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-gnocchi-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-barbican-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-magnum-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-designate-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-designate-bind-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-keystone-ldap-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-openstack-exporter-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-openstack-hypervisor:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
     gate:
       fail-fast: true
       jobs:
         - charm-build-keystone-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-glance-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-nova-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-placement-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-neutron-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-ovn-central-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-ovn-relay-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-cinder-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-cinder-ceph-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-horizon-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-heat-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-octavia-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-aodh-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-ceilometer-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-gnocchi-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-barbican-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-magnum-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-designate-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-designate-bind-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-keystone-ldap-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-openstack-exporter-k8s:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - charm-build-openstack-hypervisor:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
 
 - project-template:
     name: charm-publish-jobs
@@ -134,4 +134,5 @@
       The set of publish jobs for the OpenStack Sunbeam Charms
     promote:
       jobs:
-        - publish-charms
+        - publish-charms:
+            nodeset: ubuntu-jammy
