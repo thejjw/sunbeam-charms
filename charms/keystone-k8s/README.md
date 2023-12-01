@@ -1,6 +1,6 @@
 # keystone-k8s
 
-## Description
+## Description 
 
 keystone-k8s is an operator to manage the Keystone identity service
 on a Kubernetes based environment.
