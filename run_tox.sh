@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -o xtrace
 
 source common.sh
 
@@ -82,7 +84,7 @@ then
 		exit 1
 	fi
 
-	charm=$2
+	charm="$2"
 	charms=($(ls charms))
 	if [[ ! ${charms[@]} =~ $charm ]];
 	then
@@ -91,18 +93,49 @@ then
 	fi
 
 	push_common_files $charm || exit 1
+	cd "charms/$charm"
 
-	pushd charms/$charm
-	charmcraft -v pack || exit 1
+
+	# getent hosts snapcraft.io
+	# sysctl net.ipv4.ip_forward
+	# sysctl net.ipv6.conf.all.forwarding
+	sudo iptables -L
+	sudo iptables -L -t nat
+	sudo iptables -S
+	sudo iptables-save
+	sudo iptables -V
+	sudo nft list ruleset
+	# sudo iptables -D openstack-INPUT -j REJECT --reject-with icmp-host-prohibited
+	# sudo iptables-save
+	# sudo ufw allow in on lxdbr0
+	# sudo ufw route allow in on lxdbr0
+	# sudo ufw route allow out on lxdbr0
+	# lxc network list
+	# lxc network show lxdbr0 || true
+	# lxc profile list
+	# lxc profile show default || true
+	# ip a
+	# lxc info | grep 'firewall:'
+	# sudo lsof -n -i :53
+	# pgrep dnsmasq
+	# sudo ss -ulpn
+	# lxc launch ubuntu:22.04 test
+	# lxc exec test -- ip a
+	# lxc exec test -- ping snapcraft.io
+	# lxc config show test
+	# lxc rm -f test
+	charmcraft --verbosity trace pack
 	if [[ -e "${charm}.charm" ]];
 	then
 		echo "Removing bad downloaded charm maybe?"
 		rm "${charm}.charm"
 	fi
-	echo "Renaming charm ${charm}_*.charm to ${charm}.charm"
-	mv ${charm}_*.charm ${charm}.charm
-	popd
+	echo "Renaming charm ${charm}_ubuntu-22.04-amd64.charm to ${charm}.charm"
 
+	# fix when building for other targets than amd64
+	mv ${charm}_ubuntu-22.04-amd64.charm ${charm}.charm
+
+	cd -
 	pop_common_files $charm || exit 1
 else
 	echo "tox argument should be one of pep8, py3, py310, py311, cover";
