@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -o xtrace
 
 source common.sh
 
@@ -82,7 +84,7 @@ then
 		exit 1
 	fi
 
-	charm=$2
+	charm="$2"
 	charms=($(ls charms))
 	if [[ ! ${charms[@]} =~ $charm ]];
 	then
@@ -91,17 +93,17 @@ then
 	fi
 
 	push_common_files $charm || exit 1
-
-	pushd charms/$charm
-	charmcraft -v pack || exit 1
-	if [[ -e "${charm}.charm" ]];
+	charm_dir="charms/$charm"
+	charmcraft --project-dir "$charm_dir" -v pack
+	if [[ -e "${charm_dir}/${charm}.charm" ]];
 	then
 		echo "Removing bad downloaded charm maybe?"
-		rm "${charm}.charm"
+		rm "${charm_dir}/${charm}.charm"
 	fi
-	echo "Renaming charm ${charm}_*.charm to ${charm}.charm"
-	mv ${charm}_*.charm ${charm}.charm
-	popd
+	echo "Renaming charm ${charm}_ubuntu-22.04-amd64.charm to ${charm}.charm"
+
+	# fix when building for other targets than amd64
+	mv "${charm_dir}/${charm}_ubuntu-22.04-amd64.charm" "${charm_dir}/${charm}.charm"
 
 	pop_common_files $charm || exit 1
 else
