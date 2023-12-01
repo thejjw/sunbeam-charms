@@ -3,6 +3,7 @@
       - openstack-python3-sunbeam-jobs
       - openstack-cover-jobs
       - openstack-sunbeam-charm-build-jobs
+      - charm-publish-jobs
     check:
       jobs:
         - func-test-core:
