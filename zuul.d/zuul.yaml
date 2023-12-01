@@ -7,16 +7,16 @@
     check:
       jobs:
         - func-test-core:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
             voting: false
         - func-test-ceph:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
             voting: false
         - func-test-caas:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
             voting: false
         - func-test-misc:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
             voting: false
     vars:
       juju_channel: 3.2/stable
