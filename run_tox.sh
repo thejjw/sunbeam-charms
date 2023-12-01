@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o xtrace
+
 source common.sh
 
 if [[ $1 == "fmt" ]];
@@ -92,8 +94,9 @@ then
 
 	push_common_files $charm || exit 1
 
-	pushd charms/$charm
-	charmcraft -v pack || exit 1
+	cd charms/$charm
+	charmcraft -v pack
+	echo $?
 	if [[ -e "${charm}.charm" ]];
 	then
 		echo "Removing bad downloaded charm maybe?"
@@ -101,7 +104,7 @@ then
 	fi
 	echo "Renaming charm ${charm}_*.charm to ${charm}.charm"
 	mv ${charm}_*.charm ${charm}.charm
-	popd
+	cd -
 
 	pop_common_files $charm || exit 1
 else
