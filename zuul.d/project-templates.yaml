@@ -39,7 +39,7 @@
         - charm-build-keystone-k8s:
             nodeset: ubuntu-jammy
         - charm-build-glance-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-focal
         - charm-build-nova-k8s:
             nodeset: ubuntu-jammy
         - charm-build-placement-k8s:
