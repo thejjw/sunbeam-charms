@@ -30,7 +30,12 @@
     chdir: "{{ zuul.project.src_dir }}"
     executable: /bin/bash
   shell: |
-    ls *.charm | cut -d"." -f 1
+    charms=$(ls *.charm | cut -d"." -f 1)
+    if [[ $? != 0 ]]; then
+        echo ""
+    else
+       echo $charms | tr ' ' '\n'
+    fi
   register: built_charms
 
 - name: Prepare charm channel dict for downloaded charms
@@ -41,13 +46,13 @@
 
 - name: Print charm channel dict
   debug:
-    msg: "Charms to be published: {{ charm_channels }}"
+    msg: "Charms to be published: {{ charm_channels | default({}) }}"
 
 - name: Publish charms in a loop
   include_tasks: "publish.yaml"
   vars:
     charm_build_name: "{{ channel.key }}"
     publish_channel: "{{ channel.value }}"
-  loop: "{{ charm_channels|dict2items }}"
+  loop: "{{ charm_channels | default({}) | dict2items }}"
   loop_control:
     loop_var: channel
