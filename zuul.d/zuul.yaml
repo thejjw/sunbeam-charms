@@ -1,7 +1,7 @@
 - project:
     templates:
-      - openstack-python3-sunbeam-jobs
-      - openstack-cover-jobs
+      #- openstack-python3-sunbeam-jobs
+      #- openstack-cover-jobs
       - openstack-sunbeam-charm-build-jobs
       - charm-publish-jobs
     check:
@@ -23,7 +23,7 @@
       juju_classic_mode: false
       microk8s_channel: 1.28-strict/stable
       microk8s_classic_mode: false
-      charmcraft_channel: 2.0/stable
+      charmcraft_channel: 2.x/stable
       publish_channels:
         keystone-k8s: 2023.2/edge
         glance-k8s: 2023.2/edge

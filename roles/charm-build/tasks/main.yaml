@@ -12,6 +12,11 @@
     name: snapd
   become: true
 
+- name: install ufw for firewall management
+  apt:
+    name: ufw
+  become: true
+
 - name: lxd snap is installed
   snap:
     name: lxd
@@ -20,6 +25,15 @@
 
 - name: lxd is initialised
   command: lxd init --auto
+  become: true
+
+
+
+- name: allow traffic on lxd bridge
+  ufw:
+    rule: allow
+    interface: lxdbr0
+    routed: true
   become: true
 
 - name: current user is in lxd group
