@@ -28,6 +28,9 @@ provides:
   cos-agent:
     interface: cos_agent
 
+extra-bindings:
+  migration:
+
 # This charm has no peer relation by design. This charm needs to scale to
 # hundreds of units and this is limited by the peer relation.
 

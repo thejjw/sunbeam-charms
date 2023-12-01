@@ -23,3 +23,6 @@ options:
   physnet-name:
     default: "physnet1"
     type: string
+  use-migration-binding:
+    default: False
+    type: boolean

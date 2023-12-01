@@ -45,6 +45,9 @@ from charms.ceilometer_k8s.v0.ceilometer_service import (
 from charms.grafana_agent.v0.cos_agent import (
     COSAgentProvider,
 )
+from cryptography import (
+    x509,
+)
 from ops.charm import (
     ActionEvent,
 )
@@ -56,6 +59,119 @@ from utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+MIGRATION_BINDING = "migration"
+MTLS_USAGES = {x509.OID_SERVER_AUTH, x509.OID_CLIENT_AUTH}
+
+
+class MTlsCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
+    """Handler for certificates interface."""
+
+    def update_relation_data(self):
+        """Update relation outside of relation context."""
+        relations = self.model.relations[self.relation_name]
+        if len(relations) != 1:
+            logger.debug(
+                f"Unit has wrong number of {self.relation_name!r} relations."
+            )
+            return
+        relation = relations[0]
+        csr = self._get_csr_from_relation_unit_data()
+        if not csr:
+            self._request_certificates()
+            return
+        certs = self._get_cert_from_relation_data(csr)
+        if "cert" not in certs or not self._has_certificate_mtls_extensions(
+            certs["cert"]
+        ):
+            logger.info(
+                "Requesting new certificates, current is missing mTLS extensions."
+            )
+            relation.data[self.model.unit][
+                "certificate_signing_requests"
+            ] = "[]"
+            self._request_certificates()
+
+    def _has_certificate_mtls_extensions(self, certificate: str) -> bool:
+        """Check current certificate has mTLS extensions."""
+        cert = x509.load_pem_x509_certificate(certificate.encode())
+        for extension in cert.extensions:
+            if extension.oid != x509.OID_EXTENDED_KEY_USAGE:
+                continue
+            extension_oids = {ext.dotted_string for ext in extension.value}
+            mtls_oids = {oid.dotted_string for oid in MTLS_USAGES}
+            if mtls_oids.issubset(extension_oids):
+                return True
+        return False
+
+    def _request_certificates(self):
+        """Request certificates from remote provider."""
+        # Lazy import to ensure this lib is only required if the charm
+        # has this relation.
+        from charms.tls_certificates_interface.v1.tls_certificates import (
+            generate_csr,
+        )
+
+        if self.ready:
+            logger.debug("Certificate request already complete.")
+            return
+
+        if self.private_key:
+            logger.debug("Private key found, requesting certificates")
+        else:
+            logger.debug("Cannot request certificates, private key not found")
+            return
+
+        csr = generate_csr(
+            private_key=self.private_key.encode(),
+            subject=socket.getfqdn(),
+            sans_dns=self.sans_dns,
+            sans_ip=self.sans_ips,
+            additional_critical_extensions=[
+                x509.KeyUsage(
+                    digital_signature=True,
+                    content_commitment=False,
+                    key_encipherment=True,
+                    data_encipherment=False,
+                    key_agreement=True,
+                    key_cert_sign=False,
+                    crl_sign=False,
+                    encipher_only=False,
+                    decipher_only=False,
+                ),
+                x509.ExtendedKeyUsage(MTLS_USAGES),
+            ],
+        )
+        self.certificates.request_certificate_creation(
+            certificate_signing_request=csr
+        )
+
+    def context(self) -> dict:
+        """Certificates context."""
+        csr_from_unit = self._get_csr_from_relation_unit_data()
+        if not csr_from_unit:
+            return {}
+
+        certs = self._get_cert_from_relation_data(csr_from_unit)
+        cert = certs["cert"]
+        ca_cert = certs["ca"]
+        ca_with_intermediates = certs["ca"] + "\n" + "\n".join(certs["chain"])
+
+        ctxt = {
+            "key": self.private_key,
+            "cert": cert,
+            "ca_cert": ca_cert,
+            "ca_with_intermediates": ca_with_intermediates,
+        }
+        return ctxt
+
+    @property
+    def ready(self) -> bool:
+        """Whether handler ready for use."""
+        try:
+            return super().ready
+        except KeyError:
+            return False
 
 
 class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
@@ -98,6 +214,20 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             ],
         )
 
+    @property
+    def migration_address(self) -> Optional[str]:
+        """Get address from migration binding."""
+        use_binding = self.model.config.get("use-migration-binding")
+        if not use_binding:
+            return None
+        binding = self.model.get_binding(MIGRATION_BINDING)
+        if binding is None:
+            return None
+        address = binding.network.bind_address
+        if address is None:
+            return None
+        return str(address)
+
     def check_relation_exists(self, relation_name: str) -> bool:
         """Check if a relation exists or not."""
         if self.model.get_relation(relation_name):
@@ -135,6 +265,16 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 )
             )
             handlers.append(self.ceilometer)
+        if self.can_add_handler("certificates", handlers):
+            self.certs = MTlsCertificatesHandler(
+                self,
+                "certificates",
+                self.configure_charm,
+                sans_dns=self.get_sans_dns(),
+                sans_ips=self.get_sans_ips(),
+                mandatory="certificates" in self.mandatory_relations,
+            )
+            handlers.append(self.certs)
         handlers = super().get_relation_handlers(handlers)
         return handlers
 
@@ -245,6 +385,18 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "compute.spice-proxy-address": config("ip-address")
                 or local_ip,
                 "compute.virt-type": "kvm",
+                "compute.cacert": base64.b64encode(
+                    contexts.certificates.ca_cert.encode()
+                ).decode(),
+                "compute.cert": base64.b64encode(
+                    contexts.certificates.cert.encode()
+                ).decode(),
+                "compute.key": base64.b64encode(
+                    contexts.certificates.key.encode()
+                ).decode(),
+                "compute.migration-address": self.migration_address
+                or config("ip-address")
+                or local_ip,
                 "credentials.ovn-metadata-proxy-shared-secret": self.metadata_secret(),
                 "identity.admin-role": contexts.identity_credentials.admin_role,
                 "identity.auth-url": contexts.identity_credentials.internal_endpoint,
@@ -273,7 +425,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                     contexts.certificates.cert.encode()
                 ).decode(),
                 "network.ovn-cacert": base64.b64encode(
-                    contexts.certificates.ca_cert.encode()
+                    contexts.certificates.ca_with_intermediates.encode()
                 ).decode(),
                 "network.ovn-sb-connection": sb_connection_strs[0],
                 "network.physnet-name": config("physnet-name"),
