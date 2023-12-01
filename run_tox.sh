@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -o xtrace
 
 source common.sh
 
@@ -82,7 +84,7 @@ then
 		exit 1
 	fi
 
-	charm=$2
+	charm="$2"
 	charms=($(ls charms))
 	if [[ ! ${charms[@]} =~ $charm ]];
 	then
@@ -91,18 +93,18 @@ then
 	fi
 
 	push_common_files $charm || exit 1
-
-	pushd charms/$charm
-	charmcraft -v pack || exit 1
+	cd "charms/$charm"
 	if [[ -e "${charm}.charm" ]];
 	then
 		echo "Removing bad downloaded charm maybe?"
 		rm "${charm}.charm"
 	fi
-	echo "Renaming charm ${charm}_*.charm to ${charm}.charm"
-	mv ${charm}_*.charm ${charm}.charm
-	popd
+	echo "Renaming charm ${charm}_ubuntu-22.04-amd64.charm to ${charm}.charm"
 
+	# fix when building for other targets than amd64
+	mv ${charm}_*.charm ${charm}.charm
+
+	cd -
 	pop_common_files $charm || exit 1
 else
 	echo "tox argument should be one of pep8, py3, py310, py311, cover";
