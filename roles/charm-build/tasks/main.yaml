@@ -12,6 +12,15 @@
     name: snapd
   become: true
 
+- name: nftables is installed
+  apt:
+    name: nftables
+  become: true
+
+# - name: flush nftables
+#   command: nft flush ruleset
+#   become: true
+
 - name: lxd snap is installed
   snap:
     name: lxd
