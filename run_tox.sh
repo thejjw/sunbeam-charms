@@ -92,7 +92,7 @@ then
 
 	push_common_files $charm || exit 1
 
-	pushd charms/$charm
+	cd charms/$charm
 	charmcraft -v pack || exit 1
 	if [[ -e "${charm}.charm" ]];
 	then
@@ -101,7 +101,7 @@ then
 	fi
 	echo "Renaming charm ${charm}_*.charm to ${charm}.charm"
 	mv ${charm}_*.charm ${charm}.charm
-	popd
+	cd -
 
 	pop_common_files $charm || exit 1
 else
