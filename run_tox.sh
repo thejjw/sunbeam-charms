@@ -1,4 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+set -o xtrace
 
 source common.sh
 
@@ -91,8 +93,7 @@ then
 	fi
 
 	push_common_files $charm || exit 1
-
-	pushd charms/$charm
+	pushd charms/$charm || exit 1
 	charmcraft -v pack || exit 1
 	if [[ -e "${charm}.charm" ]];
 	then
@@ -100,9 +101,10 @@ then
 		rm "${charm}.charm"
 	fi
 	echo "Renaming charm ${charm}_*.charm to ${charm}.charm"
-	mv ${charm}_*.charm ${charm}.charm
-	popd
 
+	mv ${charm}_*.charm ${charm}.charm
+
+	popd || exit 1
 	pop_common_files $charm || exit 1
 else
 	echo "tox argument should be one of pep8, py3, py310, py311, cover";
