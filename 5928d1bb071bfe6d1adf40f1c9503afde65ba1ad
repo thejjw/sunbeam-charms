@@ -1,0 +1,8 @@
+Code-Review+2: gnuoy <liam.young@canonical.com>
+Verified+2: Zuul
+Workflow+1: gnuoy <liam.young@canonical.com>
+Submitted-by: Zuul
+Submitted-at: Tue, 05 Dec 2023 09:09:28 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/902613
+Project: openstack/sunbeam-charms
+Branch: refs/heads/main
