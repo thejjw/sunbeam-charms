@@ -172,7 +172,6 @@ class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
                     "override": "replace",
                     "summary": self.service_name,
                     "command": f"{self.service_name} --use-syslog",
-                    "startup": "enabled",
                     "user": "cinder",
                     "group": "cinder",
                 },
