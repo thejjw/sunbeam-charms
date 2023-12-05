@@ -59,7 +59,6 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "summary": "Neutron Server",
                     "command": "neutron-server",
-                    "startup": "enabled",
                     "user": "neutron",
                     "group": "neutron",
                 }
