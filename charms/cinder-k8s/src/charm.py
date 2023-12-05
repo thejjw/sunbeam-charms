@@ -127,7 +127,6 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
                     "override": "replace",
                     "summary": "Cinder Scheduler",
                     "command": "cinder-scheduler --use-syslog",
-                    "startup": "enabled",
                     "user": "cinder",
                     "group": "cinder",
                 }
