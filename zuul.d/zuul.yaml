@@ -24,6 +24,7 @@
       microk8s_channel: 1.28-strict/stable
       microk8s_classic_mode: false
       charmcraft_channel: 2.x/stable
+      publish_charm: true
       publish_channels:
         keystone-k8s: 2023.2/edge
         glance-k8s: 2023.2/edge
