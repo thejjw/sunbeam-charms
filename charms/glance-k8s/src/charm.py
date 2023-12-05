@@ -75,7 +75,6 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                         "/usr/bin/glance-api "
                         "--config-file /etc/glance/glance-api.conf"
                     ),
-                    "startup": "disabled",
                     "user": "glance",
                     "group": "glance",
                 },
@@ -83,7 +82,6 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "summary": "apache",
                     "command": "/usr/sbin/apache2ctl -DFOREGROUND",
-                    "startup": "disabled",
                 },
             },
         }
