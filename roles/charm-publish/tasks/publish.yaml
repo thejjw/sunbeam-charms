@@ -3,6 +3,13 @@
   environment:
     CHARMCRAFT_AUTH: "{{ charmhub_token.value }}"
   block:
+    - name: Install charmcraft
+      snap:
+        name: charmcraft
+        channel: "{{ charmcraft_channel | default('latest/stable') }}"
+        classic: true
+      become: true
+
     - name: Install docker
       include_role:
         name: ensure-docker
