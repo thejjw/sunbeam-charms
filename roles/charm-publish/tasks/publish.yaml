@@ -3,6 +3,11 @@
   environment:
     CHARMCRAFT_AUTH: "{{ charmhub_token.value }}"
   block:
+    - name: Install snapd
+      apt:
+        name: snapd
+      become: true
+
     - name: Install charmcraft
       snap:
         name: charmcraft
