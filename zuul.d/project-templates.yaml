@@ -134,5 +134,91 @@
       The set of publish jobs for the OpenStack Sunbeam Charms
     promote:
       jobs:
-        - publish-charms:
+        - publish-charm-keystone-k8s:
             nodeset: ubuntu-jammy
+            vars:
+                charm_name: keystone-k8s
+        - publish-charm-glance-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: glance-k8s
+        - publish-charm-nova-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: nova-k8s
+        - publish-charm-placement-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: placement-k8s
+        - publish-charm-neutron-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: neutron-k8s
+        - publish-charm-ovn-central-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: ovn-central-k8s
+        - publish-charm-ovn-relay-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: ovn-relay-k8s
+        - publish-charm-cinder-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: cinder-k8s
+        - publish-charm-cinder-ceph-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: cinder-ceph-k8s
+        - publish-charm-horizon-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: horizon-k8s
+        - publish-charm-heat-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: heat-k8s
+        - publish-charm-octavia-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: octavia-k8s
+        - publish-charm-aodh-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: aodh-k8s
+        - publish-charm-ceilometer-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: ceilometer-k8s
+        - publish-charm-gnocchi-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: gnocchi-k8s
+        - publish-charm-barbican-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: barbican-k8s
+        - publish-charm-magnum-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: magnum-k8s
+        - publish-charm-designate-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: designate-k8s
+        - publish-charm-designate-bind-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: designate-bind-k8s
+        - publish-charm-keystone-ldap-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: keystone-ldap-k8s
+        - publish-charm-openstack-exporter-k8s:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: openstack-exporter-k8s
+        - publish-charm-openstack-hypervisor:
+            nodeset: ubuntu-jammy
+            vars:
+                charm_name: openstack-hypervisor
