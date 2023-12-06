@@ -34,7 +34,7 @@ an observer for relation changed events.
 
 .. code:: python
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for a MySQL relation."""
         logger.debug("Setting up DB event handler")
         # Lazy import to ensure this lib is only required if the charm

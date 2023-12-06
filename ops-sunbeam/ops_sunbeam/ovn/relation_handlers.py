@@ -474,7 +474,7 @@ class OVSDBCMSProvidesHandler(
         super().__init__(charm, relation_name, callback_f, mandatory)
         self._update_address_data()
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Identity service relation."""
         # Lazy import to ensure this lib is only required if the charm
         # has this relation.
@@ -525,7 +525,7 @@ class OVSDBCMSRequiresHandler(
         """Run constructor."""
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Identity service relation."""
         # Lazy import to ensure this lib is only required if the charm
         # has this relation.

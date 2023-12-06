@@ -83,7 +83,7 @@ class GnocchiServiceRequiresHandler(sunbeam_rhandlers.RelationHandler):
         """
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for Gnocchi service relation."""
         logger.debug("Setting up Gnocchi service event handler")
         svc = GnocchiServiceRequires(

@@ -48,7 +48,7 @@ ContainerDir = collections.namedtuple(
 )
 
 
-class PebbleHandler(ops.charm.Object):
+class PebbleHandler(ops.framework.Object):
     """Base handler for Pebble based containers."""
 
     def __init__(

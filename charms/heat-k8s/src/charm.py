@@ -73,7 +73,7 @@ class TraefikRouteHandler(sunbeam_rhandlers.RelationHandler):
         """Run constructor."""
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Ingress relation."""
         logger.debug("Setting up ingress event handler")
         from charms.traefik_route_k8s.v0.traefik_route import (

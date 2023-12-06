@@ -51,7 +51,7 @@ ERASURE_CODED = "erasure-coded"
 REPLICATED = "replicated"
 
 
-class RelationHandler(ops.charm.Object):
+class RelationHandler(ops.framework.Object):
     """Base handler class for relations.
 
     A relation handler is used to manage a charms interaction with a relation
@@ -105,7 +105,7 @@ class RelationHandler(ops.charm.Object):
         else:
             status.set(WaitingStatus("integration incomplete"))
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for the relation.
 
         This method must be overridden in concrete class
@@ -113,7 +113,7 @@ class RelationHandler(ops.charm.Object):
         """
         raise NotImplementedError
 
-    def get_interface(self) -> Tuple[ops.charm.Object, str]:
+    def get_interface(self) -> Tuple[ops.framework.Object, str]:
         """Return the interface that this handler encapsulates.
 
         This is a combination of the interface object and the
@@ -166,7 +166,7 @@ class IngressHandler(RelationHandler):
         self.service_name = service_name
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Ingress relation."""
         logger.debug("Setting up ingress event handler")
         from charms.traefik_k8s.v2.ingress import (
@@ -269,7 +269,7 @@ class DBHandler(RelationHandler):
         self.database_name = database
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for a MySQL relation."""
         logger.debug("Setting up DB event handler")
         # Import here to avoid import errors if ops_sunbeam is being used
@@ -404,7 +404,7 @@ class RabbitMQHandler(RelationHandler):
         self.vhost = vhost
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an AMQP relation."""
         logger.debug("Setting up AMQP event handler")
         # Lazy import to ensure this lib is only required if the charm
@@ -495,7 +495,7 @@ class IdentityServiceRequiresHandler(RelationHandler):
         self.region = region
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Identity service relation."""
         logger.debug("Setting up Identity Service event handler")
         import charms.keystone_k8s.v1.identity_service as sun_id
@@ -654,7 +654,7 @@ class CephClientHandler(RelationHandler):
         self.app_name = app_name
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an ceph-client interface."""
         logger.debug("Setting up ceph-client event handler")
         # Lazy import to ensure this lib is only required if the charm
@@ -1099,7 +1099,7 @@ class IdentityCredentialsRequiresHandler(RelationHandler):
         """
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for identity-credentials relation."""
         import charms.keystone_k8s.v0.identity_credentials as identity_credentials
 
@@ -1306,7 +1306,7 @@ class CephAccessRequiresHandler(RelationHandler):
         """
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for ceph-access relation."""
         import charms.cinder_ceph_k8s.v0.ceph_access as ceph_access
 

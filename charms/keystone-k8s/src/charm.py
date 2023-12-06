@@ -188,7 +188,7 @@ class DomainConfigHandler(sunbeam_rhandlers.RelationHandler):
     ):
         super().__init__(charm, relation_name, callback_f)
 
-    def setup_event_handler(self) -> ops.charm.Object:
+    def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Identity service relation."""
         logger.debug("Setting up Identity Service event handler")
         self.dc = sunbeam_dc_svc.DomainConfigRequires(
