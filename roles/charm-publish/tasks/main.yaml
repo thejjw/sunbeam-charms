@@ -6,9 +6,13 @@
     download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
     download_artifact_query: "change={{ zuul.change }}&patchset={{ zuul.patchset }}&pipeline=gate"
 
+- name: Set charm name fact
+  set_fact:
+    charm_name: "{{ (zuul.job | default('')).removeprefix('publish-charm-') }}"
+
 - name: Get relevant charm build jobs
   set_fact:
-    relevant_charm_build_jobs: "{{ build_output.json | selectattr('job_name', 'match', '^charm-build-.*$') | map(attribute='job_name') | list }}"
+    relevant_charm_build_jobs: "{{ build_output.json | selectattr('job_name', 'match', '^charm-build-'+ charm_name +'.*$') | map(attribute='job_name') | list }}"
 
 - name: Print relevant build jobs
   debug:
