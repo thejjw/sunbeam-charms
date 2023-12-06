@@ -131,8 +131,72 @@
 - project-template:
     name: charm-publish-jobs
     description: |
-      The set of publish jobs for the OpenStack Sunbeam Charms
+        The set of publish jobs for the OpenStack Sunbeam Charms
     promote:
-      jobs:
-        - publish-charms:
-            nodeset: ubuntu-jammy
+        jobs:
+            - publish-charm-keystone-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-glance-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-nova-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-placement-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-neutron-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-ovn-central-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-ovn-relay-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-cinder-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-cinder-ceph-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-horizon-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-heat-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-octavia-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-aodh-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-ceilometer-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-gnocchi-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-barbican-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-magnum-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-designate-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-designate-bind-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-keystone-ldap-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-openstack-exporter-k8s:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
+            - publish-charm-openstack-hypervisor:
+                parent: publish-charms
+                nodeset: ubuntu-jammy
