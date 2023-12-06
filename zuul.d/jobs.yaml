@@ -403,6 +403,9 @@
     description: |
       Publish aodh-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/aodh-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -412,6 +415,9 @@
     description: |
       Publish barbican-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/barbican-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -421,6 +427,9 @@
     description: |
       Publish ceilometer-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/ceilometer-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -430,6 +439,9 @@
     description: |
       Publish cinder-ceph-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/cinder-ceph-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -439,6 +451,9 @@
     description: |
       Publish cinder-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/cinder-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -448,6 +463,9 @@
     description: |
       Publish designate-bind-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/designate-bind-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -457,6 +475,9 @@
     description: |
       Publish designate-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/designate-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -466,6 +487,9 @@
     description: |
       Publish glance-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/glance-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -475,6 +499,9 @@
     description: |
       Publish gnocchi-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/gnocchi-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -484,6 +511,9 @@
     description: |
       Publish heat-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/heat-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -493,6 +523,9 @@
     description: |
       Publish horizon-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/horizon-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -502,6 +535,9 @@
     description: |
       Publish keystone-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/keystone-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -511,6 +547,9 @@
     description: |
       Publish keystone-ldap-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/keystone-ldap-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -520,6 +559,9 @@
     description: |
       Publish magnum-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/magnum-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -529,6 +571,9 @@
     description: |
       Publish neutron-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/neutron-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -538,6 +583,9 @@
     description: |
       Publish nova-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/nova-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -547,6 +595,9 @@
     description: |
       Publish octavia-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/octavia-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -556,6 +607,9 @@
     description: |
       Publish openstack-exporter-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/openstack-exporter-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -565,6 +619,9 @@
     description: |
       Publish openstack-hypervisor built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/openstack-hypervisor/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -574,6 +631,9 @@
     description: |
       Publish ovn-central-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/ovn-central-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -583,6 +643,9 @@
     description: |
       Publish ovn-relay-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/ovn-relay-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
@@ -592,6 +655,9 @@
     description: |
       Publish placement-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/placement-k8s/*
     secrets:
       - charmhub_token
     timeout: 3600
