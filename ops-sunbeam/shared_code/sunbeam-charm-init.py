@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
-import shutil
-import yaml
 import argparse
-import tempfile
 import os
-import glob
-from cookiecutter.main import cookiecutter
+import shutil
 import subprocess
-
-from datetime import datetime
 import sys
+import tempfile
+
+import yaml
+from cookiecutter.main import cookiecutter
+
 
 def start_msg():
     print("This tool is designed to be used after 'charmcraft init' was initially run")
