@@ -134,7 +134,6 @@ class HeatAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "summary": "Heat API",
                     "command": "heat-api",
-                    "startup": "enabled",
                     "user": "heat",
                     "group": "heat",
                 }
@@ -176,7 +175,6 @@ class HeatCfnAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "summary": "Heat API CFN",
                     "command": "heat-api-cfn --config-file /etc/heat/heat-api-cfn.conf",
-                    "startup": "enabled",
                     "user": "heat",
                     "group": "heat",
                 }
@@ -218,7 +216,6 @@ class HeatEnginePebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "summary": "Heat Engine",
                     "command": "heat-engine",
-                    "startup": "enabled",
                     "user": "heat",
                     "group": "heat",
                 }
