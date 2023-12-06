@@ -131,8 +131,50 @@
 - project-template:
     name: charm-publish-jobs
     description: |
-      The set of publish jobs for the OpenStack Sunbeam Charms
+        The set of publish jobs for the OpenStack Sunbeam Charms
     promote:
-      jobs:
-        - publish-charms:
-            nodeset: ubuntu-jammy
+        jobs:
+            - publish-charm-keystone-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-glance-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-nova-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-placement-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-neutron-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-ovn-central-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-ovn-relay-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-cinder-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-cinder-ceph-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-horizon-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-heat-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-octavia-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-aodh-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-ceilometer-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-gnocchi-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-barbican-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-magnum-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-designate-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-designate-bind-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-keystone-ldap-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-openstack-exporter-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-openstack-hypervisor:
+                nodeset: ubuntu-jammy

@@ -399,10 +399,198 @@
       test_dir: tests/misc
 
 - job:
-    name: publish-charms
+    name: publish-charm-aodh-k8s
     description: |
-      Publish all the charms built in the gate
-      pipeline.
+      Publish aodh-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-barbican-k8s
+    description: |
+      Publish barbican-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-ceilometer-k8s
+    description: |
+      Publish ceilometer-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-cinder-ceph-k8s
+    description: |
+      Publish cinder-ceph-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-cinder-k8s
+    description: |
+      Publish cinder-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-designate-bind-k8s
+    description: |
+      Publish designate-bind-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-designate-k8s
+    description: |
+      Publish designate-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-glance-k8s
+    description: |
+      Publish glance-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-gnocchi-k8s
+    description: |
+      Publish gnocchi-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-heat-k8s
+    description: |
+      Publish heat-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-horizon-k8s
+    description: |
+      Publish horizon-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-keystone-k8s
+    description: |
+      Publish keystone-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-keystone-ldap-k8s
+    description: |
+      Publish keystone-ldap-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-magnum-k8s
+    description: |
+      Publish magnum-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-neutron-k8s
+    description: |
+      Publish neutron-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-nova-k8s
+    description: |
+      Publish nova-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-octavia-k8s
+    description: |
+      Publish octavia-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-openstack-exporter-k8s
+    description: |
+      Publish openstack-exporter-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-openstack-hypervisor
+    description: |
+      Publish openstack-hypervisor built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-ovn-central-k8s
+    description: |
+      Publish ovn-central-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-ovn-relay-k8s
+    description: |
+      Publish ovn-relay-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-placement-k8s
+    description: |
+      Publish placement-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     secrets:
       - charmhub_token
