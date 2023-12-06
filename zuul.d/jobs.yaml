@@ -7,6 +7,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/keystone-k8s/*
+      - rebuild
     vars:
       charm: keystone-k8s
 - job:
@@ -18,6 +19,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/glance-k8s/*
+      - rebuild
     vars:
       charm: glance-k8s
 - job:
@@ -29,6 +31,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/nova-k8s/*
+      - rebuild
     vars:
       charm: nova-k8s
 - job:
@@ -40,6 +43,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/placement-k8s/*
+      - rebuild
     vars:
       charm: placement-k8s
 - job:
@@ -51,6 +55,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/neutron-k8s/*
+      - rebuild
     vars:
       charm: neutron-k8s
 - job:
@@ -62,6 +67,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/ovn-central-k8s/*
+      - rebuild
     vars:
       charm: ovn-central-k8s
 - job:
@@ -73,6 +79,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/ovn-relay-k8s/*
+      - rebuild
     vars:
       charm: ovn-relay-k8s
 - job:
@@ -84,6 +91,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/cinder-k8s/*
+      - rebuild
     vars:
       charm: cinder-k8s
 - job:
@@ -95,6 +103,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/cinder-ceph-k8s/*
+      - rebuild
     vars:
       charm: cinder-ceph-k8s
 - job:
@@ -106,6 +115,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/horizon-k8s/*
+      - rebuild
     vars:
       charm: horizon-k8s
 - job:
@@ -117,6 +127,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/heat-k8s/*
+      - rebuild
     vars:
       charm: heat-k8s
 - job:
@@ -128,6 +139,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/octavia-k8s/*
+      - rebuild
     vars:
       charm: octavia-k8s
 - job:
@@ -139,6 +151,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/aodh-k8s/*
+      - rebuild
     vars:
       charm: aodh-k8s
 - job:
@@ -150,6 +163,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/ceilometer-k8s/*
+      - rebuild
     vars:
       charm: ceilometer-k8s
 - job:
@@ -161,6 +175,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/gnocchi-k8s/*
+      - rebuild
     vars:
       charm: gnocchi-k8s
 - job:
@@ -172,6 +187,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/barbican-k8s/*
+      - rebuild
     vars:
       charm: barbican-k8s
 - job:
@@ -183,6 +199,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/magnum-k8s/*
+      - rebuild
     vars:
       charm: magnum-k8s
 - job:
@@ -194,6 +211,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/designate-k8s/*
+      - rebuild
     vars:
       charm: designate-k8s
 - job:
@@ -205,6 +223,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/designate-bind-k8s/*
+      - rebuild
     vars:
       charm: designate-bind-k8s
 - job:
@@ -216,6 +235,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/keystone-ldap-k8s/*
+      - rebuild
     vars:
       charm: keystone-ldap-k8s
 - job:
@@ -227,6 +247,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/openstack-exporter-k8s/*
+      - rebuild
     vars:
       charm: openstack-exporter-k8s
 - job:
@@ -238,6 +259,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/openstack-hypervisor/*
+      - rebuild
     vars:
       charm: openstack-hypervisor
 
@@ -275,6 +297,7 @@
       - charms/ovn-central-k8s/*
       - charms/ovn-relay-k8s/*
       - charms/horizon-k8s/*
+      - rebuild
     vars:
       # Artifacts will be downloaded from below charm jobs
       charm_jobs:
@@ -316,6 +339,7 @@
       - charms/gnocchi-k8s/*
       - charms/ceilometer-k8s/*
       - charms/aodh-k8s/*
+      - rebuild
     vars:
       charm_jobs:
         - charm-build-cinder-k8s
@@ -354,6 +378,7 @@
       - charms/octavia-k8s/*
       - charms/barbican-k8s/*
       - charms/magnum-k8s/*
+      - rebuild
     vars:
       charm_jobs:
         - charm-build-heat-k8s
@@ -389,6 +414,7 @@
       - charms/designate-bind-k8s/*
       - charms/keystone-ldap-k8s/*
       - charms/openstack-exporter-k8s/*
+      - rebuild
     vars:
       charm_jobs:
         - charm-build-designate-k8s
@@ -406,6 +432,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/aodh-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -418,6 +445,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/barbican-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -430,6 +458,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/ceilometer-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -442,6 +471,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/cinder-ceph-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -454,6 +484,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/cinder-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -466,6 +497,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/designate-bind-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -478,6 +510,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/designate-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -490,6 +523,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/glance-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -502,6 +536,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/gnocchi-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -514,6 +549,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/heat-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -526,6 +562,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/horizon-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -538,6 +575,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/keystone-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -550,6 +588,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/keystone-ldap-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -562,6 +601,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/magnum-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -574,6 +614,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/neutron-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -586,6 +627,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/nova-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -598,6 +640,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/octavia-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -610,6 +653,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/openstack-exporter-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -622,6 +666,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/openstack-hypervisor/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -634,6 +679,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/ovn-central-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -646,6 +692,7 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/ovn-relay-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
@@ -658,6 +705,8 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/placement-k8s/*
+      - rebuild
     secrets:
       - charmhub_token
     timeout: 3600
+
