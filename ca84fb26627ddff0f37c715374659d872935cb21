@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "833ed079_8adc5869",
+        "filename": "zuul.d/project-templates.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2023-12-07T12:00:25Z",
+      "side": 0,
+      "message": "I don\u0027t think this file should be modified",
+      "revId": "ca84fb26627ddff0f37c715374659d872935cb21",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
