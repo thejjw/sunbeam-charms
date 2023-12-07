@@ -26,8 +26,8 @@ resources:
   ovn-sb-db-server-image:
     type: oci-image
     description: OCI image for OVN Southbound Database Server
-    # ghcr.io/canonical/ovn-sb-db-server:23.09
-    upstream-source: ghcr.io/canonical/ovn-consolidated:23.09
+    # ghcr.io/canonical/ovn-sb-db-server:23.03
+    upstream-source: ghcr.io/canonical/ovn-consolidated:23.03
 
 requires:
   ovsdb-cms:
