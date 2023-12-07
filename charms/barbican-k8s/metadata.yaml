@@ -57,8 +57,8 @@ resources:
   barbican-api-image:
     type: oci-image
     description: OCI image for OpenStack Barbican API
-    upstream-source: ghcr.io/canonical/barbican-consolidated:2023.2
+    upstream-source: ghcr.io/canonical/barbican-consolidated:2023.1
   barbican-worker-image:
     type: oci-image
     description: OCI image for OpenStack Barbican worker
-    upstream-source: ghcr.io/canonical/barbican-consolidated:2023.2
+    upstream-source: ghcr.io/canonical/barbican-consolidated:2023.1

@@ -34,28 +34,28 @@ resources:
   aodh-api-image:
     type: oci-image
     description: OCI image for OpenStack aodh api service
-    # ghcr.io/canonical/aodh-consolidated:2023.2
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2023.2
+    # ghcr.io/canonical/aodh-consolidated:2023.1
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2023.1
   aodh-evaluator-image:
     type: oci-image
     description: OCI image for OpenStack aodh evaluator service
-    # ghcr.io/canonical/aodh-consolidated:2023.2
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2023.2
+    # ghcr.io/canonical/aodh-consolidated:2023.1
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2023.1
   aodh-notifier-image:
     type: oci-image
     description: OCI image for OpenStack aodh notifier service
-    # ghcr.io/canonical/aodh-consolidated:2023.2
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2023.2
+    # ghcr.io/canonical/aodh-consolidated:2023.1
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2023.1
   aodh-listener-image:
     type: oci-image
     description: OCI image for OpenStack aodh listener service
-    # ghcr.io/canonical/aodh-consolidated:2023.2
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2023.2
+    # ghcr.io/canonical/aodh-consolidated:2023.1
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2023.1
   aodh-expirer-image:
     type: oci-image
     description: OCI image for OpenStack aodh expirer service
-    # ghcr.io/canonical/aodh-consolidated:2023.2
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2023.2
+    # ghcr.io/canonical/aodh-consolidated:2023.1
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2023.1
 
 requires:
   database:

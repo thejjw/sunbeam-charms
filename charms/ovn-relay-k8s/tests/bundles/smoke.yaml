@@ -27,7 +27,7 @@ applications:
       minimum-replicas: 1
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.2/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
     options:
@@ -37,29 +37,29 @@ applications:
       credential-keys: 5M
   glance:
     charm: ch:glance-k8s
-    channel: 2023.2/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
     storage:
       local-repository: 5G
   nova:
     charm: ch:nova-k8s
-    channel: 2023.2/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
   placement:
     charm: ch:placement-k8s
-    channel: 2023.2/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
   neutron:
     charm: ch:neutron-k8s
-    channel: 2023.2/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
   ovn-central:
     charm: ch:ovn-central-k8s
-    channel: 23.09/edge
+    channel: 23.03/edge
     scale: 1
     trust: true
   ovn-relay:
@@ -67,7 +67,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:23.09
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:23.03
   tls-operator:
     charm: self-signed-certificates
     channel: edge
