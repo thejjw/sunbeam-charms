@@ -27,7 +27,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.2/edge
+    channel: 2023.1/edge
     scale: 1
     trust: false
     options:
@@ -47,8 +47,8 @@ applications:
     scale: 1
     trust: false
     resources:
-      barbican-api-image: ghcr.io/canonical/barbican-consolidated:2023.2
-      barbican-worker-image: ghcr.io/canonical/barbican-consolidated:2023.2
+      barbican-api-image: ghcr.io/canonical/barbican-consolidated:2023.1
+      barbican-worker-image: ghcr.io/canonical/barbican-consolidated:2023.1
 
 relations:
 - - traefik:ingress

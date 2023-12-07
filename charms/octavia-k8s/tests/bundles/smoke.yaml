@@ -27,7 +27,7 @@ applications:
       minimum-replicas: 1
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.2/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
     options:
@@ -37,7 +37,7 @@ applications:
       credential-keys: 5M
   neutron:
     charm: ch:neutron-k8s
-    channel: 2023.2/edge
+    channel: 2023.1/edge
     scale: 1
     trust: true
     options:
@@ -47,9 +47,9 @@ applications:
     scale: 1
     trust: true
     resources:
-      octavia-api-image: ghcr.io/canonical/octavia-consolidated:2023.2
-      octavia-driver-agent-image: ghcr.io/canonical/octavia-consolidated:2023.2
-      octavia-housekeeping-image: ghcr.io/canonical/octavia-consolidated:2023.2
+      octavia-api-image: ghcr.io/canonical/octavia-consolidated:2023.1
+      octavia-driver-agent-image: ghcr.io/canonical/octavia-consolidated:2023.1
+      octavia-housekeeping-image: ghcr.io/canonical/octavia-consolidated:2023.1
   ovn-central:
     charm: ch:ovn-central-k8s
     channel: 23.03/edge
