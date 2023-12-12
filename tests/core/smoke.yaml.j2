@@ -127,6 +127,17 @@ applications:
     trust: true
     resources:
       horizon-image: ghcr.io/canonical/horizon:2023.2
+  tempest:
+    {% if tempest_k8s is defined and tempest_k8s is sameas true -%}
+    charm: ../../../tempest-k8s.charm
+    {% else -%}
+    charm: ch:tempest-k8s
+    channel: 2023.2/edge
+    {% endif -%}
+    scale: 1
+    trust: true
+    resources:
+      tempest-image: ghcr.io/canonical/tempest:2023.2
 
 relations:
 - - tls-operator:certificates
