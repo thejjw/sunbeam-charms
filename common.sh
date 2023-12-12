@@ -142,6 +142,12 @@ EXTERNAL_OVN_RELAY_LIBS=(
 	"observability_libs"
 )
 
+EXTERNAL_TEMPEST_LIBS=(
+	"observability_libs"
+        "grafana_k8s"
+        "loki_k8s"
+)
+
 # Config template parts for each component.
 CONFIG_TEMPLATES_AODH=(
 	"section-database"
@@ -282,6 +288,7 @@ declare -A INTERNAL_LIBS=(
 	[ovn-central-k8s]=${INTERNAL_OVN_CENTRAL_LIBS[@]}
         [ovn-relay-k8s]=${INTERNAL_OVN_CENTRAL_LIBS[@]}
 	[placement-k8s]=${INTERNAL_KEYSTONE_LIBS[@]}
+	[tempest-k8s]=${INTERNAL_KEYSTONE_LIBS[@]}
 )
 
 declare -A EXTERNAL_LIBS=(
@@ -309,6 +316,7 @@ declare -A EXTERNAL_LIBS=(
 	[ovn-central-k8s]=${EXTERNAL_OVN_CENTRAL_LIBS[@]}
         [ovn-relay-k8s]=${EXTERNAL_OVN_RELAY_LIBS[@]}
         [placement-k8s]=${EXTERNAL_AODH_LIBS[@]}
+        [tempest-k8s]=${EXTERNAL_TEMPEST_LIBS[@]}
 )
 
 declare -A CONFIG_TEMPLATES=(
@@ -336,6 +344,7 @@ declare -A CONFIG_TEMPLATES=(
         [ovn-central-k8s]=${NULL_ARRAY[@]}
         [ovn-relay-k8s]=${NULL_ARRAY[@]}
         [placement-k8s]=${CONFIG_TEMPLATES_PLACEMENT[@]}
+        [tempest-k8s]=${NULL_ARRAY[@]}
 )
 
 
