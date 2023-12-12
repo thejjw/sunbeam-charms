@@ -1,0 +1,126 @@
+type: "charm"
+bases:
+  - build-on:
+    - name: "ubuntu"
+      channel: "22.04"
+    run-on:
+    - name: "ubuntu"
+      channel: "22.04"
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+
+  charm:
+    after: [update-certificates]
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - rustc
+      - cargo
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic<2.0
+      - jinja2
+
+name: tempest-k8s
+summary: OpenStack integration test suite (tempest)
+description: |
+  Tempest provides a set of integration tests to be run, in ad-hoc
+  or periodic fasion, against a live OpenStack cluster for OpenStack API
+  validation, scenarios, and other specific tests useful in validating an
+  OpenStack deployment.
+
+assumes:
+  - k8s-api
+  - juju >= 3.1
+
+links:
+  source: https://opendev.org/openstack/sunbeam-charms
+  issues: https://bugs.launchpad.net/sunbeam-charms
+
+containers:
+  tempest:
+    resource: tempest-image
+
+resources:
+  tempest-image:
+    type: oci-image
+    description: OCI image for tempest
+    # ghcr.io/canonical/tempest:2023.2
+    upstream-source: ghcr.io/canonical/tempest:2023.2
+
+requires:
+  identity-ops:
+    interface: keystone-resources
+  logging:
+    interface: loki_push_api
+
+provides:
+  grafana-dashboard:
+    interface: grafana_dashboard
+
+peers:
+  peers:
+    interface: tempest-peer
+
+config:
+  options:
+    schedule:
+      type: string
+      default: "off"
+      description: |
+        The cron-like schedule to define when to run tempest. When the value is
+        "off" (case-insensitive), then period checks will be disabled. The
+        default is to turn off period checks.
+
+actions:
+  validate:
+    description: |
+      Run a set of tempest tests.
+
+      Tests can be filtered using parameters: regex, exclude-regex, and test-list.
+      These parameters are optional; if none are given, all tests will run.
+
+      Provided parameters narrow down the tests that will run.
+      For example, `regex="one two" exclude-regex=three test-list=list1`,
+      will run tests that are:
+      - found in test list "list1"
+      - AND match regex "one" or "two"
+      - AND don't match regex "three"
+    params:
+      regex:
+        type: string
+        default: ""
+        description: |
+          A list of regexes, whitespace separated, used to select tests from the list.
+          Tests matching any of the regexes will be selected.
+
+          If no value provided (the default), all tests will be selected.
+
+          To run the equivalent of tempest smoke tests (`tempest run --smoke`),
+          use `regex=smoke`.
+      exclude-regex:
+        type: string
+        default: ""
+        description: |
+          A single regex to exclude tests.
+          Any test that matches this regex will be excluded from the final list.
+      serial:
+        type: boolean
+        default: false
+        description: Run tests serially. By default, tests run in parallel.
+      test-list:
+        type: string
+        default: ""
+        description: |
+          Use a predefined test list. See `get-lists` for available test lists.
+
+  get-lists:
+    description: List existing test lists, to be used with validate action.
