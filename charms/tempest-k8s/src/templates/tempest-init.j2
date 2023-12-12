@@ -1,0 +1,21 @@
+#!/bin/bash
+# Do not change this file, this file is managed by juju.
+
+# set -e is important, to ensure the script bails out
+# if there are issues, such as lock not acquired,
+# or failure in one of the tempest steps.
+set -ex
+
+(flock -n 9 || (echo "lock could not be acquired"; exit 1)
+
+# clean up before initialising everything
+rm -rf "$TEMPEST_WORKSPACE_PATH"
+rm -rf "${TEMPEST_HOME}/.tempest"
+
+tempest init --name "$TEMPEST_WORKSPACE" "$TEMPEST_WORKSPACE_PATH"
+
+discover-tempest-config --out "$TEMPEST_CONF"
+
+tempest account-generator -r "$TEMPEST_CONCURRENCY" -c "$TEMPEST_CONF" "$TEMPEST_TEST_ACCOUNTS"
+
+) 9>/var/lock/tempest
