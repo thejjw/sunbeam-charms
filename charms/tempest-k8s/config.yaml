@@ -1,0 +1,9 @@
+options:
+  schedule:
+    type: string
+    default: "off"
+    description: |
+      The cron-like schedule to define when to run tempest. When the value is
+      "off" (case-insensitive), then period checks will be disabled. The
+      default is to turn off period checks.
+
