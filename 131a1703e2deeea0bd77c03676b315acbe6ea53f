@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "131a1703e2deeea0bd77c03676b315acbe6ea53f",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "455656dd_d01c33fb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 935
+      },
+      "writtenOn": "2023-12-12T17:48:08Z",
+      "side": 1,
+      "message": "Pushing this through to get the unpopulated channels on the charmhub populated!",
+      "revId": "131a1703e2deeea0bd77c03676b315acbe6ea53f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
