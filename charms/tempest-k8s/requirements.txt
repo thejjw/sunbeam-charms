@@ -1,0 +1,9 @@
+ops
+jinja2
+lightkube
+lightkube-models
+# COS requirement
+cosl
+
+# From ops_sunbeam
+tenacity

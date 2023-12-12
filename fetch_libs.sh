@@ -5,6 +5,8 @@ pushd libs/external
 echo "INFO: Fetching libs from charmhub."
 charmcraft fetch-lib charms.data_platform_libs.v0.data_interfaces
 charmcraft fetch-lib charms.grafana_k8s.v0.grafana_auth
+charmcraft fetch-lib charms.loki_k8s.v1.loki_push_api
+charmcraft fetch-lib charms.observability_libs.v0.juju_topology
 charmcraft fetch-lib charms.observability_libs.v1.kubernetes_service_patch
 charmcraft fetch-lib charms.operator_libs_linux.v2.snap
 charmcraft fetch-lib charms.prometheus_k8s.v0.prometheus_scrape
