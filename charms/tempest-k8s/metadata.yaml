@@ -1,0 +1,47 @@
+# Copyright 2021 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+name: tempest-k8s
+summary: OpenStack integration test suite (tempest)
+maintainer: OpenStack Charmers <openstack-charmers@lists.ubuntu.com>
+description: |
+  Tempest provides a set of integration tests to be run, in ad-hoc
+  or periodic fasion, against a live OpenStack cluster for OpenStack API
+  validation, scenarios, and other specific tests useful in validating an
+  OpenStack deployment.
+version: 3
+bases:
+  - name: ubuntu
+    channel: 22.04/stable
+assumes:
+  - k8s-api
+  - juju >= 3.1
+tags:
+- openstack
+source: https://opendev.org/openstack/sunbeam-charms
+issues: https://bugs.launchpad.net/sunbeam-charms
+
+containers:
+  tempest:
+    resource: tempest-image
+
+resources:
+  tempest-image:
+    type: oci-image
+    description: OCI image for tempest
+    # ghcr.io/canonical/tempest:2023.2
+    upstream-source: ghcr.io/canonical/tempest:2023.2
+
+requires:
+  identity-ops:
+    interface: keystone-resources
+  logging:
+    interface: loki_push_api
+
+provides:
+  grafana-dashboard:
+    interface: grafana_dashboard
+
+peers:
+  peers:
+    interface: tempest-peer
