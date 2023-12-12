@@ -70,3 +70,6 @@ target_deploy_status:
   horizon:
     workload-status: active
     workload-status-message-regex: '^$'
+  tempest:
+    workload-status: active
+    workload-status-message-regex: '^$'

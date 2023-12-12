@@ -84,6 +84,8 @@
             nodeset: ubuntu-jammy
         - charm-build-sunbeam-clusterd:
             nodeset: ubuntu-jammy
+        - charm-build-tempest-k8s:
+            nodeset: ubuntu-jammy
     gate:
       fail-fast: true
       jobs:
@@ -134,6 +136,8 @@
         - charm-build-sunbeam-machine:
             nodeset: ubuntu-jammy
         - charm-build-sunbeam-clusterd:
+            nodeset: ubuntu-jammy
+        - charm-build-tempest-k8s:
             nodeset: ubuntu-jammy
 
 - project-template:
