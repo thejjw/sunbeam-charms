@@ -1,0 +1,43 @@
+validate:
+  description: |
+    Run a set of tempest tests.
+
+    Tests can be filtered using parameters: regex, exclude-regex, and test-list.
+    These parameters are optional; if none are given, all tests will run.
+
+    Provided parameters narrow down the tests that will run.
+    For example, `regex="one two" exclude-regex=three test-list=list1`,
+    will run tests that are:
+    - found in test list "list1"
+    - AND match regex "one" or "two"
+    - AND don't match regex "three"
+  params:
+    regex:
+      type: string
+      default: ""
+      description: |
+        A list of regexes, whitespace separated, used to select tests from the list.
+        Tests matching any of the regexes will be selected.
+
+        If no value provided (the default), all tests will be selected.
+
+        To run the equivalent of tempest smoke tests (`tempest run --smoke`),
+        use `regex=smoke`.
+    exclude-regex:
+      type: string
+      default: ""
+      description: |
+        A single regex to exclude tests.
+        Any test that matches this regex will be excluded from the final list.
+    serial:
+      type: boolean
+      default: false
+      description: Run tests serially. By default, tests run in parallel.
+    test-list:
+      type: string
+      default: ""
+      description: |
+        Use a predefined test list. See `get-lists` for available test lists.
+
+get-lists:
+  description: List existing test lists, to be used with validate action.
