@@ -19,7 +19,7 @@
             nodeset: ubuntu-focal
             voting: false
     vars:
-      juju_channel: 3.2/stable
+      juju_channel: 3.3/stable
       juju_classic_mode: false
       microk8s_channel: 1.28-strict/stable
       microk8s_classic_mode: false
