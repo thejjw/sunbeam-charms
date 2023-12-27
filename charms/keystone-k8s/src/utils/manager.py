@@ -444,7 +444,7 @@ class KeystoneManager(framework.Object):
         if not domain:
             domain = "service_domain"
         if not project:
-            project = self.charm_service_project
+            project = self.charm.service_project
 
         service_user = self.ksclient.create_user(
             name=username,
@@ -453,7 +453,7 @@ class KeystoneManager(framework.Object):
         )
         self.ksclient.grant_role(
             role=self.charm.admin_role,
-            project=self.charm.service_project,
+            project=project,
             user=service_user.get("name"),
             project_domain="service_domain",
             user_domain="service_domain",
