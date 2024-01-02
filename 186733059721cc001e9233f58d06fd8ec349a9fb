@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "186733059721cc001e9233f58d06fd8ec349a9fb",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89b00578_485b8497",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-02T08:12:56Z",
+      "side": 1,
+      "message": "recheck\n\nTo pick horizon-k8s dbsync failure https://review.opendev.org/c/openstack/sunbeam-charms/+/904467",
+      "revId": "186733059721cc001e9233f58d06fd8ec349a9fb",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
