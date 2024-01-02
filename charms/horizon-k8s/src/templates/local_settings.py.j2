@@ -145,12 +145,12 @@ SECRET_KEY = "{{ options.secret }}"
 # of the django development server, you will have to login again. To use
 # memcached set CACHES to something like
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
-    },
-}
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+#        'LOCATION': '127.0.0.1:11211',
+#    },
+#}
 {% if database.database_host -%}
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 DATABASES = {
