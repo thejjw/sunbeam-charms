@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "bfe6e01fca5fb56c86a03c10c21e5ba84c976d91",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f36faa28_657d4148",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-01-02T18:14:18Z",
+      "side": 1,
+      "message": "Juju failed to bootstrap",
+      "revId": "bfe6e01fca5fb56c86a03c10c21e5ba84c976d91",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
