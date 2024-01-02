@@ -8,16 +8,12 @@
       jobs:
         - func-test-core:
             nodeset: ubuntu-focal
-            voting: false
         - func-test-ceph:
             nodeset: ubuntu-focal
-            voting: false
         - func-test-caas:
             nodeset: ubuntu-focal
-            voting: false
         - func-test-misc:
             nodeset: ubuntu-focal
-            voting: false
     vars:
       juju_channel: 3.2/stable
       juju_classic_mode: false
