@@ -1,0 +1,64 @@
+- name: snapd is installed
+  apt:
+    name: snapd
+  become: true
+
+- name: lxd is installed
+  snap:
+    name: lxd
+    channel: "{{ lxd_channel | default('latest/stable') }}"
+  become: true
+
+- name: current user is in lxd group
+  user:
+    name: "{{ ansible_user }}"
+    groups: "{{ lxd }}"
+    append: true
+  become: true
+
+- name: reset ssh connection to apply permissions from new group
+  meta: reset_connection
+
+- name: initialize lxd
+  command:
+    cmd: lxd init --minimal
+
+- name: lxd is running and ready
+  command:
+    cmd: lxd waitready
+
+- name: juju is installed
+  snap:
+    name: juju
+    classic: "{{ juju_classic_mode | default(true) }}"
+    channel: "{{ juju_channel | default('latest/stable') }}"
+  become: true
+
+- name: Ensure ~/.local/share directory exist
+  file:
+    path: ~/.local/share
+    state: directory
+
+- name: juju is bootstrapped on lxd
+  command:
+    cmd: juju bootstrap --config bootstrap-timeout=600 localhost lxd
+  register: res
+  retries: 3
+  delay: 10
+  until: >
+    "Bootstrap complete" in res.stderr or
+    "already exists" in res.stderr
+  failed_when: '"ERROR" in res.stderr and "already exists" not in res.stderr'
+
+- name: current juju controller is lxd
+  command:
+    cmd: juju switch lxd
+  register: res
+  changed_when: '"no change" not in res.stderr'
+
+- name: Collect snap versions
+  command: snap list
+  register: snap_out
+
+- name: Show snap versions
+  debug: msg="{{ snap_out.stdout }}"

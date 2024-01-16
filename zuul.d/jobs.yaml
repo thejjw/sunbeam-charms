@@ -274,6 +274,18 @@
       - rebuild
     vars:
       charm: sunbeam-machine
+- job:
+    name: charm-build-sunbeam-clusterd
+    description: Build sunbeam-clusterd charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/sunbeam-clusterd/*
+      - rebuild
+    vars:
+      charm: sunbeam-clusterd
 
 - job:
     name: func-test-core
@@ -435,6 +447,29 @@
         - charm-build-openstack-exporter-k8s
         - charm-build-keystone-k8s
       test_dir: tests/misc
+- job:
+    name: func-test-machine
+    description: |
+      Zaza smoke test for sunbeam-machine, sunbeam-clusterd charms.
+    timeout: 3600
+    run: playbooks/zaza-func-test.yaml
+    post-run: playbooks/collect-run-data.yaml
+    dependencies:
+      - name: charm-build-sunbeam-machine
+        soft: true
+      - name: charm-build-sunbeam-clusterd
+        soft: true
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/sunbeam-machine/*
+      - charms/sunbeam-clusterd/**
+      - rebuild
+    vars:
+      env_type: lxd
+      charm_jobs:
+        - charm-build-sunbeam-machine
+        - charm-build-sunbeam-clusterd
+      test_dir: tests/machine
 
 - job:
     name: publish-charm-aodh-k8s
@@ -730,6 +765,19 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/sunbeam-machine/*
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-sunbeam-clusterd
+    description: |
+      Publish sunbeam-clusterd built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/sunbeam-clusterd/*
       - rebuild
     secrets:
       - charmhub_token
