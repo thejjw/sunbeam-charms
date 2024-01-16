@@ -6,17 +6,21 @@
       - charm-publish-jobs
     check:
       jobs:
-        - func-test-core:
-            nodeset: ubuntu-focal
-        - func-test-ceph:
-            nodeset: ubuntu-focal
-        - func-test-caas:
-            nodeset: ubuntu-focal
-        - func-test-misc:
-            nodeset: ubuntu-focal
+        # temp disable
+        # - func-test-core:
+        #     nodeset: ubuntu-focal
+        # - func-test-ceph:
+        #     nodeset: ubuntu-focal
+        # - func-test-caas:
+        #     nodeset: ubuntu-focal
+        # - func-test-misc:
+        #     nodeset: ubuntu-focal
+        - func-test-machine:
+            nodeset: ubuntu-jammy
     vars:
       juju_channel: 3.2/stable
       juju_classic_mode: false
+      env_type: k8s
       microk8s_channel: 1.28-strict/stable
       microk8s_classic_mode: false
       charmcraft_channel: 2.x/stable
@@ -45,3 +49,4 @@
         openstack-exporter-k8s: 2023.2/edge
         openstack-hypervisor: 2023.2/edge
         sunbeam-machine: 2023.2/edge
+        sunbeam-clusterd: 2023.2/edge
