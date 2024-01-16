@@ -130,7 +130,6 @@ class TestCharm(test_utils.CharmTestCase):
         expect_settings = {
             "compute.cpu-mode": "host-model",
             "compute.spice-proxy-address": "10.0.0.10",
-            "compute.virt-type": "kvm",
             "compute.cacert": cacert,
             "compute.cert": certificate,
             "compute.key": private_key,
@@ -223,7 +222,6 @@ class TestCharm(test_utils.CharmTestCase):
         expect_settings = {
             "compute.cpu-mode": "host-model",
             "compute.spice-proxy-address": "10.0.0.10",
-            "compute.virt-type": "kvm",
             "compute.cacert": cacert,
             "compute.cert": certificate,
             "compute.key": private_key,

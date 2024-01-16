@@ -384,7 +384,6 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "compute.cpu-mode": "host-model",
                 "compute.spice-proxy-address": config("ip-address")
                 or local_ip,
-                "compute.virt-type": "kvm",
                 "compute.cacert": base64.b64encode(
                     contexts.certificates.ca_cert.encode()
                 ).decode(),
