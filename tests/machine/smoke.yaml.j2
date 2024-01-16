@@ -1,0 +1,20 @@
+applications:
+  sunbeam-machine:
+    {% if sunbeam_machine is defined and sunbeam_machine is sameas true -%}
+    charm: ../../../sunbeam-machine.charm
+    {% else -%}
+    charm: ch:sunbeam-machine
+    channel: 2023.2/edge
+    {% endif -%}
+    scale: 1
+  sunbeam-clusterd:
+    {% if sunbeam_clusterd is defined and sunbeam_clusterd is sameas true -%}
+    charm: ../../../sunbeam-clusterd.charm
+    {% else -%}
+    charm: ch:sunbeam-clusterd
+    channel: 2023.2/edge
+    {% endif -%}
+    scale: 1
+    options:
+      # untrusted endpoints only on this branch
+      snap-channel: 2023.2/edge/maas
