@@ -22,3 +22,4 @@ publish_channels:
   openstack-exporter-k8s: latest/edge
   openstack-hypervisor: latest/edge
   sunbeam-machine: latest/edge
+  sunbeam-clusterd: latest/edge
