@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6de1f10_13c6d4e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2024-01-16T18:26:32Z",
+      "side": 1,
+      "message": "lgtm - there\u0027s code in snap-openstack-hypervisor which does the autodetection",
+      "revId": "61e8112e2c2e194d89f8237ea5687f447a9373e1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
