@@ -129,6 +129,10 @@ EXTERNAL_OPENSTACK_HYPERVISOR_LIBS=(
         "tls_certificates_interface"
 )
 
+EXTERNAL_SUNBEAM_CLUSTERD_LIBS=(
+	"operator_libs_linux"
+)
+
 EXTERNAL_OVN_CENTRAL_LIBS=(
         "tls_certificates_interface"
 )
@@ -273,6 +277,7 @@ declare -A INTERNAL_LIBS=(
 	[octavia-k8s]=${INTERNAL_NEUTRON_LIBS[@]}
 	[openstack-exporter-k8s]=${INTERNAL_KEYSTONE_LIBS[@]}
 	[openstack-hypervisor]=${INTERNAL_OPENSTACK_HYPERVISOR_LIBS[@]}
+	[sunbeam-clusterd]=${NULL_ARRAY[@]}
 	[sunbeam-machine]=${NULL_ARRAY[@]}
 	[ovn-central-k8s]=${INTERNAL_OVN_CENTRAL_LIBS[@]}
         [ovn-relay-k8s]=${INTERNAL_OVN_CENTRAL_LIBS[@]}
@@ -299,6 +304,7 @@ declare -A EXTERNAL_LIBS=(
         [octavia-k8s]=${EXTERNAL_OCTAVIA_LIBS[@]}
         [openstack-exporter-k8s]=${EXTERNAL_OPENSTACK_EXPORTER_LIBS[@]}
         [openstack-hypervisor]=${EXTERNAL_OPENSTACK_HYPERVISOR_LIBS[@]}
+	[sunbeam-clusterd]=${EXTERNAL_SUNBEAM_CLUSTERD_LIBS[@]}
 	[sunbeam-machine]=${NULL_ARRAY[@]}
 	[ovn-central-k8s]=${EXTERNAL_OVN_CENTRAL_LIBS[@]}
         [ovn-relay-k8s]=${EXTERNAL_OVN_RELAY_LIBS[@]}
@@ -325,6 +331,7 @@ declare -A CONFIG_TEMPLATES=(
         [octavia-k8s]=${CONFIG_TEMPLATES_OCTAVIA[@]}
         [openstack-exporter-k8s]=${NULL_ARRAY[@]}
         [openstack-hypervisor]=${NULL_ARRAY[@]}
+        [sunbeam-clusterd]=${NULL_ARRAY[@]}
         [sunbeam-machine]=${NULL_ARRAY[@]}
         [ovn-central-k8s]=${NULL_ARRAY[@]}
         [ovn-relay-k8s]=${NULL_ARRAY[@]}
