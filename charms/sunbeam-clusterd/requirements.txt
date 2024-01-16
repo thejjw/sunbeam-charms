@@ -1,0 +1,20 @@
+# This file is managed centrally by release-tools and should not be modified
+# within individual charm repos.  See the 'global' dir contents for available
+# choices of *requirements.txt files for OpenStack Charms:
+#     https://github.com/openstack-charmers/release-tools
+#
+
+cryptography
+jinja2
+jsonschema
+pydantic<2.0
+lightkube
+lightkube-models
+ops
+requests # Apache 2
+requests-unixsocket # Apache 2
+urllib3<1.27,>=1.21.1 # MIT
+
+# From ops_sunbeam
+tenacity
+
