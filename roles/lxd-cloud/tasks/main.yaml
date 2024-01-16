@@ -1,0 +1,79 @@
+- name: lxd apt packages are not present
+  apt:
+    name:
+      - lxd
+      - lxd-client
+    state: absent
+    purge: true
+  become: true
+
+- name: snapd is installed
+  apt:
+    name: snapd
+  become: true
+
+- name: nftables is installed
+  apt:
+    name: nftables
+  become: true
+  when: ansible_distribution_release == 'jammy'
+
+- name: lxd is installed
+  snap:
+    name: lxd
+    channel: "{{ lxd_channel | default('latest/stable') }}"
+  become: true
+
+- name: current user is in lxd group
+  user:
+    name: "{{ ansible_user }}"
+    groups: "lxd"
+    append: true
+  become: true
+
+- name: reset ssh connection to apply permissions from new group
+  meta: reset_connection
+
+- name: initialize lxd
+  command:
+    cmd: lxd init --auto
+
+- name: allow packets from lxd bridge
+  command: nft insert rule filter openstack-INPUT iif lxdbr0 accept
+  become: true
+  when: ansible_distribution_release == 'jammy'
+
+- name: lxd is running and ready
+  command:
+    cmd: lxd waitready
+
+- name: juju is installed
+  snap:
+    name: juju
+    classic: "{{ juju_classic_mode | default(true) }}"
+    channel: "{{ juju_channel | default('latest/stable') }}"
+  become: true
+
+- name: Ensure ~/.local/share directory exist
+  file:
+    path: ~/.local/share
+    state: directory
+
+- name: juju is bootstrapped on lxd
+  command:
+    cmd: juju bootstrap localhost lxd
+  register: res
+  failed_when: '"ERROR" in res.stdout and "already exists" not in res.stdout'
+
+- name: current juju controller is lxd
+  command:
+    cmd: juju switch lxd
+  register: res
+  changed_when: '"no change" not in res.stderr'
+
+- name: Collect snap versions
+  command: snap list
+  register: snap_out
+
+- name: Show snap versions
+  debug: msg="{{ snap_out.stdout }}"
