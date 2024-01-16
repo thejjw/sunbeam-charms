@@ -12,3 +12,4 @@ __pycache__/
 *.auth
 *.pub
 *.token
+tests/*/bundles/
