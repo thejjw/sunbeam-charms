@@ -1,0 +1,54 @@
+# This file configures Charmcraft.
+# See https://juju.is/docs/sdk/charmcraft-config for guidance.
+
+name: sunbeam-clusterd
+
+type: charm
+
+title: Sunbeam Clusterd
+
+summary: A juju charm to run sunbeam clusterd
+
+description: |
+  Manage sunbeam clusterd deployment
+
+# (Required for 'charm' type)
+bases:
+  - build-on:
+      - name: ubuntu
+        channel: "22.04"
+    run-on:
+      - name: ubuntu
+        channel: "22.04"
+
+parts:
+  charm:
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc
+      - cargo
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - jinja2
+
+peers:
+  peers:
+    interface: clusterd-peer
+
+actions:
+  get-credentials:
+    description: |
+      Return information necessary to connect to clusterd.
+
+config:
+  options:
+    snap-channel:
+      default: "2023.2/edge"
+      type: string
+    debug:
+      default: False
+      type: boolean
