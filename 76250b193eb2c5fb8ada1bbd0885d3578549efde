@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1e046e1d_ebc7d613",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-19T04:45:27Z",
+      "side": 1,
+      "message": "CI failure with following error\n\n2024-01-03 02:30:40.142691 | ubuntu-focal | 2024-01-03 02:30:40 [INFO] - upload charm mysql-k8s from charm-hub from channel 8.0/stable with architecture\u003damd64\n2024-01-03 02:30:41.017808 | ubuntu-focal | 2024-01-03 02:30:41 [INFO] ERROR cannot deploy bundle: base \"ubuntu@20.04/stable\" is not supported, supported bases are: ubuntu@22.04\n\ncharm-strict-dependencies is set to true for mysql-k8s and probably the reason for mysql-k8s not running on ubuntu-focal. The CI tests need to be moved to ubuntu-jammy.\n\n[1] https://github.com/canonical/mysql-k8s-operator/blob/main/charmcraft.yaml#L21",
+      "revId": "76250b193eb2c5fb8ada1bbd0885d3578549efde",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
