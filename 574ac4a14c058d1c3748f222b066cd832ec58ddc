@@ -18,6 +18,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0eb65535_70fba21d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-01-19T11:04:48Z",
+      "side": 1,
+      "message": "There\u0027s a bug in microcluster when scaling down from 2 to 1. Waiting for the issue https://github.com/canonical/microcluster/issues/79 to get resolved (tentative with https://github.com/canonical/microcluster/pull/80)",
+      "revId": "574ac4a14c058d1c3748f222b066cd832ec58ddc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7edf614d_77b5ed59",
