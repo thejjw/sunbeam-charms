@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f61b33ee_2f558f29",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-22T02:48:56Z",
+      "side": 1,
+      "message": "Thanks for the update, Can you resolve other minor comments and this PR should be good to go.",
+      "parentUuid": "0eb65535_70fba21d",
+      "revId": "574ac4a14c058d1c3748f222b066cd832ec58ddc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7edf614d_77b5ed59",
