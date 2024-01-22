@@ -53,6 +53,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ccc74fe_da820dc9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-01-22T08:16:56Z",
+      "side": 1,
+      "message": "I\u0027m waiting for the bug to be fixed, it should be soon. It would just be a waste of CI resources to do it now, as scale down might fail again.",
+      "revId": "574ac4a14c058d1c3748f222b066cd832ec58ddc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7edf614d_77b5ed59",
