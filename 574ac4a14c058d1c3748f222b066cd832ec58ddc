@@ -87,6 +87,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c83382b_268ffb4b",
+        "filename": "charms/sunbeam-clusterd/.gitignore",
+        "patchSetId": 12
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-01-23T14:11:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7edf614d_77b5ed59",
+      "revId": "574ac4a14c058d1c3748f222b066cd832ec58ddc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "28a0c8c1_1de93fd3",
@@ -100,6 +118,24 @@
       "writtenOn": "2024-01-18T10:58:40Z",
       "side": 1,
       "message": "Can you check and update this file.",
+      "revId": "574ac4a14c058d1c3748f222b066cd832ec58ddc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2a069dd_f5daf12e",
+        "filename": "charms/sunbeam-clusterd/README.md",
+        "patchSetId": 12
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-01-23T14:11:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "28a0c8c1_1de93fd3",
       "revId": "574ac4a14c058d1c3748f222b066cd832ec58ddc",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
