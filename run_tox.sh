@@ -51,7 +51,7 @@ then
 	# Run coverage on ops-sunbeam
 	pushd ops-sunbeam
 	coverage erase
-        PYTHON="coverage run --omit .tox/*" stestr run --slowest || exit 1
+        PYTHON="coverage run --parallel-mode --omit .tox/*" stestr run --slowest || exit 1
 	coverage combine
         popd
 
@@ -61,7 +61,7 @@ then
 		push_common_files $charm || exit 1
                 pushd charms/$charm
 		coverage erase
-                PYTHONPATH=./src:./lib:../../ops-sunbeam PYTHON="coverage run --omit .tox/*,src/templates/*" stestr run --slowest || exit 1
+                PYTHONPATH=./src:./lib:../../ops-sunbeam PYTHON="coverage run --parallel-mode --omit .tox/*,src/templates/*" stestr run --slowest || exit 1
 		coverage combine
                 popd
         done
