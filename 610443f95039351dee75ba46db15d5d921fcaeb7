@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3692f47_d00b771c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-01-23T08:16:59Z",
+      "side": 1,
+      "message": "This folder contains integration tests, not unit tests. That\u0027s why it\u0027s excluded.",
+      "revId": "610443f95039351dee75ba46db15d5d921fcaeb7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
