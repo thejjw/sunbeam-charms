@@ -16,6 +16,23 @@
       "message": "This folder contains integration tests, not unit tests. That\u0027s why it\u0027s excluded.",
       "revId": "610443f95039351dee75ba46db15d5d921fcaeb7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e6bbbb3_d48d0b62",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-01-23T10:13:46Z",
+      "side": 1,
+      "message": "Actually, the coverage is ran inside each charm directory, therefore unit tests were indeed excluded. With these changes, coverage will be actually be performed.",
+      "revId": "610443f95039351dee75ba46db15d5d921fcaeb7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
