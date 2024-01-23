@@ -33,6 +33,24 @@
       "message": "Actually, the coverage is ran inside each charm directory, therefore unit tests were indeed excluded. With these changes, coverage will be actually be performed.",
       "revId": "610443f95039351dee75ba46db15d5d921fcaeb7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15565203_a9636b17",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-23T22:16:29Z",
+      "side": 1,
+      "message": "Thanks! 😊",
+      "parentUuid": "6e6bbbb3_d48d0b62",
+      "revId": "610443f95039351dee75ba46db15d5d921fcaeb7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
