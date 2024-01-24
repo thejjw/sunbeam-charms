@@ -8,7 +8,18 @@ set -ex
 
 (flock -n 9 || (echo "lock could not be acquired"; exit 1)
 
+
+rm -f "$TEMPEST_CONF~"
+if [[ -e "$TEMPEST_CONF" ]]; then
+    mv "$TEMPEST_CONF" "$TEMPEST_CONF~"
+fi
+
 discover-tempest-config --test-accounts "$TEMPEST_TEST_ACCOUNTS" --out "$TEMPEST_CONF"
+
+if [[ -e "$TEMPEST_CONF~" ]]; then
+    echo "tempest.conf regenerated, comparing with previous version:"
+    python3 "$TEMPEST_HOME/config_diff.py" "$TEMPEST_CONF~" "$TEMPEST_CONF"
+fi
 
 TMP_FILE="$(mktemp)"
 tempest run --workspace "$TEMPEST_WORKSPACE" "$@" 2>&1 | tee "$TMP_FILE"
