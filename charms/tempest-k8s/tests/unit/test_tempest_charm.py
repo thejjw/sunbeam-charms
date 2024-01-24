@@ -189,6 +189,36 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.remove_relation(identity_ops_rel_id)
         self.harness.remove_relation(grafana_dashboard_rel_id)
 
+    def test_config_context_schedule(self):
+        """Test config context contains the schedule as expected."""
+        test_utils.set_all_pebbles_ready(self.harness)
+        logging_rel_id = self.add_logging_relation(self.harness)
+        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
+        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
+            self.harness
+        )
+
+        # ok schedule
+        schedule = "0 0 */7 * *"
+        self.harness.update_config({"schedule": schedule})
+        self.assertEqual(
+            self.harness.charm.contexts().tempest.schedule, schedule
+        )
+
+        # too frequent
+        schedule = "* * * * *"
+        self.harness.update_config({"schedule": schedule})
+        self.assertEqual(self.harness.charm.contexts().tempest.schedule, "")
+
+        # disabled
+        schedule = ""
+        self.harness.update_config({"schedule": schedule})
+        self.assertEqual(self.harness.charm.contexts().tempest.schedule, "")
+
+        self.harness.remove_relation(logging_rel_id)
+        self.harness.remove_relation(identity_ops_rel_id)
+        self.harness.remove_relation(grafana_dashboard_rel_id)
+
     def test_validate_action_invalid_regex(self):
         """Test validate action with invalid regex provided."""
         test_utils.set_all_pebbles_ready(self.harness)
@@ -376,13 +406,60 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         file1.name = "file_1"
         file2 = mock.Mock()
         file2.name = "file_2"
-        self.harness.charm.unit.get_container(CONTAINER).can_connect = (
-            mock.Mock(return_value=False)
-        )
+        self.harness.charm.unit.get_container(
+            CONTAINER
+        ).can_connect = mock.Mock(return_value=False)
 
         action_event = mock.Mock()
         self.harness.charm._on_get_lists_action(action_event)
         action_event.fail.assert_called_with("pebble is not ready")
+
+        self.harness.remove_relation(logging_rel_id)
+        self.harness.remove_relation(identity_ops_rel_id)
+        self.harness.remove_relation(grafana_dashboard_rel_id)
+
+    def test_blocked_status_invalid_schedule(self):
+        """Test to verify blocked status with invalid schedule config."""
+        test_utils.set_all_pebbles_ready(self.harness)
+        logging_rel_id = self.add_logging_relation(self.harness)
+        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
+        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
+            self.harness
+        )
+
+        # invalid schedule should make charm in blocked status
+        self.harness.update_config({"schedule": "* *"})
+        self.assertIn("invalid schedule", self.harness.charm.status.message())
+        self.assertEqual(self.harness.charm.status.status.name, "blocked")
+
+        # updating the schedule to something valid should unblock it
+        self.harness.update_config({"schedule": "*/20 * * * *"})
+        self.assertEqual(self.harness.charm.status.message(), "")
+        self.assertEqual(self.harness.charm.status.status.name, "active")
+
+        self.harness.remove_relation(logging_rel_id)
+        self.harness.remove_relation(identity_ops_rel_id)
+        self.harness.remove_relation(grafana_dashboard_rel_id)
+
+    def test_error_initing_tempest(self):
+        """Test to verify blocked status if tempest init fails."""
+        test_utils.set_all_pebbles_ready(self.harness)
+        logging_rel_id = self.add_logging_relation(self.harness)
+        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
+        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
+            self.harness
+        )
+
+        mock_pebble = mock.Mock()
+        mock_pebble.init_tempest = mock.Mock(side_effect=RuntimeError)
+        self.harness.charm.pebble_handler = mock.Mock(return_value=mock_pebble)
+
+        self.harness.update_config({"schedule": "*/21 * * * *"})
+
+        self.assertIn(
+            "tempest init failed", self.harness.charm.status.message()
+        )
+        self.assertEqual(self.harness.charm.status.status.name, "blocked")
 
         self.harness.remove_relation(logging_rel_id)
         self.harness.remove_relation(identity_ops_rel_id)
