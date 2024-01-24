@@ -7,3 +7,6 @@ cosl
 
 # From ops_sunbeam
 tenacity
+
+# for validating cron expressions
+croniter
