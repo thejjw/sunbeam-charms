@@ -105,6 +105,15 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
         Raise a RuntimeError if something goes wrong.
         """
+        with open("src/utils/config_diff.py") as f:
+            self.container.push(
+                f"{TEMPEST_HOME}/config_diff.py",
+                f,
+                user="tempest",
+                group="tempest",
+                make_dirs=True,
+            )
+
         # Pebble runs cron, which runs tempest periodically
         # when periodic checks are enabled.
         # This ensures that tempest gets the env, inherited from cron.
