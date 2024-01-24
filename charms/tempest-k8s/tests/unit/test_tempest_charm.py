@@ -218,16 +218,17 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             return_value=[file1, file2]
         )
 
+        list_name = "nonexistent"
         action_event = mock.Mock()
         action_event.params = {
             "serial": False,
             "regex": "",
             "exclude-regex": "",
-            "test-list": "nonexistant",
+            "test-list": list_name,
         }
         self.harness.charm._on_validate_action(action_event)
         action_event.fail.assert_called_with(
-            "'nonexistant' is not a known test list. Please run list-tests action to view available lists."
+            f"'{list_name}' is not a known test list. Please run list-tests action to view available lists."
         )
 
         self.harness.remove_relation(logging_rel_id)
