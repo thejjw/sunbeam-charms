@@ -18,8 +18,76 @@ TODO: docs and implementation.
 from argparse import (
     ArgumentParser,
 )
+from configparser import (
+    ConfigParser,
+)
+from typing import (
+    Any,
+)
 
-# TODO: implement diff_tempest_config(old_filename: str, new_filename: str) -> str;
+
+def parse_config(f: str) -> ConfigParser:
+    """Parse an INI config file."""
+    # Anything in ConfigParser's default_section
+    # will also appear in all other sections when reading.
+    # Oslo doesn't use this default_section style of logic,
+    # so we should hackily disable it.
+    config = ConfigParser(
+        interpolation=None, default_section="INTERNAL_ARBITRARY_UNUSED_SECTION"
+    )
+    config.read(f)
+    return config
+
+
+def censored(key: str, value: Any) -> Any:
+    """Return the value or censor if it should be censored."""
+    if key in [
+        "admin_password",
+        "image_ssh_password",
+        "image_alt_ssh_password",
+        "password",
+        "alt_password",
+    ]:
+        return "CENSORED"
+    return value
+
+
+def diff_tempest_conf(filename_old: str, filename_new: str) -> str:
+    """Report on changes between two tempest.conf files."""
+    old = parse_config(filename_old)
+    new = parse_config(filename_new)
+
+    msgs = []
+
+    for section in sorted(old):
+        old_section = old[section]
+        new_section = new.get(section, {})
+
+        # check for keys in the section that were removed
+        for key in old_section:
+            if key not in new_section:
+                value = censored(key, old_section[key])
+                msgs.append(f"- [{section}] {key} = {value!r}")
+                continue
+
+            # check for keys that have different values
+            if new_section[key] != old_section[key]:
+                old = censored(key, old_section[key])
+                new = censored(key, new_section[key])
+                msgs.append(f"~ [{section}] {key} = {old!r} -> {new!r}")
+
+    # check for sections and values that have been added
+    for section in sorted(new):
+        new_section = new[section]
+        old_section = old.get(section, {})
+
+        for key in new_section:
+            if key not in old_section:
+                value = censored(key, new_section[key])
+                msgs.append(f"+ [{section}] {key} = {value!r}")
+
+    return "\n".join(msgs)
+
 
 
 def main():
