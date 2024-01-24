@@ -64,8 +64,10 @@ def assert_ready(f):
     return wrapper
 
 
-class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+class TempestPebbleHandler(sunbeam_chandlers.PebbleHandler):
     """Pebble handler for the container."""
+
+    PERIODIC_TEST_ONESHOT = "periodic-test"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -83,15 +85,34 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 # (eg. observability connected, configuration set to run).
                 self.service_name: {
                     "override": "replace",
-                    "summary": "Running tempest periodically",
+                    "summary": "crontab to wake up pebble periodically for running periodic checks",
                     # Must run cron in foreground to be managed by pebble
                     "command": "cron -f",
                     "user": "root",
                     "group": "root",
                     "startup": "enabled",
                 },
+                self.PERIODIC_TEST_ONESHOT: {
+                    "override": "replace",
+                    "summary": "Running tempest periodically",
+                    "working-dir": TEMPEST_HOME,
+                    "command": f"/usr/local/sbin/tempest-run-wrapper --load-list {TEMPEST_LIST_DIR}/readonly-quick",
+                    "user": "tempest",
+                    "group": "tempest",
+                    "startup": "disabled",
+                    "on-success": "ignore",
+                    "on-failure": "ignore",
+                },
             },
         }
+
+    @property
+    def service_ready(self) -> bool:
+        """Determine whether the service the container provides is running."""
+        if not self.pebble_ready:
+            return False
+        service = self.container.get_service(self.service_name)
+        return service.is_running()
 
     @assert_ready
     def get_test_lists(self) -> List[str]:
@@ -109,8 +130,13 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         # when periodic checks are enabled.
         # This ensures that tempest gets the env, inherited from cron.
         layer = self.get_layer()
-        layer["services"][self.service_name]["environment"] = env
-        self.container.add_layer(self.service_name, layer, combine=True)
+        layer["services"][self.PERIODIC_TEST_ONESHOT]["environment"] = env
+        self.container.add_layer(
+            self.PERIODIC_TEST_ONESHOT, layer, combine=True
+        )
+
+        # ensure the cron service is running
+        self.container.start(self.service_name)
 
         try:
             self.execute(
