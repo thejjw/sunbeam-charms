@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a868b1a_755ca728",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-01-24T18:13:10Z",
+      "side": 1,
+      "message": "Last failure caused by following edge case:\nMicrocluster leader was the unit to remove\nJuju Unit Leader (diff unit) made the delete request, which was forwarded internally, and connection shutoff because removed unit was removed.\n\nAdded exception handling for this case",
+      "revId": "d3ac4f55143b60d127b568bc960ba8fcb191214b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
