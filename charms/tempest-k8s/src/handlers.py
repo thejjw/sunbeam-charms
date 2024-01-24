@@ -67,6 +67,8 @@ def assert_ready(f):
 class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for the container."""
 
+    PERIODIC_TEST_RUNNER = "periodic-test"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.container = self.charm.unit.get_container(self.container_name)
@@ -83,15 +85,64 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 # (eg. observability connected, configuration set to run).
                 self.service_name: {
                     "override": "replace",
-                    "summary": "Running tempest periodically",
+                    "summary": "crontab to wake up pebble periodically for running periodic checks",
                     # Must run cron in foreground to be managed by pebble
                     "command": "cron -f",
                     "user": "root",
                     "group": "root",
                     "startup": "enabled",
                 },
+                self.PERIODIC_TEST_RUNNER: {
+                    "override": "replace",
+                    "summary": "Running tempest periodically",
+                    "working-dir": TEMPEST_HOME,
+                    "command": f"/usr/local/sbin/tempest-run-wrapper --load-list {TEMPEST_LIST_DIR}/readonly-quick",
+                    "user": "tempest",
+                    "group": "tempest",
+                    "startup": "disabled",
+                    "on-success": "ignore",
+                    "on-failure": "ignore",
+                },
             },
         }
+
+    @property
+    def service_ready(self) -> bool:
+        """Determine whether the service the container provides is running.
+
+        Override because we only want the cron service to be auto managed.
+        """
+        if not self.pebble_ready:
+            return False
+        services = self.container.get_services(self.service_name)
+        return all([s.is_running() for s in services.values()])
+
+    def start_all(self, restart: bool = True) -> None:
+        """Start services in container.
+
+        Override because we only want the cron service to be auto managed.
+
+        :param restart: Whether to stop services before starting them.
+        """
+        if not self.container.can_connect():
+            logger.debug(
+                f"Container {self.container_name} not ready, deferring restart"
+            )
+            return
+        services = self.container.get_services(self.service_name)
+        for service_name, service in services.items():
+            if not service.is_running():
+                logger.debug(
+                    f"Starting {service_name} in {self.container_name}"
+                )
+                self.container.start(service_name)
+                continue
+
+            if restart:
+                logger.debug(
+                    f"Restarting {service_name} in {self.container_name}"
+                )
+                self.container.restart(service_name)
 
     @assert_ready
     def get_test_lists(self) -> List[str]:
@@ -109,8 +160,13 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         # when periodic checks are enabled.
         # This ensures that tempest gets the env, inherited from cron.
         layer = self.get_layer()
-        layer["services"][self.service_name]["environment"] = env
-        self.container.add_layer(self.service_name, layer, combine=True)
+        layer["services"][self.PERIODIC_TEST_RUNNER]["environment"] = env
+        self.container.add_layer(
+            self.PERIODIC_TEST_RUNNER, layer, combine=True
+        )
+
+        # ensure the cron service is running
+        self.container.start(self.service_name)
 
         try:
             self.execute(

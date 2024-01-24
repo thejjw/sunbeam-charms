@@ -189,6 +189,36 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.remove_relation(identity_ops_rel_id)
         self.harness.remove_relation(grafana_dashboard_rel_id)
 
+    def test_config_context_schedule(self):
+        """Test config context contains the schedule as expected."""
+        test_utils.set_all_pebbles_ready(self.harness)
+        logging_rel_id = self.add_logging_relation(self.harness)
+        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
+        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
+            self.harness
+        )
+
+        # ok schedule
+        schedule = "0 0 */7 * *"
+        self.harness.update_config({"schedule": schedule})
+        self.assertEqual(
+            self.harness.charm.contexts().tempest.schedule, schedule
+        )
+
+        # too frequent
+        schedule = "* * * * *"
+        self.harness.update_config({"schedule": schedule})
+        self.assertEqual(self.harness.charm.contexts().tempest.schedule, "")
+
+        # disabled
+        schedule = ""
+        self.harness.update_config({"schedule": schedule})
+        self.assertEqual(self.harness.charm.contexts().tempest.schedule, "")
+
+        self.harness.remove_relation(logging_rel_id)
+        self.harness.remove_relation(identity_ops_rel_id)
+        self.harness.remove_relation(grafana_dashboard_rel_id)
+
     def test_validate_action_invalid_regex(self):
         """Test validate action with invalid regex provided."""
         test_utils.set_all_pebbles_ready(self.harness)
