@@ -1,9 +1,20 @@
 options:
   schedule:
     type: string
-    default: "off"
+    default: ""
     description: |
-      The cron-like schedule to define when to run tempest. When the value is
-      "off" (case-insensitive), then period checks will be disabled. The
-      default is to turn off period checks.
+      The cron schedule expression to define when to run tempest periodic checks.
 
+      When the value is empty (default), period checks will be disabled.
+
+      The cron implementation used is Vixie Cron, installed from Ubuntu main.
+      For help with expressions, see `man 5 crontab` for Vixie Cron,
+      or visit https://crontab.guru/ .
+
+      The schedule should not result in tempest running more than once every 15 minutes.
+
+      Example expressions:
+
+      "*/30 * * * *" every 30 minutes
+      "5 2 * * *"    at 2:05am every day
+      "5 2 * * mon"  at 2:05am every Monday
