@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "54548a0a_66a0cb2f",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-25T07:26:57Z",
+      "side": 1,
+      "message": "TODO: also don\u0027t enable and return a real schedule if we\u0027re still waiting for tempest init.",
+      "revId": "0b896a31fb19747641b39a6b60269152bb86c884",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "af6e7dc3_d09e61b4",
         "filename": "charms/tempest-k8s/src/handlers.py",
         "patchSetId": 8
