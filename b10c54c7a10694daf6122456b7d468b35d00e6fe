@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae9794ce_c9f9024b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-25T05:08:46Z",
+      "side": 1,
+      "message": "Some examples for manual testing, for reviewers:\n\nIt expects a sunbeam deployment running 2023.2.\n\n```\n# build the charm\ntox -e build -- tempest-k8s\n\n# deploy the charm\njuju switch openstack\n# the workload image is from https://github.com/canonical/ubuntu-openstack-rocks/tree/main/rocks/tempest\njuju deploy ./tempest-k8s.charm --resource tempest-image\u003dghcr.io/canonical/tempest:2023.2\n\n# relate to keystone for credentials\njuju relate -m openstack tempest-k8s keystone\n\n# wait a while - it will init a tempest environment, creating resources to support it on the openstack cloud (new domain, test users, etc.)\n# wait for it to become active idle\n\n# now you can interact with the actions and run a set of tempest tests\n$ juju actions tempest-k8s\nAction     Description\nget-lists  List existing test lists, to be used with validate action.\nvalidate   Run a set of tempest tests.\n\n           Tests can be filtered using parameters: regex, exclude-regex, and test-list.\n           These parameters are optional; if none are given, all tests will run.\n\n           Provided parameters narrow down the tests that will run.\n           For example, `regex\u003d\"one two\" exclude-regex\u003dthree test-list\u003dlist1`,\n           will run tests that are:\n           - found in test list \"list1\"\n           - AND match regex \"one\" or \"two\"\n           - AND don\u0027t match regex \"three\"\n$ juju run tempest-k8s/0 get-lists\nRunning operation 13 with 1 task\n  - task 14 on unit-tempest-k8s-0\n\nWaiting for task 14...\nreadonly-quick\nrefstack-2022.11\n\n# note: this will take a little while, since it needs to do some cloud discovery tasks each time\n$ juju run --wait 600s tempest-k8s/0 validate test-list\u003dreadonly-quick\n...\n\u003d\u003d\u003d\u003d\u003d\u003d\nTotals\n\u003d\u003d\u003d\u003d\u003d\u003d\nRan: 24 tests in 6.5451 sec.\n - Passed: 21\n - Skipped: 3\n - Expected Fail: 0\n - Unexpected Success: 0\n - Failed: 0\nSum of execute time for each test: 10.4890 sec.\n\n```",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
