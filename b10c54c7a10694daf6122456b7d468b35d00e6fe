@@ -16,6 +16,125 @@
       "message": "Some examples for manual testing, for reviewers:\n\nIt expects a sunbeam deployment running 2023.2.\n\n```\n# build the charm\ntox -e build -- tempest-k8s\n\n# deploy the charm\njuju switch openstack\n# the workload image is from https://github.com/canonical/ubuntu-openstack-rocks/tree/main/rocks/tempest\njuju deploy ./tempest-k8s.charm --resource tempest-image\u003dghcr.io/canonical/tempest:2023.2\n\n# relate to keystone for credentials\njuju relate -m openstack tempest-k8s keystone\n\n# wait a while - it will init a tempest environment, creating resources to support it on the openstack cloud (new domain, test users, etc.)\n# wait for it to become active idle\n\n# now you can interact with the actions and run a set of tempest tests\n$ juju actions tempest-k8s\nAction     Description\nget-lists  List existing test lists, to be used with validate action.\nvalidate   Run a set of tempest tests.\n\n           Tests can be filtered using parameters: regex, exclude-regex, and test-list.\n           These parameters are optional; if none are given, all tests will run.\n\n           Provided parameters narrow down the tests that will run.\n           For example, `regex\u003d\"one two\" exclude-regex\u003dthree test-list\u003dlist1`,\n           will run tests that are:\n           - found in test list \"list1\"\n           - AND match regex \"one\" or \"two\"\n           - AND don\u0027t match regex \"three\"\n$ juju run tempest-k8s/0 get-lists\nRunning operation 13 with 1 task\n  - task 14 on unit-tempest-k8s-0\n\nWaiting for task 14...\nreadonly-quick\nrefstack-2022.11\n\n# note: this will take a little while, since it needs to do some cloud discovery tasks each time\n$ juju run --wait 600s tempest-k8s/0 validate test-list\u003dreadonly-quick\n...\n\u003d\u003d\u003d\u003d\u003d\u003d\nTotals\n\u003d\u003d\u003d\u003d\u003d\u003d\nRan: 24 tests in 6.5451 sec.\n - Passed: 21\n - Skipped: 3\n - Expected Fail: 0\n - Unexpected Success: 0\n - Failed: 0\nSum of execute time for each test: 10.4890 sec.\n\n```",
       "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee9bf54e_a3c719f3",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-25T05:25:43Z",
+      "side": 1,
+      "message": "This is something to be optimised in the future.  This is a task that only needs to run on first deployment or charm refresh, but it requires the keystone credentials and pebble to be ready.  Unsure if there\u0027s a better place for this code to live, or if we need to look into something like a key in the application data that we can use to determine of the init has already been run successfully.",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86b235c7_e3b22bcc",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-25T05:25:43Z",
+      "side": 1,
+      "message": "These were added in prep for integrating with COS in future commits soon.",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5d80e2c_83481e77",
+        "filename": "charms/tempest-k8s/src/templates/crontab.j2",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-25T05:25:43Z",
+      "side": 1,
+      "message": "This is for periodic tasks - it\u0027s not complete or expected to be working in any way right now.  Same goes for the `schedule` config option.  It\u0027s all copied in from the spec as stubs to be ready for iterating on in the real implementation ( here: https://review.opendev.org/c/openstack/sunbeam-charms/+/906467 )",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3712f5c7_bc354cbb",
+        "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-25T05:25:43Z",
+      "side": 1,
+      "message": "Known issue: tempest run leaves behind artefacts on the cloud, that will accumulate over time.  Implementing cleanup properly is on the backlog, to be implemented in a followup patch soon.",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b51bb191_90762598",
+        "filename": "charms/tempest-k8s/tests/tests.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-25T05:25:43Z",
+      "side": 1,
+      "message": "Integration tests are examples only and are not yet used or implemented.",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f7d72c6_51c3dcc7",
+        "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-25T05:25:43Z",
+      "side": 1,
+      "message": "Is this the expected method for mocking?  Does the harness reset everything automatically between tests with this method?",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a89db696_353b6883",
+        "filename": "common.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-25T05:25:43Z",
+      "side": 1,
+      "message": "These also added in prep for future COS integration.",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
