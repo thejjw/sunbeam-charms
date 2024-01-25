@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "af6e7dc3_d09e61b4",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-25T07:21:20Z",
+      "side": 1,
+      "message": "TODO: don\u0027t try starting it here.  Instead, use ServicePebbleHandler, but override the methods so that it only starts the cron service, not the oneshot.",
+      "revId": "0b896a31fb19747641b39a6b60269152bb86c884",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "dcbace72_6b0312d7",
         "filename": "charms/tempest-k8s/src/templates/crontab.j2",
         "patchSetId": 8
