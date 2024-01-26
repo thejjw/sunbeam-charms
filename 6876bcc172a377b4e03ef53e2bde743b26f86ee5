@@ -16,6 +16,23 @@
       "message": "failure unrelated, a dependency release broke the tests",
       "revId": "6876bcc172a377b4e03ef53e2bde743b26f86ee5",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d21ab61_9b2b27fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-01-26T15:58:53Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "6876bcc172a377b4e03ef53e2bde743b26f86ee5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
