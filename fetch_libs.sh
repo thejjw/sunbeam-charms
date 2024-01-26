@@ -3,7 +3,7 @@
 pushd libs/external
 
 echo "INFO: Fetching libs from charmhub."
-charmcraft fetch-lib charms.data_platform_libs.v0.database_requires
+charmcraft fetch-lib charms.data_platform_libs.v0.data_interfaces
 charmcraft fetch-lib charms.grafana_k8s.v0.grafana_auth
 charmcraft fetch-lib charms.observability_libs.v1.kubernetes_service_patch
 charmcraft fetch-lib charms.operator_libs_linux.v2.snap

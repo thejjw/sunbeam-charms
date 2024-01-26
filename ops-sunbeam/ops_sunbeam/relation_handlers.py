@@ -275,7 +275,7 @@ class DBHandler(RelationHandler):
         # Import here to avoid import errors if ops_sunbeam is being used
         # with a charm that doesn't want a DBHandler
         # and doesn't install this database_requires library.
-        from charms.data_platform_libs.v0.database_requires import (
+        from charms.data_platform_libs.v0.data_interfaces import (
             DatabaseRequires,
         )
 
@@ -342,11 +342,7 @@ class DBHandler(RelationHandler):
     def ready(self) -> bool:
         """Whether the handler is ready for use."""
         data = self.get_relation_data()
-        return bool(
-            data.get("endpoints")
-            and data.get("username")
-            and data.get("password")
-        )
+        return bool(data.get("endpoints") and data.get("secret-user"))
 
     def context(self) -> dict:
         """Context containing database connection data."""
@@ -356,8 +352,10 @@ class DBHandler(RelationHandler):
         data = self.get_relation_data()
         database_name = self.database_name
         database_host = data["endpoints"]
-        database_user = data["username"]
-        database_password = data["password"]
+        user_secret = self.model.get_secret(id=data["secret-user"])
+        secret_data = user_secret.get_content()
+        database_user = secret_data["username"]
+        database_password = secret_data["password"]
         database_type = "mysql+pymysql"
         has_tls = data.get("tls")
         tls_ca = data.get("tls-ca")
