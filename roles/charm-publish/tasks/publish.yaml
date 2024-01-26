@@ -19,10 +19,28 @@
       include_role:
         name: ensure-docker
 
+    - name: Get metadata.yaml information
+      stat:
+        path: "{{ zuul.executor.work_root+'/'+zuul.project.src_dir+'/charms/'+charm_build_name+'/metadata.yaml'"
+      register: metadata_file
+
+    - name: Get charmcraft.yaml information
+      stat:
+        path: "zuul.executor.work_root+'/'+zuul.project.src_dir+'/charms/'+charm_build_name+'/charmcraft.yaml'"
+      register: charmcraft_file
+
+    - name: Register resource file
+      set_fact:
+        resource_file: "{{ metadata_file.stat.exists | ternary(metadata_file.stat.path, charmcraft_file.stat.path) }}"
+
+    - name: Which metadata file is used
+      debug:
+        msg: "{{ resource_file }}"
+
     - name: Upload oci-image to charmhub
       register: upload_oci_image_output
       vars:
-        metadata: "{{ lookup('file', zuul.executor.work_root+'/'+zuul.project.src_dir+'/charms/'+charm_build_name+'/metadata.yaml') | from_yaml }}"
+        metadata: "{{ lookup('file', resource_file) | from_yaml }}"
       args:
         executable: /bin/bash
       shell: |
@@ -52,8 +70,7 @@
       # TODO: The below command can error out with a message that says
       # upload with that digest already exists. This case need to be handled.
       # More details https://github.com/canonical/charmcraft/issues/826
-      command:
-        charmcraft upload -v --name {{ charm_build_name }} {{ charm_build_name }}.charm
+      command: charmcraft upload -v --name {{ charm_build_name }} {{ charm_build_name }}.charm
       retries: 3
       until: >
         ("Revision" in upload_charm_output.stdout)
@@ -64,8 +81,7 @@
 
     - name: Release charm
       register: release_charm_output
-      command:
-        charmcraft release {{ charm_build_name }} --revision {{ charm_revision }} --channel {{ publish_channel }} {{ resource_revision_flags | default("") }}
+      command: charmcraft release {{ charm_build_name }} --revision {{ charm_revision }} --channel {{ publish_channel }} {{ resource_revision_flags | default("") }}
       retries: 3
       until: >
         ("Revision" in release_charm_output.stdout)
