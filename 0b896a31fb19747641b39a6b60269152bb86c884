@@ -3,6 +3,40 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9a39d972_a956f9fd",
+        "filename": "charms/tempest-k8s/config.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-01-26T02:42:24Z",
+      "side": 1,
+      "message": "After some discussion during sync, it would be better if we enable periodic check on relation joined instead of on non-empty config value. The reasons are:\n1. if a user set cron schedule but didn\u0027t relate to cos, then periodic check should be ran at all.\n2. if we have empty string as default in schedule and enable cos relation, the user would need to take an extra action to configure schedule in order to have the periodic check work. This is undesirable especially since we are going to wrap the interaction with sunbeam commands",
+      "revId": "0b896a31fb19747641b39a6b60269152bb86c884",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a18f9e2_9405b569",
+        "filename": "charms/tempest-k8s/config.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-01-26T02:42:24Z",
+      "side": 1,
+      "message": "We need to mention that setting schedule won\u0027t enable/update periodic check if cos is not related.",
+      "revId": "0b896a31fb19747641b39a6b60269152bb86c884",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "54548a0a_66a0cb2f",
         "filename": "charms/tempest-k8s/src/charm.py",
         "patchSetId": 8
