@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b076cf19_b7f40263",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-01-26T15:58:46Z",
+      "side": 1,
+      "message": "failure unrelated, a dependency release broke the tests",
+      "revId": "6876bcc172a377b4e03ef53e2bde743b26f86ee5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
