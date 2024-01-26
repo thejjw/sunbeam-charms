@@ -21,12 +21,12 @@
 
     - name: Get metadata.yaml information
       stat:
-        path: "{{ zuul.executor.work_root+'/'+zuul.project.src_dir+'/charms/'+charm_build_name+'/metadata.yaml'"
+        path: "{{ zuul.executor.work_root+'/'+zuul.project.src_dir+'/charms/'+charm_build_name+'/metadata.yaml' }}"
       register: metadata_file
 
     - name: Get charmcraft.yaml information
       stat:
-        path: "zuul.executor.work_root+'/'+zuul.project.src_dir+'/charms/'+charm_build_name+'/charmcraft.yaml'"
+        path: "{{ zuul.executor.work_root+'/'+zuul.project.src_dir+'/charms/'+charm_build_name+'/charmcraft.yaml' }}"
       register: charmcraft_file
 
     - name: Register resource file
