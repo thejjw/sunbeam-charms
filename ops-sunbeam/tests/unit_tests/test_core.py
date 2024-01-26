@@ -137,8 +137,8 @@ class _TestOSBaseOperatorAPICharm(test_utils.CharmTestCase):
         # clean up events that were dynamically defined,
         # otherwise we get issues because they'll be redefined,
         # which is not allowed.
-        from charms.data_platform_libs.v0.database_requires import (
-            DatabaseEvents,
+        from charms.data_platform_libs.v0.data_interfaces import (
+            DatabaseRequiresEvents,
         )
 
         for attr in (
@@ -147,7 +147,7 @@ class _TestOSBaseOperatorAPICharm(test_utils.CharmTestCase):
             "database_read_only_endpoints_changed",
         ):
             try:
-                delattr(DatabaseEvents, attr)
+                delattr(DatabaseRequiresEvents, attr)
             except AttributeError:
                 pass
 

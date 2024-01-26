@@ -464,12 +464,15 @@ def add_base_db_relation(harness: Harness) -> str:
 
 def add_db_relation_credentials(harness: Harness, rel_id: str) -> None:
     """Add db credentials data to db relation."""
+    secret_id = harness.add_model_secret(
+        "mysql", {"username": "foo", "password": "hardpassword"}
+    )
+    harness.grant_secret(secret_id, harness.charm.app.name)
     harness.update_relation_data(
         rel_id,
         "mysql",
         {
-            "username": "foo",
-            "password": "hardpassword",
+            "secret-user": secret_id,
             "endpoints": "10.0.0.10",
         },
     )
