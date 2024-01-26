@@ -16,6 +16,23 @@
       "message": "recheck\n\nUnrelated vault-k8s failure searching for tls certificates locally.",
       "revId": "619976fe436496424dac4bd8745afed069766377",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7f781b5_45cebf0d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-26T02:04:16Z",
+      "side": 1,
+      "message": "LGTM, Nice work!",
+      "revId": "619976fe436496424dac4bd8745afed069766377",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
