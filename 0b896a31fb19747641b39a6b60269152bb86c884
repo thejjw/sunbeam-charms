@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "57a88fc1_eb789929",
+        "filename": "charms/tempest-k8s/config.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-01-27T01:10:39Z",
+      "side": 1,
+      "message": "To be clear, if the schedule is empty, the periodic check should also be disabled since we are not setting valid cronjob, but cos relation check should take precedence.",
+      "parentUuid": "9a39d972_a956f9fd",
+      "revId": "0b896a31fb19747641b39a6b60269152bb86c884",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8a18f9e2_9405b569",
         "filename": "charms/tempest-k8s/config.yaml",
         "patchSetId": 8
