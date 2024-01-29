@@ -20,27 +20,14 @@
         name: ensure-docker
 
     - name: Get metadata.yaml information
-      stat:
-        path: "{{ zuul.executor.work_root+'/'+zuul.project.src_dir+'/charms/'+charm_build_name+'/metadata.yaml' }}"
-      register: metadata_file
-
-    - name: Get charmcraft.yaml information
-      stat:
-        path: "{{ zuul.executor.work_root+'/'+zuul.project.src_dir+'/charms/'+charm_build_name+'/charmcraft.yaml' }}"
-      register: charmcraft_file
-
-    - name: Register resource file
-      set_fact:
-        resource_file: "{{ metadata_file.stat.exists | ternary(metadata_file.stat.path, charmcraft_file.stat.path) }}"
-
-    - name: Which metadata file is used
-      debug:
-        msg: "{{ resource_file }}"
+      charm_metadata:
+        path: "{{ zuul.project.src_dir }}/{{ charm_build_name }}.charm"
+      register: charm_metadata
 
     - name: Upload oci-image to charmhub
       register: upload_oci_image_output
       vars:
-        metadata: "{{ lookup('file', resource_file) | from_yaml }}"
+        metadata: "{{ charm_metadata['metadata'] }}"
       args:
         executable: /bin/bash
       shell: |
