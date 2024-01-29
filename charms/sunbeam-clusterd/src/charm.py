@@ -94,6 +94,9 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             event.defer()
             return
         self.clusterd_ready()
+        self.status.set(
+            ops.WaitingStatus("Waiting for clusterd initialization")
+        )
 
     def _on_stop(self, event: ops.StopEvent) -> None:
         """Handle stop event."""
@@ -234,6 +237,7 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             self.unit.name.replace("/", "-"),
             self._binding_address() + ":" + str(self.clusterd_port),
         )
+        self.status.set(ops.ActiveStatus())
 
     def add_node_to_cluster(self, event: ClusterdNewNodeEvent) -> None:
         """Generate token for node joining."""
@@ -271,7 +275,11 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         logger.debug(f"Departing unit: {event.departing_unit.name}")
         try:
             logger.debug(f"Removing member {unit_name}")
-            self._clusterd.remove_node(unit_name, allow_not_found=True)
+            self._clusterd.remove_node(
+                unit_name,
+                force=True,
+                allow_not_found=True,
+            )
         except clusterd.ClusterdUnavailableError as e:
             if "Remote end closed connection without response" in str(e):
                 logger.debug(
@@ -305,6 +313,7 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def join_node_to_cluster(self, event: ClusterdNodeAddedEvent) -> None:
         """Join node to cluster."""
+        self.status.set(ops.MaintenanceStatus("Joining cluster"))
         token = self.peers.get_app_data(f"{self.unit.name}.join_token")
         if token is None:
             logger.warning("No token found for unit %s", self.unit.name)
