@@ -24,14 +24,16 @@
         path: "{{ zuul.executor.work_root+'/'+zuul.project.src_dir+'/charms/'+charm_build_name+'/metadata.yaml' }}"
       register: metadata_file
 
-    - name: Get charmcraft.yaml information
-      stat:
-        path: "{{ zuul.executor.work_root+'/'+zuul.project.src_dir+'/charms/'+charm_build_name+'/charmcraft.yaml' }}"
-      register: charmcraft_file
-
     - name: Register resource file
       set_fact:
-        resource_file: "{{ metadata_file.stat.exists | ternary(metadata_file.stat.path, charmcraft_file.stat.path) }}"
+        resource_file: >-
+          {{
+          metadata_file.stat.exists
+          | ternary(
+              zuul.executor.work_root + '/' + zuul.project.src_dir + '/charms/' + charm_build_name + '/metadata.yaml',
+              zuul.executor.work_root + '/' + zuul.project.src_dir + '/charms/' + charm_build_name + '/charmcraft.yaml'
+            )
+          }}
 
     - name: Which metadata file is used
       debug:
