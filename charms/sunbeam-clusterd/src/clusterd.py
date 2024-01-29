@@ -135,10 +135,16 @@ class ClusterdClient:
                 return member
         raise ValueError(f"Member {name} not found")
 
-    def remove_node(self, name: str, allow_not_found: bool = True):
+    def remove_node(
+        self,
+        name: str,
+        force: bool = False,
+        allow_not_found: bool = True,
+    ):
         """Delete node."""
+        int_force = 1 if force else 0
         try:
-            self._delete(f"/cluster/1.0/cluster/{name}")
+            self._delete(f"/cluster/1.0/cluster/{name}?force={int_force}")
         except requests.exceptions.HTTPError as e:
             if e.response is None:
                 raise e
