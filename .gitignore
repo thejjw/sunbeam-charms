@@ -13,3 +13,8 @@ __pycache__/
 *.pub
 *.token
 tests/*/bundles/
+
+# test help files created by common.sh, used in unittests
+charms/*/.jujuignore
+charms/*/.stestr.conf
+charms/*/lib/
