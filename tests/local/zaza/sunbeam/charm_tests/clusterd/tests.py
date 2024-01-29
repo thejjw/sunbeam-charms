@@ -16,7 +16,7 @@
 import json
 import logging
 import subprocess
-from random import shuffle, choice
+from random import shuffle
 from typing import Tuple
 
 import requests
@@ -105,9 +105,9 @@ class ClusterdTest(test_utils.BaseCharmTest):
 
     def test_203_scale_down_to_2_units(self):
         """Scale down to 2 units for voter/spare test."""
-        units = self._get_units()
+        leader = model.get_lead_unit_name(self.application_name)
         model.destroy_unit(
-            self.application_name, choice(units), wait_disappear=True
+            self.application_name, leader, wait_disappear=True
         )
         model.block_until_all_units_idle()
 
