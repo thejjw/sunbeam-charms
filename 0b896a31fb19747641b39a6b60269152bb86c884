@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e15c75ad_c9d6dc7e",
+        "filename": "charms/tempest-k8s/config.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-29T01:02:50Z",
+      "side": 1,
+      "message": "Ok, so you\u0027re saying we should have a default cron schedule set?  What should the default be?\n\nAlso, I think adding a non-empty default should be done when we integrate COS?",
+      "parentUuid": "57a88fc1_eb789929",
+      "revId": "0b896a31fb19747641b39a6b60269152bb86c884",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8a18f9e2_9405b569",
         "filename": "charms/tempest-k8s/config.yaml",
         "patchSetId": 8
@@ -49,6 +67,24 @@
       "writtenOn": "2024-01-26T02:42:24Z",
       "side": 1,
       "message": "We need to mention that setting schedule won\u0027t enable/update periodic check if cos is not related.",
+      "revId": "0b896a31fb19747641b39a6b60269152bb86c884",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3917a13c_2c19b4f3",
+        "filename": "charms/tempest-k8s/config.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-29T01:02:50Z",
+      "side": 1,
+      "message": "Agreed.  This should be added when we integrate COS, otherwise the docs will not be in sync with the code.",
+      "parentUuid": "8a18f9e2_9405b569",
       "revId": "0b896a31fb19747641b39a6b60269152bb86c884",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
