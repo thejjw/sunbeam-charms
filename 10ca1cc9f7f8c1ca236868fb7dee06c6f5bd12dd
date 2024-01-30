@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f69d9e3f_b2cb6f19",
+        "filename": "roles/charm-publish/tasks/publish.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T12:39:32Z",
+      "side": 1,
+      "message": "can you check if lookup works with relative path? Earlier working ones has absolute path",
+      "revId": "10ca1cc9f7f8c1ca236868fb7dee06c6f5bd12dd",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
