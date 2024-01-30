@@ -156,6 +156,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "54a9b0eb_435940f0",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-01-30T03:40:33Z",
+      "side": 1,
+      "message": "You are right, it might be a bad logic here. But in practice, the case you mentioned should not happen, since `_ensure_credential` is always called before `_set_secret`. See the function called in `_setup_tempest_resource_request`.\n\nI think we should make this `_set_secret` explicitly depends on `credential_id`, e.g. \n\n```\ndef _set_secret(credential_id, key, value):\n    secret \u003d self.model.get_secret(id\u003dcredential_id)\n    content \u003d secret.get_content()\n    if content.get(key, \"\") !\u003d value:\n        content[key] \u003d value\n        secret.set_content(content)\n```",
+      "parentUuid": "d43aace1_3f7f73c6",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c6f1f257_02ed610c",
         "filename": "charms/tempest-k8s/src/handlers.py",
         "patchSetId": 7
@@ -173,6 +191,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "50c611a6_7104298e",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-01-30T03:40:33Z",
+      "side": 1,
+      "message": "The intention of admin auth url (or even the admin user: tempest) is not for running tempest tests, it\u0027s used to so that we can create resources and test accounts (https://docs.openstack.org/tempest/latest/account_generator.html); the tests itself should be running against public interface.",
+      "parentUuid": "c6f1f257_02ed610c",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3b4ed525_61ad5dc8",
         "filename": "charms/tempest-k8s/src/handlers.py",
         "patchSetId": 7
@@ -184,6 +220,24 @@
       "writtenOn": "2024-01-30T03:13:29Z",
       "side": 1,
       "message": "This line adds no value.",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3ed16a8_7dea7377",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-01-30T03:40:33Z",
+      "side": 1,
+      "message": "I was originally prepared for clean-up functionality. Since we are not implementing it right now. We should remove it.",
+      "parentUuid": "3b4ed525_61ad5dc8",
       "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
