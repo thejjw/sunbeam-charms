@@ -19,15 +19,24 @@
       include_role:
         name: ensure-docker
 
-    - name: Get metadata.yaml information
-      charm_metadata:
-        path: "{{ zuul.project.src_dir }}/{{ charm_build_name }}.charm"
-      register: charm_metadata
+    - name: Create charm destination folder
+      file:
+        path: "{{ zuul.project.src_dir }}/{{ charm_build_name }}"
+        state: directory
+
+    - name: Set project absolute path
+      set_fact:
+        project_abs: "{{ zuul.executor.work_root }}/{{ zuul.project.src_dir }}"
+
+    - name: Decompress charm
+      unarchive:
+        src: "{{ project_abs }}/{{ charm_build_name }}.charm"
+        dest: "{{ project_abs }}/{{ charm_build_name }}"
 
     - name: Upload oci-image to charmhub
       register: upload_oci_image_output
       vars:
-        metadata: "{{ charm_metadata['metadata'] }}"
+        metadata: "{{ lookup('file', project_abs + '/' + charm_build_name + '/metadata.yaml') | from_yaml }}"
       args:
         executable: /bin/bash
       shell: |
