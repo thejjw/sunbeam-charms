@@ -436,6 +436,24 @@
       "message": "Missed this in earlier review.. This is no more required here.\n\nCan you add new folder under tests [1] and include some basic charms along with temepst and update zuul.yaml to run zaza tests for tempest. This will ensure to test if tempest charm is deployed properly and able to run tempest commands.\n\n[1] https://opendev.org/openstack/sunbeam-charms/src/branch/main/tests",
       "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bead112c_1e64a4b1",
+        "filename": "charms/tempest-k8s/tests/tests.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T05:20:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7bf7eff1_056fdbea",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
