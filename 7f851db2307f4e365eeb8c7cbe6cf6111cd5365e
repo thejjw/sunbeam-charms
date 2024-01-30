@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "637e373d_bb8447d8",
+        "filename": "charms/tempest-k8s/README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:28:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3278161f_c54993ac",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c92798aa_c2695b39",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-01-30T03:13:29Z",
       "side": 1,
       "message": "Can you move this content to charmcraft.yaml\n\ncharmcraft 2.5.0 uses unified charmcraft.yaml so better to use that approach for newly created charms.\nsee https://github.com/canonical/charmcraft/pull/1149",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "81c90262_999df673",
+        "filename": "charms/tempest-k8s/actions.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:28:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c92798aa_c2695b39",
       "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -69,6 +105,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9463180f_552a0cef",
+        "filename": "charms/tempest-k8s/config.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:28:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b7a1801_08c8a972",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dba4b398_e3c711ea",
@@ -86,6 +140,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9525461_eed37f6f",
+        "filename": "charms/tempest-k8s/metadata.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:28:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dba4b398_e3c711ea",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9854ac27_c92d450f",
@@ -99,6 +171,24 @@
       "writtenOn": "2024-01-30T03:13:29Z",
       "side": 1,
       "message": "Can u change year to 2024 for all newly created files",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "438a2227_dc49d4b0",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:28:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9854ac27_c92d450f",
       "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -238,6 +328,24 @@
       "side": 1,
       "message": "I was originally prepared for clean-up functionality. Since we are not implementing it right now. We should remove it.",
       "parentUuid": "3b4ed525_61ad5dc8",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8c5d4d1_c3ba6829",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:28:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e3ed16a8_7dea7377",
       "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
