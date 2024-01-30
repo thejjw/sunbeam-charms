@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ffce024_5b53cb14",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-01-30T12:47:34Z",
+      "side": 1,
+      "message": "It does but it\u0027s relative to the play, not working directory apparently. Fixed that",
+      "revId": "5a81e96a800c14b433e929a14aff43cafc0b942f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
