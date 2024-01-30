@@ -405,6 +405,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "28a05b9c_120fc899",
+        "filename": "charms/tempest-k8s/src/templates/tempest-init.j2",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:59:37Z",
+      "side": 1,
+      "message": "Yes, I believe so.  With the default sunbeam installation, it creates this for the services:\n\n```\n[service_available]\naodh \u003d False\nironic \u003d False\nceilometer \u003d False\nnova \u003d True\nsahara \u003d False\ntrove \u003d False\ndesignate \u003d False\npanko \u003d False\nglance \u003d True\nbarbican \u003d False\nzaqar \u003d False\ngnocchi \u003d False\nneutron \u003d True\nswift \u003d False\noctavia \u003d False\nheat \u003d False\nplacement \u003d True\nmanila \u003d False\ncinder \u003d True\nmistral \u003d False\nhorizon \u003d False\n```\n\nWhich appears to match what is deployed as far as I can see.",
+      "parentUuid": "373c9d64_f95a22af",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7bf7eff1_056fdbea",
         "filename": "charms/tempest-k8s/tests/tests.yaml",
         "patchSetId": 7
