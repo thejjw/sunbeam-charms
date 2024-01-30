@@ -18,6 +18,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "94e77ce5_d0d244fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:46:51Z",
+      "side": 1,
+      "message": "resolving to neaten the backlog of review comments",
+      "parentUuid": "ae9794ce_c9f9024b",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ee9bf54e_a3c719f3",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-01-25T05:25:43Z",
       "side": 1,
       "message": "This is something to be optimised in the future.  This is a task that only needs to run on first deployment or charm refresh, but it requires the keystone credentials and pebble to be ready.  Unsure if there\u0027s a better place for this code to live, or if we need to look into something like a key in the application data that we can use to determine of the init has already been run successfully.",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65ed8916_f2e76bdc",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:46:51Z",
+      "side": 1,
+      "message": "We\u0027ll be addressing this in a follow up patch in the next pulse. 😊",
+      "parentUuid": "ee9bf54e_a3c719f3",
       "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -52,6 +88,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d184b86_b5952239",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:46:51Z",
+      "side": 1,
+      "message": "resolving because it was noted that this is ok as the follow ups will be implemented soon.",
+      "parentUuid": "86b235c7_e3b22bcc",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a5d80e2c_83481e77",
@@ -65,6 +119,24 @@
       "writtenOn": "2024-01-25T05:25:43Z",
       "side": 1,
       "message": "This is for periodic tasks - it\u0027s not complete or expected to be working in any way right now.  Same goes for the `schedule` config option.  It\u0027s all copied in from the spec as stubs to be ready for iterating on in the real implementation ( here: https://review.opendev.org/c/openstack/sunbeam-charms/+/906467 )",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5068de7e_85002b59",
+        "filename": "charms/tempest-k8s/src/templates/crontab.j2",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:46:51Z",
+      "side": 1,
+      "message": "resolving because it was noted that this is ok as the follow ups will be implemented soon.",
+      "parentUuid": "a5d80e2c_83481e77",
       "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -86,6 +158,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "67950a7e_a251ee9e",
+        "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:46:51Z",
+      "side": 1,
+      "message": "resolving because it was noted that this is ok as the follow ups will be implemented soon.",
+      "parentUuid": "3712f5c7_bc354cbb",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b51bb191_90762598",
@@ -99,6 +189,24 @@
       "writtenOn": "2024-01-25T05:25:43Z",
       "side": 1,
       "message": "Integration tests are examples only and are not yet used or implemented.",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4821022_81e2fe6b",
+        "filename": "charms/tempest-k8s/tests/tests.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:46:51Z",
+      "side": 1,
+      "message": "moving is per Hemanth\u0027s comments",
+      "parentUuid": "b51bb191_90762598",
       "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -133,6 +241,24 @@
       "writtenOn": "2024-01-25T05:25:43Z",
       "side": 1,
       "message": "These also added in prep for future COS integration.",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cd84151_6acd6587",
+        "filename": "common.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:46:51Z",
+      "side": 1,
+      "message": "resolving because it was noted that this is ok as the follow ups will be implemented soon.",
+      "parentUuid": "a89db696_353b6883",
       "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }

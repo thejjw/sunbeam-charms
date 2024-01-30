@@ -210,6 +210,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bf2ac9a_88fa25ee",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:46:51Z",
+      "side": 1,
+      "message": "Ah true, we don\u0027t need these.",
+      "parentUuid": "3c96b2f7_e563e6ba",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "52a2671a_b395c6f0",
@@ -223,6 +241,24 @@
       "writtenOn": "2024-01-30T03:13:29Z",
       "side": 1,
       "message": "same comment as above",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a860264_4889a2c7",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:46:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "52a2671a_b395c6f0",
       "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
