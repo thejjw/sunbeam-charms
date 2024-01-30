@@ -148,8 +148,8 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         # clean up events that were dynamically defined,
         # otherwise we get issues because they'll be redefined,
         # which is not allowed.
-        from charms.data_platform_libs.v0.database_requires import (
-            DatabaseEvents,
+        from charms.data_platform_libs.v0.data_interfaces import (
+            DatabaseRequiresEvents,
         )
 
         for attr in (
@@ -158,7 +158,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
             "database_read_only_endpoints_changed",
         ):
             try:
-                delattr(DatabaseEvents, attr)
+                delattr(DatabaseRequiresEvents, attr)
             except AttributeError:
                 pass
 
@@ -288,16 +288,11 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         updated_fernet_keys = {
             "0": "Qf4vHdf6XC2dGKpEwtGapq7oDOqUWepcH2tKgQ0qOKc=",
             "2": "UK3qzLGvu-piYwau0BFyed8O3WP8lFKH_v1sXYulzhs=",
-            "3": "YVYUJbQNASbVzzntqj2sG9rbDOV_QQfueDCz0PJEKKw=",
+            "3": "yvyujbqnasbvzzntqj2sg9rbdov_qqfuedcz0pjekkw=",
         }
-        secret_mock = mock.MagicMock()
-        secret_mock.id = "test-secret-id"
-        secret_mock.get_content.return_value = updated_fernet_keys
-
-        self.harness.model.app.add_secret = MagicMock()
-        self.harness.model.app.add_secret.return_value = secret_mock
-        self.harness.model.get_secret = MagicMock()
-        self.harness.model.get_secret.return_value = secret_mock
+        secret_fernet_keys = {
+            f"fernet-{k}": v for k, v in updated_fernet_keys.items()
+        }
 
         test_utils.add_complete_ingress_relation(self.harness)
         self.harness.set_leader()
@@ -308,9 +303,22 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
             self.harness, test_utils.add_base_db_relation(self.harness)
         )
 
+        secret_id = self.harness.get_relation_data(rel_id, "keystone-k8s")[
+            "fernet-secret-id"
+        ]
+        s = self.harness.model.get_secret(id=secret_id)
+        s.set_content(secret_fernet_keys)
+        s.get_content(refresh=True)
+        secret_id = self.harness.get_relation_data(rel_id, "keystone-k8s")[
+            "credential-keys-secret-id"
+        ]
+        s = self.harness.model.get_secret(id=secret_id)
+        s.set_content(secret_fernet_keys)
+        s.get_content(refresh=True)
+
         event = MagicMock()
         self.harness.charm._on_peer_data_changed(event)
-        self.assertTrue(self.harness.model.get_secret.called)
+
         self.assertTrue(self.km_mock.read_keys.called)
         self.assertEqual(self.km_mock.write_keys.call_count, 2)
         self.km_mock.write_keys.assert_has_calls(
