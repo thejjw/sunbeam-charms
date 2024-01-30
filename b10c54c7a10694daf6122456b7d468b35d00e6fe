@@ -261,6 +261,24 @@
       "parentUuid": "a89db696_353b6883",
       "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a415863a_c0b55fe1",
+        "filename": "common.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-30T04:49:44Z",
+      "side": 1,
+      "message": "actually resolving",
+      "parentUuid": "8cd84151_6acd6587",
+      "revId": "b10c54c7a10694daf6122456b7d468b35d00e6fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
