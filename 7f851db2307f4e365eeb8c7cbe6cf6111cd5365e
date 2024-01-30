@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9470356b_f800e339",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T03:13:29Z",
+      "side": 1,
+      "message": "Thanks for the work Samuel and Ray.\n\nMinor comments/questions inline.",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3278161f_c54993ac",
+        "filename": "charms/tempest-k8s/README.md",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T03:13:29Z",
+      "side": 1,
+      "message": "Please update with tempest-k8s information in this file",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c92798aa_c2695b39",
+        "filename": "charms/tempest-k8s/actions.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T03:13:29Z",
+      "side": 1,
+      "message": "Can you move this content to charmcraft.yaml\n\ncharmcraft 2.5.0 uses unified charmcraft.yaml so better to use that approach for newly created charms.\nsee https://github.com/canonical/charmcraft/pull/1149",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b7a1801_08c8a972",
+        "filename": "charms/tempest-k8s/config.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T03:13:29Z",
+      "side": 1,
+      "message": "see comment for actions.yaml, applicable here",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dba4b398_e3c711ea",
+        "filename": "charms/tempest-k8s/metadata.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T03:13:29Z",
+      "side": 1,
+      "message": "see comment for actions.yaml, applicable here",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9854ac27_c92d450f",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T03:13:29Z",
+      "side": 1,
+      "message": "Can u change year to 2024 for all newly created files",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c96b2f7_e563e6ba",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T03:13:29Z",
+      "side": 1,
+      "message": "Do we need these checks again as they are already part of configure_unit()",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52a2671a_b395c6f0",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T03:13:29Z",
+      "side": 1,
+      "message": "same comment as above",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d43aace1_3f7f73c6",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T03:13:29Z",
+      "side": 1,
+      "message": "If this condition is hit before _ensure_credential, then username/password are never updated in the secret. Do you see occurrences of hitting this, if so need logic in _ensure_credential to check if username/password exists before returning credentials_id.",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6f1f257_02ed610c",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 387,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T03:13:29Z",
+      "side": 1,
+      "message": "Typically the tempest should run against public auth url. Do you have problems when running with public auth url from tempest container?",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b4ed525_61ad5dc8",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 486,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T03:13:29Z",
+      "side": 1,
+      "message": "This line adds no value.",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "373c9d64_f95a22af",
+        "filename": "charms/tempest-k8s/src/templates/tempest-init.j2",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-01-30T03:13:29Z",
+      "side": 1,
+      "message": "Can you confirm if services like heat are auto-discovered and tempest.conf is populated with the necessary configs?",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
