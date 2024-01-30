@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "73a01016a1829c65ee96cec38c23f8abfd6b0638",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7844226e_a2d287d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-01-30T14:53:57Z",
+      "side": 1,
+      "message": "Traefik failure in func-test-misc, because of: \"ImagePullBackOff\": Back-off pulling image \"jujusolutions/charm-base:ubuntu-20.04\"",
+      "revId": "73a01016a1829c65ee96cec38c23f8abfd6b0638",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
