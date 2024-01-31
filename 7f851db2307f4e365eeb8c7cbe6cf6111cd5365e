@@ -298,6 +298,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a75f3c0_064e3886",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-01-31T23:37:15Z",
+      "side": 1,
+      "message": "Agreed, there seems to be a possibility of a race condition with this logic.  I\u0027ve updated it to avoid that.",
+      "parentUuid": "54a9b0eb_435940f0",
+      "revId": "7f851db2307f4e365eeb8c7cbe6cf6111cd5365e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6f1f257_02ed610c",
