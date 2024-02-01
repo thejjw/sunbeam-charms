@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3456eeb7_982a6eec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-01T02:58:28Z",
+      "side": 1,
+      "message": "One final change, rest of the PR seems good.",
+      "revId": "a9e764060b05bfc8a655ae0f02c15b53f60f2de8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09f60807_a6b86a7d",
+        "filename": "zuul.d/jobs.yaml",
+        "patchSetId": 15
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-01T02:58:28Z",
+      "side": 1,
+      "message": "Can you add tempest-k8s changes in func-test-core iteself instead of creating new job func-test-tempest?",
+      "revId": "a9e764060b05bfc8a655ae0f02c15b53f60f2de8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51eb401b_e128276c",
+        "filename": "zuul.d/zuul.yaml",
+        "patchSetId": 15
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-01T02:58:28Z",
+      "side": 1,
+      "message": "Not required if we include tempest-k8s in func-test-core",
+      "revId": "a9e764060b05bfc8a655ae0f02c15b53f60f2de8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
