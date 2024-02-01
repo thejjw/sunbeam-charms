@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce29701d_22a67633",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-01T02:43:48Z",
+      "side": 1,
+      "message": "Some questions that need clarify, otherwise LGTM",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "584570fb_5f83b276",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-01T02:43:48Z",
+      "side": 1,
+      "message": "I think a cleaner way to validate the schedule is to define this validation logic in `TempestConfigurationContext` class. If the schedule is not valid, you can set the property `ready` to `False` otherwise `True`.",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
