@@ -48,11 +48,12 @@ from ops.model import (
 )
 from utils.constants import (
     CONTAINER,
+    TEMPEST_ADHOC_OUTPUT,
     TEMPEST_CONCURRENCY,
     TEMPEST_CONF,
     TEMPEST_HOME,
     TEMPEST_LIST_DIR,
-    TEMPEST_OUTPUT,
+    TEMPEST_PERIODIC_OUTPUT,
     TEMPEST_TEST_ACCOUNTS,
     TEMPEST_WORKSPACE,
     TEMPEST_WORKSPACE_PATH,
@@ -163,7 +164,6 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_CONF": TEMPEST_CONF,
             "TEMPEST_HOME": TEMPEST_HOME,
             "TEMPEST_LIST_DIR": TEMPEST_LIST_DIR,
-            "TEMPEST_OUTPUT": TEMPEST_OUTPUT,
             "TEMPEST_TEST_ACCOUNTS": TEMPEST_TEST_ACCOUNTS,
             "TEMPEST_WORKSPACE": TEMPEST_WORKSPACE,
             "TEMPEST_WORKSPACE_PATH": TEMPEST_WORKSPACE_PATH,
@@ -180,6 +180,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
         logger.debug("Ready to init tempest environment")
         env = self._get_environment_for_tempest()
+        # This is environment sent to the scheduler service,
+        # for periodic checks.
+        env["TEMPEST_OUTPUT"] = TEMPEST_PERIODIC_OUTPUT
         try:
             pebble.init_tempest(env)
         except RuntimeError:
@@ -203,18 +206,26 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         test_list: str = event.params["test-list"].strip()
 
         env = self._get_environment_for_tempest()
+        env["TEMPEST_OUTPUT"] = TEMPEST_ADHOC_OUTPUT
         try:
-            output = self.pebble_handler().run_tempest_tests(
+            summary = self.pebble_handler().run_tempest_tests(
                 regexes, exclude_regex, test_list, serial, env
             )
         except RuntimeError as e:
             event.fail(str(e))
-            # still print the message,
-            # because it could be a lot of output from tempest,
-            # and we want it neatly formatted
+            # Still print the message,
+            # because we want it neatly formatted for the user.
             print(e)
             return
-        print(output)
+        print(summary)
+        copy_cmd = (
+            f"juju scp --container {CONTAINER} "
+            "{self.unit.name}:{TEMPEST_ADHOC_OUTPUT} tempest-validation.log"
+        )
+        print(
+            f"\nFor detailed results, copy the log file by running:\n  {copy_cmd}"
+        )
+        event.set_results({"copy_cmd": copy_cmd})
 
     def _on_get_lists_action(self, event: ops.charm.ActionEvent) -> None:
         """List tempest test lists action."""

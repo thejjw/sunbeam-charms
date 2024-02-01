@@ -11,7 +11,9 @@ set -ex
 discover-tempest-config --test-accounts "$TEMPEST_TEST_ACCOUNTS" --out "$TEMPEST_CONF"
 
 TMP_FILE="$(mktemp)"
-tempest run --workspace "$TEMPEST_WORKSPACE" "$@" 2>&1 | tee "$TMP_FILE"
+tempest run --workspace "$TEMPEST_WORKSPACE" "$@" 2>&1 > "$TMP_FILE"
 mv "$TMP_FILE" "$TEMPEST_OUTPUT"
+
+awk '/^Totals$/,/Sum of execute/ { print }' < $TEMPEST_OUTPUT
 
 ) 9>/var/lock/tempest
