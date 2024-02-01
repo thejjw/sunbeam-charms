@@ -24,7 +24,7 @@
   vars:
     download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
     download_artifact_type: charm
-    download_artifact_pipeline: gate
+    download_artifact_pipeline: check
     download_artifact_job: "{{ item }}"
     download_artifact_directory: "{{ zuul.project.src_dir }}"
   with_items: "{{ relevant_charm_build_jobs }}"
