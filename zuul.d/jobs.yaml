@@ -775,6 +775,9 @@
     description: |
       Publish sunbeam-clusterd built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    dependencies:
+      - name: charm-build-sunbeam-clusterd
+        soft: true
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/sunbeam-clusterd/*
