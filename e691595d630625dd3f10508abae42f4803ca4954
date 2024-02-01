@@ -108,6 +108,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "66be61e2_b3d8fe86",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-01T23:45:09Z",
+      "side": 1,
+      "message": "I see. On the sunbeam side we will ask the user to input the destination path, so I think only having a field for source path (where the result is stored in the container) is enough.",
+      "parentUuid": "a0e6733c_61d362c0",
+      "revId": "e691595d630625dd3f10508abae42f4803ca4954",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "351a3678_de6bcbaf",
         "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
         "patchSetId": 8
@@ -137,6 +155,24 @@
       "side": 1,
       "message": "Yes, to log in case of failure, otherwise it won\u0027t be recorded elsewhere.\n\nI set it up so the only output from the script is the summary, so the charm can run the script and print the output to the user.  The rest is logged to the file.",
       "parentUuid": "351a3678_de6bcbaf",
+      "revId": "e691595d630625dd3f10508abae42f4803ca4954",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef6dcc19_5a2346df",
+        "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-01T23:45:09Z",
+      "side": 1,
+      "message": "👌",
+      "parentUuid": "9a3ef0ff_5cbf6fe7",
       "revId": "e691595d630625dd3f10508abae42f4803ca4954",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
