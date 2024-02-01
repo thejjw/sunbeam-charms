@@ -43,7 +43,7 @@ TEST_TEMPEST_ENV = {
     "TEMPEST_CONF": "/var/lib/tempest/workspace/etc/tempest.conf",
     "TEMPEST_HOME": "/var/lib/tempest",
     "TEMPEST_LIST_DIR": "/tempest_test_lists",
-    "TEMPEST_OUTPUT": "/var/lib/tempest/workspace/tempest-output.log",
+    "TEMPEST_OUTPUT": "/var/lib/tempest/workspace/tempest-validation.log",
     "TEMPEST_TEST_ACCOUNTS": "/var/lib/tempest/workspace/test_accounts.yaml",
     "TEMPEST_WORKSPACE": "tempest",
     "TEMPEST_WORKSPACE_PATH": "/var/lib/tempest/workspace",
