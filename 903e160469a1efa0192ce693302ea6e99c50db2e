@@ -16,6 +16,24 @@
       "message": "How does the charm resolve `BlockedStatus(f\"invalid schedule config: {err}\")`? will this step be re-run after a config changed?",
       "revId": "903e160469a1efa0192ce693302ea6e99c50db2e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "455d81f4_2d2efd3a",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-01T03:05:44Z",
+      "side": 1,
+      "message": "I was gonna ask the same thing. We need to be careful when crafting the recovery logic when setting error and blocked state.",
+      "parentUuid": "819ef73d_bafe1ac5",
+      "revId": "903e160469a1efa0192ce693302ea6e99c50db2e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }

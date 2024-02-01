@@ -33,6 +33,57 @@
       "message": "I think a cleaner way to validate the schedule is to define this validation logic in `TempestConfigurationContext` class. If the schedule is not valid, you can set the property `ready` to `False` otherwise `True`.",
       "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74f45790_f7c6845c",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-01T03:05:44Z",
+      "side": 1,
+      "message": "nit: with `oneshot` in name it may be confused with ad-hoc check. Maybe change to something more descriptive?",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c7272f1_eafefcab",
+        "filename": "charms/tempest-k8s/src/utils/validators.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-01T03:05:44Z",
+      "side": 1,
+      "message": "I find it logically weird to have checks for both `is_shcedule_valid` and `get_schedule_error` in the charm code when `is_shcedule_valid` depends on the return value of `get_schedule_error`. Can we merge them into a single function and return both a bool for validity and an error message?",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "93294faf_9806a4d6",
+        "filename": "charms/tempest-k8s/src/utils/validators.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-01T03:05:44Z",
+      "side": 1,
+      "message": "I made the suggest to improve error message in the sunbeam implementation. Can you also update the error messages in this function following the same in https://github.com/agileshaw/snap-openstack/blob/main/sunbeam-python/sunbeam/plugins/validation/plugin.py#L51-L84?",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
