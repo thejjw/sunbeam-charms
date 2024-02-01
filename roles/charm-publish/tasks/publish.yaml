@@ -37,10 +37,17 @@
         dest: "{{ zuul.project.src_dir }}/{{ charm_build_name }}"
         remote_src: true
 
+    - name: Read metadata.yaml
+      slurp:
+        src: "{{ zuul.project.src_dir }}/{{ charm_build_name }}/metadata.yaml"
+      register: metadata_file
+
+    - name: Parse metadata.yaml
+      set_fact:
+        metadata: "{{ metadata_file.content | b64decode | from_yaml }}"
+
     - name: Upload oci-image to charmhub
       register: upload_oci_image_output
-      vars:
-        metadata: "{{ lookup('file', zuul.executor.work_root + '/' + zuul.project.src_dir + '/' + charm_build_name + '/metadata.yaml') | from_yaml }}"
       args:
         executable: /bin/bash
       shell: |
