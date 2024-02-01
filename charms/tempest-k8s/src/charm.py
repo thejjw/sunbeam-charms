@@ -56,6 +56,7 @@ from utils.constants import (
     TEMPEST_HOME,
     TEMPEST_LIST_DIR,
     TEMPEST_OUTPUT,
+    TEMPEST_READY_KEY,
     TEMPEST_TEST_ACCOUNTS,
     TEMPEST_WORKSPACE,
     TEMPEST_WORKSPACE_PATH,
@@ -131,12 +132,12 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         if not schedule.valid:
             return ""
 
+        # if tempest env isn't ready, then we can't start scheduling tests
+        if not self.is_tempest_ready():
+            return ""
+
         # TODO: once observability integration is implemented,
         # check if observability relations are ready here.
-
-        # TODO: when we have a way to check if tempest env is ready
-        # (tempest init complete, etc.),
-        # then disable schedule until it is ready.
 
         return schedule.value
 
@@ -212,11 +213,43 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_WORKSPACE_PATH": TEMPEST_WORKSPACE_PATH,
         }
 
-    def post_config_setup(self) -> None:
-        """Configuration steps after services have been setup.
+    def is_tempest_ready(self) -> bool:
+        """Check if the tempest environment has been set up by the charm."""
+        return bool(self.leader_get(TEMPEST_READY_KEY))
 
-        NOTE: this will be improved in future to avoid running unnecessarily.
+    def set_tempest_ready(self, ready: bool):
+        """Set tempest readiness state."""
+        self.leader_set({TEMPEST_READY_KEY: "true" if ready else ""})
+
+    def init_tempest(self) -> bool:
+        """Init tempest environment for the charm.
+
+        This will skip running the steps if it was previously run to success.
+
+        Returns a boolean indicating success or failure::
+        True if tempest environment is in a ready state, False if not.
         """
+        if self.is_tempest_ready():
+            logger.debug(
+                "Skipping tempest init because it is already completed"
+            )
+            return True
+
+        self.status.set(MaintenanceStatus("tempest init in progress"))
+
+        env = self._get_environment_for_tempest()
+        pebble = self.pebble_handler()
+        try:
+            pebble.init_tempest(env)
+        except RuntimeError:
+            self.set_tempest_ready(False)
+            return False
+
+        self.set_tempest_ready(True)
+        return True
+
+    def post_config_setup(self) -> None:
+        """Configuration steps after services have been setup."""
         logger.debug("Running post config setup")
 
         schedule = validated_schedule(self.config["schedule"])
@@ -225,14 +258,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 f"invalid schedule config: {schedule.err}"
             )
 
-        self.status.set(MaintenanceStatus("tempest init in progress"))
-        pebble = self.pebble_handler()
-
-        logger.debug("Ready to init tempest environment")
-        env = self._get_environment_for_tempest()
-        try:
-            pebble.init_tempest(env)
-        except RuntimeError:
+        if not self.init_tempest():
             raise sunbeam_guard.BlockedExceptionError(
                 "tempest init failed, see logs for more info"
             )

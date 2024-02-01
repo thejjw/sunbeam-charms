@@ -26,6 +26,7 @@ import yaml
 from utils.constants import (
     CONTAINER,
     TEMPEST_HOME,
+    TEMPEST_READY_KEY,
 )
 
 TEST_TEMPEST_ENV = {
@@ -197,6 +198,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
             self.harness
         )
+        self.harness.charm.is_tempest_ready = mock.Mock(return_value=True)
 
         # ok schedule
         schedule = "0 0 */7 * *"
@@ -460,6 +462,75 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             "tempest init failed", self.harness.charm.status.message()
         )
         self.assertEqual(self.harness.charm.status.status.name, "blocked")
+
+        self.harness.remove_relation(logging_rel_id)
+        self.harness.remove_relation(identity_ops_rel_id)
+        self.harness.remove_relation(grafana_dashboard_rel_id)
+
+    def test_is_tempest_ready(self):
+        """Test the tempest ready check method."""
+        test_utils.set_all_pebbles_ready(self.harness)
+        logging_rel_id = self.add_logging_relation(self.harness)
+        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
+        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
+            self.harness
+        )
+
+        self.harness.charm.leader_get = mock.Mock(return_value="true")
+        self.assertTrue(self.harness.charm.is_tempest_ready())
+
+        self.harness.charm.leader_get = mock.Mock(return_value="")
+        self.assertFalse(self.harness.charm.is_tempest_ready())
+
+        self.harness.remove_relation(logging_rel_id)
+        self.harness.remove_relation(identity_ops_rel_id)
+        self.harness.remove_relation(grafana_dashboard_rel_id)
+
+    def test_set_tempest_ready(self):
+        """Test the tempest ready set method."""
+        test_utils.set_all_pebbles_ready(self.harness)
+        logging_rel_id = self.add_logging_relation(self.harness)
+        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
+        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
+            self.harness
+        )
+
+        self.harness.charm.leader_set = mock.Mock()
+        self.harness.charm.set_tempest_ready(True)
+        self.harness.charm.leader_set.assert_called_with(
+            {TEMPEST_READY_KEY: "true"}
+        )
+
+        self.harness.charm.leader_set = mock.Mock()
+        self.harness.charm.set_tempest_ready(False)
+        self.harness.charm.leader_set.assert_called_with(
+            {TEMPEST_READY_KEY: ""}
+        )
+
+        self.harness.remove_relation(logging_rel_id)
+        self.harness.remove_relation(identity_ops_rel_id)
+        self.harness.remove_relation(grafana_dashboard_rel_id)
+
+    def test_init_tempest_method(self):
+        """Test the tempest init method logic."""
+        test_utils.set_all_pebbles_ready(self.harness)
+        logging_rel_id = self.add_logging_relation(self.harness)
+        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
+        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
+            self.harness
+        )
+
+        # tempest init not run yet, init tempest fails
+        pebble_mock = mock.Mock()
+        pebble_mock.init_tempest = mock.Mock(side_effect=RuntimeError)
+        self.harness.charm.pebble_handler = mock.Mock(return_value=pebble_mock)
+        self.harness.charm.is_tempest_ready = mock.Mock(return_value=False)
+
+        self.assertFalse(self.harness.charm.init_tempest())
+
+        # tempest init already run
+        self.harness.charm.is_tempest_ready = mock.Mock(return_value=True)
+        self.assertTrue(self.harness.charm.init_tempest())
 
         self.harness.remove_relation(logging_rel_id)
         self.harness.remove_relation(identity_ops_rel_id)
