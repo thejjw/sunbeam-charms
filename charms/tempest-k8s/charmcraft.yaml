@@ -106,6 +106,14 @@ actions:
       - found in test list "list1"
       - AND match regex "one" or "two"
       - AND don't match regex "three"
+
+      A summary of the results will be printed.
+      The complete results may be large,
+      and will be written to /var/lib/tempest/workspace/tempest-validation.log
+      in the workload container.
+      This can be copied to your local machine using juju,
+      for example:
+        juju scp --container tempest tempest/0:/var/lib/tempest/workspace/tempest-validation.log tempest-validation.log
     additionalProperties: false
     params:
       regex:
