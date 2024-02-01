@@ -19,6 +19,12 @@
       include_role:
         name: ensure-docker
 
+    - name: Install unzip
+      apt:
+        name: unzip
+        state: present
+      become: true
+
     - name: Create charm destination folder
       file:
         path: "{{ zuul.project.src_dir }}/{{ charm_build_name }}"
@@ -27,8 +33,8 @@
 
     - name: Decompress charm
       unarchive:
-        src: "{{ zuul.project.src_dir }}/{{ charm_build_name }}.charm"
-        dest: "{{ zuul.project.src_dir }}/{{ charm_build_name }}"
+        src: "{{ zuul.executor.work_root }}/{{ zuul.project.src_dir }}/{{ charm_build_name }}.charm"
+        dest: "{{ zuul.executor.work_root }}/{{ zuul.project.src_dir }}/{{ charm_build_name }}"
         remote_src: true
 
     - name: Upload oci-image to charmhub
