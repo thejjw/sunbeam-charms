@@ -88,6 +88,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d192253b_832fa73c",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-01T15:56:42Z",
+      "side": 1,
+      "message": "👍",
+      "parentUuid": "d2b85e83_8ab83dc2",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7c7272f1_eafefcab",
@@ -119,6 +137,24 @@
       "side": 1,
       "message": "It\u0027s neater IMHO to have two separate functions for separate purposes, than returning multiple values.",
       "parentUuid": "7c7272f1_eafefcab",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b89d7889_9ad462ea",
+        "filename": "charms/tempest-k8s/src/utils/validators.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-01T15:56:42Z",
+      "side": 1,
+      "message": "I think it is really weird using whether an error message is empty to determine the validity of the schedule.\n\nBy `return both a bool for validity and an error message` I didn\u0027t mean we should result them as separate value; instead, I was thinking about a single response object. e,g, `{code: 0, err: \"\"}`, like an api response. But after reconsidering, I think it would be even better if we let the function raise a custom exception when validation failed and catch it in charm code (no exception means valid, and exception means invalid and set error state with message).",
+      "parentUuid": "53140791_f922da0f",
       "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
