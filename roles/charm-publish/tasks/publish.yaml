@@ -37,51 +37,55 @@
         dest: "{{ zuul.project.src_dir }}/{{ charm_build_name }}"
         remote_src: true
 
-    - name: Upload oci-image to charmhub
-      register: upload_oci_image_output
-      vars:
-        metadata: "{{ lookup('file', zuul.executor.work_root + '/' + zuul.project.src_dir + '/' + charm_build_name + '/metadata.yaml') | from_yaml }}"
-      args:
-        executable: /bin/bash
-      shell: |
-        set -x
-        image={{ item.value['upstream-source'] }}
-        # Remove docker.io/ in the OCI image so that docker pulls image
-        # from mirror if configured.
-        image=${image#"docker.io/"}
-        docker pull $image
-        digest=`docker inspect --format {% raw %}'{{ index .RepoDigests 0 }}' {% endraw %} $image`
-        charmcraft upload-resource {{ charm_build_name }} {{ item.key }} --image $digest
-      retries: 3
-      until: >
-        ("Revision" in upload_oci_image_output.stdout)
-      loop: "{{ lookup('ansible.builtin.dict', metadata.resources|default({}), wantlist=True) }}"
-      when: "item.value.type == 'oci-image'"
+    - name: Show metadata content
+      debug:
+        msg: "{{ lookup('file', zuul.executor.work_root + '/' + zuul.project.src_dir + '/' + charm_build_name + '/metadata.yaml') }}"
 
-    - name: Extract Resource revisions
-      set_fact:
-        resource_revision_flags: "{{ resource_revision_flags | default('') + ' --resource ' + item.item.key + ':' + (item.stdout | regex_search('Revision ([0-9]+)', '\\1', multiline=True) | first) }}"
-      with_items: "{{ upload_oci_image_output.results }}"
+    # - name: Upload oci-image to charmhub
+    #   register: upload_oci_image_output
+    #   vars:
+    #     metadata: "{{ lookup('file', zuul.executor.work_root + '/' + zuul.project.src_dir + '/' + charm_build_name + '/metadata.yaml') | from_yaml }}"
+    #   args:
+    #     executable: /bin/bash
+    #   shell: |
+    #     set -x
+    #     image={{ item.value['upstream-source'] }}
+    #     # Remove docker.io/ in the OCI image so that docker pulls image
+    #     # from mirror if configured.
+    #     image=${image#"docker.io/"}
+    #     docker pull $image
+    #     digest=`docker inspect --format {% raw %}'{{ index .RepoDigests 0 }}' {% endraw %} $image`
+    #     charmcraft upload-resource {{ charm_build_name }} {{ item.key }} --image $digest
+    #   retries: 3
+    #   until: >
+    #     ("Revision" in upload_oci_image_output.stdout)
+    #   loop: "{{ lookup('ansible.builtin.dict', metadata.resources|default({}), wantlist=True) }}"
+    #   when: "item.value.type == 'oci-image'"
 
-    - name: Upload charm to charmhub
-      register: upload_charm_output
-      args:
-        chdir: "{{ zuul.project.src_dir }}"
-      # TODO: The below command can error out with a message that says
-      # upload with that digest already exists. This case need to be handled.
-      # More details https://github.com/canonical/charmcraft/issues/826
-      command: charmcraft upload -v --name {{ charm_build_name }} {{ charm_build_name }}.charm
-      retries: 3
-      until: >
-        ("Revision" in upload_charm_output.stdout)
+    # - name: Extract Resource revisions
+    #   set_fact:
+    #     resource_revision_flags: "{{ resource_revision_flags | default('') + ' --resource ' + item.item.key + ':' + (item.stdout | regex_search('Revision ([0-9]+)', '\\1', multiline=True) | first) }}"
+    #   with_items: "{{ upload_oci_image_output.results }}"
 
-    - name: Extract Charm revision
-      set_fact:
-        charm_revision: "{{ upload_charm_output.stdout | regex_search('Revision ([0-9]+)', '\\1', multiline=True) | first }}"
+    # - name: Upload charm to charmhub
+    #   register: upload_charm_output
+    #   args:
+    #     chdir: "{{ zuul.project.src_dir }}"
+    #   # TODO: The below command can error out with a message that says
+    #   # upload with that digest already exists. This case need to be handled.
+    #   # More details https://github.com/canonical/charmcraft/issues/826
+    #   command: charmcraft upload -v --name {{ charm_build_name }} {{ charm_build_name }}.charm
+    #   retries: 3
+    #   until: >
+    #     ("Revision" in upload_charm_output.stdout)
 
-    - name: Release charm
-      register: release_charm_output
-      command: charmcraft release {{ charm_build_name }} --revision {{ charm_revision }} --channel {{ publish_channel }} {{ resource_revision_flags | default("") }}
-      retries: 3
-      until: >
-        ("Revision" in release_charm_output.stdout)
+    # - name: Extract Charm revision
+    #   set_fact:
+    #     charm_revision: "{{ upload_charm_output.stdout | regex_search('Revision ([0-9]+)', '\\1', multiline=True) | first }}"
+
+    # - name: Release charm
+    #   register: release_charm_output
+    #   command: charmcraft release {{ charm_build_name }} --revision {{ charm_revision }} --channel {{ publish_channel }} {{ resource_revision_flags | default("") }}
+    #   retries: 3
+    #   until: >
+    #     ("Revision" in release_charm_output.stdout)
