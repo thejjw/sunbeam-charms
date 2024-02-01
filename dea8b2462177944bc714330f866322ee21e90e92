@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35585758_4e8fe607",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-01T05:56:04Z",
+      "side": 1,
+      "message": "Example output:\n\n```\nubuntu@serverstack-sunbeam-0:~$ juju run --wait 600s tempest/0 validate test-list\u003dreadonly-quick\nRunning operation 39 with 1 task\n  - task 40 on unit-tempest-0\n\nWaiting for task 40...\ncopy-cmd: juju scp --container tempest tempest/0:/var/lib/tempest/workspace/tempest-validation.log\n  tempest-validation.log\n\nTotals\n\u003d\u003d\u003d\u003d\u003d\u003d\nRan: 24 tests in 9.9498 sec.\n - Passed: 21\n - Skipped: 3\n - Expected Fail: 0\n - Unexpected Success: 0\n - Failed: 0\nSum of execute time for each test: 11.8095 sec.\n\n\nFor detailed results, copy the log file by running:\n  juju scp --container tempest tempest/0:/var/lib/tempest/workspace/tempest-validation.log tempest-validation.log\n\n```",
+      "revId": "dea8b2462177944bc714330f866322ee21e90e92",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
