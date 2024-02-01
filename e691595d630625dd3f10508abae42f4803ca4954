@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bf50fd3_8b7f1efd",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-01T22:46:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0848e9ad_b6438604",
+      "revId": "e691595d630625dd3f10508abae42f4803ca4954",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aed8c0e7_f67730c7",
@@ -54,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6af750f7_c72636a1",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-01T22:46:13Z",
+      "side": 1,
+      "message": "This sets it in the structured data in the action result.\n\nWe definitely should print the command, but I\u0027m not sure what we need in the structured data.  Perhaps this can wait until later when we implement this on the sunbeam client side, when we\u0027ll know what kind of data we\u0027ll need (the full juju command, or just the file path, etc.) - so the sunbeam client can then retrieve the file.",
+      "parentUuid": "aed8c0e7_f67730c7",
+      "revId": "e691595d630625dd3f10508abae42f4803ca4954",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "351a3678_de6bcbaf",
         "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
         "patchSetId": 8
@@ -65,6 +101,24 @@
       "writtenOn": "2024-02-01T16:28:48Z",
       "side": 1,
       "message": "Question: what is the benefit of also saving the discover-tempest-config stdout to the result file? To log in case it fails?",
+      "revId": "e691595d630625dd3f10508abae42f4803ca4954",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a3ef0ff_5cbf6fe7",
+        "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-01T22:46:13Z",
+      "side": 1,
+      "message": "Yes, to log in case of failure, otherwise it won\u0027t be recorded elsewhere.\n\nI set it up so the only output from the script is the summary, so the charm can run the script and print the output to the user.  The rest is logged to the file.",
+      "parentUuid": "351a3678_de6bcbaf",
       "revId": "e691595d630625dd3f10508abae42f4803ca4954",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
