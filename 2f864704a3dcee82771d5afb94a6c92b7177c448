@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c503b8a6_317fb04f",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-01T04:13:24Z",
+      "side": 1,
+      "message": "Hmm I think it\u0027s ready either way - better to disable the checks if it\u0027s an invalid value than refuse to update it.  I guess ready() is more to check if the data it needs is available (eg. waiting on relations, etc.).\n\nI think the schedule logic should stay in the charm too, since it\u0027s a property of the charm, not a property of the templating object.",
+      "parentUuid": "584570fb_5f83b276",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "74f45790_f7c6845c",
         "filename": "charms/tempest-k8s/src/handlers.py",
         "patchSetId": 15
@@ -48,6 +66,24 @@
       "writtenOn": "2024-02-01T03:05:44Z",
       "side": 1,
       "message": "nit: with `oneshot` in name it may be confused with ad-hoc check. Maybe change to something more descriptive?",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2b85e83_8ab83dc2",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-01T04:13:24Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll try something different.  It\u0027s tricky to name, because the service is a oneshot type service.",
+      "parentUuid": "74f45790_f7c6845c",
       "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -71,6 +107,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "53140791_f922da0f",
+        "filename": "charms/tempest-k8s/src/utils/validators.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-01T04:13:24Z",
+      "side": 1,
+      "message": "It\u0027s neater IMHO to have two separate functions for separate purposes, than returning multiple values.",
+      "parentUuid": "7c7272f1_eafefcab",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "93294faf_9806a4d6",
         "filename": "charms/tempest-k8s/src/utils/validators.py",
         "patchSetId": 15
@@ -82,6 +136,24 @@
       "writtenOn": "2024-02-01T03:05:44Z",
       "side": 1,
       "message": "I made the suggest to improve error message in the sunbeam implementation. Can you also update the error messages in this function following the same in https://github.com/agileshaw/snap-openstack/blob/main/sunbeam-python/sunbeam/plugins/validation/plugin.py#L51-L84?",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2eae98da_89d0485a",
+        "filename": "charms/tempest-k8s/src/utils/validators.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-01T04:13:24Z",
+      "side": 1,
+      "message": "Done, thanks 😊",
+      "parentUuid": "93294faf_9806a4d6",
       "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }

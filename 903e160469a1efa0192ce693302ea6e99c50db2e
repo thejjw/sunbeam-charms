@@ -34,6 +34,24 @@
       "parentUuid": "819ef73d_bafe1ac5",
       "revId": "903e160469a1efa0192ce693302ea6e99c50db2e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c31576b1_7091bc8c",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 14
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-01T04:13:24Z",
+      "side": 1,
+      "message": "Yes, when the user changes the config value, then post_config_setup will be run again and it will resolve.",
+      "parentUuid": "455d81f4_2d2efd3a",
+      "revId": "903e160469a1efa0192ce693302ea6e99c50db2e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
