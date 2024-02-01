@@ -53,6 +53,7 @@ from utils.constants import (
     TEMPEST_HOME,
     TEMPEST_LIST_DIR,
     TEMPEST_OUTPUT,
+    TEMPEST_READY_KEY,
     TEMPEST_TEST_ACCOUNTS,
     TEMPEST_WORKSPACE,
     TEMPEST_WORKSPACE_PATH,
@@ -169,26 +170,48 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_WORKSPACE_PATH": TEMPEST_WORKSPACE_PATH,
         }
 
-    def post_config_setup(self) -> None:
-        """Configuration steps after services have been setup.
+    def is_tempest_ready(self) -> bool:
+        """Check if the tempest environment has been set up by the charm."""
+        return bool(self.leader_get(TEMPEST_READY_KEY))
 
-        NOTE: this will be improved in future to avoid running unnecessarily.
+    def set_tempest_ready(self, ready: bool):
+        """Set tempest readiness state."""
+        self.leader_set({TEMPEST_READY_KEY: "true" if ready else ""})
+
+    def init_tempest(self) -> bool:
+        """Init tempest environment for the charm.
+
+        This will skip running the steps if it was previously run to success.
+
+        Returns a boolean indicating success or failure.
         """
-        logger.debug("Running post config setup")
-        self.status.set(MaintenanceStatus("tempest init in progress"))
-        pebble = self.pebble_handler()
+        if not self.is_tempest_ready():
+            env = self._get_environment_for_tempest()
+            pebble = self.pebble_handler()
+            try:
+                pebble.init_tempest(env)
+            except RuntimeError:
+                self.set_tempest_ready(False)
+                return False
 
-        logger.debug("Ready to init tempest environment")
-        env = self._get_environment_for_tempest()
-        try:
-            pebble.init_tempest(env)
-        except RuntimeError:
+            self.set_tempest_ready(True)
+
+        return True
+
+    def post_config_setup(self) -> None:
+        """Configuration steps after services have been setup."""
+        logger.debug("Running post config setup")
+
+        self.status.set(MaintenanceStatus("tempest init in progress"))
+
+        success = self.init_tempest()
+
+        if success:
+            self.status.set(ActiveStatus(""))
+        else:
             self.status.set(
                 BlockedStatus("tempest init failed, see logs for more info")
             )
-            return
-
-        self.status.set(ActiveStatus(""))
         logger.debug("Finish post config setup")
 
     def pebble_handler(self) -> TempestPebbleHandler:
