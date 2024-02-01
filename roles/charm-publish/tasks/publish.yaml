@@ -33,8 +33,8 @@
 
     - name: Decompress charm
       unarchive:
-        src: "{{ zuul.executor.work_root }}/{{ zuul.project.src_dir }}/{{ charm_build_name }}.charm"
-        dest: "{{ zuul.executor.work_root }}/{{ zuul.project.src_dir }}/{{ charm_build_name }}"
+        src: "{{ zuul.project.src_dir }}/{{ charm_build_name }}.charm"
+        dest: "{{ zuul.project.src_dir }}/{{ charm_build_name }}"
         remote_src: true
 
     - name: Upload oci-image to charmhub
