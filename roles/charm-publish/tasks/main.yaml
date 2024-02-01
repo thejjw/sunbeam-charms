@@ -1,10 +1,10 @@
-- name: Get all job names from gate pipeline
+- name: Get all job names from check pipeline
   uri:
     url: "{{ download_artifact_api }}/builds?{{ download_artifact_query }}"
   register: build_output
   vars:
     download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
-    download_artifact_query: "change={{ zuul.change }}&patchset={{ zuul.patchset }}&pipeline=gate"
+    download_artifact_query: "change={{ zuul.change }}&patchset={{ zuul.patchset }}&pipeline=check"
 
 - name: Set charm name fact
   set_fact:
@@ -18,13 +18,13 @@
   debug:
     msg: "Relevant charm build jobs: {{ relevant_charm_build_jobs }}"
 
-- name: built charm is present locally (artifact from gate pipeline)
+- name: built charm is present locally (artifact from check pipeline)
   include_role:
     name: download-artifact
   vars:
     download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
     download_artifact_type: charm
-    download_artifact_pipeline: gate
+    download_artifact_pipeline: check
     download_artifact_job: "{{ item }}"
     download_artifact_directory: "{{ zuul.project.src_dir }}"
   with_items: "{{ relevant_charm_build_jobs }}"
