@@ -1,17 +1,38 @@
 #!/bin/bash
 # Do not change this file, this file is managed by juju.
 
-# set -e is important, to ensure the script bails out
-# if there are issues, such as lock not acquired,
-# or failure in one of the tempest steps.
-set -ex
+(flock -n 9 || {
+    # curly braces are important here, as they retain the same execution environment.
+    # we don't want to start a new subshell
+    echo "Lock could not be acquired, another test run is in progress."
+    exit 1
+}
 
-(flock -n 9 || (echo "lock could not be acquired"; exit 1)
-
-discover-tempest-config --test-accounts "$TEMPEST_TEST_ACCOUNTS" --out "$TEMPEST_CONF"
-
+# log everything to a tmpfile
 TMP_FILE="$(mktemp)"
-tempest run --workspace "$TEMPEST_WORKSPACE" "$@" 2>&1 | tee "$TMP_FILE"
+
+echo ":: discover-tempest-config" >> "$TMP_FILE"
+if discover-tempest-config --test-accounts "$TEMPEST_TEST_ACCOUNTS" --out "$TEMPEST_CONF" >> "$TMP_FILE" 2>&1; then
+    echo ":: tempest run" >> "$TMP_FILE"
+    tempest run --workspace "$TEMPEST_WORKSPACE" "$@" >> "$TMP_FILE" 2>&1
+else
+    echo ":: skipping tempest run because discover-tempest-config had errors" >> "$TMP_FILE"
+fi
+
+# tempest and discover-tempest-config can output escape sequences,
+# so remove them to neaten the output.
+sed $'s/\033\[[0-9;]*m//g' -i "$TMP_FILE"
+
+OUTPUT="$(awk '/^Totals$/,/Sum of execute/ { print }' < "$TMP_FILE")"
+if [[ -n "$OUTPUT" ]]; then
+    echo "$OUTPUT"
+else
+    echo "Error running the tests, please view the log file"
+fi
+
+# After everything, move it to the actual output.
+# This ensures we don't have issues with logging libs pushing partial files,
+# if we were to stream to the final output.
 mv "$TMP_FILE" "$TEMPEST_OUTPUT"
 
 ) 9>/var/lock/tempest
