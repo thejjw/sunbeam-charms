@@ -51,14 +51,17 @@ from ops_sunbeam.config_contexts import (
 )
 from utils.constants import (
     CONTAINER,
+    TEMPEST_ADHOC_OUTPUT,
     TEMPEST_CONCURRENCY,
     TEMPEST_CONF,
     TEMPEST_HOME,
     TEMPEST_LIST_DIR,
-    TEMPEST_OUTPUT,
     TEMPEST_TEST_ACCOUNTS,
     TEMPEST_WORKSPACE,
     TEMPEST_WORKSPACE_PATH,
+)
+from utils.types import (
+    TempestEnvVariant,
 )
 from utils.validators import (
     validated_schedule,
@@ -184,7 +187,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         handlers.append(self.grafana)
         return handlers
 
-    def _get_environment_for_tempest(self) -> Dict[str, str]:
+    def _get_environment_for_tempest(
+        self, variant: TempestEnvVariant
+    ) -> Dict[str, str]:
         """Return a dictionary of environment variables.
 
         To be used with pebble commands that run tempest discover, etc.
@@ -206,10 +211,10 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_CONF": TEMPEST_CONF,
             "TEMPEST_HOME": TEMPEST_HOME,
             "TEMPEST_LIST_DIR": TEMPEST_LIST_DIR,
-            "TEMPEST_OUTPUT": TEMPEST_OUTPUT,
             "TEMPEST_TEST_ACCOUNTS": TEMPEST_TEST_ACCOUNTS,
             "TEMPEST_WORKSPACE": TEMPEST_WORKSPACE,
             "TEMPEST_WORKSPACE_PATH": TEMPEST_WORKSPACE_PATH,
+            "TEMPEST_OUTPUT": variant.output_path(),
         }
 
     def post_config_setup(self) -> None:
@@ -229,7 +234,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         pebble = self.pebble_handler()
 
         logger.debug("Ready to init tempest environment")
-        env = self._get_environment_for_tempest()
+        # This is environment sent to the scheduler service,
+        # for periodic checks.
+        env = self._get_environment_for_tempest(TempestEnvVariant.PERIODIC)
         try:
             pebble.init_tempest(env)
         except RuntimeError:
@@ -251,19 +258,22 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         exclude_regex: str = event.params["exclude-regex"].strip()
         test_list: str = event.params["test-list"].strip()
 
-        env = self._get_environment_for_tempest()
+        env = self._get_environment_for_tempest(TempestEnvVariant.ADHOC)
         try:
-            output = self.pebble_handler().run_tempest_tests(
+            summary = self.pebble_handler().run_tempest_tests(
                 regexes, exclude_regex, test_list, serial, env
             )
         except RuntimeError as e:
             event.fail(str(e))
-            # still print the message,
-            # because it could be a lot of output from tempest,
-            # and we want it neatly formatted
+            # Still print the message,
+            # because we want it neatly formatted for the user.
             print(e)
             return
-        print(output)
+        print(summary)
+        print(
+            "For detailed results, copy the log file from the container by running:\n"
+            f"  juju scp --container {CONTAINER} {self.unit.name}:{TEMPEST_ADHOC_OUTPUT} tempest-validation.log"
+        )
 
     def _on_get_lists_action(self, event: ops.charm.ActionEvent) -> None:
         """List tempest test lists action."""
