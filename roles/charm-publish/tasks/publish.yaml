@@ -29,6 +29,7 @@
       unarchive:
         src: "{{ zuul.project.src_dir }}/{{ charm_build_name }}.charm"
         dest: "{{ zuul.project.src_dir }}/{{ charm_build_name }}"
+        remote_src: true
 
     - name: Upload oci-image to charmhub
       register: upload_oci_image_output
