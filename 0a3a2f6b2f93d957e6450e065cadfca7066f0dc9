@@ -52,6 +52,24 @@
       "parentUuid": "8f84dc2f_672863b2",
       "revId": "0a3a2f6b2f93d957e6450e065cadfca7066f0dc9",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6472526c_1e7b8373",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-01T04:45:06Z",
+      "side": 1,
+      "message": "Manually released tempest-k8s in charmhub, add tempest-k8s related info in func-test-core job.",
+      "parentUuid": "8f84dc2f_672863b2",
+      "revId": "0a3a2f6b2f93d957e6450e065cadfca7066f0dc9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
