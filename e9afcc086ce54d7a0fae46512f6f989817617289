@@ -101,6 +101,23 @@
       "message": "Failed because of Vault known error",
       "revId": "e9afcc086ce54d7a0fae46512f6f989817617289",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3d79d55_9c80b390",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-02-01T12:19:29Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "e9afcc086ce54d7a0fae46512f6f989817617289",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
