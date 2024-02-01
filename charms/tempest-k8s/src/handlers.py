@@ -159,6 +159,7 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         # Pebble runs cron, which runs tempest periodically
         # when periodic checks are enabled.
         # This ensures that tempest gets the env, inherited from cron.
+        logger.debug("Adding environment to periodic service")
         layer = self.get_layer()
         layer["services"][self.PERIODIC_TEST_RUNNER]["environment"] = env
         self.container.add_layer(
@@ -168,6 +169,7 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         # ensure the cron service is running
         self.container.start(self.service_name)
 
+        logger.debug("Running tempest init script")
         try:
             self.execute(
                 ["tempest-init"],
