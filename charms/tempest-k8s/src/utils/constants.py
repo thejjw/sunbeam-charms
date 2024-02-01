@@ -21,7 +21,8 @@ TEMPEST_CONF = f"{TEMPEST_WORKSPACE_PATH}/etc/tempest.conf"
 TEMPEST_TEST_ACCOUNTS = f"{TEMPEST_WORKSPACE_PATH}/test_accounts.yaml"
 TEMPEST_LIST_DIR = "/tempest_test_lists"
 # this file will contain the output from tempest's latest test run
-TEMPEST_OUTPUT = f"{TEMPEST_WORKSPACE_PATH}/tempest-output.log"
+TEMPEST_PERIODIC_OUTPUT = f"{TEMPEST_WORKSPACE_PATH}/tempest-periodic.log"
+TEMPEST_ADHOC_OUTPUT = f"{TEMPEST_WORKSPACE_PATH}/tempest-validation.log"
 # This is the workspace name registered with tempest.
 # It will be saved in a file in $HOME/.tempest/
 TEMPEST_WORKSPACE = "tempest"
