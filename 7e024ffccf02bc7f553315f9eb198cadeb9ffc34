@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "43c0ae67_317baef8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 22
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-01T23:06:09Z",
+      "side": 1,
+      "message": "The zaza tests are failing with:\n\n```\nunit-tempest-0: 05:26:27 ERROR unit.tempest/0.juju-log peers:12:     2024-02-01 05:26:25.827 37 ERROR tempest Exception: Creation of flavors is not allowed and not enough available flavors found. Either use --create argument or create flavors manually.\n```\n\nI guess we need more work to develop a test bundle that will work with initing the tempest environment in the charm.\n\nFor now, I\u0027ll remove tempest from the test bundle, so it will only test building the charm.  We\u0027ll be working on proper zaza tests soon. 😊",
+      "revId": "7e024ffccf02bc7f553315f9eb198cadeb9ffc34",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
