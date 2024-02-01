@@ -90,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a0e6733c_61d362c0",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-01T22:53:28Z",
+      "side": 1,
+      "message": "Example of the output (yaml formatted):\n\n```\nubuntu@serverstack-sunbeam-0:~$ juju run --wait 600s tempest-k8s/0 validate test-list\u003dreadonly-quick --format yaml\nRunning operation 42 with 1 task\n  - task 43 on unit-tempest-k8s-0\n\nWaiting for task 43...\ntempest-k8s/0:\n  id: \"43\"\n  results:\n    copy-cmd: juju scp --container tempest tempest-k8s/0:/var/lib/tempest/workspace/tempest-validation.log\n      tempest-validation.log\n    return-code: 0\n    stdout: |\n      Totals\n      \u003d\u003d\u003d\u003d\u003d\u003d\n      Ran: 24 tests in 8.7153 sec.\n       - Passed: 21\n       - Skipped: 3\n       - Expected Fail: 0\n       - Unexpected Success: 0\n       - Failed: 0\n      Sum of execute time for each test: 10.6048 sec.\n      For detailed results, copy the log file by running:\n        juju scp --container tempest tempest-k8s/0:/var/lib/tempest/workspace/tempest-validation.log tempest-validation.log\n  status: completed\n  timing:\n    completed: 2024-02-01 22:49:28 +0000 UTC\n    enqueued: 2024-02-01 22:46:40 +0000 UTC\n    started: 2024-02-01 22:46:41 +0000 UTC\n  unit: tempest-k8s/0\n```",
+      "parentUuid": "6af750f7_c72636a1",
+      "revId": "e691595d630625dd3f10508abae42f4803ca4954",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "351a3678_de6bcbaf",
         "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
         "patchSetId": 8
