@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6994871a_d8eda199",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-01T03:46:46Z",
+      "side": 1,
+      "message": "Looks good, lets wait for CI.\n\nOnly tempest-k8s charm build is tested in this PR.\nSubsequent PR should have tempest-k8s deployed as part of func-test-core and add publish-charm jobs for tempest-k8s.",
+      "revId": "0a3a2f6b2f93d957e6450e065cadfca7066f0dc9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
