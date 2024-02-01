@@ -775,10 +775,13 @@
     description: |
       Publish sunbeam-clusterd built in gate pipeline.
     run: playbooks/charm/publish.yaml
+    match-on-config-updates: false
+    dependencies:
+      - name: charm-build-sunbeam-clusterd
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/sunbeam-clusterd/*
       - rebuild
-    secrets:
-      - charmhub_token
+    # secrets:
+    #   - charmhub_token
     timeout: 3600

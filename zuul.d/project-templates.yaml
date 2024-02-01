@@ -188,5 +188,5 @@
                 nodeset: ubuntu-jammy
             - publish-charm-sunbeam-machine:
                 nodeset: ubuntu-jammy
-            - publish-charm-sunbeam-clusterd:
-                nodeset: ubuntu-jammy
+            # - publish-charm-sunbeam-clusterd:
+            #     nodeset: ubuntu-jammy
