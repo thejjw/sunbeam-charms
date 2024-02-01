@@ -56,6 +56,7 @@ from utils.constants import (
     TEMPEST_HOME,
     TEMPEST_LIST_DIR,
     TEMPEST_OUTPUT,
+    TEMPEST_READY_KEY,
     TEMPEST_TEST_ACCOUNTS,
     TEMPEST_WORKSPACE,
     TEMPEST_WORKSPACE_PATH,
@@ -95,6 +96,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.framework.observe(
             self.on.get_lists_action, self._on_get_lists_action
         )
+        self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
 
     @property
     def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
@@ -131,12 +133,12 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         if not schedule.valid:
             return ""
 
+        # if tempest env isn't ready, then we can't start scheduling tests
+        if not self.is_tempest_ready():
+            return ""
+
         # TODO: once observability integration is implemented,
         # check if observability relations are ready here.
-
-        # TODO: when we have a way to check if tempest env is ready
-        # (tempest init complete, etc.),
-        # then disable schedule until it is ready.
 
         return schedule.value
 
@@ -212,11 +214,38 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_WORKSPACE_PATH": TEMPEST_WORKSPACE_PATH,
         }
 
-    def post_config_setup(self) -> None:
-        """Configuration steps after services have been setup.
+    def is_tempest_ready(self) -> bool:
+        """Check if the tempest environment has been set up by the charm."""
+        return bool(self.leader_get(TEMPEST_READY_KEY))
 
-        NOTE: this will be improved in future to avoid running unnecessarily.
+    def set_tempest_ready(self, ready: bool):
+        """Set tempest readiness state."""
+        self.leader_set({TEMPEST_READY_KEY: "true" if ready else ""})
+
+    def init_tempest(self):
+        """Init tempest environment for the charm.
+
+        This will skip running the steps if it was previously run to success.
+        It will also set the tempest readiness state key based on the outcome.
         """
+        if self.is_tempest_ready():
+            logger.debug(
+                "Skipping tempest init because it is already completed"
+            )
+            return
+
+        env = self._get_environment_for_tempest()
+        pebble = self.pebble_handler()
+        try:
+            pebble.init_tempest(env)
+        except RuntimeError:
+            self.set_tempest_ready(False)
+            return
+
+        self.set_tempest_ready(True)
+
+    def post_config_setup(self) -> None:
+        """Configuration steps after services have been setup."""
         logger.debug("Running post config setup")
 
         schedule = validated_schedule(self.config["schedule"])
@@ -226,13 +255,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             )
 
         self.status.set(MaintenanceStatus("tempest init in progress"))
-        pebble = self.pebble_handler()
+        self.init_tempest()
 
-        logger.debug("Ready to init tempest environment")
-        env = self._get_environment_for_tempest()
-        try:
-            pebble.init_tempest(env)
-        except RuntimeError:
+        if not self.is_tempest_ready():
             raise sunbeam_guard.BlockedExceptionError(
                 "tempest init failed, see logs for more info"
             )
@@ -243,6 +268,13 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def pebble_handler(self) -> TempestPebbleHandler:
         """Get the pebble handler."""
         return self.get_named_pebble_handler(CONTAINER)
+
+    def _on_upgrade_charm(self, event: ops.charm.UpgradeCharmEvent) -> None:
+        """Called on charm upgrade."""
+        # When a charm is upgraded, consider tempest to no longer be ready,
+        # so that in the follow up config-changed hook,
+        # the charm will re-init tempest.
+        self.set_tempest_ready(False)
 
     def _on_validate_action(self, event: ops.charm.ActionEvent) -> None:
         """Run tempest action."""
