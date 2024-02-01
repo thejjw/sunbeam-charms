@@ -30,3 +30,6 @@ OPENSTACK_USER = "tempest"
 OPENSTACK_DOMAIN = "tempest"
 OPENSTACK_PROJECT = "tempest-CloudValidation"
 OPENSTACK_ROLE = "admin"
+
+# keys for application data
+TEMPEST_READY_KEY = "tempest-ready"
