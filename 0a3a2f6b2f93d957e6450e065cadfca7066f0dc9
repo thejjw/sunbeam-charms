@@ -16,6 +16,24 @@
       "message": "Looks good, lets wait for CI.\n\nOnly tempest-k8s charm build is tested in this PR.\nSubsequent PR should have tempest-k8s deployed as part of func-test-core and add publish-charm jobs for tempest-k8s.",
       "revId": "0a3a2f6b2f93d957e6450e065cadfca7066f0dc9",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f84dc2f_672863b2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-01T03:51:42Z",
+      "side": 1,
+      "message": "Ah sorry, I updated the patch to remove the separate now-unused tests/tempest/*.yaml files, and moved the tempest deployment info to the func-test-core files as requested.  Please let me know if this was what you wanted?",
+      "parentUuid": "6994871a_d8eda199",
+      "revId": "0a3a2f6b2f93d957e6450e065cadfca7066f0dc9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
