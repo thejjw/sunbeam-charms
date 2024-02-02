@@ -161,6 +161,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c8c0e35a_d09cd618",
+        "filename": "charms/tempest-k8s/src/utils/validators.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-02T00:45:18Z",
+      "side": 1,
+      "message": "Sadly it\u0027s not fun implementing any of these patterns in python.  I miss proper types. 😞\n\nAll of these are valid patterns, and I\u0027m not sure which is best here.  I\u0027m not a fan of using exceptions here due to how we\u0027re using it.  Returning an object might be better, yes - how about I try converting it to that to see how it looks.",
+      "parentUuid": "b89d7889_9ad462ea",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "93294faf_9806a4d6",
         "filename": "charms/tempest-k8s/src/utils/validators.py",
         "patchSetId": 15
