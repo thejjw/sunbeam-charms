@@ -54,6 +54,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f37e9716_224d80f2",
+        "filename": "charms/tempest-k8s/config.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-02T16:37:53Z",
+      "side": 1,
+      "message": "The default value should be something we recommend, like every hour. And I\u0027m ok to handle this in cos integration.",
+      "parentUuid": "e15c75ad_c9d6dc7e",
+      "revId": "0b896a31fb19747641b39a6b60269152bb86c884",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8a18f9e2_9405b569",
@@ -85,6 +103,24 @@
       "side": 1,
       "message": "Agreed.  This should be added when we integrate COS, otherwise the docs will not be in sync with the code.",
       "parentUuid": "8a18f9e2_9405b569",
+      "revId": "0b896a31fb19747641b39a6b60269152bb86c884",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "868a9912_299bb43d",
+        "filename": "charms/tempest-k8s/config.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-02T16:37:53Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "3917a13c_2c19b4f3",
       "revId": "0b896a31fb19747641b39a6b60269152bb86c884",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
