@@ -16,6 +16,46 @@
       "message": "LGTM",
       "revId": "608b7e508893509caadf1cecd322c57d2864a148",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c50ef2be_aef7e206",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 22
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-02-02T17:39:48Z",
+      "side": 1,
+      "message": "Except for the minor nit, this looks good",
+      "revId": "608b7e508893509caadf1cecd322c57d2864a148",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9266eb03_cf9ea06c",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 22
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-02-02T17:39:48Z",
+      "side": 1,
+      "message": "It\u0027s better to do:\nraise sunbeam_guard.BlockedExceptionError(...)\n\nIf you truly want to stop the execution and keep the status set. \n\nIn this case, since you\u0027re overriding the `post_config_setup` method, it\u0027s not really needed. But it\u0027s better for consistency",
+      "range": {
+        "startLine": 224,
+        "startChar": 12,
+        "endLine": 226,
+        "endChar": 13
+      },
+      "revId": "608b7e508893509caadf1cecd322c57d2864a148",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
