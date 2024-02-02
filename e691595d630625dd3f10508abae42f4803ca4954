@@ -144,6 +144,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b0d43052_e30f4f1a",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-02T03:38:26Z",
+      "side": 1,
+      "message": "Agreed, we don\u0027t need the full thing in the structural output, in fact we may not need any since the path is hardcoded.  Let\u0027s leave it for now, and we can add to it if we want it when implementing the sunbeam client side.\n\nWhat kind of full test are you meaning Ray?  Unit tests cover all this, but I\u0027m not checking the print output though.",
+      "parentUuid": "0a413ece_afe6243c",
+      "revId": "e691595d630625dd3f10508abae42f4803ca4954",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "351a3678_de6bcbaf",
         "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
         "patchSetId": 8

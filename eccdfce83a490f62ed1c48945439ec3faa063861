@@ -16,6 +16,24 @@
       "message": "it should be `self.value \u003d\u003d self.PERIODIC.value`",
       "revId": "eccdfce83a490f62ed1c48945439ec3faa063861",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d8127cf1_6ef16c14",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-02T03:38:26Z",
+      "side": 1,
+      "message": "thanks, good catch +1",
+      "parentUuid": "fc40897c_3b46c7d3",
+      "revId": "eccdfce83a490f62ed1c48945439ec3faa063861",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
