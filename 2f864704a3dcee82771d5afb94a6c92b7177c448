@@ -53,6 +53,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "52210120_3e8d3fdf",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-02T02:52:04Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "c503b8a6_317fb04f",
+      "revId": "2f864704a3dcee82771d5afb94a6c92b7177c448",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "74f45790_f7c6845c",

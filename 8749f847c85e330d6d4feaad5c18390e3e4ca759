@@ -16,6 +16,57 @@
       "message": "LGTM",
       "revId": "8749f847c85e330d6d4feaad5c18390e3e4ca759",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ae8085c1_15e5c9ed",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 21
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-02T02:52:04Z",
+      "side": 1,
+      "message": "Forgot to mentioned about unit test. We should have some unit test to validate the status changed in various scenario",
+      "revId": "8749f847c85e330d6d4feaad5c18390e3e4ca759",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca9870a3_9f626755",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 21
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-02T02:52:04Z",
+      "side": 1,
+      "message": "Would also be nice the add unittest for this part: for example \n1. invalid config -\u003e `Blocked`\n2. update_config(...) -\u003e config become valid (and assume init okay)\n3. `Active`\n\nand also for other scenarios",
+      "revId": "8749f847c85e330d6d4feaad5c18390e3e4ca759",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b73b31d6_a1b0e76c",
+        "filename": "charms/tempest-k8s/src/utils/validators.py",
+        "patchSetId": 21
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-02T02:52:04Z",
+      "side": 1,
+      "message": "Yeah, strictly speaking cron is for schedule planning not periodic planning ... If we really want to be more confident about the validation, we could do more sampling",
+      "revId": "8749f847c85e330d6d4feaad5c18390e3e4ca759",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
