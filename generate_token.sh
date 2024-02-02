@@ -51,3 +51,6 @@ zuul-client --zuul-url https://zuul.opendev.org encrypt \
 
 generated="\      # Generated on $(date --iso-8601=seconds --utc) with 90 days ttl"
 sed '1d' < sunbeam-charms.charmhub.token | sed "4 i $generated" > zuul.d/secrets.yaml
+
+# Clean the created files
+rm sunbeam-charms.*
