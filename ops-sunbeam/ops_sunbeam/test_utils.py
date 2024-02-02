@@ -652,6 +652,7 @@ def get_harness(
     charm_metadata: str = None,
     container_calls: dict = None,
     charm_config: str = None,
+    charm_actions: str = None,
     initial_charm_config: dict = None,
 ) -> Harness:
     """Return a testing harness."""
@@ -759,7 +760,7 @@ def get_harness(
             with open(metadata_file) as f:
                 charm_metadata = f.read()
 
-    harness = Harness(charm_class, meta=charm_metadata, config=charm_config)
+    harness = Harness(charm_class, meta=charm_metadata, config=charm_config, actions=charm_actions)
     harness._backend = _OSTestingModelBackend(
         harness._unit_name, harness._meta, harness._get_config(charm_config)
     )

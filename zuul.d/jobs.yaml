@@ -11,6 +11,18 @@
     vars:
       charm: keystone-k8s
 - job:
+    name: charm-build-tempest-k8s
+    description: Build sunbeam tempest-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/tempest-k8s/*
+      - rebuild
+    vars:
+      charm: tempest-k8s
+- job:
     name: charm-build-glance-k8s
     description: Build sunbeam glance-k8s charm
     run: playbooks/charm/build.yaml
