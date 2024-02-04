@@ -106,6 +106,7 @@ actions:
       - found in test list "list1"
       - AND match regex "one" or "two"
       - AND don't match regex "three"
+    additionalProperties: false
     params:
       regex:
         type: string
@@ -136,3 +137,4 @@ actions:
 
   get-lists:
     description: List existing test lists, to be used with validate action.
+    additionalProperties: false
