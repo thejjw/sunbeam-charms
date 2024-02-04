@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "acb1bd98_e2326d2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-04T23:22:24Z",
+      "side": 1,
+      "message": "Example when running with a typo (the failure message is from juju):\n\n```\nubuntu@serverstack-sunbeam-0:~$ juju run --wait 600s tempest-k8s/0 validate list\u003dreadonly-quick\n\nOperation 50 failed to schedule any tasks:\nvalidation failed: (root) : additional property \"list\" is not allowed, given {\"list\":\"readonly-quick\"}\n```\n\n:)",
+      "revId": "184b4157e28f98f044844b77dd948d003c0e7ae9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
