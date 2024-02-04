@@ -35,6 +35,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "15a2afaf_8137f116",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 22
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-04T07:53:01Z",
+      "side": 1,
+      "message": "Do the cron job or subsequent invoked tempest commands to be run on all the units of tempest. I think they should run only on the leader.",
+      "revId": "608b7e508893509caadf1cecd322c57d2864a148",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9266eb03_cf9ea06c",
