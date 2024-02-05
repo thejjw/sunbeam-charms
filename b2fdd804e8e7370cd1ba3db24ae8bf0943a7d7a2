@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee5f6ccc_e93f7838",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-05T17:33:59Z",
+      "side": 1,
+      "message": "Mostly looks good. But I agree we should run tests to confirm the patch fixes our mem issue. Also see inline comments.",
+      "revId": "b2fdd804e8e7370cd1ba3db24ae8bf0943a7d7a2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd835ca5_104ce82f",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-05T17:33:59Z",
+      "side": 1,
+      "message": "Why we are using two print for the copying instruction here? Why not simply:\n```suggestion\nprint(\n    \"For detailed results, copy the log file from the container by running:\\n\",\n    f\"  juju scp --container {CONTAINER} {self.unit.name}:{TEMPEST_ADHOC_OUTPUT} tempest-validation.log\"    \n        )\n```",
+      "revId": "b2fdd804e8e7370cd1ba3db24ae8bf0943a7d7a2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}

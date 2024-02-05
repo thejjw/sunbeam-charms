@@ -216,6 +216,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "272a333c_6007ab03",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-05T17:33:59Z",
+      "side": 1,
+      "message": "+1 on testing whether the patch solves the OOM issue we saw.",
+      "parentUuid": "67699b90_37869482",
+      "revId": "e691595d630625dd3f10508abae42f4803ca4954",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "351a3678_de6bcbaf",
         "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
         "patchSetId": 8
