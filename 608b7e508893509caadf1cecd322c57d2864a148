@@ -145,6 +145,30 @@
       },
       "revId": "608b7e508893509caadf1cecd322c57d2864a148",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12366c37_aaeeb94d",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 22
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-05T04:31:35Z",
+      "side": 1,
+      "message": "Thanks, good to know. :)  We can do some refactoring soon then.",
+      "parentUuid": "9266eb03_cf9ea06c",
+      "range": {
+        "startLine": 224,
+        "startChar": 12,
+        "endLine": 226,
+        "endChar": 13
+      },
+      "revId": "608b7e508893509caadf1cecd322c57d2864a148",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
