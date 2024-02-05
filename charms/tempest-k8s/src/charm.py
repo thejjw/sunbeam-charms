@@ -31,6 +31,7 @@ import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 from handlers import (
     GrafanaDashboardRelationHandler,
@@ -43,8 +44,10 @@ from ops.main import (
 )
 from ops.model import (
     ActiveStatus,
-    BlockedStatus,
     MaintenanceStatus,
+)
+from ops_sunbeam.config_contexts import (
+    ConfigContext,
 )
 from utils.constants import (
     CONTAINER,
@@ -57,8 +60,21 @@ from utils.constants import (
     TEMPEST_WORKSPACE,
     TEMPEST_WORKSPACE_PATH,
 )
+from utils.validators import (
+    validated_schedule,
+)
 
 logger = logging.getLogger(__name__)
+
+
+class TempestConfigurationContext(ConfigContext):
+    """Configuration context for tempest."""
+
+    def context(self) -> dict:
+        """Tempest context."""
+        return {
+            "schedule": self.charm.get_schedule(),
+        }
 
 
 class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
@@ -101,6 +117,33 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 0o750,
             ),
         ]
+
+    def get_schedule(self) -> str:
+        """Return the schedule option if valid and should be enabled.
+
+        If the schedule option is invalid,
+        or periodic checks shouldn't currently be enabled
+        (eg. observability relations not ready),
+        then return an empty schedule string.
+        An empty string disables the schedule.
+        """
+        schedule = validated_schedule(self.config["schedule"])
+        if not schedule.valid:
+            return ""
+
+        # TODO: once observability integration is implemented,
+        # check if observability relations are ready here.
+
+        # TODO: when we have a way to check if tempest env is ready
+        # (tempest init complete, etc.),
+        # then disable schedule until it is ready.
+
+        return schedule.value
+
+    @property
+    def config_contexts(self) -> List[ConfigContext]:
+        """Generate list of configuration adapters for the charm."""
+        return [TempestConfigurationContext(self, "tempest")]
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for operator."""
@@ -175,6 +218,13 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         NOTE: this will be improved in future to avoid running unnecessarily.
         """
         logger.debug("Running post config setup")
+
+        schedule = validated_schedule(self.config["schedule"])
+        if not schedule.valid:
+            raise sunbeam_guard.BlockedExceptionError(
+                f"invalid schedule config: {schedule.err}"
+            )
+
         self.status.set(MaintenanceStatus("tempest init in progress"))
         pebble = self.pebble_handler()
 
@@ -183,10 +233,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         try:
             pebble.init_tempest(env)
         except RuntimeError:
-            self.status.set(
-                BlockedStatus("tempest init failed, see logs for more info")
+            raise sunbeam_guard.BlockedExceptionError(
+                "tempest init failed, see logs for more info"
             )
-            return
 
         self.status.set(ActiveStatus(""))
         logger.debug("Finish post config setup")
