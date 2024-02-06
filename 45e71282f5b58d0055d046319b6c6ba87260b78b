@@ -36,6 +36,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac20ce62_531ebdc1",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-06T14:54:59Z",
+      "side": 1,
+      "message": "Great. If you have not observed this in your tests and the config hook will wait for initial init hook to complete, the current approach should be fine. We should do more rounds of tests in verification stage.",
+      "parentUuid": "88bc738f_07b5c4a6",
+      "revId": "45e71282f5b58d0055d046319b6c6ba87260b78b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b5fe3561_af15ef8f",

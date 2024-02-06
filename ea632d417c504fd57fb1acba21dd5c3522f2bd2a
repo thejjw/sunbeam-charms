@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "525fcc8b_61f279f7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-06T14:54:59Z",
+      "side": 1,
+      "message": "Just one suggestion on improving the test pattern. Otherwise looks good.",
+      "revId": "ea632d417c504fd57fb1acba21dd5c3522f2bd2a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5d12389_61ba3137",
+        "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 561,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-06T14:54:59Z",
+      "side": 1,
+      "message": "Normally a test case should follow Arrange-\u003eAct-\u003eAssert pattern. But in this case, we are doing it multiple times in a single test case for different scenarios. We should either split this into smaller test cases with better focus, or mocking a list of side_effects for those scenarios and assert at ones.",
+      "revId": "ea632d417c504fd57fb1acba21dd5c3522f2bd2a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
