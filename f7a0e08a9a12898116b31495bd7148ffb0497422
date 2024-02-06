@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7f5c689_56b88bfd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-06T11:18:21Z",
+      "side": 1,
+      "message": "It looks good to me, I\u0027m not a huge fan of using Enum with only one variable, but that\u0027s just preference.",
+      "revId": "f7a0e08a9a12898116b31495bd7148ffb0497422",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
