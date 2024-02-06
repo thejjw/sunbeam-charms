@@ -33,6 +33,24 @@
       "message": "We are using two boolean values to represent whether tempest init is ready, which seems redundant. Can we change the function to only `set_tempest_ready` and not returning anything? And then in `post_config_setup`, we can do \n```\nself.init_tempest()\nif not self.is_tempest_ready():\n   ...\n```",
       "revId": "45e71282f5b58d0055d046319b6c6ba87260b78b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3498a3c_705f29cc",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-06T03:43:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5fe3561_af15ef8f",
+      "revId": "45e71282f5b58d0055d046319b6c6ba87260b78b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
