@@ -33,6 +33,24 @@
       "message": "Why we are using two print for the copying instruction here? Why not simply:\n```suggestion\nprint(\n    \"For detailed results, copy the log file from the container by running:\\n\",\n    f\"  juju scp --container {CONTAINER} {self.unit.name}:{TEMPEST_ADHOC_OUTPUT} tempest-validation.log\"    \n        )\n```",
       "revId": "b2fdd804e8e7370cd1ba3db24ae8bf0943a7d7a2",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82404045_c9c06bcb",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-06T03:55:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd835ca5_104ce82f",
+      "revId": "b2fdd804e8e7370cd1ba3db24ae8bf0943a7d7a2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
