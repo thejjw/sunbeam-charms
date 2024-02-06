@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "88bc738f_07b5c4a6",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-06T04:26:29Z",
+      "side": 1,
+      "message": "\u003e what would happen if a user input a valid schedule value during tempest initialization (BlockedExceptionError will be thrown)?\n\nI believe the config changed hook will be put in the queue (because the charm is busy executing), and then it will be sent to the charm for processing once it has finished.  It\u0027s hard to isolate, because many things trigger hooks, but in my testing, if I set the config early after deploying while the charm is still busy doing other tasks, the config is eventually set.\n\n\u003e After tempest initialization finishes, would the user have to input another value to trigger the hook again? \n\nNo, but we can do more testing to determine this if required.  I have not observed this yet.\n\n\u003e And what if they update schedule value multiple times when tempest initialization hasn\u0027t been completed?\n\nOnly the final value will be set.  As far as I know, hooks are always run sequentially in order.",
+      "parentUuid": "4abda05f_5316227c",
+      "revId": "45e71282f5b58d0055d046319b6c6ba87260b78b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b5fe3561_af15ef8f",
         "filename": "charms/tempest-k8s/src/charm.py",
         "patchSetId": 9
