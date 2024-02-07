@@ -100,8 +100,13 @@ then
         popd
     done
 
+    coverage_files=( charms/*/.coverage ops-sunbeam/.coverage )
+    existing_coverage_files=()
+    for file in "${coverage_files[@]}"; do
+        [[ -e $file ]] && existing_coverage_files+=( $file )
+    done
     # Prepare coverage report
-    coverage combine charms/*/.coverage ops-sunbeam/.coverage
+    coverage combine "${existing_coverage_files[@]}"
     coverage html -d cover
     coverage xml -o cover/coverage.xml
     coverage report
