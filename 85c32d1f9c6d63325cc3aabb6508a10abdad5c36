@@ -33,6 +33,24 @@
       "message": "Which relations did you use to test this?  I can\u0027t see the new grafana dashboard or the alert rule in prometheus.  I have the following relations configured: \n\n\n```\ngrafana-agent-k8s:logging-provider                    tempest-k8s:logging                            loki_push_api            regular\nkeystone:identity-ops                                 tempest-k8s:identity-ops                       keystone-resources       regular\ntempest-k8s:grafana-dashboard                         grafana-agent-k8s:grafana-dashboards-consumer  grafana_dashboard        regular\ntempest-k8s:peers                                     tempest-k8s:peers                              tempest-peer             peer\n```",
       "revId": "85c32d1f9c6d63325cc3aabb6508a10abdad5c36",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59bee141_abc05e4d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-07T04:10:07Z",
+      "side": 1,
+      "message": "These are the steps I did to test it, after having it deployed on sunbeam:\n\n```\nsunbeam enable observability\njuju relate grafana-agent-k8s tempest-k8s:logging\njuju relate grafana-agent-k8s tempest-k8s:grafana-dashboard\n```",
+      "parentUuid": "68ce4d6f_86264412",
+      "revId": "85c32d1f9c6d63325cc3aabb6508a10abdad5c36",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
