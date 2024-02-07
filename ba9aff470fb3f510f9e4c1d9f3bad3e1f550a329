@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7f68f946_a5b3475e",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-07T04:01:24Z",
+      "side": 1,
+      "message": "Do you mean to suggest moving it from container_configs to explicitly templating out from post_config?\n\nI don\u0027t think it should matter much either way, since the file will only ever change if the user changes the schedule config, which will launch the hook.  This way we can hook into the existing behaviour for templating and it seems to work fine.",
+      "parentUuid": "593ef7e7_f925aa7f",
+      "revId": "ba9aff470fb3f510f9e4c1d9f3bad3e1f550a329",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7df29dd5_8c5a163f",
         "filename": "charms/tempest-k8s/src/charm.py",
         "patchSetId": 13
@@ -31,6 +49,24 @@
       "writtenOn": "2024-02-07T02:29:48Z",
       "side": 1,
       "message": "Need a check if the unit is leader",
+      "revId": "ba9aff470fb3f510f9e4c1d9f3bad3e1f550a329",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "96227816_55298ce6",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-07T04:01:24Z",
+      "side": 1,
+      "message": "Ah good catch, thanks.  This charm isn\u0027t going to support more than one unit though.  Is it possible to either:\n\n- enforce only ever a single unit\n- set a key that\u0027s local to the unit (instead of leader_set)?",
+      "parentUuid": "7df29dd5_8c5a163f",
       "revId": "ba9aff470fb3f510f9e4c1d9f3bad3e1f550a329",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
