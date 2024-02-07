@@ -250,6 +250,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "75cf0181_350aa1fe",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-07T00:38:11Z",
+      "side": 1,
+      "message": "I ran the full test list, and tempest completed successfully. 😊",
+      "parentUuid": "b94f637d_eee5a95e",
+      "revId": "e691595d630625dd3f10508abae42f4803ca4954",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "351a3678_de6bcbaf",
