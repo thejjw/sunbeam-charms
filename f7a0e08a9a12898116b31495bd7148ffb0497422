@@ -16,6 +16,23 @@
       "message": "It looks good to me, I\u0027m not a huge fan of using Enum with only one variable, but that\u0027s just preference.",
       "revId": "f7a0e08a9a12898116b31495bd7148ffb0497422",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a07370d_8f6c9b12",
+        "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
+        "patchSetId": 16
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-07T00:43:31Z",
+      "side": 1,
+      "message": "An issue I discovered is that because we have `set -e`, the shell will exit if this exits with failure.  And so the remaining steps to move and process the output file will fail...\n\nWe\u0027d need more processing, like adding `|| true` to the end of lines that are ok to fail, or trap exit to move the tmpfile to final file location.  Also processing to determine whether to print the awk output, or print some error.  Also will be interesting when we integrate the config diffing in the future.\n\nI think we may need to investigate refactoring this into a python script since the logic inside the container is getting larger... :/",
+      "revId": "f7a0e08a9a12898116b31495bd7148ffb0497422",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
