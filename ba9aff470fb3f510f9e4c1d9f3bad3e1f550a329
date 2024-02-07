@@ -56,6 +56,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c46097f3_2edee1e8",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-07T04:47:31Z",
+      "side": 1,
+      "message": "hmm that\u0027s a good point.  I\u0027ll check",
+      "parentUuid": "ab6170d0_c46bb731",
+      "revId": "ba9aff470fb3f510f9e4c1d9f3bad3e1f550a329",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7df29dd5_8c5a163f",
         "filename": "charms/tempest-k8s/src/charm.py",
         "patchSetId": 13
@@ -103,6 +121,24 @@
       "side": 1,
       "message": "* enforce only ever a single unit\n\nwe discussed this in other PR, we can block the non-leader units during configure_app_non_leader() with appropriate message. At this point of time post-config is not run so tempest-init is not executed.\n\n* set a key that\u0027s local to the unit (instead of leader_set)?\nYes updating a unit data bag will be more appropriate as tempest-init is something local to unit and not for app.",
       "parentUuid": "96227816_55298ce6",
+      "revId": "ba9aff470fb3f510f9e4c1d9f3bad3e1f550a329",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "33510843_7df6e2a8",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-07T04:47:31Z",
+      "side": 1,
+      "message": "Ok, so no way to enforce a single unit, but we can enforce the other units to be no-op units.  That should work, thanks.  It might be better to implement that in a separate patch, because it will touch more than just the tempest init parts.\n\n\u003e updating a unit data bag will be more appropriate\n\nAh cool!  Could you point me to how I can do this?  I did search through the code but the best I could find was leader_set.",
+      "parentUuid": "f626f3d2_a6f32bc3",
       "revId": "ba9aff470fb3f510f9e4c1d9f3bad3e1f550a329",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
