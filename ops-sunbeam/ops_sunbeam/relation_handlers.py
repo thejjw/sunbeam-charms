@@ -332,10 +332,11 @@ class DBHandler(RelationHandler):
 
     def get_relation_data(self) -> dict:
         """Load the data from the relation for consumption in the handler."""
-        if len(self.interface.relations) > 0:
-            return self.interface.relations[0].data[
-                self.interface.relations[0].app
-            ]
+        # there is at most one relation for a database
+        for relation in self.model.relations[self.relation_name]:
+            if relation.app is None:
+                continue
+            return relation.data[relation.app]
         return {}
 
     @property
