@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "593ef7e7_f925aa7f",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-07T02:29:48Z",
+      "side": 1,
+      "message": "The cron job configuration is called at configure_unit() and only applied only if an event is emitted (that calls callback configure_charm) after all the validations are successful.\n\nSome of the validations are part of post_config and others are optional relations readiness. So to me the cron job configuration seems more like post_config step rather than configure_unit step.\nThoughts?",
+      "revId": "ba9aff470fb3f510f9e4c1d9f3bad3e1f550a329",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7df29dd5_8c5a163f",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-07T02:29:48Z",
+      "side": 1,
+      "message": "Need a check if the unit is leader",
+      "revId": "ba9aff470fb3f510f9e4c1d9f3bad3e1f550a329",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
