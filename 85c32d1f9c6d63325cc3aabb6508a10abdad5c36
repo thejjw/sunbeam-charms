@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0bf50245_896c2be4",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-07T00:03:03Z",
+      "side": 1,
+      "message": "suggest:\n\n```\nAdd grafana dashboard and alert rules\n```",
+      "revId": "85c32d1f9c6d63325cc3aabb6508a10abdad5c36",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
