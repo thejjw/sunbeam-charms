@@ -198,6 +198,15 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         Raises a RuntimeError if something goes wrong.
         """
         # validation before running anything
+
+        if not (regexes or exclude_regex or test_list):
+            raise RuntimeError(
+                "No filter parameters provided.\n"
+                "At least one of regex, exclude-regex, or test-list must be provided to run tests.\n\n"
+                "If you really intend to run all tests, pass regex='.*'.\n"
+                "WARNING: the full test set is very large and will take a long time."
+            )
+
         for r in [*regexes, exclude_regex]:
             try:
                 re.compile(r)

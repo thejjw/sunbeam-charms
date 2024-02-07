@@ -247,7 +247,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def _on_validate_action(self, event: ops.charm.ActionEvent) -> None:
         """Run tempest action."""
         serial: bool = event.params["serial"]
-        regexes: List[str] = event.params["regex"].strip().split()
+        regexes: List[str] = event.params["regex"].split()
         exclude_regex: str = event.params["exclude-regex"].strip()
         test_list: str = event.params["test-list"].strip()
 
