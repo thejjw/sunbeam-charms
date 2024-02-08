@@ -13,7 +13,7 @@ db_auto_create = false
 {% include "parts/section-identity" %}
 
 [keystone_auth]
-{% include "parts/identity-data" %}
+auth_section = keystone_authtoken
 
 {% include "parts/section-service-user" %}
 
@@ -32,3 +32,28 @@ region_name = RegionOne
 api_paste_config=/etc/magnum/api-paste.ini
 
 {% include "parts/section-oslo-messaging-rabbit" %}
+
+[glance_client]
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}
+
+[heat_client]
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}
+
+[neutron_client]
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}
+
+[nova_client]
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}
+
+[octavia_client]
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}

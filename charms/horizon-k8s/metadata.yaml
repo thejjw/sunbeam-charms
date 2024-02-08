@@ -43,10 +43,13 @@ requires:
   identity-credentials:
     interface: keystone-credentials
     limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 provides:
   horizon:
-    interface: horizon 
+    interface: horizon
 
 peers:
   peers:

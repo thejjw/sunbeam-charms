@@ -42,6 +42,9 @@ requires:
   vault-kv:
     interface: vault-kv
     limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 peers:
   peers:

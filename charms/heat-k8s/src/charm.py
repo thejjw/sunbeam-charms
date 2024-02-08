@@ -426,6 +426,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                         "rule": f"PathPrefix(`/{model}-{app}`)",
                         "service": f"juju-{model}-{app}-service",
                         "entryPoints": ["websecure"],
+                        "tls": {},
                     },
                 }
             )
@@ -677,6 +678,12 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.service_group,
                 0o640,
             ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
+                self.service_group,
+                0o640,
+            ),
         ]
 
     def heat_api_cfn_container_configs(self):
@@ -691,6 +698,12 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             sunbeam_core.ContainerConfigFile(
                 "/etc/heat/api-paste-cfn.ini",
                 self.service_user,
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
                 self.service_group,
                 0o640,
             ),

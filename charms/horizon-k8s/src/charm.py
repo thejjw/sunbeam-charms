@@ -169,6 +169,22 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             }
         ]
 
+    @property
+    def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
+        """Container configuration files for the service."""
+        _cconfigs = super().container_configs
+        _cconfigs.extend(
+            [
+                sunbeam_core.ContainerConfigFile(
+                    "/usr/local/share/ca-certificates/ca-bundle.pem",
+                    "root",
+                    self.service_group,
+                    0o640,
+                ),
+            ]
+        )
+        return _cconfigs
+
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""
         return [

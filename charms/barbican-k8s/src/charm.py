@@ -222,7 +222,13 @@ class BarbicanWorkerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         return [
             sunbeam_core.ContainerConfigFile(
                 "/etc/barbican/barbican.conf", "barbican", "barbican"
-            )
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
+                "barbican",
+                0o640,
+            ),
         ]
 
     @property
@@ -464,10 +470,18 @@ class BarbicanVaultOperatorCharm(BarbicanOperatorCharm):
     def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
         """Container configuration files for the service."""
         _cconfigs = super().container_configs
-        _cconfigs.append(
-            sunbeam_core.ContainerConfigFile(
-                self.ca_crt_file, "barbican", "barbican"
-            )
+        _cconfigs.extend(
+            [
+                sunbeam_core.ContainerConfigFile(
+                    self.ca_crt_file, "barbican", "barbican"
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    "/usr/local/share/ca-certificates/ca-bundle.pem",
+                    "root",
+                    "barbican",
+                    0o640,
+                ),
+            ]
         )
         return _cconfigs
 

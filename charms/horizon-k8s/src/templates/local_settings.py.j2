@@ -198,6 +198,9 @@ OPENSTACK_KEYSTONE_URL = "{{ identity_credentials.internal_protocol }}://%s:{{ i
 OPENSTACK_API_VERSIONS = { "identity": 3, }
 OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
 OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "{{ options.default_domain or identity_credentials.project_domain_id }}"
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+OPENSTACK_SSL_CACERT = "/usr/local/share/ca-certificates/ca-bundle.pem"
+{% endif -%}
 
 # Enables keystone web single-sign-on if set to True.
 #WEBSSO_ENABLED = False

@@ -77,6 +77,7 @@ EXTERNAL_AODH_LIBS=(
 	"data_platform_libs"
 	"rabbitmq_k8s"
 	"traefik_k8s"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_BARBICAN_LIBS=(
@@ -84,10 +85,18 @@ EXTERNAL_BARBICAN_LIBS=(
         "rabbitmq_k8s"
         "traefik_k8s"
 	"vault_k8s"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_CEILOMETER_LIBS=(
         "rabbitmq_k8s"
+	"certificate_transfer_interface"
+)
+
+EXTERNAL_CINDER_CEPH_LIBS=(
+        "data_platform_libs"
+        "rabbitmq_k8s"
+        "traefik_k8s"
 )
 
 EXTERNAL_DESIGNATE_BIND_LIBS=(
@@ -98,6 +107,7 @@ EXTERNAL_HEAT_LIBS=(
         "data_platform_libs"
         "rabbitmq_k8s"
         "traefik_route_k8s"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_NEUTRON_LIBS=(
@@ -105,18 +115,21 @@ EXTERNAL_NEUTRON_LIBS=(
         "rabbitmq_k8s"
         "traefik_k8s"
 	"tls_certificates_interface"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_OCTAVIA_LIBS=(
         "data_platform_libs"
         "traefik_k8s"
         "tls_certificates_interface"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_OPENSTACK_EXPORTER_LIBS=(
         "grafana_k8s"
         "prometheus_k8s"
         "tls_certificates_interface"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_OPENSTACK_HYPERVISOR_LIBS=(
@@ -150,118 +163,134 @@ EXTERNAL_TEMPEST_LIBS=(
 
 # Config template parts for each component.
 CONFIG_TEMPLATES_AODH=(
-	"section-database"
-	"database-connection"
-	"section-identity"
-	"identity-data"
-	"section-oslo-messaging-rabbit"
-	"section-service-credentials"
+	"parts/section-database"
+	"parts/database-connection"
+	"parts/section-identity"
+	"parts/identity-data"
+	"parts/section-oslo-messaging-rabbit"
+	"parts/section-service-credentials"
+	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_BARBICAN=(
-        "section-identity"
-	"identity-data"
-        "section-oslo-messaging-rabbit"
-        "section-service-user"
+        "parts/section-identity"
+	"parts/identity-data"
+        "parts/section-oslo-messaging-rabbit"
+        "parts/section-service-user"
+	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_CEILOMETER=(
-	"identity-data-id-creds"
-	"section-oslo-messaging-rabbit"
-	"section-service-credentials-from-identity-service"
-	"section-service-user-from-identity-credentials"
+	"parts/identity-data-id-creds"
+	"parts/section-oslo-messaging-rabbit"
+	"parts/section-service-credentials-from-identity-service"
+	"parts/section-service-user-from-identity-credentials"
+	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_CINDER=(
-        "section-database"
-	"database-connection"
-        "section-identity"
-	"identity-data"
-        "section-oslo-messaging-rabbit"
-        "section-service-user"
+        "parts/section-database"
+	"parts/database-connection"
+        "parts/section-identity"
+	"parts/identity-data"
+        "parts/section-oslo-messaging-rabbit"
+        "parts/section-service-user"
+	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_CINDER_CEPH=(
-	"section-oslo-messaging-rabbit"
-	"section-oslo-notifications"
+	"parts/section-oslo-messaging-rabbit"
+	"parts/section-oslo-notifications"
 )
 
 CONFIG_TEMPLATES_DESIGNATE=(
-	"database-connection"
-	"section-identity"
-	"identity-data"
-	"section-oslo-messaging-rabbit"
-        "section-service-user"
+	"parts/database-connection"
+	"parts/section-identity"
+	"parts/identity-data"
+	"parts/section-oslo-messaging-rabbit"
+        "parts/section-service-user"
+	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_GLANCE=(
-	"section-database"
-	"database-connection"
-	"section-identity"
-        "identity-data"
-	"section-oslo-messaging-rabbit"
-        "section-oslo-notifications"
-	"section-service-user"
+	"parts/section-database"
+	"parts/database-connection"
+	"parts/section-identity"
+        "parts/identity-data"
+	"parts/section-oslo-messaging-rabbit"
+        "parts/section-oslo-notifications"
+	"parts/section-service-user"
+	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_GNOCCHI=(
-        "database-connection"
-        "section-identity"
-        "identity-data"
+        "parts/database-connection"
+        "parts/section-identity"
+        "parts/identity-data"
+	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_HEAT=(
-        "section-database"
-        "database-connection"
-        "section-identity"
-        "identity-data"
-        "section-trustee"
-        "section-oslo-messaging-rabbit"
+        "parts/section-database"
+        "parts/database-connection"
+        "parts/section-identity"
+        "parts/identity-data"
+	"parts/section-trustee"
+        "parts/section-oslo-messaging-rabbit"
+	"ca-bundle.pem.j2"
+)
+
+CONFIG_TEMPLATES_HORIZON=(
+        "ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_KEYSTONE=(
-	"section-database"
-	"database-connection"
-	"section-federation"
-	"section-middleware"
-	"section-oslo-cache"
-	"section-oslo-messaging-rabbit"
-	"section-oslo-middleware"
-	"section-oslo-notifications"
-	"section-signing"
+	"parts/section-database"
+	"parts/database-connection"
+	"parts/section-federation"
+	"parts/section-middleware"
+	"parts/section-oslo-cache"
+	"parts/section-oslo-messaging-rabbit"
+	"parts/section-oslo-middleware"
+	"parts/section-oslo-notifications"
+	"parts/section-signing"
 )
 
 CONFIG_TEMPLATES_MAGNUM=(
-	"section-identity"
-        "identity-data"
-	"section-oslo-messaging-rabbit"
-	"section-service-user"
-	"section-trust"
+	"parts/section-identity"
+        "parts/identity-data"
+	"parts/section-oslo-messaging-rabbit"
+	"parts/section-service-user"
+	"parts/section-trust"
+	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_NEUTRON=(
-        "section-database"
-        "database-connection"
-        "section-identity"
-        "identity-data"
-        "section-oslo-messaging-rabbit"
-        "section-service-user"
+        "parts/section-database"
+        "parts/database-connection"
+        "parts/section-identity"
+        "parts/identity-data"
+        "parts/section-oslo-messaging-rabbit"
+        "parts/section-service-user"
+	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_NOVA=${CONFIG_TEMPLATES_NEUTRON[@]}
 
 CONFIG_TEMPLATES_OCTAVIA=(
-        "section-database"
-        "database-connection"
-        "section-identity"
-        "identity-data"
+        "parts/section-database"
+        "parts/database-connection"
+        "parts/section-identity"
+        "parts/identity-data"
+	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_PLACEMENT=(
-        "database-connection"
-        "section-identity"
-        "identity-data"
-        "section-service-user"
+        "parts/database-connection"
+        "parts/section-identity"
+        "parts/identity-data"
+        "parts/section-service-user"
+	"ca-bundle.pem.j2"
 )
 
 declare -A INTERNAL_LIBS=(
@@ -297,7 +326,7 @@ declare -A EXTERNAL_LIBS=(
         [barbican-k8s]=${EXTERNAL_BARBICAN_LIBS[@]}
         [ceilometer-k8s]=${EXTERNAL_CEILOMETER_LIBS[@]}
         [cinder-k8s]=${EXTERNAL_AODH_LIBS[@]}
-        [cinder-ceph-k8s]=${EXTERNAL_AODH_LIBS[@]}
+        [cinder-ceph-k8s]=${EXTERNAL_CINDER_CEPH_LIBS[@]}
         [designate-k8s]=${EXTERNAL_AODH_LIBS[@]}
         [designate-bind-k8s]=${EXTERNAL_DESIGNATE_BIND_LIBS[@]}
         [glance-k8s]=${EXTERNAL_AODH_LIBS[@]}
@@ -331,14 +360,14 @@ declare -A CONFIG_TEMPLATES=(
         [glance-k8s]=${CONFIG_TEMPLATES_GLANCE[@]}
 	[gnocchi-k8s]=${CONFIG_TEMPLATES_GNOCCHI[@]}
         [heat-k8s]=${CONFIG_TEMPLATES_HEAT[@]}
-        [horizon-k8s]=${NULL_ARRAY[@]}
+        [horizon-k8s]=${CONFIG_TEMPLATES_HORIZON[@]}
         [keystone-k8s]=${CONFIG_TEMPLATES_KEYSTONE[@]}
         [keystone-ldap-k8s]=${NULL_ARRAY[@]}
         [magnum-k8s]=${CONFIG_TEMPLATES_MAGNUM[@]}
         [neutron-k8s]=${CONFIG_TEMPLATES_NEUTRON[@]}
         [nova-k8s]=${CONFIG_TEMPLATES_NOVA[@]}
         [octavia-k8s]=${CONFIG_TEMPLATES_OCTAVIA[@]}
-        [openstack-exporter-k8s]=${NULL_ARRAY[@]}
+        [openstack-exporter-k8s]=${CONFIG_TEMPLATES_HORIZON[@]}
         [openstack-hypervisor]=${NULL_ARRAY[@]}
         [sunbeam-clusterd]=${NULL_ARRAY[@]}
         [sunbeam-machine]=${NULL_ARRAY[@]}
@@ -376,7 +405,7 @@ function copy_config_templates {
 	config_templates_=${CONFIG_TEMPLATES[$1]}
 	for part in ${config_templates_[@]}; do
 		echo "Copying $part"
-                cp -rf ../../templates/parts/$part src/templates/parts/
+                cp -rf ../../templates/$part src/templates/$part
         done
 }
 
@@ -390,6 +419,20 @@ function copy_stestr_conf {
 
 function remove_libs {
 	rm -rf lib
+}
+
+function remove_config_templates {
+	echo "remove_config_templates for $1:"
+        config_templates_=${CONFIG_TEMPLATES[$1]}
+        for part in ${config_templates_[@]}; do
+                echo "Removing $part"
+                rm src/templates/$part
+        done
+
+	if (test -d src/templates/parts) && (test -n "$(find src/templates/parts -maxdepth 0 -empty)")
+	then
+		remove_templates_parts_dir
+	fi
 }
 
 function remove_templates_parts_dir {
@@ -430,7 +473,7 @@ function pop_common_files {
 	pushd charms/$1
 
 	remove_libs
-        remove_templates_parts_dir
+	remove_config_templates $1
 	remove_stestr_conf
         remove_juju_ignore
 

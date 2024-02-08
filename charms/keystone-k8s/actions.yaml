@@ -27,3 +27,34 @@ regenerate-password:
   required:
     - username
   additionalProperties: False
+
+add-ca-certs:
+  description: |
+    Add CA certs for transfer
+  params:
+    name:
+      type: string
+      description: Name of CA certs bundle
+    ca:
+      type: string
+      description: Base64 encoded CA certificate
+    chain:
+      type: string
+      description: Base64 encoded CA Chain
+  required:
+    - name
+    - ca
+  additionalProperties: False
+remove-ca-certs:
+  description: |
+    Remove CA certs
+  params:
+    name:
+      type: string
+      description: Name of CA certs bundle
+  required:
+    - name
+  additionalProperties: False
+list-ca-certs:
+  description: |
+    List CA certs uploaded for transfer

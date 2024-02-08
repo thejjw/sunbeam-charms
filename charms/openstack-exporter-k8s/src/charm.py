@@ -161,6 +161,12 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 "_daemon_",
                 "_daemon_",
             ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "_daemon_",
+                "_daemon_",
+                0o640,
+            ),
         ]
 
     @property

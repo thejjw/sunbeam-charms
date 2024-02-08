@@ -25,6 +25,8 @@ develop a new k8s charm using the Operator Framework:
     https://discourse.charmhub.io/t/4208
 """
 
+import base64
+import binascii
 import json
 import logging
 from collections import (
@@ -54,6 +56,9 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import pwgen
+from charms.certificate_transfer_interface.v0.certificate_transfer import (
+    CertificateTransferProvides,
+)
 from ops.charm import (
     ActionEvent,
     RelationChangedEvent,
@@ -68,10 +73,12 @@ from ops.model import (
     ActiveStatus,
     MaintenanceStatus,
     ModelError,
+    Relation,
     SecretNotFoundError,
     SecretRotate,
 )
 from utils import (
+    certs,
     manager,
 )
 
@@ -81,8 +88,7 @@ KEYSTONE_CONTAINER = "keystone"
 FERNET_KEYS_PREFIX = "fernet-"
 CREDENTIALS_SECRET_PREFIX = "credentials_"
 SECRET_PREFIX = "secret://"
-
-
+CERTIFICATE_TRANSFER_LABEL = "certs_to_transfer"
 KEYSTONE_CONF = "/etc/keystone/keystone.conf"
 LOGGING_CONF = "/etc/keystone/logging.conf"
 
@@ -333,6 +339,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     IDSVC_RELATION_NAME = "identity-service"
     IDCREDS_RELATION_NAME = "identity-credentials"
     IDOPS_RELATION_NAME = "identity-ops"
+    SEND_CA_CERT_RELATION_NAME = "send-ca-cert"
 
     def __init__(self, framework):
         super().__init__(framework)
@@ -344,8 +351,16 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self._state.set_default(default_domain_id=None)
         self._state.set_default(service_project_id=None)
 
+        self.certificate_transfer = CertificateTransferProvides(
+            self, self.SEND_CA_CERT_RELATION_NAME
+        )
+
         self.framework.observe(
             self.on.peers_relation_changed, self._on_peer_data_changed
+        )
+        self.framework.observe(
+            self.on.send_ca_cert_relation_joined,
+            self._handle_certificate_transfer_on_event,
         )
         self.framework.observe(
             self.on.get_admin_password_action, self._get_admin_password_action
@@ -360,6 +375,18 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self.framework.observe(
             self.on.regenerate_password_action,
             self._regenerate_password_action,
+        )
+        self.framework.observe(
+            self.on.add_ca_certs_action,
+            self._add_ca_certs_action,
+        )
+        self.framework.observe(
+            self.on.remove_ca_certs_action,
+            self._remove_ca_certs_action,
+        )
+        self.framework.observe(
+            self.on.list_ca_certs_action,
+            self._list_ca_certs_action,
         )
         if self.bootstrapped():
             self.bootstrap_status.set(ActiveStatus())
@@ -514,6 +541,108 @@ export OS_AUTH_VERSION=3
             event.fail(f"Secret for {username} not found")
         except Exception as e:
             event.fail(f"Regeneration of password failed: {e}")
+
+    def _create_certificate_transfer_secret(
+        self, name: str, ca_cert: str, chain_certs: str
+    ) -> bool:
+        certs_secret_id = self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL)
+        if certs_secret_id:
+            certs_secret = self.model.get_secret(id=certs_secret_id)
+            certificates = certs_secret.get_content()
+            certificates = json.loads(certificates.get("certs"))
+            if name in certificates:
+                return False
+
+            certificates[name] = {"ca": ca_cert, "chain": chain_certs}
+            certs_secret.set_content({"certs": json.dumps(certificates)})
+        else:
+            certificates = {}
+            certificates[name] = {"ca": ca_cert, "chain": chain_certs}
+            certificates = {"certs": json.dumps(certificates)}
+            certs_secret = self.model.app.add_secret(
+                certificates, label=CERTIFICATE_TRANSFER_LABEL
+            )
+            self.peers.set_app_data(
+                {CERTIFICATE_TRANSFER_LABEL: certs_secret.id}
+            )
+
+        return True
+
+    def _add_ca_certs_action(self, event: ActionEvent):
+        """Distribute CA certs."""
+        if not self.unit.is_leader():
+            event.fail("Please run action on lead unit.")
+            return
+
+        name = event.params.get("name")
+        ca = event.params.get("ca")
+        chain = event.params.get("chain")
+        ca_cert = None
+        chain_certs = None
+
+        try:
+            ca_bytes = base64.b64decode(ca)
+            ca_cert = ca_bytes.decode()
+            if not certs.certificate_is_valid(ca_bytes):
+                event.fail("Invalid CA certificate")
+                return
+
+            if chain:
+                chain_bytes = base64.b64decode(chain)
+                chain_certs = chain_bytes.decode()
+                ca_chain_list = certs.parse_ca_chain(chain_bytes)
+                for _ca in ca_chain_list:
+                    if not certs.certificate_is_valid(_ca):
+                        event.fail("Invalid certificate in CA Chain")
+                        return
+
+                if not certs.ca_chain_is_valid(ca_chain_list):
+                    event.fail("Invalid CA Chain")
+        except (binascii.Error, TypeError, ValueError) as e:
+            event.fail(str(e))
+            return
+
+        if not self._create_certificate_transfer_secret(
+            name, ca_cert, chain_certs
+        ):
+            event.fail("Certificate bundle already transferred")
+
+        self._handle_certificate_transfers()
+
+    def _remove_ca_certs_action(self, event: ActionEvent):
+        """Remove CA certs."""
+        if not self.unit.is_leader():
+            event.fail("Please run action on lead unit.")
+            return
+
+        certs_secret_id = self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL)
+        if certs_secret_id:
+            certs_secret = self.model.get_secret(id=certs_secret_id)
+            certificates = certs_secret.get_content()
+            certificates = json.loads(certificates.get("certs"))
+            name = event.params.get("name")
+            if name not in certificates:
+                event.fail("Certificate bundle does not exist")
+                return
+
+            certificates.pop(name)
+            certs_secret.set_content({"certs": json.dumps(certificates)})
+            self._handle_certificate_transfers()
+
+    def _list_ca_certs_action(self, event: ActionEvent):
+        """List CA certs."""
+        if not self.unit.is_leader():
+            event.fail("Please run action on lead unit.")
+            return
+
+        certs_secret_id = self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL)
+        if certs_secret_id:
+            certs_secret = self.model.get_secret(id=certs_secret_id)
+            certificates = certs_secret.get_content()
+            certificates = json.loads(certificates.get("certs"))
+            event.set_results(certificates)
+        else:
+            event.set_results({})
 
     def _on_peer_data_changed(self, event: RelationChangedEvent):
         """Process fernet updates if possible."""
@@ -1584,6 +1713,84 @@ export OS_AUTH_VERSION=3
         self.ops_svc.interface.set_ops_response(
             relation_id, relation_name, ops_response=response
         )
+
+    def _get_combined_ca_and_chain(self, certs_secret=None) -> (str, list):
+        """Combine all certs for CA and chain.
+
+        Action add-ca-certs allows to add multiple CA cert and chain certs.
+        Combine all CA certs in the secret and chains in the secret.
+        """
+        if not certs_secret:
+            certs_secret_id = self.peers.get_app_data(
+                CERTIFICATE_TRANSFER_LABEL
+            )
+            if not certs_secret_id:
+                logger.debug("No certificates to transfer")
+                return "", []
+
+            certs_secret = self.model.get_secret(id=certs_secret_id)
+        certificates = certs_secret.get_content()
+        certificates = json.loads(certificates.get("certs"))
+
+        if not certificates:
+            logger.debug("No certificates to transfer")
+            return "", []
+
+        ca_list = []
+        chain_list = []
+        for name, bundle in certificates.items():
+            _ca = bundle.get("ca")
+            _chain = bundle.get("chain")
+            if _ca:
+                ca_list.append(_ca)
+            if _chain:
+                chain_list.append(_chain)
+
+        ca = "\n".join(ca_list)
+        # chain sent as list of single string containing complete chain
+        chain = []
+        if chain:
+            chain = ["\n".join(chain_list)]
+
+        return ca, chain
+
+    def _handle_certificate_transfers(
+        self, relations: List[Relation] | None = None
+    ):
+        """Transfer certs on given relations.
+
+        If relation is not specified, send on all the send-ca-cert
+        relations.
+        """
+        if not relations:
+            relations = [
+                relation
+                for relation in self.framework.model.relations[
+                    self.SEND_CA_CERT_RELATION_NAME
+                ]
+            ]
+
+        ca, chain = self._get_combined_ca_and_chain()
+
+        for relation in relations:
+            logger.debug(
+                "Transferring certificates for relation "
+                f"{relation.app.name} {relation.name}/{relation.id}"
+            )
+            self.certificate_transfer.set_certificate(
+                certificate="",
+                ca=ca,
+                chain=chain,
+                relation_id=relation.id,
+            )
+
+    def _handle_certificate_transfer_on_event(self, event):
+        if not self.unit.is_leader():
+            logger.debug("Skipping send ca cert as unit is not leader.")
+            return
+
+        logger.debug(f"Handling send ca cert event: {event}")
+        self._handle_certificate_transfers([event.relation])
 
 
 if __name__ == "__main__":
