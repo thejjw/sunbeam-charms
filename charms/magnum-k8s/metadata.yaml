@@ -51,6 +51,9 @@ requires:
     limit: 1
   amqp:
     interface: rabbitmq
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 peers:
   peers:

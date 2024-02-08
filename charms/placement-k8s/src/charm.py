@@ -95,6 +95,12 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.service_group,
                 0o640,
             ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
+                self.service_group,
+                0o640,
+            ),
         ]
         return _cconfigs
 

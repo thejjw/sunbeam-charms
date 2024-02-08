@@ -45,6 +45,9 @@ requires:
   dns-backend:
     interface: bind-rndc
     limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 peers:
   peers:

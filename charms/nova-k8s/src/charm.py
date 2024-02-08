@@ -101,7 +101,13 @@ class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "root",
                 "nova",
                 0o640,
-            )
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
+                "nova",
+                0o640,
+            ),
         ]
 
     @property
@@ -148,7 +154,13 @@ class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "root",
                 "nova",
                 0o640,
-            )
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
+                "nova",
+                0o640,
+            ),
         ]
 
 
@@ -371,6 +383,12 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         _cconfigs = [
             sunbeam_core.ContainerConfigFile(
                 "/etc/nova/nova.conf",
+                "root",
+                "nova",
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
                 "root",
                 "nova",
                 0o640,

@@ -40,6 +40,7 @@ from ops.model import (
     ActiveStatus,
     BlockedStatus,
     SecretNotFoundError,
+    Unit,
     UnknownStatus,
     WaitingStatus,
 )
@@ -48,6 +49,7 @@ logger = logging.getLogger(__name__)
 
 ERASURE_CODED = "erasure-coded"
 REPLICATED = "replicated"
+CA_CERTS_PATH = "/usr/local/share/ca-certificates"
 
 
 class RelationHandler(ops.framework.Object):
@@ -68,7 +70,7 @@ class RelationHandler(ops.framework.Object):
         self,
         charm: ops.charm.CharmBase,
         relation_name: str,
-        callback_f: Callable,
+        callback_f: Callable | None,
         mandatory: bool = False,
     ) -> None:
         """Run constructor."""
@@ -1781,3 +1783,87 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
     def ready(self) -> bool:
         """Whether the relation is ready."""
         return self.get_config_credentials() is not None
+
+
+class CertificateTransferRequiresHandler(RelationHandler):
+    """Handle certificate transfer relation on the requires side."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+        mandatory: bool = False,
+    ):
+        """Create a new certificate-transfer requires handler.
+
+        Create a new CertificateTransferRequiresHandler that receives the
+        certificates from the provider and updates certificates on all
+        the containers.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param callback_f: the function to call when the nodes are connected
+        :type callback_f: Callable
+        :param mandatory: If the relation is mandatory to proceed with
+                          configuring charm
+        :type mandatory: bool
+        """
+        super().__init__(charm, relation_name, None, mandatory)
+
+    def setup_event_handler(self) -> None:
+        """Configure event handlers for tls relation."""
+        logger.debug("Setting up certificate transfer event handler")
+
+        from charms.certificate_transfer_interface.v0.certificate_transfer import (
+            CertificateTransferRequires,
+        )
+
+        recv_ca_cert = CertificateTransferRequires(
+            self.charm, "receive-ca-cert"
+        )
+        self.framework.observe(
+            recv_ca_cert.on.certificate_available,
+            self._on_recv_ca_cert_available,
+        )
+        self.framework.observe(
+            recv_ca_cert.on.certificate_removed, self._on_recv_ca_cert_removed
+        )
+        return recv_ca_cert
+
+    def _on_recv_ca_cert_available(self, event: ops.framework.EventBase):
+        self.callback_f(event)
+
+    def _on_recv_ca_cert_removed(self, event: ops.framework.EventBase):
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Check if relation handler is ready."""
+        return True
+
+    def context(self) -> dict:
+        """Context containing ca cert data."""
+        receive_ca_cert_relations = list(
+            self.model.relations[self.relation_name]
+        )
+        if not receive_ca_cert_relations:
+            return {}
+
+        ca_bundle = []
+        logger.info(f"Receive CA Cert relations: {receive_ca_cert_relations}")
+        for relation in receive_ca_cert_relations:
+            logger.info(f"Relation: {relation.__dict__}")
+        for k, v in receive_ca_cert_relations[0].data.items():
+            if isinstance(k, Unit) and k != self.model.unit:
+                ca = v.get("ca")
+                chain = json.loads(v.get("chain", "[]"))
+                if ca and ca not in ca_bundle:
+                    ca_bundle.append(ca)
+                for chain_ in chain:
+                    if chain_ not in ca_bundle:
+                        ca_bundle.append(chain_)
+
+        return {"ca_bundle": "\n".join(ca_bundle)}
