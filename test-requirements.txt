@@ -18,3 +18,4 @@ croniter                   # tempest-k8s
 git+https://github.com/juju/charm-helpers.git#egg=charmhelpers                               # cinder-ceph-k8s,glance-k8s,gnocchi-k8s
 git+https://opendev.org/openstack/charm-ops-interface-ceph-client#egg=interface_ceph_client  # cinder-ceph-k8s
 requests-unixsocket # sunbeam-clusterd
+openstacksdk               # tempest-k8s
