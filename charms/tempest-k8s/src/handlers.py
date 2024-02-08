@@ -157,6 +157,16 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
         Raise a RuntimeError if something goes wrong.
         """
+        # push the cleanup script to container
+        with open("src/utils/cleanup.py") as f:
+            self.container.push(
+                f"{TEMPEST_HOME}/cleanup.py",
+                f,
+                user="tempest",
+                group="tempest",
+                make_dirs=True,
+            )
+
         # Pebble runs cron, which runs tempest periodically
         # when periodic checks are enabled.
         # This ensures that tempest gets the env, inherited from cron.
@@ -456,11 +466,31 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
 
     def _teardown_tempest_resource_ops(self) -> List[dict]:
         """Tear down openstack resource ops."""
+        credential_id = self._ensure_credential()
+        credential_secret = self.model.get_secret(id=credential_id)
+        content = credential_secret.get_content()
+        username = content.get("username")
+        password = content.get("password")
         teardown_ops = [
             {
                 "name": "show_domain",
                 "params": {
                     "name": OPENSTACK_DOMAIN,
+                },
+            },
+            {
+                "name": "delete_project",
+                "params": {
+                    "name": OPENSTACK_PROJECT,
+                    "domain": "{{ show_domain[0].id }}",
+                },
+            },
+            {
+                "name": "delete_user",
+                "params": {
+                    "name": username,
+                    "password": password,
+                    "domain": "{{ show_domain[0].id }}",
                 },
             },
             {
@@ -541,9 +571,7 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         """Handle gone_away event."""
         if not self.model.unit.is_leader():
             return
-        logger.info(
-            "Identity ops provider gone away: teardown tempest resources"
-        )
+        logger.info("Identity ops provider gone away")
         self.callback_f(event)
 
 
