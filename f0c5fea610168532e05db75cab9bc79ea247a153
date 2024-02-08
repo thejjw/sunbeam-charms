@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "148db5f2_9382e8a1",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-08T16:37:58Z",
+      "side": 1,
+      "message": "Yes, definitely. I\u0027m thinking about creating an customize exception to catch all clean-up related failures here.",
+      "parentUuid": "18599b24_8c2d2584",
+      "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0c6cc4a8_afd458f7",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 1
@@ -48,6 +66,24 @@
       "writtenOn": "2024-02-08T06:30:51Z",
       "side": 1,
       "message": "To avoid most zuul pep8 noise during wip development, I suggest running `tox -e fmt` before committing and pushing. ;)",
+      "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb70c0c6_fb5a072f",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-08T16:37:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0c6cc4a8_afd458f7",
       "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -71,6 +107,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "809514a7_11eafa0e",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-08T16:37:58Z",
+      "side": 1,
+      "message": "I agree that prefix is not reliable as the primary indication of whether an resource is created by tempest, but I\u0027m using it as a secondary constrain in case the project and domain filter is not correctly, especially since:\n1. some resources are not strictly scoped\n2. domain admin has more than single domain access\n\nI\u0027d rather be extra careful and accept the possibility of not cleaning up some resources not starting with `tempest-` than only rely on the project and domain",
+      "parentUuid": "be3a8f96_c2e8cb69",
+      "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d7b58c22_927ca4dd",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 1
@@ -82,6 +136,24 @@
       "writtenOn": "2024-02-08T06:30:51Z",
       "side": 1,
       "message": "It\u0027ll be important to include in the docstrings a summary of what it cleans up, and when it should be run (in between tests, before init, etc.)",
+      "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84b4b010_834b1f1d",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-08T16:37:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7b58c22_927ca4dd",
       "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -99,6 +171,24 @@
       "writtenOn": "2024-02-08T06:30:51Z",
       "side": 1,
       "message": "I\u0027d rather expose run_extensive_cleanup and run_quick_cleanup as public functions, and drop this one.  That makes the public api clearer, and we have less if/else.\n\nThe common parts (like building the connection) could be split into a function like `get_connection(env: Env) -\u003e Connection`",
+      "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "998ff13b_4ecc3db1",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-08T16:37:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7fc3a5d7_dcd31adc",
       "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
