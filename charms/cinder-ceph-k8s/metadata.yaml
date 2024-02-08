@@ -39,6 +39,9 @@ requires:
   database:
     interface: mysql_client
     limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 provides:
   ceph-access:

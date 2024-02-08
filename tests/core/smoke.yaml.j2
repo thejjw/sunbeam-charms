@@ -151,6 +151,8 @@ relations:
   - glance:amqp
 - - traefik:ingress
   - glance:ingress-public
+- - keystone:send-ca-cert
+  - glance:receive-ca-cert
 
 - - mysql:database
   - nova:database
@@ -164,6 +166,8 @@ relations:
   - nova:identity-service
 - - traefik:ingress
   - nova:ingress-public
+- - keystone:send-ca-cert
+  - nova:receive-ca-cert
 
 - - mysql:database
   - placement:database
@@ -171,6 +175,8 @@ relations:
   - placement:identity-service
 - - traefik:ingress
   - placement:ingress-public
+- - keystone:send-ca-cert
+  - placement:receive-ca-cert
 
 - - mysql:database
   - neutron:database
@@ -184,6 +190,8 @@ relations:
   - neutron:certificates
 - - neutron:ovsdb-cms
   - ovn-central:ovsdb-cms
+- - keystone:send-ca-cert
+  - neutron:receive-ca-cert
 
 - - mysql:database
   - horizon:database
@@ -191,3 +199,5 @@ relations:
   - horizon:identity-credentials
 - - traefik:ingress
   - horizon:ingress-public
+- - keystone:send-ca-cert
+  - horizon:receive-ca-cert
