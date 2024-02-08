@@ -194,3 +194,5 @@
                 nodeset: ubuntu-jammy
             - publish-charm-sunbeam-clusterd:
                 nodeset: ubuntu-jammy
+            - publish-charm-tempest-k8s:
+                nodeset: ubuntu-jammy
