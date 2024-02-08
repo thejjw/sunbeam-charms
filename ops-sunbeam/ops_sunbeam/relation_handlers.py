@@ -34,6 +34,8 @@ from urllib.parse import (
 
 import ops.charm
 import ops.framework
+import ops_sunbeam.compound_status as compound_status
+import ops_sunbeam.interfaces as sunbeam_interfaces
 from ops.model import (
     ActiveStatus,
     BlockedStatus,
@@ -41,9 +43,6 @@ from ops.model import (
     UnknownStatus,
     WaitingStatus,
 )
-
-import ops_sunbeam.compound_status as compound_status
-import ops_sunbeam.interfaces as sunbeam_interfaces
 
 logger = logging.getLogger(__name__)
 
@@ -1618,9 +1617,9 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
                     "user_domain": "{{ create_domain[0].id }}",
                 }
                 if project_domain:
-                    params[
-                        "project_domain"
-                    ] = "{{ show_project[0].domain_id }}"
+                    params["project_domain"] = (
+                        "{{ show_project[0].domain_id }}"
+                    )
                 requests.append(
                     {
                         "name": "grant_role",

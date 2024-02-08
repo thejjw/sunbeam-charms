@@ -44,6 +44,13 @@ import ops.framework
 import ops.model
 import ops.pebble
 import ops.storage
+import ops_sunbeam.compound_status as compound_status
+import ops_sunbeam.config_contexts as sunbeam_config_contexts
+import ops_sunbeam.container_handlers as sunbeam_chandlers
+import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.guard as sunbeam_guard
+import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import tenacity
 from lightkube import (
     Client,
@@ -60,14 +67,6 @@ from ops.model import (
     ActiveStatus,
     MaintenanceStatus,
 )
-
-import ops_sunbeam.compound_status as compound_status
-import ops_sunbeam.config_contexts as sunbeam_config_contexts
-import ops_sunbeam.container_handlers as sunbeam_chandlers
-import ops_sunbeam.core as sunbeam_core
-import ops_sunbeam.guard as sunbeam_guard
-import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
-import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 
 logger = logging.getLogger(__name__)
 

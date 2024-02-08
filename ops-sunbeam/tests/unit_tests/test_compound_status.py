@@ -21,16 +21,15 @@ import mock
 sys.path.append("lib")  # noqa
 sys.path.append("src")  # noqa
 
+import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.compound_status as compound_status
+import ops_sunbeam.test_utils as test_utils
 from ops.model import (
     ActiveStatus,
     BlockedStatus,
     UnknownStatus,
     WaitingStatus,
 )
-
-import ops_sunbeam.charm as sunbeam_charm
-import ops_sunbeam.compound_status as compound_status
-import ops_sunbeam.test_utils as test_utils
 
 from . import (
     test_charms,

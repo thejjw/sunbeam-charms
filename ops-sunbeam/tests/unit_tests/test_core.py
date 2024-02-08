@@ -23,7 +23,6 @@ sys.path.append("tests/lib")  # noqa
 sys.path.append("src")  # noqa
 
 import ops.model
-
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.test_utils as test_utils
 
