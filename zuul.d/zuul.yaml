@@ -16,6 +16,8 @@
             nodeset: ubuntu-focal
         - func-test-machine:
             nodeset: ubuntu-jammy
+        - func-test-tempest:
+            nodeset: ubuntu-focal
     vars:
       juju_channel: 3.2/stable
       juju_classic_mode: false
