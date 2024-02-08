@@ -77,6 +77,7 @@ EXTERNAL_AODH_LIBS=(
 	"data_platform_libs"
 	"rabbitmq_k8s"
 	"traefik_k8s"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_BARBICAN_LIBS=(
@@ -84,10 +85,12 @@ EXTERNAL_BARBICAN_LIBS=(
         "rabbitmq_k8s"
         "traefik_k8s"
 	"vault_k8s"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_CEILOMETER_LIBS=(
         "rabbitmq_k8s"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_DESIGNATE_BIND_LIBS=(
@@ -98,6 +101,7 @@ EXTERNAL_HEAT_LIBS=(
         "data_platform_libs"
         "rabbitmq_k8s"
         "traefik_route_k8s"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_NEUTRON_LIBS=(
@@ -105,18 +109,21 @@ EXTERNAL_NEUTRON_LIBS=(
         "rabbitmq_k8s"
         "traefik_k8s"
 	"tls_certificates_interface"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_OCTAVIA_LIBS=(
         "data_platform_libs"
         "traefik_k8s"
         "tls_certificates_interface"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_OPENSTACK_EXPORTER_LIBS=(
         "grafana_k8s"
         "prometheus_k8s"
         "tls_certificates_interface"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_OPENSTACK_HYPERVISOR_LIBS=(
@@ -146,6 +153,7 @@ EXTERNAL_TEMPEST_LIBS=(
 	"observability_libs"
         "grafana_k8s"
         "loki_k8s"
+	"certificate_transfer_interface"
 )
 
 # Config template parts for each component.

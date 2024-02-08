@@ -67,6 +67,9 @@ requires:
   ceph:
     interface: ceph-client
     optional: true
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 provides:
   image-service:

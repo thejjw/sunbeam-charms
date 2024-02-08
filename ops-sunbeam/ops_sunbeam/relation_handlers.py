@@ -35,6 +35,7 @@ from urllib.parse import (
 import ops.charm
 import ops.framework
 import ops_sunbeam.compound_status as compound_status
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.interfaces as sunbeam_interfaces
 from ops.model import (
     ActiveStatus,
@@ -48,6 +49,7 @@ logger = logging.getLogger(__name__)
 
 ERASURE_CODED = "erasure-coded"
 REPLICATED = "replicated"
+CA_CERTS_PATH = "/usr/local/share/ca-certificates"
 
 
 class RelationHandler(ops.framework.Object):
@@ -68,7 +70,7 @@ class RelationHandler(ops.framework.Object):
         self,
         charm: ops.charm.CharmBase,
         relation_name: str,
-        callback_f: Callable,
+        callback_f: Callable | None,
         mandatory: bool = False,
     ) -> None:
         """Run constructor."""
@@ -1781,3 +1783,121 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
     def ready(self) -> bool:
         """Whether the relation is ready."""
         return self.get_config_credentials() is not None
+
+
+class CertificateTransferRequiresHandler(RelationHandler):
+    """Handle certificate transfer relation on the requires side."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        mandatory: bool = False,
+    ):
+        """Create a new certificate-transfer requires handler.
+
+        Create a new CertificateTransferRequiresHandler that receives the
+        certificates from the provider and updates certificates on all
+        the containers.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param mandatory: If the relation is mandatory to proceed with
+                          configuring charm
+        :type mandatory: bool
+        """
+        super().__init__(charm, relation_name, None, mandatory)
+
+    def setup_event_handler(self) -> None:
+        """Configure event handlers for tls relation."""
+        logger.debug("Setting up certificate transfer event handler")
+
+        from charms.certificate_transfer_interface.v0.certificate_transfer import (
+            CertificateTransferRequires,
+        )
+
+        recv_ca_cert = CertificateTransferRequires(
+            self.charm, "receive-ca-cert"
+        )
+        self.framework.observe(
+            recv_ca_cert.on.certificate_available,
+            self._on_recv_ca_cert_available,
+        )
+        self.framework.observe(
+            recv_ca_cert.on.certificate_removed, self._on_recv_ca_cert_removed
+        )
+        return recv_ca_cert
+
+    def _on_recv_ca_cert_available(self, event: ops.framework.EventBase):
+        logger.debug(f"CA certs available event {event}")
+        ca_cert_path = (
+            f"{CA_CERTS_PATH}/receive-ca-cert-{event.relation_id}.crt"
+        )
+        ca_chain_path = (
+            f"{CA_CERTS_PATH}/receive-ca-chain-{event.relation_id}.crt"
+        )
+
+        with sunbeam_guard.guard(self, "Writing CA certs to container"):
+            try:
+                for ph in self.charm.pebble_handlers:
+                    _container = self.charm.model.unit.get_container(
+                        ph.container_name
+                    )
+                    if event.ca:
+                        _container.push(ca_cert_path, event.ca, make_dirs=True)
+                    else:
+                        # Handle case where existing ca cert is removed
+                        if _container.exists(ca_cert_path):
+                            _container.remove_path(ca_cert_path)
+                    if event.chain:
+                        ca_chain = "\n".join(event.chain)
+                        _container.push(
+                            ca_chain_path, ca_chain, make_dirs=True
+                        )
+                    else:
+                        # Handle case where existing ca cert is removed
+                        if _container.exists(ca_chain_path):
+                            _container.remove_path(ca_chain_path)
+
+                    _container.exec(
+                        ["update-ca-certificates", "--fresh"]
+                    ).wait()
+            except TypeError:
+                raise sunbeam_guard.BlockedExceptionError(
+                    "Received CA Certificate not valid"
+                )
+            except ops.pebble.ExecError:
+                raise sunbeam_guard.BlockedExceptionError(
+                    "Error in updating ca certs"
+                )
+
+    def _on_recv_ca_cert_removed(self, event: ops.framework.EventBase):
+        logger.debug(f"CA certs removed event {event}")
+        ca_cert_path = (
+            f"{CA_CERTS_PATH}/receive-ca-cert-{event.relation_id}.crt"
+        )
+        ca_chain_path = (
+            f"{CA_CERTS_PATH}/receive-ca-chain-{event.relation_id}.crt"
+        )
+
+        try:
+            for ph in self.charm.pebble_handlers:
+                _container = self.charm.model.unit.get_container(
+                    ph.container_name
+                )
+                if _container.exists(ca_cert_path):
+                    _container.remove_path(ca_cert_path)
+                if _container.exists(ca_chain_path):
+                    _container.remove_path(ca_chain_path)
+                _container.exec(["update-ca-certificates", "--fresh"]).wait()
+        except ops.pebble.ExecError as e:
+            logger.info(f"Error in updating ca certs: {str(e)}")
+
+    @property
+    def ready(self) -> bool:
+        """Check if relation handler is ready."""
+        # TOCHK: Is it required to check in data bag if ca is updated?
+        # How about the case there are no certs to be received.
+        return True

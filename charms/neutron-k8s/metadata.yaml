@@ -57,6 +57,9 @@ requires:
   certificates:
     interface: tls-certificates
     optional: true
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 peers:
   peers:
