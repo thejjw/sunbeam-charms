@@ -18,6 +18,9 @@
 
 import json
 import pathlib
+from unittest.mock import (
+    patch,
+)
 
 import charm
 import mock
@@ -42,9 +45,12 @@ TEST_TEMPEST_ENV = {
     "OS_USERNAME": "tempest",
     "OS_PASSWORD": "password",
     "OS_USER_DOMAIN_NAME": "tempest",
-    "OS_PROJECT_NAME": "tempest-CloudValidation",
+    "OS_PROJECT_NAME": "CloudValidation-tempest",
     "OS_PROJECT_DOMAIN_NAME": "tempest",
     "OS_DOMAIN_NAME": "tempest",
+    "OS_PROJECT_DOMAIN_ID": "tempest-domain-id",
+    "OS_USER_DOMAIN_ID": "tempest-domain-id",
+    "OS_DOMAIN_ID": "tempest-domain-id",
     "TEMPEST_CONCURRENCY": "4",
     "TEMPEST_CONF": "/var/lib/tempest/workspace/etc/tempest.conf",
     "TEMPEST_HOME": "/var/lib/tempest",
@@ -97,6 +103,18 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
         self.harness.set_leader()
+        self.patcher1 = patch("utils.cleanup.Connection")
+        self.patcher2 = patch(
+            "utils.cleanup._get_exclusion_resources",
+            return_value={"projects": set(), "users": set()},
+        )
+        self.patcher1.start()
+        self.patcher2.start()
+
+    def tearDown(self):
+        """Tear down test construction."""
+        self.patcher1.stop()
+        self.patcher2.stop()
 
     def add_identity_ops_relation(self, harness):
         """Add identity resource relation."""
@@ -108,7 +126,8 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
                 "username": "tempest",
                 "password": "password",
                 "domain-name": "tempest",
-                "project-name": "tempest-CloudValidation",
+                "domain-id": "tempest-domain-id",
+                "project-name": "CloudValidation-tempest",
                 "auth-url": "http://10.6.0.23/openstack-keystone/v3",
             },
         )
