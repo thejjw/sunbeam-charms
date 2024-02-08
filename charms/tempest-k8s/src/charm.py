@@ -50,6 +50,10 @@ from ops.model import (
 from ops_sunbeam.config_contexts import (
     ConfigContext,
 )
+from utils.cleanup import (
+    CleanUpError,
+    run_extensive_cleanup,
+)
 from utils.constants import (
     CONTAINER,
     TEMPEST_ADHOC_OUTPUT,
@@ -210,6 +214,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "OS_PROJECT_NAME": credential.get("project-name"),
             "OS_PROJECT_DOMAIN_NAME": credential.get("domain-name"),
             "OS_DOMAIN_NAME": credential.get("domain-name"),
+            "OS_DOMAIN_ID": credential.get("domain-id"),
+            "OS_USER_DOMAIN_ID": credential.get("domain-id"),
+            "OS_PROJECT_DOMAIN_ID": credential.get("domain-id"),
             "TEMPEST_CONCURRENCY": TEMPEST_CONCURRENCY,
             "TEMPEST_CONF": TEMPEST_CONF,
             "TEMPEST_HOME": TEMPEST_HOME,
@@ -218,6 +225,23 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_WORKSPACE": TEMPEST_WORKSPACE,
             "TEMPEST_WORKSPACE_PATH": TEMPEST_WORKSPACE_PATH,
             "TEMPEST_OUTPUT": variant.output_path(),
+        }
+
+    def _get_cleanup_env(self) -> Dict[str, str]:
+        """Return a dictionary of environment variables.
+
+        To be used with tempest resource cleanup functions.
+        """
+        logger.debug("Retrieving OpenStack credentials")
+        credential = self.user_id_ops.get_user_credential()
+        return {
+            "OS_AUTH_URL": credential.get("auth-url"),
+            "OS_USERNAME": credential.get("username"),
+            "OS_PASSWORD": credential.get("password"),
+            "OS_PROJECT_NAME": credential.get("project-name"),
+            "OS_DOMAIN_ID": credential.get("domain-id"),
+            "OS_USER_DOMAIN_ID": credential.get("domain-id"),
+            "OS_PROJECT_DOMAIN_ID": credential.get("domain-id"),
         }
 
     def get_unit_data(self, key: str) -> Optional[str]:
@@ -248,6 +272,15 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         # for periodic checks.
         env = self._get_environment_for_tempest(TempestEnvVariant.PERIODIC)
         pebble = self.pebble_handler()
+
+        try:
+            # do an extensive clean-up before tempest init to remove stalled resources
+            run_extensive_cleanup(self._get_cleanup_env())
+        except CleanUpError:
+            logger.debug("Clean-up failed and tempest init not run.")
+            self.set_tempest_ready(False)
+            return
+
         try:
             pebble.init_tempest(env)
         except RuntimeError:
@@ -296,17 +329,16 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         test_list: str = event.params["test-list"].strip()
 
         env = self._get_environment_for_tempest(TempestEnvVariant.ADHOC)
+
         try:
             summary = self.pebble_handler().run_tempest_tests(
                 regexes, exclude_regex, test_list, serial, env
             )
         except RuntimeError as e:
-            # put the message in set_results instead of event.fail,
-            # because event.fail message is not always displayed to the user:
-            # https://bugs.launchpad.net/juju/+bug/2052765
             event.set_results({"error": str(e)})
             event.fail()
             return
+
         event.set_results(
             {
                 "summary": summary,
