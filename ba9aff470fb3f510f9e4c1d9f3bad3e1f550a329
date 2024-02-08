@@ -74,6 +74,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bc06ff32_ff2daa91",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-08T00:16:43Z",
+      "side": 1,
+      "message": "Is there a recommended way to manually ask the charm to refresh the templated files?  I\u0027m looking at all the methods, but it\u0027s tricky to know which ones would be safe to call at the end of post_config_setup - don\u0027t want to trigger an infinite loop.\n\nEither way, I would call this low priority, because for now it won\u0027t be deployed with config set as part of sunbeam in this first iteration.  Perhaps we can leave it as-is, and create a ticket on the backlog to improve how/where the files are templated?",
+      "parentUuid": "c46097f3_2edee1e8",
+      "revId": "ba9aff470fb3f510f9e4c1d9f3bad3e1f550a329",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7df29dd5_8c5a163f",
         "filename": "charms/tempest-k8s/src/charm.py",
         "patchSetId": 13
