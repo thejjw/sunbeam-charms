@@ -31,15 +31,14 @@ from typing import (
 
 import ops.charm
 import ops.pebble
+import ops_sunbeam.compound_status as compound_status
+import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.templating as sunbeam_templating
 from ops.model import (
     ActiveStatus,
     BlockedStatus,
     WaitingStatus,
 )
-
-import ops_sunbeam.compound_status as compound_status
-import ops_sunbeam.core as sunbeam_core
-import ops_sunbeam.templating as sunbeam_templating
 
 logger = logging.getLogger(__name__)
 

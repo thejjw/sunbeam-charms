@@ -37,15 +37,18 @@ should_test_ops_sunbeam() {
 if [[ $1 == "fmt" ]];
 then
     src_path_array=$(ls -d -1 "charms/"**/src)
-        tst_path_array=$(ls -d -1 "charms/"**/tests)
-        lib_path_array=$(ls -d -1 "charms/"**/lib)
+    tst_path_array=$(ls -d -1 "charms/"**/tests)
+    lib_path_array=$(ls -d -1 "charms/"**/lib)
+ 
+    src_path="${src_path_array[*]}"
+    tst_path="${tst_path_array[*]}"
+    lib_path="${lib_path_array[*]}"
 
-        src_path="${src_path_array[*]}"
-        tst_path="${tst_path_array[*]}"
-        lib_path="${lib_path_array[*]}"
+    ops_sunbeam_src_path="ops-sunbeam/ops_sunbeam"
+    ops_sunbeam_tst_path="ops-sunbeam/tests/unit_tests"
 
-    isort ${src_path} ${tst_path}
-    black --config pyproject.toml ${src_path} ${tst_path}
+    isort ${src_path} ${tst_path} ${ops_sunbeam_src_path} ${ops_sunbeam_tst_path}
+    black --config pyproject.toml ${src_path} ${tst_path} ${ops_sunbeam_src_path} ${ops_sunbeam_tst_path}
 elif [[ $1 == "pep8" ]];
 then
     src_path_array=$(ls -d -1 "charms/"**/src)
@@ -54,10 +57,13 @@ then
     src_path="${src_path_array[*]}"
     tst_path="${tst_path_array[*]}"
 
-    codespell ${src_path} ${tst_path}
-        pflake8 --config pyproject.toml ${src_path} ${tst_path}
-    isort --check-only --diff ${src_path} ${tst_path}
-    black --config pyproject.toml --check --diff ${src_path} ${tst_path}
+    ops_sunbeam_src_path="ops-sunbeam/ops_sunbeam"
+    ops_sunbeam_tst_path="ops-sunbeam/tests/unit_tests"
+
+    codespell ${src_path} ${tst_path} ${ops_sunbeam_src_path} ${ops_sunbeam_tst_path}
+    pflake8 --config pyproject.toml ${src_path} ${tst_path} ${ops_sunbeam_src_path} ${ops_sunbeam_tst_path}
+    isort --check-only --diff ${src_path} ${tst_path} ${ops_sunbeam_src_path} ${ops_sunbeam_tst_path}
+    black --config pyproject.toml --check --diff ${src_path} ${tst_path} ${ops_sunbeam_src_path} ${ops_sunbeam_tst_path}
 elif [[ $1 =~ ^(py3|py310|py311)$ ]];
 then
 

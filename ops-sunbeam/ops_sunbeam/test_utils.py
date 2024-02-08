@@ -760,7 +760,12 @@ def get_harness(
             with open(metadata_file) as f:
                 charm_metadata = f.read()
 
-    harness = Harness(charm_class, meta=charm_metadata, config=charm_config, actions=charm_actions)
+    harness = Harness(
+        charm_class,
+        meta=charm_metadata,
+        config=charm_config,
+        actions=charm_actions,
+    )
     harness._backend = _OSTestingModelBackend(
         harness._unit_name, harness._meta, harness._get_config(charm_config)
     )
