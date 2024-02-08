@@ -157,6 +157,16 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
         Raise a RuntimeError if something goes wrong.
         """
+        # push the cleanup script to container
+        with open("src/utils/cleanup.py") as f:
+            self.container.push(
+                f"{TEMPEST_HOME}/cleanup.py",
+                f,
+                user="tempest",
+                group="tempest",
+                make_dirs=True,
+            )
+
         # Pebble runs cron, which runs tempest periodically
         # when periodic checks are enabled.
         # This ensures that tempest gets the env, inherited from cron.
@@ -456,11 +466,29 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
 
     def _teardown_tempest_resource_ops(self) -> List[dict]:
         """Tear down openstack resource ops."""
+        credential_id = self._ensure_credential()
+        credential_secret = self.model.get_secret(id=credential_id)
+        content = credential_secret.get_content()
+        username = content.get("username")
         teardown_ops = [
             {
                 "name": "show_domain",
                 "params": {
                     "name": OPENSTACK_DOMAIN,
+                },
+            },
+            {
+                "name": "delete_project",
+                "params": {
+                    "name": OPENSTACK_PROJECT,
+                    "domain": "{{ show_domain[0].id }}",
+                },
+            },
+            {
+                "name": "delete_user",
+                "params": {
+                    "name": username,
+                    "domain": "{{ show_domain[0].id }}",
                 },
             },
             {
@@ -517,6 +545,19 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
                     self._set_secret({"auth-url": auth_url})
                     return
 
+    def _process_setup_tempest_resource_response(self, response: dict) -> None:
+        """Process extra ops request: "_setup_tempest_resource_request"."""
+        for op in response.get("ops", []):
+            if op.get("name") != "create_domain":
+                continue
+            if op.get("return-code") != 0:
+                logger.warning("Create domain ops failed.")
+                return
+            domain_id = op.get("value", {}).get("id")
+            if domain_id is not None:
+                self._set_secret({"domain-id": domain_id})
+                return
+
     def _on_provider_ready(self, event) -> None:
         """Handles response available events."""
         if not self.model.unit.is_leader():
@@ -535,15 +576,14 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         response = self.interface.response
         logger.info("%s", json.dumps(response, indent=4))
         self._process_list_endpoint_response(response)
+        self._process_setup_tempest_resource_response(response)
         self.callback_f(event)
 
     def _on_provider_goneaway(self, event) -> None:
         """Handle gone_away event."""
         if not self.model.unit.is_leader():
             return
-        logger.info(
-            "Identity ops provider gone away: teardown tempest resources"
-        )
+        logger.info("Identity ops provider gone away")
         self.callback_f(event)
 
 
