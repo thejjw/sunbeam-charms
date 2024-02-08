@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0bd5508_7b4b0f95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-08T05:26:04Z",
+      "side": 1,
+      "message": "I\u0027m still struggling to test this.  I\u0027ve followed these steps:\n\n1. deploy sunbeam at snap channel 2023.2/edge\n\n2. build and deploy tempest-k8s charm at this revision\n\n3. deploy observability and add relations:\n\n```\njuju relate tempest-k8s keystone\nsunbeam enable observability\njuju relate grafana-agent-k8s tempest-k8s:logging\njuju relate grafana-agent-k8s tempest-k8s:grafana-dashboard\n```\n\nThe alert rule doesn\u0027t show up in prometheus, neither does the dashboard display in grafana.",
+      "revId": "7b76fd2c974e8c9b220f30ebc2ac975fef811277",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c03f9d9_7d5aab47",
+        "filename": "charms/tempest-k8s/src/grafana_dashboards/tests-results.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-08T05:26:04Z",
+      "side": 1,
+      "message": "I think dashboards require a uid key - for example, as seen in https://opendev.org/openstack/sunbeam-charms/src/commit/7b76fd2c974e8c9b220f30ebc2ac975fef811277/charms/openstack-hypervisor/src/grafana_dashboards/capacity_dashboard.json#L1572 .  It should be something randomly generated, but stay consistent for this dashboard.",
+      "revId": "7b76fd2c974e8c9b220f30ebc2ac975fef811277",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
