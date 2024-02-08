@@ -311,14 +311,14 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         action_event = mock.Mock()
         action_event.params = {
             "serial": False,
-            "regex": "",
+            "regex": "smoke",
             "exclude-regex": "",
             "test-list": "",
         }
         self.harness.charm._on_validate_action(action_event)
         action_event.fail.assert_not_called()
         exec_mock.assert_called_with(
-            ["tempest-run-wrapper", "--parallel"],
+            ["tempest-run-wrapper", "--parallel", "--regex", "smoke"],
             user="tempest",
             group="tempest",
             working_dir=TEMPEST_HOME,
@@ -379,6 +379,31 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.remove_relation(logging_rel_id)
         self.harness.remove_relation(identity_ops_rel_id)
         self.harness.remove_relation(grafana_dashboard_rel_id)
+
+    def test_validate_action_no_params(self):
+        """Test validate action with no filter params."""
+        test_utils.set_all_pebbles_ready(self.harness)
+        self.add_logging_relation(self.harness)
+        self.add_identity_ops_relation(self.harness)
+        self.add_grafana_dashboard_relation(self.harness)
+
+        exec_mock = mock.Mock()
+        self.harness.charm.pebble_handler().execute = exec_mock
+
+        action_event = mock.Mock()
+        action_event.params = {
+            "serial": True,
+            "regex": "",
+            "exclude-regex": "",
+            "test-list": "",
+        }
+        self.harness.charm._on_validate_action(action_event)
+        action_event.fail.assert_called_once()
+        self.assertIn(
+            "No filter parameters provided",
+            action_event.fail.call_args.args[0],
+        )
+        exec_mock.assert_not_called()
 
     def test_get_list_action(self):
         """Test get-list action."""
