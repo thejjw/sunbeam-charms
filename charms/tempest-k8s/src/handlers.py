@@ -463,6 +463,21 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
                 },
             },
             {
+                "name": "delete_project",
+                "params": {
+                    "name": OPENSTACK_PROJECT,
+                    "domain": "{{ show_domain[0].id }}",
+                },
+            },
+            {
+                "name": "delete_user",
+                "params": {
+                    "name": username,
+                    "password": password,
+                    "domain": "{{ show_domain[0].id }}",
+                },
+            },
+            {
                 "name": "update_domain",
                 "params": {
                     "domain": "{{ show_domain[0].id }}",

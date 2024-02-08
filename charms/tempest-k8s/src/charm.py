@@ -50,6 +50,9 @@ from ops.model import (
 from ops_sunbeam.config_contexts import (
     ConfigContext,
 )
+from utils.cleanup import (
+    perform_cleanup,
+)
 from utils.constants import (
     CONTAINER,
     TEMPEST_CONCURRENCY,
@@ -215,6 +218,23 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_WORKSPACE_PATH": TEMPEST_WORKSPACE_PATH,
         }
 
+    def _get_cleanup_env(self, variant: TempestEnvVariant) -> Dict[str, str]:
+        """Return a dictionary of environment variables.
+
+        To be used with pebble commands that run tempest discover, etc.
+        """
+        logger.debug("Retrieving OpenStack credentials")
+        credential = self.user_id_ops.get_user_credential()
+        return {
+            "OS_AUTH_URL": credential.get("auth-url"),
+            "OS_USERNAME": credential.get("username"),
+            "OS_PASSWORD": credential.get("password"),
+            "OS_PROJECT_NAME": credential.get("project-name"),
+            "OS_DOMAIN_ID": credential.get("domain-id"),
+            "OS_USER_DOMAIN_ID": credential.get("domain-id"),
+            "OS_PROJECT_DOMAIN_ID": credential.get("domain-id"),
+        }
+
     def get_unit_data(self, key: str) -> Optional[str]:
         """Retrieve a value set for this unit on the peer relation."""
         return self.peers.interface.peers_rel.data[self.unit].get(key)
@@ -242,10 +262,14 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         env = self._get_environment_for_tempest()
         pebble = self.pebble_handler()
         try:
+            # do an extensive clean-up before tempest init to remove stalled resources
+            perform_cleanup(self._get_cleanup_env(), extensive_cleanup=True)
+
             pebble.init_tempest(env)
         except RuntimeError:
             self.set_tempest_ready(False)
             return
+        # TODO: catch also possible exceptions coming from clean-up
 
         self.set_tempest_ready(True)
 
@@ -293,6 +317,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             output = self.pebble_handler().run_tempest_tests(
                 regexes, exclude_regex, test_list, serial, env
             )
+
+            # clean-up resources created by tests after tempest run
+            perform_cleanup(self._get_cleanup_env(), extensive_cleanup=False)
         except RuntimeError as e:
             event.fail(str(e))
             # still print the message,
@@ -300,6 +327,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             # and we want it neatly formatted
             print(e)
             return
+        # TODO: catch also possible exceptions coming from clean-up
         print(output)
 
     def _on_get_lists_action(self, event: ops.charm.ActionEvent) -> None:
