@@ -16,6 +16,91 @@
       "message": "WIP, but would appreciate your initial feedback",
       "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18599b24_8c2d2584",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-08T06:30:51Z",
+      "side": 1,
+      "message": "can analyse which exceptions could be raised, and normalise the exceptions to a single exception type within the cleanup functions, so the error handling is neat here.",
+      "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c6cc4a8_afd458f7",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-08T06:30:51Z",
+      "side": 1,
+      "message": "To avoid most zuul pep8 noise during wip development, I suggest running `tox -e fmt` before committing and pushing. ;)",
+      "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be3a8f96_c2e8cb69",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-08T06:30:51Z",
+      "side": 1,
+      "message": "Regarding prefixes: if we\u0027re only operating inside a domain managed by the charm and/or tempest, then can\u0027t we delete everything, ignoring prefixes?\n\nWe shouldn\u0027t rely on naming, because potentially this opens it to deleting user resources if they somehow name them with \u0027tempest-...\u0027.   We\u0027re already limiting to certain domains and projects, so can we ignore prefixes and simply clean up everything in the relevent domains and projects?",
+      "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7b58c22_927ca4dd",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-08T06:30:51Z",
+      "side": 1,
+      "message": "It\u0027ll be important to include in the docstrings a summary of what it cleans up, and when it should be run (in between tests, before init, etc.)",
+      "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7fc3a5d7_dcd31adc",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-08T06:30:51Z",
+      "side": 1,
+      "message": "I\u0027d rather expose run_extensive_cleanup and run_quick_cleanup as public functions, and drop this one.  That makes the public api clearer, and we have less if/else.\n\nThe common parts (like building the connection) could be split into a function like `get_connection(env: Env) -\u003e Connection`",
+      "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
