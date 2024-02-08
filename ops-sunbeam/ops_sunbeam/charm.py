@@ -540,6 +540,21 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         super().__init__(framework)
         self.pebble_handlers = self.get_pebble_handlers()
 
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = handlers or []
+        if self.can_add_handler("receive-ca-cert", handlers):
+            self.receive_ca_cert = (
+                sunbeam_rhandlers.CertificateTransferRequiresHandler(
+                    self, "receive-ca-cert"
+                )
+            )
+            handlers.append(self.receive_ca_cert)
+
+        return super().get_relation_handlers(handlers)
+
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the operator."""
         return [

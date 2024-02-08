@@ -28,6 +28,9 @@ resources:
 requires:
   identity-ops:
     interface: keystone-resources
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 provides:
   metrics-endpoint:

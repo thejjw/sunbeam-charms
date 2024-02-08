@@ -76,6 +76,9 @@ requires:
   identity-ops:
     interface: keystone-resources
     optional: true
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 peers:
   peers:
