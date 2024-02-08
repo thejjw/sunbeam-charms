@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bf90ced_fc03ab11",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-08T03:35:28Z",
+      "side": 1,
+      "message": "Example output on script crash:\n\n```\nubuntu@serverstack-sunbeam-1:~$ juju run --wait 3000s tempest-k8s/leader validate test-list\u003dreadonly-quick\nRunning operation 47 with 1 task\n  - task 48 on unit-tempest-k8s-0\n\nWaiting for task 48...\nError during test execution.\nFor more information, copy log file from container by running:\n$ juju scp -m openstack --container tempest tempest-k8s/0:/var/lib/tempest/workspace/tempest-validation.log validation.log\nubuntu@serverstack-sunbeam-1:~$ juju scp -m openstack --container tempest tempest-k8s/0:/var/lib/tempest/workspace/tempest-validation.log validation.log\nubuntu@serverstack-sunbeam-1:~$ tail validation.log\n2024-02-08 03:33:29.792 99 ERROR tempest     sys.exit(main())\n2024-02-08 03:33:29.792 99 ERROR tempest   File \"/lib/python3.10/site-packages/config_tempest/main.py\", line 597, in main\n2024-02-08 03:33:29.792 99 ERROR tempest     config_tempest(\n2024-02-08 03:33:29.792 99 ERROR tempest   File \"/lib/python3.10/site-packages/config_tempest/main.py\", line 581, in config_tempest\n2024-02-08 03:33:29.792 99 ERROR tempest     conf.write(out_path)\n2024-02-08 03:33:29.792 99 ERROR tempest   File \"/lib/python3.10/site-packages/config_tempest/tempest_conf.py\", line 115, in write\n2024-02-08 03:33:29.792 99 ERROR tempest     with open(out_path, \u0027w\u0027) as f:\n2024-02-08 03:33:29.792 99 ERROR tempest FileNotFoundError: [Errno 2] No such file or directory: \u0027/var/lib/tempest/workspace/etc/tempest.conf\u0027\n2024-02-08 03:33:29.792 99 ERROR tempest\n:: skipping tempest run because discover-tempest-config had errors\n```",
+      "revId": "1ed623eaede726d89eed3688acabd8297e137f71",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
