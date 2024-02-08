@@ -15,6 +15,7 @@ echo ":: discover-tempest-config" >> "$TMP_FILE"
 if discover-tempest-config --test-accounts "$TEMPEST_TEST_ACCOUNTS" --out "$TEMPEST_CONF" >> "$TMP_FILE" 2>&1; then
     echo ":: tempest run" >> "$TMP_FILE"
     tempest run --workspace "$TEMPEST_WORKSPACE" "$@" >> "$TMP_FILE" 2>&1
+    python3 "$TEMPEST_HOME/cleanup.py"
 else
     echo ":: skipping tempest run because discover-tempest-config had errors" >> "$TMP_FILE"
 fi
@@ -27,6 +28,14 @@ sed $'s/\033\[[0-9;]*m//g' -i "$TMP_FILE"
 # This ensures we don't have issues with logging libs pushing partial files,
 # if we were to stream to the final output.
 mv "$TMP_FILE" "$TEMPEST_OUTPUT"
+
+SUMMARY="$(awk '/^Totals$/,/Sum of execute/ { print }' < "$TEMPEST_OUTPUT")"
+if [[ -n "$SUMMARY" ]]; then
+    echo "$SUMMARY"
+else
+    echo "Error running the tests, please view the log file"
+    exit 1
+fi
 
 SUMMARY="$(awk '/^Totals$/,/Sum of execute/ { print }' < "$TEMPEST_OUTPUT")"
 if [[ -n "$SUMMARY" ]]; then
