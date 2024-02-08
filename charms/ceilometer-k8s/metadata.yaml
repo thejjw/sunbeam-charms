@@ -49,6 +49,9 @@ requires:
     limit: 1
   gnocchi-db:
     interface: gnocchi
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 peers:
   peers:

@@ -114,6 +114,8 @@ relations:
   - cinder:identity-service
 - - traefik:ingress
   - cinder:ingress-public
+- - keystone:send-ca-cert
+  - cinder:receive-ca-cert
 
 - - cinder-ceph:database
   - mysql:database
@@ -121,6 +123,8 @@ relations:
   - rabbitmq:amqp
 - - cinder:storage-backend
   - cinder-ceph:storage-backend
+- - keystone:send-ca-cert
+  - cinder-ceph:receive-ca-cert
 
 - - mysql:database
   - gnocchi:database
@@ -128,6 +132,8 @@ relations:
   - gnocchi:ingress-public
 - - keystone:identity-service
   - gnocchi:identity-service
+- - keystone:send-ca-cert
+  - gnocchi:receive-ca-cert
 
 - - rabbitmq:amqp
   - ceilometer:amqp
@@ -135,6 +141,8 @@ relations:
   - ceilometer:identity-credentials
 - - gnocchi:gnocchi-service
   - ceilometer:gnocchi-db
+- - keystone:send-ca-cert
+  - ceilometer:receive-ca-cert
 
 - - mysql:database
   - aodh:database
@@ -144,3 +152,5 @@ relations:
   - aodh:identity-service
 - - traefik:ingress
   - aodh:ingress-public
+- - keystone:send-ca-cert
+  - aodh:receive-ca-cert

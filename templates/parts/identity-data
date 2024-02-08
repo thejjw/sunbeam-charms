@@ -1,9 +1,9 @@
-{% if identity_service.admin_auth_url -%}
-auth_url = {{ identity_service.admin_auth_url }}
-interface = admin
-{% elif identity_service.internal_auth_url -%}
+{% if identity_service.internal_auth_url -%}
 auth_url = {{ identity_service.internal_auth_url }}
 interface = internal
+{% elif identity_service.admin_auth_url -%}
+auth_url = {{ identity_service.admin_auth_url }}
+interface = admin
 {% elif identity_service.internal_host -%}
 auth_url = {{ identity_service.internal_protocol }}://{{ identity_service.internal_host }}:{{ identity_service.internal_port }}
 interface = internal
@@ -19,5 +19,10 @@ user_domain_name = {{ identity_service.service_domain_name }}
 project_name = {{ identity_service.service_project_name }}
 username = {{ identity_service.service_user_name }}
 password = {{ identity_service.service_password }}
+{% if receive_ca_cert -%}
+{% if receive_ca_cert.ca_bundle -%}
+cafile = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}
+{% endif -%}
 service_token_roles = {{ identity_service.admin_role }}
 service_token_roles_required = True

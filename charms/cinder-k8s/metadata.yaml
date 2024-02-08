@@ -57,6 +57,9 @@ requires:
   image-service:
     interface: glance
     optional: true
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 peers:
   peers:

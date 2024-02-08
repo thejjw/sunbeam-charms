@@ -80,6 +80,9 @@ requires:
     interface: neutron-api
   placement:
     interface: placement
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 provides:
   cloud-controller:

@@ -10,5 +10,8 @@ clouds:
       project_domain_name: {{ os_exporter.domain_name }}
       user_domain_name: {{ os_exporter.domain_name }}
       auth_url: {{ os_exporter.auth_url }}
-    # cacert: /etc/ssl/ca.pem
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+    cacert: {{ receive_ca_cert.ca_bundle }}
+{% else -%}
     verify: false
+{% endif -%}
