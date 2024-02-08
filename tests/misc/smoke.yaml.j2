@@ -98,6 +98,8 @@ relations:
   - designate:ingress-public
 - - designate-bind:dns-backend
   - designate:dns-backend
+- - keystone:send-ca-cert
+  - designate:receive-ca-cert
 
 - - keystone:domain-config
   - keystone-ldap:domain-config

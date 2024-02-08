@@ -92,6 +92,12 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             sunbeam_core.ContainerConfigFile(
                 "/etc/cinder/cinder.conf", "root", "cinder", 0o640
             ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
+                "cinder",
+                0o640,
+            ),
         ]
 
 
@@ -143,7 +149,13 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
         return [
             sunbeam_core.ContainerConfigFile(
                 "/etc/cinder/cinder.conf", "root", "cinder", 0o640
-            )
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
+                "cinder",
+                0o640,
+            ),
         ]
 
 

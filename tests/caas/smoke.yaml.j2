@@ -141,6 +141,8 @@ relations:
   - glance:amqp
 - - traefik:ingress
   - glance:ingress-public
+- - keystone:send-ca-cert
+  - glance:receive-ca-cert
 
 - - mysql:database
   - heat:database
@@ -152,6 +154,8 @@ relations:
   - heat:traefik-route-public
 - - rabbitmq:amqp
   - heat:amqp
+- - keystone:send-ca-cert
+  - heat:receive-ca-cert
 
 - - mysql:database
   - octavia:database
@@ -165,6 +169,8 @@ relations:
   - octavia:certificates
 - - octavia:ovsdb-cms
   - ovn-central:ovsdb-cms
+- - keystone:send-ca-cert
+  - octavia:receive-ca-cert
 
 - - mysql:database
   - barbican:database
@@ -178,6 +184,8 @@ relations:
   - barbican:ingress-public
 - - vault:vault-kv
   - barbican:vault-kv
+- - keystone:send-ca-cert
+  - barbican:receive-ca-cert
 
 - - mysql:database
   - magnum:database
@@ -189,3 +197,5 @@ relations:
   - magnum:identity-ops
 - - traefik:ingress
   - magnum:ingress-public
+- - keystone:send-ca-cert
+  - magnum:receive-ca-cert

@@ -40,6 +40,10 @@ requires:
     interface: ingress
     optional: true
     limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+
 provides:
   placement:
     interface: placement

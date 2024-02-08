@@ -51,6 +51,9 @@ requires:
     limit: 1
   ceph:
     interface: ceph-client
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 provides:
   gnocchi-service:

@@ -91,6 +91,12 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             sunbeam_core.ContainerConfigFile(
                 "/etc/neutron/api-paste.ini", "neutron", "neutron"
             ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
+                "neutron",
+                0o640,
+            ),
         ]
 
 
@@ -234,6 +240,12 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
             ),
             sunbeam_core.ContainerConfigFile(
                 "/etc/neutron/api-paste.ini", "root", "neutron", 0o640
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
+                "neutron",
+                0o640,
             ),
         ]
 
