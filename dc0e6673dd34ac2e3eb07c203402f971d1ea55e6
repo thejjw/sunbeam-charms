@@ -50,6 +50,24 @@
       "message": "Use event.set_results instead of print",
       "revId": "dc0e6673dd34ac2e3eb07c203402f971d1ea55e6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "42a524b2_efbee41a",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 20
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-09T04:21:43Z",
+      "side": 1,
+      "message": "Done 😊",
+      "parentUuid": "d7e3a086_b6207c88",
+      "revId": "dc0e6673dd34ac2e3eb07c203402f971d1ea55e6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
