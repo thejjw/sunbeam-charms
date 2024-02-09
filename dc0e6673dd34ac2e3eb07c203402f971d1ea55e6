@@ -16,6 +16,40 @@
       "message": "LGTM",
       "revId": "dc0e6673dd34ac2e3eb07c203402f971d1ea55e6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38285c87_9924829e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 20
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-09T01:56:19Z",
+      "side": 1,
+      "message": "Minor nit in returning action results",
+      "revId": "dc0e6673dd34ac2e3eb07c203402f971d1ea55e6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7e3a086_b6207c88",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 20
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-09T01:56:19Z",
+      "side": 1,
+      "message": "Use event.set_results instead of print",
+      "revId": "dc0e6673dd34ac2e3eb07c203402f971d1ea55e6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
