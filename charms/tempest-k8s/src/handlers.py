@@ -41,9 +41,10 @@ from utils.constants import (
     OPENSTACK_PROJECT,
     OPENSTACK_ROLE,
     OPENSTACK_USER,
+    TEMPEST_ADHOC_OUTPUT,
     TEMPEST_HOME,
     TEMPEST_LIST_DIR,
-    TEMPEST_OUTPUT,
+    TEMPEST_PERIODIC_OUTPUT,
 )
 
 logger = logging.getLogger(__name__)
@@ -241,7 +242,7 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         ]
 
         try:
-            output = self.execute(
+            summary = self.execute(
                 args,
                 user="tempest",
                 group="tempest",
@@ -249,14 +250,14 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 exception_on_error=True,
                 environment=env,
             )
-        except ops.pebble.ExecError as e:
-            if e.stdout:
-                output = f"{e.stdout}\n\n{e.stderr}"
-            else:
-                output = e.stderr
-            raise RuntimeError(output)
+        except ops.pebble.ExecError:
+            raise RuntimeError(
+                "Error during test execution.\n"
+                "For more information, copy log file from container by running:\n"
+                + self.charm.get_copy_log_cmd()
+            )
 
-        return output
+        return summary
 
 
 class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
@@ -576,7 +577,14 @@ class LoggingRelationHandler(sunbeam_rhandlers.RelationHandler):
             recursive=True,
             relation_name=self.relation_name,
             alert_rules_path="src/loki_alert_rules",
-            logs_scheme={"tempest": {"log-files": [TEMPEST_OUTPUT]}},
+            logs_scheme={
+                "tempest": {
+                    "log-files": [
+                        TEMPEST_PERIODIC_OUTPUT,
+                        TEMPEST_ADHOC_OUTPUT,
+                    ]
+                }
+            },
         )
         return interface
 

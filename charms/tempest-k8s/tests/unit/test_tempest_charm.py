@@ -25,8 +25,13 @@ import ops_sunbeam.test_utils as test_utils
 import yaml
 from utils.constants import (
     CONTAINER,
+    TEMPEST_ADHOC_OUTPUT,
     TEMPEST_HOME,
+    TEMPEST_PERIODIC_OUTPUT,
     TEMPEST_READY_KEY,
+)
+from utils.types import (
+    TempestEnvVariant,
 )
 
 TEST_TEMPEST_ENV = {
@@ -44,7 +49,7 @@ TEST_TEMPEST_ENV = {
     "TEMPEST_CONF": "/var/lib/tempest/workspace/etc/tempest.conf",
     "TEMPEST_HOME": "/var/lib/tempest",
     "TEMPEST_LIST_DIR": "/tempest_test_lists",
-    "TEMPEST_OUTPUT": "/var/lib/tempest/workspace/tempest-output.log",
+    "TEMPEST_OUTPUT": "/var/lib/tempest/workspace/tempest-validation.log",
     "TEMPEST_TEST_ACCOUNTS": "/var/lib/tempest/workspace/test_accounts.yaml",
     "TEMPEST_WORKSPACE": "tempest",
     "TEMPEST_WORKSPACE_PATH": "/var/lib/tempest/workspace",
@@ -248,8 +253,10 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             "test-list": "",
         }
         self.harness.charm._on_validate_action(action_event)
-        action_event.fail.assert_called_with(
-            "'test(' is an invalid regex: missing ), unterminated subpattern at position 4"
+        action_event.fail.assert_called_once()
+        self.assertEqual(
+            "'test(' is an invalid regex: missing ), unterminated subpattern at position 4",
+            action_event.set_results.call_args.args[0]["error"],
         )
 
         self.harness.remove_relation(logging_rel_id)
@@ -281,8 +288,10 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             "test-list": "nonexistent",
         }
         self.harness.charm._on_validate_action(action_event)
-        action_event.fail.assert_called_with(
-            "'nonexistent' is not a known test list. Please run list-tests action to view available lists."
+        action_event.fail.assert_called_once()
+        self.assertEqual(
+            "'nonexistent' is not a known test list. Please run list-tests action to view available lists.",
+            action_event.set_results.call_args.args[0]["error"],
         )
 
         self.harness.remove_relation(logging_rel_id)
@@ -401,7 +410,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         action_event.fail.assert_called_once()
         self.assertIn(
             "No filter parameters provided",
-            action_event.fail.call_args.args[0],
+            action_event.set_results.call_args.args[0]["error"],
         )
         exec_mock.assert_not_called()
 
@@ -610,3 +619,12 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.charm.set_tempest_ready = mock.Mock()
         self.harness.charm._on_upgrade_charm(mock.Mock())
         self.harness.charm.set_tempest_ready.assert_called_once_with(False)
+
+    def test_tempest_env_variant(self):
+        """Test env variant for tempest returns correct path."""
+        self.assertEqual(
+            TempestEnvVariant.PERIODIC.output_path(), TEMPEST_PERIODIC_OUTPUT
+        )
+        self.assertEqual(
+            TempestEnvVariant.ADHOC.output_path(), TEMPEST_ADHOC_OUTPUT
+        )
