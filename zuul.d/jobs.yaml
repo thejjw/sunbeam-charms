@@ -303,7 +303,7 @@
     name: func-test-core
     description: |
       Zaza smoke test for all the core sunbeam charms.
-    timeout: 3600
+    timeout: 600
     run: playbooks/zaza-func-test.yaml
     post-run: playbooks/collect-run-data.yaml
     dependencies:
