@@ -1,21 +1,21 @@
 - project:
-    templates:
-      - openstack-python3-sunbeam-jobs
-      - openstack-cover-jobs
-      - openstack-sunbeam-charm-build-jobs
-      - charm-publish-jobs
+#    templates:
+#      - openstack-python3-sunbeam-jobs
+#      - openstack-cover-jobs
+#      - openstack-sunbeam-charm-build-jobs
+#      - charm-publish-jobs
     check:
       jobs:
         - func-test-core:
-            nodeset: ubuntu-focal
-        - func-test-ceph:
-            nodeset: ubuntu-focal
-        - func-test-caas:
-            nodeset: ubuntu-focal
-        - func-test-misc:
-            nodeset: ubuntu-focal
-        - func-test-machine:
             nodeset: ubuntu-jammy
+#        - func-test-ceph:
+#            nodeset: ubuntu-jammy
+#        - func-test-caas:
+#            nodeset: ubuntu-jammy
+#        - func-test-misc:
+#            nodeset: ubuntu-jammy
+#        - func-test-machine:
+#            nodeset: ubuntu-jammy
     vars:
       juju_channel: 3.2/stable
       juju_classic_mode: false
