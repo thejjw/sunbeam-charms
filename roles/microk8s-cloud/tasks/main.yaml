@@ -8,13 +8,13 @@
     microk8s_group: "{{ 'microk8s' if microk8s_classic_mode | default(true) else 'snap_microk8s' }}"
     microk8s_command_escalation: "{{ false if microk8s_classic_mode | default(true) else true }}"
 
-- name: Disable ipv6
-  become: true
-  sysctl:
-    name: "net.ipv6.conf.all.disable_ipv6"
-    value: "1"
-    state: "present"
-    reload: "yes"
+#- name: Disable ipv6
+#  become: true
+#  sysctl:
+#    name: "net.ipv6.conf.all.disable_ipv6"
+#    value: "1"
+#    state: "present"
+#    reload: "yes"
 
 - name: microk8s is installed
   snap:
@@ -99,6 +99,9 @@
   register: res
   changed_when: '"already enabled" not in res.stdout'
   become: "{{ microk8s_command_escalation }}"
+
+- fail:
+    msg: Failed for testing purpose to check coredns
 
 - name: microk8s metallb addon is enabled
   command:
