@@ -100,6 +100,9 @@
   changed_when: '"already enabled" not in res.stdout'
   become: "{{ microk8s_command_escalation }}"
 
+- fail:
+    msg: Failed for testing purpose to check coredns
+
 - name: microk8s metallb addon is enabled
   command:
     # ip range is an arbitrary choice; may need to be changed later
