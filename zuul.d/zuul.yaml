@@ -7,13 +7,13 @@
     check:
       jobs:
         - func-test-core:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - func-test-ceph:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - func-test-caas:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - func-test-misc:
-            nodeset: ubuntu-focal
+            nodeset: ubuntu-jammy
         - func-test-machine:
             nodeset: ubuntu-jammy
     vars:
