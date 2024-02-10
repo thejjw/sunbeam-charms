@@ -1,3 +1,7 @@
+- name: microk8s inspect
+  command:
+    cmd: microk8s inspect
+  become: true
 - name: collect microk8s inspection report
   args:
     executable: /bin/bash
@@ -9,33 +13,15 @@
     executable: /bin/bash
   shell: |
     set -o pipefail
-    MODEL="$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')"
-    microk8s.kubectl describe -n $MODEL pods > {{ zuul.project.src_dir }}/log/describe-pods.txt
-    CONTROLLER_MODEL="$(microk8s.kubectl get ns | grep controller | awk '{print $1}')"
-    microk8s.kubectl describe -n $CONTROLLER_MODEL pods > {{ zuul.project.src_dir }}/log/describe-controller-pods.txt
+    microk8s.kubectl describe pods -A > {{ zuul.project.src_dir }}/log/describe-controller-pods.txt
     exit 0
-- name: Collect var logs
-  args:
-    executable: /bin/bash
-  shell: |
-    set -o pipefail
-    MODEL_NAME=$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')
-    UNITS=$(juju status --format oneline | awk '{print $2}' | sed -e 's!:!!' | grep -Ev '^$' | paste -s -d' ')
-    for UNIT_NAME in $UNITS; do
-        POD_NAME=$(echo $UNIT_NAME | sed -e 's!/!-!')
-        CONTAINERS=$(microk8s.kubectl get pods -n $MODEL_NAME $POD_NAME -o jsonpath='{.spec.containers[*].name}' | sed -e 's/charm //')
-        for CONTAINER in $CONTAINERS; do
-            juju ssh --container $CONTAINER -m $MODEL_NAME $UNIT_NAME "tar zcf /tmp/logs.tgz /var/log/"
-            juju scp --container $CONTAINER -m $MODEL_NAME $UNIT_NAME:/tmp/logs.tgz {{ zuul.project.src_dir }}/log/$POD_NAME-$CONTAINER.tgz
-        done
-    done
 - name: Collect pods logs
   args:
     executable: /bin/bash
   shell: |
     set -o pipefail
     LOG_FOLDER={{ zuul.project.src_dir }}/log/pods/
-    MODEL_NAME=$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')
+    MODEL_NAME=metallb-system
     mkdir -p $LOG_FOLDER
     for pod in $(microk8s.kubectl get pods -n $MODEL_NAME -o=jsonpath='{.items[*].metadata.name}');
     do

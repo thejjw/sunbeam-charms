@@ -3,44 +3,24 @@
     name:
       - jq
   become: true
+- name: nftables is installed
+  apt:
+    name: nftables
+  become: true
+  when: ansible_distribution_release == 'jammy'
+- name: nftables list
+  command:
+    nft list ruleset
+  register: nft_result
+  become: true
+- debug:
+    msg: "{{ nft_result }}"
+
 - name: Create destination for logs
   file:
     path: "{{ zuul.project.src_dir }}/log"
     state: directory
     mode: 0755
-- name: debug logs replay
-  args:
-    executable: /bin/bash
-  shell: |
-    set -o pipefail
-    MODEL="$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')"
-    juju switch $MODEL
-    juju debug-log --replay > {{ zuul.project.src_dir }}/log/debug-hooks.txt
-    exit 0
-- name: juju status
-  args:
-    executable: /bin/bash
-  shell: |
-    set -o pipefail
-    for model in $(juju models | grep zaza- | awk '{gsub(/\*?/,""); print $1}'); do
-      juju status -m $model > {{ zuul.project.src_dir }}/log/juju-status.$model.txt
-      juju status -m $model --format=yaml > {{ zuul.project.src_dir }}/log/juju-status.$model.yaml
-    done
-- name: Collect units' info
-  args:
-    executable: /bin/bash
-  shell: |
-    set -o pipefail
-    set -x
-    LOG_FOLDER={{ zuul.project.src_dir }}/log/unit-info/
-    MODEL_NAME=$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')
-    mkdir -p $LOG_FOLDER
-    for unit in $(juju status --format json | jq -r '[.applications[].units | keys[0]] | join("\n")');
-    do
-      echo Collecting unit info: $unit
-      unit_name=$(echo $unit | tr / -)
-      juju show-unit --output="$LOG_FOLDER/$unit_name.yaml" $unit
-    done
 - name: Include k8s tasks
   include_tasks: k8s.yaml
   when: env_type == 'k8s'
