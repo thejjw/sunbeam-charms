@@ -100,6 +100,15 @@
   changed_when: '"already enabled" not in res.stdout'
   become: "{{ microk8s_command_escalation }}"
 
+- name: microk8s image ctr pull metallb
+  command:
+    cmd: microk8s.ctr image pull quay.io/metallb/controller:v0.13.3
+  register: res_image_pull
+  become: "{{ microk8s_command_escalation }}"
+
+- debug:
+    msg: "{{ res_image_pull }}"
+
 - name: microk8s metallb addon is enabled
   command:
     # ip range is an arbitrary choice; may need to be changed later
