@@ -16,6 +16,125 @@
       "message": "The patch is ready for review",
       "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94aa08de_8ff9b2ae",
+        "filename": "charms/tempest-k8s/requirements.txt",
+        "patchSetId": 8
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-11T23:48:25Z",
+      "side": 1,
+      "message": "This also must be added to test-requirements.txt so the unit tests can be run.",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb579ddc_4ee5cdfa",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-11T23:48:25Z",
+      "side": 1,
+      "message": "This could probably be untangled into two separate try/except blocks:\n\n```\ntry:\n  cleanup()\nexcept CleanUpError:\n  ...\n  return\n  \ntry:\n  init()\nexcept ...:\n  ...\n  return\n```",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7740303b_ac79f353",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-11T23:48:25Z",
+      "side": 1,
+      "message": "The other unit tests need to mock out this cleanup function or at least the cleanup Connection - currently they\u0027re failing with errors like\n\n```\nkeystoneauth1.exceptions.discovery.DiscoveryFailure: Could not find versioned identity endpoints when attempting to authenticate.\n```",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16e32382_dc3b939e",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-11T23:48:25Z",
+      "side": 1,
+      "message": "We should clean up resources even if the tempest test run failed.",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3130198_a446592a",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-11T23:48:25Z",
+      "side": 1,
+      "message": "Please add type hints to all the functions here - eg.\n\n```\ndef _connect_to_os(env: Dict[str, str]) -\u003e Connection:\ndef _get_test_projects_in_domain(conn: Connection, domain_id: str) -\u003e List[Project]:\n```",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d294835_748ab023",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-11T23:48:25Z",
+      "side": 1,
+      "message": "The optional prefix arg that is present in all the functions here isn\u0027t actually ever used, and not likely to be used.  I\u0027d prefer if this argument was dropped, and we use a constant defined at the top of the file instead.  eg.:\n\n```\nRESOURCE_PREFIX\u003d\"tempest-\"\n\n_get_test_projects_in_domain(conn, domain_id):\n  ...\n  if project.name.startswith(RESOURCE_PREFIX):\n    ...\n    \n...\n```",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a5cc1a01_1cde2115",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-11T23:48:25Z",
+      "side": 1,
+      "message": "the function naming and docstring doesn\u0027t line up with what it actually does here (clean up projects in a domain vs clean up a single project by id)",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }

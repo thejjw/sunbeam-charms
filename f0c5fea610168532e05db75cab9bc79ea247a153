@@ -53,6 +53,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "773d0280_bd18d6d2",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-11T23:48:25Z",
+      "side": 1,
+      "message": "resolving",
+      "parentUuid": "148db5f2_9382e8a1",
+      "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0c6cc4a8_afd458f7",
@@ -119,6 +137,24 @@
       "side": 1,
       "message": "I agree that prefix is not reliable as the primary indication of whether an resource is created by tempest, but I\u0027m using it as a secondary constrain in case the project and domain filter is not correctly, especially since:\n1. some resources are not strictly scoped\n2. domain admin has more than single domain access\n\nI\u0027d rather be extra careful and accept the possibility of not cleaning up some resources not starting with `tempest-` than only rely on the project and domain",
       "parentUuid": "be3a8f96_c2e8cb69",
+      "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ae45b2c_fada6769",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-11T23:48:25Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "809514a7_11eafa0e",
       "revId": "f0c5fea610168532e05db75cab9bc79ea247a153",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
