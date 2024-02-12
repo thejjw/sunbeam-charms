@@ -284,6 +284,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "129aaedc_d8a7141b",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T23:23:40Z",
+      "side": 1,
+      "message": "My opinion here is not strong, and I\u0027m ok with adding it as needed in future. Updated",
+      "parentUuid": "76a51c67_eb81b18c",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8dd036b6_d95c0db8",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 8
