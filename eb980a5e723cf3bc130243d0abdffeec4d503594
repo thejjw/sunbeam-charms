@@ -266,6 +266,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "76a51c67_eb81b18c",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-12T22:04:15Z",
+      "side": 1,
+      "message": "I thought we\u0027d be opinionated here, so I\u0027m not sure about this kind of just in case.  Can we drop the prefix argument from the functions and directly use the constant?  If we do need to configure it in future, we can then easily make it configurable, and drive the implementation based on how we want to be able to configure it.",
+      "parentUuid": "1a277c58_ecdfa0b0",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8dd036b6_d95c0db8",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 8
