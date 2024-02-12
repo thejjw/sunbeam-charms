@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "55d929cb_8db3dc4b",
+        "filename": "charms/tempest-k8s/requirements.txt",
+        "patchSetId": 8
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94aa08de_8ff9b2ae",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bb579ddc_4ee5cdfa",
@@ -70,6 +88,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d5b3d29_cb3536e1",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "I don\u0027t see the harm spiting them. Changed in the new patch.",
+      "parentUuid": "fa65452b_3ce4f52d",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7740303b_ac79f353",
@@ -83,6 +119,24 @@
       "writtenOn": "2024-02-11T23:48:25Z",
       "side": 1,
       "message": "The other unit tests need to mock out this cleanup function or at least the cleanup Connection - currently they\u0027re failing with errors like\n\n```\nkeystoneauth1.exceptions.discovery.DiscoveryFailure: Could not find versioned identity endpoints when attempting to authenticate.\n```",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b49c481e_55f0a829",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7740303b_ac79f353",
       "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -106,6 +160,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "95323753_2529fcc7",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "True. Updated!",
+      "parentUuid": "16e32382_dc3b939e",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "b3130198_a446592a",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 8
@@ -117,6 +189,24 @@
       "writtenOn": "2024-02-11T23:48:25Z",
       "side": 1,
       "message": "Please add type hints to all the functions here - eg.\n\n```\ndef _connect_to_os(env: Dict[str, str]) -\u003e Connection:\ndef _get_test_projects_in_domain(conn: Connection, domain_id: str) -\u003e List[Project]:\n```",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e177c89_23b7ee4c",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b3130198_a446592a",
       "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -156,6 +246,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a277c58_ecdfa0b0",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "Having prefix configurable is valuable because we will likely have the need to configure a custom prefix for tempest resources. But I agree making the default a global constant is cleaner. Updated.",
+      "parentUuid": "60c0e1f4_3b57e086",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8dd036b6_d95c0db8",
@@ -169,6 +277,24 @@
       "writtenOn": "2024-02-12T11:51:13Z",
       "side": 1,
       "message": "not-blocking: This could be simply list comprehension.",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3dbd1c4_7bda24eb",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8dd036b6_d95c0db8",
       "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -192,6 +318,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "03039bad_db20018c",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "Because both things are block storage resources. I have made changes to the name to be clearer",
+      "parentUuid": "56bc3ea5_3caf74da",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "68603b69_1f995f61",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 8
@@ -203,6 +347,24 @@
       "writtenOn": "2024-02-12T11:51:13Z",
       "side": 1,
       "message": "I do not understand why this is ok to skip if it\u0027s not found, you are getting this info from connection so it should be there or not? Can you provide more description here?",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85d6c006_e9e49e82",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "No, connection object itself doesn\u0027t contain endpoint information, so are calling this function regardless whether an endpoint is present. If heat is not in the cloud, running conn.orchestration.stacks will raise EndpointNotFound and this cleanup should be skipped.",
+      "parentUuid": "68603b69_1f995f61",
       "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -224,6 +386,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad267106_9935dc17",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5cc1a01_1cde2115",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "db8b2f75_e8c910f0",
@@ -237,6 +417,24 @@
       "writtenOn": "2024-02-12T11:51:13Z",
       "side": 1,
       "message": "What if removing image failed? Like this we do not try to continue cleaning reminding resources in project and even other projects.",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c1950dca_398c6fcb",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "Good point. Updated.",
+      "parentUuid": "db8b2f75_e8c910f0",
       "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -266,6 +464,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d3ee253a_6b82fc0e",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "To have a unified function call like used in charm.py",
+      "parentUuid": "5649e3ae_d0ad7881",
+      "range": {
+        "startLine": 222,
+        "startChar": 4,
+        "endLine": 222,
+        "endChar": 7
+      },
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "17dd7066_9de7a480",
         "filename": "charms/tempest-k8s/tests/unit/test_cleanup.py",
         "patchSetId": 8
@@ -277,6 +499,24 @@
       "writtenOn": "2024-02-12T11:51:13Z",
       "side": 1,
       "message": "This could be mocked in setUp function, since it\u0027s used almost in all tests.",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5875640_b6966de2",
+        "filename": "charms/tempest-k8s/tests/unit/test_cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-12T19:31:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "17dd7066_9de7a480",
       "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
