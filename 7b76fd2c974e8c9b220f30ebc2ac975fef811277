@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8889daed_0de42084",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-12T00:48:56Z",
+      "side": 1,
+      "message": "Ah ok, I had assumed you were testing with the observability plugin in sunbeam.  Can you test with full sunbeam too?  It needs to work in this environment.\n\nHere is the juju status for the COS model and grafana-agent-k8s in the openstack model for me:\n\n```\nubuntu@serverstack-sunbeam-1:~$ juju status -m observability\nModel          Controller          Cloud/Region                Version  SLA          Timestamp\nobservability  sunbeam-controller  sunbeam-microk8s/localhost  3.2.4    unsupported  00:46:14Z\n\nApp           Version  Status  Scale  Charm             Channel        Rev  Address         Exposed  Message\nalertmanager  0.25.0   active      1  alertmanager-k8s  1.0/candidate   96  10.152.183.187  no\ncatalogue              active      1  catalogue-k8s     1.0/candidate   33  10.152.183.101  no\ngrafana       9.2.1    active      1  grafana-k8s       1.0/candidate   93  10.152.183.226  no\nloki          2.7.4    active      1  loki-k8s          1.0/candidate  104  10.152.183.114  no\nprometheus    2.47.2   active      1  prometheus-k8s    1.0/candidate  159  10.152.183.34   no\ntraefik       2.10.4   active      1  traefik-k8s       1.0/candidate  164  10.6.0.25       no\n\nUnit             Workload  Agent  Address       Ports  Message\nalertmanager/0*  active    idle   10.1.200.123\ncatalogue/0*     active    idle   10.1.200.110\ngrafana/0*       active    idle   10.1.200.126\nloki/0*          active    idle   10.1.200.124\nprometheus/0*    active    idle   10.1.200.125\ntraefik/0*       active    idle   10.1.200.117\n\nOffer                            Application   Charm             Rev  Connected  Endpoint              Interface                Role\nalertmanager-karma-dashboard     alertmanager  alertmanager-k8s  96   0/0        karma-dashboard       karma_dashboard          provider\ngrafana-dashboards               grafana       grafana-k8s       93   2/2        grafana-dashboard     grafana_dashboard        requirer\nloki-logging                     loki          loki-k8s          104  2/2        logging               loki_push_api            provider\nprometheus-receive-remote-write  prometheus    prometheus-k8s    159  2/2        receive-remote-write  prometheus_remote_write  provider\nprometheus-scrape                prometheus    prometheus-k8s    159  0/0        metrics-endpoint      prometheus_scrape        requirer\nubuntu@serverstack-sunbeam-1:~$ juju status grafana-agent-k8s\nModel      Controller          Cloud/Region                Version  SLA          Timestamp\nopenstack  sunbeam-controller  sunbeam-microk8s/localhost  3.2.4    unsupported  00:46:21Z\n\nSAAS                             Status  Store  URL\ngrafana-dashboards               active  local  serverstack-sunbeam-1.project.serverstack/observability.grafana-dashboards\nloki-logging                     active  local  serverstack-sunbeam-1.project.serverstack/observability.loki-logging\nmicroceph                        active  local  admin/controller.microceph\nprometheus-receive-remote-write  active  local  serverstack-sunbeam-1.project.serverstack/observability.prometheus-receive-remote-write\n\nApp                Version  Status  Scale  Charm              Channel        Rev  Address        Exposed  Message\ngrafana-agent-k8s  0.32.1   active      1  grafana-agent-k8s  latest/stable   51  10.152.183.97  no\n\nUnit                  Workload  Agent  Address      Ports  Message\ngrafana-agent-k8s/0*  active    idle   10.1.200.65\n\nOffer                  Application            Charm                     Rev  Connected  Endpoint              Interface             Role\ncertificate-authority  certificate-authority  self-signed-certificates  72   1/1        certificates          tls-certificates      provider\ncinder-ceph            cinder-ceph            cinder-ceph-k8s           48   1/1        ceph-access           cinder-ceph-key       provider\nkeystone               keystone               keystone-k8s              156  1/1        identity-credentials  keystone-credentials  provider\novn-relay              ovn-relay              ovn-relay-k8s             54   1/1        ovsdb-cms-relay       ovsdb-cms             provider\nrabbitmq               rabbitmq               rabbitmq-k8s              33   1/1        amqp                  rabbitmq              provider\n\n```\n\nWhat does your deployment look like regarding versions and CMRs?",
+      "parentUuid": "0fee67e3_8cff611b",
+      "revId": "7b76fd2c974e8c9b220f30ebc2ac975fef811277",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6c03f9d9_7d5aab47",
         "filename": "charms/tempest-k8s/src/grafana_dashboards/tests-results.json",
         "patchSetId": 2
@@ -67,6 +85,24 @@
       "side": 1,
       "message": "The uid is auto-generated, and I do not see the reason why we need to put it there, what is the benefit? Do you know? I can add it.",
       "parentUuid": "6c03f9d9_7d5aab47",
+      "revId": "7b76fd2c974e8c9b220f30ebc2ac975fef811277",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "577ad52e_7327a2d6",
+        "filename": "charms/tempest-k8s/src/grafana_dashboards/tests-results.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-12T00:48:56Z",
+      "side": 1,
+      "message": "I\u0027m not sure.  I think it was so dashboard updates worked (dashboard updates are matched to existing dashboards by this UID), but maybe it\u0027s not required with COS.  I think with COS, the dashboards are provisioned differently (templated to disk and staticly loaded?).\n\nSo if it works, it works, no need to add a UID then. 👍",
+      "parentUuid": "a12f9503_c71c664a",
       "revId": "7b76fd2c974e8c9b220f30ebc2ac975fef811277",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
