@@ -54,6 +54,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fa65452b_3ce4f52d",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-12T11:51:13Z",
+      "side": 1,
+      "message": "What would be the benefit of that?",
+      "parentUuid": "bb579ddc_4ee5cdfa",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "7740303b_ac79f353",
         "filename": "charms/tempest-k8s/src/charm.py",
         "patchSetId": 8
@@ -122,6 +140,75 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "60c0e1f4_3b57e086",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-12T11:51:13Z",
+      "side": 1,
+      "message": "I agree, or at least use constant as default or do not define default value at all.",
+      "parentUuid": "3d294835_748ab023",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8dd036b6_d95c0db8",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-12T11:51:13Z",
+      "side": 1,
+      "message": "not-blocking: This could be simply list comprehension.",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56bc3ea5_3caf74da",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-12T11:51:13Z",
+      "side": 1,
+      "message": "We defined helper function for everything individually, so why this function is combining two thinks?",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68603b69_1f995f61",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-12T11:51:13Z",
+      "side": 1,
+      "message": "I do not understand why this is ok to skip if it\u0027s not found, you are getting this info from connection so it should be there or not? Can you provide more description here?",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a5cc1a01_1cde2115",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 8
@@ -133,6 +220,63 @@
       "writtenOn": "2024-02-11T23:48:25Z",
       "side": 1,
       "message": "the function naming and docstring doesn\u0027t line up with what it actually does here (clean up projects in a domain vs clean up a single project by id)",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db8b2f75_e8c910f0",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-12T11:51:13Z",
+      "side": 1,
+      "message": "What if removing image failed? Like this we do not try to continue cleaning reminding resources in project and even other projects.",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5649e3ae_d0ad7881",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-12T11:51:13Z",
+      "side": 1,
+      "message": "What is purpose of this variable? I think using os.getenv or os.environ or defining input arguments directly, would be better. e.g. `run_quick_cleanup(auth_url\u003dos.getenv(\"OS_AUTH_URL\", \"\"))`",
+      "range": {
+        "startLine": 222,
+        "startChar": 4,
+        "endLine": 222,
+        "endChar": 7
+      },
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17dd7066_9de7a480",
+        "filename": "charms/tempest-k8s/tests/unit/test_cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-12T11:51:13Z",
+      "side": 1,
+      "message": "This could be mocked in setUp function, since it\u0027s used almost in all tests.",
       "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
