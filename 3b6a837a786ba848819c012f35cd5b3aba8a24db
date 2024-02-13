@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "49c58e30_b406f496",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-13T14:37:05Z",
+      "side": 1,
+      "message": "Actually type hint is part of the standard library since Python 3.9 ([1]), so importing from typing is not only no longer needed but also will like be deprecated ([2]). I will raise I bug to remove the usage of typing imports everywhere.\n\n[1]: https://docs.python.org/3/whatsnew/3.9.html#type-hinting-generics-in-standard-collections\n[2]: https://peps.python.org/pep-0585/#implementation",
+      "parentUuid": "57f3b6bb_8ace01d8",
+      "revId": "3b6a837a786ba848819c012f35cd5b3aba8a24db",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6a082301_a5dcb819",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 13
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "Hmm actually I\u0027m not sure if more networks are left from each tempest run, or just created in the tempest init process.  Either way, we should double check and maybe address now, because networks accumulate quickly in my experience and result in running out of ip addresses.",
       "parentUuid": "6a082301_a5dcb819",
+      "revId": "3b6a837a786ba848819c012f35cd5b3aba8a24db",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7088429_ddc8c5b6",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-13T14:37:05Z",
+      "side": 1,
+      "message": "From my tests, when running tests with pre-generated test accounts, the network are created at the account-generator step only and doesn\u0027t accumulate in-between tests. I presume that you were seeing the accumulation in tests because you were running tests with admin user?\n\nBut I do have an idea for further optimization. Will push a new patch later.",
+      "parentUuid": "7095c966_110a070d",
       "revId": "3b6a837a786ba848819c012f35cd5b3aba8a24db",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }

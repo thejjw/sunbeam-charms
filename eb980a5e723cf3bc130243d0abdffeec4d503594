@@ -247,6 +247,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b34040c_b7b627f7",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-13T14:37:05Z",
+      "side": 1,
+      "message": "Sure. I saw that not all our functions are defining types (e.g. in handler.py), so I didn\u0027t think it was really necessary. But I agree it would be better.",
+      "parentUuid": "e68b4a9b_d745e4ba",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3d294835_748ab023",
@@ -508,6 +526,24 @@
       "side": 1,
       "message": "Plural should be changed to singular here for clarity:\n\n_cleanup_projects -\u003e _cleanup_project\n\nDelete projects ... -\u003e Delete project ...",
       "parentUuid": "ad267106_9935dc17",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d63c363_dae05e6d",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-13T14:37:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ea79cf2_6d38e05d",
       "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
