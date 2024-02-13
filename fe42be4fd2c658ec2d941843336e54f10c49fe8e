@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "685717fa_2aa63f57",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-13T09:16:55Z",
+      "side": 1,
+      "message": "recheck\n\nfunc-test-core failed with unrelated error.",
+      "revId": "fe42be4fd2c658ec2d941843336e54f10c49fe8e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
