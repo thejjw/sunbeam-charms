@@ -91,7 +91,6 @@ class PebbleHandler(ops.framework.Object):
         """Handle pebble ready event."""
         container = event.workload
         container.add_layer(self.service_name, self.get_layer(), combine=True)
-        logger.debug(f"Plan: {container.get_plan()}")
         self.charm.configure_charm(event)
 
     def write_config(
