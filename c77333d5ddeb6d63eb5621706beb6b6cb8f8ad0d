@@ -104,6 +104,24 @@
       "parentUuid": "fc4eca1e_f1b7b665",
       "revId": "c77333d5ddeb6d63eb5621706beb6b6cb8f8ad0d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "890671b5_3cd14af0",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-13T00:56:18Z",
+      "side": 1,
+      "message": "Ah nevermind, I was looking at an outdated diff...",
+      "parentUuid": "7c3fbbd1_2b7032a7",
+      "revId": "c77333d5ddeb6d63eb5621706beb6b6cb8f8ad0d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
