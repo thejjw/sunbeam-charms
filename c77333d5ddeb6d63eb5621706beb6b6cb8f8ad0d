@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6000ec1e_aa7e7f1f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-13T00:15:47Z",
+      "side": 1,
+      "message": "A couple of nits, but nothing nonblocking.  Looks good to me. 😊",
+      "revId": "c77333d5ddeb6d63eb5621706beb6b6cb8f8ad0d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b698aa9_b9b3b947",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-13T00:15:47Z",
+      "side": 1,
+      "message": "This docstring needs updating",
+      "revId": "c77333d5ddeb6d63eb5621706beb6b6cb8f8ad0d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a6cbc8c9_f58dfd55",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-13T00:15:47Z",
+      "side": 1,
+      "message": "Non blocking nit: a pattern we can use here to avoid string building issues, is to build a list, then join it on newline later:\n\n```\nfail_messages \u003d []\n...\nexcept RuntimeError as e:\n  fail_messages.append(str(e))\n...\n\nif fail_messages:\n  ... \"\\n\".join(fail_messages)\n```",
+      "revId": "c77333d5ddeb6d63eb5621706beb6b6cb8f8ad0d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
