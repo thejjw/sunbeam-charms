@@ -53,6 +53,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b6f91a0_702d5bb2",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-13T21:54:32Z",
+      "side": 1,
+      "message": "Oh nice, I didn\u0027t know that, thanks!  So it\u0027ll only be a few things like Union, Optional and such that need importing. 👍",
+      "parentUuid": "49c58e30_b406f496",
+      "revId": "3b6a837a786ba848819c012f35cd5b3aba8a24db",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6a082301_a5dcb819",
@@ -102,6 +120,24 @@
       "side": 1,
       "message": "From my tests, when running tests with pre-generated test accounts, the network are created at the account-generator step only and doesn\u0027t accumulate in-between tests. I presume that you were seeing the accumulation in tests because you were running tests with admin user?\n\nBut I do have an idea for further optimization. Will push a new patch later.",
       "parentUuid": "7095c966_110a070d",
+      "revId": "3b6a837a786ba848819c012f35cd5b3aba8a24db",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0421c75_70ebfe9a",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-13T21:54:32Z",
+      "side": 1,
+      "message": "Ah ok, that makes sense.  I guess I\u0027m seeing networks accumulate from the tempest init stage.",
+      "parentUuid": "c7088429_ddc8c5b6",
       "revId": "3b6a837a786ba848819c012f35cd5b3aba8a24db",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
