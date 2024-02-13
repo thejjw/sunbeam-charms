@@ -215,6 +215,7 @@ CONFIG_TEMPLATES_HEAT=(
         "database-connection"
         "section-identity"
         "identity-data"
+        "section-trustee"
         "section-oslo-messaging-rabbit"
 )
 
