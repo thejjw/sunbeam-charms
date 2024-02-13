@@ -231,6 +231,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e68b4a9b_d745e4ba",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-13T06:04:32Z",
+      "side": 1,
+      "message": "Ah, I\u0027m taking a second look now - some type hints are missing.  Could you add type hints to function arguments as well?\n\nAlso for brevity, you could import Connection from openstack.connection, so it can be refered as `Connection` instead of `connnection.Connection` everywhere.",
+      "parentUuid": "6e177c89_23b7ee4c",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3d294835_748ab023",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 8
@@ -472,6 +490,24 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "a5cc1a01_1cde2115",
+      "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ea79cf2_6d38e05d",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-13T06:04:32Z",
+      "side": 1,
+      "message": "Plural should be changed to singular here for clarity:\n\n_cleanup_projects -\u003e _cleanup_project\n\nDelete projects ... -\u003e Delete project ...",
+      "parentUuid": "ad267106_9935dc17",
       "revId": "eb980a5e723cf3bc130243d0abdffeec4d503594",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },

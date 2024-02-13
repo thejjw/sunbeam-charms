@@ -1,6 +1,40 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "09e864bd_e2d62b68",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-13T06:04:32Z",
+      "side": 1,
+      "message": "I did another pass and flagged some things that I\u0027d originally thought low priority or could be implemented in a later iteration.  We may be fine with them and can address later, but some may be important to address now.  I realised it\u0027s probably better to flag anyway so they\u0027re on the radar, regardless of how quickly we want to merge and iterate on development.",
+      "revId": "3b6a837a786ba848819c012f35cd5b3aba8a24db",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57f3b6bb_8ace01d8",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-13T06:04:32Z",
+      "side": 1,
+      "message": "`list[str]` should be:\n\n```\nfrom typing import List\n...\n-\u003e List[str]:\n```\n\nAs an aside, we aren\u0027t actually doing any type checking in the tests, so there\u0027s no automation to check these... :/  Maybe that\u0027s something we can look at adding in the future across the project.",
+      "revId": "3b6a837a786ba848819c012f35cd5b3aba8a24db",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6a082301_a5dcb819",
@@ -14,6 +48,24 @@
       "writtenOn": "2024-02-13T01:36:01Z",
       "side": 1,
       "message": "Ah we actually need to clean up networks in between each test too.  Otherwise these accumulate quickly.  We can do this in another iteration of cleanup though to refine and catch whatever we\u0027ve missed here.",
+      "revId": "3b6a837a786ba848819c012f35cd5b3aba8a24db",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7095c966_110a070d",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-13T06:04:32Z",
+      "side": 1,
+      "message": "Hmm actually I\u0027m not sure if more networks are left from each tempest run, or just created in the tempest init process.  Either way, we should double check and maybe address now, because networks accumulate quickly in my experience and result in running out of ip addresses.",
+      "parentUuid": "6a082301_a5dcb819",
       "revId": "3b6a837a786ba848819c012f35cd5b3aba8a24db",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
