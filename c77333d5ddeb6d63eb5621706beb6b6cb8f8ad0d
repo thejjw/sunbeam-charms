@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "64c4a993_d101b76c",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-13T00:33:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b698aa9_b9b3b947",
+      "revId": "c77333d5ddeb6d63eb5621706beb6b6cb8f8ad0d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a6cbc8c9_f58dfd55",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-02-13T00:15:47Z",
       "side": 1,
       "message": "Non blocking nit: a pattern we can use here to avoid string building issues, is to build a list, then join it on newline later:\n\n```\nfail_messages \u003d []\n...\nexcept RuntimeError as e:\n  fail_messages.append(str(e))\n...\n\nif fail_messages:\n  ... \"\\n\".join(fail_messages)\n```",
+      "revId": "c77333d5ddeb6d63eb5621706beb6b6cb8f8ad0d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc4eca1e_f1b7b665",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-13T00:33:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6cbc8c9_f58dfd55",
       "revId": "c77333d5ddeb6d63eb5621706beb6b6cb8f8ad0d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
