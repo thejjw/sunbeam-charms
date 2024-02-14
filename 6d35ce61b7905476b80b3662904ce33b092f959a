@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "81b47c11_28ff1cb8",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-14T02:50:28Z",
+      "side": 1,
+      "message": "Eventually we want to move all the logic into the charm code, so it may be useful to keep it here?",
+      "parentUuid": "64cfc34c_726fdcb8",
+      "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f72ebc62_033b3bec",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 16
@@ -31,6 +49,24 @@
       "writtenOn": "2024-02-14T01:52:57Z",
       "side": 1,
       "message": "run_quick_cleanup() and this function has most of the code same.\nCan we have single function run_cleanup passing argument whether to do quick or extensive cleanup.",
+      "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ac1d173_de0e328d",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-14T02:50:28Z",
+      "side": 1,
+      "message": "I had suggested two separate functions to avoid extra branching and conditionals.  There are enough differences to make it worth keeping as separate functions.\n\nPerhaps for the identical code blocks, they could be refactored into a separate function.  For example the `for project_id in projects:` loop could be moved to a function to be called like `failure_messages \u003d run_cleanups_on_projects(projects, cleanup_funcs)`",
+      "parentUuid": "f72ebc62_033b3bec",
       "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
