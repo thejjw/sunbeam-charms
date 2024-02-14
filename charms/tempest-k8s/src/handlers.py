@@ -604,6 +604,11 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
 
         except CleanUpError as e:
             logger.warning("Clean-up failed: %s", str(e))
+
+        # If the relation is going away, then tempest is no longer ready,
+        # and the environment should be inited again if rejoined.
+        self.charm.set_tempest_ready(False)
+
         self.callback_f(event)
 
 

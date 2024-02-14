@@ -197,6 +197,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             self.harness
         )
 
+        self.harness.charm.set_tempest_ready = mock.Mock()
         self.harness.charm.is_tempest_ready = mock.Mock(return_value=True)
 
         self.harness.update_config({"schedule": "0 0 */7 * *"})
@@ -219,11 +220,9 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
     def test_config_context_schedule(self):
         """Test config context contains the schedule as expected."""
         test_utils.set_all_pebbles_ready(self.harness)
-        logging_rel_id = self.add_logging_relation(self.harness)
-        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
-        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
-            self.harness
-        )
+        self.add_logging_relation(self.harness)
+        self.add_identity_ops_relation(self.harness)
+        self.add_grafana_dashboard_relation(self.harness)
 
         # schedule is disabled if it's not ready, so set it ready for testing
         self.harness.charm.is_tempest_ready = mock.Mock(return_value=True)
@@ -251,18 +250,12 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.update_config({"schedule": schedule})
         self.assertEqual(self.harness.charm.contexts().tempest.schedule, "")
 
-        self.harness.remove_relation(logging_rel_id)
-        self.harness.remove_relation(identity_ops_rel_id)
-        self.harness.remove_relation(grafana_dashboard_rel_id)
-
     def test_validate_action_invalid_regex(self):
         """Test validate action with invalid regex provided."""
         test_utils.set_all_pebbles_ready(self.harness)
-        logging_rel_id = self.add_logging_relation(self.harness)
-        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
-        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
-            self.harness
-        )
+        self.add_logging_relation(self.harness)
+        self.add_identity_ops_relation(self.harness)
+        self.add_grafana_dashboard_relation(self.harness)
 
         action_event = mock.Mock()
         action_event.params = {
@@ -278,18 +271,12 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             action_event.set_results.call_args.args[0]["error"],
         )
 
-        self.harness.remove_relation(logging_rel_id)
-        self.harness.remove_relation(identity_ops_rel_id)
-        self.harness.remove_relation(grafana_dashboard_rel_id)
-
     def test_validate_action_invalid_list(self):
         """Test validate action with invalid list provided."""
         test_utils.set_all_pebbles_ready(self.harness)
-        logging_rel_id = self.add_logging_relation(self.harness)
-        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
-        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
-            self.harness
-        )
+        self.add_logging_relation(self.harness)
+        self.add_identity_ops_relation(self.harness)
+        self.add_grafana_dashboard_relation(self.harness)
 
         file1 = mock.Mock()
         file1.name = "file_1"
@@ -313,18 +300,12 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             action_event.set_results.call_args.args[0]["error"],
         )
 
-        self.harness.remove_relation(logging_rel_id)
-        self.harness.remove_relation(identity_ops_rel_id)
-        self.harness.remove_relation(grafana_dashboard_rel_id)
-
     def test_validate_action_success(self):
         """Test validate action with default params."""
         test_utils.set_all_pebbles_ready(self.harness)
-        logging_rel_id = self.add_logging_relation(self.harness)
-        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
-        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
-            self.harness
-        )
+        self.add_logging_relation(self.harness)
+        self.add_identity_ops_relation(self.harness)
+        self.add_grafana_dashboard_relation(self.harness)
 
         file1 = mock.Mock()
         file1.name = "file_1"
@@ -354,18 +335,12 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             environment=TEST_TEMPEST_ENV,
         )
 
-        self.harness.remove_relation(logging_rel_id)
-        self.harness.remove_relation(identity_ops_rel_id)
-        self.harness.remove_relation(grafana_dashboard_rel_id)
-
     def test_validate_action_params(self):
         """Test validate action with more params."""
         test_utils.set_all_pebbles_ready(self.harness)
-        logging_rel_id = self.add_logging_relation(self.harness)
-        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
-        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
-            self.harness
-        )
+        self.add_logging_relation(self.harness)
+        self.add_identity_ops_relation(self.harness)
+        self.add_grafana_dashboard_relation(self.harness)
 
         file1 = mock.Mock()
         file1.name = "file_1"
@@ -404,10 +379,6 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             environment=TEST_TEMPEST_ENV,
         )
 
-        self.harness.remove_relation(logging_rel_id)
-        self.harness.remove_relation(identity_ops_rel_id)
-        self.harness.remove_relation(grafana_dashboard_rel_id)
-
     def test_validate_action_no_params(self):
         """Test validate action with no filter params."""
         test_utils.set_all_pebbles_ready(self.harness)
@@ -436,11 +407,9 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
     def test_get_list_action(self):
         """Test get-list action."""
         test_utils.set_all_pebbles_ready(self.harness)
-        logging_rel_id = self.add_logging_relation(self.harness)
-        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
-        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
-            self.harness
-        )
+        self.add_logging_relation(self.harness)
+        self.add_identity_ops_relation(self.harness)
+        self.add_grafana_dashboard_relation(self.harness)
 
         file1 = mock.Mock()
         file1.name = "file_1"
@@ -454,18 +423,12 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.charm._on_get_lists_action(action_event)
         action_event.fail.assert_not_called()
 
-        self.harness.remove_relation(logging_rel_id)
-        self.harness.remove_relation(identity_ops_rel_id)
-        self.harness.remove_relation(grafana_dashboard_rel_id)
-
     def test_get_list_action_not_ready(self):
         """Test get-list action when pebble is not ready."""
         test_utils.set_all_pebbles_ready(self.harness)
-        logging_rel_id = self.add_logging_relation(self.harness)
-        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
-        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
-            self.harness
-        )
+        self.add_logging_relation(self.harness)
+        self.add_identity_ops_relation(self.harness)
+        self.add_grafana_dashboard_relation(self.harness)
 
         file1 = mock.Mock()
         file1.name = "file_1"
@@ -479,18 +442,12 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.charm._on_get_lists_action(action_event)
         action_event.fail.assert_called_with("pebble is not ready")
 
-        self.harness.remove_relation(logging_rel_id)
-        self.harness.remove_relation(identity_ops_rel_id)
-        self.harness.remove_relation(grafana_dashboard_rel_id)
-
     def test_blocked_status_invalid_schedule(self):
         """Test to verify blocked status with invalid schedule config."""
         test_utils.set_all_pebbles_ready(self.harness)
-        logging_rel_id = self.add_logging_relation(self.harness)
-        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
-        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
-            self.harness
-        )
+        self.add_logging_relation(self.harness)
+        self.add_identity_ops_relation(self.harness)
+        self.add_grafana_dashboard_relation(self.harness)
 
         self.harness.charm.is_tempest_ready = mock.Mock(return_value=True)
 
@@ -504,18 +461,12 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(self.harness.charm.status.message(), "")
         self.assertEqual(self.harness.charm.status.status.name, "active")
 
-        self.harness.remove_relation(logging_rel_id)
-        self.harness.remove_relation(identity_ops_rel_id)
-        self.harness.remove_relation(grafana_dashboard_rel_id)
-
     def test_error_initing_tempest(self):
         """Test to verify blocked status if tempest init fails."""
         test_utils.set_all_pebbles_ready(self.harness)
-        logging_rel_id = self.add_logging_relation(self.harness)
-        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
-        grafana_dashboard_rel_id = self.add_grafana_dashboard_relation(
-            self.harness
-        )
+        self.add_logging_relation(self.harness)
+        self.add_identity_ops_relation(self.harness)
+        self.add_grafana_dashboard_relation(self.harness)
 
         self.harness.charm.peers = mock.Mock()
         self.harness.charm.peers.interface.peers_rel.data = mock.MagicMock()
@@ -533,10 +484,6 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             "tempest init failed", self.harness.charm.status.message()
         )
         self.assertEqual(self.harness.charm.status.status.name, "blocked")
-
-        self.harness.remove_relation(logging_rel_id)
-        self.harness.remove_relation(identity_ops_rel_id)
-        self.harness.remove_relation(grafana_dashboard_rel_id)
 
     def test_is_tempest_ready(self):
         """Test the tempest ready check method."""
@@ -647,3 +594,14 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(
             TempestEnvVariant.ADHOC.output_path(), TEMPEST_ADHOC_OUTPUT
         )
+
+    def test_remove_identity_triggers_tempest_no_longer_ready(self):
+        """Removing the keystone relation causes tempest no longer ready."""
+        test_utils.set_all_pebbles_ready(self.harness)
+        identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
+
+        self.harness.charm.set_tempest_ready = mock.Mock()
+
+        self.harness.remove_relation(identity_ops_rel_id)
+
+        self.harness.charm.set_tempest_ready.assert_called_once_with(False)
