@@ -67,6 +67,23 @@
       "message": "recheck",
       "revId": "14e1bc66c43106a93178b3670c9e7e85e0eef826",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3110156e_ced2da2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-02-14T23:52:37Z",
+      "side": 1,
+      "message": "recheck\n\nFailed to bootstrap a controller",
+      "revId": "14e1bc66c43106a93178b3670c9e7e85e0eef826",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
