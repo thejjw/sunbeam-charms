@@ -50,6 +50,23 @@
       "message": "recheck\n\nUnrelated CI error on neutron tempest tests",
       "revId": "14e1bc66c43106a93178b3670c9e7e85e0eef826",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ee7bfda_5bad723d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-14T21:52:41Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "14e1bc66c43106a93178b3670c9e7e85e0eef826",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
