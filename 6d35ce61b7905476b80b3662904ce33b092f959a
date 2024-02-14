@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64cfc34c_726fdcb8",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-14T01:52:57Z",
+      "side": 1,
+      "message": "I am thinking if we can run extensive cleanup within the workload container instead of on charm container so that we need not bother about openstacksdk versions in requirements file.",
+      "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f72ebc62_033b3bec",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-14T01:52:57Z",
+      "side": 1,
+      "message": "run_quick_cleanup() and this function has most of the code same.\nCan we have single function run_cleanup passing argument whether to do quick or extensive cleanup.",
+      "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
