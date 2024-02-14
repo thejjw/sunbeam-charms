@@ -38,6 +38,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "857c91e4_1d7c1de9",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-14T17:31:46Z",
+      "side": 1,
+      "message": "As Samuel described, I don\u0027t think it worth moving the logic of running extensive cleanup since we will eventually need to add openstacksdk requirement again.",
+      "parentUuid": "81b47c11_28ff1cb8",
+      "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fff261d6_30d8ef38",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 16
@@ -49,6 +67,24 @@
       "writtenOn": "2024-02-14T03:03:20Z",
       "side": 1,
       "message": "This should have a warning that it can only be run in the workload container.",
+      "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "304c949a_31e89d2c",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-14T17:31:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fff261d6_30d8ef38",
       "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -66,6 +102,24 @@
       "writtenOn": "2024-02-14T03:07:40Z",
       "side": 1,
       "message": "I could be wrong, but doesn\u0027t this mean that the resources _in_ each of the pre-created projects won\u0027t be cleaned up?  Shouldn\u0027t we still clean up all resources inside the pre-created projects, just avoiding deleting the projects themselves?",
+      "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a527187_00598ff9",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-14T17:31:46Z",
+      "side": 1,
+      "message": "Yes you are right, the scope of the filter should be limited to only projects, users, and network resources.",
+      "parentUuid": "0f214d37_cc31c885",
       "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -101,6 +155,24 @@
       "side": 1,
       "message": "I had suggested two separate functions to avoid extra branching and conditionals.  There are enough differences to make it worth keeping as separate functions.\n\nPerhaps for the identical code blocks, they could be refactored into a separate function.  For example the `for project_id in projects:` loop could be moved to a function to be called like `failure_messages \u003d run_cleanups_on_projects(projects, cleanup_funcs)`",
       "parentUuid": "f72ebc62_033b3bec",
+      "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3cbfb116_1fbaad93",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-14T17:31:46Z",
+      "side": 1,
+      "message": "With the most recent patch, the two functions are more different than each other, so I personally think they can stay as two separate function.",
+      "parentUuid": "0ac1d173_de0e328d",
       "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
