@@ -55,6 +55,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0f214d37_cc31c885",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-14T03:07:40Z",
+      "side": 1,
+      "message": "I could be wrong, but doesn\u0027t this mean that the resources _in_ each of the pre-created projects won\u0027t be cleaned up?  Shouldn\u0027t we still clean up all resources inside the pre-created projects, just avoiding deleting the projects themselves?",
+      "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f72ebc62_033b3bec",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 16
