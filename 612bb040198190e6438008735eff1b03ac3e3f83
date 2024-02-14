@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20f036d5_3197d30a",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-14T23:50:55Z",
+      "side": 1,
+      "message": "Zuul is reporting success when it shouldn\u0027t be - I\u0027ve opened a patch to address this https://review.opendev.org/c/openstack/sunbeam-charms/+/909062\n\nIn the meantime, would you mind addressing this lint error? 😊",
+      "parentUuid": "c1d1e4af_c28c4f61",
+      "revId": "612bb040198190e6438008735eff1b03ac3e3f83",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
