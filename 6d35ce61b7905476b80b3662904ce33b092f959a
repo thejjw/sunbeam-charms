@@ -38,6 +38,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fff261d6_30d8ef38",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-14T03:03:20Z",
+      "side": 1,
+      "message": "This should have a warning that it can only be run in the workload container.",
+      "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f72ebc62_033b3bec",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 16
