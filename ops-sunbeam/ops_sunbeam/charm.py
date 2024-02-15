@@ -188,6 +188,14 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
                 "ceph-access" in self.mandatory_relations,
             )
             handlers.append(self.ceph_access)
+        if self.can_add_handler("receive-ca-cert", handlers):
+            self.receive_ca_cert = (
+                sunbeam_rhandlers.CertificateTransferRequiresHandler(
+                    self, "receive-ca-cert", self.configure_charm
+                )
+            )
+            handlers.append(self.receive_ca_cert)
+
         return handlers
 
     def get_sans_ips(self) -> List[str]:
@@ -539,21 +547,6 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         """Run constructor."""
         super().__init__(framework)
         self.pebble_handlers = self.get_pebble_handlers()
-
-    def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
-    ) -> List[sunbeam_rhandlers.RelationHandler]:
-        """Relation handlers for the service."""
-        handlers = handlers or []
-        if self.can_add_handler("receive-ca-cert", handlers):
-            self.receive_ca_cert = (
-                sunbeam_rhandlers.CertificateTransferRequiresHandler(
-                    self, "receive-ca-cert", self.configure_charm
-                )
-            )
-            handlers.append(self.receive_ca_cert)
-
-        return super().get_relation_handlers(handlers)
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the operator."""

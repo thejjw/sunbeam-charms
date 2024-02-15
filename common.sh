@@ -140,6 +140,7 @@ EXTERNAL_OPENSTACK_HYPERVISOR_LIBS=(
 	"rabbitmq_k8s"
         "traefik_k8s"
         "tls_certificates_interface"
+	"certificate_transfer_interface"
 )
 
 EXTERNAL_SUNBEAM_CLUSTERD_LIBS=(
@@ -184,7 +185,6 @@ CONFIG_TEMPLATES_CEILOMETER=(
 	"parts/identity-data-id-creds"
 	"parts/section-oslo-messaging-rabbit"
 	"parts/section-service-credentials-from-identity-service"
-	"parts/section-service-user-from-identity-credentials"
 	"ca-bundle.pem.j2"
 )
 

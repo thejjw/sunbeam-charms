@@ -165,6 +165,7 @@ class TestCharm(test_utils.CharmTestCase):
             "node.ip-address": "10.0.0.10",
             "rabbitmq.url": "rabbit://hypervisor:rabbit.pass@10.0.0.13:5672/openstack",
             "telemetry.enable": False,
+            "ca.bundle": None,
         }
         hypervisor_snap_mock.set.assert_any_call(expect_settings, typed=True)
 
@@ -258,5 +259,6 @@ class TestCharm(test_utils.CharmTestCase):
             "rabbitmq.url": "rabbit://hypervisor:rabbit.pass@10.0.0.13:5672/openstack",
             "telemetry.enable": True,
             "telemetry.publisher-secret": "FAKE_SECRET",
+            "ca.bundle": None,
         }
         hypervisor_snap_mock.set.assert_any_call(expect_settings, typed=True)

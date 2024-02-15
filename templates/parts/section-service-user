@@ -14,4 +14,7 @@ user_domain_id = {{ identity_service.service_domain_id }}
 project_name = {{ identity_service.service_project_name }}
 username = {{ identity_service.service_user_name }}
 password = {{ identity_service.service_password }}
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+cafile = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}
 {% endif -%}

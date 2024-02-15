@@ -35,6 +35,7 @@ from typing import (
 import charms.operator_libs_linux.v2.snap as snap
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
@@ -465,9 +466,23 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             logger.debug("ceilometer_service relation not integrated")
             snap_data.update({"telemetry.enable": self.enable_telemetry})
 
+        snap_data.update(self._handle_receive_ca_cert(contexts))
+
         self.set_snap_data(snap_data)
         self.ensure_services_running()
         self._state.unit_bootstrapped = True
+
+    def _handle_receive_ca_cert(
+        self, context: sunbeam_core.OPSCharmContexts
+    ) -> dict:
+        if hasattr(context.receive_ca_cert, "ca_bundle"):
+            return {
+                "ca.bundle": base64.b64encode(
+                    context.receive_ca_cert.ca_bundle.encode()
+                ).decode()
+            }
+
+        return {"ca.bundle": None}
 
     def handle_ceilometer_events(self, event: ops.framework.EventBase) -> None:
         """Handle ceilometer events."""
