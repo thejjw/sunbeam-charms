@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d538c41e_ccaaebaf",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-15T01:12:48Z",
+      "side": 1,
+      "message": "I\u0027m explicitly keeping them as two separate functions so in extensive cleanup it is clear that the scope is all test projects.",
+      "parentUuid": "fb2631ab_ec2f3ddd",
+      "revId": "612bb040198190e6438008735eff1b03ac3e3f83",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "20f036d5_3197d30a",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 18
@@ -50,6 +68,24 @@
       "side": 1,
       "message": "The complexity could be reduced with something like this maybe?\n\n```diff\ndiff --git a/charms/tempest-k8s/src/utils/cleanup.py b/charms/tempest-k8s/src/utils/cleanup.py\nindex 227f0c6..1cdefd5 100644\n--- a/charms/tempest-k8s/src/utils/cleanup.py\n+++ b/charms/tempest-k8s/src/utils/cleanup.py\n@@ -229,19 +229,14 @@ def run_quick_cleanup(env: dict) -\u003e None:\n     except (ForbiddenException, Unauthorized) as e:\n         raise CleanUpError(\"Operation not authorized.\") from e\n \n-    for project_id in test_projects:\n-        for func in cleanup_funcs:\n-            try:\n-                func(conn, project_id)\n-            except Exception as e:\n-                failure_message.append(f\"Error calling {func.__name__}: {e}\")\n-\n-    for project_id in filtered_test_projects:\n-        for func in filtered_cleanup_funcs:\n-            try:\n-                func(conn, project_id)\n-            except Exception as e:\n-                failure_message.append(f\"Error calling {func.__name__}: {e}\")\n+    failure_message.extend(\n+        run_cleanups_on_projects(conn, test_projects, cleanup_funcs)\n+    )\n+    failure_message.extend(\n+        run_cleanups_on_projects(\n+            conn, filtered_test_projects, filtered_cleanup_funcs\n+        )\n+    )\n \n     try:\n         _cleanup_users(conn, env[\"OS_DOMAIN_ID\"], exclude_resources[\"users\"])\n@@ -252,6 +247,19 @@ def run_quick_cleanup(env: dict) -\u003e None:\n         raise CleanUpError(\"\\n\".join(failure_message))\n \n \n+def run_cleanups_on_projects(\n+    conn: Connection, project_ids: list[str], funcs: list[callable]\n+) -\u003e list[str]:\n+    failure_messages \u003d []\n+    for project_id in project_ids:\n+        for func in funcs:\n+            try:\n+                func(conn, project_id)\n+            except Exception as e:\n+                failure_messages.append(f\"Error calling {func.__name__}: {e}\")\n+    return failure_messages\n+\n+\n def run_extensive_cleanup(env: dict) -\u003e None:\n     \"\"\"Perform the extensive cleanup of tempest resources under a specific domain.\n \n\n```",
       "parentUuid": "20f036d5_3197d30a",
+      "revId": "612bb040198190e6438008735eff1b03ac3e3f83",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8da7cfa3_3abefef4",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-15T01:12:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d1a04bd_00c268b6",
       "revId": "612bb040198190e6438008735eff1b03ac3e3f83",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
