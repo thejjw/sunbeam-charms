@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5314849f_6305f0b1",
+        "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-15T01:14:53Z",
+      "side": 0,
+      "message": "Question: why we no longer want to remove these relations from harness?",
+      "revId": "dd6000bb51a11f74337dc48d0b2adba0eb703cfd",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
