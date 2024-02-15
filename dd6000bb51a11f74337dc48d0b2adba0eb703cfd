@@ -16,6 +16,24 @@
       "message": "Question: why we no longer want to remove these relations from harness?",
       "revId": "dd6000bb51a11f74337dc48d0b2adba0eb703cfd",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2961944a_6b315bdb",
+        "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-15T01:20:05Z",
+      "side": 0,
+      "message": "We never had a need to remove them in the first place (except for the first \u0027test_all_relations\u0027 test).  Leaving them there now requires more mocking and such which is not worth it because they aren\u0027t being tested in those tests.",
+      "parentUuid": "5314849f_6305f0b1",
+      "revId": "dd6000bb51a11f74337dc48d0b2adba0eb703cfd",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
