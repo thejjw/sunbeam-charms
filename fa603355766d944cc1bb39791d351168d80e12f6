@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "64088fee_98e589f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-15T18:53:13Z",
+      "side": 1,
+      "message": "It was a pain testing this due to bugs on the Observability side ([1], [2], [3]), but I finally managed to get the dashboard and alert rule showing in Grafana. Testing firing alerts is not possible until bug [3] resolves.\n\nFor the purpose of this patch, the changes LGTM. Please update the commit message as Samuel pointed out and I will be ready to give my +1.\n\n[1]: https://github.com/canonical/grafana-k8s-operator/issues/302\n[2]: https://github.com/canonical/grafana-k8s-operator/issues/303\n[3]: https://github.com/canonical/grafana-agent-k8s-operator/issues/275",
+      "revId": "fa603355766d944cc1bb39791d351168d80e12f6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
