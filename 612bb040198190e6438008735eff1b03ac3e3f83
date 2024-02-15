@@ -72,6 +72,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9766efde_228d6391",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-15T14:46:06Z",
+      "side": 1,
+      "message": "Thinking about this again in the morning, I decided to follow you suggestion to keep only one of them and do comments on the caller side.",
+      "parentUuid": "02dd5295_56f4af6c",
+      "revId": "612bb040198190e6438008735eff1b03ac3e3f83",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "20f036d5_3197d30a",
