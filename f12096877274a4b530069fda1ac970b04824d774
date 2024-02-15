@@ -16,6 +16,23 @@
       "message": "recheck\n\nCI failure unrelated to the patch",
       "revId": "f12096877274a4b530069fda1ac970b04824d774",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "57622c05_efd4cf46",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-15T13:13:54Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "f12096877274a4b530069fda1ac970b04824d774",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
