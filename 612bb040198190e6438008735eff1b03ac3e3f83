@@ -56,6 +56,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "02dd5295_56f4af6c",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 18
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-15T01:29:01Z",
+      "side": 1,
+      "message": "It is, but IMO it is not as clear on the caller side.",
+      "parentUuid": "b692c223_c1b37489",
+      "revId": "612bb040198190e6438008735eff1b03ac3e3f83",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "20f036d5_3197d30a",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 18
