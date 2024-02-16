@@ -993,15 +993,23 @@ export OS_AUTH_VERSION=3
                         "not supplied"
                     )
 
-    def check_outstanding_identity_credentials_requests(self) -> None:
-        """Check requests from identity credentials relation."""
+    def check_outstanding_identity_credentials_requests(
+        self, ignore_processed: bool = True
+    ) -> None:
+        """Check requests from identity credentials relation.
+
+        If ignore_processed flag is False, process identtiy credentials on all the connected
+        relations even if its already processed.
+        """
         for relation in self.framework.model.relations[
             self.IDCREDS_RELATION_NAME
         ]:
             app_data = relation.data[relation.app]
-            if relation.data[self.app].get("credentials") and relation.data[
-                self.app
-            ].get("admin-role"):
+            if (
+                ignore_processed
+                and relation.data[self.app].get("credentials")
+                and relation.data[self.app].get("admin-role")
+            ):
                 logger.debug(
                     "Credential request already processed for "
                     f"{relation.app.name} {relation.name}/{relation.id}"
@@ -1634,6 +1642,11 @@ export OS_AUTH_VERSION=3
         logger.debug("Received an ingress_changed event")
         if self.bootstrapped():
             self.keystone_manager.update_service_catalog_for_keystone()
+
+        if self.can_service_requests():
+            self.check_outstanding_identity_credentials_requests(
+                ignore_processed=False
+            )
         self.configure_charm(event)
 
     def _sanitize_secrets(self, request: dict) -> dict:
