@@ -542,32 +542,6 @@ export OS_AUTH_VERSION=3
         except Exception as e:
             event.fail(f"Regeneration of password failed: {e}")
 
-    def _create_certificate_transfer_secret(
-        self, name: str, ca_cert: str, chain_certs: str
-    ) -> bool:
-        certs_secret_id = self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL)
-        if certs_secret_id:
-            certs_secret = self.model.get_secret(id=certs_secret_id)
-            certificates = certs_secret.get_content()
-            certificates = json.loads(certificates.get("certs"))
-            if name in certificates:
-                return False
-
-            certificates[name] = {"ca": ca_cert, "chain": chain_certs}
-            certs_secret.set_content({"certs": json.dumps(certificates)})
-        else:
-            certificates = {}
-            certificates[name] = {"ca": ca_cert, "chain": chain_certs}
-            certificates = {"certs": json.dumps(certificates)}
-            certs_secret = self.model.app.add_secret(
-                certificates, label=CERTIFICATE_TRANSFER_LABEL
-            )
-            self.peers.set_app_data(
-                {CERTIFICATE_TRANSFER_LABEL: certs_secret.id}
-            )
-
-        return True
-
     def _add_ca_certs_action(self, event: ActionEvent):
         """Distribute CA certs."""
         if not self.unit.is_leader():
@@ -590,9 +564,9 @@ export OS_AUTH_VERSION=3
             if chain:
                 chain_bytes = base64.b64decode(chain)
                 chain_certs = chain_bytes.decode()
-                ca_chain_list = certs.parse_ca_chain(chain_bytes)
+                ca_chain_list = certs.parse_ca_chain(chain_certs)
                 for _ca in ca_chain_list:
-                    if not certs.certificate_is_valid(_ca):
+                    if not certs.certificate_is_valid(_ca.encode()):
                         event.fail("Invalid certificate in CA Chain")
                         return
 
@@ -602,11 +576,17 @@ export OS_AUTH_VERSION=3
             event.fail(str(e))
             return
 
-        if not self._create_certificate_transfer_secret(
-            name, ca_cert, chain_certs
-        ):
+        certificates_str = (
+            self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL) or "{}"
+        )
+        certificates = json.loads(certificates_str)
+        if name in certificates:
             event.fail("Certificate bundle already transferred")
+            return False
 
+        certificates[name] = {"ca": ca_cert, "chain": chain_certs}
+        certificates_str = json.dumps(certificates)
+        self.peers.set_app_data({CERTIFICATE_TRANSFER_LABEL: certificates_str})
         self._handle_certificate_transfers()
 
     def _remove_ca_certs_action(self, event: ActionEvent):
@@ -615,19 +595,18 @@ export OS_AUTH_VERSION=3
             event.fail("Please run action on lead unit.")
             return
 
-        certs_secret_id = self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL)
-        if certs_secret_id:
-            certs_secret = self.model.get_secret(id=certs_secret_id)
-            certificates = certs_secret.get_content()
-            certificates = json.loads(certificates.get("certs"))
-            name = event.params.get("name")
-            if name not in certificates:
-                event.fail("Certificate bundle does not exist")
-                return
+        certificates_str = (
+            self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL) or "{}"
+        )
+        certificates = json.loads(certificates_str)
+        if event.name not in certificates:
+            event.fail("Certificate bundle does not exist")
+            return
 
-            certificates.pop(name)
-            certs_secret.set_content({"certs": json.dumps(certificates)})
-            self._handle_certificate_transfers()
+        certificates.pop(event.name)
+        certificates_str = json.dumps(certificates)
+        self.peers.set_app_data({CERTIFICATE_TRANSFER_LABEL: certificates_str})
+        self._handle_certificate_transfers()
 
     def _list_ca_certs_action(self, event: ActionEvent):
         """List CA certs."""
