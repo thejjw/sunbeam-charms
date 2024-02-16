@@ -54,6 +54,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "27596c39_cca444b5",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-16T04:25:59Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "857c91e4_1d7c1de9",
+      "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fff261d6_30d8ef38",
@@ -191,6 +209,24 @@
       "side": 1,
       "message": "With the most recent patch, the two functions are more different than each other, so I personally think they can stay as two separate function.",
       "parentUuid": "0ac1d173_de0e328d",
+      "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9d8ae62_7627735e",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-16T04:25:59Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "3cbfb116_1fbaad93",
       "revId": "6d35ce61b7905476b80b3662904ce33b092f959a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
