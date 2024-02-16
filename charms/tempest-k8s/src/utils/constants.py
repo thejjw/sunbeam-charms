@@ -12,9 +12,36 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Constants for the tempest charm."""
-CONTAINER = "tempest"
+from multiprocessing import (
+    cpu_count,
+)
 
-TEMPEST_CONCURRENCY = "4"
+
+def get_tempest_concurrency() -> str:
+    """Return the concurrency for tempest.
+
+    4 is chosen as a constant small number,
+    to avoid overloading the cloud and/or the host machine.
+    If less cpu cores are available,
+    the concurrency value must be bounded by that,
+    otherwise performance will definitely suffer.
+
+    Note that this will be run in a k8s container,
+    so this could reflect the host machine's number of cores.
+    """
+    return str(min(4, cpu_count()))
+
+
+TEMPEST_CONCURRENCY = get_tempest_concurrency()
+
+# It's desirable to have more accounts than the concurrency,
+# so it can be hardcoded to 16,
+# which is much more than the max concurrency (see get_tempest_concurrency()),
+# and still a relatively small number of accounts.
+# It's also helpful to have more accounts to mitigate the effects
+# of credential locks not being released as per LP: #2052752.
+TEMPEST_ACCOUNTS_COUNT = "16"
+
 TEMPEST_HOME = "/var/lib/tempest"
 TEMPEST_WORKSPACE_PATH = f"{TEMPEST_HOME}/workspace"
 TEMPEST_CONF = f"{TEMPEST_WORKSPACE_PATH}/etc/tempest.conf"
@@ -35,3 +62,5 @@ OPENSTACK_ROLE = "admin"
 
 # keys for application data
 TEMPEST_READY_KEY = "tempest-ready"
+
+CONTAINER = "tempest"
