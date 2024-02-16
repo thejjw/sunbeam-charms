@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e27831f_b41be8a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-16T00:40:06Z",
+      "side": 1,
+      "message": "LGTM - I can also view the dashboard successfully after bouncing the relation between grafana-agent-k8s and grafana.  The alert rule isn\u0027t working, but as noted by Tianqi, that\u0027s because of [canonical/grafana-agent-k8s-operator#275](https://github.com/canonical/grafana-agent-k8s-operator/issues/275).",
+      "revId": "3dcf7eff74c2e64ad916367603e7a03b0fc3f408",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
