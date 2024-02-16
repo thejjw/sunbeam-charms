@@ -52,8 +52,8 @@ from ops_sunbeam.config_contexts import (
 )
 from utils.constants import (
     CONTAINER,
+    TEMPEST_ACCOUNTS_COUNT,
     TEMPEST_ADHOC_OUTPUT,
-    TEMPEST_CONCURRENCY,
     TEMPEST_CONF,
     TEMPEST_HOME,
     TEMPEST_LIST_DIR,
@@ -61,6 +61,7 @@ from utils.constants import (
     TEMPEST_TEST_ACCOUNTS,
     TEMPEST_WORKSPACE,
     TEMPEST_WORKSPACE_PATH,
+    get_tempest_concurrency,
 )
 from utils.types import (
     TempestEnvVariant,
@@ -210,7 +211,8 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "OS_PROJECT_NAME": credential.get("project-name"),
             "OS_PROJECT_DOMAIN_NAME": credential.get("domain-name"),
             "OS_DOMAIN_NAME": credential.get("domain-name"),
-            "TEMPEST_CONCURRENCY": TEMPEST_CONCURRENCY,
+            "TEMPEST_CONCURRENCY": get_tempest_concurrency(),
+            "TEMPEST_ACCOUNTS_COUNT": TEMPEST_ACCOUNTS_COUNT,
             "TEMPEST_CONF": TEMPEST_CONF,
             "TEMPEST_HOME": TEMPEST_HOME,
             "TEMPEST_LIST_DIR": TEMPEST_LIST_DIR,
