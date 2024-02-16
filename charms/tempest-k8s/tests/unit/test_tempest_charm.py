@@ -32,6 +32,7 @@ from utils.constants import (
     TEMPEST_HOME,
     TEMPEST_PERIODIC_OUTPUT,
     TEMPEST_READY_KEY,
+    get_tempest_concurrency,
 )
 from utils.types import (
     TempestEnvVariant,
@@ -52,6 +53,7 @@ TEST_TEMPEST_ENV = {
     "OS_USER_DOMAIN_ID": "tempest-domain-id",
     "OS_DOMAIN_ID": "tempest-domain-id",
     "TEMPEST_CONCURRENCY": "4",
+    "TEMPEST_ACCOUNTS_COUNT": "16",
     "TEMPEST_CONF": "/var/lib/tempest/workspace/etc/tempest.conf",
     "TEMPEST_HOME": "/var/lib/tempest",
     "TEMPEST_LIST_DIR": "/tempest_test_lists",
@@ -300,6 +302,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             action_event.set_results.call_args.args[0]["error"],
         )
 
+    @patch("utils.constants.cpu_count", lambda: 6)
     def test_validate_action_success(self):
         """Test validate action with default params."""
         test_utils.set_all_pebbles_ready(self.harness)
@@ -335,6 +338,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             environment=TEST_TEMPEST_ENV,
         )
 
+    @patch("utils.constants.cpu_count", lambda: 6)
     def test_validate_action_params(self):
         """Test validate action with more params."""
         test_utils.set_all_pebbles_ready(self.harness)
@@ -605,3 +609,13 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.remove_relation(identity_ops_rel_id)
 
         self.harness.charm.set_tempest_ready.assert_called_once_with(False)
+
+    @patch("utils.constants.cpu_count", lambda: 2)
+    def test_concurrency_calculation_less_cpus(self):
+        """Test concurrency is calculated correctly with only 2 cpus."""
+        self.assertEqual(get_tempest_concurrency(), "2")
+
+    @patch("utils.constants.cpu_count", lambda: 8)
+    def test_concurrency_calculation_more_cpus(self):
+        """Test concurrency is bounded to 4."""
+        self.assertEqual(get_tempest_concurrency(), "4")
