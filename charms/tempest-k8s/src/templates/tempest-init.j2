@@ -16,6 +16,6 @@ tempest init --name "$TEMPEST_WORKSPACE" "$TEMPEST_WORKSPACE_PATH"
 
 discover-tempest-config --out "$TEMPEST_CONF"
 
-tempest account-generator -r "$TEMPEST_CONCURRENCY" -c "$TEMPEST_CONF" "$TEMPEST_TEST_ACCOUNTS"
+tempest account-generator -r "$TEMPEST_ACCOUNTS_COUNT" -c "$TEMPEST_CONF" "$TEMPEST_TEST_ACCOUNTS"
 
 ) 9>/var/lock/tempest
