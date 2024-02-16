@@ -56,6 +56,7 @@ from utils.cleanup import (
 )
 from utils.constants import (
     CONTAINER,
+    TEMPEST_ACCOUNTS_COUNT,
     TEMPEST_ADHOC_OUTPUT,
     TEMPEST_CONCURRENCY,
     TEMPEST_CONF,
@@ -218,6 +219,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "OS_USER_DOMAIN_ID": credential.get("domain-id"),
             "OS_PROJECT_DOMAIN_ID": credential.get("domain-id"),
             "TEMPEST_CONCURRENCY": TEMPEST_CONCURRENCY,
+            "TEMPEST_ACCOUNTS_COUNT": TEMPEST_ACCOUNTS_COUNT,
             "TEMPEST_CONF": TEMPEST_CONF,
             "TEMPEST_HOME": TEMPEST_HOME,
             "TEMPEST_LIST_DIR": TEMPEST_LIST_DIR,
