@@ -29,7 +29,8 @@ TEMPEST_WORKSPACE = "tempest"
 
 OPENSTACK_USER = "tempest"
 OPENSTACK_DOMAIN = "tempest"
-OPENSTACK_PROJECT = "tempest-CloudValidation"
+# not use tempest as prefix to exclude this project from utils/cleanup.py scope
+OPENSTACK_PROJECT = "CloudValidation-tempest"
 OPENSTACK_ROLE = "admin"
 
 # keys for application data
