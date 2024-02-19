@@ -24,6 +24,7 @@ from typing import (
     Dict,
     List,
     Optional,
+    Union,
 )
 
 import ops
@@ -97,6 +98,8 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run the constructor."""
         # config for openstack, used by tempest
+        self.user_id_ops = None
+
         super().__init__(framework)
         self.framework.observe(
             self.on.validate_action, self._on_validate_action
@@ -104,7 +107,28 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.framework.observe(
             self.on.get_lists_action, self._on_get_lists_action
         )
-        self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
+        self.framework.observe(self.on.leader_elected, self._on_leader_changed)
+        self.framework.observe(
+            self.on.leader_settings_changed, self._on_leader_changed
+        )
+
+    def _on_leader_changed(
+        self,
+        event: Union[
+            ops.charm.LeaderSettingsChangedEvent, ops.charm.LeaderElectedEvent
+        ],
+    ) -> None:
+        """Handle updates to leadership."""
+        # If the unit is not the leader,
+        # Mark tempest as not ready.
+        # This ensures that tempest will be re-inited
+        # if the unit becomes the leader in the future.
+        if not self.is_leader():
+            self.set_tempest_ready(False)
+
+        # Now trigger configure tasks
+        # to update the status and init tempest if needed.
+        self.configure_charm(event)
 
     @property
     def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
@@ -127,6 +151,10 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 0o750,
             ),
         ]
+
+    def is_leader(self) -> bool:
+        """Helper method to check if this charm is the leader."""
+        return self.unit.is_leader()
 
     def get_schedule(self) -> str:
         """Return the schedule option if valid and should be enabled.
@@ -170,6 +198,10 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
     def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
+        # disable everything if not the leader; only one unit is supported
+        if not self.is_leader():
+            return []
+
         handlers = super().get_relation_handlers()
         self.user_id_ops = TempestUserIdentityRelationHandler(
             self,
@@ -178,21 +210,30 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             mandatory="identity-ops" in self.mandatory_relations,
         )
         handlers.append(self.user_id_ops)
-        self.loki = LoggingRelationHandler(
-            self,
-            "logging",
-            self.configure_charm,
-            mandatory="logging" in self.mandatory_relations,
+
+        handlers.append(
+            LoggingRelationHandler(
+                self,
+                "logging",
+                self.configure_charm,
+                mandatory="logging" in self.mandatory_relations,
+            )
         )
-        handlers.append(self.loki)
-        self.grafana = GrafanaDashboardRelationHandler(
-            self,
-            "grafana-dashboard",
-            self.configure_charm,
-            mandatory="grafana-dashboard" in self.mandatory_relations,
+        handlers.append(
+            GrafanaDashboardRelationHandler(
+                self,
+                "grafana-dashboard",
+                self.configure_charm,
+                mandatory="grafana-dashboard" in self.mandatory_relations,
+            )
         )
-        handlers.append(self.grafana)
         return handlers
+
+    def get_user_credentials(self) -> dict[str, str]:
+        """Get the user credentials info from the identity relation."""
+        if self.user_id_ops:
+            return self.user_id_ops.get_user_credential()
+        return {}
 
     def _get_environment_for_tempest(
         self, variant: TempestEnvVariant
@@ -202,7 +243,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         To be used with pebble commands that run tempest discover, etc.
         """
         logger.debug("Retrieving OpenStack credentials")
-        credential = self.user_id_ops.get_user_credential()
+        credential = self.get_user_credentials()
         return {
             "OS_REGION_NAME": "RegionOne",
             "OS_IDENTITY_API_VERSION": "3",
@@ -233,7 +274,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         To be used with tempest resource cleanup functions.
         """
         logger.debug("Retrieving OpenStack credentials")
-        credential = self.user_id_ops.get_user_credential()
+        credential = self.get_user_credentials()
         return {
             "OS_AUTH_URL": credential.get("auth-url"),
             "OS_USERNAME": credential.get("username"),
@@ -293,6 +334,16 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Configuration steps after services have been setup."""
         logger.debug("Running post config setup")
 
+        if not self.is_leader():
+            logger.warning(
+                "This unit is not the leader, so skipping setup. "
+                "This charm only supports a single unit; "
+                "if more than one is deployed, please scale down to one."
+            )
+            raise sunbeam_guard.BlockedExceptionError(
+                "Only one unit supported; this non-leader units is disabled."
+            )
+
         schedule = validated_schedule(self.config["schedule"])
         if not schedule.valid:
             raise sunbeam_guard.BlockedExceptionError(
@@ -328,6 +379,13 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         exclude_regex: str = event.params["exclude-regex"].strip()
         test_list: str = event.params["test-list"].strip()
 
+        if not self.is_leader():
+            event.set_results(
+                {"error": "This action may only be run on the leader unit."}
+            )
+            event.fail()
+            return
+
         env = self._get_environment_for_tempest(TempestEnvVariant.ADHOC)
 
         try:
@@ -355,6 +413,13 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
     def _on_get_lists_action(self, event: ops.charm.ActionEvent) -> None:
         """List tempest test lists action."""
+        if not self.is_leader():
+            event.set_results(
+                {"error": "This action may only be run on the leader unit."}
+            )
+            event.fail()
+            return
+
         try:
             lists = self.pebble_handler().get_test_lists()
         except RuntimeError as e:
