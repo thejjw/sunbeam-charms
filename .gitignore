@@ -19,3 +19,4 @@ charms/*/.jujuignore
 charms/*/.stestr.conf
 charms/*/lib/
 charms/*/src/templates/parts/
+charms/*/src/templates/ca-bundle.pem.j2

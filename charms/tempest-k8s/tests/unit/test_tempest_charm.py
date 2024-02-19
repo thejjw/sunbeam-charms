@@ -26,6 +26,10 @@ import charm
 import mock
 import ops_sunbeam.test_utils as test_utils
 import yaml
+from handlers import (
+    GrafanaDashboardRelationHandler,
+    LoggingRelationHandler,
+)
 from utils.constants import (
     CONTAINER,
     TEMPEST_ADHOC_OUTPUT,
@@ -172,21 +176,30 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         """Add logging relation."""
         rel_id = harness.add_relation("logging", "loki")
         harness.add_relation_unit(rel_id, "loki/0")
-        harness.charm.loki.interface = mock.Mock()
+        for handler in harness.charm.relation_handlers:
+            if isinstance(handler, LoggingRelationHandler):
+                handler.interface = mock.Mock()
         return rel_id
 
     def add_grafana_dashboard_relation(self, harness):
         """Add grafana dashboard relation."""
         rel_id = harness.add_relation("grafana_dashboard", "grafana")
         harness.add_relation_unit(rel_id, "grafana/0")
-        harness.charm.grafana.interface = mock.Mock()
+        for handler in harness.charm.relation_handlers:
+            if isinstance(handler, GrafanaDashboardRelationHandler):
+                handler.interface = mock.Mock()
         return rel_id
 
     def test_pebble_ready_handler(self):
         """Test Pebble ready event is captured."""
-        self.assertEqual(self.harness.charm.seen_events, [])
+        self.assertEqual(
+            self.harness.charm.seen_events, ["LeaderElectedEvent"]
+        )
         test_utils.set_all_pebbles_ready(self.harness)
-        self.assertEqual(self.harness.charm.seen_events, ["PebbleReadyEvent"])
+        self.assertEqual(
+            self.harness.charm.seen_events,
+            ["LeaderElectedEvent", "PebbleReadyEvent"],
+        )
 
     def test_all_relations(self):
         """Test all integrations ready and okay for operator."""
@@ -210,6 +223,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         for f in config_files:
             self.check_file(charm.CONTAINER, f)
 
+        self.assertTrue(self.harness.charm.is_leader())
         self.assertEqual(self.harness.charm.status.message(), "")
         self.assertEqual(self.harness.charm.status.status.name, "active")
 
