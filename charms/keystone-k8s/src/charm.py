@@ -595,15 +595,16 @@ export OS_AUTH_VERSION=3
             event.fail("Please run action on lead unit.")
             return
 
+        name = event.params.get("name")
         certificates_str = (
             self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL) or "{}"
         )
         certificates = json.loads(certificates_str)
-        if event.name not in certificates:
+        if name not in certificates:
             event.fail("Certificate bundle does not exist")
             return
 
-        certificates.pop(event.name)
+        certificates.pop(name)
         certificates_str = json.dumps(certificates)
         self.peers.set_app_data({CERTIFICATE_TRANSFER_LABEL: certificates_str})
         self._handle_certificate_transfers()
@@ -614,14 +615,11 @@ export OS_AUTH_VERSION=3
             event.fail("Please run action on lead unit.")
             return
 
-        certs_secret_id = self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL)
-        if certs_secret_id:
-            certs_secret = self.model.get_secret(id=certs_secret_id)
-            certificates = certs_secret.get_content()
-            certificates = json.loads(certificates.get("certs"))
-            event.set_results(certificates)
-        else:
-            event.set_results({})
+        certificates_str = (
+            self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL) or "{}"
+        )
+        certificates = json.loads(certificates_str)
+        event.set_results(certificates)
 
     def _on_peer_data_changed(self, event: RelationChangedEvent):
         """Process fernet updates if possible."""
@@ -1706,24 +1704,13 @@ export OS_AUTH_VERSION=3
             relation_id, relation_name, ops_response=response
         )
 
-    def _get_combined_ca_and_chain(self, certs_secret=None) -> (str, list):
+    def _get_combined_ca_and_chain(self) -> (str, list):
         """Combine all certs for CA and chain.
 
         Action add-ca-certs allows to add multiple CA cert and chain certs.
         Combine all CA certs in the secret and chains in the secret.
         """
-        if not certs_secret:
-            certs_secret_id = self.peers.get_app_data(
-                CERTIFICATE_TRANSFER_LABEL
-            )
-            if not certs_secret_id:
-                logger.debug("No certificates to transfer")
-                return "", []
-
-            certs_secret = self.model.get_secret(id=certs_secret_id)
-        certificates = certs_secret.get_content()
-        certificates = json.loads(certificates.get("certs"))
-
+        certificates = self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL)
         if not certificates:
             logger.debug("No certificates to transfer")
             return "", []
