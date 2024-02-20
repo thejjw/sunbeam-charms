@@ -291,6 +291,23 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
         self.set_tempest_ready(True)
 
+    def configure_charm(self, event: ops.framework.EventBase) -> None:
+        """Override configure_charm to run our own setup."""
+        # this calls post_config_setup() at the end,
+        # within the guard.
+        super().configure_charm(event)
+
+        # The tempest environment should have been prepared
+        # in the configure_charm above.
+        # If the tempest environment still isn't ready,
+        # then something went wrong, and it should be retried.
+        # So here defer the event so it will be queued for retry later.
+        if not self.is_tempest_ready():
+            logger.warning(
+                "Tempest environment init failed, deferring event to retry."
+            )
+            event.defer()
+
     def post_config_setup(self) -> None:
         """Configuration steps after services have been setup."""
         logger.debug("Running post config setup")
