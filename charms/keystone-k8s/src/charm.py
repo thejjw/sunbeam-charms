@@ -1717,6 +1717,7 @@ export OS_AUTH_VERSION=3
 
         ca_list = []
         chain_list = []
+        certificates = json.loads(certificates)
         for name, bundle in certificates.items():
             _ca = bundle.get("ca")
             _chain = bundle.get("chain")
