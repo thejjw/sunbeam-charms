@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3352dc7d_24361c90",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-20T14:27:36Z",
+      "side": 1,
+      "message": "Yes, it is recommended that the # of test accounts should be at least twice of TEMPEST_CONCURRENCY [1], but the more we generates the safer because of this bug [2] (with the trade-off of taking more time to run initialization). So I think having a hard-coded `16` is good enough.\n\n[1]: https://bugs.launchpad.net/tempest/+bug/1948935/comments/4\n[2]: https://bugs.launchpad.net/tempest/+bug/2052752",
+      "parentUuid": "0e7eac8b_f0d12215",
+      "revId": "293463e72d49d2e76f9d01f3ce8e2e38ac6e977b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5ed88147_b02ed144",
         "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
         "patchSetId": 5
@@ -48,6 +66,24 @@
       "writtenOn": "2024-02-20T07:59:30Z",
       "side": 1,
       "message": "not-blocking: `lambda: 2` -\u003e `return_value\u003d2`",
+      "revId": "293463e72d49d2e76f9d01f3ce8e2e38ac6e977b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "98ed543c_ee44037f",
+        "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-20T14:27:36Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "5ed88147_b02ed144",
       "revId": "293463e72d49d2e76f9d01f3ce8e2e38ac6e977b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
