@@ -6,15 +6,15 @@
 """Unit tests."""
 
 import pathlib
+from unittest.mock import (
+    patch,
+)
 
 import charm
 import ops
 import ops.testing as testing
 import ops_sunbeam.test_utils as test_utils
 import yaml
-from mock import (
-    patch,
-)
 
 
 class _SunbeamClusterdCharm(charm.SunbeamClusterdCharm):

@@ -16,8 +16,8 @@
 
 import base64
 import json
-from unittest import (
-    mock,
+from unittest.mock import (
+    MagicMock,
 )
 
 import charm
@@ -98,7 +98,7 @@ class TestCharm(test_utils.CharmTestCase):
     def test_mandatory_relations(self):
         """Test all the charms relations."""
         self.get_local_ip_by_default_route.return_value = "10.0.0.10"
-        hypervisor_snap_mock = mock.MagicMock()
+        hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = False
         self.snap.SnapState.Latest = "latest"
         self.snap.SnapCache.return_value = {
@@ -191,7 +191,7 @@ class TestCharm(test_utils.CharmTestCase):
         )
 
         self.get_local_ip_by_default_route.return_value = "10.0.0.10"
-        hypervisor_snap_mock = mock.MagicMock()
+        hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = False
         self.snap.SnapState.Latest = "latest"
         self.snap.SnapCache.return_value = {

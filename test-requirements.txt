@@ -1,4 +1,3 @@
-mock
 stestr
 coverage
 

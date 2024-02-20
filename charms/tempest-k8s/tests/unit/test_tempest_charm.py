@@ -19,11 +19,12 @@
 import json
 import pathlib
 from unittest.mock import (
+    MagicMock,
+    Mock,
     patch,
 )
 
 import charm
-import mock
 import ops_sunbeam.test_utils as test_utils
 import yaml
 from utils.constants import (
@@ -120,8 +121,8 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         """Add identity resource relation."""
         rel_id = harness.add_relation("identity-ops", "keystone")
         harness.add_relation_unit(rel_id, "keystone/0")
-        harness.charm.user_id_ops.callback_f = mock.Mock()
-        harness.charm.user_id_ops.get_user_credential = mock.Mock(
+        harness.charm.user_id_ops.callback_f = Mock()
+        harness.charm.user_id_ops.get_user_credential = Mock(
             return_value={
                 "username": "tempest",
                 "password": "password",
@@ -172,14 +173,14 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         """Add logging relation."""
         rel_id = harness.add_relation("logging", "loki")
         harness.add_relation_unit(rel_id, "loki/0")
-        harness.charm.loki.interface = mock.Mock()
+        harness.charm.loki.interface = Mock()
         return rel_id
 
     def add_grafana_dashboard_relation(self, harness):
         """Add grafana dashboard relation."""
         rel_id = harness.add_relation("grafana_dashboard", "grafana")
         harness.add_relation_unit(rel_id, "grafana/0")
-        harness.charm.grafana.interface = mock.Mock()
+        harness.charm.grafana.interface = Mock()
         return rel_id
 
     def test_pebble_ready_handler(self):
@@ -197,8 +198,8 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             self.harness
         )
 
-        self.harness.charm.set_tempest_ready = mock.Mock()
-        self.harness.charm.is_tempest_ready = mock.Mock(return_value=True)
+        self.harness.charm.set_tempest_ready = Mock()
+        self.harness.charm.is_tempest_ready = Mock(return_value=True)
 
         self.harness.update_config({"schedule": "0 0 */7 * *"})
 
@@ -225,7 +226,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_grafana_dashboard_relation(self.harness)
 
         # schedule is disabled if it's not ready, so set it ready for testing
-        self.harness.charm.is_tempest_ready = mock.Mock(return_value=True)
+        self.harness.charm.is_tempest_ready = Mock(return_value=True)
 
         # ok schedule
         schedule = "0 0 */7 * *"
@@ -245,7 +246,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(self.harness.charm.contexts().tempest.schedule, "")
 
         # tempest init not ready
-        self.harness.charm.is_tempest_ready = mock.Mock(return_value=False)
+        self.harness.charm.is_tempest_ready = Mock(return_value=False)
         schedule = "0 0 */7 * *"
         self.harness.update_config({"schedule": schedule})
         self.assertEqual(self.harness.charm.contexts().tempest.schedule, "")
@@ -257,7 +258,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        action_event = mock.Mock()
+        action_event = Mock()
         action_event.params = {
             "serial": False,
             "regex": "test(",
@@ -278,15 +279,15 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        file1 = mock.Mock()
+        file1 = Mock()
         file1.name = "file_1"
-        file2 = mock.Mock()
+        file2 = Mock()
         file2.name = "file_2"
-        self.harness.charm.pebble_handler().container.list_files = mock.Mock(
+        self.harness.charm.pebble_handler().container.list_files = Mock(
             return_value=[file1, file2]
         )
 
-        action_event = mock.Mock()
+        action_event = Mock()
         action_event.params = {
             "serial": False,
             "regex": "",
@@ -307,17 +308,17 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        file1 = mock.Mock()
+        file1 = Mock()
         file1.name = "file_1"
-        file2 = mock.Mock()
+        file2 = Mock()
         file2.name = "file_2"
-        self.harness.charm.pebble_handler().container.list_files = mock.Mock(
+        self.harness.charm.pebble_handler().container.list_files = Mock(
             return_value=[file1, file2]
         )
-        exec_mock = mock.Mock()
+        exec_mock = Mock()
         self.harness.charm.pebble_handler().execute = exec_mock
 
-        action_event = mock.Mock()
+        action_event = Mock()
         action_event.params = {
             "serial": False,
             "regex": "smoke",
@@ -342,17 +343,17 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        file1 = mock.Mock()
+        file1 = Mock()
         file1.name = "file_1"
-        file2 = mock.Mock()
+        file2 = Mock()
         file2.name = "file_2"
-        self.harness.charm.pebble_handler().container.list_files = mock.Mock(
+        self.harness.charm.pebble_handler().container.list_files = Mock(
             return_value=[file1, file2]
         )
-        exec_mock = mock.Mock()
+        exec_mock = Mock()
         self.harness.charm.pebble_handler().execute = exec_mock
 
-        action_event = mock.Mock()
+        action_event = Mock()
         action_event.params = {
             "serial": True,
             "regex": "re1 re2",
@@ -386,10 +387,10 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        exec_mock = mock.Mock()
+        exec_mock = Mock()
         self.harness.charm.pebble_handler().execute = exec_mock
 
-        action_event = mock.Mock()
+        action_event = Mock()
         action_event.params = {
             "serial": True,
             "regex": "",
@@ -411,15 +412,15 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        file1 = mock.Mock()
+        file1 = Mock()
         file1.name = "file_1"
-        file2 = mock.Mock()
+        file2 = Mock()
         file2.name = "file_2"
-        self.harness.charm.pebble_handler().container.list_files = mock.Mock(
+        self.harness.charm.pebble_handler().container.list_files = Mock(
             return_value=[file1, file2]
         )
 
-        action_event = mock.Mock()
+        action_event = Mock()
         self.harness.charm._on_get_lists_action(action_event)
         action_event.fail.assert_not_called()
 
@@ -430,15 +431,15 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        file1 = mock.Mock()
+        file1 = Mock()
         file1.name = "file_1"
-        file2 = mock.Mock()
+        file2 = Mock()
         file2.name = "file_2"
-        self.harness.charm.unit.get_container(CONTAINER).can_connect = (
-            mock.Mock(return_value=False)
+        self.harness.charm.unit.get_container(CONTAINER).can_connect = Mock(
+            return_value=False
         )
 
-        action_event = mock.Mock()
+        action_event = Mock()
         self.harness.charm._on_get_lists_action(action_event)
         action_event.fail.assert_called_with("pebble is not ready")
 
@@ -449,7 +450,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        self.harness.charm.is_tempest_ready = mock.Mock(return_value=True)
+        self.harness.charm.is_tempest_ready = Mock(return_value=True)
 
         # invalid schedule should make charm in blocked status
         self.harness.update_config({"schedule": "* *"})
@@ -468,15 +469,15 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        self.harness.charm.peers = mock.Mock()
-        self.harness.charm.peers.interface.peers_rel.data = mock.MagicMock()
+        self.harness.charm.peers = Mock()
+        self.harness.charm.peers.interface.peers_rel.data = MagicMock()
         self.harness.charm.peers.interface.peers_rel.data.__getitem__.return_value = {
             TEMPEST_READY_KEY: ""
         }
 
-        mock_pebble = mock.Mock()
-        mock_pebble.init_tempest = mock.Mock(side_effect=RuntimeError)
-        self.harness.charm.pebble_handler = mock.Mock(return_value=mock_pebble)
+        mock_pebble = Mock()
+        mock_pebble.init_tempest = Mock(side_effect=RuntimeError)
+        self.harness.charm.pebble_handler = Mock(return_value=mock_pebble)
 
         self.harness.update_config({"schedule": "*/21 * * * *"})
 
@@ -492,8 +493,8 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        self.harness.charm.peers = mock.Mock()
-        self.harness.charm.peers.interface.peers_rel.data = mock.MagicMock()
+        self.harness.charm.peers = Mock()
+        self.harness.charm.peers.interface.peers_rel.data = MagicMock()
         self.harness.charm.peers.interface.peers_rel.data.__getitem__.return_value = {
             TEMPEST_READY_KEY: "true"
         }
@@ -507,8 +508,8 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        self.harness.charm.peers = mock.Mock()
-        self.harness.charm.peers.interface.peers_rel.data = mock.MagicMock()
+        self.harness.charm.peers = Mock()
+        self.harness.charm.peers.interface.peers_rel.data = MagicMock()
         self.harness.charm.peers.interface.peers_rel.data.__getitem__.return_value = {
             TEMPEST_READY_KEY: ""
         }
@@ -522,13 +523,13 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        self.harness.charm.peers = mock.Mock()
+        self.harness.charm.peers = Mock()
         self.harness.charm.set_tempest_ready(True)
         self.harness.charm.peers.set_unit_data.assert_called_with(
             {TEMPEST_READY_KEY: "true"}
         )
 
-        self.harness.charm.peers = mock.Mock()
+        self.harness.charm.peers = Mock()
         self.harness.charm.set_tempest_ready(False)
         self.harness.charm.peers.set_unit_data.assert_called_with(
             {TEMPEST_READY_KEY: ""}
@@ -540,11 +541,11 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
 
         # tempest init not run yet, pebble init tempest fails
-        pebble_mock = mock.Mock()
-        pebble_mock.init_tempest = mock.Mock(side_effect=RuntimeError)
-        self.harness.charm.pebble_handler = mock.Mock(return_value=pebble_mock)
-        self.harness.charm.is_tempest_ready = mock.Mock(return_value=False)
-        self.harness.charm.set_tempest_ready = mock.Mock()
+        pebble_mock = Mock()
+        pebble_mock.init_tempest = Mock(side_effect=RuntimeError)
+        self.harness.charm.pebble_handler = Mock(return_value=pebble_mock)
+        self.harness.charm.is_tempest_ready = Mock(return_value=False)
+        self.harness.charm.set_tempest_ready = Mock()
 
         self.harness.charm.init_tempest()
         self.harness.charm.set_tempest_ready.assert_called_once_with(False)
@@ -555,11 +556,11 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
 
         # tempest init succeeds
-        pebble_mock = mock.Mock()
-        pebble_mock.init_tempest = mock.Mock()
-        self.harness.charm.pebble_handler = mock.Mock(return_value=pebble_mock)
-        self.harness.charm.is_tempest_ready = mock.Mock(return_value=False)
-        self.harness.charm.set_tempest_ready = mock.Mock()
+        pebble_mock = Mock()
+        pebble_mock.init_tempest = Mock()
+        self.harness.charm.pebble_handler = Mock(return_value=pebble_mock)
+        self.harness.charm.is_tempest_ready = Mock(return_value=False)
+        self.harness.charm.set_tempest_ready = Mock()
 
         self.harness.charm.init_tempest()
         self.harness.charm.set_tempest_ready.assert_called_once_with(True)
@@ -569,11 +570,11 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
 
         # tempest init already run
-        pebble_mock = mock.Mock()
-        pebble_mock.init_tempest = mock.Mock()
-        self.harness.charm.pebble_handler = mock.Mock(return_value=pebble_mock)
-        self.harness.charm.is_tempest_ready = mock.Mock(return_value=True)
-        self.harness.charm.set_tempest_ready = mock.Mock()
+        pebble_mock = Mock()
+        pebble_mock.init_tempest = Mock()
+        self.harness.charm.pebble_handler = Mock(return_value=pebble_mock)
+        self.harness.charm.is_tempest_ready = Mock(return_value=True)
+        self.harness.charm.set_tempest_ready = Mock()
 
         self.harness.charm.init_tempest()
         self.harness.charm.set_tempest_ready.assert_not_called()
@@ -582,8 +583,8 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         """Test upgrade charm updates things as required."""
         test_utils.set_all_pebbles_ready(self.harness)
 
-        self.harness.charm.set_tempest_ready = mock.Mock()
-        self.harness.charm._on_upgrade_charm(mock.Mock())
+        self.harness.charm.set_tempest_ready = Mock()
+        self.harness.charm._on_upgrade_charm(Mock())
         self.harness.charm.set_tempest_ready.assert_called_once_with(False)
 
     def test_tempest_env_variant(self):
@@ -600,7 +601,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         identity_ops_rel_id = self.add_identity_ops_relation(self.harness)
 
-        self.harness.charm.set_tempest_ready = mock.Mock()
+        self.harness.charm.set_tempest_ready = Mock()
 
         self.harness.remove_relation(identity_ops_rel_id)
 

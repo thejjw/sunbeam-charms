@@ -19,9 +19,12 @@ from io import (
     BytesIO,
     TextIOWrapper,
 )
+from unittest.mock import (
+    MagicMock,
+    patch,
+)
 
 import jinja2
-import mock
 
 sys.path.append("lib")  # noqa
 sys.path.append("src")  # noqa
@@ -40,10 +43,10 @@ class TestTemplating(test_utils.CharmTestCase):
         """Charm test class setup."""
         super().setUp(sunbeam_templating, self.PATCHES)
 
-    @mock.patch("jinja2.FileSystemLoader")
+    @patch("jinja2.FileSystemLoader")
     def test_render(self, fs_loader: "jinja2.FileSystemLoader") -> None:
         """Check rendering templates."""
-        container_mock = mock.MagicMock()
+        container_mock = MagicMock()
         config = sunbeam_core.ContainerConfigFile(
             "/tmp/testfile.txt", "myuser", "mygrp"
         )
@@ -61,12 +64,12 @@ class TestTemplating(test_utils.CharmTestCase):
             permissions=None,
         )
 
-    @mock.patch("jinja2.FileSystemLoader")
+    @patch("jinja2.FileSystemLoader")
     def test_render_no_change(
         self, fs_loader: "jinja2.FileSystemLoader"
     ) -> None:
         """Check rendering template with no content change."""
-        container_mock = mock.MagicMock()
+        container_mock = MagicMock()
         container_mock.pull.return_value = TextIOWrapper(
             BytesIO(b"debug = True")
         )

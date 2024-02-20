@@ -17,13 +17,13 @@
 """Unit tests for Cinder Ceph operator charm class."""
 
 import json
-
-import charm
-import ops_sunbeam.test_utils as test_utils
-from mock import (
+from unittest.mock import (
     MagicMock,
     patch,
 )
+
+import charm
+import ops_sunbeam.test_utils as test_utils
 from ops.testing import (
     Harness,
 )

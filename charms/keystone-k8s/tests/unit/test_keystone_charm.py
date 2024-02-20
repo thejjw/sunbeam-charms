@@ -22,10 +22,10 @@ import textwrap
 from unittest.mock import (
     ANY,
     MagicMock,
+    call,
 )
 
 import charm
-import mock
 import ops_sunbeam.test_utils as test_utils
 
 
@@ -116,7 +116,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
 
         admin_role_mock = _create_mock("arole_name", "arole_id")
 
-        km_mock = mock.MagicMock()
+        km_mock = MagicMock()
         km_mock.ksclient.show_domain.side_effect = _get_domain_side_effect
         km_mock.ksclient.show_project.return_value = admin_project_mock
         km_mock.ksclient.show_user.return_value = admin_user_mock
@@ -323,11 +323,11 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(self.km_mock.write_keys.call_count, 2)
         self.km_mock.write_keys.assert_has_calls(
             [
-                mock.call(
+                call(
                     key_repository="/etc/keystone/fernet-keys",
                     keys=updated_fernet_keys,
                 ),
-                mock.call(
+                call(
                     key_repository="/etc/keystone/credential-keys",
                     keys=updated_fernet_keys,
                 ),
@@ -338,7 +338,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self,
     ):
         """Test peer_relation_changed when fernet keys and secret have same content."""
-        secret_mock = mock.MagicMock()
+        secret_mock = MagicMock()
         secret_mock.id = "test-secret-id"
         secret_mock.get_content.return_value = self.km_mock.read_keys()
         self.harness.model.app.add_secret = MagicMock()

@@ -16,8 +16,11 @@
 
 """Unit tests for Horizon operator."""
 
+from unittest.mock import (
+    MagicMock,
+)
+
 import charm
-import mock
 import ops_sunbeam.test_utils as test_utils
 
 
@@ -107,7 +110,7 @@ class TestHorizonOperatorCharm(test_utils.CharmTestCase):
 
     def test_get_dashboard_url_action(self):
         """Test admin account action."""
-        action_event = mock.MagicMock()
+        action_event = MagicMock()
         self.harness.charm._get_dashboard_url_action(action_event)
         action_event.set_results.assert_called_with(
             {"url": "http://dashboard.juju:80"}

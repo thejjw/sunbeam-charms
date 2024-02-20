@@ -16,8 +16,11 @@
 
 """Tests for OVN central charm."""
 
+from unittest.mock import (
+    MagicMock,
+)
+
 import charm
-import mock
 import ops_sunbeam.test_utils as test_utils
 
 
@@ -38,11 +41,11 @@ class _OVNCentralOperatorCharm(charm.OVNCentralOperatorCharm):
 
     def cluster_status(self, db, cmd_executor):
         if db == "ovnnb_db":
-            nb_mock = mock.MagicMock()
+            nb_mock = MagicMock()
             nb_mock.cluster_id = "nb_id"
             return nb_mock
         if db == "ovnsb_db":
-            sb_mock = mock.MagicMock()
+            sb_mock = MagicMock()
             sb_mock.cluster_id = "sb_id"
             return sb_mock
 

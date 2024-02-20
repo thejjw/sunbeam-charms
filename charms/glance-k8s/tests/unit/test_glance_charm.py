@@ -16,11 +16,12 @@
 
 """Tests for glance charm."""
 
-import charm
-import ops_sunbeam.test_utils as test_utils
-from mock import (
+from unittest.mock import (
     patch,
 )
+
+import charm
+import ops_sunbeam.test_utils as test_utils
 
 
 class _GlanceOperatorCharm(charm.GlanceOperatorCharm):

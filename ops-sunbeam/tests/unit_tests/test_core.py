@@ -16,8 +16,10 @@
 
 import os
 import sys
-
-import mock
+from unittest.mock import (
+    MagicMock,
+    patch,
+)
 
 sys.path.append("tests/lib")  # noqa
 sys.path.append("src")  # noqa
@@ -40,7 +42,7 @@ class TestOSBaseOperatorCharm(test_utils.CharmTestCase):
         """Charm test class setup."""
         self.container_calls = test_utils.ContainerCalls()
         super().setUp(sunbeam_charm, self.PATCHES)
-        self.mock_event = mock.MagicMock()
+        self.mock_event = MagicMock()
         self.harness = test_utils.get_harness(
             test_charms.MyCharm,
             test_charms.CHARM_METADATA,
@@ -81,7 +83,7 @@ class TestOSBaseOperatorCharmK8S(test_utils.CharmTestCase):
             charm_config=test_charms.CHARM_CONFIG,
             initial_charm_config=test_charms.INITIAL_CHARM_CONFIG,
         )
-        self.mock_event = mock.MagicMock()
+        self.mock_event = MagicMock()
         self.harness.begin()
         self.addCleanup(self.harness.cleanup)
 
@@ -124,7 +126,7 @@ class _TestOSBaseOperatorAPICharm(test_utils.CharmTestCase):
         self.container_calls = test_utils.ContainerCalls()
 
         super().setUp(sunbeam_charm, self.PATCHES)
-        self.mock_event = mock.MagicMock()
+        self.mock_event = MagicMock()
         self.harness = test_utils.get_harness(
             charm_to_test,
             test_charms.API_CHARM_METADATA,
@@ -335,8 +337,8 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
         )
         self.assertEqual(self.harness.charm.public_url, "http://public-url:80")
 
-    @mock.patch("ops_sunbeam.charm.Client")
-    def test_endpoint_urls_no_ingress(self, mock_client: mock.patch) -> None:
+    @patch("ops_sunbeam.charm.Client")
+    def test_endpoint_urls_no_ingress(self, mock_client: patch) -> None:
         """Test public_url and internal_url with no ingress defined."""
 
         class MockService:
@@ -345,7 +347,7 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
             def __init__(self) -> None:
                 self.status = None
 
-        mock_client.return_value = mock.MagicMock()
+        mock_client.return_value = MagicMock()
         mock_client.return_value.get.return_value = MockService()
         self.assertEqual(
             self.harness.charm.internal_url, "http://10.0.0.10:789"

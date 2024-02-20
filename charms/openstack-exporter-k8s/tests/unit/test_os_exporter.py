@@ -17,12 +17,12 @@
 """Unit tests for Openstack Exporter operator."""
 
 import json
+from unittest.mock import (
+    Mock,
+)
 
 import charm
 import ops_sunbeam.test_utils as test_utils
-from mock import (
-    Mock,
-)
 from ops.testing import (
     Harness,
 )

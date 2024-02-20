@@ -28,13 +28,13 @@ from typing import (
     List,
     Optional,
 )
-
-import ops
-from mock import (
+from unittest.mock import (
     MagicMock,
     Mock,
     patch,
 )
+
+import ops
 
 sys.path.append("lib")  # noqa
 sys.path.append("src")  # noqa

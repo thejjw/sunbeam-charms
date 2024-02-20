@@ -15,8 +15,9 @@
 """Test compound_status."""
 
 import sys
-
-import mock
+from unittest.mock import (
+    Mock,
+)
 
 sys.path.append("lib")  # noqa
 sys.path.append("src")  # noqa
@@ -64,7 +65,7 @@ class TestCompoundStatus(test_utils.CharmTestCase):
         status.set(WaitingStatus("test"))
 
         # manually set the on_update hook and verify it is called
-        on_update_mock = mock.Mock()
+        on_update_mock = Mock()
         status.on_update = on_update_mock
         status.set(ActiveStatus("test"))
         on_update_mock.assert_called_once_with()
