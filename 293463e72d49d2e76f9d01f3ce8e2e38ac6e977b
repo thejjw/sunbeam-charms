@@ -55,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "134be7b5_19f73569",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-20T22:01:12Z",
+      "side": 1,
+      "message": "\u003e Is 16 safe also on 1 CPU?\n\nThis is not related to concurrency - it\u0027s just the number of test account groups that will be created.  It _must_ be _greater than or equal to_ the concurrency value to ensure there are enough accounts available for the tests running. (ie. if concurrency is 4, there could be 4 tests running in parallel, and each may require a test account)  So we can set this to whatever we like, regardless of the cpu count.",
+      "parentUuid": "3352dc7d_24361c90",
+      "revId": "293463e72d49d2e76f9d01f3ce8e2e38ac6e977b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5ed88147_b02ed144",
         "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
         "patchSetId": 5
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "+1",
       "parentUuid": "5ed88147_b02ed144",
+      "revId": "293463e72d49d2e76f9d01f3ce8e2e38ac6e977b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8384bd7e_61df3816",
+        "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-20T22:01:12Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "98ed543c_ee44037f",
       "revId": "293463e72d49d2e76f9d01f3ce8e2e38ac6e977b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
