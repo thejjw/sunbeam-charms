@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d234d45_0739f8d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-20T10:46:35Z",
+      "side": 1,
+      "message": "Thanks for your comments Robert, I\u0027ve replied to your questions. 😊",
+      "revId": "83374440df0aed990b3e1972b6e6acb26f54ed39",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "710c42cd_1d7f947e",
@@ -20,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4670b128_6475a597",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-20T10:46:35Z",
+      "side": 1,
+      "message": "No, because we want to check after the post_config_setup is complete.  If that failed, then tempest won\u0027t be ready, and we want to defer to try again later.\n\nI don\u0027t like the structure of things here, but we\u0027re a bit shoehorned into it if we want to keep using the structure given in the superclass. (post_config_setup is a good place for the custom logic, but it doesn\u0027t have access to the event object)\n\nI can improve the comment there if you like to make it clearer?  And/or we can do a follow up patch to refactor the post_config_setup logic to somewhere else.",
+      "parentUuid": "710c42cd_1d7f947e",
+      "revId": "83374440df0aed990b3e1972b6e6acb26f54ed39",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "519e9a4f_b5a822ba",
         "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
         "patchSetId": 1
@@ -31,6 +66,24 @@
       "writtenOn": "2024-02-20T08:07:04Z",
       "side": 1,
       "message": "Why not using the self.patch_obj here?",
+      "revId": "83374440df0aed990b3e1972b6e6acb26f54ed39",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "58bbfac8_fa8e42fe",
+        "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-20T10:46:35Z",
+      "side": 1,
+      "message": "Because we need to disable the patch for a couple of tests, so need to store a reference to the patcher to call .stop() - see line 497.  It\u0027s a bit hacky, but less verbose than patching this individually in each of the other tests.  Although not sure if there\u0027s a better pattern for this? :)",
+      "parentUuid": "519e9a4f_b5a822ba",
       "revId": "83374440df0aed990b3e1972b6e6acb26f54ed39",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
