@@ -628,9 +628,9 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         self.check_leader_ready()
         self.check_relation_handlers_ready(event)
         self.open_ports()
+        self.run_db_sync()
         self.init_container_services()
         self.check_pebble_handlers_ready()
-        self.run_db_sync()
         self._state.unit_bootstrapped = True
 
     def add_pebble_health_checks(self):
