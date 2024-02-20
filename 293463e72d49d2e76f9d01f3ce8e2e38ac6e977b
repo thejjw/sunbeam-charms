@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22c807ca_15c53ed8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-20T07:59:30Z",
+      "side": 1,
+      "message": "One question about number of accounts, but other than that is +1.",
+      "revId": "293463e72d49d2e76f9d01f3ce8e2e38ac6e977b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e7eac8b_f0d12215",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-20T07:59:30Z",
+      "side": 1,
+      "message": "Is 16 safe also on 1 CPU? What about `TEMPEST_ACCOUNTS_COUNT\u003dTEMPEST_CONCURRENCY * 4`",
+      "revId": "293463e72d49d2e76f9d01f3ce8e2e38ac6e977b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ed88147_b02ed144",
+        "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-20T07:59:30Z",
+      "side": 1,
+      "message": "not-blocking: `lambda: 2` -\u003e `return_value\u003d2`",
+      "revId": "293463e72d49d2e76f9d01f3ce8e2e38ac6e977b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
