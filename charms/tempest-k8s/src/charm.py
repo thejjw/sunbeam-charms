@@ -291,9 +291,11 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
         self.set_tempest_ready(True)
 
-    def post_config_setup(self) -> None:
-        """Configuration steps after services have been setup."""
-        logger.debug("Running post config setup")
+    def configure_unit(self, event: ops.framework.EventBase) -> None:
+        """Custom configuration steps for this unit."""
+        super().configure_unit(event)
+
+        logger.debug("Configuring the tempest environment")
 
         schedule = validated_schedule(self.config["schedule"])
         if not schedule.valid:
@@ -305,12 +307,16 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.init_tempest()
 
         if not self.is_tempest_ready():
+            logger.warning(
+                "Tempest environment init failed, deferring event to retry."
+            )
+            event.defer()
             raise sunbeam_guard.BlockedExceptionError(
                 "tempest init failed, see logs for more info"
             )
 
         self.status.set(ActiveStatus(""))
-        logger.debug("Finish post config setup")
+        logger.debug("Finished configuring the tempest environment")
 
     def pebble_handler(self) -> TempestPebbleHandler:
         """Get the pebble handler."""
