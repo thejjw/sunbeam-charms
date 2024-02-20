@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "710c42cd_1d7f947e",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-20T08:07:04Z",
+      "side": 1,
+      "message": "This should not be at the top of function? I think you want to defer event before doing anything and not after running whole event.",
+      "revId": "83374440df0aed990b3e1972b6e6acb26f54ed39",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "519e9a4f_b5a822ba",
+        "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-20T08:07:04Z",
+      "side": 1,
+      "message": "Why not using the self.patch_obj here?",
+      "revId": "83374440df0aed990b3e1972b6e6acb26f54ed39",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
