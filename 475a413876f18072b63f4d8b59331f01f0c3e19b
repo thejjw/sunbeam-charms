@@ -33,6 +33,24 @@
       "message": "Can we also have a TEMPEST_CONCURRENCY constant which is calculated by this function? Then this logic would not need to be carried over to charm.py",
       "revId": "475a413876f18072b63f4d8b59331f01f0c3e19b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc95998f_0712d2a3",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-20T02:59:00Z",
+      "side": 1,
+      "message": "Good point, yes we can do that 👍",
+      "parentUuid": "5efa3d48_6344fb80",
+      "revId": "475a413876f18072b63f4d8b59331f01f0c3e19b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
