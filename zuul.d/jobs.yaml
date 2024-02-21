@@ -321,6 +321,8 @@
         soft: true
       - name: charm-build-ovn-relay-k8s
         soft: true
+      - name: charm-build-tempest-k8s
+        soft: true
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/keystone-k8s/*
@@ -330,6 +332,7 @@
       - charms/placement-k8s/*
       - charms/ovn-central-k8s/*
       - charms/ovn-relay-k8s/*
+      - charms/tempest-k8s/*
       - rebuild
     vars:
       # Artifacts will be downloaded from below charm jobs
@@ -341,6 +344,7 @@
         - charm-build-neutron-k8s
         - charm-build-ovn-central-k8s
         - charm-build-ovn-relay-k8s
+        - charm-build-tempest-k8s
       # test_dir relative to project src dir
       test_dir: tests/core
 - job:
