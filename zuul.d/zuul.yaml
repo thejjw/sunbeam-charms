@@ -16,6 +16,8 @@
             nodeset: ubuntu-jammy
         - func-test-machine:
             nodeset: ubuntu-jammy
+        - func-test-tempest:
+            nodeset: ubuntu-jammy
     vars:
       juju_channel: 3.4/stable
       juju_classic_mode: false
