@@ -4,6 +4,7 @@ applications:
   traefik:
     charm: ch:traefik-k8s
     channel: 1.0/candidate
+    base: ubuntu@20.04
     scale: 1
     trust: true
     options:
@@ -11,12 +12,16 @@ applications:
   mysql:
     charm: ch:mysql-k8s
     channel: 8.0/stable
+    base: ubuntu@22.04
     scale: 1
     trust: true
     constraints: cpu-power=1000 mem=1G
+    options:
+      profile: testing
   rabbitmq:
     charm: ch:rabbitmq-k8s
     channel: 3.12/edge
+    base: ubuntu@22.04
     scale: 1
     trust: true
     options:
@@ -28,6 +33,7 @@ applications:
     charm: ch:keystone-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     options:
@@ -44,6 +50,7 @@ applications:
     charm: ch:cinder-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
@@ -56,6 +63,7 @@ applications:
     charm: ch:cinder-ceph-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
@@ -67,6 +75,7 @@ applications:
     charm: ch:gnocchi-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
@@ -79,6 +88,7 @@ applications:
     charm: ch:ceilometer-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
@@ -91,6 +101,7 @@ applications:
     charm: ch:aodh-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     resources:

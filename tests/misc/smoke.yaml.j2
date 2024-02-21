@@ -4,6 +4,7 @@ applications:
   traefik:
     charm: ch:traefik-k8s
     channel: 1.0/candidate
+    base: ubuntu@20.04
     scale: 1
     trust: true
     options:
@@ -11,16 +12,21 @@ applications:
   mysql:
     charm: ch:mysql-k8s
     channel: 8.0/stable
+    base: ubuntu@22.04
     scale: 1
     trust: true
     constraints: cpu-power=1000 mem=1G
+    options:
+      profile: testing
   ldap-server:
     charm: ch:ldap-test-fixture-k8s
     channel: edge
+    base: ubuntu@22.04
     scale: 1
   rabbitmq:
     charm: ch:rabbitmq-k8s
     channel: 3.12/edge
+    base: ubuntu@22.04
     scale: 1
     trust: true
     options:
@@ -32,6 +38,7 @@ applications:
     charm: ch:keystone-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     options:
@@ -48,6 +55,7 @@ applications:
     charm: ch:designate-bind-k8s
     channel: 9/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: false
     resources:
@@ -59,6 +67,7 @@ applications:
     charm: ch:designate-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: false
     resources:
@@ -70,6 +79,7 @@ applications:
     charm: ch:keystone-ldap-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
   openstack-exporter:
     {% if openstack_exporter_k8s is defined and openstack_exporter_k8s is sameas true -%}
@@ -78,9 +88,22 @@ applications:
     charm: ch:openstack-exporter-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     resources:
       openstack-exporter-image: ghcr.io/canonical/openstack-exporter:1.6.0-7533071
+  horizon:
+    {% if horizon_k8s is defined and horizon_k8s is sameas true -%}
+    charm: ../../../horizon-k8s.charm
+    {% else -%}
+    charm: ch:horizon-k8s
+    channel: 2023.2/edge
+    {% endif -%}
+    base: ubuntu@22.04
+    scale: 1
+    trust: true
+    resources:
+      horizon-image: ghcr.io/canonical/horizon:2023.2
 
 relations:
 - - mysql:database
@@ -106,3 +129,12 @@ relations:
 
 - - keystone:identity-ops
   - openstack-exporter:identity-ops
+
+- - mysql:database
+  - horizon:database
+- - keystone:identity-credentials
+  - horizon:identity-credentials
+- - traefik:ingress
+  - horizon:ingress-public
+- - keystone:send-ca-cert
+  - horizon:receive-ca-cert

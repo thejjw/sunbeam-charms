@@ -4,6 +4,7 @@ applications:
   traefik:
     charm: ch:traefik-k8s
     channel: 1.0/candidate
+    base: ubuntu@20.04
     scale: 1
     trust: true
     options:
@@ -11,18 +12,23 @@ applications:
   mysql:
     charm: ch:mysql-k8s
     channel: 8.0/stable
+    base: ubuntu@22.04
     scale: 1
     trust: true
     constraints: cpu-power=1000 mem=1G
+    options:
+      profile: testing
   tls-operator:
     charm: self-signed-certificates
     channel: latest/beta
+    base: ubuntu@22.04
     scale: 1
     options:
       ca-common-name: internal-ca
   rabbitmq:
     charm: ch:rabbitmq-k8s
     channel: 3.12/edge
+    base: ubuntu@22.04
     scale: 1
     trust: true
     options:
@@ -34,6 +40,7 @@ applications:
     charm: ch:ovn-central-k8s
     channel: 23.03/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
@@ -47,6 +54,7 @@ applications:
     charm: ch:ovn-relay-k8s
     channel: 23.03/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
@@ -58,6 +66,7 @@ applications:
     charm: ch:keystone-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     options:
@@ -74,6 +83,7 @@ applications:
     charm: ch:glance-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     storage:
@@ -87,6 +97,7 @@ applications:
     charm: ch:nova-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
@@ -100,6 +111,7 @@ applications:
     charm: ch:placement-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
@@ -111,23 +123,13 @@ applications:
     charm: ch:neutron-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     options:
       debug: true
     resources:
       neutron-server-image: ghcr.io/canonical/neutron-server:2023.2
-  horizon:
-    {% if horizon_k8s is defined and horizon_k8s is sameas true -%}
-    charm: ../../../horizon-k8s.charm
-    {% else -%}
-    charm: ch:horizon-k8s
-    channel: 2023.2/edge
-    {% endif -%}
-    scale: 1
-    trust: true
-    resources:
-      horizon-image: ghcr.io/canonical/horizon:2023.2
 
 relations:
 - - tls-operator:certificates
@@ -192,12 +194,3 @@ relations:
   - ovn-central:ovsdb-cms
 - - keystone:send-ca-cert
   - neutron:receive-ca-cert
-
-- - mysql:database
-  - horizon:database
-- - keystone:identity-credentials
-  - horizon:identity-credentials
-- - traefik:ingress
-  - horizon:ingress-public
-- - keystone:send-ca-cert
-  - horizon:receive-ca-cert
