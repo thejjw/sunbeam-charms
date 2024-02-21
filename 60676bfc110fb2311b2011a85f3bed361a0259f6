@@ -68,6 +68,24 @@
       "parentUuid": "002f58af_2894b8df",
       "revId": "60676bfc110fb2311b2011a85f3bed361a0259f6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e7d28b8_33fb599c",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-21T21:21:59Z",
+      "side": 1,
+      "message": "No I mean to consolidate the handler functions, not the event - use the same events, but point them to the same handler method:\n\n```\n        self.framework.observe(\n            interface.on.log_proxy_endpoint_joined,\n            self._on_log_proxy_endpoint_changed,\n        )\n        self.framework.observe(\n            interface.on.log_proxy_endpoint_departed,\n            self._on_log_proxy_endpoint_changed,\n        )\n        return interface\n    def _on_log_proxy_endpoint_changed(self, event):\n        if not self.model.unit.is_leader():\n            return\n        # to trigger context re-rendering\n        self.charm.init_container_services()\n```",
+      "parentUuid": "bfd7622c_305d54a6",
+      "revId": "60676bfc110fb2311b2011a85f3bed361a0259f6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
