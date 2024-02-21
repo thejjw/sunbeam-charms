@@ -174,6 +174,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         rel_id = harness.add_relation("logging", "loki")
         harness.add_relation_unit(rel_id, "loki/0")
         harness.charm.loki.interface = Mock()
+        harness.charm.loki.interface._promtail_config = Mock()
         return rel_id
 
     def add_grafana_dashboard_relation(self, harness):
@@ -606,3 +607,30 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.remove_relation(identity_ops_rel_id)
 
         self.harness.charm.set_tempest_ready.assert_called_once_with(False)
+
+    def test_logging_ready(self):
+        """Test logging relation ready."""
+        rel_id = self.add_logging_relation(self.harness)
+
+        # client endpoints found
+        self.harness.charm.loki.interface._promtail_config.return_value = {
+            "clients": [
+                {
+                    "url": "http://grafana-agent-k8s-endpoints:3500/loki/api/v1/push"
+                }
+            ],
+            "other_key": "other_values",
+        }
+        self.assertEqual(self.harness.charm.loki.ready, True)
+
+        # empty client endpoints
+        self.harness.charm.loki.interface._promtail_config.return_value = {
+            "clients": [],
+            "other_key": "other_values",
+        }
+        self.assertEqual(self.harness.charm.loki.ready, False)
+
+        # empty promtail config
+        self.harness.remove_relation(rel_id)
+        self.harness.charm.loki.interface._promtail_config.return_value = {}
+        self.assertEqual(self.harness.charm.loki.ready, False)
