@@ -3,18 +3,31 @@
     name: snapd
   become: true
 
+- name: nftables is installed
+  apt:
+    name: nftables
+  become: true
+  when: ansible_distribution_release == 'jammy'
+
+- name: allow packets from pod cir
+  command: nft insert rule filter openstack-INPUT ip saddr 10.1.0.0/16 accept
+  become: true
+  when: ansible_distribution_release == 'jammy'
+
+- name: allow packets to pod cir
+  command: nft insert rule filter openstack-INPUT ip daddr 10.1.0.0/16 accept
+  become: true
+  when: ansible_distribution_release == 'jammy'
+
+- name: allow packets to metallb cir
+  command: nft insert rule filter openstack-INPUT ip daddr 10.170.0.248/29 accept
+  become: true
+  when: ansible_distribution_release == 'jammy'
+
 - name: set microk8s related variables
   set_fact:
     microk8s_group: "{{ 'microk8s' if microk8s_classic_mode | default(true) else 'snap_microk8s' }}"
     microk8s_command_escalation: "{{ false if microk8s_classic_mode | default(true) else true }}"
-
-- name: Disable ipv6
-  become: true
-  sysctl:
-    name: "net.ipv6.conf.all.disable_ipv6"
-    value: "1"
-    state: "present"
-    reload: "yes"
 
 - name: microk8s is installed
   snap:
@@ -103,7 +116,7 @@
 - name: microk8s metallb addon is enabled
   command:
     # ip range is an arbitrary choice; may need to be changed later
-    cmd: microk8s enable metallb:10.170.0.1-10.170.0.100
+    cmd: microk8s enable metallb:10.170.0.248/29
   register: res
   changed_when: '"already enabled" not in res.stdout'
   become: "{{ microk8s_command_escalation }}"
