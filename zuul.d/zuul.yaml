@@ -17,7 +17,7 @@
         - func-test-machine:
             nodeset: ubuntu-jammy
     vars:
-      juju_channel: 3.2/stable
+      juju_channel: 3.4/stable
       juju_classic_mode: false
       env_type: k8s
       microk8s_channel: 1.28-strict/stable
