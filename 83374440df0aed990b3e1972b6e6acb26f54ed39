@@ -53,6 +53,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1086e96c_e176cee5",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-21T11:09:38Z",
+      "side": 1,
+      "message": "Ok, that is a little bit strange, but now when you join those two function together I can see the bigger picture.\nBTW, raising the BlockedExceptionError looks really strange, but after checking the ops_sunbeam I see how it’s working.",
+      "parentUuid": "4670b128_6475a597",
+      "revId": "83374440df0aed990b3e1972b6e6acb26f54ed39",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "519e9a4f_b5a822ba",
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "Because we need to disable the patch for a couple of tests, so need to store a reference to the patcher to call .stop() - see line 497.  It\u0027s a bit hacky, but less verbose than patching this individually in each of the other tests.  Although not sure if there\u0027s a better pattern for this? :)",
       "parentUuid": "519e9a4f_b5a822ba",
+      "revId": "83374440df0aed990b3e1972b6e6acb26f54ed39",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8352f75_4fa37fd8",
+        "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-21T11:09:38Z",
+      "side": 1,
+      "message": "I see and yes it bit hacky, but fine. Maybe we should add a comment here, that we are using it like this because of being able to stop it, and that\u0027a why we are not using self.patch_obj.\n\nI\u0027m not aware of any better way to doing it and suggestion to add comment is just optional. Resolving",
+      "parentUuid": "58bbfac8_fa8e42fe",
       "revId": "83374440df0aed990b3e1972b6e6acb26f54ed39",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
