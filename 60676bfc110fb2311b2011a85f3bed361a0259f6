@@ -50,6 +50,24 @@
       "message": "Nit: these methods can be combined, because they are identical.  Maybe something like `_on_log_proxy_endpoint_changed(self, event)`.",
       "revId": "60676bfc110fb2311b2011a85f3bed361a0259f6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bfd7622c_305d54a6",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-21T14:11:22Z",
+      "side": 1,
+      "message": "I chose to do `joined/departed` instead because relation-joined/departed are garenteed to be filed at the begining/end of the relation life-cycle; that\u0027s not always true for `relation-changed` from my tests.\n\nPlus, this avoids unnecessary context rendering (relation changed could multiple times during the life-cycle, and there\u0027s no need to track those for our purposes). I think it\u0027s important keeping operation efficient over keeping the code compact.",
+      "parentUuid": "002f58af_2894b8df",
+      "revId": "60676bfc110fb2311b2011a85f3bed361a0259f6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
