@@ -39,6 +39,30 @@
       },
       "revId": "7dc4d3f30ae484e4c8be238b6f1d6804a83023af",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1cfed2b_60b3463a",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-21T22:50:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "04eb8151_33a185cd",
+      "range": {
+        "startLine": 319,
+        "startChar": 20,
+        "endLine": 319,
+        "endChar": 21
+      },
+      "revId": "7dc4d3f30ae484e4c8be238b6f1d6804a83023af",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }

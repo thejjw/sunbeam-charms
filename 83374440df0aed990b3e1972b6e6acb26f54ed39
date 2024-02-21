@@ -71,6 +71,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9758158_d6344191",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-21T22:50:00Z",
+      "side": 1,
+      "message": "Yep, Hemanth suggested using configure_unit for everything, since that still works in the bootstrap logic flow and it has access to the event.  It\u0027s much more readable now. 👍",
+      "parentUuid": "1086e96c_e176cee5",
+      "revId": "83374440df0aed990b3e1972b6e6acb26f54ed39",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "519e9a4f_b5a822ba",
@@ -120,6 +138,24 @@
       "side": 1,
       "message": "I see and yes it bit hacky, but fine. Maybe we should add a comment here, that we are using it like this because of being able to stop it, and that\u0027a why we are not using self.patch_obj.\n\nI\u0027m not aware of any better way to doing it and suggestion to add comment is just optional. Resolving",
       "parentUuid": "58bbfac8_fa8e42fe",
+      "revId": "83374440df0aed990b3e1972b6e6acb26f54ed39",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd409487_32f32347",
+        "filename": "charms/tempest-k8s/tests/unit/test_tempest_charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-21T22:50:00Z",
+      "side": 1,
+      "message": "Thanks, yes a comment is a good idea.",
+      "parentUuid": "e8352f75_4fa37fd8",
       "revId": "83374440df0aed990b3e1972b6e6acb26f54ed39",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
