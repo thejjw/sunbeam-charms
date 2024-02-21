@@ -36,6 +36,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3b09028_f3b8dfc0",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-21T03:28:02Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "a4acf74a_cd16ca7f",
+      "revId": "0d9abe3d08455701a1153b690bd024be3bac6225",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "62853c18_64b9d015",
@@ -67,6 +85,24 @@
       "side": 1,
       "message": "We are not trying to stop all service, but rather prevent crontab triggering the periodic check pebble runner. And with the change in `get_schedule()`, returning \"\" for schedule value is enough.",
       "parentUuid": "62853c18_64b9d015",
+      "revId": "0d9abe3d08455701a1153b690bd024be3bac6225",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "206ba260_19314c64",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-21T03:28:02Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "a3778105_45b7f618",
       "revId": "0d9abe3d08455701a1153b690bd024be3bac6225",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
