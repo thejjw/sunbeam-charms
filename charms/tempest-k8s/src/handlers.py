@@ -651,9 +651,40 @@ class LoggingRelationHandler(sunbeam_rhandlers.RelationHandler):
                 }
             },
         )
+
+        self.framework.observe(
+            interface.on.log_proxy_endpoint_joined,
+            self._on_log_proxy_endpoint_joined,
+        )
+        self.framework.observe(
+            interface.on.log_proxy_endpoint_departed,
+            self._on_log_proxy_endpoint_departed,
+        )
+
         return interface
+
+    def _on_log_proxy_endpoint_joined(self, event):
+        if not self.model.unit.is_leader():
+            return
+
+        # to trigger context re-rendering
+        self.charm.init_container_services()
+
+    def _on_log_proxy_endpoint_departed(self, event):
+        if not self.model.unit.is_leader():
+            return
+
+        # to trigger context re-rendering
+        self.charm.init_container_services()
 
     @property
     def ready(self) -> bool:
-        """Determine with the relation is ready for use."""
-        return True
+        """Determine if the relation is ready for use."""
+        try:
+            logger.info("Checking logging relation readiness...")
+            return bool(
+                self.interface._promtail_config("tempest").get("clients", [])
+            )
+        except Exception as e:
+            logger.warning("Error getting loki client endpoints. %s", str(e))
+            return False
