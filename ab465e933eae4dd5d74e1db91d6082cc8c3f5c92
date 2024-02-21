@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71b8f379_8eff6c5b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-21T02:35:01Z",
+      "side": 1,
+      "message": "LGTM, but some minor suggestions to consider",
+      "revId": "ab465e933eae4dd5d74e1db91d6082cc8c3f5c92",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bdd3f5ed_ad00ea88",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-21T02:35:01Z",
+      "side": 1,
+      "message": "would it be nicer (for debugging purpose) to add a `logger.warning` to tell people that we will retry because it was not ready?",
+      "revId": "ab465e933eae4dd5d74e1db91d6082cc8c3f5c92",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa2e05b3_f6974460",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-21T02:35:01Z",
+      "side": 1,
+      "message": "Although there is not need to add it in this particular case, can you add `return` after the `event.defer()` for future proof (just in case if we need to do more thing in the configure charm, and we forget to add `return`)?",
+      "revId": "ab465e933eae4dd5d74e1db91d6082cc8c3f5c92",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
