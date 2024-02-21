@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a4acf74a_cd16ca7f",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-21T03:07:28Z",
+      "side": 1,
+      "message": "The reason I\u0027m triggering `self.init_container_services` is to re-render context which updates the schedule value. As you see the changes in `get_schedule()`, if loki relation is not ready, then schedule will be \"\" and the pebble service is disabled.",
+      "parentUuid": "7ad89fdb_87e590ab",
+      "revId": "0d9abe3d08455701a1153b690bd024be3bac6225",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "62853c18_64b9d015",
         "filename": "charms/tempest-k8s/src/handlers.py",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2024-02-21T02:57:16Z",
       "side": 1,
       "message": "Same here, but it should be stopping the service?",
+      "revId": "0d9abe3d08455701a1153b690bd024be3bac6225",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3778105_45b7f618",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-21T03:07:28Z",
+      "side": 1,
+      "message": "We are not trying to stop all service, but rather prevent crontab triggering the periodic check pebble runner. And with the change in `get_schedule()`, returning \"\" for schedule value is enough.",
+      "parentUuid": "62853c18_64b9d015",
       "revId": "0d9abe3d08455701a1153b690bd024be3bac6225",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
