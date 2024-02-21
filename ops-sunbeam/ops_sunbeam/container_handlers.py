@@ -185,6 +185,11 @@ class PebbleHandler(ops.framework.Object):
         services = container.get_services()
         return all([s.is_running() for s in services.values()])
 
+    @property
+    def skip_running_services_check(self) -> bool:
+        """Allow services not to be running to consider pebble handler ready."""
+        return False
+
     def execute(
         self, cmd: List, exception_on_error: bool = False, **kwargs: TypedDict
     ) -> str:

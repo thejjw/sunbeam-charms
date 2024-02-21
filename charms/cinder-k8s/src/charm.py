@@ -104,6 +104,15 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
 class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
     """Pebble handler for Cinder Scheduler services."""
 
+    @property
+    def skip_running_services_check(self) -> bool:
+        """Skip running services check."""
+        if self.charm.has_db_sync_run():
+            # DB Sync has run, check if services are running
+            return False
+        logger.debug("DB Sync has not run, skipping running services check")
+        return True
+
     def start_service(self):
         """Start services in container."""
         container = self.charm.unit.get_container(self.container_name)
@@ -142,7 +151,8 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
     def init_service(self, context) -> None:
         """Initialize services and write configuration."""
         self.write_config(context)
-        self.start_service()
+        if self.charm.has_db_sync_run():
+            self.start_service()
 
     def default_container_configs(self) -> List[Dict]:
         """Generate default configuration files for container."""
@@ -327,6 +337,10 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if self.bootstrapped():
             # Tell storage backends we are ready
             self.sb_svc.set_ready()
+            # Start cinder scheduler services after bootstrap is done
+            self.get_named_pebble_handler(
+                CINDER_SCHEDULER_CONTAINER
+            ).start_service()
 
 
 if __name__ == "__main__":

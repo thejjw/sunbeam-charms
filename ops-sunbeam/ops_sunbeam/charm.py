@@ -606,6 +606,18 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
     def check_pebble_handlers_ready(self):
         """Check pebble handlers are ready."""
         for ph in self.pebble_handlers:
+            if not ph.pebble_ready:
+                logging.debug(
+                    f"Aborting container {ph.container_name} pebble not ready"
+                )
+                raise sunbeam_guard.WaitingExceptionError(
+                    "Container not ready"
+                )
+            if ph.skip_running_services_check:
+                logging.debug(
+                    f"Skipping running services check for {ph.container_name}"
+                )
+                continue
             if not ph.service_ready:
                 logging.debug(
                     f"Aborting container {ph.service_name} service not ready"
@@ -709,6 +721,11 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
             logger.warning(
                 "Not DB sync ran. Charm does not specify self.db_sync_cmds"
             )
+
+    def has_db_sync_run(self) -> bool:
+        """Check if db sync has run."""
+        storage = sunbeam_job_ctrl.LocalJobStorage(self._state)
+        return "db-sync" in storage
 
     def open_ports(self):
         """Register ports in underlying cloud."""
