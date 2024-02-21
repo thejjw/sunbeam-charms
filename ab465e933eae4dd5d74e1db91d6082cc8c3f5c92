@@ -18,6 +18,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "eae8e2d9_23d75d5c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-21T03:13:26Z",
+      "side": 1,
+      "message": "Thanks 😊",
+      "revId": "ab465e933eae4dd5d74e1db91d6082cc8c3f5c92",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bdd3f5ed_ad00ea88",
@@ -37,6 +54,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "295682ad_309bd39b",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-21T03:13:26Z",
+      "side": 1,
+      "message": "Ah good point, I\u0027ll do that thanks.",
+      "parentUuid": "bdd3f5ed_ad00ea88",
+      "revId": "ab465e933eae4dd5d74e1db91d6082cc8c3f5c92",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fa2e05b3_f6974460",
         "filename": "charms/tempest-k8s/src/charm.py",
         "patchSetId": 3
@@ -48,6 +83,24 @@
       "writtenOn": "2024-02-21T02:35:01Z",
       "side": 1,
       "message": "Although there is not need to add it in this particular case, can you add `return` after the `event.defer()` for future proof (just in case if we need to do more thing in the configure charm, and we forget to add `return`)?",
+      "revId": "ab465e933eae4dd5d74e1db91d6082cc8c3f5c92",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48ab69c7_81ab0a2c",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-21T03:13:26Z",
+      "side": 1,
+      "message": "I think the return can be added if anything is added later.  Adding now probably isn\u0027t necessary. 😊",
+      "parentUuid": "fa2e05b3_f6974460",
       "revId": "ab465e933eae4dd5d74e1db91d6082cc8c3f5c92",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
