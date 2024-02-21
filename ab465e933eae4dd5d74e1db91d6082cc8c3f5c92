@@ -52,6 +52,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad12ba58_978079be",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-21T03:19:46Z",
+      "side": 1,
+      "message": "Thanks, yep added the warning. 😊",
+      "parentUuid": "00489405_b7e2025c",
+      "revId": "ab465e933eae4dd5d74e1db91d6082cc8c3f5c92",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bdd3f5ed_ad00ea88",
@@ -101,6 +119,24 @@
       "side": 1,
       "message": "+1",
       "parentUuid": "bdd3f5ed_ad00ea88",
+      "revId": "ab465e933eae4dd5d74e1db91d6082cc8c3f5c92",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "01fa26f3_ccdb18b3",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-21T03:19:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "31c41057_fb41fb56",
       "revId": "ab465e933eae4dd5d74e1db91d6082cc8c3f5c92",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
