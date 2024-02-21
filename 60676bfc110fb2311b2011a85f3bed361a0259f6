@@ -16,6 +16,40 @@
       "message": "LGTM",
       "revId": "60676bfc110fb2311b2011a85f3bed361a0259f6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "edb3a3c5_6eb86bd3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-21T04:50:46Z",
+      "side": 1,
+      "message": "LGTM, I tested that it sets the schedule as expected when adding/removing the logging relation.\n\nOne small nit, but not blocking.",
+      "revId": "60676bfc110fb2311b2011a85f3bed361a0259f6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "002f58af_2894b8df",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-21T04:50:46Z",
+      "side": 1,
+      "message": "Nit: these methods can be combined, because they are identical.  Maybe something like `_on_log_proxy_endpoint_changed(self, event)`.",
+      "revId": "60676bfc110fb2311b2011a85f3bed361a0259f6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
