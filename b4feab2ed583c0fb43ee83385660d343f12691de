@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c71b8284_ec9afd24",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-21T04:40:19Z",
+      "side": 1,
+      "message": "Note the tests won\u0027t pass until the following are merged:\n\n- 909495: Ensure that tempest init is retried | https://review.opendev.org/c/openstack/sunbeam-charms/+/909495\n- 909631: Add the --create option to discover-tempest-config | https://review.opendev.org/c/openstack/sunbeam-charms/+/909631",
+      "revId": "b4feab2ed583c0fb43ee83385660d343f12691de",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
