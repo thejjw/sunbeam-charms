@@ -16,6 +16,23 @@
       "message": "LGTM",
       "revId": "71e2b3b65a693ba88102910d122a6701c35f4010",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "47039b38_0756abb3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-21T03:12:40Z",
+      "side": 1,
+      "message": "LGTM. I thought we had this added from the very beginning.",
+      "revId": "71e2b3b65a693ba88102910d122a6701c35f4010",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
