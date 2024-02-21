@@ -74,11 +74,15 @@ config:
   options:
     schedule:
       type: string
-      default: ""
+      default: "0 */1 * * *"
       description: |
         The cron schedule expression to define when to run tempest periodic checks.
 
-        When the value is empty (default), period checks will be disabled.
+        The value will only take effect when 'logging' relation is joined. Otherwise,
+        regardless of the value set, periodic checks are disabled.
+
+        By default, tests will run every hour. When the value is set to empty,
+        periodic checks will be disabled.
 
         The cron implementation used is Vixie Cron, installed from Ubuntu main.
         For help with expressions, see `man 5 crontab` for Vixie Cron,
