@@ -1,3 +1,5 @@
+base: ubuntu@22.04
+
 applications:
   sunbeam-machine:
     {% if sunbeam_machine is defined and sunbeam_machine is sameas true -%}
@@ -6,7 +8,6 @@ applications:
     charm: ch:sunbeam-machine
     channel: 2023.2/edge
     {% endif -%}
-    base: ubuntu@22.04
     scale: 1
   sunbeam-clusterd:
     {% if sunbeam_clusterd is defined and sunbeam_clusterd is sameas true -%}
@@ -15,7 +16,6 @@ applications:
     charm: ch:sunbeam-clusterd
     channel: 2023.2/edge
     {% endif -%}
-    base: ubuntu@22.04
     scale: 1
     options:
       # untrusted endpoints only on this branch

@@ -1,9 +1,11 @@
 bundle: kubernetes
+base: ubuntu@22.04
 
 applications:
   traefik:
     charm: ch:traefik-k8s
     channel: 1.0/candidate
+    base: ubuntu@22.04
     scale: 1
     trust: true
     options:
