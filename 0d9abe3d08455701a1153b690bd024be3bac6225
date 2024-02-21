@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7ad89fdb_87e590ab",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 669,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-21T02:57:16Z",
+      "side": 1,
+      "message": "Is it effective? the `self.charm.init_container_services` has the following callback chain `self.configure_charm` -\u003e `self.configure_unit` -\u003e `self.init_container_services`. Since the charm will called the `self.configure_charm` when it was deployed, so the service should have already been started. \n\nI think we need to overwrite the `self.configure_charm` to stop the service when the charm is deployed",
+      "revId": "0d9abe3d08455701a1153b690bd024be3bac6225",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62853c18_64b9d015",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 674,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-02-21T02:57:16Z",
+      "side": 1,
+      "message": "Same here, but it should be stopping the service?",
+      "revId": "0d9abe3d08455701a1153b690bd024be3bac6225",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
