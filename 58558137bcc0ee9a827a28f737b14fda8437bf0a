@@ -16,6 +16,23 @@
       "message": "recheck\n\nfunc-test-misc failed as openstack-exporter status not updated.\nNeed to see if this happens sometimes.\nThis will be tracked as separate bug.",
       "revId": "58558137bcc0ee9a827a28f737b14fda8437bf0a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f35a7a8_ef1e1827",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-21T08:33:27Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "58558137bcc0ee9a827a28f737b14fda8437bf0a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
