@@ -321,8 +321,6 @@
         soft: true
       - name: charm-build-ovn-relay-k8s
         soft: true
-      - name: charm-build-horizon-k8s
-        soft: true
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/keystone-k8s/*
@@ -332,7 +330,6 @@
       - charms/placement-k8s/*
       - charms/ovn-central-k8s/*
       - charms/ovn-relay-k8s/*
-      - charms/horizon-k8s/*
       - rebuild
     vars:
       # Artifacts will be downloaded from below charm jobs
@@ -344,7 +341,6 @@
         - charm-build-neutron-k8s
         - charm-build-ovn-central-k8s
         - charm-build-ovn-relay-k8s
-        - charm-build-horizon-k8s
       # test_dir relative to project src dir
       test_dir: tests/core
 - job:
@@ -444,12 +440,15 @@
         soft: true
       - name: charm-build-openstack-exporter-k8s
         soft: true
+      - name: charm-build-horizon-k8s
+        soft: true
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/designate-k8s/*
       - charms/designate-bind-k8s/*
       - charms/keystone-ldap-k8s/*
       - charms/openstack-exporter-k8s/*
+      - charms/horizon-k8s/*
       - rebuild
     vars:
       charm_jobs:
@@ -458,6 +457,7 @@
         - charm-build-keystone-ldap-k8s
         - charm-build-openstack-exporter-k8s
         - charm-build-keystone-k8s
+        - charm-build-horizon-k8s
       test_dir: tests/misc
 - job:
     name: func-test-machine
