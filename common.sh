@@ -479,3 +479,12 @@ function pop_common_files {
 
 	popd
 }
+
+function copy_libs_for_ops_sunbeam {
+	mkdir -p tests/lib
+        cp -rf ../libs/external/lib ../libs/internal/lib tests/
+}
+
+function remove_libs_for_ops_sunbeam {
+	rm -rf tests/lib
+}

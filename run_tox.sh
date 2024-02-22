@@ -70,7 +70,9 @@ then
     # Run py3 on ops-sunbeam
     if should_test_ops_sunbeam $2; then
         pushd ops-sunbeam
+	copy_libs_for_ops_sunbeam
         stestr run --slowest || exit 1
+	remove_libs_for_ops_sunbeam
         popd
     fi
 
@@ -90,9 +92,11 @@ then
     # Run coverage on ops-sunbeam
     if should_test_ops_sunbeam $2; then
         pushd ops-sunbeam
+	copy_libs_for_ops_sunbeam
         coverage erase
         PYTHON="coverage run --parallel-mode --omit .tox/*" stestr run --slowest || exit 1
         coverage combine
+	remove_libs_for_ops_sunbeam
         popd
     fi
 
