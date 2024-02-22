@@ -30,6 +30,10 @@ region_name = RegionOne
 
 [api]
 api_paste_config=/etc/magnum/api-paste.ini
+workers = 4
+
+[conductor]
+workers = 4
 
 {% include "parts/section-oslo-messaging-rabbit" %}
 
