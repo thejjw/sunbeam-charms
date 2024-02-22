@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "47d358a6_225f2f41",
+        "filename": "charms/tempest-k8s/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-22T16:57:29Z",
+      "side": 1,
+      "message": "I updated the commit message. The reason for using a non-empty value for `schedule` config is because we want the periodic check to auto-start once the logging relation is available.\n\nThe test profile we are using for periodic check is \"readonly-quick\", which takes less than 10min to complete, so it is safe to run per hour.",
+      "parentUuid": "0c1f60c6_65e4566b",
+      "revId": "ce53c115f7a94f3185fd919370f66e1ef1de685a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4edb63d6_86b88197",
         "filename": "charms/tempest-k8s/src/handlers.py",
         "patchSetId": 5
@@ -31,6 +49,24 @@
       "writtenOn": "2024-02-22T03:36:48Z",
       "side": 1,
       "message": "Do you see any issue to call configure_charm() here? The general idea is to keep all the steps in configure_charm idempotent and call that function for every possible event handler.",
+      "revId": "ce53c115f7a94f3185fd919370f66e1ef1de685a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70f9f706_2585c713",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-22T16:57:29Z",
+      "side": 1,
+      "message": "After reading through the code and doing some tests. there doesn\u0027t seem to be any issue with calling configure_charm(). Updated it in the latest revision.",
+      "parentUuid": "4edb63d6_86b88197",
       "revId": "ce53c115f7a94f3185fd919370f66e1ef1de685a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
