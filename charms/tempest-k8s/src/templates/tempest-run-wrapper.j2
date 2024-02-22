@@ -8,6 +8,14 @@
     exit 1
 }
 
+# Clean up any leftover lock files.
+# This helps mitigate https://bugs.launchpad.net/tempest/+bug/2052752 ,
+# by avoiding accumulation of the credential lock files.
+# This cleanup is safe and won't interfere with a running instance of tempest,
+# because tempest should only be run within these wrapper scripts,
+# and there is locking around these.
+rm -rf /tmp/tempest-lock/
+
 # log everything to a tmpfile
 TMP_FILE="$(mktemp)"
 
