@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c1f60c6_65e4566b",
+        "filename": "charms/tempest-k8s/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-22T03:36:48Z",
+      "side": 1,
+      "message": "Why the change in default from not set to 1 hour? Can you provide design decision here or in commit message.\nHow much time each tempest run will take? To me, running every 1 hour the tempest validation seems too much.",
+      "revId": "ce53c115f7a94f3185fd919370f66e1ef1de685a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4edb63d6_86b88197",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-22T03:36:48Z",
+      "side": 1,
+      "message": "Do you see any issue to call configure_charm() here? The general idea is to keep all the steps in configure_charm idempotent and call that function for every possible event handler.",
+      "revId": "ce53c115f7a94f3185fd919370f66e1ef1de685a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
