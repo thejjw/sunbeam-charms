@@ -16,5 +16,7 @@ ceph_pool = gnocchi
 ceph_username = gnocchi
 ceph_conffile = /etc/ceph/ceph.conf
 
+[metricd]
+workers = 4
 
 {% include "parts/section-identity" %}
