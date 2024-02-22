@@ -368,7 +368,9 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         secret_id = self.leader_get(self.heat_auth_encryption_key)
         if secret_id:
             key = self.model.get_secret(id=secret_id)
-            return key.get_content().get(self.heat_auth_encryption_key)
+            return key.get_content(refresh=True).get(
+                self.heat_auth_encryption_key
+            )
 
         return None
 

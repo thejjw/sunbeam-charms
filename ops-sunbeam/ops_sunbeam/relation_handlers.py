@@ -354,7 +354,7 @@ class DBHandler(RelationHandler):
         database_name = self.database_name
         database_host = data["endpoints"]
         user_secret = self.model.get_secret(id=data["secret-user"])
-        secret_data = user_secret.get_content()
+        secret_data = user_secret.get_content(refresh=True)
         database_user = secret_data["username"]
         database_password = secret_data["password"]
         database_type = "mysql+pymysql"
@@ -925,7 +925,9 @@ class TlsCertificatesHandler(RelationHandler):
                 id=private_key_secret_id
             )
             self._private_key = (
-                private_key_secret.get_content().get("private-key").encode()
+                private_key_secret.get_content(refresh=True)
+                .get("private-key")
+                .encode()
             )
             return
 
@@ -1505,7 +1507,7 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
     def _get_credentials(self) -> Tuple[str, str]:
         credentials_id = self._ensure_credentials()
         secret = self.model.get_secret(id=credentials_id)
-        content = secret.get_content()
+        content = secret.get_content(refresh=True)
         return content["username"], content["password"]
 
     def get_config_credentials(self) -> Optional[Tuple[str, str]]:
@@ -1514,7 +1516,7 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
         if not credentials_id:
             return None
         secret = self.model.get_secret(id=credentials_id)
-        content = secret.get_content()
+        content = secret.get_content(refresh=True)
         return content["username"], content["password"]
 
     def _update_config_credentials(self) -> bool:
@@ -1533,7 +1535,7 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
             return True
 
         secret = self.model.get_secret(id=credentials_id)
-        old_content = secret.get_content()
+        old_content = secret.get_content(refresh=True)
         if old_content != content:
             secret.set_content(content)
             return True

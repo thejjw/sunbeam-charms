@@ -97,7 +97,7 @@ LIBAPI = 1
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 0
+LIBPATCH = 1
 
 logger = logging.getLogger(__name__)
 
@@ -233,7 +233,7 @@ class CloudCredentialsRequires(Object):
 
         try:
             credentials = self.charm.model.get_secret(id=credentials_id)
-            return credentials.get_content().get("username")
+            return credentials.get_content(refresh=True).get("username")
         except SecretNotFoundError:
             logger.warning(f"Secret {credentials_id} not found")
             return None
@@ -246,7 +246,7 @@ class CloudCredentialsRequires(Object):
 
         try:
             credentials = self.charm.model.get_secret(id=credentials_id)
-            return credentials.get_content().get("password")
+            return credentials.get_content(refresh=True).get("password")
         except SecretNotFoundError:
             logger.warning(f"Secret {credentials_id} not found")
             return None

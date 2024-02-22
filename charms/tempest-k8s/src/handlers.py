@@ -341,7 +341,7 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
             logger.warning("Failed to get openstack credential for tempest.")
             return None
         secret = self.model.get_secret(id=credentials_id)
-        return secret.get_content()
+        return secret.get_content(refresh=True)
 
     def _hash_ops(self, ops: list) -> str:
         """Hash ops request."""
@@ -355,7 +355,7 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         # simply return the id
         if credentials_id:
             secret = self.model.get_secret(id=credentials_id)
-            content = secret.get_content()
+            content = secret.get_content(refresh=True)
             if "password" in content:
                 return credentials_id
 
@@ -376,9 +376,9 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         # update secret if credential_id exists
         if credential_id:
             secret = self.model.get_secret(id=credential_id)
-            content = secret.get_content()
+            content = secret.get_content(refresh=True)
             content.update(entries)
-            if content != secret.get_content():
+            if content != secret.get_content(refresh=True):
                 secret.set_content(content)
             return credential_id
 
@@ -404,7 +404,7 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         """Set up openstack resource ops."""
         credential_id = self._ensure_credential()
         credential_secret = self.model.get_secret(id=credential_id)
-        content = credential_secret.get_content()
+        content = credential_secret.get_content(refresh=True)
         username = content.get("username")
         password = content.get("password")
         setup_ops = [
@@ -472,7 +472,7 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         """Tear down openstack resource ops."""
         credential_id = self._ensure_credential()
         credential_secret = self.model.get_secret(id=credential_id)
-        content = credential_secret.get_content()
+        content = credential_secret.get_content(refresh=True)
         username = content.get("username")
         teardown_ops = [
             {
