@@ -15,7 +15,7 @@
 # limitations under the License.
 
 """Unit tests for Tempest operator."""
-
+import hashlib
 import json
 import pathlib
 from unittest.mock import (
@@ -33,6 +33,7 @@ from utils.constants import (
     TEMPEST_HOME,
     TEMPEST_PERIODIC_OUTPUT,
     TEMPEST_READY_KEY,
+    generate_resource_name_with_hash,
     get_tempest_concurrency,
 )
 from utils.types import (
@@ -620,3 +621,11 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
     def test_concurrency_calculation_more_cpus(self):
         """Test concurrency is bounded to 4."""
         self.assertEqual(get_tempest_concurrency(), "4")
+
+    def test_generate_resource_name_with_hash(self):
+        """Test generate resource name with hash suffix."""
+        name = "CloudValidation"
+        name_with_hash = generate_resource_name_with_hash(name)
+        expected_hash = hashlib.sha256(name.encode("utf-8")).hexdigest()[:10]
+        expected_name_with_hash = f"{name}-{expected_hash}"
+        self.assertEqual(name_with_hash, expected_name_with_hash)

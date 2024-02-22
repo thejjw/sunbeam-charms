@@ -12,9 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Constants for the tempest charm."""
+import hashlib
 from multiprocessing import (
     cpu_count,
 )
+
+
+def generate_resource_name_with_hash(name: str) -> str:
+    """Generate resource name with name suffixed by a 10-digit hash.
+
+    The hash value is fixed for each name input on purpose, because we need to
+    keep using the same name to do clean-ups on previously created domain, user,
+    and project via identity-ops relation.
+    """
+    sha256_hash = hashlib.sha256()
+    sha256_hash.update(name.encode("utf-8"))
+    # only get the first 10 digits of hash for simplicity
+    hex_digest = sha256_hash.hexdigest()[:10]
+
+    return f"{name}-{hex_digest}"
 
 
 def get_tempest_concurrency() -> str:
@@ -54,10 +70,13 @@ TEMPEST_ADHOC_OUTPUT = f"{TEMPEST_WORKSPACE_PATH}/tempest-validation.log"
 # It will be saved in a file in $HOME/.tempest/
 TEMPEST_WORKSPACE = "tempest"
 
-OPENSTACK_USER = "tempest"
-OPENSTACK_DOMAIN = "tempest"
+
+OPENSTACK_DOMAIN = generate_resource_name_with_hash("CloudValidation")
 # not use tempest as prefix to exclude this project from utils/cleanup.py scope
-OPENSTACK_PROJECT = "CloudValidation-tempest"
+OPENSTACK_PROJECT = generate_resource_name_with_hash(
+    "CloudValidation-test-project"
+)
+OPENSTACK_USER = generate_resource_name_with_hash("CloudValidation-test-user")
 OPENSTACK_ROLE = "admin"
 
 # keys for application data
