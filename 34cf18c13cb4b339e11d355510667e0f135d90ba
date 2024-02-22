@@ -33,6 +33,24 @@
       "message": "Maybe \"... to avoid collision with other user created domains\"?  (nonblocking)",
       "revId": "34cf18c13cb4b339e11d355510667e0f135d90ba",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6fc0edc_9f17f1c1",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-22T23:12:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd4b5f6d_eedfb304",
+      "revId": "34cf18c13cb4b339e11d355510667e0f135d90ba",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
