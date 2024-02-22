@@ -22,6 +22,30 @@
       },
       "revId": "a6db45b9aa5cafc54bb3a8f3f80b9a25377ea595",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0faa665d_889743af",
+        "filename": "tests/caas/smoke.yaml.j2",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-22T09:41:58Z",
+      "side": 1,
+      "message": "Applied this and lets wait for CI.\nHorizon is still moved to tests/misc.\nOnce CI is successful, I will change horizon back to tests/core and check if this is good enough",
+      "parentUuid": "22d2e936_e2b525ed",
+      "range": {
+        "startLine": 18,
+        "startChar": 4,
+        "endLine": 18,
+        "endChar": 38
+      },
+      "revId": "a6db45b9aa5cafc54bb3a8f3f80b9a25377ea595",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
