@@ -46,6 +46,30 @@
       },
       "revId": "a6db45b9aa5cafc54bb3a8f3f80b9a25377ea595",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4cc5671_ab8af9ca",
+        "filename": "tests/caas/smoke.yaml.j2",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-02-22T09:42:36Z",
+      "side": 1,
+      "message": "It\u0027s option and not config...",
+      "parentUuid": "22d2e936_e2b525ed",
+      "range": {
+        "startLine": 18,
+        "startChar": 4,
+        "endLine": 18,
+        "endChar": 38
+      },
+      "revId": "a6db45b9aa5cafc54bb3a8f3f80b9a25377ea595",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
