@@ -4,6 +4,7 @@ applications:
   traefik:
     charm: ch:traefik-k8s
     channel: 1.0/candidate
+    base: ubuntu@20.04
     scale: 1
     trust: true
     options:
@@ -11,23 +12,27 @@ applications:
   mysql:
     charm: ch:mysql-k8s
     channel: 8.0/stable
+    base: ubuntu@22.04
     scale: 1
     trust: true
     constraints: cpu-power=1000 mem=1G
   vault:
     charm: ch:vault-k8s
     channel: latest/edge
+    base: ubuntu@22.04
     scale: 1
     trust: false
   tls-operator:
     charm: self-signed-certificates
     channel: latest/beta
+    base: ubuntu@22.04
     scale: 1
     options:
       ca-common-name: internal-ca
   rabbitmq:
     charm: ch:rabbitmq-k8s
     channel: 3.12/edge
+    base: ubuntu@22.04
     scale: 1
     trust: true
     options:
@@ -39,6 +44,7 @@ applications:
     charm: ch:ovn-central-k8s
     channel: 23.03/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
@@ -52,6 +58,7 @@ applications:
     charm: ch:keystone-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     options:
@@ -68,6 +75,7 @@ applications:
     charm: ch:glance-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     storage:
@@ -81,6 +89,7 @@ applications:
     charm: ch:heat-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
@@ -93,6 +102,7 @@ applications:
     charm: ch:octavia-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
@@ -106,6 +116,7 @@ applications:
     charm: ch:barbican-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: false
     resources:
@@ -118,6 +129,7 @@ applications:
     charm: ch:magnum-k8s
     channel: 2023.2/edge
     {% endif -%}
+    base: ubuntu@22.04
     scale: 1
     trust: false
     resources:
