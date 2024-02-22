@@ -54,13 +54,17 @@ TEMPEST_ADHOC_OUTPUT = f"{TEMPEST_WORKSPACE_PATH}/tempest-validation.log"
 # It will be saved in a file in $HOME/.tempest/
 TEMPEST_WORKSPACE = "tempest"
 
-OPENSTACK_USER = "tempest"
-OPENSTACK_DOMAIN = "tempest"
-# not use tempest as prefix to exclude this project from utils/cleanup.py scope
-OPENSTACK_PROJECT = "CloudValidation-tempest"
-OPENSTACK_ROLE = "admin"
-
 # keys for application data
 TEMPEST_READY_KEY = "tempest-ready"
 
 CONTAINER = "tempest"
+
+"""
+Do not change the following values as we need to keep using the same names to do
+clean-ups on previously created domain, user, and project via identity-ops relation.
+"""
+OPENSTACK_DOMAIN = "CloudValidation-b82746a08d"  # this hash suffix is added to avoid collision
+# not use tempest as prefix to exclude this project from utils/cleanup.py scope
+OPENSTACK_PROJECT = "CloudValidation-test-project"
+OPENSTACK_USER = "CloudValidation-test-user"
+OPENSTACK_ROLE = "admin"

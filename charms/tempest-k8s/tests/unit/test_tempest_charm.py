@@ -15,7 +15,6 @@
 # limitations under the License.
 
 """Unit tests for Tempest operator."""
-
 import json
 import pathlib
 from unittest.mock import (
