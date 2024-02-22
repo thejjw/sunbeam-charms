@@ -175,7 +175,7 @@ class VaultKvRequiresHandler(sunbeam_rhandlers.RelationHandler):
         if not unit_credentials:
             return {}
         secret = self.model.get_secret(id=unit_credentials)
-        secret_content = secret.get_content()
+        secret_content = secret.get_content(refresh=True)
         return {
             "kv_mountpoint": self.interface.get_mount(vault_kv_relation),
             "vault_url": self.interface.get_vault_url(vault_kv_relation),
@@ -499,7 +499,7 @@ class BarbicanVaultOperatorCharm(BarbicanOperatorCharm):
         """Return nonce stored in secret."""
         try:
             secret = self.model.get_secret(label=NONCE_SECRET_LABEL)
-            return secret.get_content()["nonce"]
+            return secret.get_content(refresh=True)["nonce"]
         except ops.SecretNotFoundError:
             return None
 

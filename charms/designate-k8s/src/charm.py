@@ -263,7 +263,7 @@ class BindRndcRequiresRelationHandler(sunbeam_rhandlers.RelationHandler):
         secret = self.charm.model.get_secret(
             id=rndc_key["secret"], label=RNDC_SECRET_PREFIX + unit_name
         )
-        secret_value = secret.get_content()["secret"]
+        secret_value = secret.get_content(refresh=True)["secret"]
         rndc_key["secret"] = secret_value
         rndc_key["name"] = self.interface.nonce(self._relation)
 
@@ -477,7 +477,7 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Return nonce stored in secret."""
         try:
             secret = self.model.get_secret(label=NONCE_SECRET_LABEL)
-            return secret.get_content()["nonce"]
+            return secret.get_content(refresh=True)["nonce"]
         except ops.SecretNotFoundError:
             return None
 
