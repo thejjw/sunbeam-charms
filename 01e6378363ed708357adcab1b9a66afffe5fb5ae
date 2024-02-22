@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "04fe9058_acebfc4c",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-22T22:55:04Z",
+      "side": 1,
+      "message": "This probably should be a comment rater than a string. 😊",
+      "revId": "01e6378363ed708357adcab1b9a66afffe5fb5ae",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e90b61d_09342a13",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-22T22:55:04Z",
+      "side": 1,
+      "message": "Would you mind moving these lines to their original position for a cleaner diff?",
+      "revId": "01e6378363ed708357adcab1b9a66afffe5fb5ae",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
