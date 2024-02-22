@@ -70,6 +70,30 @@
       },
       "revId": "a6db45b9aa5cafc54bb3a8f3f80b9a25377ea595",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cde9196e_70002811",
+        "filename": "tests/caas/smoke.yaml.j2",
+        "patchSetId": 9
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-22T10:52:04Z",
+      "side": 1,
+      "message": "profile testing has MIN_MAX_CONNECTIONS\u003d100 which lead nova to fail. So removing the profile testing option.",
+      "parentUuid": "d4cc5671_ab8af9ca",
+      "range": {
+        "startLine": 18,
+        "startChar": 4,
+        "endLine": 18,
+        "endChar": 38
+      },
+      "revId": "a6db45b9aa5cafc54bb3a8f3f80b9a25377ea595",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
