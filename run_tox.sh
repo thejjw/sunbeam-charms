@@ -70,7 +70,10 @@ then
     # Run py3 on ops-sunbeam
     if should_test_ops_sunbeam $2; then
         pushd ops-sunbeam
+	mkdir -p tests/lib
+	cp -rf ../libs/external/lib ../libs/internal/lib tests/
         stestr run --slowest || exit 1
+	rm -rf tests/lib
         popd
     fi
 
