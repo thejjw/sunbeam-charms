@@ -69,6 +69,24 @@
       "parentUuid": "2e90b61d_09342a13",
       "revId": "01e6378363ed708357adcab1b9a66afffe5fb5ae",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0876071_96f15651",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-22T23:09:11Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "0a849507_e24cc3ac",
+      "revId": "01e6378363ed708357adcab1b9a66afffe5fb5ae",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }

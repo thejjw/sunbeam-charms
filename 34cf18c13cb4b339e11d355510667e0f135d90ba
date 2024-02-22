@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7d40434_15fabb04",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-22T23:09:11Z",
+      "side": 1,
+      "message": "Looks good, thanks!",
+      "revId": "34cf18c13cb4b339e11d355510667e0f135d90ba",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd4b5f6d_eedfb304",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-22T23:09:11Z",
+      "side": 1,
+      "message": "Maybe \"... to avoid collision with other user created domains\"?  (nonblocking)",
+      "revId": "34cf18c13cb4b339e11d355510667e0f135d90ba",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
