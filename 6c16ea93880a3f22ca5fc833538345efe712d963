@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b3625cf_e14e4f82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-22T04:54:23Z",
+      "side": 1,
+      "message": "recheck\n\nCI failed because of infrastructure issues",
+      "revId": "6c16ea93880a3f22ca5fc833538345efe712d963",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
