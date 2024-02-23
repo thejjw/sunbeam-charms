@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe0160fc_8ce4671d",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-23T22:07:48Z",
+      "side": 1,
+      "message": "It\u0027s good that you are considering testing all possible parameter combinations of `validate` action parameters, but I\u0027m worried that it would unreasonable long time to completed and may result in TimeOut error. \n\nI suggest finding a way to cover the combination of all params in one test and remove others. E.g. run a class of tests (filtered by `regex`) where some of them belongs to read-only test list and some others can be excluded by `exclude-regex`. Then we can check if the one(s) actually run are what we expect.",
+      "revId": "4444cdafd69e24b15eb3e7ea2ee33b7b20e4884e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
