@@ -142,12 +142,10 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         if not schedule.valid:
             return ""
 
-        # if tempest env isn't ready, then we can't start scheduling tests
-        if not self.is_tempest_ready():
+        # if tempest env isn't ready, or if the logging relation isn't joined
+        # then we can't start scheduling periodic tests
+        if not (self.is_tempest_ready() and self.loki.ready):
             return ""
-
-        # TODO: once observability integration is implemented,
-        # check if observability relations are ready here.
 
         return schedule.value
 
