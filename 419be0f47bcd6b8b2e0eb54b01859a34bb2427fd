@@ -16,6 +16,23 @@
       "message": "recheck\n\nmysql failed to bootstrap",
       "revId": "419be0f47bcd6b8b2e0eb54b01859a34bb2427fd",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7a970f43_c8e29419",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-23T13:15:26Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "419be0f47bcd6b8b2e0eb54b01859a34bb2427fd",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
