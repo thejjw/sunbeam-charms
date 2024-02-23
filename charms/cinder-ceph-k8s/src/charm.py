@@ -367,7 +367,7 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
         rbd_secret_uuid_id = self.peers.get_app_data(self.client_secret_key)
         if rbd_secret_uuid_id:
             secret = self.model.get_secret(id=rbd_secret_uuid_id)
-            secret_data = secret.get_content()
+            secret_data = secret.get_content(refresh=True)
             if secret_data.get("key") != ceph_key:
                 secret_data["key"] = ceph_key
                 secret.set_content(secret_data)
@@ -396,7 +396,7 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
         rbd_secret_uuid_id = self.peers.get_app_data(self.client_secret_key)
         if rbd_secret_uuid_id:
             secret = self.model.get_secret(id=rbd_secret_uuid_id)
-            secret_data = secret.get_content()
+            secret_data = secret.get_content(refresh=True)
             uuid = secret_data["uuid"]
         return uuid
 

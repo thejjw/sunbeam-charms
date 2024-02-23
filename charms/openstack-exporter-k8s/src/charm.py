@@ -253,7 +253,7 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         if not secret_id:
             return None
         secret = self.model.get_secret(id=secret_id)
-        return secret.get_content()["auth-url"]
+        return secret.get_content(refresh=True)["auth-url"]
 
     def open_ports(self):
         """Register ports in underlying cloud."""
@@ -332,7 +332,7 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         credentials_id = self.leader_get(label)
         if credentials_id:
             secret = self.model.get_secret(id=credentials_id)
-            content = secret.get_content()
+            content = secret.get_content(refresh=True)
             if content[key] != value:
                 content[key] = value
                 secret.set_content(content)

@@ -158,7 +158,7 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
             rndc_keys_current = {}
             for name, value in rndc_keys_secret.items():
                 secret = self.charm.model.get_secret(id=value["secret"])
-                key_value = secret.get_content()["secret"]
+                key_value = secret.get_content(refresh=True)["secret"]
                 name = relation.name + ":" + str(relation.id) + "_" + name
                 rndc_keys_current[name] = value
                 rndc_keys_current[name]["secret"] = key_value

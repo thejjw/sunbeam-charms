@@ -484,7 +484,9 @@ export OS_AUTH_VERSION=3
         try:
             credentials_id = self._retrieve_or_set_secret(username)
             credentials = self.model.get_secret(id=credentials_id)
-            user_password = credentials.get_content().get("password")
+            user_password = credentials.get_content(refresh=True).get(
+                "password"
+            )
         except SecretNotFoundError:
             logger.warning("Secret for {username} not found")
 
@@ -642,7 +644,7 @@ export OS_AUTH_VERSION=3
         fernet_secret_id = self.peers.get_app_data("fernet-secret-id")
         if fernet_secret_id:
             fernet_secret = self.model.get_secret(id=fernet_secret_id)
-            keys = fernet_secret.get_content()
+            keys = fernet_secret.get_content(refresh=True)
 
             # Remove the prefix from keys retrieved from juju secrets
             # startswith can be replaced with removeprefix for python >= 3.9
@@ -668,7 +670,7 @@ export OS_AUTH_VERSION=3
             credential_keys_secret = self.model.get_secret(
                 id=credential_keys_secret_id
             )
-            keys = credential_keys_secret.get_content()
+            keys = credential_keys_secret.get_content(refresh=True)
 
             # Remove the prefix from keys retrieved from juju secrets
             # startswith can be replaced with removeprefix for python >= 3.9
@@ -784,7 +786,7 @@ export OS_AUTH_VERSION=3
 
             logger.info(f"Creating service account with username {username}")
             self.keystone_manager.create_service_account(username, password)
-            olduser = event.secret.get_content().get("username")
+            olduser = event.secret.get_content(refresh=True).get("username")
             event.secret.set_content(
                 {"username": username, "password": password}
             )
@@ -1192,7 +1194,7 @@ export OS_AUTH_VERSION=3
                     add_suffix_to_username=True,
                 )
                 credentials = self.model.get_secret(id=service_credentials)
-                credentials = credentials.get_content()
+                credentials = credentials.get_content(refresh=True)
                 service_username = credentials.get("username")
                 service_password = credentials.get("password")
             except SecretNotFoundError:
@@ -1274,7 +1276,9 @@ export OS_AUTH_VERSION=3
         try:
             credentials_id = self._retrieve_or_set_secret(username, scope)
             credentials = self.model.get_secret(id=credentials_id)
-            user_password = credentials.get_content().get("password")
+            user_password = credentials.get_content(refresh=True).get(
+                "password"
+            )
         except SecretNotFoundError:
             logger.warning(f"Secret for {username} not found")
 
@@ -1338,7 +1342,7 @@ export OS_AUTH_VERSION=3
         try:
             credentials_id = self._retrieve_or_set_secret(self.admin_user)
             credentials = self.model.get_secret(id=credentials_id)
-            return credentials.get_content().get("password")
+            return credentials.get_content(refresh=True).get("password")
         except SecretNotFoundError:
             logger.warning("Secret for admin credentials not found")
 
@@ -1369,7 +1373,7 @@ export OS_AUTH_VERSION=3
         try:
             credentials_id = self._retrieve_or_set_secret(self.charm_user)
             credentials = self.model.get_secret(id=credentials_id)
-            return credentials.get_content().get("password")
+            return credentials.get_content(refresh=True).get("password")
         except SecretNotFoundError:
             logger.warning("Secret for charm credentials not found")
 
@@ -1455,7 +1459,7 @@ export OS_AUTH_VERSION=3
         # keys on the unit if necessary.
         if fernet_secret_id:
             fernet_secret = self.model.get_secret(id=fernet_secret_id)
-            keys = fernet_secret.get_content()
+            keys = fernet_secret.get_content(refresh=True)
             if keys and keys != existing_keys_:
                 logger.info("Updating Fernet juju secret")
                 fernet_secret.set_content(existing_keys_)
@@ -1502,7 +1506,7 @@ export OS_AUTH_VERSION=3
             credential_keys_secret = self.model.get_secret(
                 id=credential_keys_secret_id
             )
-            keys = credential_keys_secret.get_content()
+            keys = credential_keys_secret.get_content(refresh=True)
             if keys and keys != existing_keys_:
                 logger.info("Updating Credential keys juju secret")
                 credential_keys_secret.set_content(existing_keys_)
@@ -1637,9 +1641,9 @@ export OS_AUTH_VERSION=3
                 if isinstance(value, str) and value.startswith(SECRET_PREFIX):
                     try:
                         credentials = self.model.get_secret(id=value)
-                        op["params"][param] = credentials.get_content().get(
-                            param
-                        )
+                        op["params"][param] = credentials.get_content(
+                            refresh=True
+                        ).get(param)
                     except (ModelError, SecretNotFoundError) as e:
                         logger.debug(
                             f"Not able to retrieve secret {value}: {str(e)}"

@@ -62,7 +62,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 import logging
 from typing import Optional
@@ -183,7 +183,7 @@ class CephAccessRequires(Object):
         secret = self._retrieve_secret()
         if not secret:
             return {}
-        return secret.get_content()
+        return secret.get_content(refresh=True)
 
     @property
     def ready(self) -> bool:
