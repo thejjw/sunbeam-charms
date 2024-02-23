@@ -680,11 +680,13 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         container = self.unit.get_container(self.db_sync_container_name)
         logging.debug("Running sync: \n%s", cmd)
         process = container.exec(cmd, timeout=5 * 60)
-        out, warnings = process.wait_output()
-        if warnings:
-            for line in warnings.splitlines():
-                logger.warning("DB Sync Out: %s", line.strip())
-                logging.debug("Output from database sync: \n%s", out)
+        out, err = process.wait_output()
+        if err:
+            for line in err.splitlines():
+                logger.warning("DB Sync stderr: %s", line.strip())
+        if out:
+            for line in out.splitlines():
+                logger.debug("DB Sync stdout: %s", line.strip())
 
     @sunbeam_job_ctrl.run_once_per_unit("db-sync")
     def run_db_sync(self) -> None:
