@@ -16,6 +16,23 @@
       "message": "recheck\n\ntraefik failure, unrelated",
       "revId": "739b6a47d275434d512ea07a5a5d53cb3b0fb93c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c59aab5_f2080362",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-23T01:39:34Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "739b6a47d275434d512ea07a5a5d53cb3b0fb93c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
