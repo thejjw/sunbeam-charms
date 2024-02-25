@@ -34,6 +34,24 @@
       "parentUuid": "fe0160fc_8ce4671d",
       "revId": "4444cdafd69e24b15eb3e7ea2ee33b7b20e4884e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee957f3a_3e17075b",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-25T23:26:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32da89b8_f8b78440",
+      "revId": "4444cdafd69e24b15eb3e7ea2ee33b7b20e4884e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
