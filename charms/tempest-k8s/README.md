@@ -17,4 +17,4 @@ OpenStack deployment.
 
 ## Other resources
 
-- [tempest-k8s](https://charmhub.io/tempest-k8s) on Charmhub
+- [tempest-k8s](https://charmhub.io/tempest-k8s) on Charmhub (more docs there)

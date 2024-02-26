@@ -13,7 +13,7 @@ For example:
 ```
 tox -e fmt
 tox -e pep8
-tox -e cover
+tox -e cover -- tempest-k8s
 ```
 
 ## Build the charm
