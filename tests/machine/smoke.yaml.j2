@@ -7,6 +7,7 @@ applications:
     channel: 2023.2/edge
     {% endif -%}
     base: ubuntu@22.04
+    constraints: cores=1 mem=1G virt-type=virtual-machine
     scale: 1
   sunbeam-clusterd:
     {% if sunbeam_clusterd is defined and sunbeam_clusterd is sameas true -%}
@@ -16,6 +17,7 @@ applications:
     channel: 2023.2/edge
     {% endif -%}
     base: ubuntu@22.04
+    constraints: cores=1 mem=1G virt-type=virtual-machine
     scale: 1
     options:
       # untrusted endpoints only on this branch

@@ -25,6 +25,10 @@ import logging
 
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.guard as sunbeam_guard
+from charms.operator_libs_linux.v0 import (
+    sysctl,
+)
 from ops.main import (
     main,
 )
@@ -37,6 +41,31 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     _state = ops.framework.StoredState()
     service_name = "sunbeam-machine"
+
+    def __init__(self, framework: ops.Framework) -> None:
+        super().__init__(framework)
+        self.framework.observe(self.on.remove, self._on_remove)
+        self.sysctl = sysctl.Config(self.meta.name)
+
+    def configure_unit(self, event: ops.EventBase):
+        """Run configuration on this unit."""
+        super().configure_unit(event)
+        self._sysctl_configure()
+
+    def _sysctl_configure(self):
+        """Run sysctl configuration on the local machine."""
+        sysctl_data = {"fs.inotify.max_user_instances": "1024"}
+        try:
+            self.sysctl.configure(config=sysctl_data)
+        except (sysctl.ApplyError, sysctl.ValidationError):
+            logger.error("Error setting values on sysctl", exc_info=True)
+            raise sunbeam_guard.BlockedExceptionError("Sysctl config failed")
+        except sysctl.CommandError:
+            logger.error("Error executing sysctl", exc_info=True)
+            raise sunbeam_guard.BlockedExceptionError("Sysctl command failed")
+
+    def _on_remove(self, event: ops.RemoveEvent):
+        self.sysctl.remove()
 
 
 if __name__ == "__main__":  # pragma: nocover
