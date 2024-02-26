@@ -11,9 +11,14 @@ Please see the tox.ini file in the root of this repository.
 For example:
 
 ```
+# Autoformat the code according to the project's guidelines
 tox -e fmt
+
+# Run linters on the code
 tox -e pep8
-tox -e cover
+
+# Run the unit tests with code coverage
+tox -e cover -- tempest-k8s
 ```
 
 ## Build the charm
