@@ -147,6 +147,10 @@ EXTERNAL_SUNBEAM_CLUSTERD_LIBS=(
 	"operator_libs_linux"
 )
 
+EXTERNAL_SUNBEAM_MACHINE_LIBS=(
+	"operator_libs_linux"
+)
+
 EXTERNAL_OVN_CENTRAL_LIBS=(
         "tls_certificates_interface"
 )
@@ -342,7 +346,7 @@ declare -A EXTERNAL_LIBS=(
         [openstack-exporter-k8s]=${EXTERNAL_OPENSTACK_EXPORTER_LIBS[@]}
         [openstack-hypervisor]=${EXTERNAL_OPENSTACK_HYPERVISOR_LIBS[@]}
 	[sunbeam-clusterd]=${EXTERNAL_SUNBEAM_CLUSTERD_LIBS[@]}
-	[sunbeam-machine]=${NULL_ARRAY[@]}
+	[sunbeam-machine]=${EXTERNAL_SUNBEAM_MACHINE_LIBS[@]}
 	[ovn-central-k8s]=${EXTERNAL_OVN_CENTRAL_LIBS[@]}
         [ovn-relay-k8s]=${EXTERNAL_OVN_RELAY_LIBS[@]}
         [placement-k8s]=${EXTERNAL_AODH_LIBS[@]}
