@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "51a6b2c9_07e30dd8",
+        "filename": "charms/tempest-k8s/CONTRIBUTING.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-26T17:55:17Z",
+      "side": 1,
+      "message": "Nit: can we add comments on what each of these commands do?",
+      "revId": "6e0e849150a0b40793a8e2dd7c0f338ff5a5c1d4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
