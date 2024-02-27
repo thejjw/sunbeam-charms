@@ -280,6 +280,49 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
     CREDENTIALS_SECRET_PREFIX = "tempest-user-identity-resource-"
     CONFIGURE_SECRET_PREFIX = "configure-credential-"
 
+    teardown_ops = [
+        {
+            "name": "show_domain",
+            "params": {
+                "name": OPENSTACK_DOMAIN,
+            },
+        },
+        {
+            "name": "delete_project",
+            "params": {
+                "name": OPENSTACK_PROJECT,
+                "domain": "{{ show_domain[0].id }}",
+            },
+        },
+        {
+            "name": "delete_user",
+            "params": {
+                "name": OPENSTACK_USER,
+                "domain": "{{ show_domain[0].id }}",
+            },
+        },
+        {
+            "name": "update_domain",
+            "params": {
+                "domain": "{{ show_domain[0].id }}",
+                "enable": False,
+            },
+        },
+        {
+            "name": "delete_domain",
+            "params": {
+                "name": "{{ show_domain[0].id }}",
+            },
+        },
+    ]
+
+    list_endpoint_ops = [
+        {
+            "name": "list_endpoint",
+            "params": {"name": "keystone", "interface": "admin"},
+        },
+    ]
+
     resource_identifiers: FrozenSet[str] = frozenset(
         {
             "name",
@@ -301,10 +344,14 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
     @property
     def ready(self) -> bool:
         """Whether the relation is ready."""
+        # We define that keystone relation is ready,
+        # once we have all the responses to ops requests,
+        # and the details have been stored
+        # in the credentials secret maintained by the charm.
         content = self.get_user_credential()
-        if content and content.get("auth-url") is not None:
-            return True
-        return False
+        return bool(
+            content and content.get("auth-url") and content.get("domain-id")
+        )
 
     @property
     def label(self) -> str:
@@ -390,6 +437,21 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         self.charm.leader_set({self.label: credential_secret.id})
         return credential_secret.id
 
+    def _delete_secret(self):
+        """Delete the credentials secret if exists.
+
+        Is a no-op if the charm is not leader,
+        because non-leader units cannot set application data.
+        """
+        if not self.model.unit.is_leader():
+            return
+
+        credential_id = self.charm.leader_get(self.label)
+        if credential_id:
+            secret = self.model.get_secret(id=credential_id)
+            secret.remove_all_revisions()
+            self.charm.leader_set({self.label: ""})
+
     def _generate_password(self, length: int) -> str:
         """Utility function to generate secure random string for password."""
         alphabet = string.ascii_letters + string.digits
@@ -458,79 +520,16 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         ]
         return setup_ops
 
-    def _list_endpoint_ops(self) -> List[dict]:
-        """List endpoint ops."""
-        list_endpoint_ops = [
-            {
-                "name": "list_endpoint",
-                "params": {"name": "keystone", "interface": "admin"},
-            },
-        ]
-        return list_endpoint_ops
-
-    def _teardown_tempest_resource_ops(self) -> List[dict]:
-        """Tear down openstack resource ops."""
-        credential_id = self._ensure_credential()
-        credential_secret = self.model.get_secret(id=credential_id)
-        content = credential_secret.get_content(refresh=True)
-        username = content.get("username")
-        teardown_ops = [
-            {
-                "name": "show_domain",
-                "params": {
-                    "name": OPENSTACK_DOMAIN,
-                },
-            },
-            {
-                "name": "delete_project",
-                "params": {
-                    "name": OPENSTACK_PROJECT,
-                    "domain": "{{ show_domain[0].id }}",
-                },
-            },
-            {
-                "name": "delete_user",
-                "params": {
-                    "name": username,
-                    "domain": "{{ show_domain[0].id }}",
-                },
-            },
-            {
-                "name": "update_domain",
-                "params": {
-                    "domain": "{{ show_domain[0].id }}",
-                    "enable": False,
-                },
-            },
-            {
-                "name": "delete_domain",
-                "params": {
-                    "name": "{{ show_domain[0].id }}",
-                },
-            },
-        ]
-        return teardown_ops
-
     def _setup_tempest_resource_request(self) -> dict:
         """Set up openstack resource for tempest."""
         ops = []
-        ops.extend(self._teardown_tempest_resource_ops())
+        # Teardown before setup to ensure it begins with a clean environment.
+        ops.extend(self.teardown_ops)
         ops.extend(self._setup_tempest_resource_ops())
-        ops.extend(self._list_endpoint_ops())
+        ops.extend(self.list_endpoint_ops)
         request = {
             "id": self._hash_ops(ops),
             "tag": "setup_tempest_resource",
-            "ops": ops,
-        }
-        return request
-
-    def _teardown_tempest_resource_request(self) -> dict:
-        """Tear down openstack resources for tempest."""
-        ops = []
-        ops.extend(self._teardown_tempest_resource_ops())
-        request = {
-            "id": self._hash_ops(ops),
-            "tag": "teardown_tempest_resource",
             "ops": ops,
         }
         return request
@@ -569,6 +568,11 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         logger.info("Identity ops provider ready: setup tempest resources")
         self.interface.request_ops(self._setup_tempest_resource_request())
         self._grant_ops_secret(event.relation)
+
+        # Mark tempest as not ready,
+        # so that the tempest environment is definitely re-inited on rejoin.
+        self.charm.set_tempest_ready(False)
+
         self.callback_f(event)
 
     def _on_response_available(self, event) -> None:
@@ -585,29 +589,38 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
 
     def _on_provider_goneaway(self, event) -> None:
         """Handle gone_away event."""
-        if not self.model.unit.is_leader():
-            return
         logger.info("Identity ops provider gone away")
-        credential = self.get_user_credential()
-        env = {
-            "OS_AUTH_URL": credential.get("auth-url"),
-            "OS_USERNAME": credential.get("username"),
-            "OS_PASSWORD": credential.get("password"),
-            "OS_PROJECT_NAME": credential.get("project-name"),
-            "OS_DOMAIN_ID": credential.get("domain-id"),
-            "OS_USER_DOMAIN_ID": credential.get("domain-id"),
-            "OS_PROJECT_DOMAIN_ID": credential.get("domain-id"),
-        }
-        try:
-            # do an extensive clean-up upon identity relation removal
-            run_extensive_cleanup(env)
-
-        except CleanUpError as e:
-            logger.warning("Clean-up failed: %s", str(e))
 
         # If the relation is going away, then tempest is no longer ready,
         # and the environment should be inited again if rejoined.
         self.charm.set_tempest_ready(False)
+
+        # If it's not the leader, skip remaining steps,
+        # because the cleanup should only happen from a single leader unit.
+        # either way, multiple units are not supported or tested currently.
+        if not self.model.unit.is_leader():
+            return
+
+        credential = self.get_user_credential()
+        if credential and credential.get("auth-url"):
+            env = {
+                "OS_AUTH_URL": credential.get("auth-url"),
+                "OS_USERNAME": credential.get("username"),
+                "OS_PASSWORD": credential.get("password"),
+                "OS_PROJECT_NAME": credential.get("project-name"),
+                "OS_DOMAIN_ID": credential.get("domain-id"),
+                "OS_USER_DOMAIN_ID": credential.get("domain-id"),
+                "OS_PROJECT_DOMAIN_ID": credential.get("domain-id"),
+            }
+            try:
+                # do an extensive clean-up upon identity relation removal
+                run_extensive_cleanup(env)
+            except CleanUpError as e:
+                logger.warning("Clean-up failed: %s", str(e))
+
+        # Delete the stored keystone credentials,
+        # because they are no longer valid.
+        self._delete_secret()
 
         self.callback_f(event)
 

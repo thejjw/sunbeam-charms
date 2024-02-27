@@ -143,6 +143,11 @@ def _cleanup_networks_resources(conn: Connection, project_id: str) -> None:
     # Delete ports and routers
     for router in conn.network.routers(project_id=project_id):
         if router.name.startswith(RESOURCE_PREFIX):
+            # Ports attached via the external gateway info
+            # cannot be removed/deleted via the ports api,
+            # so external_gateway_info must be unset before removing other ports.
+            if router.external_gateway_info:
+                conn.network.update_router(router, external_gateway_info="")
             for port in conn.network.ports(device_id=router.id):
                 conn.network.remove_interface_from_router(
                     router, port_id=port.id
