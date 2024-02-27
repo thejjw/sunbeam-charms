@@ -142,9 +142,15 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         if not schedule.valid:
             return ""
 
-        # if tempest env isn't ready, or if the logging relation isn't joined
+        # if tempest env isn't ready,
+        # or if the logging relation isn't joined,
+        # or if keystone isn't ready,
         # then we can't start scheduling periodic tests
-        if not (self.is_tempest_ready() and self.loki.ready):
+        if not (
+            self.is_tempest_ready()
+            and self.loki.ready
+            and self.user_id_ops.ready
+        ):
             return ""
 
         return schedule.value
@@ -292,6 +298,10 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def configure_unit(self, event: ops.framework.EventBase) -> None:
         """Custom configuration steps for this unit."""
         super().configure_unit(event)
+
+        if not self.user_id_ops.ready:
+            logger.info("Keystone is not ready yet, skipping tempest init.")
+            return
 
         logger.info("Configuring the tempest environment")
 
