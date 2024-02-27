@@ -19,3 +19,6 @@ charms/*/.jujuignore
 charms/*/.stestr.conf
 charms/*/lib/
 charms/*/src/templates/parts/
+
+# artefact from func tests
+tempest.log
