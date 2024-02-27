@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2939601_a771fdb6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-27T15:14:00Z",
+      "side": 1,
+      "message": "I don\u0027t understand what you mean by re-init tempest on relation goneaway, because it is not the current case. We are only setting the readiness to false in goneaway, which doesn\u0027t (and should not) consequently trigger tempest_init at all.",
+      "revId": "fca346e3219ccfb0423366d787c296c1d285fdc0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e079d30_156fed55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-27T15:14:00Z",
+      "side": 1,
+      "message": "With your change which doesn\u0027t call extensive_cleanup at identity-ops goneaway hook, the test accounts created by tempest will never be cleaned up: when re-joining the relation, the old domain and admin project are deleted but not any other associated resources and you lost references to those old resources once new domain + user credentials are created.",
+      "revId": "fca346e3219ccfb0423366d787c296c1d285fdc0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
