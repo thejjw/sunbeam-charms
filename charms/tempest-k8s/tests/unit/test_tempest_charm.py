@@ -21,6 +21,7 @@ import pathlib
 from unittest.mock import (
     MagicMock,
     Mock,
+    call,
     patch,
 )
 
@@ -122,6 +123,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
 
     def add_identity_ops_relation(self, harness):
         """Add identity resource relation."""
+        self.harness.charm.set_tempest_ready = Mock()
         rel_id = harness.add_relation("identity-ops", "keystone")
         harness.add_relation_unit(rel_id, "keystone/0")
         harness.charm.user_id_ops.callback_f = Mock()
@@ -202,7 +204,6 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             self.harness
         )
 
-        self.harness.charm.set_tempest_ready = Mock()
         self.harness.charm.is_tempest_ready = Mock(return_value=True)
 
         self.harness.update_config({"schedule": "0 0 */7 * *"})
@@ -485,12 +486,14 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         mock_pebble = Mock()
         mock_pebble.init_tempest = Mock(side_effect=RuntimeError)
         self.harness.charm.pebble_handler = Mock(return_value=mock_pebble)
-        self.harness.charm.set_tempest_ready = Mock()
         self.harness.charm.is_tempest_ready = Mock(return_value=False)
 
         self.harness.update_config({"schedule": "*/21 * * * *"})
 
-        self.harness.charm.set_tempest_ready.assert_called_once_with(False)
+        self.harness.charm.set_tempest_ready.has_calls(
+            [call(False), call(False)]
+        )
+        self.assertEqual(self.harness.charm.set_tempest_ready.call_count, 2)
         self.assertIn(
             "tempest init failed", self.harness.charm.status.message()
         )
@@ -535,9 +538,6 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
     def test_set_tempest_ready(self):
         """Test the tempest ready set method."""
         test_utils.set_all_pebbles_ready(self.harness)
-        self.add_logging_relation(self.harness)
-        self.add_identity_ops_relation(self.harness)
-        self.add_grafana_dashboard_relation(self.harness)
 
         self.harness.charm.peers = Mock()
         self.harness.charm.set_tempest_ready(True)
