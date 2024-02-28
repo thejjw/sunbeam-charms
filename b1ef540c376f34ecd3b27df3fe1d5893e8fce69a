@@ -18,6 +18,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "9df39e86_f04a0e88",
+        "filename": ".gitignore",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-28T10:22:30Z",
+      "side": 1,
+      "message": "Not sure, but yeah I wanted to be specific here to document that this is a specific artefact from the func tests.",
+      "parentUuid": "8d304e0f_04807653",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "5efb7cab_ef6e774e",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-02-28T08:58:57Z",
       "side": 1,
       "message": "Some questions, other than that it looks good.",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbc2a70b_77c38b31",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-28T10:22:30Z",
+      "side": 1,
+      "message": "Thanks for your questions!  I\u0027ve responded. 😊",
+      "parentUuid": "5efb7cab_ef6e774e",
       "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -54,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "96ab267f_9f56d652",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-28T10:22:30Z",
+      "side": 1,
+      "message": "Yes, because we\u0027ll get a new event when keystone is ready. 😊",
+      "parentUuid": "5dc04a59_9a7c8ae4",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3acefee4_0d17c94e",
         "filename": "charms/tempest-k8s/src/handlers.py",
         "patchSetId": 6
@@ -65,6 +119,30 @@
       "writtenOn": "2024-02-28T08:58:57Z",
       "side": 1,
       "message": "Like this we have different behavior, since in previous version if \"auth-url\" was empty string we return True and not it will be False. I think that\u0027s ok, but mention here.",
+      "range": {
+        "startLine": 352,
+        "startChar": 8,
+        "endLine": 354,
+        "endChar": 9
+      },
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36f7b98e_d43157b8",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-28T10:22:30Z",
+      "side": 1,
+      "message": "Yes, good to note thanks.  This is intentional, because technically it\u0027s not all ready until the charm has recorded a value for both auth-url and domain-id (they appear to be able to be set from separate responses).",
+      "parentUuid": "3acefee4_0d17c94e",
       "range": {
         "startLine": 352,
         "startChar": 8,
