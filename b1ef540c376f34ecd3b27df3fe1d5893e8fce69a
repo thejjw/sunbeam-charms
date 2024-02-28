@@ -36,6 +36,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "26e2ccb7_e585521b",
+        "filename": ".gitignore",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-28T19:12:23Z",
+      "side": 1,
+      "message": "I agree with Robert here that having functional tests creating local files that will not be cleaned up upon completion doesn\u0027t seem to be a good practice. Maybe we should consider using tmp folder for this purpose.\n\nAnd this actual out of the scope in this patch, so maybe we should add it into the func test patch instead.",
+      "parentUuid": "9df39e86_f04a0e88",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "5efb7cab_ef6e774e",
@@ -67,6 +85,23 @@
       "side": 1,
       "message": "Thanks for your questions!  I\u0027ve responded. 😊",
       "parentUuid": "5efb7cab_ef6e774e",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b700ed8e_c683f171",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-28T19:12:23Z",
+      "side": 1,
+      "message": "Thanks for the updates according to our discussion result. I left a few more comments inline",
       "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -149,6 +184,40 @@
         "endLine": 354,
         "endChar": 9
       },
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7c1d4308_f685adc9",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-28T19:12:23Z",
+      "side": 1,
+      "message": "Question: why we are moving leader unit check after setting tempest_ready to false? I know that the code is not fully adapted to the `leader` approach, but I do not understand the re-ordering.",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e580c0e_93c94832",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-28T19:12:23Z",
+      "side": 1,
+      "message": "I think we should use `None` instead of empty string because `external_gateway_info` expects a `dict` type ([1]).\n\n[1]: https://github.com/openstack/openstacksdk/blob/master/openstack/network/v2/router.py#L60",
       "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
