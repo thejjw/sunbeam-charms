@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8d304e0f_04807653",
+        "filename": ".gitignore",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-28T08:58:57Z",
+      "side": 1,
+      "message": "Is this good practice that func test are creating local file like this? Nevertheless, I think we should add *.log to ignore any log file.",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5efb7cab_ef6e774e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-28T08:58:57Z",
+      "side": 1,
+      "message": "Some questions, other than that it looks good.",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5dc04a59_9a7c8ae4",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 303,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-28T08:58:57Z",
+      "side": 1,
+      "message": "It\u0027s ok to return from function without any event.defer?",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3acefee4_0d17c94e",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 32363
+      },
+      "writtenOn": "2024-02-28T08:58:57Z",
+      "side": 1,
+      "message": "Like this we have different behavior, since in previous version if \"auth-url\" was empty string we return True and not it will be False. I think that\u0027s ok, but mention here.",
+      "range": {
+        "startLine": 352,
+        "startChar": 8,
+        "endLine": 354,
+        "endChar": 9
+      },
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
