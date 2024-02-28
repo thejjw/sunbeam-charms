@@ -18,6 +18,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "2a4045fe_d1084a6c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-28T00:11:14Z",
+      "side": 1,
+      "message": "The logic is confusing, but it would seem that setting tempest ready to false might trigger tempest_init if the configure_unit method is run after this.  Which it doesn\u0027t seem to, but it\u0027s hard to follow the logic with the subclassing and callbacks structure.",
+      "parentUuid": "a2939601_a771fdb6",
+      "revId": "fca346e3219ccfb0423366d787c296c1d285fdc0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "9e079d30_156fed55",
@@ -31,6 +49,24 @@
       "writtenOn": "2024-02-27T15:14:00Z",
       "side": 1,
       "message": "With your change which doesn\u0027t call extensive_cleanup at identity-ops goneaway hook, the test accounts created by tempest will never be cleaned up: when re-joining the relation, the old domain and admin project are deleted but not any other associated resources and you lost references to those old resources once new domain + user credentials are created.",
+      "revId": "fca346e3219ccfb0423366d787c296c1d285fdc0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa406775_8cd19c30",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-28T00:11:14Z",
+      "side": 1,
+      "message": "Thanks, this makes sense. 😊",
+      "parentUuid": "9e079d30_156fed55",
       "revId": "fca346e3219ccfb0423366d787c296c1d285fdc0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
