@@ -243,6 +243,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "869b1358_4ec50460",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-02-28T22:29:57Z",
+      "side": 1,
+      "message": "In the `_on_provider_ready` function, you are checking the unit leader at the beginning (before setting tempest ready). I agree that it probably doesn\u0027t make a different in our single unit setup, but still they should be kept consistent to not induce confusion.",
+      "parentUuid": "2de3dae9_22516b5f",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4e580c0e_93c94832",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 6
