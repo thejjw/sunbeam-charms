@@ -56,6 +56,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "7a5ce1e1_f60f7b3b",
+        "filename": ".gitignore",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-28T22:22:10Z",
+      "side": 1,
+      "message": "I\u0027ve removed this changed to avoid confusion.  It\u0027s not related to changes in this patch, and is out of scope.  We can add it to the gitignore another time.",
+      "parentUuid": "26e2ccb7_e585521b",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "5efb7cab_ef6e774e",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 6
@@ -207,6 +225,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2de3dae9_22516b5f",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-28T22:22:10Z",
+      "side": 1,
+      "message": "The tempest ready key is an attribute of the unit, not the application, so it\u0027s ok to set it per-application.  I guess I\u0027m thinking about it in terms of what if there were 2+ units, it would be better for the non-leader units to be explicit that tempest is no longer ready on all units.  Right now it doesn\u0027t make any difference, because we only support a single unit though.",
+      "parentUuid": "7c1d4308_f685adc9",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4e580c0e_93c94832",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 6
@@ -218,6 +254,24 @@
       "writtenOn": "2024-02-28T19:12:23Z",
       "side": 1,
       "message": "I think we should use `None` instead of empty string because `external_gateway_info` expects a `dict` type ([1]).\n\n[1]: https://github.com/openstack/openstacksdk/blob/master/openstack/network/v2/router.py#L60",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8020c0d_061dd7ca",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-28T22:22:10Z",
+      "side": 1,
+      "message": "Thanks, good point.  Technically though, neither `None` nor `str` fit a `dict` type.  It does work with an empty string, but I took another look at the rest api docs https://docs.openstack.org/api-ref/network/v2/ and it does seem like `None` would be the most appropriate, thanks.\n\n```\nexternal_gateway_info\n\t\n\nbody\n\t\n\nobject\n\t\n\nThe external gateway information of the router. If the router has an external gateway, this would be a dict with network_id, enable_snat, external_fixed_ips, qos_policy_id, enable_default_route_ecmp and enable_default_route_bfd. Otherwise, this would be null.\n```",
+      "parentUuid": "4e580c0e_93c94832",
       "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
