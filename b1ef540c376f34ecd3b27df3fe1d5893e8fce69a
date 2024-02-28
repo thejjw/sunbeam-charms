@@ -259,6 +259,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0094fad_b6853f8a",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-28T22:57:28Z",
+      "side": 1,
+      "message": "Sure no worries",
+      "parentUuid": "869b1358_4ec50460",
+      "revId": "b1ef540c376f34ecd3b27df3fe1d5893e8fce69a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4e580c0e_93c94832",
