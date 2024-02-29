@@ -51,6 +51,24 @@
       "parentUuid": "ee03c2fc_b59b9559",
       "revId": "b7e11191ca92a9b4370aee27662fad6bf5f9cb45",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44c3a454_4bbd08cc",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-02-29T01:34:08Z",
+      "side": 1,
+      "message": "Ok that makes sense, thanks.  I\u0027ll remove it.",
+      "parentUuid": "75c76d46_9a4900d1",
+      "revId": "b7e11191ca92a9b4370aee27662fad6bf5f9cb45",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
