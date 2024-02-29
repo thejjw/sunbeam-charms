@@ -35,12 +35,12 @@ def get_tempest_concurrency() -> str:
 TEMPEST_CONCURRENCY = get_tempest_concurrency()
 
 # It's desirable to have more accounts than the concurrency,
-# so it can be hardcoded to 16,
-# which is much more than the max concurrency (see get_tempest_concurrency()),
+# so it can be hardcoded to a value that is
+# more than the max concurrency (see get_tempest_concurrency()),
 # and still a relatively small number of accounts.
 # It's also helpful to have more accounts to mitigate the effects
 # of credential locks not being released as per LP: #2052752.
-TEMPEST_ACCOUNTS_COUNT = "16"
+TEMPEST_ACCOUNTS_COUNT = "8"
 
 TEMPEST_HOME = "/var/lib/tempest"
 TEMPEST_WORKSPACE_PATH = f"{TEMPEST_HOME}/workspace"
