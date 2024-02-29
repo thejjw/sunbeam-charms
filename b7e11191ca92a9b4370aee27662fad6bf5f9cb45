@@ -33,6 +33,24 @@
       "message": "This case should not arise as check_relation_handlers_ready() is run as part of super().configure_unit(event) and the relation is mentioned as mandatory_relation.\n\nIf you are still getting user_id_ops not ready, this should be a bug that needs to be fixed in ops_sunbeam. Can you let us know the scenario when this is happening.",
       "revId": "b7e11191ca92a9b4370aee27662fad6bf5f9cb45",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75c76d46_9a4900d1",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-02-29T01:23:13Z",
+      "side": 1,
+      "message": "Can you check if this is hit during the scenario https://opendev.org/openstack/sunbeam-charms/src/branch/main/ops-sunbeam/ops_sunbeam/charm.py#L373",
+      "parentUuid": "ee03c2fc_b59b9559",
+      "revId": "b7e11191ca92a9b4370aee27662fad6bf5f9cb45",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
