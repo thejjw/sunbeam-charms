@@ -55,7 +55,7 @@ TEST_TEMPEST_ENV = {
     "OS_USER_DOMAIN_ID": "tempest-domain-id",
     "OS_DOMAIN_ID": "tempest-domain-id",
     "TEMPEST_CONCURRENCY": "4",
-    "TEMPEST_ACCOUNTS_COUNT": "16",
+    "TEMPEST_ACCOUNTS_COUNT": "8",
     "TEMPEST_CONF": "/var/lib/tempest/workspace/etc/tempest.conf",
     "TEMPEST_HOME": "/var/lib/tempest",
     "TEMPEST_LIST_DIR": "/tempest_test_lists",
