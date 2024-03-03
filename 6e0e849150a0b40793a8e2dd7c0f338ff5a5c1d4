@@ -16,6 +16,24 @@
       "message": "Nit: can we add comments on what each of these commands do?",
       "revId": "6e0e849150a0b40793a8e2dd7c0f338ff5a5c1d4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9659f291_6a04b1a4",
+        "filename": "charms/tempest-k8s/CONTRIBUTING.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-03T23:35:57Z",
+      "side": 1,
+      "message": "Sure.  Ideally this would be documented at the root of the repository, since it\u0027s the same for all the charms.  But that\u0027s out of scope for this.",
+      "parentUuid": "51a6b2c9_07e30dd8",
+      "revId": "6e0e849150a0b40793a8e2dd7c0f338ff5a5c1d4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
