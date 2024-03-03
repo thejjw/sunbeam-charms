@@ -34,6 +34,24 @@
       "parentUuid": "51a6b2c9_07e30dd8",
       "revId": "6e0e849150a0b40793a8e2dd7c0f338ff5a5c1d4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89d71bcd_62f8a7e7",
+        "filename": "charms/tempest-k8s/CONTRIBUTING.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-03T23:44:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9659f291_6a04b1a4",
+      "revId": "6e0e849150a0b40793a8e2dd7c0f338ff5a5c1d4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
