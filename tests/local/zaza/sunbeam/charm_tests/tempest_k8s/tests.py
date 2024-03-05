@@ -35,3 +35,20 @@ class TempestK8sTest(test_utils.BaseCharmTest):
         lists = action.data["results"]["stdout"].splitlines()
         self.assertIn("readonly-quick", lists)
         self.assertIn("refstack-2022.11", lists)
+
+    async def test_bounce_keystone_relation(self):
+        """Test removing and re-adding the keystone relation."""
+        await model.async_remove_relation("tempest", "identity-ops", "keystone")
+        await model.async_wait_for_application_states(status={
+            "tempest": {
+                "workload-status": "blocked",
+                "workload-status-message-regex": "^(identity-ops) integration missing$",
+            }
+        })
+        await model.async_add_relation("tempest", "identity-ops", "keystone")
+        await model.async_wait_for_application_states(status={
+            "tempest": {
+                "workload-status": "active",
+                "workload-status-message-regex": "^$",
+            }
+        })
