@@ -16,6 +16,23 @@
       "message": "LGTM",
       "revId": "758ffaabddf63ba54837eacd1261e4a861631517",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "529595ad_497f3081",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-03-05T23:54:09Z",
+      "side": 1,
+      "message": "I tested this locally and it seems that this async function has never been waited.",
+      "revId": "758ffaabddf63ba54837eacd1261e4a861631517",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
