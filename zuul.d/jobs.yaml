@@ -333,6 +333,7 @@
       - charms/ovn-central-k8s/*
       - charms/ovn-relay-k8s/*
       - charms/tempest-k8s/*
+      - tests/local/zaza/sunbeam/charm_tests/tempest_k8s/*
       - rebuild
     vars:
       # Artifacts will be downloaded from below charm jobs
