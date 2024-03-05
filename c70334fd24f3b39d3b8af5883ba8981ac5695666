@@ -33,6 +33,24 @@
       "message": "We see failures in CI especially on test-core with so many services running.\nCan you move tempest-k8s to tests/misc [1] for the time being.\n\n[1] https://opendev.org/openstack/sunbeam-charms/src/branch/main/tests/misc",
       "revId": "c70334fd24f3b39d3b8af5883ba8981ac5695666",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b276c9c3_9bc1b954",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-05T03:36:00Z",
+      "side": 1,
+      "message": "Thanks Hemanth.  As discussed, I\u0027ve moved everything to a new test bundle, so the func tests for tempest-k8s are isolated from the CI for other projects.",
+      "parentUuid": "eaf70146_b0a2af48",
+      "revId": "c70334fd24f3b39d3b8af5883ba8981ac5695666",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
