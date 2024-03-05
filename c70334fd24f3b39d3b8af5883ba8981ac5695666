@@ -16,6 +16,23 @@
       "message": "LGTM. The functional tests for `validate` action will be handled in a future contribution.",
       "revId": "c70334fd24f3b39d3b8af5883ba8981ac5695666",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eaf70146_b0a2af48",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-03-05T02:14:00Z",
+      "side": 1,
+      "message": "We see failures in CI especially on test-core with so many services running.\nCan you move tempest-k8s to tests/misc [1] for the time being.\n\n[1] https://opendev.org/openstack/sunbeam-charms/src/branch/main/tests/misc",
+      "revId": "c70334fd24f3b39d3b8af5883ba8981ac5695666",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
