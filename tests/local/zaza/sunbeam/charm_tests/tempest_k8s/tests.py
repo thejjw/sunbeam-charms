@@ -35,3 +35,40 @@ class TempestK8sTest(test_utils.BaseCharmTest):
         lists = action.data["results"]["stdout"].splitlines()
         self.assertIn("readonly-quick", lists)
         self.assertIn("refstack-2022.11", lists)
+
+     def test_validate_with_readonly_quick_tests(self):
+        """Verify that the validate action runs tests as expected."""
+        action = model.run_action_on_leader(
+            self.application_name, "validate",
+            action_params={
+                "test-list": "readonly-quick",
+            }
+        )
+        summary = action.data["results"]["summary"]
+
+        # These are the expected results with the test bundle;
+        self.assertIn("Ran: 23 tests", summary)
+        self.assertIn("Passed: 19", summary)
+        self.assertIn("Skipped: 4", summary)
+        self.assertIn("Expected Fail: 0", summary)
+        self.assertIn("Unexpected Success: 0", summary)
+        self.assertIn("Failed: 0", summary)
+
+    def test_validate_with_readonly_quick_tests_regex(self):
+        """Verify that the validate action runs tests with filter."""
+        action = model.run_action_on_leader(
+            self.application_name, "validate",
+            action_params={
+                "test-list": "readonly-quick",
+                "regex": "[V]ersionsTest.*",
+                "exclude-regex": "show_vers.+",
+            }
+        )
+        logging.info("action.data = %s", action.data)
+
+        self.assertIn("Ran: 2 tests", summary)
+        self.assertIn("Passed: 1", summary)
+        self.assertIn("Skipped: 1", summary)
+        self.assertIn("Expected Fail: 0", summary)
+        self.assertIn("Unexpected Success: 0", summary)
+        self.assertIn("Failed: 0", summary)
