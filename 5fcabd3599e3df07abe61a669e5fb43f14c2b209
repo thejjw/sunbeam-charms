@@ -16,6 +16,24 @@
       "message": "Missing `summary \u003d action.data[\"results\"][\"summary\"]`?",
       "revId": "5fcabd3599e3df07abe61a669e5fb43f14c2b209",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2aaca3a8_8d53ab53",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-05T23:03:05Z",
+      "side": 1,
+      "message": "good catch, thanks 👍",
+      "parentUuid": "842a6486_2b10d3f2",
+      "revId": "5fcabd3599e3df07abe61a669e5fb43f14c2b209",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
