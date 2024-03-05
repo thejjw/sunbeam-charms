@@ -51,6 +51,24 @@
       "parentUuid": "8eeb98db_905af887",
       "revId": "b5b1bdbd440d6f37e13d46b26296d196e7b2941d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d5d33c1_e214c62c",
+        "filename": "tests/tempest/tests.yaml",
+        "patchSetId": 17
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-05T23:26:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "80395166_272a1477",
+      "revId": "b5b1bdbd440d6f37e13d46b26296d196e7b2941d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
