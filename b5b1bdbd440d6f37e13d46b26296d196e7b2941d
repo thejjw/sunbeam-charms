@@ -16,6 +16,23 @@
       "message": "LGTM for the basic functional test implementation",
       "revId": "b5b1bdbd440d6f37e13d46b26296d196e7b2941d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8eeb98db_905af887",
+        "filename": "tests/tempest/tests.yaml",
+        "patchSetId": 17
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-03-05T05:46:48Z",
+      "side": 1,
+      "message": "Are these tests required? Since these are run via tempest package installed by tox.",
+      "revId": "b5b1bdbd440d6f37e13d46b26296d196e7b2941d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
