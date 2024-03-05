@@ -223,3 +223,23 @@ class TempestK8sTest(test_utils.BaseCharmTest):
         self.check_charm_created_resources(domain_id)
         after_test_accounts_resources = self.get_tempest_init_resources(domain_id)
         self.assertEqual(after_test_accounts_resources, before_test_accounts_resources)
+
+    def test_validate_with_readonly_quick_tests(self):
+        """Verify that the validate action runs tests as expected."""
+        action = model.run_action_on_leader(
+            self.application_name, "validate",
+            action_params={
+                "test-list": "readonly-quick",
+            }
+        )
+        # log the data so we can debug failures
+        logger.info("action.data = %s", action.data)
+        summary = action.data["results"]["summary"]
+
+        # No tests should fail, and all the summary items should be present and populated
+        self.assertRegex(summary, "Ran: [1-9]\d* test") # at least one test should run
+        self.assertRegex(summary, "Passed: \d+")
+        self.assertRegex(summary, "Skipped: \d+")
+        self.assertIn("Expected Fail: 0", summary)
+        self.assertIn("Unexpected Success: 0", summary)
+        self.assertIn("Failed: 0", summary)
