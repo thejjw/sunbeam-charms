@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13abc798_d9808141",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-03-05T04:07:05Z",
+      "side": 1,
+      "message": "LGTM for the basic functional test implementation",
+      "revId": "b5b1bdbd440d6f37e13d46b26296d196e7b2941d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
