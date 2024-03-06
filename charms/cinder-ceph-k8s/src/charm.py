@@ -225,6 +225,13 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
         super().__init__(framework)
         self._state.set_default(api_ready=False)
 
+    def configure_charm(self, event: ops.EventBase):
+        """Catchall handler to configure charm services."""
+        super().configure_charm(event)
+        if self.has_ceph_relation() and self.ceph.ready:
+            logger.info("CONFIG changed and ceph ready: calling request pools")
+            self.ceph.request_pools(event)
+
     def get_relation_handlers(self) -> List[relation_handlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = super().get_relation_handlers()
@@ -264,6 +271,13 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
                 self.configure_charm,
             )
         ]
+
+    def has_ceph_relation(self) -> bool:
+        """Returns whether or not the application has been related to Ceph.
+
+        :return: True if the ceph relation has been made, False otherwise.
+        """
+        return self.model.get_relation("ceph") is not None
 
     def api_ready(self, event) -> None:
         """Event handler for bootstrap of service when api services are ready."""
