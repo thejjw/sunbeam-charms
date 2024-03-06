@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c3218b7_6232084d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-06T03:50:17Z",
+      "side": 1,
+      "message": "Looks good and works for me. I left a couple of comments on improvements that will help with debugging when tests fail. :)",
+      "revId": "8592fad330d1baf9c2e301a644e3061bae1257ab",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "99bd99b3_54995e7d",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-06T03:50:17Z",
+      "side": 1,
+      "message": "For help debugging, could we also log `action.data` before this, so we can see what it returned if the command failed.",
+      "revId": "8592fad330d1baf9c2e301a644e3061bae1257ab",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0edbd36c_98e1f97f",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-06T03:50:17Z",
+      "side": 1,
+      "message": "Since these aren\u0027t run with pytest, error messages from these assert statements may not be very helpful.  It\u0027s better to use the `self.assert*` methods for these unittest based tests.",
+      "revId": "8592fad330d1baf9c2e301a644e3061bae1257ab",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
