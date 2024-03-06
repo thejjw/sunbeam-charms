@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f54712b5_4d07d715",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-03-06T13:17:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "99bd99b3_54995e7d",
+      "revId": "8592fad330d1baf9c2e301a644e3061bae1257ab",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0edbd36c_98e1f97f",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-03-06T03:50:17Z",
       "side": 1,
       "message": "Since these aren\u0027t run with pytest, error messages from these assert statements may not be very helpful.  It\u0027s better to use the `self.assert*` methods for these unittest based tests.",
+      "revId": "8592fad330d1baf9c2e301a644e3061bae1257ab",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3760e44_1f4e3e00",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-03-06T13:17:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0edbd36c_98e1f97f",
       "revId": "8592fad330d1baf9c2e301a644e3061bae1257ab",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
