@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65589566_0a2a9673",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-06T04:00:10Z",
+      "side": 1,
+      "message": "It\u0027s really not happy running the validate action: https://storage.gra.cloud.ovh.net/v1/AUTH_dcaab5e32b234d56b626f72581e3644c/zuul_opendev_logs_32e/911017/8/check/func-test-tempest/32edc46/job-output.txt  - lots of long tracebacks...\n\nAn unhandled timeout reached somewhere?\n\nThis runs fine for me locally, and it shouldn\u0027t be a resource issue because the init process for the charm runs fine, and that interacts with the openstack cloud, creating resources, etc.",
+      "revId": "8f8169cd9967ecd8d0be3cffdc843d1e3047d7a3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
