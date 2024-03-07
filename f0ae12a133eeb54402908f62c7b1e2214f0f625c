@@ -105,6 +105,24 @@
       "parentUuid": "bcc238d1_1843504a",
       "revId": "f0ae12a133eeb54402908f62c7b1e2214f0f625c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18722d0b_bc486acf",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-07T23:20:23Z",
+      "side": 1,
+      "message": "Done! 😊",
+      "parentUuid": "860fbc66_1c8a463d",
+      "revId": "f0ae12a133eeb54402908f62c7b1e2214f0f625c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
