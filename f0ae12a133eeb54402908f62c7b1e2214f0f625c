@@ -51,6 +51,24 @@
       "parentUuid": "d5dfce8a_b815a0aa",
       "revId": "f0ae12a133eeb54402908f62c7b1e2214f0f625c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9e785a85_682c7751",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-03-07T05:29:06Z",
+      "side": 1,
+      "message": "Ideally your test should check the state of tempest and keystone units and not the rest of the apps.\nSo can you wait for application status and message for just tempest and keystone.\nYou do not require the OTHER_APP_EXPECTED_STATUS.",
+      "parentUuid": "b17ad160_d8182010",
+      "revId": "f0ae12a133eeb54402908f62c7b1e2214f0f625c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
