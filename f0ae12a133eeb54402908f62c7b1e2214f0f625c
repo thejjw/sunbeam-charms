@@ -33,6 +33,24 @@
       "message": "Can we reuse information from tests.yaml instead of maintaining this in code.\nhttps://opendev.org/openstack/sunbeam-charms/src/branch/main/tests/tempest/tests.yaml#L21",
       "revId": "f0ae12a133eeb54402908f62c7b1e2214f0f625c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b17ad160_d8182010",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-07T05:25:05Z",
+      "side": 1,
+      "message": "I suppose, but I\u0027m not sure if it\u0027s a good idea for a test to pull information from the tests.yaml?",
+      "parentUuid": "d5dfce8a_b815a0aa",
+      "revId": "f0ae12a133eeb54402908f62c7b1e2214f0f625c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
