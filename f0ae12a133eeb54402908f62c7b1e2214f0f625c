@@ -69,6 +69,24 @@
       "parentUuid": "b17ad160_d8182010",
       "revId": "f0ae12a133eeb54402908f62c7b1e2214f0f625c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcc238d1_1843504a",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-07T05:35:07Z",
+      "side": 1,
+      "message": "Unfortunately it appears that zaza doesn\u0027t provide a method for this - this wait for application states method checks all applications.  We could write our own method I guess.  What do you think?",
+      "parentUuid": "9e785a85_682c7751",
+      "revId": "f0ae12a133eeb54402908f62c7b1e2214f0f625c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
