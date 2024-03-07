@@ -87,6 +87,24 @@
       "parentUuid": "9e785a85_682c7751",
       "revId": "f0ae12a133eeb54402908f62c7b1e2214f0f625c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "860fbc66_1c8a463d",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-03-07T05:46:58Z",
+      "side": 1,
+      "message": "Yes please write your own method in this tests and later on we can move them to zaza. For reference, there are some wait_for_* functions in https://github.com/canonical/snap-openstack/blob/main/sunbeam-python/sunbeam/jobs/juju.py.",
+      "parentUuid": "bcc238d1_1843504a",
+      "revId": "f0ae12a133eeb54402908f62c7b1e2214f0f625c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
