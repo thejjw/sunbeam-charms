@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "744c6e40_45c3cb14",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-08T03:10:20Z",
+      "side": 1,
+      "message": "Thanks Hemanth, updated as discussed 😊",
+      "revId": "895320264c81a7dd49b614c49dfef66a62c5a280",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
