@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30003689_b29f08a4",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-03-08T05:17:07Z",
+      "side": 1,
+      "message": "I think this test and test_bounce_keystone_relation can be merged to a single test as having 2 tests does not add any value.\n\n[1] https://opendev.org/openstack/sunbeam-charms/src/branch/main/tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py#L51",
+      "revId": "8ea5199cc611558ed2d09ebceeb2b1be855c8359",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
