@@ -16,6 +16,24 @@
       "message": "I am sceptical to check for exact numbers especially in Ran, Passed, Skipped as they may change in future and intention here is to test charm and not actual tests.\n\nIf the intention is to test actual tests, better to check only expected fail, unexpected success and failed.",
       "revId": "5cfb3edbec78cc169ec5a4498dc296c1409d4e58",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70448f0b_5657c811",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-03-08T05:38:49Z",
+      "side": 1,
+      "message": "👍 Ok, yes this is fair.  I\u0027ve addressed it using regex match as suggested. 😊",
+      "parentUuid": "ae888b25_aff9d890",
+      "revId": "5cfb3edbec78cc169ec5a4498dc296c1409d4e58",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
