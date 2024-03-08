@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d38d2ba_a882727f",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-03-08T02:44:00Z",
+      "side": 1,
+      "message": "Instead of waiting for all units to be idle, this function should restrict to only the app that is passed to this function. I understand why you are doing this but it will be more clean if the wait is for specific applications and call this function for the applications that are involved.",
+      "revId": "649889e19c915a2b5efdc0e552e1869a58bb2244",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4fe7479a_f40dfad1",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/tempest_k8s/tests.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-03-08T02:44:00Z",
+      "side": 1,
+      "message": "Since the relation is between keystone and tempest, can you add wait_for_application_state for keystone.",
+      "revId": "649889e19c915a2b5efdc0e552e1869a58bb2244",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
