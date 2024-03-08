@@ -33,6 +33,23 @@
       "message": "recheck\n\nflaky connection:\n\n\u003e \n2024-03-08 03:21:05.445416 | ubuntu-jammy | 2024-03-08 03:21:05 [WARNING] model: zaza-61fb1ef7a9bf has disconnected, forcing full disconnection and then reconnecting ...",
       "revId": "895320264c81a7dd49b614c49dfef66a62c5a280",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9a82a9f_468183f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-03-08T03:27:21Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "895320264c81a7dd49b614c49dfef66a62c5a280",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
