@@ -6,4 +6,12 @@ options:
   debug:
     default: False
     type: boolean
-
+  http_proxy:
+    description: Set HTTP_PROXY in /etc/environment
+    type: string
+  https_proxy:
+    description: Set HTTPS_PROXY in /etc/environment
+    type: string
+  no_proxy:
+    description: Set NO_PROXY in /etc/environment
+    type: string
