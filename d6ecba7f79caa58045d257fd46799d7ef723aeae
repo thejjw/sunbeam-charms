@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "584083d1_1d5a7828",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-03-18T02:26:16Z",
+      "side": 1,
+      "message": "LGTM\n\nIt will be good to investigate on the CI errors even though they are not relevant to this PR. Can you raise bugs for any of the CI errors that might need to investigate, thanks.",
+      "revId": "d6ecba7f79caa58045d257fd46799d7ef723aeae",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
