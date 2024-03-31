@@ -184,7 +184,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
 
     def add_grafana_dashboard_relation(self, harness):
         """Add grafana dashboard relation."""
-        rel_id = harness.add_relation("grafana_dashboard", "grafana")
+        rel_id = harness.add_relation("grafana-dashboard", "grafana")
         harness.add_relation_unit(rel_id, "grafana/0")
         harness.charm.grafana.interface = Mock()
         return rel_id
