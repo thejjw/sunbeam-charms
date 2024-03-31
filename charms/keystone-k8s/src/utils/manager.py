@@ -195,7 +195,12 @@ class KeystoneManager(framework.Object):
         """Pull the fernet keys from the on-disk repository."""
         container = self.charm.unit.get_container(self.container_name)
         files = container.list_files(key_repository)
-        return {file.name: container.pull(file.path).read() for file in files}
+        # Ignore file type directory. This is to ignore lost+found directory
+        return {
+            file.name: container.pull(file.path).read()
+            for file in files
+            if file.type == ops.pebble.FileType.FILE
+        }
 
     def write_keys(self, key_repository: str, keys: Mapping[str, str]) -> None:
         """Update the local fernet key repository with the provided keys."""
@@ -277,6 +282,14 @@ class KeystoneManager(framework.Object):
             self.run_cmd(
                 [
                     "sudo",
+                    "chown",
+                    "keystone:keystone",
+                    "/etc/keystone/fernet-keys",
+                ]
+            )
+            self.run_cmd(
+                [
+                    "sudo",
                     "-u",
                     "keystone",
                     "keystone-manage",
@@ -296,6 +309,14 @@ class KeystoneManager(framework.Object):
         try:
             self._set_status("Setting up credentials")
             logger.info("Setting up credentials...")
+            self.run_cmd(
+                [
+                    "sudo",
+                    "chown",
+                    "keystone:keystone",
+                    "/etc/keystone/credential-keys",
+                ]
+            )
             self.run_cmd(
                 [
                     "sudo",
