@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b739effc_d7855ce6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-04-01T04:30:13Z",
+      "side": 1,
+      "message": "func-test-tempest failure is because of using python-libjuju\u003c3 in zaza.\nSubmitted a PR in zaza to use libjuju\u003e3 based on environment variable.\nhttps://github.com/openstack-charmers/zaza/pull/653",
+      "revId": "d5aa2640b891150ef01c5a6d932d53699409d956",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
