@@ -1,0 +1,4083 @@
+{
+  "annotations":{
+     "list":[
+        {
+           "builtIn":1,
+           "datasource":"-- Grafana --",
+           "enable":true,
+           "hide":true,
+           "iconColor":"rgba(0, 211, 255, 1)",
+           "name":"Annotations & Alerts",
+           "target":{
+              "limit":100,
+              "matchAny":false,
+              "tags":[
+                 
+              ],
+              "type":"dashboard"
+           },
+           "type":"dashboard"
+        }
+     ]
+  },
+  "editable":true,
+  "gnetId": null,
+  "graphTooltip":0,
+  "id": null,
+  "iteration":1643701330112,
+  "links":[
+     
+  ],
+  "panels":[
+     {
+        "collapsed":false,
+        "datasource":null,
+        "gridPos":{
+           "h":1,
+           "w":24,
+           "x":0,
+           "y":0
+        },
+        "id":158,
+        "panels":[
+           
+        ],
+        "title":"General information",
+        "type":"row"
+     },
+     {
+        "datasource":null,
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":5,
+           "w":24,
+           "x":0,
+           "y":1
+        },
+        "height":"200px",
+        "id":26,
+        "links":[
+           
+        ],
+        "options":{
+           "content":"# Openstack dashboard: $cloud\n\n* openstack data is cached, currently refreshed every 5 minutes\n* The VM creation / teardown graph doesn't show the values for the builders in scalingstacks because they happen a lot faster than our scrape interval\n* \"Free IPs\" are not owned by any tenant and available for allocation\n* \"Unused IPs\" are owned by a tenant but not currently associated with an instance",
+           "mode":"markdown"
+        },
+        "pluginVersion":"7.4.1",
+        "type":"text"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "thresholds":{
+                 "mode":"absolute",
+                 "steps":[
+                    {
+                       "color":"green",
+                       "value":null
+                    }
+                 ]
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":8,
+           "w":4,
+           "x":0,
+           "y":6
+        },
+        "id":160,
+        "options":{
+           "colorMode":"value",
+           "graphMode":"area",
+           "justifyMode":"auto",
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "text":{
+              
+           },
+           "textMode":"auto"
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"sum(hypervisor_running_vms{cloud=~\"$cloud\", aggregate=~\"$aggregate\"})",
+              "instant":false,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Scheduled VMs",
+        "type":"stat"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "thresholds":{
+                 "mode":"absolute",
+                 "steps":[
+                    {
+                       "color":"green",
+                       "value":null
+                    }
+                 ]
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":8,
+           "w":4,
+           "x":4,
+           "y":6
+        },
+        "id":161,
+        "options":{
+           "colorMode":"value",
+           "graphMode":"area",
+           "justifyMode":"auto",
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "text":{
+              
+           },
+           "textMode":"auto"
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"count(nova_quota_instances{type=\"limit\", cloud=~\"$cloud\"})",
+              "instant":false,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"N° of projects",
+        "transformations":[
+           
+        ],
+        "type":"stat"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "max":100,
+              "min":0,
+              "thresholds":{
+                 "mode":"percentage",
+                 "steps":[
+                    {
+                       "color":"green",
+                       "value":null
+                    },
+                    {
+                       "color":"#EAB839",
+                       "value":80
+                    },
+                    {
+                       "color":"red",
+                       "value":90
+                    }
+                 ]
+              },
+              "unit":"percent"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":5,
+           "w":4,
+           "x":8,
+           "y":6
+        },
+        "id":162,
+        "options":{
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "showThresholdLabels":false,
+           "showThresholdMarkers":true,
+           "text":{
+              
+           }
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"(ceph_cluster_total_used_bytes/ceph_cluster_total_bytes)*100",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Ceph Storage",
+        "transformations":[
+           
+        ],
+        "type":"gauge"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "max":100,
+              "min":0,
+              "thresholds":{
+                 "mode":"percentage",
+                 "steps":[
+                    {
+                       "color":"green",
+                       "value":null
+                    },
+                    {
+                       "color":"#EAB839",
+                       "value":80
+                    },
+                    {
+                       "color":"red",
+                       "value":90
+                    }
+                 ]
+              },
+              "unit":"percent"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":5,
+           "w":4,
+           "x":12,
+           "y":6
+        },
+        "id":165,
+        "options":{
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "showThresholdLabels":false,
+           "showThresholdMarkers":true,
+           "text":{
+              
+           }
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"sum(hypervisor_vcpus_used{cloud=~\"$cloud\", aggregate=~\"$aggregate\"})/sum(hypervisor_vcpus_total{cloud=~\"$cloud\", aggregate=~\"$aggregate\"})*100",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"CPU Subscription",
+        "transformations":[
+           
+        ],
+        "type":"gauge"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "max":100,
+              "min":0,
+              "thresholds":{
+                 "mode":"percentage",
+                 "steps":[
+                    {
+                       "color":"green",
+                       "value":null
+                    },
+                    {
+                       "color":"#EAB839",
+                       "value":80
+                    },
+                    {
+                       "color":"red",
+                       "value":90
+                    }
+                 ]
+              },
+              "unit":"percent"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":5,
+           "w":4,
+           "x":16,
+           "y":6
+        },
+        "id":168,
+        "options":{
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "showThresholdLabels":false,
+           "showThresholdMarkers":true,
+           "text":{
+              
+           }
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"sum(hypervisor_memory_mbs_used{cloud=~\"$cloud\", aggregate=~\"$aggregate\"})/sum(hypervisor_memory_mbs_total{cloud=~\"$cloud\", aggregate=~\"$aggregate\"})*100",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Mem Subscription",
+        "transformations":[
+           
+        ],
+        "type":"gauge"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "max":100,
+              "min":0,
+              "thresholds":{
+                 "mode":"percentage",
+                 "steps":[
+                    {
+                       "color":"green",
+                       "value":null
+                    },
+                    {
+                       "color":"#EAB839",
+                       "value":80
+                    },
+                    {
+                       "color":"red",
+                       "value":90
+                    }
+                 ]
+              },
+              "unit":"percent"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":5,
+           "w":4,
+           "x":20,
+           "y":6
+        },
+        "id":171,
+        "options":{
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "showThresholdLabels":false,
+           "showThresholdMarkers":true,
+           "text":{
+              
+           }
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"sum(neutron_public_ip_usage{cloud=\"$cloud\", subnet_name=\"$neutron_net\"}) / sum(neutron_net_size{cloud=\"$cloud\", network_name=\"$neutron_net\"}) * 100",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"IPs available in $neutron_net",
+        "transformations":[
+           
+        ],
+        "type":"gauge"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "thresholds":{
+                 "mode":"percentage",
+                 "steps":[
+                    {
+                       "color":"rgb(229, 231, 235)",
+                       "value":null
+                    }
+                 ]
+              },
+              "unit":"bytes"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":3,
+           "w":2,
+           "x":8,
+           "y":11
+        },
+        "id":163,
+        "options":{
+           "colorMode":"value",
+           "graphMode":"none",
+           "justifyMode":"auto",
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "text":{
+              
+           },
+           "textMode":"auto"
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"ceph_cluster_total_used_bytes",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Used",
+        "transformations":[
+           
+        ],
+        "type":"stat"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "thresholds":{
+                 "mode":"percentage",
+                 "steps":[
+                    {
+                       "color":"rgb(253, 255, 253)",
+                       "value":null
+                    }
+                 ]
+              },
+              "unit":"bytes"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":3,
+           "w":2,
+           "x":10,
+           "y":11
+        },
+        "id":164,
+        "options":{
+           "colorMode":"value",
+           "graphMode":"none",
+           "justifyMode":"auto",
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "text":{
+              
+           },
+           "textMode":"auto"
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"ceph_cluster_total_bytes",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Total",
+        "transformations":[
+           
+        ],
+        "type":"stat"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "thresholds":{
+                 "mode":"percentage",
+                 "steps":[
+                    {
+                       "color":"rgb(229, 231, 235)",
+                       "value":null
+                    }
+                 ]
+              },
+              "unit":"none"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":3,
+           "w":2,
+           "x":12,
+           "y":11
+        },
+        "id":166,
+        "options":{
+           "colorMode":"value",
+           "graphMode":"none",
+           "justifyMode":"auto",
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "text":{
+              
+           },
+           "textMode":"auto"
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"sum(hypervisor_vcpus_used{cloud=~\"$cloud\", aggregate=~\"$aggregate\"})",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Allocated",
+        "transformations":[
+           
+        ],
+        "type":"stat"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "thresholds":{
+                 "mode":"percentage",
+                 "steps":[
+                    {
+                       "color":"rgb(251, 252, 250)",
+                       "value":null
+                    }
+                 ]
+              },
+              "unit":"none"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":3,
+           "w":2,
+           "x":14,
+           "y":11
+        },
+        "id":167,
+        "options":{
+           "colorMode":"value",
+           "graphMode":"none",
+           "justifyMode":"auto",
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "text":{
+              
+           },
+           "textMode":"auto"
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"sum(hypervisor_vcpus_total{cloud=~\"$cloud\", aggregate=~\"$aggregate\"})",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Total",
+        "transformations":[
+           
+        ],
+        "type":"stat"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "thresholds":{
+                 "mode":"percentage",
+                 "steps":[
+                    {
+                       "color":"rgb(229, 231, 235)",
+                       "value":null
+                    }
+                 ]
+              },
+              "unit":"mbytes"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":3,
+           "w":2,
+           "x":16,
+           "y":11
+        },
+        "id":169,
+        "options":{
+           "colorMode":"value",
+           "graphMode":"none",
+           "justifyMode":"auto",
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "text":{
+              
+           },
+           "textMode":"auto"
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"sum(hypervisor_memory_mbs_used{cloud=~\"$cloud\", aggregate=~\"$aggregate\"})",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Allocated",
+        "transformations":[
+           
+        ],
+        "type":"stat"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "thresholds":{
+                 "mode":"percentage",
+                 "steps":[
+                    {
+                       "color":"rgb(251, 252, 250)",
+                       "value":null
+                    }
+                 ]
+              },
+              "unit":"mbytes"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":3,
+           "w":2,
+           "x":18,
+           "y":11
+        },
+        "id":170,
+        "options":{
+           "colorMode":"value",
+           "graphMode":"none",
+           "justifyMode":"auto",
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "text":{
+              
+           },
+           "textMode":"auto"
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"sum(hypervisor_memory_mbs_total{cloud=~\"$cloud\", aggregate=~\"$aggregate\"})",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Total",
+        "transformations":[
+           
+        ],
+        "type":"stat"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "thresholds":{
+                 "mode":"percentage",
+                 "steps":[
+                    {
+                       "color":"rgb(229, 231, 235)",
+                       "value":null
+                    }
+                 ]
+              },
+              "unit":"none"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":3,
+           "w":1,
+           "x":20,
+           "y":11
+        },
+        "id":172,
+        "options":{
+           "colorMode":"value",
+           "graphMode":"none",
+           "justifyMode":"auto",
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "text":{
+              
+           },
+           "textMode":"auto"
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"sum(neutron_public_ip_usage{cloud=\"$cloud\", subnet_name=\"$neutron_net\"})",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Allocated",
+        "transformations":[
+           
+        ],
+        "type":"stat"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 
+              ],
+              "thresholds":{
+                 "mode":"percentage",
+                 "steps":[
+                    {
+                       "color":"rgb(229, 231, 235)",
+                       "value":null
+                    }
+                 ]
+              },
+              "unit":"none"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":3,
+           "w":1,
+           "x":21,
+           "y":11
+        },
+        "id":173,
+        "options":{
+           "colorMode":"value",
+           "graphMode":"none",
+           "justifyMode":"auto",
+           "orientation":"auto",
+           "reduceOptions":{
+              "calcs":[
+                 "last"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "text":{
+              
+           },
+           "textMode":"auto"
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"sum(neutron_net_size{cloud=\"$cloud\",network_name=\"$neutron_net\"})",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"A"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Total",
+        "transformations":[
+           
+        ],
+        "type":"stat"
+     },
+     {
+        "cacheTimeout":null,
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 
+              },
+              "mappings":[
+                 {
+                    "options":{
+                       "match":"null",
+                       "result":{
+                          "text":"N/A"
+                       }
+                    },
+                    "type":"special"
+                 }
+              ],
+              "thresholds":{
+                 "mode":"absolute",
+                 "steps":[
+                    {
+                       "color":"green",
+                       "value":null
+                    },
+                    {
+                       "color":"red",
+                       "value":80
+                    }
+                 ]
+              },
+              "unit":"none"
+           },
+           "overrides":[
+              
+           ]
+        },
+        "gridPos":{
+           "h":3,
+           "w":2,
+           "x":22,
+           "y":11
+        },
+        "id":138,
+        "interval":null,
+        "links":[
+           
+        ],
+        "maxDataPoints":100,
+        "options":{
+           "colorMode":"none",
+           "graphMode":"none",
+           "justifyMode":"auto",
+           "orientation":"horizontal",
+           "reduceOptions":{
+              "calcs":[
+                 "lastNotNull"
+              ],
+              "fields":"",
+              "values":false
+           },
+           "text":{
+              
+           },
+           "textMode":"auto"
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"(sum(neutron_net_size{network_name=\"ext-net\",cloud=\"$cloud\"}) - sum(neutron_public_ip_usage{subnet_name=\"ext-net\",cloud=\"$cloud\",ip_status=\"ACTIVE\"})) - (sum(neutron_net_size{network_name=\"ext-net\",cloud=\"$cloud\"}) - sum(neutron_public_ip_usage{subnet_name=\"ext-net\",cloud=\"$cloud\"}))",
+              "instant":true,
+              "interval":"",
+              "intervalFactor":2,
+              "legendFormat":"",
+              "metric":"",
+              "refId":"A",
+              "step":1800
+           }
+        ],
+        "title":"Unused IPs (ext-net)",
+        "type":"stat"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 "align":null,
+                 "displayMode":"auto",
+                 "filterable":false
+              },
+              "mappings":[
+                 
+              ],
+              "thresholds":{
+                 "mode":"absolute",
+                 "steps":[
+                    
+                 ]
+              }
+           },
+           "overrides":[
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"hypervisor_hostname"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Hipervisor"
+                    },
+                    {
+                       "id":"links",
+                       "value":[
+                          {
+                             "targetBlank":false,
+                             "title":"${__value.text}",
+                             "url":"/d/718cac2e-f0b4-11ee-b1c6-6b7e6a75e66d/juju-openstack-hypervisor-overview?orgId=1&var-cloud=${cloud:queryparams}&var-hypervisor=${__value.text}"
+                          }
+                       ]
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #A"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Load avg 5"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #B"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Load avg 15"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #C"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Ephemeral Disk Usage"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"percent"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #D"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Uptime"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"s"
+                    },
+                    {
+                       "id":"decimals",
+                       "value":1
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #E"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Running VMs"
+                    },
+                    {
+                       "id":"decimals",
+                       "value":0
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #F"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"CPUs Subscription"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"percent"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #G"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Mem Subscription"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"percent"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #I"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"VMs net throughput"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"binBps"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"aggregate"
+                 },
+                 "properties":[
+                    {
+                       "id":"custom.width",
+                       "value":null
+                    }
+                 ]
+              }
+           ]
+        },
+        "gridPos":{
+           "h":10,
+           "w":24,
+           "x":0,
+           "y":14
+        },
+        "id":177,
+        "options":{
+           "showHeader":true,
+           "sortBy":[
+              {
+                 "desc":true,
+                 "displayName":"CPUs Subscription"
+              }
+           ]
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"label_replace(sum by (dns_name, juju_unit)(system_load5{juju_unit=~\".*nova-compute.*\"}), \"short_hostname\", \"$1\", \"dns_name\", \"([^\\\\.]*)\\\\..*\") and on (dns_name)label_replace(hypervisor_running_vms{cloud=~\"$cloud\", aggregate=~\"$aggregate\"}, \"dns_name\", \"$1\", \"hypervisor_hostname\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{short_hostname}}",
+              "refId":"A"
+           },
+           {
+              "expr":"label_replace(sum by (dns_name, juju_unit)(system_load15{juju_unit=~\".*nova-compute.*\"}), \"short_hostname\", \"$1\", \"dns_name\", \"([^\\\\.]*)\\\\..*\") and on (dns_name)label_replace(hypervisor_running_vms{cloud=~\"$cloud\", aggregate=~\"$aggregate\"}, \"dns_name\", \"$1\", \"hypervisor_hostname\", \"(.*)\")",
+              "format":"table",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{short_hostname}}",
+              "refId":"B"
+           },
+           {
+              "expr":"label_replace(sum by (dns_name, juju_unit)(disk_used{path=~\".*nova/instances.*|.*var.*\",juju_unit=~\".*nova-compute.*\"})/sum by (dns_name, juju_unit)(disk_total{path=~\".*nova/instances.*|.*var.*\",\njuju_unit=~\".*nova-compute.*\"}) * 100, \"short_hostname\", \"$1\", \"dns_name\", \"([^\\\\.]*)\\\\..*\") and on (dns_name)label_replace(hypervisor_running_vms{cloud=~\"$cloud\", aggregate=~\"$aggregate\"}, \"dns_name\", \"$1\", \"hypervisor_hostname\", \"(.*)\")",
+              "format":"table",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{short_hostname}}",
+              "refId":"C"
+           },
+           {
+              "expr":"label_replace(sum by (dns_name)(system_uptime{juju_unit=~\".*nova-compute.*\"}), \"short_hostname\", \"$1\", \"dns_name\", \"([^\\\\.]*)\\\\..*\") and on (dns_name)label_replace(hypervisor_running_vms{cloud=~\"$cloud\", aggregate=~\"$aggregate\"}, \"dns_name\", \"$1\", \"hypervisor_hostname\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{short_hostname}}",
+              "refId":"D"
+           },
+           {
+              "exemplar":true,
+              "expr":"label_replace(sum by (hypervisor_hostname)(hypervisor_running_vms{cloud=~\"$cloud\", aggregate=~\"$aggregate\"}), \"short_hostname\", \"$1\", \"hypervisor_hostname\", \"([^\\\\.]*)\\\\..*\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{short_hostname}}",
+              "refId":"E"
+           },
+           {
+              "expr":"label_replace(sum by (hypervisor_hostname)(hypervisor_vcpus_used{cloud=~\"$cloud\", aggregate=~\"$aggregate\"})/sum by (hypervisor_hostname)(hypervisor_vcpus_total{cloud=~\"$cloud\", aggregate=~\"$aggregate\"}) *100, \"short_hostname\", \"$1\", \"hypervisor_hostname\", \"([^\\\\.]*)\\\\..*\")",
+              "format":"table",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{short_hostname}}",
+              "refId":"F"
+           },
+           {
+              "expr":"label_replace(sum by (hypervisor_hostname)(hypervisor_memory_mbs_used{cloud=~\"$cloud\", aggregate=~\"$aggregate\"})/sum by (hypervisor_hostname)(hypervisor_memory_mbs_total{cloud=~\"$cloud\", aggregate=~\"$aggregate\"}) *100, \"short_hostname\", \"$1\", \"hypervisor_hostname\", \"([^\\\\.]*)\\\\..*\")",
+              "format":"table",
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{short_hostname}}",
+              "refId":"G"
+           },
+           {
+              "expr":"label_replace(count by (hypervisor_hostname, aggregate)(hypervisor_vcpus_total{cloud=~\"$cloud\", aggregate=~\"$aggregate\"}) *100, \"short_hostname\", \"$1\", \"hypervisor_hostname\", \"([^\\\\.]*)\\\\..*\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"",
+              "refId":"H"
+           },
+           {
+              "expr":"label_replace(sum by (dns_name)(rate(libvirt_domain_interface_stats_receive_bytes_total[1m])) + sum by (dns_name)(rate(libvirt_domain_interface_stats_transmit_bytes_total[1m])), \"short_hostname\", \"$1\", \"dns_name\", \"([^\\\\.]*)\\\\..*\") and on (dns_name)label_replace(hypervisor_running_vms{cloud=~\"$cloud\", aggregate=~\"$aggregate\"}, \"dns_name\", \"$1\", \"hypervisor_hostname\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "intervalFactor":10,
+              "legendFormat":"{{short_hostname}}",
+              "refId":"I"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Hypervisors stats",
+        "transformations":[
+           {
+              "id":"merge",
+              "options":{
+                 
+              }
+           },
+           {
+              "id":"organize",
+              "options":{
+                 "excludeByName":{
+                    "Time":true,
+                    "Value #H":true,
+                    "__name__":true,
+                    "dns_name":true,
+                    "group":true,
+                    "host":true,
+                    "hypervisor_hostname":false,
+                    "instance":true,
+                    "job":true,
+                    "juju_application":true,
+                    "juju_model":true,
+                    "juju_unit":true,
+                    "short_hostname":true
+                 },
+                 "indexByName":{
+                    "Time":0,
+                    "Value #A":13,
+                    "Value #B":14,
+                    "Value #C":15,
+                    "Value #D":16,
+                    "Value #E":17,
+                    "Value #F":18,
+                    "Value #G":19,
+                    "Value #H":20,
+                    "__name__":4,
+                    "aggregate":12,
+                    "dns_name":8,
+                    "group":5,
+                    "host":1,
+                    "hypervisor_hostname":2,
+                    "instance":7,
+                    "job":6,
+                    "juju_application":9,
+                    "juju_model":10,
+                    "juju_unit":3,
+                    "short_hostname":11
+                 },
+                 "renameByName":{
+                    "Value #A":"",
+                    "Value #B":"",
+                    "Value #C":"",
+                    "Value #D":"",
+                    "aggregate":""
+                 }
+              }
+           },
+           {
+              "id":"sortBy",
+              "options":{
+                 "fields":{
+                    
+                 },
+                 "sort":[
+                    {
+                       "field":"short_hostname"
+                    }
+                 ]
+              }
+           }
+        ],
+        "type":"table"
+     },
+     {
+        "datasource":"${prometheusds}",
+        "fieldConfig":{
+           "defaults":{
+              "color":{
+                 "mode":"thresholds"
+              },
+              "custom":{
+                 "align":null,
+                 "displayMode":"auto",
+                 "filterable":false,
+                 "width":100
+              },
+              "mappings":[
+                 
+              ],
+              "thresholds":{
+                 "mode":"absolute",
+                 "steps":[
+                    
+                 ]
+              }
+           },
+           "overrides":[
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #A"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"N° VMs"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #B"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Cores in Use"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #C"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Cores Reserved"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #D"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Cores Limit"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #E"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Cores Util"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"percent"
+                    },
+                    {
+                       "id":"custom.displayMode",
+                       "value":"color-background"
+                    },
+                    {
+                       "id":"thresholds",
+                       "value":{
+                          "mode":"absolute",
+                          "steps":[
+                             {
+                                "color":"green",
+                                "value":null
+                             },
+                             {
+                                "color":"orange",
+                                "value":80
+                             },
+                             {
+                                "color":"red",
+                                "value":90
+                             }
+                          ]
+                       }
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #F"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"VMs in Use"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #G"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"VMs Reserved"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #H"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"VMs Limit"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #I"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"VMs Util"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"percent"
+                    },
+                    {
+                       "id":"custom.displayMode",
+                       "value":"color-background"
+                    },
+                    {
+                       "id":"thresholds",
+                       "value":{
+                          "mode":"absolute",
+                          "steps":[
+                             {
+                                "color":"green",
+                                "value":null
+                             },
+                             {
+                                "color":"orange",
+                                "value":80
+                             },
+                             {
+                                "color":"red",
+                                "value":90
+                             }
+                          ]
+                       }
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #J"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Mem In Use"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"mbytes"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #K"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Mem Reserved"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #L"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Mem Limit"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"mbytes"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #M"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Mem Util"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"percent"
+                    },
+                    {
+                       "id":"custom.displayMode",
+                       "value":"color-background"
+                    },
+                    {
+                       "id":"thresholds",
+                       "value":{
+                          "mode":"absolute",
+                          "steps":[
+                             {
+                                "color":"green",
+                                "value":null
+                             },
+                             {
+                                "color":"orange",
+                                "value":80
+                             },
+                             {
+                                "color":"red",
+                                "value":90
+                             }
+                          ]
+                       }
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #N"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Disks in Use"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #O"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Disks Reserv."
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #P"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Disks Limit"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #Q"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"Disks Util"
+                    },
+                    {
+                       "id":"custom.displayMode",
+                       "value":"color-background"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"percent"
+                    },
+                    {
+                       "id":"thresholds",
+                       "value":{
+                          "mode":"absolute",
+                          "steps":[
+                             {
+                                "color":"green",
+                                "value":null
+                             },
+                             {
+                                "color":"orange",
+                                "value":80
+                             },
+                             {
+                                "color":"red",
+                                "value":90
+                             }
+                          ]
+                       }
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #R"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"GBs in Use"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"gbytes"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #S"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"GBs Reserv."
+                    },
+                    {
+                       "id":"unit",
+                       "value":"gbytes"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #T"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"GBs Limit"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"gbytes"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #U"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"GBs Util"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"percent"
+                    },
+                    {
+                       "id":"custom.displayMode",
+                       "value":"color-background"
+                    },
+                    {
+                       "id":"thresholds",
+                       "value":{
+                          "mode":"absolute",
+                          "steps":[
+                             {
+                                "color":"green",
+                                "value":null
+                             },
+                             {
+                                "color":"orange",
+                                "value":80
+                             },
+                             {
+                                "color":"red",
+                                "value":90
+                             }
+                          ]
+                       }
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #V"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"FIPs in Use"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #W"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"FIPs Reserv."
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #X"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"FIPs Limit"
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"Value #Y"
+                 },
+                 "properties":[
+                    {
+                       "id":"displayName",
+                       "value":"FIPs Util"
+                    },
+                    {
+                       "id":"unit",
+                       "value":"percent"
+                    },
+                    {
+                       "id":"custom.displayMode",
+                       "value":"color-background"
+                    },
+                    {
+                       "id":"thresholds",
+                       "value":{
+                          "mode":"absolute",
+                          "steps":[
+                             {
+                                "color":"green",
+                                "value":null
+                             },
+                             {
+                                "color":"orange",
+                                "value":80
+                             },
+                             {
+                                "color":"red",
+                                "value":90
+                             }
+                          ]
+                       }
+                    }
+                 ]
+              },
+              {
+                 "matcher":{
+                    "id":"byName",
+                    "options":"project"
+                 },
+                 "properties":[
+                    {
+                       "id":"custom.width",
+                       "value":364
+                    }
+                 ]
+              }
+           ]
+        },
+        "gridPos":{
+           "h":10,
+           "w":24,
+           "x":0,
+           "y":24
+        },
+        "id":178,
+        "options":{
+           "showHeader":true,
+           "sortBy":[
+              {
+                 "desc":true,
+                 "displayName":"VMs Util"
+              }
+           ]
+        },
+        "pluginVersion":"7.4.1",
+        "targets":[
+           {
+              "expr":"label_replace(sum by (tenant)(nova_instances{cloud=~\"$cloud\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"A"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_cores{cloud=~\"$cloud\", type=\"in_use\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"B"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_cores{cloud=~\"$cloud\", type=\"reserved\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"C"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_cores{cloud=~\"$cloud\", type=\"limit\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"D"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_cores{cloud=~\"$cloud\", type=\"in_use\"}) / (sum by (tenant)(nova_quota_cores{cloud=~\"$cloud\", type=\"limit\"}) - sum by (tenant)(nova_quota_cores{cloud=~\"$cloud\", type=\"reserved\"}))* 100, \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"E"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_instances{cloud=~\"$cloud\", type=\"in_use\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"F"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_instances{cloud=~\"$cloud\", type=\"reserved\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"G"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_instances{cloud=~\"$cloud\", type=\"limit\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"H"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_instances{cloud=~\"$cloud\", type=\"in_use\"}) / (sum by (tenant)(nova_quota_instances{cloud=~\"$cloud\", type=\"limit\"}) - sum by (tenant)(nova_quota_instances{cloud=~\"$cloud\", type=\"reserved\"}))* 100, \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"I"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_ram_mbs{cloud=~\"$cloud\", type=\"in_use\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"J"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_ram_mbs{cloud=~\"$cloud\", type=\"reserved\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"K"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_ram_mbs{cloud=~\"$cloud\", type=\"limit\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"L"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_ram_mbs{cloud=~\"$cloud\", type=\"in_use\"}) / (sum by (tenant)(nova_quota_ram_mbs{cloud=~\"$cloud\", type=\"limit\"}) - sum by (tenant)(nova_quota_ram_mbs{cloud=~\"$cloud\", type=\"reserved\"}))* 100, \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"M"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(cinder_quota_volume_disks{cloud=~\"$cloud\", type=\"in_use\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"N"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(cinder_quota_volume_disks{cloud=~\"$cloud\", type=\"reserved\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"O"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(cinder_quota_volume_disks{cloud=~\"$cloud\", type=\"limit\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"P"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(cinder_quota_volume_disks{cloud=~\"$cloud\", type=\"in_use\"}) / (sum by (tenant)(cinder_quota_volume_disks{cloud=~\"$cloud\", type=\"limit\"}) - sum by (tenant)(cinder_quota_volume_disks{cloud=~\"$cloud\", type=\"reserved\"}))* 100, \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"Q"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(cinder_quota_volume_disk_gigabytes{cloud=~\"$cloud\", type=\"in_use\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"R"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(cinder_quota_volume_disk_gigabytes{cloud=~\"$cloud\", type=\"reserved\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"S"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(cinder_quota_volume_disk_gigabytes{cloud=~\"$cloud\", type=\"limit\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"T"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(cinder_quota_volume_disk_gigabytes{cloud=~\"$cloud\", type=\"in_use\"}) / (sum by (tenant)(cinder_quota_volume_disk_gigabytes{cloud=~\"$cloud\", type=\"limit\"}) - sum by (tenant)(cinder_quota_volume_disk_gigabytes{cloud=~\"$cloud\", type=\"reserved\"}))* 100, \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"U"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_floating_ips{cloud=~\"$cloud\", type=\"in_use\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"V"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_floating_ips{cloud=~\"$cloud\", type=\"reserved\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"W"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_floating_ips{cloud=~\"$cloud\", type=\"limit\"}), \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"X"
+           },
+           {
+              "expr":"label_replace(sum by (tenant)(nova_quota_floating_ips{cloud=~\"$cloud\", type=\"in_use\"}) / (sum by (tenant)(nova_quota_floating_ips{cloud=~\"$cloud\", type=\"limit\"}) - sum by (tenant)(nova_quota_floating_ips{cloud=~\"$cloud\", type=\"reserved\"}))* 100, \"project\", \"$1\", \"tenant\", \"(.*)\")",
+              "format":"table",
+              "hide":false,
+              "instant":true,
+              "interval":"",
+              "legendFormat":"{{project}}",
+              "refId":"Y"
+           }
+        ],
+        "timeFrom":null,
+        "timeShift":null,
+        "title":"Projects stats",
+        "transformations":[
+           {
+              "id":"merge",
+              "options":{
+                 
+              }
+           },
+           {
+              "id":"organize",
+              "options":{
+                 "excludeByName":{
+                    "Time":true,
+                    "Value #A":true,
+                    "tenant":true
+                 },
+                 "indexByName":{
+                    "Time":0,
+                    "Value #A":3,
+                    "Value #B":13,
+                    "Value #C":14,
+                    "Value #D":15,
+                    "Value #E":5,
+                    "Value #F":10,
+                    "Value #G":11,
+                    "Value #H":12,
+                    "Value #I":4,
+                    "Value #J":16,
+                    "Value #K":17,
+                    "Value #L":18,
+                    "Value #M":6,
+                    "Value #N":19,
+                    "Value #O":20,
+                    "Value #P":21,
+                    "Value #Q":7,
+                    "Value #R":22,
+                    "Value #S":23,
+                    "Value #T":24,
+                    "Value #U":8,
+                    "Value #V":25,
+                    "Value #W":26,
+                    "Value #X":27,
+                    "Value #Y":9,
+                    "project":1,
+                    "tenant":2
+                 },
+                 "renameByName":{
+                    
+                 }
+              }
+           },
+           {
+              "id":"sortBy",
+              "options":{
+                 "fields":{
+                    
+                 },
+                 "sort":[
+                    {
+                       "desc":true,
+                       "field":"Value #I"
+                    }
+                 ]
+              }
+           }
+        ],
+        "type":"table"
+     },
+     {
+        "aliasColors":{
+           
+        },
+        "bars":false,
+        "dashLength":10,
+        "dashes":false,
+        "datasource":"${prometheusds}",
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fill":1,
+        "fillGradient":0,
+        "grid":{
+           
+        },
+        "gridPos":{
+           "h":6,
+           "w":12,
+           "x":0,
+           "y":34
+        },
+        "height":"200px",
+        "hiddenSeries":false,
+        "id":14,
+        "legend":{
+           "avg":false,
+           "current":false,
+           "max":false,
+           "min":false,
+           "show":true,
+           "total":false,
+           "values":false
+        },
+        "lines":true,
+        "linewidth":2,
+        "links":[
+           
+        ],
+        "nullPointMode":"connected",
+        "options":{
+           "alertThreshold":true
+        },
+        "percentage":false,
+        "pluginVersion":"7.4.1",
+        "pointradius":5,
+        "points":false,
+        "renderer":"flot",
+        "seriesOverrides":[
+           
+        ],
+        "spaceLength":10,
+        "stack":true,
+        "steppedLine":false,
+        "targets":[
+           {
+              "expr":"(sum(hypervisor_disk_gbs_total{aggregate=~\".+\",cloud=\"$cloud\",nova_service_status=\"enabled\"} * on(cloud) group_left openstack_allocation_ratio{cloud=\"$cloud\",resource=\"disk\"}) by(aggregate)) - (sum(hypervisor_disk_gbs_used{aggregate=~\".+\",cloud=\"$cloud\",nova_service_status=\"enabled\"}) by(aggregate))",
+              "intervalFactor":2,
+              "legendFormat":"{{aggregate}}",
+              "refId":"A",
+              "step":240
+           }
+        ],
+        "thresholds":[
+           
+        ],
+        "timeFrom":null,
+        "timeRegions":[
+           
+        ],
+        "timeShift":null,
+        "title":"Free Disk by aggregate",
+        "tooltip":{
+           "msResolution":true,
+           "shared":true,
+           "sort":0,
+           "value_type":"individual"
+        },
+        "type":"graph",
+        "xaxis":{
+           "buckets":null,
+           "mode":"time",
+           "name":null,
+           "show":true,
+           "values":[
+              
+           ]
+        },
+        "yaxes":[
+           {
+              "format":"gbytes",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":0,
+              "show":true
+           },
+           {
+              "format":"short",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":false
+           }
+        ],
+        "yaxis":{
+           "align":false,
+           "alignLevel":null
+        }
+     },
+     {
+        "aliasColors":{
+           
+        },
+        "bars":false,
+        "dashLength":10,
+        "dashes":false,
+        "datasource":"${prometheusds}",
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fill":1,
+        "fillGradient":0,
+        "grid":{
+           
+        },
+        "gridPos":{
+           "h":6,
+           "w":12,
+           "x":12,
+           "y":34
+        },
+        "height":"200px",
+        "hiddenSeries":false,
+        "id":16,
+        "legend":{
+           "avg":false,
+           "current":false,
+           "max":false,
+           "min":false,
+           "show":true,
+           "total":false,
+           "values":false
+        },
+        "lines":true,
+        "linewidth":2,
+        "links":[
+           
+        ],
+        "nullPointMode":"connected",
+        "options":{
+           "alertThreshold":true
+        },
+        "percentage":false,
+        "pluginVersion":"7.4.1",
+        "pointradius":5,
+        "points":false,
+        "renderer":"flot",
+        "seriesOverrides":[
+           
+        ],
+        "spaceLength":10,
+        "stack":true,
+        "steppedLine":false,
+        "targets":[
+           {
+              "expr":"sum(hypervisor_running_vms{aggregate=~\".+\",cloud=\"$cloud\"}) by (aggregate)",
+              "intervalFactor":2,
+              "legendFormat":"{{aggregate}}",
+              "refId":"A",
+              "step":240
+           }
+        ],
+        "thresholds":[
+           
+        ],
+        "timeFrom":null,
+        "timeRegions":[
+           
+        ],
+        "timeShift":null,
+        "title":"Running VMs by aggregate",
+        "tooltip":{
+           "msResolution":true,
+           "shared":true,
+           "sort":0,
+           "value_type":"individual"
+        },
+        "type":"graph",
+        "xaxis":{
+           "buckets":null,
+           "mode":"time",
+           "name":null,
+           "show":true,
+           "values":[
+              
+           ]
+        },
+        "yaxes":[
+           {
+              "format":"none",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":0,
+              "show":true
+           },
+           {
+              "format":"short",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":false
+           }
+        ],
+        "yaxis":{
+           "align":false,
+           "alignLevel":null
+        }
+     },
+     {
+        "aliasColors":{
+           
+        },
+        "bars":false,
+        "dashLength":10,
+        "dashes":false,
+        "datasource":"${prometheusds}",
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fill":0,
+        "fillGradient":0,
+        "grid":{
+           
+        },
+        "gridPos":{
+           "h":7,
+           "w":12,
+           "x":0,
+           "y":40
+        },
+        "hiddenSeries":false,
+        "id":19,
+        "legend":{
+           "avg":false,
+           "current":false,
+           "max":false,
+           "min":false,
+           "show":true,
+           "total":false,
+           "values":false
+        },
+        "lines":true,
+        "linewidth":2,
+        "links":[
+           
+        ],
+        "nullPointMode":"null as zero",
+        "options":{
+           "alertThreshold":true
+        },
+        "percentage":false,
+        "pluginVersion":"7.4.1",
+        "pointradius":5,
+        "points":false,
+        "renderer":"flot",
+        "seriesOverrides":[
+           
+        ],
+        "spaceLength":10,
+        "stack":false,
+        "steppedLine":false,
+        "targets":[
+           {
+              "expr":"topk(10, nova_resources_disk_gbs{cloud=\"$cloud\"})",
+              "intervalFactor":2,
+              "legendFormat":"{{tenant}}",
+              "refId":"A",
+              "step":240
+           }
+        ],
+        "thresholds":[
+           
+        ],
+        "timeFrom":null,
+        "timeRegions":[
+           
+        ],
+        "timeShift":null,
+        "title":"Top disk projects",
+        "tooltip":{
+           "msResolution":false,
+           "shared":true,
+           "sort":0,
+           "value_type":"cumulative"
+        },
+        "type":"graph",
+        "xaxis":{
+           "buckets":null,
+           "mode":"time",
+           "name":null,
+           "show":true,
+           "values":[
+              
+           ]
+        },
+        "yaxes":[
+           {
+              "format":"gbytes",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":true
+           },
+           {
+              "format":"short",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":false
+           }
+        ],
+        "yaxis":{
+           "align":false,
+           "alignLevel":null
+        }
+     },
+     {
+        "aliasColors":{
+           
+        },
+        "bars":false,
+        "dashLength":10,
+        "dashes":false,
+        "datasource":"${prometheusds}",
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fill":0,
+        "fillGradient":0,
+        "grid":{
+           
+        },
+        "gridPos":{
+           "h":7,
+           "w":12,
+           "x":12,
+           "y":40
+        },
+        "hiddenSeries":false,
+        "id":18,
+        "legend":{
+           "avg":false,
+           "current":false,
+           "max":false,
+           "min":false,
+           "show":true,
+           "total":false,
+           "values":false
+        },
+        "lines":true,
+        "linewidth":2,
+        "links":[
+           
+        ],
+        "nullPointMode":"null as zero",
+        "options":{
+           "alertThreshold":true
+        },
+        "percentage":false,
+        "pluginVersion":"7.4.1",
+        "pointradius":5,
+        "points":false,
+        "renderer":"flot",
+        "seriesOverrides":[
+           
+        ],
+        "spaceLength":10,
+        "stack":false,
+        "steppedLine":false,
+        "targets":[
+           {
+              "expr":"topk(10, nova_resources_vcpus{cloud=\"$cloud\"})",
+              "intervalFactor":2,
+              "legendFormat":"{{tenant}}",
+              "refId":"A",
+              "step":240
+           }
+        ],
+        "thresholds":[
+           
+        ],
+        "timeFrom":null,
+        "timeRegions":[
+           
+        ],
+        "timeShift":null,
+        "title":"Top vCPU projects",
+        "tooltip":{
+           "msResolution":false,
+           "shared":true,
+           "sort":0,
+           "value_type":"cumulative"
+        },
+        "type":"graph",
+        "xaxis":{
+           "buckets":null,
+           "mode":"time",
+           "name":null,
+           "show":true,
+           "values":[
+              
+           ]
+        },
+        "yaxes":[
+           {
+              "format":"none",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":true
+           },
+           {
+              "format":"short",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":false
+           }
+        ],
+        "yaxis":{
+           "align":false,
+           "alignLevel":null
+        }
+     },
+     {
+        "aliasColors":{
+           
+        },
+        "bars":false,
+        "dashLength":10,
+        "dashes":false,
+        "datasource":"${prometheusds}",
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fill":0,
+        "fillGradient":0,
+        "grid":{
+           
+        },
+        "gridPos":{
+           "h":7,
+           "w":12,
+           "x":0,
+           "y":47
+        },
+        "hiddenSeries":false,
+        "id":20,
+        "legend":{
+           "avg":false,
+           "current":false,
+           "max":false,
+           "min":false,
+           "show":true,
+           "total":false,
+           "values":false
+        },
+        "lines":true,
+        "linewidth":2,
+        "links":[
+           
+        ],
+        "nullPointMode":"null as zero",
+        "options":{
+           "alertThreshold":true
+        },
+        "percentage":false,
+        "pluginVersion":"7.4.1",
+        "pointradius":5,
+        "points":false,
+        "renderer":"flot",
+        "seriesOverrides":[
+           
+        ],
+        "spaceLength":10,
+        "stack":false,
+        "steppedLine":false,
+        "targets":[
+           {
+              "expr":"topk(10, nova_resources_ram_mbs{cloud=\"$cloud\"})",
+              "intervalFactor":2,
+              "legendFormat":"{{tenant}}",
+              "refId":"A",
+              "step":240
+           }
+        ],
+        "thresholds":[
+           
+        ],
+        "timeFrom":null,
+        "timeRegions":[
+           
+        ],
+        "timeShift":null,
+        "title":"Top RAM projects",
+        "tooltip":{
+           "msResolution":false,
+           "shared":true,
+           "sort":0,
+           "value_type":"cumulative"
+        },
+        "type":"graph",
+        "xaxis":{
+           "buckets":null,
+           "mode":"time",
+           "name":null,
+           "show":true,
+           "values":[
+              
+           ]
+        },
+        "yaxes":[
+           {
+              "format":"mbytes",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":true
+           },
+           {
+              "format":"short",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":false
+           }
+        ],
+        "yaxis":{
+           "align":false,
+           "alignLevel":null
+        }
+     },
+     {
+        "aliasColors":{
+           
+        },
+        "bars":false,
+        "dashLength":10,
+        "dashes":false,
+        "datasource":"${prometheusds}",
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fill":0,
+        "fillGradient":0,
+        "grid":{
+           
+        },
+        "gridPos":{
+           "h":7,
+           "w":12,
+           "x":12,
+           "y":47
+        },
+        "hiddenSeries":false,
+        "id":21,
+        "legend":{
+           "avg":false,
+           "current":false,
+           "max":false,
+           "min":false,
+           "show":true,
+           "total":false,
+           "values":false
+        },
+        "lines":true,
+        "linewidth":2,
+        "links":[
+           
+        ],
+        "nullPointMode":"null as zero",
+        "options":{
+           "alertThreshold":true
+        },
+        "percentage":false,
+        "pluginVersion":"7.4.1",
+        "pointradius":5,
+        "points":false,
+        "renderer":"flot",
+        "seriesOverrides":[
+           
+        ],
+        "spaceLength":10,
+        "stack":false,
+        "steppedLine":false,
+        "targets":[
+           {
+              "expr":"topk(10, nova_instances{cloud=\"$cloud\"})",
+              "intervalFactor":2,
+              "legendFormat":"{{tenant}}",
+              "refId":"A",
+              "step":240
+           }
+        ],
+        "thresholds":[
+           
+        ],
+        "timeFrom":null,
+        "timeRegions":[
+           
+        ],
+        "timeShift":null,
+        "title":"Top instance projects",
+        "tooltip":{
+           "msResolution":false,
+           "shared":true,
+           "sort":0,
+           "value_type":"cumulative"
+        },
+        "type":"graph",
+        "xaxis":{
+           "buckets":null,
+           "mode":"time",
+           "name":null,
+           "show":true,
+           "values":[
+              
+           ]
+        },
+        "yaxes":[
+           {
+              "format":"none",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":true
+           },
+           {
+              "format":"short",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":false
+           }
+        ],
+        "yaxis":{
+           "align":false,
+           "alignLevel":null
+        }
+     },
+     {
+        "aliasColors":{
+           
+        },
+        "bars":false,
+        "dashLength":10,
+        "dashes":false,
+        "datasource":"${prometheusds}",
+        "decimals":0,
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fill":1,
+        "fillGradient":0,
+        "grid":{
+           
+        },
+        "gridPos":{
+           "h":7,
+           "w":24,
+           "x":0,
+           "y":54
+        },
+        "hiddenSeries":false,
+        "id":30,
+        "legend":{
+           "avg":false,
+           "current":false,
+           "hideEmpty":false,
+           "hideZero":false,
+           "max":false,
+           "min":false,
+           "show":true,
+           "total":false,
+           "values":false
+        },
+        "lines":true,
+        "linewidth":2,
+        "links":[
+           
+        ],
+        "nullPointMode":"null as zero",
+        "options":{
+           "alertThreshold":true
+        },
+        "percentage":false,
+        "pluginVersion":"7.4.1",
+        "pointradius":5,
+        "points":false,
+        "renderer":"flot",
+        "seriesOverrides":[
+           
+        ],
+        "spaceLength":10,
+        "stack":false,
+        "steppedLine":false,
+        "targets":[
+           {
+              "expr":"sum by(instance_state)(nova_instances{cloud=\"$cloud\"})",
+              "interval":"",
+              "intervalFactor":2,
+              "legendFormat":"{{instance_state}}",
+              "refId":"A",
+              "step":120
+           }
+        ],
+        "thresholds":[
+           
+        ],
+        "timeFrom":null,
+        "timeRegions":[
+           
+        ],
+        "timeShift":null,
+        "title":"Instances by state",
+        "tooltip":{
+           "msResolution":false,
+           "shared":true,
+           "sort":0,
+           "value_type":"cumulative"
+        },
+        "type":"graph",
+        "xaxis":{
+           "buckets":null,
+           "mode":"time",
+           "name":null,
+           "show":true,
+           "values":[
+              
+           ]
+        },
+        "yaxes":[
+           {
+              "format":"none",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":true
+           },
+           {
+              "format":"short",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":false
+           }
+        ],
+        "yaxis":{
+           "align":false,
+           "alignLevel":null
+        }
+     },
+     {
+        "columns":[
+           {
+              "$$hashKey":"object:542",
+              "text":"Current",
+              "value":"current"
+           }
+        ],
+        "datasource":"${prometheusds}",
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fontSize":"100%",
+        "gridPos":{
+           "h":10,
+           "w":8,
+           "x":0,
+           "y":61
+        },
+        "hideTimeOverride":true,
+        "id":28,
+        "links":[
+           
+        ],
+        "pageSize":null,
+        "scroll":true,
+        "showHeader":true,
+        "sort":{
+           "col":null,
+           "desc":false
+        },
+        "styles":[
+           {
+              "align":"auto",
+              "dateFormat":"YYYY-MM-DD HH:mm:ss",
+              "pattern":"Time",
+              "type":"date"
+           },
+           {
+              "align":"auto",
+              "colorMode":"cell",
+              "colors":[
+                 "rgba(245, 54, 54, 0.9)",
+                 "rgba(237, 129, 40, 0.89)",
+                 "rgba(50, 172, 45, 0.97)"
+              ],
+              "decimals":0,
+              "pattern":"/.*/",
+              "thresholds":[
+                 "16",
+                 "32"
+              ],
+              "type":"number",
+              "unit":"none"
+           }
+        ],
+        "targets":[
+           {
+              "expr":"(sum by (hypervisor_hostname)(hypervisor_memory_mbs_total{cloud=\"$cloud\"})) / 1024 - (sum by (hypervisor_hostname) (hypervisor_memory_mbs_used{cloud=\"$cloud\"}))/1024",
+              "hide":false,
+              "interval":"",
+              "intervalFactor":2,
+              "legendFormat":"{{hypervisor_hostname}}",
+              "refId":"A",
+              "step":4
+           }
+        ],
+        "timeFrom":"20m",
+        "title":"Free RAM GBs per host",
+        "transform":"timeseries_aggregations",
+        "type":"table-old"
+     },
+     {
+        "columns":[
+           {
+              "$$hashKey":"object:642",
+              "text":"Current",
+              "value":"current"
+           }
+        ],
+        "datasource":"${prometheusds}",
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fontSize":"100%",
+        "gridPos":{
+           "h":10,
+           "w":8,
+           "x":8,
+           "y":61
+        },
+        "hideTimeOverride":true,
+        "id":29,
+        "links":[
+           
+        ],
+        "pageSize":null,
+        "scroll":true,
+        "showHeader":true,
+        "sort":{
+           "col":1,
+           "desc":true
+        },
+        "styles":[
+           {
+              "align":"auto",
+              "dateFormat":"YYYY-MM-DD HH:mm:ss",
+              "pattern":"Time",
+              "type":"date"
+           },
+           {
+              "align":"auto",
+              "colorMode":"cell",
+              "colors":[
+                 "rgba(245, 54, 54, 0.9)",
+                 "rgba(237, 129, 40, 0.89)",
+                 "rgba(50, 172, 45, 0.97)"
+              ],
+              "decimals":0,
+              "pattern":"/.*/",
+              "thresholds":[
+                 "100",
+                 "200"
+              ],
+              "type":"number",
+              "unit":"none"
+           }
+        ],
+        "targets":[
+           {
+              "expr":"sum by (hypervisor_hostname)(hypervisor_disk_gbs_total{cloud=\"$cloud\"}) - sum by (hypervisor_hostname) (hypervisor_disk_gbs_used{cloud=\"$cloud\"})",
+              "hide":false,
+              "interval":"",
+              "intervalFactor":2,
+              "legendFormat":"{{hypervisor_hostname}}",
+              "refId":"A",
+              "step":4
+           }
+        ],
+        "timeFrom":"20m",
+        "title":"Free disk GBs per host",
+        "transform":"timeseries_aggregations",
+        "type":"table-old"
+     },
+     {
+        "columns":[
+           {
+              "$$hashKey":"object:642",
+              "text":"Current",
+              "value":"current"
+           }
+        ],
+        "datasource":"${prometheusds}",
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fontSize":"100%",
+        "gridPos":{
+           "h":10,
+           "w":8,
+           "x":16,
+           "y":61
+        },
+        "hideTimeOverride":true,
+        "id":179,
+        "links":[
+           
+        ],
+        "pageSize":null,
+        "scroll":true,
+        "showHeader":true,
+        "sort":{
+           "col":1,
+           "desc":true
+        },
+        "styles":[
+           {
+              "align":"auto",
+              "dateFormat":"YYYY-MM-DD HH:mm:ss",
+              "pattern":"Time",
+              "type":"date"
+           },
+           {
+              "align":"auto",
+              "colorMode":"cell",
+              "colors":[
+                 "rgba(245, 54, 54, 0.9)",
+                 "rgba(237, 129, 40, 0.89)",
+                 "rgba(50, 172, 45, 0.97)"
+              ],
+              "decimals":0,
+              "pattern":"/.*/",
+              "thresholds":[
+                 "100",
+                 "200"
+              ],
+              "type":"number",
+              "unit":"none"
+           }
+        ],
+        "targets":[
+           {
+              "expr":"sum by (hypervisor_hostname)(hypervisor_vcpus_total{cloud=\"$cloud\"}) - sum by (hypervisor_hostname) (hypervisor_vcpus_used{cloud=\"$cloud\"})",
+              "hide":false,
+              "interval":"",
+              "intervalFactor":2,
+              "legendFormat":"{{hypervisor_hostname}}",
+              "refId":"A",
+              "step":4
+           }
+        ],
+        "timeFrom":"20m",
+        "title":"Free vCPUs per host",
+        "transform":"timeseries_aggregations",
+        "type":"table-old"
+     },
+     {
+        "collapsed":false,
+        "datasource":null,
+        "gridPos":{
+           "h":1,
+           "w":24,
+           "x":0,
+           "y":71
+        },
+        "id":156,
+        "panels":[
+           
+        ],
+        "repeat":null,
+        "title":"Openstack Exporter Stats",
+        "type":"row"
+     },
+     {
+        "aliasColors":{
+           
+        },
+        "bars":false,
+        "dashLength":10,
+        "dashes":false,
+        "datasource":"${prometheusds}",
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fill":1,
+        "fillGradient":0,
+        "grid":{
+           
+        },
+        "gridPos":{
+           "h":4,
+           "w":24,
+           "x":0,
+           "y":72
+        },
+        "height":"140px",
+        "hiddenSeries":false,
+        "id":22,
+        "legend":{
+           "avg":false,
+           "current":false,
+           "max":false,
+           "min":false,
+           "show":false,
+           "total":false,
+           "values":false
+        },
+        "lines":true,
+        "linewidth":2,
+        "links":[
+           
+        ],
+        "nullPointMode":"connected",
+        "options":{
+           "alertThreshold":true
+        },
+        "percentage":false,
+        "pluginVersion":"7.4.1",
+        "pointradius":5,
+        "points":false,
+        "renderer":"flot",
+        "seriesOverrides":[
+           
+        ],
+        "spaceLength":10,
+        "stack":false,
+        "steppedLine":false,
+        "targets":[
+           {
+              "expr":"openstack_exporter_cache_age_seconds{cloud=\"$cloud\"}",
+              "intervalFactor":2,
+              "legendFormat":"Cache age",
+              "metric":"",
+              "refId":"A",
+              "step":120
+           }
+        ],
+        "thresholds":[
+           
+        ],
+        "timeFrom":null,
+        "timeRegions":[
+           
+        ],
+        "timeShift":null,
+        "title":"Cache age",
+        "tooltip":{
+           "msResolution":true,
+           "shared":true,
+           "sort":0,
+           "value_type":"cumulative"
+        },
+        "type":"graph",
+        "xaxis":{
+           "buckets":null,
+           "mode":"time",
+           "name":null,
+           "show":true,
+           "values":[
+              
+           ]
+        },
+        "yaxes":[
+           {
+              "format":"s",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":true
+           },
+           {
+              "format":"short",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":true
+           }
+        ],
+        "yaxis":{
+           "align":false,
+           "alignLevel":null
+        }
+     },
+     {
+        "aliasColors":{
+           
+        },
+        "bars":false,
+        "dashLength":10,
+        "dashes":false,
+        "datasource":"${prometheusds}",
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fill":1,
+        "fillGradient":0,
+        "grid":{
+           
+        },
+        "gridPos":{
+           "h":4,
+           "w":24,
+           "x":0,
+           "y":76
+        },
+        "height":"140px",
+        "hiddenSeries":false,
+        "id":23,
+        "legend":{
+           "avg":false,
+           "current":false,
+           "max":false,
+           "min":false,
+           "show":false,
+           "total":false,
+           "values":false
+        },
+        "lines":true,
+        "linewidth":2,
+        "links":[
+           
+        ],
+        "nullPointMode":"connected",
+        "options":{
+           "alertThreshold":true
+        },
+        "percentage":false,
+        "pluginVersion":"7.4.1",
+        "pointradius":5,
+        "points":false,
+        "renderer":"flot",
+        "seriesOverrides":[
+           
+        ],
+        "spaceLength":10,
+        "stack":false,
+        "steppedLine":false,
+        "targets":[
+           {
+              "expr":"openstack_exporter_cache_refresh_duration_seconds{cloud=\"$cloud\"}",
+              "intervalFactor":2,
+              "legendFormat":"Refresh duration",
+              "metric":"openstack_exporter_cache_refresh_duration_seconds",
+              "refId":"A",
+              "step":120
+           }
+        ],
+        "thresholds":[
+           
+        ],
+        "timeFrom":null,
+        "timeRegions":[
+           
+        ],
+        "timeShift":null,
+        "title":"Cache refresh duration",
+        "tooltip":{
+           "msResolution":true,
+           "shared":true,
+           "sort":0,
+           "value_type":"cumulative"
+        },
+        "type":"graph",
+        "xaxis":{
+           "buckets":null,
+           "mode":"time",
+           "name":null,
+           "show":true,
+           "values":[
+              
+           ]
+        },
+        "yaxes":[
+           {
+              "format":"s",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":0,
+              "show":true
+           },
+           {
+              "format":"short",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":false
+           }
+        ],
+        "yaxis":{
+           "align":false,
+           "alignLevel":null
+        }
+     },
+     {
+        "aliasColors":{
+           
+        },
+        "bars":false,
+        "dashLength":10,
+        "dashes":false,
+        "datasource":"${prometheusds}",
+        "editable":true,
+        "error":false,
+        "fieldConfig":{
+           "defaults":{
+              "custom":{
+                 
+              }
+           },
+           "overrides":[
+              
+           ]
+        },
+        "fill":1,
+        "fillGradient":0,
+        "grid":{
+           
+        },
+        "gridPos":{
+           "h":4,
+           "w":24,
+           "x":0,
+           "y":80
+        },
+        "height":"140px",
+        "hiddenSeries":false,
+        "id":50,
+        "legend":{
+           "avg":false,
+           "current":false,
+           "max":false,
+           "min":false,
+           "show":false,
+           "total":false,
+           "values":false
+        },
+        "lines":true,
+        "linewidth":2,
+        "links":[
+           
+        ],
+        "nullPointMode":"connected",
+        "options":{
+           "alertThreshold":true
+        },
+        "percentage":false,
+        "pluginVersion":"7.4.1",
+        "pointradius":5,
+        "points":false,
+        "renderer":"flot",
+        "seriesOverrides":[
+           
+        ],
+        "spaceLength":10,
+        "stack":false,
+        "steppedLine":false,
+        "targets":[
+           {
+              "expr":"scrape_duration_seconds{instance=\"$instance\"}",
+              "intervalFactor":2,
+              "legendFormat":"Scrape duration",
+              "metric":"openstack_exporter_cache_refresh_duration_seconds",
+              "refId":"A",
+              "step":120
+           }
+        ],
+        "thresholds":[
+           
+        ],
+        "timeFrom":null,
+        "timeRegions":[
+           
+        ],
+        "timeShift":null,
+        "title":"Scrape duration",
+        "tooltip":{
+           "msResolution":false,
+           "shared":true,
+           "sort":0,
+           "value_type":"cumulative"
+        },
+        "type":"graph",
+        "xaxis":{
+           "buckets":null,
+           "mode":"time",
+           "name":null,
+           "show":true,
+           "values":[
+              
+           ]
+        },
+        "yaxes":[
+           {
+              "format":"s",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":0,
+              "show":true
+           },
+           {
+              "format":"short",
+              "label":null,
+              "logBase":1,
+              "max":null,
+              "min":null,
+              "show":false
+           }
+        ],
+        "yaxis":{
+           "align":false,
+           "alignLevel":null
+        }
+     }
+  ],
+  "refresh":"",
+  "schemaVersion":27,
+  "style":"dark",
+  "tags":[
+     "is-infra"
+  ],
+  "templating":{
+     "list":[
+        {
+           "allValue":null,
+           "current":{
+              "selected":false,
+              "text":"RegionOne",
+              "value":"RegionOne"
+           },
+           "datasource":"${prometheusds}",
+           "definition":"",
+           "description":null,
+           "error":null,
+           "hide":0,
+           "includeAll":false,
+           "label":null,
+           "multi":false,
+           "name":"cloud",
+           "options":[
+              
+           ],
+           "query":{
+              "query":"openstack_exporter_cache_age_seconds",
+              "refId":"${prometheusds}-cloud-Variable-Query"
+           },
+           "refresh":1,
+           "regex":".*cloud=\"([^\"]+).*",
+           "skipUrlSync":false,
+           "sort":0,
+           "tagValuesQuery":null,
+           "tags":[
+              
+           ],
+           "tagsQuery":null,
+           "type":"query",
+           "useTags":false
+        },
+        {
+           "allValue":null,
+           "current":{
+              "selected":false,
+              "text":"10.130.12.188:9183",
+              "value":"10.130.12.188:9183"
+           },
+           "datasource":"${prometheusds}",
+           "definition":"",
+           "description":null,
+           "error":null,
+           "hide":2,
+           "includeAll":false,
+           "label":null,
+           "multi":false,
+           "name":"instance",
+           "options":[
+              
+           ],
+           "query":{
+              "query":"openstack_exporter_cache_refresh_duration_seconds{cloud=\"$cloud\"}",
+              "refId":"${prometheusds}-instance-Variable-Query"
+           },
+           "refresh":1,
+           "regex":".*instance=\"([^\"]+).*",
+           "skipUrlSync":false,
+           "sort":0,
+           "tagValuesQuery":null,
+           "tags":[
+              
+           ],
+           "tagsQuery":null,
+           "type":"query",
+           "useTags":false
+        },
+        {
+           "allValue":null,
+           "current":{
+              "selected":false,
+              "text":"net_misc-builders-routers",
+              "value":"net_misc-builders-routers"
+           },
+           "datasource":"${prometheusds}",
+           "definition":"",
+           "description":null,
+           "error":null,
+           "hide":2,
+           "includeAll":false,
+           "label":"External networks",
+           "multi":true,
+           "name":"neutron_net",
+           "options":[
+              
+           ],
+           "query":{
+              "query":"neutron_public_ip_usage{cloud=\"$cloud\",ip_type=\"routerip\"}",
+              "refId":"${prometheusds}-neutron_net-Variable-Query"
+           },
+           "refresh":1,
+           "regex":".*subnet_name=\"([^\"]+).*",
+           "skipUrlSync":false,
+           "sort":0,
+           "tagValuesQuery":null,
+           "tags":[
+              
+           ],
+           "tagsQuery":null,
+           "type":"query",
+           "useTags":false
+        },
+        {
+           "allValue":null,
+           "current":{
+              "selected":false,
+              "text":"All",
+              "value":"$__all"
+           },
+           "datasource":"${prometheusds}",
+           "definition":"",
+           "description":null,
+           "error":null,
+           "hide":2,
+           "includeAll":true,
+           "label":null,
+           "multi":false,
+           "name":"hypervisor",
+           "options":[
+              
+           ],
+           "query":{
+              "query":"hypervisor_vcpus_total{cloud=\"$cloud\"}",
+              "refId":"${prometheusds}-hypervisor-Variable-Query"
+           },
+           "refresh":1,
+           "regex":".*hypervisor_hostname=\"([^\"]+).*",
+           "skipUrlSync":false,
+           "sort":0,
+           "tagValuesQuery":null,
+           "tags":[
+              
+           ],
+           "tagsQuery":null,
+           "type":"query",
+           "useTags":false
+        },
+        {
+           "allValue":".*",
+           "current":{
+              "selected":false,
+              "text":"All",
+              "value":"$__all"
+           },
+           "datasource":"${prometheusds}",
+           "definition":"",
+           "description":null,
+           "error":null,
+           "hide":2,
+           "includeAll":true,
+           "label":null,
+           "multi":false,
+           "name":"hypervisor_status",
+           "options":[
+              
+           ],
+           "query":{
+              "query":"hypervisor_vcpus_total{cloud=\"$cloud\",hypervisor_hostname=\"$hypervisor\"}",
+              "query":"openstack_nova_vcpus_available{juju_model=\"$juju_model\"}",
+              "refId":"${prometheusds}-hypervisor_status-Variable-Query"
+           },
+           "refresh":1,
+           "regex":".*nova_service_status=\"([^\"]+).*",
+           "skipUrlSync":false,
+           "sort":0,
+           "tagValuesQuery":null,
+           "tags":[
+              
+           ],
+           "tagsQuery":null,
+           "type":"query",
+           "useTags":false
+        },
+        {
+           "allValue":".*",
+           "current":{
+              "selected":false,
+              "text":"All",
+              "value":"$__all"
+           },
+           "datasource":"${prometheusds}",
+           "definition":"",
+           "description":null,
+           "error":null,
+           "hide":0,
+           "includeAll":true,
+           "label":"availability zone",
+           "multi":false,
+           "name":"aggregate",
+           "options":[
+              
+           ],
+           "query":{
+              "query":"hypervisor_vcpus_total{cloud=\"$cloud\"}",
+              "refId":"${prometheusds}-aggregate-Variable-Query"
+           },
+           "refresh":1,
+           "regex":".*aggregate=\"([^\"]+).*",
+           "skipUrlSync":false,
+           "sort":0,
+           "tagValuesQuery":null,
+           "tags":[
+              
+           ],
+           "tagsQuery":null,
+           "type":"query",
+           "useTags":false
+        }
+     ]
+  },
+  "time":{
+     "from":"now-24h",
+     "to":"now"
+  },
+  "timepicker":{
+     "refresh_intervals":[
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+     ],
+     "time_options":[
+        "5m",
+        "15m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+     ]
+  },
+  "timezone":"utc",
+  "title":"[juju] OpenStack Overview",
+  "uid":"7d177394-f0b4-11ee-9495-9b832692810a",
+  "version": 200
+}
