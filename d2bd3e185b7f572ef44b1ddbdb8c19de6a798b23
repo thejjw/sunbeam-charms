@@ -22,6 +22,30 @@
       },
       "revId": "d2bd3e185b7f572ef44b1ddbdb8c19de6a798b23",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "693e12eb_6c8b5ae6",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-04-04T10:13:03Z",
+      "side": 1,
+      "message": "Fixed in PS2",
+      "parentUuid": "a74a8047_9031698a",
+      "range": {
+        "startLine": 210,
+        "startChar": 21,
+        "endLine": 212,
+        "endChar": 21
+      },
+      "revId": "d2bd3e185b7f572ef44b1ddbdb8c19de6a798b23",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
