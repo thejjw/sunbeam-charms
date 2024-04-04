@@ -20,6 +20,7 @@ This charm provide Tempest as part of an OpenStack deployment
 """
 
 import logging
+import os
 from typing import (
     Dict,
     List,
@@ -199,6 +200,20 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         handlers.append(self.grafana)
         return handlers
 
+    def _get_proxy_environment(self) -> Dict[str, str]:
+        """Return dictionary with proxy settings."""
+        http_proxy = os.environ.get("JUJU_CHARM_HTTP_PROXY")
+        https_proxy = os.environ.get("JUJU_CHARM_HTTPS_PROXY")
+        no_proxy = os.environ.get("JUJU_CHARM_NO_PROXY")
+        if http_proxy or https_proxy:
+            return {
+                "HTTP_PROXY": http_proxy,
+                "HTTPS_PROXY": https_proxy,
+                "NO_PROXY": no_proxy,
+            }
+
+        return {}
+
     def _get_environment_for_tempest(
         self, variant: TempestEnvVariant
     ) -> Dict[str, str]:
@@ -208,7 +223,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """
         logger.debug("Retrieving OpenStack credentials")
         credential = self.user_id_ops.get_user_credential()
-        return {
+        tempest_env = {
             "OS_REGION_NAME": "RegionOne",
             "OS_IDENTITY_API_VERSION": "3",
             "OS_AUTH_VERSION": "3",
@@ -232,6 +247,8 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_WORKSPACE_PATH": TEMPEST_WORKSPACE_PATH,
             "TEMPEST_OUTPUT": variant.output_path(),
         }
+        tempest_env.update(self._get_proxy_environment())
+        return tempest_env
 
     def _get_cleanup_env(self) -> Dict[str, str]:
         """Return a dictionary of environment variables.
@@ -240,7 +257,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """
         logger.debug("Retrieving OpenStack credentials")
         credential = self.user_id_ops.get_user_credential()
-        return {
+        cleanup_env = {
             "OS_AUTH_URL": credential.get("auth-url"),
             "OS_USERNAME": credential.get("username"),
             "OS_PASSWORD": credential.get("password"),
@@ -249,6 +266,8 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "OS_USER_DOMAIN_ID": credential.get("domain-id"),
             "OS_PROJECT_DOMAIN_ID": credential.get("domain-id"),
         }
+        cleanup_env.update(self._get_proxy_environment())
+        return cleanup_env
 
     def get_unit_data(self, key: str) -> Optional[str]:
         """Retrieve a value set for this unit on the peer relation."""
