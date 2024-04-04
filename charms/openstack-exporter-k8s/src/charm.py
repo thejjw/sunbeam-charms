@@ -97,6 +97,11 @@ class OSExporterPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "user": "_daemon_",
                     "group": "_daemon_",
                     "startup": "disabled",
+                    "environment": {
+                        # workaround for
+                        # https://github.com/openstack-exporter/openstack-exporter/issues/268
+                        "OS_COMPUTE_API_VERSION": "2.87",
+                    },
                 },
             },
         }
