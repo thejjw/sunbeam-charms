@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a74a8047_9031698a",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-04-04T09:53:20Z",
+      "side": 1,
+      "message": "This could return NONE at different places no ? This could have issue in templating no ?",
+      "range": {
+        "startLine": 210,
+        "startChar": 21,
+        "endLine": 212,
+        "endChar": 21
+      },
+      "revId": "d2bd3e185b7f572ef44b1ddbdb8c19de6a798b23",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
