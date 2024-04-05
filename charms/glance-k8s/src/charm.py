@@ -50,6 +50,7 @@ from ops.model import (
 )
 
 logger = logging.getLogger(__name__)
+IMAGES_DIR = "/var/lib/glance/images"
 
 # Use Apache to translate /<model-name> to /.  This should be possible
 # adding rules to the api-paste.ini but this does not seem to work
@@ -241,19 +242,19 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         _cconfigs = [
             sunbeam_core.ContainerConfigFile(
                 self.service_conf,
-                "root",
+                self.service_user,
                 self.service_group,
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
                 "/etc/apache2/sites-enabled/glance-forwarding.conf",
-                "root",
+                self.service_user,
                 self.service_group,
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
                 "/usr/local/share/ca-certificates/ca-bundle.pem",
-                "root",
+                self.service_user,
                 self.service_group,
                 0o640,
             ),
@@ -263,7 +264,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 [
                     sunbeam_core.ContainerConfigFile(
                         self.ceph_conf,
-                        "root",
+                        self.service_user,
                         self.service_group,
                         0o640,
                     ),
@@ -383,7 +384,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 ph.execute(
                     [
                         "chown",
-                        f"root:{self.service_group}",
+                        f"{self.service_user}:{self.service_group}",
                         f"/etc/ceph/ceph.client.{self.app.name}.keyring",
                         "/etc/ceph/rbdmap",
                     ],
@@ -400,6 +401,17 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 )
             else:
                 logger.debug("Using local storage")
+
+            # filestore is enabled for both storage backends,
+            # so this step required irrespective of storage backend
+            ph.execute(
+                [
+                    "chown",
+                    f"{self.service_user}:{self.service_group}",
+                    IMAGES_DIR,
+                ]
+            )
+
             ph.init_service(self.contexts())
 
         super().configure_charm(event)
