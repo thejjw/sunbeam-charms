@@ -50,6 +50,23 @@
       "message": "recheck Charms got restarted due to low CPU machine?",
       "revId": "23faabe2f59c1dae5785da6a79d288dbaa22c0b2",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0001395e_84aebb32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-04-08T07:37:39Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "23faabe2f59c1dae5785da6a79d288dbaa22c0b2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
