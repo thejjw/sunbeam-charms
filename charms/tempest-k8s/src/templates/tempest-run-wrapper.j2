@@ -1,5 +1,6 @@
 #!/bin/bash
 # Do not change this file, this file is managed by juju.
+DEPLOYER="tempestconf_deployer.conf"
 
 (flock -n 9 || {
     # curly braces are important here, as they retain the same execution environment.
@@ -20,7 +21,7 @@ rm -rf /tmp/tempest-lock/
 TMP_FILE="$(mktemp)"
 
 echo ":: discover-tempest-config" >> "$TMP_FILE"
-if discover-tempest-config --test-accounts "$TEMPEST_TEST_ACCOUNTS" --out "$TEMPEST_CONF" >> "$TMP_FILE" 2>&1; then
+if discover-tempest-config --deployer-input "$DEPLOYER" --test-accounts "$TEMPEST_TEST_ACCOUNTS" --out "$TEMPEST_CONF" >> "$TMP_FILE" 2>&1; then
     echo ":: tempest run" >> "$TMP_FILE"
     tempest run --workspace "$TEMPEST_WORKSPACE" -w "$TEMPEST_CONCURRENCY" "$@" >> "$TMP_FILE" 2>&1
     python3 "$TEMPEST_HOME/cleanup.py"
