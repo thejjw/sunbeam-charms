@@ -16,6 +16,23 @@
       "message": "I downloaded the patch, and tested it. The dashboard can be loaded properly (i.e. without missing panels, errors, and etc). Though, panels show \"No data\" but I guess that\u0027s because vanilla deployment sunbeam (no VMs, extra resource ...) does not have enough metrics to show them properly.",
       "revId": "c9ca0d2882f0eb14797f8592a3af68a3d3e67c12",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "74100a00_b7073f27",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34720
+      },
+      "writtenOn": "2024-04-10T06:30:44Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "c9ca0d2882f0eb14797f8592a3af68a3d3e67c12",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
