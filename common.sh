@@ -70,6 +70,10 @@ INTERNAL_OPENSTACK_HYPERVISOR_LIBS=(
 	"nova_k8s"
 )
 
+INTERNAL_OPENSTACK_IMAGES_SYNC_LIBS=(
+	"keystone_k8s"
+)
+
 INTERNAL_OVN_CENTRAL_LIBS=(
         "ovn_central_k8s"
 )
@@ -143,6 +147,10 @@ EXTERNAL_OPENSTACK_HYPERVISOR_LIBS=(
         "traefik_k8s"
         "tls_certificates_interface"
 	"certificate_transfer_interface"
+)
+
+EXTERNAL_OPENSTACK_IMAGES_SYNC_LIBS=(
+    "traefik_k8s"
 )
 
 EXTERNAL_SUNBEAM_CLUSTERD_LIBS=(
@@ -321,6 +329,7 @@ declare -A INTERNAL_LIBS=(
 	[octavia-k8s]=${INTERNAL_NEUTRON_LIBS[@]}
 	[openstack-exporter-k8s]=${INTERNAL_KEYSTONE_LIBS[@]}
 	[openstack-hypervisor]=${INTERNAL_OPENSTACK_HYPERVISOR_LIBS[@]}
+	[openstack-images-sync-k8s]=${INTERNAL_OPENSTACK_IMAGES_SYNC_LIBS[@]}
 	[sunbeam-clusterd]=${NULL_ARRAY[@]}
 	[sunbeam-machine]=${NULL_ARRAY[@]}
 	[ovn-central-k8s]=${INTERNAL_OVN_CENTRAL_LIBS[@]}
@@ -349,6 +358,7 @@ declare -A EXTERNAL_LIBS=(
         [octavia-k8s]=${EXTERNAL_OCTAVIA_LIBS[@]}
         [openstack-exporter-k8s]=${EXTERNAL_OPENSTACK_EXPORTER_LIBS[@]}
         [openstack-hypervisor]=${EXTERNAL_OPENSTACK_HYPERVISOR_LIBS[@]}
+        [openstack-images-sync-k8s]=${EXTERNAL_OPENSTACK_IMAGES_SYNC_LIBS[@]}
 	[sunbeam-clusterd]=${EXTERNAL_SUNBEAM_CLUSTERD_LIBS[@]}
 	[sunbeam-machine]=${EXTERNAL_SUNBEAM_MACHINE_LIBS[@]}
 	[ovn-central-k8s]=${EXTERNAL_OVN_CENTRAL_LIBS[@]}
@@ -377,6 +387,7 @@ declare -A CONFIG_TEMPLATES=(
         [octavia-k8s]=${CONFIG_TEMPLATES_OCTAVIA[@]}
         [openstack-exporter-k8s]=${CONFIG_TEMPLATES_HORIZON[@]}
         [openstack-hypervisor]=${NULL_ARRAY[@]}
+        [openstack-images-sync-k8s]=${NULL_ARRAY[@]}
         [sunbeam-clusterd]=${NULL_ARRAY[@]}
         [sunbeam-machine]=${NULL_ARRAY[@]}
         [ovn-central-k8s]=${NULL_ARRAY[@]}
