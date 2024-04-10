@@ -33,6 +33,23 @@
       "message": "LGTM",
       "revId": "c9ca0d2882f0eb14797f8592a3af68a3d3e67c12",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1ba7ba9_16c821e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-04-10T17:24:30Z",
+      "side": 1,
+      "message": "Was able to confirm that almost every panel show data, great work!\n\nPanel not showing data: ceph. This is most likely because there\u0027s no integration from ceph to observability yet\n\nAnyhow, LGTM",
+      "revId": "c9ca0d2882f0eb14797f8592a3af68a3d3e67c12",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
