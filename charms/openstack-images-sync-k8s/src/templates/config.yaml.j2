@@ -1,0 +1,20 @@
+cloud_name: {{ options.cloud_name}}
+frequency: {{ options.frequency }}
+mirrors:
+- content_id: '%(region)s' # Content ID choice
+  custom_properties: {}
+  hypervisor_mapping: false
+  image_conversion: false
+  item_filters:
+  - release~({{ options.release }})
+  - arch~({{ options.architecture }})
+  - ftype~(disk1.img|disk.img)
+  keep_items: false
+  latest_property: false
+  max_items: {{ options.max_items }}
+  url: http://cloud-images.ubuntu.com/releases
+  path: streams/v1/index.sjson
+  regions: [{{ options.region }}]
+  visibility: public
+name_prefix: auto-sync/
+output_directory: /var/www/html/simplestreams
