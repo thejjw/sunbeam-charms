@@ -6,6 +6,8 @@
 # or failure in one of the tempest steps.
 set -ex
 
+DEPLOYER="tempestconf_deployer.conf"
+
 (flock -n 9 || (echo "lock could not be acquired"; exit 1)
 
 # clean up before initialising everything
@@ -14,7 +16,7 @@ rm -rf "${TEMPEST_HOME}/.tempest"
 
 tempest init --name "$TEMPEST_WORKSPACE" "$TEMPEST_WORKSPACE_PATH"
 
-discover-tempest-config --out "$TEMPEST_CONF" --create
+discover-tempest-config --deployer-input "$DEPLOYER" --out "$TEMPEST_CONF" --create
 
 tempest account-generator -r "$TEMPEST_ACCOUNTS_COUNT" -c "$TEMPEST_CONF" "$TEMPEST_TEST_ACCOUNTS"
 
