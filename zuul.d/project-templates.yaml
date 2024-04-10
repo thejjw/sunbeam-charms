@@ -80,6 +80,8 @@
             nodeset: ubuntu-jammy
         - charm-build-openstack-hypervisor:
             nodeset: ubuntu-jammy
+        - charm-build-openstack-images-sync-k8s:
+            nodeset: ubuntu-jammy
         - charm-build-sunbeam-machine:
             nodeset: ubuntu-jammy
         - charm-build-sunbeam-clusterd:
@@ -132,6 +134,8 @@
         - charm-build-openstack-exporter-k8s:
             nodeset: ubuntu-jammy
         - charm-build-openstack-hypervisor:
+            nodeset: ubuntu-jammy
+        - charm-build-openstack-images-sync-k8s:
             nodeset: ubuntu-jammy
         - charm-build-sunbeam-machine:
             nodeset: ubuntu-jammy
@@ -189,6 +193,8 @@
             - publish-charm-openstack-exporter-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-openstack-hypervisor:
+                nodeset: ubuntu-jammy
+            - publish-charm-openstack-images-sync-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-sunbeam-machine:
                 nodeset: ubuntu-jammy

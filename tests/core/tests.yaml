@@ -9,6 +9,7 @@ configure:
   - zaza.openstack.charm_tests.nova.setup.manage_ssh_key
 tests:
   - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneMinimal
+  - zaza.sunbeam.charm_tests.openstack_images_sync_k8s.tests.OpenStackImagesSyncK8sTest
 tests_options:
   trust:
     - smoke
@@ -65,5 +66,8 @@ target_deploy_status:
     workload-status: active
     workload-status-message-regex: '^$'
   neutron:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  openstack-images-sync:
     workload-status: active
     workload-status-message-regex: '^$'
