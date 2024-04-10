@@ -1,0 +1,93 @@
+name: openstack-images-sync-k8s
+
+type: charm
+
+title: OpenStack Images Sync K8S
+
+summary: Keep OpenStack images in sync with the latest versions
+
+description: |
+  Openstack Images Sync operator allows synchronization from a SimpleStreams source to an OpenStack cloud.
+
+bases:
+  - build-on:
+      - name: ubuntu
+        channel: "22.04"
+    run-on:
+      - name: ubuntu
+        channel: "22.04"
+
+config:
+  options:
+    debug:
+      default: False
+      type: boolean
+    frequency:
+      default: hourly
+      description: |
+        The frequency at which the charm should check for new images.
+        Valid values are hourly, daily, weekly.
+      type: string
+    architecture:
+      default: amd64
+      description: |
+        The architectures to sync images for. Space delimited list of architectures.
+      type: string
+    release:
+      default: focal jammy
+      description: |
+        The releases to sync images for. Space delimited list of releases.
+      type: string
+    cloud-name:
+      default: simplestreams-glance-sync
+      description: |
+        The name of the cloud to sync images for.
+      type: string
+    max-items:
+      default: 1
+      description: |
+        The maximum number of images to keep in sync per version.
+      type: int
+    os-admin-hostname:
+      default: openstack-images-sync.juju
+      description: |
+        The hostname or address of the admin endpoints that should be advertised
+        in the openstack image sync.
+      type: string
+    os-internal-hostname:
+      default: openstack-images-sync.juju
+      description: |
+        The hostname or address of the internal endpoints that should be advertised
+        in the openstack image sync.
+      type: string
+    os-public-hostname:
+      default: openstack-images-sync.juju
+      description: |
+        The hostname or address of the internal endpoints that should be advertised
+        in the openstack image sync.
+      type: string
+    region:
+      default: RegionOne
+      description: Space delimited list of OpenStack regions
+      type: string
+
+containers:
+  openstack-images-sync:
+    resource: openstack-images-sync-image
+
+resources:
+  openstack-images-sync-image:
+    type: oci-image
+    description: OCI image for OpenStack Images Sync
+    upstream-source: ghcr.io/canonical/openstack-images-sync:2024.1
+
+requires:
+  ingress-internal:
+    interface: ingress
+    limit: 1
+    optional: true
+  ingress-public:
+    interface: ingress
+    limit: 1
+  identity-service:
+    interface: keystone

@@ -48,6 +48,7 @@
         keystone-ldap-k8s: 2023.2/edge
         openstack-exporter-k8s: 2023.2/edge
         openstack-hypervisor: 2023.2/edge
+        openstack-images-sync-k8s: 2023.2/edge
         sunbeam-machine: 2023.2/edge
         sunbeam-clusterd: 2023.2/edge
         tempest-k8s: 2023.2/edge
