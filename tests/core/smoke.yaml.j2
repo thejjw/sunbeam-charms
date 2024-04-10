@@ -128,6 +128,23 @@ applications:
       debug: true
     resources:
       neutron-server-image: ghcr.io/canonical/neutron-server:2023.2
+  openstack-images-sync:
+    {% if openstack_images_sync_k8s is defined and openstack_images_sync_k8s is sameas true -%}
+    charm: ../../../openstack-images-sync-k8s.charm
+    {% else -%}
+    charm: ch:openstack-images-sync-k8s
+    channel: 2023.2/edge
+    {% endif -%}
+    base: ubuntu@22.04
+    scale: 1
+    trust: true
+    options:
+      frequency: test-do-not-use
+      architecture: amd64
+      release: jammy
+      max-items: 1
+    resources:
+      openstack-images-sync-image: ghcr.io/canonical/openstack-images-sync:2023.2
 
 relations:
 - - tls-operator:certificates
@@ -192,3 +209,8 @@ relations:
   - ovn-central:ovsdb-cms
 - - keystone:send-ca-cert
   - neutron:receive-ca-cert
+
+- - keystone:identity-service
+  - openstack-images-sync:identity-service
+- - traefik:ingress
+  - openstack-images-sync:ingress-public
