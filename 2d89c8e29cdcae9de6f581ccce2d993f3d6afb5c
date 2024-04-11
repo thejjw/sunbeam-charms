@@ -18,6 +18,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e3adb5b_8354bc00",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-04-11T21:55:54Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "2d89c8e29cdcae9de6f581ccce2d993f3d6afb5c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "34ece802_21caa431",
@@ -31,6 +48,24 @@
       "writtenOn": "2024-04-11T13:05:54Z",
       "side": 1,
       "message": "non-blocking: it is not necessary to use the deployer file in the init stage as we are only generating test accounts with tempest; cloud services availability are irrelevant here.",
+      "revId": "2d89c8e29cdcae9de6f581ccce2d993f3d6afb5c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "de9c63ba_2ae74d36",
+        "filename": "charms/tempest-k8s/src/templates/tempest-init.j2",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-04-11T21:55:54Z",
+      "side": 1,
+      "message": "ah yes, good point, though perhaps it\u0027d be safer to keep it here as well for consistency. If in the future we need to extend the deployer input file with options that affect this stage we may not immediately notice the missing option",
+      "parentUuid": "34ece802_21caa431",
       "revId": "2d89c8e29cdcae9de6f581ccce2d993f3d6afb5c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
