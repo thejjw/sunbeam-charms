@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15d03c0a_f20fbcf5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-04-11T13:05:54Z",
+      "side": 1,
+      "message": "Thanks for handling this. LGTM. I just have one non-blocking suggestion.",
+      "revId": "2d89c8e29cdcae9de6f581ccce2d993f3d6afb5c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "34ece802_21caa431",
+        "filename": "charms/tempest-k8s/src/templates/tempest-init.j2",
+        "patchSetId": 3
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 34543
+      },
+      "writtenOn": "2024-04-11T13:05:54Z",
+      "side": 1,
+      "message": "non-blocking: it is not necessary to use the deployer file in the init stage as we are only generating test accounts with tempest; cloud services availability are irrelevant here.",
+      "revId": "2d89c8e29cdcae9de6f581ccce2d993f3d6afb5c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
