@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24f0653c_2cb2ad12",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-04-11T02:12:19Z",
+      "side": 1,
+      "message": "There is typo of the file name `src/tempestconf_deployer.conf`",
+      "revId": "f9df4949cf40ff12281862d5bd6b9e55c693cc1b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
