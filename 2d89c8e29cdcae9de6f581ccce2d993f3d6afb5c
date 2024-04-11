@@ -35,6 +35,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8afc545_fa5d2f69",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-04-11T22:13:14Z",
+      "side": 1,
+      "message": "the build is failing due to https://github.com/canonical/charmcraft/issues/1640",
+      "revId": "2d89c8e29cdcae9de6f581ccce2d993f3d6afb5c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "34ece802_21caa431",
