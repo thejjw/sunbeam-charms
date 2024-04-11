@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7c2c90b6_c27682cd",
+        "filename": "charms/tempest-k8s/src/templates/tempest-init.j2",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-04-11T02:59:03Z",
+      "side": 1,
+      "message": "and here",
+      "revId": "f9df4949cf40ff12281862d5bd6b9e55c693cc1b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "dfa3c813_1477d74a",
         "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
         "patchSetId": 2
