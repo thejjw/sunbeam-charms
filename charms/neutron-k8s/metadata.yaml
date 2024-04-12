@@ -30,8 +30,8 @@ resources:
   neutron-server-image:
     type: oci-image
     description: OCI image for OpenStack Neutron API
-    # ghcr.io/canonical/neutron-server:2023.2
-    upstream-source: ghcr.io/canonical/neutron-server:2023.2
+    # ghcr.io/canonical/neutron-server:2024.1
+    upstream-source: ghcr.io/canonical/neutron-server:2024.1
 
 provides:
   neutron-api:

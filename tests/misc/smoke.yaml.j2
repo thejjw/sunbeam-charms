@@ -34,7 +34,7 @@ applications:
     charm: ../../../keystone-k8s.charm
     {% else -%}
     charm: ch:keystone-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
@@ -45,7 +45,7 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
     resources:
-      keystone-image: ghcr.io/canonical/keystone:2023.2
+      keystone-image: ghcr.io/canonical/keystone:2024.1
   designate-bind:
     {% if designate_bind_k8s is defined and designate_bind_k8s is sameas true -%}
     charm: ../../../designate-bind-k8s.charm
@@ -63,19 +63,19 @@ applications:
     charm: ../../../designate-k8s.charm
     {% else -%}
     charm: ch:designate-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: false
     resources:
-      designate-image: ghcr.io/canonical/designate-consolidated:2023.2
+      designate-image: ghcr.io/canonical/designate-consolidated:2024.1
   keystone-ldap:
     {% if keystone_ldap_k8s is defined and keystone_ldap_k8s is sameas true -%}
     charm: ../../../keystone-ldap-k8s.charm
     {% else -%}
     charm: ch:keystone-ldap-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
@@ -84,7 +84,7 @@ applications:
     charm: ../../../openstack-exporter-k8s.charm
     {% else -%}
     charm: ch:openstack-exporter-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
@@ -95,13 +95,13 @@ applications:
     charm: ../../../horizon-k8s.charm
     {% else -%}
     charm: ch:horizon-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
-      horizon-image: ghcr.io/canonical/horizon:2023.2
+      horizon-image: ghcr.io/canonical/horizon:2024.1
 
 relations:
 - - mysql:database

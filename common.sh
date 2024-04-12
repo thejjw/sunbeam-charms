@@ -261,6 +261,8 @@ CONFIG_TEMPLATES_KEYSTONE=(
 )
 
 CONFIG_TEMPLATES_MAGNUM=(
+	"parts/section-database"
+	"parts/database-connection"
 	"parts/section-identity"
         "parts/identity-data"
 	"parts/section-oslo-messaging-rabbit"

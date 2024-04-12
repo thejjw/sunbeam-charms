@@ -49,7 +49,7 @@ aodh-k8s requires the following relations:
 
 The charm by default uses following images:
 
-    ghcr.io/canonical/aodh-consolidated:2023.2
+    ghcr.io/canonical/aodh-consolidated:2024.1
 
 ## Contributing
 
