@@ -156,6 +156,11 @@
     "already exists" in res.stderr
   failed_when: '"ERROR" in res.stderr and "already exists" not in res.stderr'
 
+- name: run microk8s inspect
+  command:
+    cmd: microk8s inspect
+  changed_when: false
+
 - name: current juju controller is microk8s
   command:
     cmd: juju switch microk8s
