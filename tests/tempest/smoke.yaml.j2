@@ -42,9 +42,9 @@ applications:
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:23.09
-      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:23.09
-      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:23.09
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
+      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
+      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:24.03
   ovn-relay:
     {% if ovn_relay_k8s is defined and ovn_relay_k8s is sameas true -%}
     charm: ../../../ovn-relay-k8s.charm
@@ -56,13 +56,13 @@ applications:
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:23.09
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
   keystone:
     {% if keystone_k8s is defined and keystone_k8s is sameas true -%}
     charm: ../../../keystone-k8s.charm
     {% else -%}
     charm: ch:keystone-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
@@ -73,13 +73,13 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
     resources:
-      keystone-image: ghcr.io/canonical/keystone:2023.2
+      keystone-image: ghcr.io/canonical/keystone:2024.1
   glance:
     {% if glance_k8s is defined and glance_k8s is sameas true -%}
     charm: ../../../glance-k8s.charm
     {% else -%}
     charm: ch:glance-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
@@ -87,39 +87,39 @@ applications:
     storage:
       local-repository: 5G
     resources:
-      glance-api-image: ghcr.io/canonical/glance-api:2023.2
+      glance-api-image: ghcr.io/canonical/glance-api:2024.1
   nova:
     {% if nova_k8s is defined and nova_k8s is sameas true -%}
     charm: ../../../nova-k8s.charm
     {% else -%}
     charm: ch:nova-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
-      nova-api-image: ghcr.io/canonical/nova-consolidated:2023.2
-      nova-scheduler-image: ghcr.io/canonical/nova-consolidated:2023.2
-      nova-conductor-image: ghcr.io/canonical/nova-consolidated:2023.2
+      nova-api-image: ghcr.io/canonical/nova-consolidated:2024.1
+      nova-scheduler-image: ghcr.io/canonical/nova-consolidated:2024.1
+      nova-conductor-image: ghcr.io/canonical/nova-consolidated:2024.1
   placement:
     {% if placement_k8s is defined and placement_k8s is sameas true -%}
     charm: ../../../placement-k8s.charm
     {% else -%}
     charm: ch:placement-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
-      placement-api-image: ghcr.io/canonical/placement-api:2023.2
+      placement-api-image: ghcr.io/canonical/placement-api:2024.1
   neutron:
     {% if neutron_k8s is defined and neutron_k8s is sameas true -%}
     charm: ../../../neutron-k8s.charm
     {% else -%}
     charm: ch:neutron-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
@@ -127,19 +127,19 @@ applications:
     options:
       debug: true
     resources:
-      neutron-server-image: ghcr.io/canonical/neutron-server:2023.2
+      neutron-server-image: ghcr.io/canonical/neutron-server:2024.1
   tempest:
     {% if tempest_k8s is defined and tempest_k8s is sameas true -%}
     charm: ../../../tempest-k8s.charm
     {% else -%}
     charm: ch:tempest-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
-      tempest-image: ghcr.io/canonical/tempest:2023.2
+      tempest-image: ghcr.io/canonical/tempest:2024.1
 
 relations:
 - - tls-operator:certificates

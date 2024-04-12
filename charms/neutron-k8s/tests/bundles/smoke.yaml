@@ -27,7 +27,7 @@ applications:
       minimum-replicas: 1
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     scale: 1
     trust: true
     options:
@@ -42,7 +42,7 @@ applications:
     options:
       debug: true
     resources:
-      neutron-server-image: ghcr.io/canonical/neutron-server:2023.2
+      neutron-server-image: ghcr.io/canonical/neutron-server:2024.1
   ovn-central:
     charm: ch:ovn-central-k8s
     channel: 23.03/edge

@@ -27,7 +27,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     scale: 1
     trust: false
     options:
@@ -38,7 +38,7 @@ applications:
 
   glance:
     charm: ch:glance-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     scale: 1
     trust: false
     storage:
@@ -49,8 +49,8 @@ applications:
     scale: 1
     trust: false
     resources:
-      magnum-api-image: ghcr.io/canonical/magnum-consolidated:2023.2
-      magnum-conductor-image: ghcr.io/canonical/magnum-consolidated:2023.2
+      magnum-api-image: ghcr.io/canonical/magnum-consolidated:2024.1
+      magnum-conductor-image: ghcr.io/canonical/magnum-consolidated:2024.1
 
 
 relations:
