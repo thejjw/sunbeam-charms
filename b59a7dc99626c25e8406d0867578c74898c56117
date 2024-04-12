@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "b59a7dc99626c25e8406d0867578c74898c56117",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7ea77eb_0bc05114",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-04-12T12:50:18Z",
+      "side": 1,
+      "message": "recheck\n\nJuju controller fails to bootstrap",
+      "revId": "b59a7dc99626c25e8406d0867578c74898c56117",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
