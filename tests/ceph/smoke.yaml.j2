@@ -29,7 +29,7 @@ applications:
     charm: ../../../keystone-k8s.charm
     {% else -%}
     charm: ch:keystone-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
@@ -40,38 +40,38 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
     resources:
-      keystone-image: ghcr.io/canonical/keystone:2023.2
+      keystone-image: ghcr.io/canonical/keystone:2024.1
   cinder:
     {% if cinder_k8s is defined and cinder_k8s is sameas true -%}
     charm: ../../../cinder-k8s.charm
     {% else -%}
     charm: ch:cinder-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
-      cinder-api-image: ghcr.io/canonical/cinder-consolidated:2023.2
-      cinder-scheduler-image: ghcr.io/canonical/cinder-consolidated:2023.2
+      cinder-api-image: ghcr.io/canonical/cinder-consolidated:2024.1
+      cinder-scheduler-image: ghcr.io/canonical/cinder-consolidated:2024.1
   cinder-ceph:
     {% if cinder_ceph_k8s is defined and cinder_ceph_k8s is sameas true -%}
     charm: ../../../cinder-ceph-k8s.charm
     {% else -%}
     charm: ch:cinder-ceph-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
-      cinder-volume-image: ghcr.io/canonical/cinder-consolidated:2023.2
+      cinder-volume-image: ghcr.io/canonical/cinder-consolidated:2024.1
   gnocchi:
     {% if gnocchi_k8s is defined and gnocchi_k8s is sameas true -%}
     charm: ../../../gnocchi-k8s.charm
     {% else -%}
     charm: ch:gnocchi-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
@@ -84,30 +84,30 @@ applications:
     charm: ../../../ceilometer-k8s.charm
     {% else -%}
     charm: ch:ceilometer-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
-      ceilometer-central-image: ghcr.io/canonical/ceilometer-consolidated:2023.2
-      ceilometer-notification-image: ghcr.io/canonical/ceilometer-consolidated:2023.2
+      ceilometer-central-image: ghcr.io/canonical/ceilometer-consolidated:2024.1
+      ceilometer-notification-image: ghcr.io/canonical/ceilometer-consolidated:2024.1
   aodh:
     {% if aodh_k8s is defined and aodh_k8s is sameas true -%}
     charm: ../../../aodh-k8s.charm
     {% else -%}
     charm: ch:aodh-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
-      aodh-api-image: ghcr.io/canonical/aodh-consolidated:2023.2
-      aodh-evaluator-image: ghcr.io/canonical/aodh-consolidated:2023.2
-      aodh-notifier-image: ghcr.io/canonical/aodh-consolidated:2023.2
-      aodh-listener-image: ghcr.io/canonical/aodh-consolidated:2023.2
-      aodh-expirer-image: ghcr.io/canonical/aodh-consolidated:2023.2
+      aodh-api-image: ghcr.io/canonical/aodh-consolidated:2024.1
+      aodh-evaluator-image: ghcr.io/canonical/aodh-consolidated:2024.1
+      aodh-notifier-image: ghcr.io/canonical/aodh-consolidated:2024.1
+      aodh-listener-image: ghcr.io/canonical/aodh-consolidated:2024.1
+      aodh-expirer-image: ghcr.io/canonical/aodh-consolidated:2024.1
 
 relations:
 - - mysql:database

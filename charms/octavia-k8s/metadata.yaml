@@ -42,18 +42,18 @@ resources:
   octavia-api-image:
     type: oci-image
     description: OCI image for OpenStack octavia
-    # ghcr.io/canonical/octavia-api:2023.2
-    upstream-source: ghcr.io/canonical/octavia-consolidated:2023.2
+    # ghcr.io/canonical/octavia-api:2024.1
+    upstream-source: ghcr.io/canonical/octavia-consolidated:2024.1
   octavia-driver-agent-image:
     type: oci-image
     description: OCI image for OpenStack Octavia Driver Agent
-    # ghcr.io/canonical/octavia-driver-agent:2023.2
-    upstream-source: ghcr.io/canonical/octavia-consolidated:2023.2
+    # ghcr.io/canonical/octavia-driver-agent:2024.1
+    upstream-source: ghcr.io/canonical/octavia-consolidated:2024.1
   octavia-housekeeping-image:
     type: oci-image
     description: OCI image for OpenStack Octavia Housekeeping
-    # ghcr.io/canonical/octavia-housekeeping:2023.2
-    upstream-source: ghcr.io/canonical/octavia-consolidated:2023.2
+    # ghcr.io/canonical/octavia-housekeeping:2024.1
+    upstream-source: ghcr.io/canonical/octavia-consolidated:2024.1
 
 requires:
   database:

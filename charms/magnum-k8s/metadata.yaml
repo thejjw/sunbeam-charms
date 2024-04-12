@@ -26,13 +26,13 @@ resources:
   magnum-api-image:
     type: oci-image
     description: OCI image for OpenStack magnum
-    # ghcr.io/canonical/magnum-consolidated:2023.2
-    upstream-source: ghcr.io/canonical/magnum-consolidated:2023.2
+    # ghcr.io/canonical/magnum-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/magnum-consolidated:2024.1
   magnum-conductor-image:
     type: oci-image
     description: OCI image for OpenStack magnum
-    # ghcr.io/canonical/magnum-consolidated:2023.2
-    upstream-source: ghcr.io/canonical/magnum-consolidated:2023.2
+    # ghcr.io/canonical/magnum-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/magnum-consolidated:2024.1
 
 requires:
   database:
