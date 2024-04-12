@@ -54,6 +54,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2be8b4fb_b054882c",
+        "filename": "charms/tempest-k8s/src/tempestconf_deployer.conf",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-04-12T04:02:10Z",
+      "side": 1,
+      "message": "I feel like we should set all the known services in sunbeam to True, and all the others services loaded by the plugins to False. Because if the plugins are loaded, they can still be default to be available even though they are not listed below. Take zun for example, even if you don\u0027t put them into the list, but because the default option is True: https://github.com/openstack/zun-tempest-plugin/blob/master/zun_tempest_plugin/tests/tempest/config.py#L19, so it will still be enabled, and causing `sunbeam validation run all` to fail",
+      "revId": "2d89c8e29cdcae9de6f581ccce2d993f3d6afb5c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "34ece802_21caa431",
         "filename": "charms/tempest-k8s/src/templates/tempest-init.j2",
         "patchSetId": 3
