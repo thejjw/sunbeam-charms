@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "65bdefa0_93b0581b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-04-12T09:22:22Z",
+      "side": 1,
+      "message": "recheck\n\nSecret definition has been removed from stable branch",
+      "revId": "b9e37351453a9e2b1cebe86f0d6af3ba1d8be23b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
