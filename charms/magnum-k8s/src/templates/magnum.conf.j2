@@ -5,10 +5,7 @@ state_path = /var/lib/magnum
 
 transport_url = {{ amqp.transport_url }}
 
-{% if database.connection -%}
-sql_connection = {{ database.connection }}
-{% endif -%}
-db_auto_create = false
+{% include "parts/section-database" %}
 
 {% include "parts/section-identity" %}
 

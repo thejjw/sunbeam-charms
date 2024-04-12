@@ -25,7 +25,7 @@ applications:
 
   keystone:
     charm: ch:keystone-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     series: jammy
     scale: 1
     trust: true
@@ -46,7 +46,7 @@ applications:
 
   glance:
     charm: ch:glance-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     scale: 1
     trust: true
     storage:
