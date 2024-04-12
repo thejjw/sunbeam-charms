@@ -9,6 +9,7 @@ debug = {{ options.debug }}
 transport_url = {{ amqp.transport_url }}
 {% endif %}
 bind_port = 9282
+workers = 43
 
 {% if ceph.auth %}
 enabled_backends = filestore:file, ceph:rbd
