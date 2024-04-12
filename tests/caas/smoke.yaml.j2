@@ -48,15 +48,15 @@ applications:
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:23.09
-      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:23.09
-      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:23.09
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
+      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
+      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:24.03
   keystone:
     {% if keystone_k8s is defined and keystone_k8s is sameas true -%}
     charm: ../../../keystone-k8s.charm
     {% else -%}
     charm: ch:keystone-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
@@ -67,13 +67,13 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
     resources:
-      keystone-image: ghcr.io/canonical/keystone:2023.2
+      keystone-image: ghcr.io/canonical/keystone:2024.1
   glance:
     {% if glance_k8s is defined and glance_k8s is sameas true -%}
     charm: ../../../glance-k8s.charm
     {% else -%}
     charm: ch:glance-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
@@ -81,60 +81,60 @@ applications:
     storage:
       local-repository: 5G
     resources:
-      glance-api-image: ghcr.io/canonical/glance-api:2023.2
+      glance-api-image: ghcr.io/canonical/glance-api:2024.1
   heat:
     {% if heat_k8s is defined and heat_k8s is sameas true -%}
     charm: ../../../heat-k8s.charm
     {% else -%}
     charm: ch:heat-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
-      heat-api-image: ghcr.io/canonical/heat-consolidated:2023.2
-      heat-engine-image:  ghcr.io/canonical/heat-consolidated:2023.2
+      heat-api-image: ghcr.io/canonical/heat-consolidated:2024.1
+      heat-engine-image:  ghcr.io/canonical/heat-consolidated:2024.1
   octavia:
     {% if octavia_k8s is defined and octavia_k8s is sameas true -%}
     charm: ../../../octavia-k8s.charm
     {% else -%}
     charm: ch:octavia-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: true
     resources:
-      octavia-api-image: ghcr.io/canonical/octavia-consolidated:2023.2
-      octavia-driver-agent-image: ghcr.io/canonical/octavia-consolidated:2023.2
-      octavia-housekeeping-image: ghcr.io/canonical/octavia-consolidated:2023.2
+      octavia-api-image: ghcr.io/canonical/octavia-consolidated:2024.1
+      octavia-driver-agent-image: ghcr.io/canonical/octavia-consolidated:2024.1
+      octavia-housekeeping-image: ghcr.io/canonical/octavia-consolidated:2024.1
   barbican:
     {% if barbican_k8s is defined and barbican_k8s is sameas true -%}
     charm: ../../../barbican-k8s.charm
     {% else -%}
     charm: ch:barbican-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: false
     resources:
-      barbican-api-image: ghcr.io/canonical/barbican-consolidated:2023.2
-      barbican-worker-image: ghcr.io/canonical/barbican-consolidated:2023.2
+      barbican-api-image: ghcr.io/canonical/barbican-consolidated:2024.1
+      barbican-worker-image: ghcr.io/canonical/barbican-consolidated:2024.1
   magnum:
     {% if magnum_k8s is defined and magnum_k8s is sameas true -%}
     charm: ../../../magnum-k8s.charm
     {% else -%}
     charm: ch:magnum-k8s
-    channel: 2023.2/edge
+    channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
     scale: 1
     trust: false
     resources:
-      magnum-api-image: ghcr.io/canonical/magnum-consolidated:2023.2
-      magnum-conductor-image: ghcr.io/canonical/magnum-consolidated:2023.2
+      magnum-api-image: ghcr.io/canonical/magnum-consolidated:2024.1
+      magnum-conductor-image: ghcr.io/canonical/magnum-consolidated:2024.1
 
 relations:
 - - tls-operator:certificates
