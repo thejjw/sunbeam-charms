@@ -19,6 +19,7 @@ This charm provide Nova services as part of an OpenStack deployment
 """
 
 import logging
+import socket
 import uuid
 from typing import (
     Callable,
@@ -33,6 +34,13 @@ import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from charms.nova_k8s.v0.nova_service import (
+    NovaConfigRequestEvent,
+    NovaServiceProvides,
+)
+from ops.charm import (
+    CharmBase,
+)
 from ops.main import (
     main,
 )
@@ -45,6 +53,10 @@ logger = logging.getLogger(__name__)
 NOVA_WSGI_CONTAINER = "nova-api"
 NOVA_SCHEDULER_CONTAINER = "nova-scheduler"
 NOVA_CONDUCTOR_CONTAINER = "nova-conductor"
+NOVA_SPICEPROXY_CONTAINER = "nova-spiceproxy"
+NOVA_API_INGRESS_NAME = "nova"
+NOVA_SPICEPROXY_INGRESS_NAME = "nova-spiceproxy"
+NOVA_SPICEPROXY_INGRESS_PORT = 6182
 
 
 class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
@@ -164,6 +176,74 @@ class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         ]
 
 
+class NovaSpiceProxyPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+    """Pebble handler for Nova spice proxy."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.enable_service_check = True
+
+    def get_layer(self) -> dict:
+        """Nova Scheduler service layer.
+
+        :returns: pebble layer configuration for scheduler service
+        :rtype: dict
+        """
+        return {
+            "summary": "nova spice proxy layer",
+            "description": "pebble configuration for nova services",
+            "services": {
+                "nova-spiceproxy": {
+                    "override": "replace",
+                    "summary": "Nova Spice Proxy",
+                    "command": "nova-spicehtml5proxy",
+                    "user": "nova",
+                    "group": "nova",
+                },
+                "apache forwarder": {
+                    "override": "replace",
+                    "summary": "apache",
+                    "command": "/usr/sbin/apache2ctl -DFOREGROUND",
+                },
+            },
+        }
+
+    def default_container_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
+        """Container configurations for handler."""
+        return [
+            sunbeam_core.ContainerConfigFile(
+                "/etc/nova/nova.conf",
+                "root",
+                "nova",
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/apache2/sites-enabled/nova-spiceproxy-forwarding.conf",
+                self.charm.service_user,
+                self.charm.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
+                "nova",
+                0o640,
+            ),
+        ]
+
+    @property
+    def service_ready(self) -> bool:
+        """Determine whether the service the container provides is running."""
+        if self.enable_service_check:
+            logging.debug("Service checks enabled for nova spice proxy")
+            return super().service_ready
+        else:
+            logging.debug("Service checks disabled for nova spice proxy")
+            return self.pebble_ready
+
+
 class CloudComputeRequiresHandler(sunbeam_rhandlers.RelationHandler):
     """Handles the cloud-compute relation on the requires side."""
 
@@ -224,6 +304,40 @@ class CloudComputeRequiresHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+class NovaServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for nova service relation."""
+
+    def __init__(
+        self,
+        charm: CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+    ):
+        super().__init__(charm, relation_name, callback_f)
+
+    def setup_event_handler(self):
+        """Configure event handlers for nova service relation."""
+        logger.debug("Setting up Nova service event handler")
+        svc = NovaServiceProvides(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            svc.on.config_request,
+            self._on_config_request,
+        )
+        return svc
+
+    def _on_config_request(self, event: NovaConfigRequestEvent) -> None:
+        """Handle Config request event."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return True
+
+
 class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
@@ -238,8 +352,30 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         "cell-database",
         "amqp",
         "identity-service",
-        "ingress-public",
+        "traefik-route-public",
     }
+
+    def __init__(self, framework):
+        self.traefik_route_public = None
+        self.traefik_route_internal = None
+        super().__init__(framework)
+        self.framework.observe(
+            self.on.peers_relation_created, self._on_peer_relation_created
+        )
+        self.framework.observe(
+            self.on["peers"].relation_departed, self._on_peer_relation_departed
+        )
+
+    def _on_peer_relation_created(
+        self, event: ops.framework.EventBase
+    ) -> None:
+        logger.info("Setting peer unit data")
+        self.peers.set_unit_data({"host": socket.getfqdn()})
+
+    def _on_peer_relation_departed(
+        self, event: ops.framework.EventBase
+    ) -> None:
+        self.handle_traefik_ready(event)
 
     @property
     def db_sync_cmds(self) -> List[List[str]]:
@@ -303,6 +439,50 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return 8774
 
     @property
+    def public_url(self) -> str:
+        """Url for accessing the public endpoint for nova service."""
+        if self.traefik_route_public and self.traefik_route_public.ready:
+            scheme = self.traefik_route_public.interface.scheme
+            external_host = self.traefik_route_public.interface.external_host
+            public_url = (
+                f"{scheme}://{external_host}/{self.model.name}"
+                f"-{NOVA_API_INGRESS_NAME}"
+            )
+            return self.add_explicit_port(public_url)
+        else:
+            return self.add_explicit_port(
+                self.service_url(self.public_ingress_address)
+            )
+
+    @property
+    def internal_url(self) -> str:
+        """Url for accessing the internal endpoint for nova service."""
+        if self.traefik_route_internal and self.traefik_route_internal.ready:
+            scheme = self.traefik_route_internal.interface.scheme
+            external_host = self.traefik_route_internal.interface.external_host
+            internal_url = (
+                f"{scheme}://{external_host}/{self.model.name}"
+                f"-{NOVA_API_INGRESS_NAME}"
+            )
+            return self.add_explicit_port(internal_url)
+        else:
+            return self.admin_url
+
+    @property
+    def nova_spiceproxy_public_url(self) -> str | None:
+        """URL for accessing public endpoint for nova spiceproxy service."""
+        if self.traefik_route_public and self.traefik_route_public.ready:
+            scheme = self.traefik_route_public.interface.scheme
+            external_host = self.traefik_route_public.interface.external_host
+            public_url = (
+                f"{scheme}://{external_host}/{self.model.name}"
+                f"-{NOVA_SPICEPROXY_INGRESS_NAME}"
+            )
+            return public_url
+
+        return None
+
+    @property
     def databases(self) -> Mapping[str, str]:
         """Databases needed to support this charm.
 
@@ -345,6 +525,14 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.template_dir,
                 self.configure_charm,
             ),
+            NovaSpiceProxyPebbleHandler(
+                self,
+                NOVA_SPICEPROXY_CONTAINER,
+                "nova-spiceproxy",
+                [],
+                self.template_dir,
+                self.configure_charm,
+            ),
         ]
         return pebble_handlers
 
@@ -361,6 +549,32 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.register_compute_nodes,
             )
             handlers.append(self.compute_nodes)
+
+        if self.can_add_handler("nova-service", handlers):
+            self.config_svc = NovaServiceProvidesHandler(
+                self,
+                "nova-service",
+                self.set_config_from_event,
+            )
+            handlers.append(self.config_svc)
+
+        self.traefik_route_public = sunbeam_rhandlers.TraefikRouteHandler(
+            self,
+            "traefik-route-public",
+            self.handle_traefik_ready,
+            "traefik-route-public" in self.mandatory_relations,
+            [NOVA_API_INGRESS_NAME, NOVA_SPICEPROXY_INGRESS_NAME],
+        )
+        handlers.append(self.traefik_route_public)
+        self.traefik_route_internal = sunbeam_rhandlers.TraefikRouteHandler(
+            self,
+            "traefik-route-internal",
+            self.handle_traefik_ready,
+            "traefik-route-internal" in self.mandatory_relations,
+            [NOVA_API_INGRESS_NAME, NOVA_SPICEPROXY_INGRESS_NAME],
+        )
+        handlers.append(self.traefik_route_internal)
+
         return handlers
 
     @property
@@ -398,6 +612,59 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ),
         ]
         return _cconfigs
+
+    @property
+    def traefik_config(self) -> dict:
+        """Config to publish to traefik."""
+        model = self.model.name
+        router_cfg = {}
+        # Add routers for both nova-api and nova-spiceproxy
+        for app in NOVA_API_INGRESS_NAME, NOVA_SPICEPROXY_INGRESS_NAME:
+            router_cfg.update(
+                {
+                    f"juju-{model}-{app}-router": {
+                        "rule": f"PathPrefix(`/{model}-{app}`)",
+                        "service": f"juju-{model}-{app}-service",
+                        "entryPoints": ["web"],
+                    },
+                    f"juju-{model}-{app}-router-tls": {
+                        "rule": f"PathPrefix(`/{model}-{app}`)",
+                        "service": f"juju-{model}-{app}-service",
+                        "entryPoints": ["websecure"],
+                        "tls": {},
+                    },
+                }
+            )
+
+        # Get host key value from all units
+        hosts = self.peers.get_all_unit_values(
+            key="host", include_local_unit=True
+        )
+        api_lb_servers = [
+            {"url": f"http://{host}:{self.default_public_ingress_port}"}
+            for host in hosts
+        ]
+        spice_lb_servers = [
+            {"url": f"http://{host}:{NOVA_SPICEPROXY_INGRESS_PORT}"}
+            for host in hosts
+        ]
+        # Add services for heat-api and heat-api-cfn
+        service_cfg = {
+            f"juju-{model}-{NOVA_API_INGRESS_NAME}-service": {
+                "loadBalancer": {"servers": api_lb_servers},
+            },
+            f"juju-{model}-{NOVA_SPICEPROXY_INGRESS_NAME}-service": {
+                "loadBalancer": {"servers": spice_lb_servers},
+            },
+        }
+
+        config = {
+            "http": {
+                "routers": router_cfg,
+                "services": service_cfg,
+            },
+        }
+        return config
 
     def get_shared_metadatasecret(self):
         """Return the shared metadata secret."""
@@ -453,6 +720,42 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             logger.exception("Failed to discover hosts for cell1")
             raise
 
+    def _update_service_endpoints(self):
+        try:
+            if self.id_svc.update_service_endpoints:
+                logger.info(
+                    "Updating service endpoints after ingress relation changed"
+                )
+                self.id_svc.update_service_endpoints(self.service_endpoints)
+        except (AttributeError, KeyError):
+            pass
+
+    def handle_traefik_ready(self, event: ops.framework.EventBase):
+        """Handle Traefik route ready callback."""
+        if not self.unit.is_leader():
+            logger.debug(
+                "Not a leader unit, not updating traefik route config"
+            )
+            return
+
+        if self.traefik_route_public:
+            logger.debug("Sending traefik config for public interface")
+            self.traefik_route_public.interface.submit_to_traefik(
+                config=self.traefik_config
+            )
+
+            if self.traefik_route_public.ready:
+                self._update_service_endpoints()
+
+        if self.traefik_route_internal:
+            logger.debug("Sending traefik config for internal interface")
+            self.traefik_route_internal.interface.submit_to_traefik(
+                config=self.traefik_config
+            )
+
+            if self.traefik_route_internal.ready:
+                self._update_service_endpoints()
+
     def get_cell_uuid(self, cell, fatal=True):
         """Returns the cell UUID from the name.
 
@@ -506,6 +809,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Callback handler for nova operator configuration."""
         if not self.peers.ready:
             return
+
         metadata_secret = self.get_shared_metadatasecret()
         if metadata_secret:
             logger.debug("Found metadata secret in leader DB")
@@ -513,6 +817,8 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             if self.unit.is_leader():
                 logger.debug("Creating metadata secret")
                 self.set_shared_metadatasecret()
+                self.handle_traefik_ready(event)
+                self.set_config_on_update()
             else:
                 logger.debug("Metadata secret not ready")
                 return
@@ -522,6 +828,23 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             NOVA_SCHEDULER_CONTAINER
         )
         scheduler_handler.enable_service_check = False
+
+        # Enable apache proxy_http module for nova-spiceproxy apache forwarding
+        nova_spice_handler = self.get_named_pebble_handler(
+            NOVA_SPICEPROXY_CONTAINER
+        )
+        if nova_spice_handler.pebble_ready:
+            nova_spice_handler.execute(
+                ["a2enmod", "proxy_http"], exception_on_error=True
+            )
+            nova_spice_handler.execute(
+                ["apt-get", "update"], exception_on_error=True
+            )
+            nova_spice_handler.execute(
+                ["apt", "install", "spice-html5", "-y"],
+                exception_on_error=True,
+            )
+
         super().configure_charm(event)
         if scheduler_handler.pebble_ready:
             logging.debug("Starting nova scheduler service, pebble ready")
@@ -533,6 +856,26 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             logging.debug(
                 "Not starting nova scheduler service, pebble not ready"
             )
+
+    def set_config_from_event(self, event: ops.framework.EventBase) -> None:
+        """Set config in relation data."""
+        if self.nova_spiceproxy_public_url:
+            self.config_svc.interface.set_config(
+                relation=event.relation,
+                nova_spiceproxy_url=self.nova_spiceproxy_public_url,
+            )
+        else:
+            logging.debug("Nova spiceproxy not yet set, not sending config")
+
+    def set_config_on_update(self) -> None:
+        """Set config on relation on update of local data."""
+        if self.nova_spiceproxy_public_url:
+            self.config_svc.interface.set_config(
+                relation=None,
+                nova_spiceproxy_url=self.nova_spiceproxy_public_url,
+            )
+        else:
+            logging.debug("Nova spiceproxy not yet set, not sending config")
 
 
 if __name__ == "__main__":

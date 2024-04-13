@@ -46,6 +46,10 @@ from charms.ceilometer_k8s.v0.ceilometer_service import (
 from charms.grafana_agent.v0.cos_agent import (
     COSAgentProvider,
 )
+from charms.nova_k8s.v0.nova_service import (
+    NovaConfigChangedEvent,
+    NovaServiceGoneAwayEvent,
+)
 from cryptography import (
     x509,
 )
@@ -183,7 +187,12 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     METADATA_SECRET_KEY = "ovn-metadata-proxy-shared-secret"
     DEFAULT_SECRET_LENGTH = 32
 
-    mandatory_relations = {"amqp", "identity-credentials", "ovsdb-cms"}
+    mandatory_relations = {
+        "amqp",
+        "identity-credentials",
+        "ovsdb-cms",
+        "nova-service",
+    }
 
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run constructor."""
@@ -256,6 +265,16 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "ovsdb-cms" in self.mandatory_relations,
             )
             handlers.append(self.ovsdb_cms)
+        if self.can_add_handler("nova-service", handlers):
+            self.nova_controller = (
+                sunbeam_rhandlers.NovaServiceRequiresHandler(
+                    self,
+                    "nova-service",
+                    self.handle_nova_controller_events,
+                    "nova-service" in self.mandatory_relations,
+                )
+            )
+            handlers.append(self.nova_controller)
         if self.can_add_handler("ceilometer-service", handlers):
             self.ceilometer = (
                 sunbeam_rhandlers.CeilometerServiceRequiresHandler(
@@ -439,38 +458,60 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "Data missing: {}".format(e.name)
             )
         # Handle optional config contexts
-        try:
-            if contexts.ceph_access.uuid:
-                snap_data.update(
-                    {
-                        "compute.rbd-user": "nova",
-                        "compute.rbd-secret-uuid": contexts.ceph_access.uuid,
-                        "compute.rbd-key": contexts.ceph_access.key,
-                    }
-                )
-        except AttributeError:
-            # If the relation has been removed it is probably less disruptive to leave the
-            # rbd setting in the snap rather than unsetting them.
-            logger.debug("ceph_access relation not integrated")
-        try:
-            if contexts.ceilometer_service.telemetry_secret:
-                snap_data.update(
-                    {
-                        "telemetry.enable": self.enable_telemetry,
-                        "telemetry.publisher-secret": contexts.ceilometer_service.telemetry_secret,
-                    }
-                )
-            else:
-                snap_data.update({"telemetry.enable": self.enable_telemetry})
-        except AttributeError:
-            logger.debug("ceilometer_service relation not integrated")
-            snap_data.update({"telemetry.enable": self.enable_telemetry})
-
+        snap_data.update(self._handle_ceph_access(contexts))
+        snap_data.update(self._handle_ceilometer_service(contexts))
+        snap_data.update(self._handle_nova_service(contexts))
         snap_data.update(self._handle_receive_ca_cert(contexts))
 
         self.set_snap_data(snap_data)
         self.ensure_services_running()
         self._state.unit_bootstrapped = True
+
+    def _handle_ceph_access(
+        self, contexts: sunbeam_core.OPSCharmContexts
+    ) -> dict:
+        try:
+            if contexts.ceph_access.uuid:
+                return {
+                    "compute.rbd-user": "nova",
+                    "compute.rbd-secret-uuid": contexts.ceph_access.uuid,
+                    "compute.rbd-key": contexts.ceph_access.key,
+                }
+        except AttributeError:
+            # If the relation has been removed it is probably less disruptive to leave the
+            # rbd setting in the snap rather than unsetting them.
+            logger.debug("ceph_access relation not integrated")
+
+        return {}
+
+    def _handle_ceilometer_service(
+        self, contexts: sunbeam_core.OPSCharmContexts
+    ) -> dict:
+        try:
+            if contexts.ceilometer_service.telemetry_secret:
+                return {
+                    "telemetry.enable": self.enable_telemetry,
+                    "telemetry.publisher-secret": contexts.ceilometer_service.telemetry_secret,
+                }
+            else:
+                return {"telemetry.enable": self.enable_telemetry}
+        except AttributeError:
+            logger.debug("ceilometer_service relation not integrated")
+            return {"telemetry.enable": self.enable_telemetry}
+
+    def _handle_nova_service(
+        self, contexts: sunbeam_core.OPSCharmContexts
+    ) -> dict:
+        try:
+            if contexts.nova_service.nova_spiceproxy_url:
+                logger.info(contexts.nova_service)
+                return {
+                    "compute.nova-spiceproxy-url": contexts.nova_service.nova_spiceproxy_url,
+                }
+        except AttributeError as e:
+            logger.debug(f"Nova service relation not integrated: {str(e)}")
+
+        return {}
 
     def _handle_receive_ca_cert(
         self, context: sunbeam_core.OPSCharmContexts
@@ -491,6 +532,15 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self.configure_charm(event)
         elif isinstance(event, CeilometerServiceGoneAwayEvent):
             self.enable_telemetry = False
+            self.configure_charm(event)
+
+    def handle_nova_controller_events(
+        self, event: ops.framework.EventBase
+    ) -> None:
+        """Handle nova controller events."""
+        if isinstance(event, NovaConfigChangedEvent) or isinstance(
+            event, NovaServiceGoneAwayEvent
+        ):
             self.configure_charm(event)
 
     def stop_services(self, relation: Optional[Set[str]]) -> None:

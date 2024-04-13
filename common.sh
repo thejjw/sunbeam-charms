@@ -58,6 +58,7 @@ INTERNAL_NEUTRON_LIBS=(
 
 INTERNAL_NOVA_LIBS=(
 	"keystone_k8s"
+	"nova_k8s"
 	"sunbeam_nova_compute_operator"
 )
 
@@ -66,6 +67,7 @@ INTERNAL_OPENSTACK_HYPERVISOR_LIBS=(
 	"ovn_central_k8s"
 	"cinder_ceph_k8s"
 	"ceilometer_k8s"
+	"nova_k8s"
 )
 
 INTERNAL_OVN_CENTRAL_LIBS=(
@@ -341,7 +343,7 @@ declare -A EXTERNAL_LIBS=(
         [keystone-ldap-k8s]=${NULL_ARRAY[@]}
         [magnum-k8s]=${EXTERNAL_AODH_LIBS[@]}
         [neutron-k8s]=${EXTERNAL_NEUTRON_LIBS[@]}
-        [nova-k8s]=${EXTERNAL_AODH_LIBS[@]}
+        [nova-k8s]=${EXTERNAL_HEAT_LIBS[@]}
         [octavia-k8s]=${EXTERNAL_OCTAVIA_LIBS[@]}
         [openstack-exporter-k8s]=${EXTERNAL_OPENSTACK_EXPORTER_LIBS[@]}
         [openstack-hypervisor]=${EXTERNAL_OPENSTACK_HYPERVISOR_LIBS[@]}
