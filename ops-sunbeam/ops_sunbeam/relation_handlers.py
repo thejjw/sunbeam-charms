@@ -1865,3 +1865,62 @@ class CertificateTransferRequiresHandler(RelationHandler):
                         ca_bundle.append(chain_)
 
         return {"ca_bundle": "\n".join(ca_bundle)}
+
+
+class TraefikRouteHandler(RelationHandler):
+    """Base class to handle traefik route relations."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+        mandatory: bool = False,
+    ) -> None:
+        """Run constructor."""
+        super().__init__(charm, relation_name, callback_f, mandatory)
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for an Ingress relation."""
+        logger.debug("Setting up ingress event handler")
+        from charms.traefik_route_k8s.v0.traefik_route import (
+            TraefikRouteRequirer,
+        )
+
+        interface = TraefikRouteRequirer(
+            self.charm,
+            self.model.get_relation(self.relation_name),
+            self.relation_name,
+        )
+
+        self.framework.observe(interface.on.ready, self._on_ingress_ready)
+        self.framework.observe(
+            self.charm.on[self.relation_name].relation_joined,
+            self._on_traefik_relation_joined,
+        )
+        return interface
+
+    def _on_traefik_relation_joined(
+        self, event: ops.charm.RelationEvent
+    ) -> None:
+        """Handle traefik relation joined event."""
+        # This is passed as None during the init method, so update the
+        # relation attribute in TraefikRouteRequirer
+        self.interface._relation = event.relation
+
+    def _on_ingress_ready(self, event: ops.charm.RelationEvent) -> None:
+        """Handle ingress relation changed events.
+
+        `event` is an instance of
+        `charms.traefik_k8s.v2.ingress.IngressPerAppReadyEvent`.
+        """
+        if self.interface.is_ready():
+            self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Whether the handler is ready for use."""
+        if self.charm.unit.is_leader():
+            return bool(self.interface.external_host)
+        else:
+            return self.interface.is_ready()

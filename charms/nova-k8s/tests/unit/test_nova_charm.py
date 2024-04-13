@@ -18,6 +18,9 @@
 
 import charm
 import ops_sunbeam.test_utils as test_utils
+from ops.testing import (
+    Harness,
+)
 
 
 class _NovaTestOperatorCharm(charm.NovaOperatorCharm):
@@ -77,11 +80,34 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
+    def add_complete_ingress_relation(self, harness: Harness) -> None:
+        """Add complete traefik-route relations."""
+        harness.add_relation(
+            "traefik-route-public",
+            "nova",
+            app_data={"external_host": "dummy-ip", "scheme": "http"},
+        )
+        harness.add_relation(
+            "traefik-route-internal",
+            "nova",
+            app_data={"external_host": "dummy-ip", "scheme": "http"},
+        )
+
+    def add_db_relation(self, harness: Harness, name: str) -> str:
+        """Add db relation."""
+        rel_id = harness.add_relation(name, "mysql")
+        harness.add_relation_unit(rel_id, "mysql/0")
+        harness.add_relation_unit(rel_id, "mysql/0")
+        harness.update_relation_data(
+            rel_id, "mysql/0", {"ingress-address": "10.0.0.3"}
+        )
+        return rel_id
+
     def test_pebble_ready_handler(self):
         """Test pebble ready handler."""
         self.assertEqual(self.harness.charm.seen_events, [])
         test_utils.set_all_pebbles_ready(self.harness)
-        self.assertEqual(len(self.harness.charm.seen_events), 3)
+        self.assertEqual(len(self.harness.charm.seen_events), 4)
 
     def test_all_relations(self):
         """Test all integrations for operator."""
@@ -89,12 +115,12 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
-        test_utils.add_complete_ingress_relation(self.harness)
+        self.add_complete_ingress_relation(self.harness)
 
         # but nova has some extra db relations, so add them manually here
-        rel_id = add_db_relation(self.harness, "api-database")
+        rel_id = self.add_db_relation(self.harness, "api-database")
         test_utils.add_db_relation_credentials(self.harness, rel_id)
-        rel_id = add_db_relation(self.harness, "cell-database")
+        rel_id = self.add_db_relation(self.harness, "cell-database")
         test_utils.add_db_relation_credentials(self.harness, rel_id)
 
         setup_cmds = [
@@ -122,14 +148,3 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
         ]
         for f in config_files:
             self.check_file("nova-api", f)
-
-
-def add_db_relation(harness, name) -> str:
-    """Add db relation."""
-    rel_id = harness.add_relation(name, "mysql")
-    harness.add_relation_unit(rel_id, "mysql/0")
-    harness.add_relation_unit(rel_id, "mysql/0")
-    harness.update_relation_data(
-        rel_id, "mysql/0", {"ingress-address": "10.0.0.3"}
-    )
-    return rel_id
