@@ -26,6 +26,8 @@ requires:
   receive-ca-cert:
     interface: certificate_transfer
     optional: true
+  nova-service:
+    interface: nova
 
 provides:
   cos-agent:
