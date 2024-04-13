@@ -1865,3 +1865,144 @@ class CertificateTransferRequiresHandler(RelationHandler):
                         ca_bundle.append(chain_)
 
         return {"ca_bundle": "\n".join(ca_bundle)}
+
+
+class TraefikRouteHandler(RelationHandler):
+    """Base class to handle traefik route relations."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+        mandatory: bool = False,
+        ingress_names: list | None = None,
+    ) -> None:
+        """Run constructor."""
+        super().__init__(charm, relation_name, callback_f, mandatory)
+        self.ingress_names = ingress_names or []
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for an Ingress relation."""
+        logger.debug("Setting up ingress event handler")
+        from charms.traefik_route_k8s.v0.traefik_route import (
+            TraefikRouteRequirer,
+        )
+
+        interface = TraefikRouteRequirer(
+            self.charm,
+            self.model.get_relation(self.relation_name),
+            self.relation_name,
+        )
+
+        self.framework.observe(interface.on.ready, self._on_ingress_ready)
+        self.framework.observe(
+            self.charm.on[self.relation_name].relation_joined,
+            self._on_traefik_relation_joined,
+        )
+        return interface
+
+    def _on_traefik_relation_joined(
+        self, event: ops.charm.RelationEvent
+    ) -> None:
+        """Handle traefik relation joined event."""
+        # This is passed as None during the init method, so update the
+        # relation attribute in TraefikRouteRequirer
+        self.interface._relation = event.relation
+
+    def _on_ingress_ready(self, event: ops.charm.RelationEvent) -> None:
+        """Handle ingress relation changed events.
+
+        `event` is an instance of
+        `charms.traefik_k8s.v2.ingress.IngressPerAppReadyEvent`.
+        """
+        if self.interface.is_ready():
+            self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Whether the handler is ready for use."""
+        if self.charm.unit.is_leader():
+            return bool(self.interface.external_host)
+        else:
+            return self.interface.is_ready()
+
+    def context(self) -> dict:
+        """Context containing ingress data.
+
+        Returns dictionary of ingress_key: value
+        ingress_key will be <ingress name>_ingress_path (replace - with _ in name)
+        value will be /<model name>-<ingress name>
+        """
+        return {
+            f"{name.replace('-', '_')}_ingress_path": f"/{self.charm.model.name}-{name}"
+            for name in self.ingress_names
+        }
+
+
+class NovaServiceRequiresHandler(RelationHandler):
+    """Handle nova service relation on the requires side."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+        mandatory: bool = False,
+    ):
+        """Create a new nova-service handler.
+
+        Create a new NovaServiceRequiresHandler that handles initial
+        events from the relation and invokes the provided callbacks based on
+        the event raised.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param callback_f: the function to call when the nodes are connected
+        :type callback_f: Callable
+        :param mandatory: If the relation is mandatory to proceed with
+                          configuring charm
+        :type mandatory: bool
+        """
+        super().__init__(charm, relation_name, callback_f, mandatory)
+
+    def setup_event_handler(self) -> None:
+        """Configure event handlers for Nova service relation."""
+        import charms.nova_k8s.v0.nova_service as nova_svc
+
+        logger.debug("Setting up Nova service event handler")
+        svc = nova_svc.NovaServiceRequires(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            svc.on.config_changed,
+            self._on_config_changed,
+        )
+        self.framework.observe(
+            svc.on.goneaway,
+            self._on_goneaway,
+        )
+        return svc
+
+    def _on_config_changed(self, event: ops.framework.EventBase) -> None:
+        """Handle config_changed  event."""
+        logger.debug("Nova service provider config changed event received")
+        self.callback_f(event)
+
+    def _on_goneaway(self, event: ops.framework.EventBase) -> None:
+        """Handle gone_away  event."""
+        logger.debug("Nova service relation is departed/broken")
+        self.callback_f(event)
+        if self.mandatory:
+            self.status.set(BlockedStatus("integration missing"))
+
+    @property
+    def ready(self) -> bool:
+        """Whether handler is ready for use."""
+        try:
+            return bool(self.interface.nova_spiceproxy_url)
+        except (AttributeError, KeyError):
+            return False

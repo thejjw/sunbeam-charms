@@ -32,6 +32,8 @@ containers:
     resource: nova-scheduler-image
   nova-conductor:
     resource: nova-conductor-image
+  nova-spiceproxy:
+    resource: nova-spiceproxy-image
 
 resources:
   nova-api-image:
@@ -46,14 +48,18 @@ resources:
     type: oci-image
     description: OCI image for OpenStack Nova Conductor
     upstream-source: ghcr.io/canonical/nova-consolidated:2024.1
+  nova-spiceproxy-image:
+    type: oci-image
+    description: OCI image for OpenStack Nova Spice proxy
+    upstream-source: ghcr.io/canonical/nova-consolidated:2024.1
 
 requires:
-  ingress-internal:
-    interface: ingress
+  traefik-route-internal:
+    interface: traefik_route
     optional: true
     limit: 1
-  ingress-public:
-    interface: ingress
+  traefik-route-public:
+    interface: traefik_route
     limit: 1
   database:
     interface: mysql_client
@@ -85,7 +91,7 @@ requires:
     optional: true
 
 provides:
-  cloud-controller:
+  nova-service:
     interface: nova
 
 peers:
