@@ -159,6 +159,7 @@
 - name: run microk8s inspect
   command:
     cmd: microk8s inspect
+  become: "{{ microk8s_command_escalation }}"
   changed_when: false
 
 - name: current juju controller is microk8s
