@@ -25,8 +25,8 @@ target_deploy_status:
     workload-status: active
     workload-status-message-regex: '^.*$'
   vault:
-    workload-status: active
-    workload-status-message-regex: '^$'
+    workload-status: blocked
+    workload-status-message-regex: 'Please initialize Vault'
   tls-operator:
     workload-status: active
     workload-status-message-regex: '^$'
