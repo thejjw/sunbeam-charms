@@ -22,6 +22,8 @@ applications:
     base: ubuntu@22.04
     scale: 1
     trust: false
+    storage:
+      certs: 5M
   tls-operator:
     charm: self-signed-certificates
     channel: latest/beta
