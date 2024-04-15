@@ -16,6 +16,23 @@
       "message": "recheck\n\nfailure in bootstrapping controller",
       "revId": "807cc9c48780322531d51006d345c906e2d3b2ba",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1396ef65_0181b350",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-04-15T08:22:48Z",
+      "side": 1,
+      "message": "recheck\n\nfailed to install microk8s snap",
+      "revId": "807cc9c48780322531d51006d345c906e2d3b2ba",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
