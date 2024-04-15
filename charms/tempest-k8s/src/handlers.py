@@ -15,6 +15,7 @@
 import hashlib
 import json
 import logging
+import os
 import re
 import secrets
 import string
@@ -161,15 +162,22 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
         Raise a RuntimeError if something goes wrong.
         """
-        # push the cleanup script to container
-        with open("src/utils/cleanup.py") as f:
-            self.container.push(
-                f"{TEMPEST_HOME}/cleanup.py",
-                f,
-                user="tempest",
-                group="tempest",
-                make_dirs=True,
-            )
+        # push auxiliary files to the container
+        # * the cleanup script
+        # * the exclude list for tempest
+        aux_files = [
+            "src/utils/cleanup.py",
+            "src/utils/tempest_exclude_list.txt",
+        ]
+        for filename in aux_files:
+            with open(filename) as f:
+                self.container.push(
+                    f"{TEMPEST_HOME}/{os.path.basename(filename)}",
+                    f,
+                    user="tempest",
+                    group="tempest",
+                    make_dirs=True,
+                )
 
         # Pebble runs cron, which runs tempest periodically
         # when periodic checks are enabled.
