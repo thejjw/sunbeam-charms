@@ -58,6 +58,7 @@ TEST_TEMPEST_ENV = {
     "TEMPEST_CONCURRENCY": "4",
     "TEMPEST_ACCOUNTS_COUNT": "8",
     "TEMPEST_CONF": "/var/lib/tempest/workspace/etc/tempest.conf",
+    "TEMPEST_EXCLUDE_LIST": "/var/lib/tempest/tempest_exclude_list.txt",
     "TEMPEST_HOME": "/var/lib/tempest",
     "TEMPEST_LIST_DIR": "/tempest_test_lists",
     "TEMPEST_OUTPUT": "/var/lib/tempest/workspace/tempest-validation.log",
