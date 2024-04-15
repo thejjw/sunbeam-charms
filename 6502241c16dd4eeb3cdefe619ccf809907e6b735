@@ -16,6 +16,23 @@
       "message": "recheck\nfunc-test-ceph failure due to failure in juju bootstrap",
       "revId": "6502241c16dd4eeb3cdefe619ccf809907e6b735",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe2005e6_0e108ebb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-04-15T15:53:11Z",
+      "side": 1,
+      "message": "htting similar to bug https://bugs.launchpad.net/glance/+bug/2054732\n\ndnspython 2.6.1 installed but requires 2.5.0 as per constraints.txt\n\n[1] https://opendev.org/openstack/requirements/src/branch/stable/2024.1/upper-constraints.txt#L573",
+      "revId": "6502241c16dd4eeb3cdefe619ccf809907e6b735",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
