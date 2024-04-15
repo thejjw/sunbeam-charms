@@ -16,6 +16,23 @@
       "message": "recheck CI failure to bootstrap juju controller",
       "revId": "1adf6b46c9c67d02972c4e3e68c34988405bb0de",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "25679a11_04083e5d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-04-15T01:22:02Z",
+      "side": 1,
+      "message": "recheck CI failure to bootstrap juju controller",
+      "revId": "1adf6b46c9c67d02972c4e3e68c34988405bb0de",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
