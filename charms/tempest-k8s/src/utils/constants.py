@@ -53,7 +53,9 @@ TEMPEST_ADHOC_OUTPUT = f"{TEMPEST_WORKSPACE_PATH}/tempest-validation.log"
 # This is the workspace name registered with tempest.
 # It will be saved in a file in $HOME/.tempest/
 TEMPEST_WORKSPACE = "tempest"
-
+# This is used to exclude some tests that are known to fail in tempest-k8s
+# because of needing admin credentials.
+TEMPEST_EXCLUDE_LIST = f"{TEMPEST_HOME}/tempest_exclude_list.txt"
 # keys for application data
 TEMPEST_READY_KEY = "tempest-ready"
 

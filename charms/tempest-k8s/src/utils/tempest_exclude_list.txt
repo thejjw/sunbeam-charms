@@ -1,0 +1,4 @@
+# Skip because of "You are not authorized to perform the requested action: identity:get_domain"
+tempest.api.identity.v3.test_domains.DefaultDomainTestJSON.test_default_domain_exists
+# Skip because of "No credentials matching role: admin, scope: system specified in the accounts file"
+tempest.scenario.test_unified_limits.ImageQuotaTest
