@@ -147,7 +147,7 @@
 
 - name: juju is bootstrapped on microk8s
   command:
-    cmd: juju bootstrap --config bootstrap-timeout=600 microk8s microk8s
+    cmd: juju bootstrap --config bootstrap-timeout=600 --config caas-image-repo="public.ecr.aws/juju" microk8s microk8s
   register: res
   retries: 3
   delay: 10
