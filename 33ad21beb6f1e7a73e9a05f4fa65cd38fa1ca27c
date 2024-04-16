@@ -16,6 +16,23 @@
       "message": "nova db-sync also failed with similar reason as magnum db-sync",
       "revId": "33ad21beb6f1e7a73e9a05f4fa65cd38fa1ca27c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71d1ee07_22750a65",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 935
+      },
+      "writtenOn": "2024-04-16T19:18:37Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "33ad21beb6f1e7a73e9a05f4fa65cd38fa1ca27c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
