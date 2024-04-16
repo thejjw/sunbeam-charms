@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "33ad21beb6f1e7a73e9a05f4fa65cd38fa1ca27c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b333fa69_74c368ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 935
+      },
+      "writtenOn": "2024-04-16T19:19:13Z",
+      "side": 1,
+      "message": "eventlet updated in Ubuntu for caracal - Rocks republished.",
+      "revId": "33ad21beb6f1e7a73e9a05f4fa65cd38fa1ca27c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
