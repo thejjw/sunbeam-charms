@@ -4,6 +4,13 @@
   shell: |
     cp /var/snap/microk8s/current/inspection-report-*.tar.gz "{{ zuul.project.src_dir }}/log/"
   failed_when: false
+- name: collect microk8s logs
+  args:
+    executable: /bin/bash
+  shell: |
+    snap logs -n all microk8s > "{{ zuul.project.src_dir }}/log/microk8s-logs.txt"
+  become: true
+  failed_when: false
 - name: debug describe pods
   args:
     executable: /bin/bash
