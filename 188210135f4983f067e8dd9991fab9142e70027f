@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20d8c414_6257fe4a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-04-16T02:45:30Z",
+      "side": 1,
+      "message": "Looked at one of the earlier failures on magnum db-sync and seems like here is the root cause:\n\nPackages used in magnum-api\neventlet    0.35.1\ndnspython   2.6.1\n\nPackages mentioned in upper-constraints.txt in opendev.org/openstack/requirements [main branch]\neventlet    0.36.1\ndnspython   2.6.1\n\n[2024.1 branch]\neventlet    0.35.1\ndnspython   2.5.0\n\nWe have mix and match in magnum-api rock.\n\nThere is a bug with eventlet 0.35.1 and dnspython 2.6.x [1]\nBumping eventlet to 0.35.2 should fix this problem. (I tested manually by changing the code in my local and db sync for magnum passed).\nSo we need to update eventlet package in ubuntu to 0.35.2\n\nThere is a CVE as well [2], more the reason to move to 0.35.2\n\n[1] https://github.com/eventlet/eventlet/issues/913\n[2] https://github.com/advisories/GHSA-3rq5-2g8h-59hc",
+      "revId": "188210135f4983f067e8dd9991fab9142e70027f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
