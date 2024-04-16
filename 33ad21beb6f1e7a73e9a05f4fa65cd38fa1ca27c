@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2fca340a_a742c7bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-04-16T05:52:59Z",
+      "side": 1,
+      "message": "nova db-sync also failed with similar reason as magnum db-sync",
+      "revId": "33ad21beb6f1e7a73e9a05f4fa65cd38fa1ca27c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
