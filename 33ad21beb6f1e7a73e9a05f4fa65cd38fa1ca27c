@@ -50,6 +50,23 @@
       "message": "eventlet updated in Ubuntu for caracal - Rocks republished.",
       "revId": "33ad21beb6f1e7a73e9a05f4fa65cd38fa1ca27c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee2de3d4_56a71dbc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-04-17T02:20:37Z",
+      "side": 1,
+      "message": "Octavia api failed to start\n[wsgi-octavia-api] 2024-04-16 19:59:32.565136 ModuleNotFoundError: No module named \u0027ovn_octavia_provider.common\u0027\n\nSeems like ovn-octavia-provider package has missing directories common and ovsdb",
+      "revId": "33ad21beb6f1e7a73e9a05f4fa65cd38fa1ca27c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
