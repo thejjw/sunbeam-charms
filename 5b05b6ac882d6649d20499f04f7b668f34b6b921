@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fa59b34_1d9ca9ad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-04-17T07:18:00Z",
+      "side": 1,
+      "message": "recheck\n\nk8s api is restarting while waiting for tempest",
+      "revId": "5b05b6ac882d6649d20499f04f7b668f34b6b921",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
