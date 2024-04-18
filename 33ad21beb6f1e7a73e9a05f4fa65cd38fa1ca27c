@@ -152,6 +152,23 @@
       "message": "recheck\n\nwe keep hitting rate limiting imposed upstream from dockerhub...",
       "revId": "33ad21beb6f1e7a73e9a05f4fa65cd38fa1ca27c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1706f78c_7dd169c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 935
+      },
+      "writtenOn": "2024-04-18T10:47:38Z",
+      "side": 1,
+      "message": "recheck\n\nIssue with communication with K8S controller service.",
+      "revId": "33ad21beb6f1e7a73e9a05f4fa65cd38fa1ca27c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
