@@ -135,6 +135,23 @@
       "message": "CI is failing with ImagePullBackoff (rate limiting on docker pulls)\n\nunexpected status code http://mirror-int.dfw.rax.opendev.org:8082/v2/calico/kube-controllers/manifests/sha256:02c1232ee4b8c5a145c401ac1adb34a63ee7fc46b70b6ad0a4e068a774f25f8a?ns\u003ddocker.io: 429 Too Many Requests - Server message: toomanyrequests: You have reached your pull rate limit. You may increase the limit by authenticating and upgrading: https://www.docker.com/increase-rate-limit",
       "revId": "33ad21beb6f1e7a73e9a05f4fa65cd38fa1ca27c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d4fa3aa_afea0c4a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 935
+      },
+      "writtenOn": "2024-04-18T08:20:49Z",
+      "side": 1,
+      "message": "recheck\n\nwe keep hitting rate limiting imposed upstream from dockerhub...",
+      "revId": "33ad21beb6f1e7a73e9a05f4fa65cd38fa1ca27c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
