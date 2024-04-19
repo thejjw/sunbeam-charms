@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "f611ba9e60dc0cae8e87433a9bc2c7a19c598b5e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd1d9b32_5cb1d43b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-04-19T11:04:15Z",
+      "side": 1,
+      "message": "recheck\n\nCI failures due to outage to download ubuntu packages",
+      "revId": "f611ba9e60dc0cae8e87433a9bc2c7a19c598b5e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
