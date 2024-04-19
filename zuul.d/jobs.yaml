@@ -371,6 +371,7 @@
       - name: charm-build-tempest-k8s
         soft: true
     files:
+      - ops-sunbeam/ops_sunbeam/*
       - charms/tempest-k8s/*
       - tests/local/zaza/sunbeam/charm_tests/tempest_k8s/*
     vars:
