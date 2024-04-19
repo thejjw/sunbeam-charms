@@ -39,6 +39,30 @@
       },
       "revId": "460d3a3314c9e7eaecfd4047c691051366e08a48",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0758c41b_ba32f09b",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-04-19T08:59:49Z",
+      "side": 1,
+      "message": "Fixed in PS8",
+      "parentUuid": "6824eebe_4f870d95",
+      "range": {
+        "startLine": 507,
+        "startChar": 0,
+        "endLine": 507,
+        "endChar": 2
+      },
+      "revId": "460d3a3314c9e7eaecfd4047c691051366e08a48",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
