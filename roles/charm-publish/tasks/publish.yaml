@@ -46,6 +46,22 @@
       set_fact:
         metadata: "{{ metadata_file.content | b64decode | from_yaml }}"
 
+    - name: Upload charm to charmhub
+      register: upload_charm_output
+      args:
+        chdir: "{{ zuul.project.src_dir }}"
+      # TODO: The below command can error out with a message that says
+      # upload with that digest already exists. This case need to be handled.
+      # More details https://github.com/canonical/charmcraft/issues/826
+      command: charmcraft upload -v --name {{ charm_build_name }} {{ charm_build_name }}.charm
+      retries: 3
+      until: >
+        ("Revision" in upload_charm_output.stdout)
+
+    - name: Extract Charm revision
+      set_fact:
+        charm_revision: "{{ upload_charm_output.stdout | regex_search('Revision ([0-9]+)', '\\1', multiline=True) | first }}"
+
     - name: Upload oci-image to charmhub
       register: upload_oci_image_output
       args:
@@ -69,22 +85,6 @@
       set_fact:
         resource_revision_flags: "{{ resource_revision_flags | default('') + ' --resource ' + item.item.key + ':' + (item.stdout | regex_search('Revision ([0-9]+)', '\\1', multiline=True) | first) }}"
       with_items: "{{ upload_oci_image_output.results }}"
-
-    - name: Upload charm to charmhub
-      register: upload_charm_output
-      args:
-        chdir: "{{ zuul.project.src_dir }}"
-      # TODO: The below command can error out with a message that says
-      # upload with that digest already exists. This case need to be handled.
-      # More details https://github.com/canonical/charmcraft/issues/826
-      command: charmcraft upload -v --name {{ charm_build_name }} {{ charm_build_name }}.charm
-      retries: 3
-      until: >
-        ("Revision" in upload_charm_output.stdout)
-
-    - name: Extract Charm revision
-      set_fact:
-        charm_revision: "{{ upload_charm_output.stdout | regex_search('Revision ([0-9]+)', '\\1', multiline=True) | first }}"
 
     - name: Release charm
       register: release_charm_output
