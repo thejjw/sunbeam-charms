@@ -101,6 +101,23 @@
       "message": "recheck",
       "revId": "f611ba9e60dc0cae8e87433a9bc2c7a19c598b5e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a8461c7_c02bb17a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-04-20T08:18:05Z",
+      "side": 1,
+      "message": "Manually released nova-k8s 2024.1/edge rev 68",
+      "revId": "f611ba9e60dc0cae8e87433a9bc2c7a19c598b5e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
