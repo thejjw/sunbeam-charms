@@ -44,6 +44,7 @@ logger = logging.getLogger(__name__)
 OCTAVIA_API_CONTAINER = "octavia-api"
 OCTAVIA_DRIVER_AGENT_CONTAINER = "octavia-driver-agent"
 OCTAVIA_HOUSEKEEPING_CONTAINER = "octavia-housekeeping"
+OCTAVIA_AGENT_SOCKET_DIR = "/var/run/octavia"
 
 
 class OctaviaDriverAgentPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
@@ -372,6 +373,29 @@ class OctaviaOVNOperatorCharm(OctaviaOperatorCharm):
             ]
         )
         return cc_configs
+
+    def configure_unit(self, event: ops.EventBase) -> None:
+        """Run configuration on this unit."""
+        self.check_leader_ready()
+        self.check_relation_handlers_ready(event)
+        self.open_ports()
+        self.init_container_services()
+        self.check_pebble_handlers_ready()
+        for container in [
+            OCTAVIA_API_CONTAINER,
+            OCTAVIA_DRIVER_AGENT_CONTAINER,
+        ]:
+            ph = self.get_named_pebble_handler(container)
+            ph.execute(
+                [
+                    "chown",
+                    f"{self.service_user}:{self.service_group}",
+                    OCTAVIA_AGENT_SOCKET_DIR,
+                ]
+            )
+
+        self.run_db_sync()
+        self._state.unit_bootstrapped = True
 
 
 if __name__ == "__main__":
