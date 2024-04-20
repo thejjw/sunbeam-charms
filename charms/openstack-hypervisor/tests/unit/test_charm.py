@@ -107,8 +107,18 @@ class TestCharm(test_utils.CharmTestCase):
         self.socket.getfqdn.return_value = "test.local"
         self.initial_setup()
         self.harness.set_leader()
+
         test_utils.add_complete_amqp_relation(self.harness)
         test_utils.add_complete_identity_credentials_relation(self.harness)
+        # Add nova-service relation
+        self.harness.add_relation(
+            "nova-service",
+            "nova",
+            app_data={
+                "nova-spiceproxy-url": "http://INGRESS_IP/nova-spiceproxy"
+            },
+        )
+
         hypervisor_snap_mock.ensure.assert_any_call(
             "latest", channel="essex/stable"
         )
@@ -137,6 +147,7 @@ class TestCharm(test_utils.CharmTestCase):
             "compute.rbd-user": "nova",
             "compute.rbd-secret-uuid": "ddd",
             "compute.rbd-key": "eee",
+            "compute.nova-spiceproxy-url": "http://INGRESS_IP/nova-spiceproxy",
             "credentials.ovn-metadata-proxy-shared-secret": metadata,
             "identity.admin-role": None,
             "identity.auth-url": "http://10.153.2.45:80/openstack-keystone",
@@ -190,6 +201,15 @@ class TestCharm(test_utils.CharmTestCase):
             app_data={"telemetry-secret": "FAKE_SECRET"},
         )
 
+        # Add nova-service relation
+        self.harness.add_relation(
+            "nova-service",
+            "nova",
+            app_data={
+                "nova-spiceproxy-url": "http://INGRESS_IP/nova-spiceproxy"
+            },
+        )
+
         self.get_local_ip_by_default_route.return_value = "10.0.0.10"
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = False
@@ -230,6 +250,7 @@ class TestCharm(test_utils.CharmTestCase):
             "compute.rbd-user": "nova",
             "compute.rbd-secret-uuid": "ddd",
             "compute.rbd-key": "eee",
+            "compute.nova-spiceproxy-url": "http://INGRESS_IP/nova-spiceproxy",
             "credentials.ovn-metadata-proxy-shared-secret": metadata,
             "identity.admin-role": None,
             "identity.auth-url": "http://10.153.2.45:80/openstack-keystone",

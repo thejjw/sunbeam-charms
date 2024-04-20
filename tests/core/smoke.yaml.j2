@@ -102,6 +102,7 @@ applications:
       nova-api-image: ghcr.io/canonical/nova-consolidated:2024.1
       nova-scheduler-image: ghcr.io/canonical/nova-consolidated:2024.1
       nova-conductor-image: ghcr.io/canonical/nova-consolidated:2024.1
+      nova-spiceproxy-image: ghcr.io/canonical/nova-consolidated:2024.1
   placement:
     {% if placement_k8s is defined and placement_k8s is sameas true -%}
     charm: ../../../placement-k8s.charm
@@ -164,8 +165,8 @@ relations:
   - nova:amqp
 - - keystone:identity-service
   - nova:identity-service
-- - traefik:ingress
-  - nova:ingress-public
+- - traefik:traefik-route
+  - nova:traefik-route-public
 - - keystone:send-ca-cert
   - nova:receive-ca-cert
 
