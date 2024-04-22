@@ -115,7 +115,7 @@ class TestCharm(test_utils.CharmTestCase):
             "nova-service",
             "nova",
             app_data={
-                "nova-spiceproxy-url": "http://INGRESS_IP/nova-spiceproxy"
+                "spice-proxy-url": "http://INGRESS_IP/nova-spiceproxy/spice_auto.html"
             },
         )
 
@@ -147,7 +147,7 @@ class TestCharm(test_utils.CharmTestCase):
             "compute.rbd-user": "nova",
             "compute.rbd-secret-uuid": "ddd",
             "compute.rbd-key": "eee",
-            "compute.nova-spiceproxy-url": "http://INGRESS_IP/nova-spiceproxy",
+            "compute.spice-proxy-url": "http://INGRESS_IP/nova-spiceproxy/spice_auto.html",
             "credentials.ovn-metadata-proxy-shared-secret": metadata,
             "identity.admin-role": None,
             "identity.auth-url": "http://10.153.2.45:80/openstack-keystone",
@@ -206,7 +206,7 @@ class TestCharm(test_utils.CharmTestCase):
             "nova-service",
             "nova",
             app_data={
-                "nova-spiceproxy-url": "http://INGRESS_IP/nova-spiceproxy"
+                "spice-proxy-url": "http://INGRESS_IP/nova-spiceproxy/spiceauto.html"
             },
         )
 
@@ -250,7 +250,7 @@ class TestCharm(test_utils.CharmTestCase):
             "compute.rbd-user": "nova",
             "compute.rbd-secret-uuid": "ddd",
             "compute.rbd-key": "eee",
-            "compute.nova-spiceproxy-url": "http://INGRESS_IP/nova-spiceproxy",
+            "compute.spice-proxy-url": "http://INGRESS_IP/nova-spiceproxy/spiceauto.html",
             "credentials.ovn-metadata-proxy-shared-secret": metadata,
             "identity.admin-role": None,
             "identity.auth-url": "http://10.153.2.45:80/openstack-keystone",

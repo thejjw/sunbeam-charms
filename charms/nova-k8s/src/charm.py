@@ -862,7 +862,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if self.nova_spiceproxy_public_url:
             self.config_svc.interface.set_config(
                 relation=event.relation,
-                nova_spiceproxy_url=self.nova_spiceproxy_public_url,
+                nova_spiceproxy_url=f"{self.nova_spiceproxy_public_url}/spice_auto.html",
             )
         else:
             logging.debug("Nova spiceproxy not yet set, not sending config")
@@ -872,7 +872,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if self.nova_spiceproxy_public_url:
             self.config_svc.interface.set_config(
                 relation=None,
-                nova_spiceproxy_url=self.nova_spiceproxy_public_url,
+                nova_spiceproxy_url=f"{self.nova_spiceproxy_public_url}/spice_auto.html",
             )
         else:
             logging.debug("Nova spiceproxy not yet set, not sending config")

@@ -505,7 +505,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         try:
             if contexts.nova_service.nova_spiceproxy_url:
                 return {
-                    "compute.nova-spiceproxy-url": contexts.nova_service.nova_spiceproxy_url,
+                    "compute.spice-proxy-url": contexts.nova_service.nova_spiceproxy_url,
                 }
         except AttributeError as e:
             logger.debug(f"Nova service relation not integrated: {str(e)}")

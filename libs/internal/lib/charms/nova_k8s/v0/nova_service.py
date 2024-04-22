@@ -140,7 +140,7 @@ class NovaServiceProvides(Object):
                 f"{relation.name}/{relation.id}"
             )
             relation.data[self.charm.app][
-                "nova-spiceproxy-url"
+                "spice-proxy-url"
             ] = nova_spiceproxy_url
 
 
@@ -207,4 +207,4 @@ class NovaServiceRequires(Object):
     @property
     def nova_spiceproxy_url(self) -> str | None:
         """Return the nova_spiceproxy url."""
-        return self.get_remote_app_data("nova-spiceproxy-url")
+        return self.get_remote_app_data("spice-proxy-url")
