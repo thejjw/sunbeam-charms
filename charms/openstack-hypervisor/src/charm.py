@@ -549,10 +549,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             logger.info(f"In stop_services for relation {relation_}")
             if relation_ == "amqp":
                 logger.debug("Resetting rabbitmq url")
-                snap_data.update({"rabbitmq.url": ""})
+                snap_data.update({"rabbitmq.url": None})
             elif relation_ == "ovsdb-cms":
                 logger.debug("Resetting OVN SB connection")
-                snap_data.update({"network.ovn-sb-connection": ""})
+                snap_data.update({"network.ovn-sb-connection": None})
 
         if snap_data:
             self.set_snap_data(snap_data)
