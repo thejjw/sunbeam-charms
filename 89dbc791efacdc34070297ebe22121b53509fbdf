@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cf4a379_db3fc779",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-04-23T07:39:48Z",
+      "side": 1,
+      "message": "To verify this fixes the issue:\n\n- build and deploy openstack-exporter from this revision\n- open the \"OpenStack Dashboard\" dashboard in grafana\n- verify that you don\u0027t see an error popup about DS_PROMETHEUS datasource not found\n- verify that metrics are displayed as expected on the dashboard",
+      "revId": "89dbc791efacdc34070297ebe22121b53509fbdf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
