@@ -16,6 +16,23 @@
       "message": "recheck\n\ndeployment timed out on neutron",
       "revId": "a9cefc4b3d1e77c1ad5cdb07669bf12c7099fab2",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7a0a766_969e1911",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-04-23T11:05:22Z",
+      "side": 1,
+      "message": "tempest is failing to initialize about right permissions, is there a race issue with the account creation ?",
+      "revId": "a9cefc4b3d1e77c1ad5cdb07669bf12c7099fab2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
