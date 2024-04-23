@@ -515,7 +515,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def _handle_receive_ca_cert(
         self, context: sunbeam_core.OPSCharmContexts
     ) -> dict:
-        if hasattr(context.receive_ca_cert, "ca_bundle"):
+        if (
+            hasattr(context.receive_ca_cert, "ca_bundle")
+            and context.receive_ca_cert.ca_bundle
+        ):
             return {
                 "ca.bundle": base64.b64encode(
                     context.receive_ca_cert.ca_bundle.encode()
