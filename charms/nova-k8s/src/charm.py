@@ -837,13 +837,6 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             nova_spice_handler.execute(
                 ["a2enmod", "proxy_http"], exception_on_error=True
             )
-            nova_spice_handler.execute(
-                ["apt-get", "update"], exception_on_error=True
-            )
-            nova_spice_handler.execute(
-                ["apt", "install", "spice-html5", "-y"],
-                exception_on_error=True,
-            )
 
         super().configure_charm(event)
         if scheduler_handler.pebble_ready:
