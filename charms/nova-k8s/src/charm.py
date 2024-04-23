@@ -243,6 +243,15 @@ class NovaSpiceProxyPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             logging.debug("Service checks disabled for nova spice proxy")
             return self.pebble_ready
 
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Initialise service ready for use.
+
+        Write configuration files to the container and record
+        that service is ready for us.
+        """
+        self.execute(["a2enmod", "proxy_http"], exception_on_error=True)
+        return super().init_service(context)
+
 
 class CloudComputeRequiresHandler(sunbeam_rhandlers.RelationHandler):
     """Handles the cloud-compute relation on the requires side."""
@@ -828,15 +837,6 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             NOVA_SCHEDULER_CONTAINER
         )
         scheduler_handler.enable_service_check = False
-
-        # Enable apache proxy_http module for nova-spiceproxy apache forwarding
-        nova_spice_handler = self.get_named_pebble_handler(
-            NOVA_SPICEPROXY_CONTAINER
-        )
-        if nova_spice_handler.pebble_ready:
-            nova_spice_handler.execute(
-                ["a2enmod", "proxy_http"], exception_on_error=True
-            )
 
         super().configure_charm(event)
         if scheduler_handler.pebble_ready:

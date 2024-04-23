@@ -87,6 +87,15 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             },
         }
 
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Initialise service ready for use.
+
+        Write configuration files to the container and record
+        that service is ready for us.
+        """
+        self.execute(["a2enmod", "proxy_http"], exception_on_error=True)
+        return super().init_service(context)
+
 
 class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
     """A relation handler for optional glance storage relations.
@@ -367,7 +376,6 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
         ph = self.get_named_pebble_handler("glance-api")
         if ph.pebble_ready:
-            ph.execute(["a2enmod", "proxy_http"], exception_on_error=True)
             if self.has_ceph_relation() and self.ceph.key:
                 # The code for managing ceph client config should move to
                 # a shared lib as it is common across clients
