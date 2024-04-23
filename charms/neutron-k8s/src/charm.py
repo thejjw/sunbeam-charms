@@ -20,9 +20,6 @@ This charm provide Neutron services as part of an OpenStack deployment
 """
 
 import logging
-from typing import (
-    List,
-)
 
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
@@ -124,7 +121,7 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ]
     ]
 
-    def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
+    def get_pebble_handlers(self) -> list[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""
         return [
             NeutronServerPebbleHandler(
@@ -194,14 +191,12 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
             "local_ip": "127.0.0.1",
             "tunnel_types": "gre",
             "enable_security_group": "True",
-            "vni_ranges": "1001:2000",
             "max_header_size": "38",
             "ovn_l3_scheduler": "leastloaded",
             "ovn_metadata_enabled": "True",
             "enable_distributed_floating_ip": "False",
             "dns_servers": "",
             "dhcp_default_lease_time": "43200",
-            "dns_servers": "",
             "ovn_dhcp4_global_options": "",
             "ovn_dhcp6_global_options": "",
             "vhost_sock_dir": "/run/libvirt-vhost-user",
@@ -262,13 +257,13 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
     }
 
     @property
-    def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
+    def config_contexts(self) -> list[sunbeam_ctxts.ConfigContext]:
         """Configuration contexts for the operator."""
         contexts = super().config_contexts
         contexts.append(OVNContext(self, "ovn"))
         return contexts
 
-    def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
+    def get_pebble_handlers(self) -> list[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""
         return [
             NeutronServerOVNPebbleHandler(
@@ -282,8 +277,8 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
         ]
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
-    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> list[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
         if self.can_add_handler("ovsdb-cms", handlers):
