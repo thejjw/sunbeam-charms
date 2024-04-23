@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "59e30885_8c98f78e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-04-23T08:17:57Z",
+      "side": 1,
+      "message": "What does `Rebuild tempest-k8s for 2023.2/stable channel.` mean ?\n\nThe main branch of sunbeam-charms is targeted towards 2024.1, therefore a rebuild will push a new revision on 2024.1/edge",
+      "revId": "c01c843eee0e01179a2219c422dfa8e96f8f5620",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
