@@ -50,6 +50,23 @@
       "message": "LGTM",
       "revId": "89dbc791efacdc34070297ebe22121b53509fbdf",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3315306c_27bb685a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-04-23T10:31:50Z",
+      "side": 1,
+      "message": "LGTM\n\nThis fixes the error from grafana ui",
+      "revId": "89dbc791efacdc34070297ebe22121b53509fbdf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
