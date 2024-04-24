@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7955bafc_2994b018",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-04-24T08:10:02Z",
+      "side": 1,
+      "message": "recheck\n\nImagePull backoff due to docker ratelimit",
+      "revId": "d7cb65765a5589da1b4f6f5dd24cefb80a64e1a7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
