@@ -56,7 +56,7 @@ NOVA_CONDUCTOR_CONTAINER = "nova-conductor"
 NOVA_SPICEPROXY_CONTAINER = "nova-spiceproxy"
 NOVA_API_INGRESS_NAME = "nova"
 NOVA_SPICEPROXY_INGRESS_NAME = "nova-spiceproxy"
-NOVA_SPICEPROXY_INGRESS_PORT = 6182
+NOVA_SPICEPROXY_INGRESS_PORT = 6082
 
 
 class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
@@ -196,14 +196,9 @@ class NovaSpiceProxyPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "nova-spiceproxy": {
                     "override": "replace",
                     "summary": "Nova Spice Proxy",
-                    "command": "nova-spicehtml5proxy",
+                    "command": "nova-spicehtml5proxy --use-syslog",
                     "user": "nova",
                     "group": "nova",
-                },
-                "apache forwarder": {
-                    "override": "replace",
-                    "summary": "apache",
-                    "command": "/usr/sbin/apache2ctl -DFOREGROUND",
                 },
             },
         }
@@ -217,12 +212,6 @@ class NovaSpiceProxyPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "/etc/nova/nova.conf",
                 "root",
                 "nova",
-                0o640,
-            ),
-            sunbeam_core.ContainerConfigFile(
-                "/etc/apache2/sites-enabled/nova-spiceproxy-forwarding.conf",
-                self.charm.service_user,
-                self.charm.service_group,
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
@@ -242,15 +231,6 @@ class NovaSpiceProxyPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         else:
             logging.debug("Service checks disabled for nova spice proxy")
             return self.pebble_ready
-
-    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
-        """Initialise service ready for use.
-
-        Write configuration files to the container and record
-        that service is ready for us.
-        """
-        self.execute(["a2enmod", "proxy_http"], exception_on_error=True)
-        return super().init_service(context)
 
 
 class CloudComputeRequiresHandler(sunbeam_rhandlers.RelationHandler):
@@ -485,7 +465,8 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             external_host = self.traefik_route_public.interface.external_host
             public_url = (
                 f"{scheme}://{external_host}/{self.model.name}"
-                f"-{NOVA_SPICEPROXY_INGRESS_NAME}"
+                f"-{NOVA_SPICEPROXY_INGRESS_NAME}/spice_auto.html?path=/"
+                f"{NOVA_SPICEPROXY_INGRESS_NAME}"
             )
             return public_url
 
@@ -628,22 +609,64 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         model = self.model.name
         router_cfg = {}
         # Add routers for both nova-api and nova-spiceproxy
-        for app in NOVA_API_INGRESS_NAME, NOVA_SPICEPROXY_INGRESS_NAME:
-            router_cfg.update(
-                {
-                    f"juju-{model}-{app}-router": {
-                        "rule": f"PathPrefix(`/{model}-{app}`)",
-                        "service": f"juju-{model}-{app}-service",
-                        "entryPoints": ["web"],
-                    },
-                    f"juju-{model}-{app}-router-tls": {
-                        "rule": f"PathPrefix(`/{model}-{app}`)",
-                        "service": f"juju-{model}-{app}-service",
-                        "entryPoints": ["websecure"],
-                        "tls": {},
-                    },
+        router_cfg.update(
+            {
+                f"juju-{model}-{NOVA_API_INGRESS_NAME}-router": {
+                    "rule": f"PathPrefix(`/{model}-{NOVA_API_INGRESS_NAME}`)",
+                    "service": f"juju-{model}-{NOVA_API_INGRESS_NAME}-service",
+                    "entryPoints": ["web"],
+                },
+                f"juju-{model}-{NOVA_API_INGRESS_NAME}-router-tls": {
+                    "rule": f"PathPrefix(`/{model}-{NOVA_API_INGRESS_NAME}`)",
+                    "service": f"juju-{model}-{NOVA_API_INGRESS_NAME}-service",
+                    "entryPoints": ["websecure"],
+                    "tls": {},
+                },
+            }
+        )
+        router_cfg.update(
+            {
+                f"juju-{model}-{NOVA_SPICEPROXY_INGRESS_NAME}-router": {
+                    "rule": f"PathPrefix(`/{model}-{NOVA_SPICEPROXY_INGRESS_NAME}`)",
+                    "middlewares": [
+                        "custom-stripprefix",
+                        "custom-wsheaders-http",
+                    ],
+                    "service": f"juju-{model}-{NOVA_SPICEPROXY_INGRESS_NAME}-service",
+                    "entryPoints": ["web"],
+                },
+                f"juju-{model}-{NOVA_SPICEPROXY_INGRESS_NAME}-router-tls": {
+                    "rule": f"PathPrefix(`/{model}-{NOVA_SPICEPROXY_INGRESS_NAME}`)",
+                    "middlewares": [
+                        "custom-stripprefix",
+                        "custom-wsheaders-https",
+                    ],
+                    "service": f"juju-{model}-{NOVA_SPICEPROXY_INGRESS_NAME}-service",
+                    "entryPoints": ["websecure"],
+                    "tls": {},
+                },
+            }
+        )
+
+        # Add middlewares to nova-spiceproxy
+        middleware_cfg = {
+            "custom-stripprefix": {
+                "stripPrefix": {
+                    "prefixes": [f"/{model}-{NOVA_SPICEPROXY_INGRESS_NAME}"],
+                    "forceSlash": False,
                 }
-            )
+            },
+            "custom-wsheaders-http": {
+                "headers": {
+                    "customRequestHeaders": {"X-Forwarded-Proto": "http"}
+                }
+            },
+            "custom-wsheaders-https": {
+                "headers": {
+                    "customRequestHeaders": {"X-Forwarded-Proto": "https"}
+                }
+            },
+        }
 
         # Get host key value from all units
         hosts = self.peers.get_all_unit_values(
@@ -670,6 +693,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         config = {
             "http": {
                 "routers": router_cfg,
+                "middlewares": middleware_cfg,
                 "services": service_cfg,
             },
         }
@@ -855,7 +879,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if self.nova_spiceproxy_public_url:
             self.config_svc.interface.set_config(
                 relation=event.relation,
-                nova_spiceproxy_url=f"{self.nova_spiceproxy_public_url}/spice_auto.html",
+                nova_spiceproxy_url=self.nova_spiceproxy_public_url,
             )
         else:
             logging.debug("Nova spiceproxy not yet set, not sending config")
@@ -865,7 +889,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if self.nova_spiceproxy_public_url:
             self.config_svc.interface.set_config(
                 relation=None,
-                nova_spiceproxy_url=f"{self.nova_spiceproxy_public_url}/spice_auto.html",
+                nova_spiceproxy_url=self.nova_spiceproxy_public_url,
             )
         else:
             logging.debug("Nova spiceproxy not yet set, not sending config")
