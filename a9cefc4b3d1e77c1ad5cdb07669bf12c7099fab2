@@ -50,6 +50,24 @@
       "message": "the change looks good; init issues should be investigated but are unlikely to be related to this change",
       "revId": "a9cefc4b3d1e77c1ad5cdb07669bf12c7099fab2",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dafee110_9f38d3c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-04-24T02:26:09Z",
+      "side": 1,
+      "message": "This is strange, tempest init is running with OS credential provided by `identity-ops` relation: https://opendev.org/openstack/sunbeam-charms/src/branch/main/charms/tempest-k8s/src/charm.py#L224-L249, and I saw the `identity-ops` relation is able to list endpoint, so \n the endpoint should be fine. This means it could be that the ENV is not passed to `tempest-init` script when pebble run that script.",
+      "parentUuid": "b7a0a766_969e1911",
+      "revId": "a9cefc4b3d1e77c1ad5cdb07669bf12c7099fab2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
