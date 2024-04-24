@@ -6,6 +6,9 @@
 # or failure in one of the tempest steps.
 set -ex
 
+# Dump the environment for debugging
+env
+
 (flock -n 9 || (echo "lock could not be acquired"; exit 1)
 
 # clean up before initialising everything

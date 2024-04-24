@@ -247,6 +247,8 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_OUTPUT": variant.output_path(),
         }
         tempest_env.update(self._get_proxy_environment())
+        # For debugging only
+        logger.warning("tempest_env: %s", tempest_env)
         return tempest_env
 
     def _get_cleanup_env(self) -> Dict[str, str]:
