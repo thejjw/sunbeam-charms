@@ -54,6 +54,13 @@ resources:
     upstream-source: ghcr.io/canonical/nova-consolidated:2024.1
 
 requires:
+  ingress-internal:
+    interface: ingress
+    optional: true
+    limit: 1
+  ingress-public:
+    interface: ingress
+    limit: 1
   traefik-route-internal:
     interface: traefik_route
     optional: true

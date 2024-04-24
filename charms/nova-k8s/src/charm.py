@@ -341,6 +341,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         "cell-database",
         "amqp",
         "identity-service",
+        "ingress-public",
         "traefik-route-public",
     }
 
@@ -426,36 +427,6 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def default_public_ingress_port(self):
         """Default port for service ingress."""
         return 8774
-
-    @property
-    def public_url(self) -> str:
-        """Url for accessing the public endpoint for nova service."""
-        if self.traefik_route_public and self.traefik_route_public.ready:
-            scheme = self.traefik_route_public.interface.scheme
-            external_host = self.traefik_route_public.interface.external_host
-            public_url = (
-                f"{scheme}://{external_host}/{self.model.name}"
-                f"-{NOVA_API_INGRESS_NAME}"
-            )
-            return self.add_explicit_port(public_url)
-        else:
-            return self.add_explicit_port(
-                self.service_url(self.public_ingress_address)
-            )
-
-    @property
-    def internal_url(self) -> str:
-        """Url for accessing the internal endpoint for nova service."""
-        if self.traefik_route_internal and self.traefik_route_internal.ready:
-            scheme = self.traefik_route_internal.interface.scheme
-            external_host = self.traefik_route_internal.interface.external_host
-            internal_url = (
-                f"{scheme}://{external_host}/{self.model.name}"
-                f"-{NOVA_API_INGRESS_NAME}"
-            )
-            return self.add_explicit_port(internal_url)
-        else:
-            return self.admin_url
 
     @property
     def nova_spiceproxy_public_url(self) -> str | None:
@@ -611,21 +582,6 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         # Add routers for both nova-api and nova-spiceproxy
         router_cfg.update(
             {
-                f"juju-{model}-{NOVA_API_INGRESS_NAME}-router": {
-                    "rule": f"PathPrefix(`/{model}-{NOVA_API_INGRESS_NAME}`)",
-                    "service": f"juju-{model}-{NOVA_API_INGRESS_NAME}-service",
-                    "entryPoints": ["web"],
-                },
-                f"juju-{model}-{NOVA_API_INGRESS_NAME}-router-tls": {
-                    "rule": f"PathPrefix(`/{model}-{NOVA_API_INGRESS_NAME}`)",
-                    "service": f"juju-{model}-{NOVA_API_INGRESS_NAME}-service",
-                    "entryPoints": ["websecure"],
-                    "tls": {},
-                },
-            }
-        )
-        router_cfg.update(
-            {
                 f"juju-{model}-{NOVA_SPICEPROXY_INGRESS_NAME}-router": {
                     "rule": f"PathPrefix(`/{model}-{NOVA_SPICEPROXY_INGRESS_NAME}`)",
                     "middlewares": [
@@ -672,19 +628,12 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         hosts = self.peers.get_all_unit_values(
             key="host", include_local_unit=True
         )
-        api_lb_servers = [
-            {"url": f"http://{host}:{self.default_public_ingress_port}"}
-            for host in hosts
-        ]
         spice_lb_servers = [
             {"url": f"http://{host}:{NOVA_SPICEPROXY_INGRESS_PORT}"}
             for host in hosts
         ]
         # Add services for heat-api and heat-api-cfn
         service_cfg = {
-            f"juju-{model}-{NOVA_API_INGRESS_NAME}-service": {
-                "loadBalancer": {"servers": api_lb_servers},
-            },
             f"juju-{model}-{NOVA_SPICEPROXY_INGRESS_NAME}-service": {
                 "loadBalancer": {"servers": spice_lb_servers},
             },
@@ -753,16 +702,6 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             logger.exception("Failed to discover hosts for cell1")
             raise
 
-    def _update_service_endpoints(self):
-        try:
-            if self.id_svc.update_service_endpoints:
-                logger.info(
-                    "Updating service endpoints after ingress relation changed"
-                )
-                self.id_svc.update_service_endpoints(self.service_endpoints)
-        except (AttributeError, KeyError):
-            pass
-
     def handle_traefik_ready(self, event: ops.framework.EventBase):
         """Handle Traefik route ready callback."""
         if not self.unit.is_leader():
@@ -777,17 +716,11 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 config=self.traefik_config
             )
 
-            if self.traefik_route_public.ready:
-                self._update_service_endpoints()
-
         if self.traefik_route_internal:
             logger.debug("Sending traefik config for internal interface")
             self.traefik_route_internal.interface.submit_to_traefik(
                 config=self.traefik_config
             )
-
-            if self.traefik_route_internal.ready:
-                self._update_service_endpoints()
 
     def get_cell_uuid(self, cell, fatal=True):
         """Returns the cell UUID from the name.

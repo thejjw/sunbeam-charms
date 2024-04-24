@@ -82,6 +82,7 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
 
     def add_complete_ingress_relation(self, harness: Harness) -> None:
         """Add complete traefik-route relations."""
+        test_utils.add_complete_ingress_relation(harness)
         harness.add_relation(
             "traefik-route-public",
             "nova",
