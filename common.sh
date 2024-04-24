@@ -124,6 +124,14 @@ EXTERNAL_NEUTRON_LIBS=(
 	"certificate_transfer_interface"
 )
 
+EXTERNAL_NOVA_LIBS=(
+        "data_platform_libs"
+        "rabbitmq_k8s"
+	"traefik_k8s"
+        "traefik_route_k8s"
+        "certificate_transfer_interface"
+)
+
 EXTERNAL_OCTAVIA_LIBS=(
         "data_platform_libs"
         "traefik_k8s"
@@ -354,7 +362,7 @@ declare -A EXTERNAL_LIBS=(
         [keystone-ldap-k8s]=${NULL_ARRAY[@]}
         [magnum-k8s]=${EXTERNAL_AODH_LIBS[@]}
         [neutron-k8s]=${EXTERNAL_NEUTRON_LIBS[@]}
-        [nova-k8s]=${EXTERNAL_HEAT_LIBS[@]}
+        [nova-k8s]=${EXTERNAL_NOVA_LIBS[@]}
         [octavia-k8s]=${EXTERNAL_OCTAVIA_LIBS[@]}
         [openstack-exporter-k8s]=${EXTERNAL_OPENSTACK_EXPORTER_LIBS[@]}
         [openstack-hypervisor]=${EXTERNAL_OPENSTACK_HYPERVISOR_LIBS[@]}
