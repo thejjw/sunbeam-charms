@@ -840,7 +840,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "rate(libvirt_domain_info_cpu_time_seconds_total[2m]) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "rate(libvirt_domain_info_cpu_time_seconds_total[$__rate_interval]) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -858,7 +858,7 @@
           "refId": "mem_usage"
         },
         {
-          "expr": "(sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_bytes_total[2m])) + sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_bytes_total[2m]))) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "(sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_bytes_total[$__rate_interval])) + sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_bytes_total[$__rate_interval]))) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -867,7 +867,7 @@
           "refId": "net_throughput"
         },
         {
-          "expr": "(sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_packets_total[2m])) + sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_packets_total[2m]))) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "(sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_packets_total[$__rate_interval])) + sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_packets_total[$__rate_interval]))) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -876,7 +876,7 @@
           "refId": "packets_rate"
         },
         {
-          "expr": "(sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_errors_total[2m])) + sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_errors_total[2m]))) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "(sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_errors_total[$__rate_interval])) + sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_errors_total[$__rate_interval]))) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -885,7 +885,7 @@
           "refId": "net_errors"
         },
         {
-          "expr": "(sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_drops_total[2m])) + sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_drops_total[2m]))) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "(sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_drops_total[$__rate_interval])) + sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_drops_total[$__rate_interval]))) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -894,7 +894,7 @@
           "refId": "packets_drops"
         },
         {
-          "expr": "(sum by(juju_unit, domain) (rate(libvirt_domain_block_stats_read_requests_total[2m])) + sum by(juju_unit, domain) (rate(libvirt_domain_block_stats_write_requests_total[2m]))) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "(sum by(juju_unit, domain) (rate(libvirt_domain_block_stats_read_requests_total[$__rate_interval])) + sum by(juju_unit, domain) (rate(libvirt_domain_block_stats_write_requests_total[$__rate_interval]))) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -903,7 +903,7 @@
           "refId": "disks_iops"
         },
         {
-          "expr": "(sum by(juju_unit, domain) (rate(libvirt_domain_block_stats_read_bytes_total[2m])) + sum by(juju_unit, domain) (rate(libvirt_domain_block_stats_write_bytes_total[2m]))) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "(sum by(juju_unit, domain) (rate(libvirt_domain_block_stats_read_bytes_total[$__rate_interval])) + sum by(juju_unit, domain) (rate(libvirt_domain_block_stats_write_bytes_total[$__rate_interval]))) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -965,7 +965,7 @@
     },
     {
       "datasource": "${prometheusds}",
-      "description": "CPU time used by the domain, in seconds - rate over 1min",
+      "description": "CPU time used by the domain - rate over time",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1043,7 +1043,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "rate(libvirt_domain_info_cpu_time_seconds_total[2m]) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "rate(libvirt_domain_info_cpu_time_seconds_total[$__rate_interval]) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "{{project_name}} | {{instance_name}} | {{uuid}}",
           "refId": "A"
@@ -1423,7 +1423,7 @@
     },
     {
       "datasource": "${prometheusds}",
-      "description": "Network traffic in bytes, rate over 1min, receive/transmit per instance, cumulative over all interfaces",
+      "description": "Network traffic in bytes, rate over time, receive/transmit per instance, cumulative over all interfaces",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1502,13 +1502,13 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_bytes_total[2m])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_bytes_total[$__rate_interval])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "rx: {{project_name}} | {{instance_name}} | {{uuid}}",
           "refId": "A"
         },
         {
-          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_bytes_total[2m])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_bytes_total[$__rate_interval])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "tx: {{project_name}} | {{instance_name}} | {{uuid}}",
           "refId": "B"
@@ -1519,7 +1519,7 @@
     },
     {
       "datasource": "${prometheusds}",
-      "description": "Network traffic in packets, rate over 1min, receive/transmit per instance, cumulative over all interfaces",
+      "description": "Network traffic in packets, rate over time, receive/transmit per instance, cumulative over all interfaces",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1598,13 +1598,13 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_packets_total[2m])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_packets_total[$__rate_interval])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "rx: {{project_name}} | {{instance_name}} | {{uuid}}",
           "refId": "A"
         },
         {
-          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_packets_total[2m])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_packets_total[$__rate_interval])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "tx: {{project_name}} | {{instance_name}} | {{uuid}}",
           "refId": "B"
@@ -1615,7 +1615,7 @@
     },
     {
       "datasource": "${prometheusds}",
-      "description": "Total network throughput rates per hypervisor, rate over 1min",
+      "description": "Total network throughput rates per hypervisor, rate over time",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1697,13 +1697,13 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum by(juju_unit) (rate(libvirt_domain_interface_stats_receive_bytes_total[2m]))",
+          "expr": "sum by(juju_unit) (rate(libvirt_domain_interface_stats_receive_bytes_total[$__rate_interval]))",
           "interval": "",
           "legendFormat": "rx: {{juju_unit}}",
           "refId": "A"
         },
         {
-          "expr": "sum by(juju_unit) (rate(libvirt_domain_interface_stats_transmit_bytes_total[2m]))",
+          "expr": "sum by(juju_unit) (rate(libvirt_domain_interface_stats_transmit_bytes_total[$__rate_interval]))",
           "interval": "",
           "legendFormat": "tx: {{juju_unit}}",
           "refId": "B"
@@ -1714,7 +1714,7 @@
     },
     {
       "datasource": "${prometheusds}",
-      "description": "Total network throughput rates per hypervisor, rate over 1min",
+      "description": "Total network throughput rates per hypervisor, rate over time",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1793,13 +1793,13 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum by(juju_unit) (rate(libvirt_domain_interface_stats_receive_packets_total[2m]))",
+          "expr": "sum by(juju_unit) (rate(libvirt_domain_interface_stats_receive_packets_total[$__rate_interval]))",
           "interval": "",
           "legendFormat": "rx: {{juju_unit}}",
           "refId": "A"
         },
         {
-          "expr": "sum by(juju_unit) (rate(libvirt_domain_interface_stats_transmit_packets_total[2m]))",
+          "expr": "sum by(juju_unit) (rate(libvirt_domain_interface_stats_transmit_packets_total[$__rate_interval]))",
           "interval": "",
           "legendFormat": "tx: {{juju_unit}}",
           "refId": "B"
@@ -1810,7 +1810,7 @@
     },
     {
       "datasource": "${prometheusds}",
-      "description": "Instance errors and drops, transmit and receive. Rate over 1min",
+      "description": "Instance errors and drops, transmit and receive. Rate over time",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -1889,25 +1889,25 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_errors_total[2m])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_errors_total[$__rate_interval])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "rx err: {{project_name}} | {{instance_name}} | {{uuid}}",
           "refId": "A"
         },
         {
-          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_errors_total[2m])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_errors_total[$__rate_interval])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "tx err: {{project_name}} | {{instance_name}} | {{uuid}}",
           "refId": "B"
         },
         {
-          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_drops_total[2m])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_receive_drops_total[$__rate_interval])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "rx drop: {{project_name}} | {{instance_name}} | {{uuid}}",
           "refId": "C"
         },
         {
-          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_drops_total[2m])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain) (rate(libvirt_domain_interface_stats_transmit_drops_total[$__rate_interval])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "tx drop: {{project_name}} | {{instance_name}} | {{uuid}}",
           "refId": "D"
@@ -1941,7 +1941,7 @@
     },
     {
       "datasource": "${prometheusds}",
-      "description": "Instance block dev read request rate over 1min",
+      "description": "Instance block dev read request rate over time",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2020,7 +2020,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum by(juju_unit, domain, target_device) (rate(libvirt_domain_block_stats_read_requests_total[2m])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain, target_device) (rate(libvirt_domain_block_stats_read_requests_total[$__rate_interval])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "{{project_name}} | {{instance_name}} | {{uuid}} | {{target_device}}",
           "refId": "A"
@@ -2031,7 +2031,7 @@
     },
     {
       "datasource": "${prometheusds}",
-      "description": "Instance block dev write request rate over 1min",
+      "description": "Instance block dev write request rate over time",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2110,7 +2110,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum by(juju_unit, domain, target_device) (rate(libvirt_domain_block_stats_write_requests_total[2m])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain, target_device) (rate(libvirt_domain_block_stats_write_requests_total[$__rate_interval])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "{{project_name}} | {{instance_name}} | {{uuid}} | {{target_device}}",
           "refId": "A"
@@ -2121,7 +2121,7 @@
     },
     {
       "datasource": "${prometheusds}",
-      "description": "Instance block device read bytes rate over 1min",
+      "description": "Instance block device read bytes rate over time",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2200,7 +2200,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum by(juju_unit, domain, target_device) (rate(libvirt_domain_block_stats_read_bytes_total[2m])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain, target_device) (rate(libvirt_domain_block_stats_read_bytes_total[$__rate_interval])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "{{project_name}} | {{instance_name}} | {{uuid}} | {{target_device}}",
           "refId": "A"
@@ -2211,7 +2211,7 @@
     },
     {
       "datasource": "${prometheusds}",
-      "description": "Instance block device write bytes rate over 1min",
+      "description": "Instance block device write bytes rate over time",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -2290,7 +2290,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum by(juju_unit, domain, target_device) (rate(libvirt_domain_block_stats_write_bytes_total[2m])) * on(domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain, target_device) (rate(libvirt_domain_block_stats_write_bytes_total[$__rate_interval])) * on(domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "{{project_name}} | {{instance_name}} | {{uuid}} | {{target_device}}",
           "refId": "A"
