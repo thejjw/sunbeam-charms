@@ -580,6 +580,8 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         model = self.model.name
         router_cfg = {}
         # Add routers for both nova-api and nova-spiceproxy
+        # Rename router tls and add priority as workaround for
+        # bug https://github.com/canonical/traefik-k8s-operator/issues/335
         router_cfg.update(
             {
                 f"juju-{model}-{NOVA_SPICEPROXY_INGRESS_NAME}-router": {
@@ -591,7 +593,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                     "service": f"juju-{model}-{NOVA_SPICEPROXY_INGRESS_NAME}-service",
                     "entryPoints": ["web"],
                 },
-                f"juju-{model}-{NOVA_SPICEPROXY_INGRESS_NAME}-router-tls": {
+                f"juju-{model}-{NOVA_SPICEPROXY_INGRESS_NAME}-router-https": {
                     "rule": f"PathPrefix(`/{model}-{NOVA_SPICEPROXY_INGRESS_NAME}`)",
                     "middlewares": [
                         "custom-stripprefix",
@@ -600,6 +602,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                     "service": f"juju-{model}-{NOVA_SPICEPROXY_INGRESS_NAME}-service",
                     "entryPoints": ["websecure"],
                     "tls": {},
+                    "priority": 100,
                 },
             }
         )
@@ -715,6 +718,10 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self.traefik_route_public.interface.submit_to_traefik(
                 config=self.traefik_config
             )
+
+            # Update nova spiceproxy url
+            # Any http/https changes are detected here
+            self.set_config_on_update()
 
         if self.traefik_route_internal:
             logger.debug("Sending traefik config for internal interface")
