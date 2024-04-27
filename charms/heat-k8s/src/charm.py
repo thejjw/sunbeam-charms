@@ -418,7 +418,10 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             )
             return
 
-        if self.traefik_route_public:
+        if (
+            self.traefik_route_public
+            and self.traefik_route_public.interface.is_ready()
+        ):
             logger.debug("Sending traefik config for public interface")
             self.traefik_route_public.interface.submit_to_traefik(
                 config=self.traefik_config
@@ -427,7 +430,10 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             if self.traefik_route_public.ready:
                 self._update_service_endpoints()
 
-        if self.traefik_route_internal:
+        if (
+            self.traefik_route_internal
+            and self.traefik_route_internal.interface.is_ready()
+        ):
             logger.debug("Sending traefik config for internal interface")
             self.traefik_route_internal.interface.submit_to_traefik(
                 config=self.traefik_config

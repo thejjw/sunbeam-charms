@@ -390,6 +390,7 @@
       - ops-sunbeam/ops_sunbeam/*
       - charms/tempest-k8s/*
       - tests/local/zaza/sunbeam/charm_tests/tempest_k8s/*
+      - rebuild
     vars:
       # Artifacts will be downloaded from below charm jobs
       charm_jobs:

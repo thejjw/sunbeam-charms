@@ -1,4 +1,4 @@
-# Copyright 2023 Canonical Ltd.
+# Copyright 2024 Canonical Ltd.
 # See LICENSE file for licensing details.
 
 r"""# Interface Library for ingress.
@@ -13,7 +13,7 @@ To get started using the library, you just need to fetch the library using `char
 
 ```shell
 cd some-charm
-charmcraft fetch-lib charms.traefik_k8s.v1.ingress
+charmcraft fetch-lib charms.traefik_k8s.v2.ingress
 ```
 
 In the `metadata.yaml` of the charm, add the following:
@@ -50,20 +50,13 @@ class SomeCharm(CharmBase):
     def _on_ingress_revoked(self, event: IngressPerAppRevokedEvent):
         logger.info("This app no longer has ingress")
 """
+import ipaddress
 import json
 import logging
 import socket
 import typing
 from dataclasses import dataclass
-from typing import (
-    Any,
-    Dict,
-    List,
-    MutableMapping,
-    Optional,
-    Sequence,
-    Tuple,
-)
+from typing import Any, Callable, Dict, List, MutableMapping, Optional, Sequence, Tuple, Union
 
 import pydantic
 from ops.charm import CharmBase, RelationBrokenEvent, RelationEvent
@@ -79,9 +72,9 @@ LIBAPI = 2
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 6
+LIBPATCH = 12
 
-PYDEPS = ["pydantic<2.0"]
+PYDEPS = ["pydantic"]
 
 DEFAULT_RELATION_NAME = "ingress"
 RELATION_INTERFACE = "ingress"
@@ -89,59 +82,132 @@ RELATION_INTERFACE = "ingress"
 log = logging.getLogger(__name__)
 BUILTIN_JUJU_KEYS = {"ingress-address", "private-address", "egress-subnets"}
 
+PYDANTIC_IS_V1 = int(pydantic.version.VERSION.split(".")[0]) < 2
+if PYDANTIC_IS_V1:
 
-class DatabagModel(BaseModel):
-    """Base databag model."""
+    class DatabagModel(BaseModel):  # type: ignore
+        """Base databag model."""
 
-    class Config:
+        class Config:
+            """Pydantic config."""
+
+            allow_population_by_field_name = True
+            """Allow instantiating this class by field name (instead of forcing alias)."""
+
+        _NEST_UNDER = None
+
+        @classmethod
+        def load(cls, databag: MutableMapping):
+            """Load this model from a Juju databag."""
+            if cls._NEST_UNDER:
+                return cls.parse_obj(json.loads(databag[cls._NEST_UNDER]))
+
+            try:
+                data = {
+                    k: json.loads(v)
+                    for k, v in databag.items()
+                    # Don't attempt to parse model-external values
+                    if k in {f.alias for f in cls.__fields__.values()}  # type: ignore
+                }
+            except json.JSONDecodeError as e:
+                msg = f"invalid databag contents: expecting json. {databag}"
+                log.error(msg)
+                raise DataValidationError(msg) from e
+
+            try:
+                return cls.parse_raw(json.dumps(data))  # type: ignore
+            except pydantic.ValidationError as e:
+                msg = f"failed to validate databag: {databag}"
+                log.debug(msg, exc_info=True)
+                raise DataValidationError(msg) from e
+
+        def dump(self, databag: Optional[MutableMapping] = None, clear: bool = True):
+            """Write the contents of this model to Juju databag.
+
+            :param databag: the databag to write the data to.
+            :param clear: ensure the databag is cleared before writing it.
+            """
+            if clear and databag:
+                databag.clear()
+
+            if databag is None:
+                databag = {}
+
+            if self._NEST_UNDER:
+                databag[self._NEST_UNDER] = self.json(by_alias=True, exclude_defaults=True)
+                return databag
+
+            for key, value in self.dict(by_alias=True, exclude_defaults=True).items():  # type: ignore
+                databag[key] = json.dumps(value)
+
+            return databag
+
+else:
+    from pydantic import ConfigDict
+
+    class DatabagModel(BaseModel):
+        """Base databag model."""
+
+        model_config = ConfigDict(
+            # tolerate additional keys in databag
+            extra="ignore",
+            # Allow instantiating this class by field name (instead of forcing alias).
+            populate_by_name=True,
+            # Custom config key: whether to nest the whole datastructure (as json)
+            # under a field or spread it out at the toplevel.
+            _NEST_UNDER=None,
+        )  # type: ignore
         """Pydantic config."""
 
-        allow_population_by_field_name = True
-        """Allow instantiating this class by field name (instead of forcing alias)."""
+        @classmethod
+        def load(cls, databag: MutableMapping):
+            """Load this model from a Juju databag."""
+            nest_under = cls.model_config.get("_NEST_UNDER")
+            if nest_under:
+                return cls.model_validate(json.loads(databag[nest_under]))  # type: ignore
 
-    _NEST_UNDER = None
+            try:
+                data = {
+                    k: json.loads(v)
+                    for k, v in databag.items()
+                    # Don't attempt to parse model-external values
+                    if k in {(f.alias or n) for n, f in cls.__fields__.items()}  # type: ignore
+                }
+            except json.JSONDecodeError as e:
+                msg = f"invalid databag contents: expecting json. {databag}"
+                log.error(msg)
+                raise DataValidationError(msg) from e
 
-    @classmethod
-    def load(cls, databag: MutableMapping):
-        """Load this model from a Juju databag."""
-        if cls._NEST_UNDER:
-            return cls.parse_obj(json.loads(databag[cls._NEST_UNDER]))
+            try:
+                return cls.model_validate_json(json.dumps(data))  # type: ignore
+            except pydantic.ValidationError as e:
+                msg = f"failed to validate databag: {databag}"
+                log.debug(msg, exc_info=True)
+                raise DataValidationError(msg) from e
 
-        try:
-            data = {k: json.loads(v) for k, v in databag.items() if k not in BUILTIN_JUJU_KEYS}
-        except json.JSONDecodeError as e:
-            msg = f"invalid databag contents: expecting json. {databag}"
-            log.error(msg)
-            raise DataValidationError(msg) from e
+        def dump(self, databag: Optional[MutableMapping] = None, clear: bool = True):
+            """Write the contents of this model to Juju databag.
 
-        try:
-            return cls.parse_raw(json.dumps(data))  # type: ignore
-        except pydantic.ValidationError as e:
-            msg = f"failed to validate databag: {databag}"
-            log.error(msg, exc_info=True)
-            raise DataValidationError(msg) from e
+            :param databag: the databag to write the data to.
+            :param clear: ensure the databag is cleared before writing it.
+            """
+            if clear and databag:
+                databag.clear()
 
-    def dump(self, databag: Optional[MutableMapping] = None, clear: bool = True):
-        """Write the contents of this model to Juju databag.
+            if databag is None:
+                databag = {}
+            nest_under = self.model_config.get("_NEST_UNDER")
+            if nest_under:
+                databag[nest_under] = self.model_dump_json(  # type: ignore
+                    by_alias=True,
+                    # skip keys whose values are default
+                    exclude_defaults=True,
+                )
+                return databag
 
-        :param databag: the databag to write the data to.
-        :param clear: ensure the databag is cleared before writing it.
-        """
-        if clear and databag:
-            databag.clear()
-
-        if databag is None:
-            databag = {}
-
-        if self._NEST_UNDER:
-            databag[self._NEST_UNDER] = self.json()
-
-        dct = self.dict()
-        for key, field in self.__fields__.items():  # type: ignore
-            value = dct[key]
-            databag[field.alias or key] = json.dumps(value)
-
-        return databag
+            dct = self.model_dump(mode="json", by_alias=True, exclude_defaults=True)  # type: ignore
+            databag.update({k: json.dumps(v) for k, v in dct.items()})
+            return databag
 
 
 # todo: import these models from charm-relation-interfaces/ingress/v2 instead of redeclaring them
@@ -172,10 +238,14 @@ class IngressRequirerAppData(DatabagModel):
 
     # fields on top of vanilla 'ingress' interface:
     strip_prefix: Optional[bool] = Field(
-        description="Whether to strip the prefix from the ingress url.", alias="strip-prefix"
+        default=False,
+        description="Whether to strip the prefix from the ingress url.",
+        alias="strip-prefix",
     )
     redirect_https: Optional[bool] = Field(
-        description="Whether to redirect http traffic to https.", alias="redirect-https"
+        default=False,
+        description="Whether to redirect http traffic to https.",
+        alias="redirect-https",
     )
 
     scheme: Optional[str] = Field(
@@ -200,13 +270,36 @@ class IngressRequirerAppData(DatabagModel):
 class IngressRequirerUnitData(DatabagModel):
     """Ingress requirer unit databag model."""
 
-    host: str = Field(description="Hostname the unit wishes to be exposed.")
+    host: str = Field(description="Hostname at which the unit is reachable.")
+    ip: Optional[str] = Field(
+        None,
+        description="IP at which the unit is reachable, "
+        "IP can only be None if the IP information can't be retrieved from juju.",
+    )
 
     @validator("host", pre=True)
     def validate_host(cls, host):  # noqa: N805  # pydantic wants 'cls' as first arg
         """Validate host."""
         assert isinstance(host, str), type(host)
         return host
+
+    @validator("ip", pre=True)
+    def validate_ip(cls, ip):  # noqa: N805  # pydantic wants 'cls' as first arg
+        """Validate ip."""
+        if ip is None:
+            return None
+        if not isinstance(ip, str):
+            raise TypeError(f"got ip of type {type(ip)} instead of expected str")
+        try:
+            ipaddress.IPv4Address(ip)
+            return ip
+        except ipaddress.AddressValueError:
+            pass
+        try:
+            ipaddress.IPv6Address(ip)
+            return ip
+        except ipaddress.AddressValueError:
+            raise ValueError(f"{ip!r} is not a valid ip address")
 
 
 class RequirerSchema(BaseModel):
@@ -244,6 +337,7 @@ class _IngressPerAppBase(Object):
         observe(rel_events.relation_created, self._handle_relation)
         observe(rel_events.relation_joined, self._handle_relation)
         observe(rel_events.relation_changed, self._handle_relation)
+        observe(rel_events.relation_departed, self._handle_relation)
         observe(rel_events.relation_broken, self._handle_relation_broken)
         observe(charm.on.leader_elected, self._handle_upgrade_or_leader)  # type: ignore
         observe(charm.on.upgrade_charm, self._handle_upgrade_or_leader)  # type: ignore
@@ -338,14 +432,6 @@ class IngressRequirerData:
 
     app: "IngressRequirerAppData"
     units: List["IngressRequirerUnitData"]
-
-
-class TlsProviderType(typing.Protocol):
-    """Placeholder."""
-
-    @property
-    def enabled(self) -> bool:  # type: ignore
-        """Placeholder."""
 
 
 class IngressPerAppProvider(_IngressPerAppBase):
@@ -463,10 +549,10 @@ class IngressPerAppProvider(_IngressPerAppBase):
     def publish_url(self, relation: Relation, url: str):
         """Publish to the app databag the ingress url."""
         ingress_url = {"url": url}
-        IngressProviderAppData.parse_obj({"ingress": ingress_url}).dump(relation.data[self.app])
+        IngressProviderAppData(ingress=ingress_url).dump(relation.data[self.app])  # type: ignore
 
     @property
-    def proxied_endpoints(self) -> Dict[str, str]:
+    def proxied_endpoints(self) -> Dict[str, Dict[str, str]]:
         """Returns the ingress settings provided to applications by this IngressPerAppProvider.
 
         For example, when this IngressPerAppProvider has provided the
@@ -481,7 +567,7 @@ class IngressPerAppProvider(_IngressPerAppBase):
         }
         ```
         """
-        results = {}
+        results: Dict[str, Dict[str, str]] = {}
 
         for ingress_relation in self.relations:
             if not ingress_relation.app:
@@ -501,8 +587,10 @@ class IngressPerAppProvider(_IngressPerAppBase):
             if not ingress_data:
                 log.warning(f"relation {ingress_relation} not ready yet: try again in some time.")
                 continue
-
-            results[ingress_relation.app.name] = ingress_data.ingress.dict()
+            if PYDANTIC_IS_V1:
+                results[ingress_relation.app.name] = ingress_data.ingress.dict()
+            else:
+                results[ingress_relation.app.name] = ingress_data.ingress.model_dump(mode=json)  # type: ignore
         return results
 
 
@@ -540,12 +628,13 @@ class IngressPerAppRequirer(_IngressPerAppBase):
         relation_name: str = DEFAULT_RELATION_NAME,
         *,
         host: Optional[str] = None,
+        ip: Optional[str] = None,
         port: Optional[int] = None,
         strip_prefix: bool = False,
         redirect_https: bool = False,
         # fixme: this is horrible UX.
         #  shall we switch to manually calling provide_ingress_requirements with all args when ready?
-        scheme: typing.Callable[[], str] = lambda: "http",
+        scheme: Union[Callable[[], str], str] = lambda: "http",
     ):
         """Constructor for IngressRequirer.
 
@@ -560,9 +649,12 @@ class IngressPerAppRequirer(_IngressPerAppBase):
                 relation must be of interface type `ingress` and have "limit: 1")
             host: Hostname to be used by the ingress provider to address the requiring
                 application; if unspecified, the default Kubernetes service name will be used.
+            ip: Alternative addressing method other than host to be used by the ingress provider;
+                if unspecified, binding address from juju network API will be used.
             strip_prefix: configure Traefik to strip the path prefix.
             redirect_https: redirect incoming requests to HTTPS.
             scheme: callable returning the scheme to use when constructing the ingress url.
+                Or a string, if the scheme is known and stable at charm-init-time.
 
         Request Args:
             port: the port of the service
@@ -572,21 +664,20 @@ class IngressPerAppRequirer(_IngressPerAppBase):
         self.relation_name = relation_name
         self._strip_prefix = strip_prefix
         self._redirect_https = redirect_https
-        self._get_scheme = scheme
+        self._get_scheme = scheme if callable(scheme) else lambda: scheme
 
         self._stored.set_default(current_url=None)  # type: ignore
 
         # if instantiated with a port, and we are related, then
         # we immediately publish our ingress data  to speed up the process.
         if port:
-            self._auto_data = host, port
+            self._auto_data = host, ip, port
         else:
             self._auto_data = None
 
     def _handle_relation(self, event):
         # created, joined or changed: if we have auto data: publish it
         self._publish_auto_data()
-
         if self.is_ready():
             # Avoid spurious events, emit only when there is a NEW URL available
             new_url = (
@@ -616,14 +707,15 @@ class IngressPerAppRequirer(_IngressPerAppBase):
 
     def _publish_auto_data(self):
         if self._auto_data:
-            host, port = self._auto_data
-            self.provide_ingress_requirements(host=host, port=port)
+            host, ip, port = self._auto_data
+            self.provide_ingress_requirements(host=host, ip=ip, port=port)
 
     def provide_ingress_requirements(
         self,
         *,
         scheme: Optional[str] = None,
         host: Optional[str] = None,
+        ip: Optional[str] = None,
         port: int,
     ):
         """Publishes the data that Traefik needs to provide ingress.
@@ -632,34 +724,48 @@ class IngressPerAppRequirer(_IngressPerAppBase):
             scheme: Scheme to be used; if unspecified, use the one used by __init__.
             host: Hostname to be used by the ingress provider to address the
              requirer unit; if unspecified, FQDN will be used instead
+            ip: Alternative addressing method other than host to be used by the ingress provider.
+                if unspecified, binding address from juju network API will be used.
             port: the port of the service (required)
         """
         for relation in self.relations:
-            self._provide_ingress_requirements(scheme, host, port, relation)
+            self._provide_ingress_requirements(scheme, host, ip, port, relation)
 
     def _provide_ingress_requirements(
         self,
         scheme: Optional[str],
         host: Optional[str],
+        ip: Optional[str],
         port: int,
         relation: Relation,
     ):
         if self.unit.is_leader():
             self._publish_app_data(scheme, port, relation)
 
-        self._publish_unit_data(host, relation)
+        self._publish_unit_data(host, ip, relation)
 
     def _publish_unit_data(
         self,
         host: Optional[str],
+        ip: Optional[str],
         relation: Relation,
     ):
         if not host:
             host = socket.getfqdn()
 
+        if ip is None:
+            network_binding = self.charm.model.get_binding(relation)
+            if (
+                network_binding is not None
+                and (bind_address := network_binding.network.bind_address) is not None
+            ):
+                ip = str(bind_address)
+            else:
+                log.error("failed to retrieve ip information from juju")
+
         unit_databag = relation.data[self.unit]
         try:
-            IngressRequirerUnitData(host=host).dump(unit_databag)
+            IngressRequirerUnitData(host=host, ip=ip).dump(unit_databag)
         except pydantic.ValidationError as e:
             msg = "failed to validate unit data"
             log.info(msg, exc_info=True)  # log to INFO because this might be expected
