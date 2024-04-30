@@ -416,6 +416,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "compute.migration-address": self.migration_address
                 or config("ip-address")
                 or local_ip,
+                "compute.resume-on-boot": config("resume-on-boot"),
                 "credentials.ovn-metadata-proxy-shared-secret": self.metadata_secret(),
                 "identity.admin-role": contexts.identity_credentials.admin_role,
                 "identity.auth-url": contexts.identity_credentials.internal_endpoint,

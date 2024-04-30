@@ -5,6 +5,11 @@ options:
   debug:
     default: False
     type: boolean
+  resume-on-boot:
+    default: True
+    description: |
+      Whether to resume the guest VMs when the host boots.
+    type: boolean
   dns-domain:
     default: "openstack.local"
     type: string
