@@ -20,7 +20,9 @@ This charm provide Neutron services as part of an OpenStack deployment
 """
 
 import logging
+import re
 
+import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
@@ -121,6 +123,63 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ]
     ]
 
+    def check_configuration(self, event: ops.EventBase):
+        """Check a configuration key is correct."""
+        try:
+            self._validate_domain()
+        except ValueError as e:
+            raise sunbeam_guard.BlockedExceptionError(str(e)) from e
+
+    def _validate_domain(self):
+        """Check given domain is valid."""
+        domain = self.config.get("dns-domain")
+        if not domain:
+            raise ValueError("dns-domain cannot be empty")
+
+        if len(domain) > 253:
+            raise ValueError(
+                "A full name cannot be longer than 253 characters (trailing dot included)"
+            )
+
+        if not domain.endswith("."):
+            raise ValueError("A domain name must have a trailing dot (.)")
+
+        labels = domain.split(".")
+
+        if len(labels) == 1:
+            raise ValueError(
+                "A domain name must have at least one label and a trailing dot,"
+                " or two labels separated by a dot"
+            )
+
+        if domain.endswith("."):
+            # strip trailing dot
+            del labels[-1]
+
+        label_regex = re.compile(r"^[a-z0-9-]*$", re.IGNORECASE)
+
+        for label in labels:
+            if not 1 < len(label) < 63:
+                raise ValueError(
+                    "A label in a domain cannot be empty or longer than 63 characters"
+                )
+
+            if label.startswith("-") or label.endswith("-"):
+                raise ValueError(
+                    "A label in a domain cannot start or end with a hyphen (-)"
+                )
+
+            if label_regex.match(label) is None:
+                raise ValueError(
+                    "A label in a domain can only contain alphanumeric characters"
+                    " and hyphens (-)"
+                )
+
+    def configure_unit(self, event: ops.EventBase) -> None:
+        """Run configuration on this unit."""
+        self.check_configuration(event)
+        return super().configure_unit(event)
+
     def get_pebble_handlers(self) -> list[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""
         return [
@@ -178,7 +237,7 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
     def context(self) -> dict:
         """Configuration context."""
         return {
-            "extension_drivers": "port_security,qos",
+            "extension_drivers": "port_security,qos,dns_domain_ports",
             "type_drivers": "geneve,gre,vlan,flat,local",
             "tenant_network_types": "geneve,gre,vlan,flat,local",
             "mechanism_drivers": "ovn",

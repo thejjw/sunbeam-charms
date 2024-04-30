@@ -5,9 +5,6 @@ options:
   debug:
     default: False
     type: boolean
-  dns-domain:
-    default: "openstack.local"
-    type: string
   dns-servers:
     default: "8.8.8.8"
     type: string
