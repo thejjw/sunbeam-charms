@@ -3,6 +3,15 @@ options:
     default: False
     description: Enable debug logging.
     type: boolean
+  dns-domain:
+    default: cloud.sunbeam.local.
+    description: |
+      Specifies the dns domain name that should be used for building instance
+      hostnames. The value of 'openstacklocal' will cause
+      the dhcp agents to broadcast the default domain of openstacklocal and
+      will not enable internal cloud dns resolution. This value should end
+      with a '.', e.g. 'cloud.example.org.'.
+    type: string
   os-admin-hostname:
     default:
     description: |
