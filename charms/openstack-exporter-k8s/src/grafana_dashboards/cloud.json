@@ -76,7 +76,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "# Openstack dashboard\n\n* filter by juju_model (for openstack models) if connected to multiple clouds\n* openstack data is cached, currently refreshed every 5 minutes\n* The VM creation / teardown graph doesn't show the values for the builders in scalingstacks because they happen a lot faster than our scrape interval\n* \"Free IPs\" are not owned by any tenant and available for allocation\n* \"Unused IPs\" are owned by a tenant but not currently associated with an instance",
+        "content": "# OpenStack Cloud Usage\n\n* filter by juju_model (for openstack models) if connected to multiple clouds",
         "mode": "markdown"
       },
       "pluginVersion": "9.2.1",
@@ -1700,7 +1700,7 @@
     ]
   },
   "timezone": "utc",
-  "title": "OpenStack Overview",
+  "title": "OpenStack Cloud Usage",
   "uid": "7d177394-f0b4-11ee-9495-9b832692810a",
   "version": 1,
   "weekStart": ""
