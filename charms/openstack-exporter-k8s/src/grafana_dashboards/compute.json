@@ -2396,6 +2396,6 @@
     ]
   },
   "timezone": "utc",
-  "title": "OpenStack Hypervisor Overview",
+  "title": "OpenStack Compute Overview",
   "version": 1
 }
