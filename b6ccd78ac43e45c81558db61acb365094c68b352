@@ -1,0 +1,11 @@
+Code-Review+1: Eric Chen <eric.chen@canonical.com>
+Verified+2: Zuul
+Code-Review+1: JamesLin <james.lin@canonical.com>
+Workflow+1: Guillaume Boutry <guillaume.boutry@canonical.com>
+Code-Review+2: Guillaume Boutry <guillaume.boutry@canonical.com>
+Submitted-by: Zuul
+Submitted-at: Thu, 02 May 2024 06:10:14 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/917826
+Comments-Total: 2
+Project: openstack/sunbeam-charms
+Branch: refs/heads/main
