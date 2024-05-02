@@ -759,7 +759,7 @@
               }
             ]
           },
-          "unit": "decmbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -791,7 +791,7 @@
           "datasource": {
             "uid": "${prometheusds}"
           },
-          "expr": "sum(openstack_nova_memory_used_bytes{aggregates=~\"$aggregate\"}) / 1e+06",
+          "expr": "sum(openstack_nova_memory_used_bytes{aggregates=~\"$aggregate\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -821,7 +821,7 @@
               }
             ]
           },
-          "unit": "decmbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -853,7 +853,7 @@
           "datasource": {
             "uid": "${prometheusds}"
           },
-          "expr": "sum(openstack_nova_memory_available_bytes{aggregates=~\"$aggregate\"}) / 1e+06",
+          "expr": "sum(openstack_nova_memory_available_bytes{aggregates=~\"$aggregate\"})",
           "instant": true,
           "interval": "",
           "legendFormat": "",
@@ -1038,7 +1038,7 @@
               }
             ]
           },
-          "unit": "decgbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -1068,7 +1068,7 @@
           "datasource": {
             "uid": "${prometheusds}"
           },
-          "expr": "(sum by(aggregates) (openstack_nova_local_storage_available_bytes * on(hostname) group_left() openstack_placement_resource_allocation_ratio{resourcetype=\"DISK_GB\"} / 1e+09)) - (sum by(aggregates) (openstack_nova_local_storage_used_bytes) / 1e+09)",
+          "expr": "(sum by(aggregates) (openstack_nova_local_storage_available_bytes * on(hostname) group_left() openstack_placement_resource_allocation_ratio{resourcetype=\"DISK_GB\"})) - (sum by(aggregates) (openstack_nova_local_storage_used_bytes))",
           "intervalFactor": 2,
           "legendFormat": "{{aggregate}}",
           "refId": "A",
@@ -1372,7 +1372,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -1402,7 +1402,7 @@
           "datasource": {
             "uid": "${prometheusds}"
           },
-          "expr": "sum by(hostname) (openstack_nova_memory_available_bytes) / 1e+09 - sum by(hostname) (openstack_nova_memory_used_bytes) / 1e+09",
+          "expr": "sum by(hostname) (openstack_nova_memory_available_bytes) - sum by(hostname) (openstack_nova_memory_used_bytes)",
           "hide": false,
           "interval": "",
           "intervalFactor": 2,
@@ -1412,7 +1412,7 @@
         }
       ],
       "timeFrom": "20m",
-      "title": "Free RAM GBs per host",
+      "title": "Free RAM per host",
       "transformations": [
         {
           "id": "reduce",
@@ -1451,7 +1451,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -1480,7 +1480,7 @@
           "datasource": {
             "uid": "${prometheusds}"
           },
-          "expr": "sum by(hostname) (openstack_nova_local_storage_available_bytes) / 1e+09 - sum by(hostname) (openstack_nova_local_storage_used_bytes) / 1e+09",
+          "expr": "sum by(hostname) (openstack_nova_local_storage_available_bytes) - sum by(hostname) (openstack_nova_local_storage_used_bytes)",
           "hide": false,
           "interval": "",
           "intervalFactor": 2,
@@ -1490,7 +1490,7 @@
         }
       ],
       "timeFrom": "20m",
-      "title": "Free disk GBs per host",
+      "title": "Free disk per host",
       "transformations": [
         {
           "id": "reduce",
