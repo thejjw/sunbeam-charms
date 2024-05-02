@@ -201,7 +201,7 @@
           "datasource": {
             "uid": "${prometheusds}"
           },
-          "expr": "count(group by(tenant) (openstack_nova_limits_instances_max))",
+          "expr": "count(group by(tenant_id) (openstack_nova_limits_instances_max))",
           "instant": false,
           "interval": "",
           "legendFormat": "",
