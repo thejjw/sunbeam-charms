@@ -98,7 +98,7 @@ class TestOISOperatorCharm(test_utils.CharmTestCase):
             self.harness.charm.service_name,
             "/etc/apache2/sites-enabled/http-sync.conf",
         )
-        expect_entries = """cloud_name: simplestreams-glance-sync
+        expect_entries = """cloud_name: microstack
 frequency: 3600
 mirrors:
 - content_id: '%(region)s' # Content ID choice
@@ -106,7 +106,7 @@ mirrors:
   hypervisor_mapping: false
   image_conversion: false
   item_filters:
-  - release~(focal|jammy)
+  - release~(focal|jammy|noble)
   - arch~(amd64)
   - ftype~(disk1.img|disk.img)
   keep_items: false
