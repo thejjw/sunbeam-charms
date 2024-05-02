@@ -12,7 +12,7 @@
       }
     ]
   },
-  "description": "Openstack dashboard using the Openstack Exporter (https://github.com/openstack-exporter/openstack-exporter)",
+  "description": "OpenStack Service overview using the Openstack Exporter (https://github.com/openstack-exporter/openstack-exporter)",
   "editable": true,
   "gnetId": 9701,
   "graphTooltip": 0,
@@ -1890,7 +1890,7 @@
     ]
   },
   "timezone": "",
-  "title": "OpenStack Dashboard",
+  "title": "OpenStack Service Overview",
   "uid": "YZCsB1Qmz",
   "version": 20
 }
