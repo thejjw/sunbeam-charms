@@ -34,12 +34,12 @@ config:
         The architectures to sync images for. Space delimited list of architectures.
       type: string
     release:
-      default: focal jammy
+      default: focal jammy noble
       description: |
         The releases to sync images for. Space delimited list of releases.
       type: string
     cloud-name:
-      default: simplestreams-glance-sync
+      default: microstack
       description: |
         The name of the cloud to sync images for.
       type: string
