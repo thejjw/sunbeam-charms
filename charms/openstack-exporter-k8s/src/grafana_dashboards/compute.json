@@ -421,7 +421,7 @@
               }
             ]
           },
-          "unit": "mbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -450,7 +450,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum(openstack_nova_memory_used_bytes{hostname=~\"$hypervisor.*\"}) / 1000000",
+          "expr": "sum(openstack_nova_memory_used_bytes{hostname=~\"$hypervisor.*\"})",
           "instant": false,
           "interval": "",
           "legendFormat": "",
@@ -478,7 +478,7 @@
               }
             ]
           },
-          "unit": "mbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -507,7 +507,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum(openstack_nova_memory_available_bytes{hostname=~\"$hypervisor.*\"}) / 1000000",
+          "expr": "sum(openstack_nova_memory_available_bytes{hostname=~\"$hypervisor.*\"})",
           "instant": false,
           "interval": "",
           "legendFormat": "",
@@ -535,7 +535,7 @@
               }
             ]
           },
-          "unit": "decgbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -564,7 +564,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum(openstack_nova_local_storage_used_bytes{hostname=~\"$hypervisor.*\"}) / 1000000000",
+          "expr": "sum(openstack_nova_local_storage_used_bytes{hostname=~\"$hypervisor.*\"})",
           "instant": false,
           "interval": "",
           "legendFormat": "",
@@ -592,7 +592,7 @@
               }
             ]
           },
-          "unit": "decgbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -621,7 +621,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum(openstack_nova_local_storage_available_bytes{hostname=~\"$hypervisor.*\"}) / 1000000000",
+          "expr": "sum(openstack_nova_local_storage_available_bytes{hostname=~\"$hypervisor.*\"})",
           "instant": false,
           "interval": "",
           "legendFormat": "",
@@ -675,7 +675,7 @@
             "properties": [
               {
                 "id": "unit",
-                "value": "decbytes"
+                "value": "bytes"
               },
               {
                 "id": "displayName",
@@ -1124,7 +1124,7 @@
               }
             ]
           },
-          "unit": "decbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -1216,7 +1216,7 @@
               }
             ]
           },
-          "unit": "decbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -1282,7 +1282,7 @@
               }
             ]
           },
-          "unit": "decbytes"
+          "unit": "bytes"
         },
         "overrides": [
           {
