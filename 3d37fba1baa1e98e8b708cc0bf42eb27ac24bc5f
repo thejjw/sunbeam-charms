@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ef3735c_02b50c6e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-05-02T16:25:29Z",
+      "side": 1,
+      "message": "Cherry picked this: https://review.opendev.org/c/openstack/sunbeam-charms/+/917893 to remove func-tempest from voting",
+      "revId": "3d37fba1baa1e98e8b708cc0bf42eb27ac24bc5f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
