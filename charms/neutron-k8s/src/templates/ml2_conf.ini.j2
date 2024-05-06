@@ -8,7 +8,10 @@ type_drivers = {{ ovn.type_drivers }}
 tenant_network_types = {{ ovn.tenant_network_types }}
 mechanism_drivers = {{ ovn.mechanism_drivers }}
 
-path_mtu = {{ ovn.path_mtu }}
+path_mtu = {{ options.path_mtu }}
+{% if options.physical_network_mtus %}
+physical_network_mtus = {{ options.physical_network_mtus.split(' ') | join(',') }}
+{% endif %}
 
 [ml2_type_gre]
 tunnel_id_ranges = {{ ovn.tunnel_id_ranges }}

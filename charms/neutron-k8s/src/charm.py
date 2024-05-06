@@ -241,7 +241,6 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
             "type_drivers": "geneve,gre,vlan,flat,local",
             "tenant_network_types": "geneve,gre,vlan,flat,local",
             "mechanism_drivers": "ovn",
-            "path_mtu": "1500",
             "tunnel_id_ranges": "1:1000",
             "vni_ranges": "1001:2000",
             "flat_networks": "physnet1",

@@ -46,3 +46,30 @@ options:
     default: False
     description: Enable IGMP snooping for integration bridge.
     type: boolean
+  global-physnet-mtu:
+    type: int
+    default: 1500
+    description: |
+      MTU of the underlying physical network. Neutron uses this value to
+      calculate MTU for all virtual network components. For flat and
+      VLAN networks, neutron uses this value without modification. For
+      overlay networks such as VXLAN, neutron automatically subtracts
+      the overlay protocol overhead from this value.
+  path-mtu:
+    type: int
+    default: 1500
+    description: |
+      Maximum size of an IP packet (MTU) that can traverse the
+      underlying physical network infrastructure without fragmentation
+      when using an overlay/tunnel protocol. This option allows
+      specifying a physical network MTU value that differs from the
+      default global-physnet-mtu value.
+  physical-network-mtus:
+     type: string
+     default:
+     description: |
+      Space-delimited list of <physical_network>:<mtu> pairs specifying MTU for
+      individual physical networks.
+      .
+      Use this if a subset of your flat or VLAN provider networks have a MTU
+      that differ with what is set in global-physnet-mtu.
