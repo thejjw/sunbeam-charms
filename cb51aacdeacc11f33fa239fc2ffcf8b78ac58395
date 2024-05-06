@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4f82b399_8c9deb09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-05-06T01:38:50Z",
+      "side": 1,
+      "message": "func-test-tempest has been made non voting on main as well.",
+      "revId": "cb51aacdeacc11f33fa239fc2ffcf8b78ac58395",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
