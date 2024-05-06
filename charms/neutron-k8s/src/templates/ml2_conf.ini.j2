@@ -22,6 +22,9 @@ network_vlan_ranges = {{ ovn.network_vlan_ranges }}
 [ml2_type_flat]
 flat_networks = {{ ovn.flat_networks }}
 
+[ml2_type_geneve]
+vni_ranges = 1:16777215
+
 [ovs]
 enable_tunneling = {{ ovn.enable_tunneling }}
 # local_ip = {{ ovn.local_ip }}
