@@ -40,6 +40,10 @@ import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import tenacity
+from charms.designate_k8s.v0.designate_service import (
+    DesignateEndpointRequestEvent,
+    DesignateServiceProvides,
+)
 from ops.main import (
     main,
 )
@@ -169,6 +173,42 @@ class DesignatePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         except ops.pebble.ExecError:
             logger.exception("Failed to disable '000-default' site in apache")
         super().init_service(context)
+
+
+class DesignateServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for designate service relation."""
+
+    def __init__(
+        self,
+        charm: ops.CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+    ):
+        super().__init__(charm, relation_name, callback_f)
+
+    def setup_event_handler(self):
+        """Configure event handlers for an Ceilometer service relation."""
+        logger.debug("Setting up Ceilometer service event handler")
+        svc = DesignateServiceProvides(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            svc.on.endpoint_request,
+            self._on_endpoint_request,
+        )
+        return svc
+
+    def _on_endpoint_request(
+        self, event: DesignateEndpointRequestEvent
+    ) -> None:
+        """Handle endpoint request event."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return True
 
 
 class BindRndcRequiresRelationHandler(sunbeam_rhandlers.RelationHandler):
@@ -371,6 +411,13 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
+        if self.can_add_handler("dnsaas", handlers):
+            self.dnsaas = DesignateServiceProvidesHandler(
+                self,
+                "dnsaas",
+                self.set_dns_endpoint_from_event,
+            )
+            handlers.append(self.dnsaas)
         if self.can_add_handler(BIND_RNDC_RELATION, handlers):
             self.bind_rndc = BindRndcRequiresRelationHandler(
                 self,
@@ -480,6 +527,36 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             return secret.get_content(refresh=True)["nonce"]
         except ops.SecretNotFoundError:
             return None
+
+    def _ingress_changed(self, event: ops.framework.EventBase) -> None:
+        """Ingress changed callback.
+
+        Invoked when the data on the ingress relation has changed. This will
+        update the relevant endpoints with the identity service, and then
+        call the configure_charm.
+        """
+        self.set_dns_endpoint_on_update()
+        super()._ingress_changed(event)
+
+    def set_dns_endpoint_from_event(
+        self, event: ops.framework.EventBase
+    ) -> None:
+        """Set endpoint in relation data."""
+        if self.internal_url:
+            self.dnsaas.interface.set_endpoint(
+                relation=event.relation, endpoint=self.internal_url
+            )
+        else:
+            logging.debug("DNS Endpoint not yet set, not sending config")
+
+    def set_dns_endpoint_on_update(self) -> None:
+        """Set endpoint on relation on update of local data."""
+        if self.internal_url:
+            self.dnsaas.interface.set_endpoint(
+                relation=None, endpoint=self.internal_url
+            )
+        else:
+            logging.debug("DNS Endpoint not yet set, not sending config")
 
 
 if __name__ == "__main__":
