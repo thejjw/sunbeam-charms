@@ -17,7 +17,7 @@ tunnel_id_ranges = {{ ovn.tunnel_id_ranges }}
 vni_ranges = {{ ovn.vni_ranges }}
 
 [ml2_type_vlan]
-network_vlan_ranges = {{ ovn.network_vlan_ranges }}
+network_vlan_ranges = {{ options.vlan_ranges.split(' ') | join(',') }}
 
 [ml2_type_flat]
 flat_networks = {{ ovn.flat_networks }}

@@ -244,7 +244,6 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
             "path_mtu": "1500",
             "tunnel_id_ranges": "1:1000",
             "vni_ranges": "1001:2000",
-            "network_vlan_ranges": "physnet1:1:4094",
             "flat_networks": "physnet1",
             "enable_tunneling": "True",
             "local_ip": "127.0.0.1",
