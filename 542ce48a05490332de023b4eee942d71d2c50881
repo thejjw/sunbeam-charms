@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3423823_139529fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-05-06T03:52:09Z",
+      "side": 1,
+      "message": "recheck microk8s.daemon-kubelite got restarted during tests",
+      "revId": "542ce48a05490332de023b4eee942d71d2c50881",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
