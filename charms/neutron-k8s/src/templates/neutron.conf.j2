@@ -24,7 +24,7 @@ notify_nova_on_port_data_changes = True
 
 dns_domain = {{ options.dns_domain }}
 
-global_physnet_mtu = 1500
+global_physnet_mtu = {{ options.global_physnet_mtu }}
 
 transport_url = {{ amqp.transport_url }}
 
