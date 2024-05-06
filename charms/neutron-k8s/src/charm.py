@@ -21,7 +21,12 @@ This charm provide Neutron services as part of an OpenStack deployment
 
 import logging
 import re
+from typing import (
+    Callable,
+    List,
+)
 
+import charms.designate_k8s.v0.designate_service as designate_svc
 import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
@@ -37,8 +42,79 @@ from ops.framework import (
 from ops.main import (
     main,
 )
+from ops.model import (
+    BlockedStatus,
+)
 
 logger = logging.getLogger(__name__)
+
+
+class DesignateServiceRequiresHandler(sunbeam_rhandlers.RelationHandler):
+    """Handle external-dns relation on the requires side."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+        mandatory: bool = False,
+    ):
+        """Create a new external-dns handler.
+
+        Create a new DesignateServiceRequiresHandler that handles initial
+        events from the relation and invokes the provided callbacks based on
+        the event raised.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param callback_f: the function to call when the nodes are connected
+        :type callback_f: Callable
+        :param mandatory: If the relation is mandatory to proceed with
+                          configuring charm
+        :type mandatory: bool
+        """
+        super().__init__(charm, relation_name, callback_f, mandatory)
+
+    def setup_event_handler(self) -> None:
+        """Configure event handlers for external-dns service relation."""
+        logger.debug("Setting up Designate service event handler")
+        svc = designate_svc.DesignateServiceRequires(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            svc.on.endpoint_changed,
+            self._on_endpoint_changed,
+        )
+        self.framework.observe(
+            svc.on.goneaway,
+            self._on_goneaway,
+        )
+        return svc
+
+    def _on_endpoint_changed(self, event: ops.framework.EventBase) -> None:
+        """Handle endpoint_changed  event."""
+        logger.debug(
+            "Designate service provider endpoint changed event received"
+        )
+        self.callback_f(event)
+
+    def _on_goneaway(self, event: ops.framework.EventBase) -> None:
+        """Handle gone_away  event."""
+        logger.debug("Designate service relation is departed/broken")
+        self.callback_f(event)
+        if self.mandatory:
+            self.status.set(BlockedStatus("integration missing"))
+
+    @property
+    def ready(self) -> bool:
+        """Whether handler is ready for use."""
+        try:
+            return bool(self.interface.endpoint)
+        except (AttributeError, KeyError):
+            return False
 
 
 class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
@@ -127,6 +203,7 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Check a configuration key is correct."""
         try:
             self._validate_domain()
+            self._validate_ptr_zone_prefix_size()
         except ValueError as e:
             raise sunbeam_guard.BlockedExceptionError(str(e)) from e
 
@@ -175,10 +252,47 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                     " and hyphens (-)"
                 )
 
+    def _validate_ptr_zone_prefix_size(self):
+        """Check given ptr zone prefix size is valid."""
+        ipv4_prefix_size = self.config.get("ipv4-ptr-zone-prefix-size")
+        valid_ipv4_prefix_size = (8 <= ipv4_prefix_size <= 24) and (
+            ipv4_prefix_size % 8
+        ) == 0
+        if not valid_ipv4_prefix_size:
+            raise ValueError(
+                "Invalid ipv4-ptr-zone-prefix-size. Value should be between 8 - 24 and multiple of 8"
+            )
+
+        ipv6_prefix_size = self.config.get("ipv6-ptr-zone-prefix-size")
+        valid_ipv6_prefix_size = (4 <= ipv6_prefix_size <= 124) and (
+            ipv6_prefix_size % 4
+        ) == 0
+        if not valid_ipv6_prefix_size:
+            raise ValueError(
+                "Invalid ipv6-ptr-zone-prefix-size. Value should be between 4 - 124 and multiple of 4"
+            )
+
     def configure_unit(self, event: ops.EventBase) -> None:
         """Run configuration on this unit."""
         self.check_configuration(event)
         return super().configure_unit(event)
+
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = handlers or []
+        if self.can_add_handler("external-dns", handlers):
+            self.external_dns = DesignateServiceRequiresHandler(
+                self,
+                "external-dns",
+                self.configure_charm,
+                "external-dns" in self.mandatory_relations,
+            )
+            handlers.append(self.external_dns)
+
+        handlers = super().get_relation_handlers(handlers)
+        return handlers
 
     def get_pebble_handlers(self) -> list[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""

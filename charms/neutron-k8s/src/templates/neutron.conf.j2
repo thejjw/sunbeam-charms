@@ -28,6 +28,10 @@ global_physnet_mtu = {{ options.global_physnet_mtu }}
 
 transport_url = {{ amqp.transport_url }}
 
+{% if external_dns and external_dns.endpoint -%}
+external_dns_driver = designate
+{% endif -%}
+
 [oslo_concurrency]
 lock_path = $state_path/lock
 
@@ -69,3 +73,22 @@ username = {{ identity_service.service_user_name }}
 password = {{ identity_service.service_password }}
 
 {% include "parts/section-oslo-messaging-rabbit" %}
+
+
+{% if external_dns and external_dns.endpoint -%}
+[designate]
+url = {{ external_dns.endpoint }}
+auth_type = password
+auth_url = {{ identity_service.admin_auth_url }}
+project_domain_name = {{ identity_service.service_domain_name }}
+user_domain_name = {{ identity_service.service_domain_name }}
+project_name = {{ identity_service.service_project_name }}
+username = {{ identity_service.service_user_name }}
+password = {{ identity_service.service_password }}
+allow_reverse_dns_lookup = {{ options.reverse_dns_lookup }}
+ipv4_ptr_zone_prefix_size = {{ options.ipv4_ptr_zone_prefix_size }}
+ipv6_ptr_zone_prefix_size = {{ options.ipv6_ptr_zone_prefix_size }}
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+cafile = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}
+{% endif -%}
