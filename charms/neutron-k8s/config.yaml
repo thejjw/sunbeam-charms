@@ -34,3 +34,7 @@ options:
     default: RegionOne
     description: Space delimited list of OpenStack regions
     type: string
+  enable-igmp-snooping:
+    default: False
+    description: Enable IGMP snooping for integration bridge.
+    type: boolean
