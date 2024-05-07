@@ -132,6 +132,8 @@ relations:
   - rabbitmq:amqp
 - - cinder:storage-backend
   - cinder-ceph:storage-backend
+- - keystone:identity-credentials
+  - cinder-ceph:identity-credentials
 
 - - mysql:database
   - gnocchi:database

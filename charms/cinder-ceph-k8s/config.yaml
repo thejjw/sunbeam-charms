@@ -250,3 +250,19 @@ options:
     type: boolean
     default: False
     description: Enable notifications to send to telemetry.
+  image-volume-cache-enabled:
+    type: boolean
+    default: False
+    description: |
+      Enable the image volume cache.
+  image-volume-cache-max-size-gb:
+    type: int
+    default: 0
+    description: |
+      Max size of the image volume cache in GB. 0 means unlimited.
+  image-volume-cache-max-count:
+    type: int
+    default: 0
+    description: |
+      Max number of entries allowed in the image volume cache. 0 means
+      unlimited.
