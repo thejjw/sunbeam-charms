@@ -13,12 +13,6 @@ path_mtu = {{ options.path_mtu }}
 physical_network_mtus = {{ options.physical_network_mtus.split(' ') | join(',') }}
 {% endif %}
 
-[ml2_type_gre]
-tunnel_id_ranges = {{ ovn.tunnel_id_ranges }}
-
-[ml2_type_vxlan]
-vni_ranges = {{ ovn.vni_ranges }}
-
 [ml2_type_vlan]
 network_vlan_ranges = {{ options.vlan_ranges.split(' ') | join(',') }}
 
@@ -26,15 +20,13 @@ network_vlan_ranges = {{ options.vlan_ranges.split(' ') | join(',') }}
 flat_networks = {{ ovn.flat_networks }}
 
 [ml2_type_geneve]
-vni_ranges = 1:16777215
+vni_ranges = {{ ovn.vni_ranges }}
+max_header_size = {{ ovn.max_header_size }}
 
 [ovs]
 enable_tunneling = {{ ovn.enable_tunneling }}
 igmp_snooping_enable = {{ options.enable_igmp_snooping }}
 # local_ip = {{ ovn.local_ip }}
-
-[agent]
-tunnel_types = {{ ovn.tunnel_types }}
 
 [securitygroup]
 enable_security_group = {{ ovn.enable_security_group }}
@@ -56,7 +48,3 @@ dhcp_default_lease_time = {{ ovn.dhcp_default_lease_time }}
 ovn_dhcp4_global_options = {{ ovn.ovn_dhcp4_global_options }}
 ovn_dhcp6_global_options = {{ ovn.ovn_dhcp6_global_options }}
 vhost_sock_dir = {{ ovn.vhost_sock_dir }}
-
-[ml2_type_geneve]
-vni_ranges = {{ ovn.vni_ranges }}
-max_header_size = {{ ovn.max_header_size }}
