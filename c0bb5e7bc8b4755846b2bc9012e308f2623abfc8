@@ -16,6 +16,24 @@
       "message": "Should be Dict[str, str] instead of dict",
       "revId": "c0bb5e7bc8b4755846b2bc9012e308f2623abfc8",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9eafc8bd_67a6533a",
+        "filename": "charms/cinder-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-05-07T09:02:50Z",
+      "side": 1,
+      "message": "resolved in PS2",
+      "parentUuid": "cf06c45d_cb623732",
+      "revId": "c0bb5e7bc8b4755846b2bc9012e308f2623abfc8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
