@@ -219,6 +219,7 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
         "database",
         "amqp",
         "ceph",
+        "storage-backend",
     }
 
     def __init__(self, framework):
