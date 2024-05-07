@@ -27,7 +27,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 import json
 import logging
@@ -43,7 +43,7 @@ from ops.framework import (
 
 from ops.model import Relation
 
-from typing import List
+from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -119,14 +119,15 @@ class StorageBackendRequires(Object):
         logging.debug("StorageBackendRequires on_broken")
         self.on.goneaway.emit()
 
-    def set_ready(self) -> None:
+    def set_ready(self, configs: Dict[str, str]) -> None:
         """Request access to the StorageBackend server."""
         if self.model.unit.is_leader():
             logging.debug(
                 "Signalling storage backends that core services are ready"
             )
+            configs["ready"] = "true"
             for relation in self.framework.model.relations[self.relation_name]:
-                relation.data[self.charm.app]["ready"] = 'true'
+                relation.data[self.charm.app].update(configs)
 
 
 class APIReadyEvent(EventBase):
@@ -170,10 +171,17 @@ class StorageBackendProvides(Object):
         """Handle StorageBackend joined."""
         logging.debug("StorageBackendProvides on_joined")
 
-    def remote_ready(self):
+    def get_remote_app_data(self, key: str) -> str | None:
+        """Return the value for the given key from remote app data."""
         relation = self.framework.model.get_relation(self.relation_name)
         if relation:
-            ready = relation.data[relation.app].get("ready")
+            return relation.data[relation.app].get(key)
+
+        return None
+
+    def remote_ready(self) -> bool:
+        ready = self.get_remote_app_data("ready")
+        if ready:
             return ready and json.loads(ready)
         return False
 
@@ -187,3 +195,15 @@ class StorageBackendProvides(Object):
         """Handle StorageBackend broken."""
         logging.debug("RabbitMQStorageBackendProvides on_departed")
         # TODO clear data on the relation
+
+    @property
+    def image_volume_cache_enabled(self) -> str | None:
+        return self.get_remote_app_data("image-volume-cache-enabled")
+
+    @property
+    def image_volume_cache_max_size_gb(self) -> str | None:
+        return self.get_remote_app_data("image-volume-cache-max-size-gb")
+
+    @property
+    def image_volume_cache_max_count(self) -> str | None:
+        return self.get_remote_app_data("image-volume-cache-max-count")
