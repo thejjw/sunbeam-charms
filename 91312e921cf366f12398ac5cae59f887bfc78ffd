@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "885363eb_40417ce6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-05-07T10:58:38Z",
+      "side": 1,
+      "message": "Not a clean cherry pick, removed secrets.yaml change, and changed version to 2023.2",
+      "revId": "91312e921cf366f12398ac5cae59f887bfc78ffd",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
