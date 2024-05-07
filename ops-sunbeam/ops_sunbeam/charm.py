@@ -672,6 +672,7 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         retry=(
             tenacity.retry_if_exception_type(ops.pebble.ChangeError)
             | tenacity.retry_if_exception_type(ops.pebble.ExecError)
+            | tenacity.retry_if_exception_type(ops.pebble.TimeoutError)
         ),
         after=tenacity.after_log(logger, logging.WARNING),
         wait=tenacity.wait_exponential(multiplier=1, min=10, max=300),
