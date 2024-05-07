@@ -66,7 +66,7 @@ options:
     default: False
     description: |
       Flatten volumes created from snapshots to remove dependency from
-      volume to snapshot. Supported on Queens+
+      volume to snapshot.
   rbd-mirroring-mode:
     type: string
     default: pool
