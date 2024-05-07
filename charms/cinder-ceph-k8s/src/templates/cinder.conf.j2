@@ -30,7 +30,7 @@ connection_recycle_time = 200
 volume_driver = cinder.volume.drivers.rbd.RBDDriver
 rbd_exclusive_cinder_pool = True
 report_discard_supported = True
-rbd_flatten_volume_from_snapshot = True
+rbd_flatten_volume_from_snapshot = {{ options.rbd_flatten_volume_from_snapshot }}
 
 volume_backend_name = {{ cinder_ceph.backend_name }}
 rbd_pool = {{ cinder_ceph.rbd_pool }}
