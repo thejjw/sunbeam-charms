@@ -36,6 +36,7 @@ INTERNAL_CINDER_CEPH_LIBS=(
 INTERNAL_DESIGNATE_LIBS=(
         "keystone_k8s"
         "designate_bind_k8s"
+	"designate_k8s"
 )
 
 INTERNAL_DESIGNATE_BIND_LIBS=(
@@ -54,6 +55,7 @@ INTERNAL_KEYSTONE_LIBS=(
 INTERNAL_NEUTRON_LIBS=(
         "keystone_k8s"
         "ovn_central_k8s"
+	"designate_k8s"
 )
 
 INTERNAL_NOVA_LIBS=(

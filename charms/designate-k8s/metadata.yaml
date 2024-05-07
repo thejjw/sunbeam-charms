@@ -27,6 +27,10 @@ resources:
     description: OCI image for OpenStack designate
     upstream-source: ghcr.io/canonical/designate-consolidated:2024.1
 
+provides:
+  dnsaas:
+    interface: designate
+
 requires:
   database:
     interface: mysql_client
