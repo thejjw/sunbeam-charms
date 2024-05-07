@@ -352,15 +352,13 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
         """Configuration context."""
         return {
             "extension_drivers": "port_security,qos,dns_domain_ports,port_forwarding,uplink_status_propagation",
-            "type_drivers": "geneve,gre,vlan,flat,local",
-            "tenant_network_types": "geneve,gre,vlan,flat,local",
+            "type_drivers": "geneve,vlan,flat",
+            "tenant_network_types": "geneve,vlan,flat",
             "mechanism_drivers": "ovn",
-            "tunnel_id_ranges": "1:1000",
             "vni_ranges": "1001:2000",
             "flat_networks": "physnet1",
             "enable_tunneling": "True",
             "local_ip": "127.0.0.1",
-            "tunnel_types": "gre",
             "enable_security_group": "True",
             "max_header_size": "38",
             "ovn_l3_scheduler": "leastloaded",
