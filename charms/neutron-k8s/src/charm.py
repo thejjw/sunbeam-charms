@@ -352,15 +352,18 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
         """Configuration context."""
         return {
             "extension_drivers": "port_security,qos,dns_domain_ports,port_forwarding,uplink_status_propagation",
-            "type_drivers": "geneve,gre,vlan,flat,local",
-            "tenant_network_types": "geneve,gre,vlan,flat,local",
+            "type_drivers": "geneve,vlan,flat",
+            "tenant_network_types": "geneve,vlan,flat",
             "mechanism_drivers": "ovn",
-            "tunnel_id_ranges": "1:1000",
-            "vni_ranges": "1001:2000",
+            # Limiting defaults to 2**16 -1 even though geneve vni max is 2**24-1
+            # ml2_geneve_allocations will be populated with each vni range
+            # which will result in db timeouts if range is 1 - 2**24-1
+            # https://opendev.org/openstack/neutron/src/commit/ac1472c8cffe64d32a012c73227595f2f7806de9/neutron/plugins/ml2/drivers/type_tunnel.py#L219-L223
+            # This means compute nodes can scale upto 65536
+            "vni_ranges": "1:65535",
             "flat_networks": "physnet1",
             "enable_tunneling": "True",
             "local_ip": "127.0.0.1",
-            "tunnel_types": "gre",
             "enable_security_group": "True",
             "max_header_size": "38",
             "ovn_l3_scheduler": "leastloaded",
