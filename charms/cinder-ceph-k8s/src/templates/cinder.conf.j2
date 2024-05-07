@@ -26,6 +26,18 @@ connection_recycle_time = 200
 
 {% include "parts/section-oslo-notifications" %}
 
+[backend_defaults]
+{% if storage_backend and storage_backend.image_volume_cache_enabled -%}
+image_volume_cache_enabled = {{ storage_backend.image_volume_cache_enabled }}
+{% endif -%}
+{% if storage_backend and storage_backend.image_volume_cache_max_size_gb -%}
+image_volume_cache_max_size_gb = {{ storage_backend.image_volume_cache_max_size_gb }}
+{% endif -%}
+{% if storage_backend and storage_backend.image_volume_cache_max_count -%}
+image_volume_cache_max_count = {{ storage_backend.image_volume_cache_max_count }}
+{% endif -%}
+
+
 [{{ cinder_ceph.backend_name }}]
 volume_driver = cinder.volume.drivers.rbd.RBDDriver
 rbd_exclusive_cinder_pool = True

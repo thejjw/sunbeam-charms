@@ -178,9 +178,9 @@ class StorageBackendRequiresHandler(sunbeam_rhandlers.RelationHandler):
         # that the relation is complete (indicated by a password)
         self.callback_f(event)
 
-    def set_ready(self) -> None:
+    def set_ready(self, configs: dict) -> None:
         """Flag that all services are running and ready for use."""
-        return self.interface.set_ready()
+        return self.interface.set_ready(configs)
 
     @property
     def ready(self) -> bool:
@@ -321,12 +321,27 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Name of Containerto run db sync from."""
         return CINDER_SCHEDULER_CONTAINER
 
+    def configs_to_share_with_backend(self) -> Dict[str, str]:
+        """Shared configs to storage backend."""
+        return {
+            "image-volume-cache-enabled": str(
+                self.config["image-volume-cache-enabled"]
+            ).lower(),
+            "image-volume-cache-max-size-gb": str(
+                self.config["image-volume-cache-max-size-gb"]
+            ),
+            "image-volume-cache-max-count": str(
+                self.config["image-volume-cache-max-count"]
+            ),
+        }
+
     def configure_charm(self, event) -> None:
         """Configure the charmed services."""
         super().configure_charm(event)
         if self.bootstrapped():
             # Tell storage backends we are ready
-            self.sb_svc.set_ready()
+            shared_configs = self.configs_to_share_with_backend()
+            self.sb_svc.set_ready(shared_configs)
 
 
 if __name__ == "__main__":
