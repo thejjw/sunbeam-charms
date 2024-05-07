@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6579b6f3_b38a8665",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 935
+      },
+      "writtenOn": "2024-05-07T15:00:35Z",
+      "side": 1,
+      "message": "Is this config in the right place? we pass it to the backend in this review - but maybe it might be better as config on the cinder-volume service charm instead of the core api/scheduler?\n\nWe probably also need to consider storage for the cache as well - this should be a PVC otherwise we\u0027re going to loose the locally cached images on a charm upgrade or refresh.",
+      "revId": "42d7828ef10445d46c73c3dfb382eeecc9378ad6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
