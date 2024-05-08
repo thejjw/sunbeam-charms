@@ -16,6 +16,24 @@
       "message": "Is this config in the right place? we pass it to the backend in this review - but maybe it might be better as config on the cinder-volume service charm instead of the core api/scheduler?\n\nWe probably also need to consider storage for the cache as well - this should be a PVC otherwise we\u0027re going to loose the locally cached images on a charm upgrade or refresh.",
       "revId": "42d7828ef10445d46c73c3dfb382eeecc9378ad6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1f81e075_e3796a20",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-05-08T04:29:44Z",
+      "side": 1,
+      "message": "Updated PS3 with following changes:\nMoved new config options to cinder-ceph-k8s\n\nThe cache creates a new volume and stored in default volume type which is ceph backend in this case. PVC may not be required. I see an empty file created in /var/lib/cinder/cinder-\u003ccache volume id\u003e but when i tested by deleting pod and creating new volume with same image, it picked from the cache.",
+      "parentUuid": "6579b6f3_b38a8665",
+      "revId": "42d7828ef10445d46c73c3dfb382eeecc9378ad6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
