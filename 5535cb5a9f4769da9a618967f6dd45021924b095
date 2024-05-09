@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "464eecd9_b1827a52",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 935
+      },
+      "writtenOn": "2024-05-09T07:24:02Z",
+      "side": 1,
+      "message": "What\u0027s the rationale for adding the identity-credentails interface?",
+      "revId": "5535cb5a9f4769da9a618967f6dd45021924b095",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
