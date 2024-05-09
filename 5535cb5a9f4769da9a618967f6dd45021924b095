@@ -34,6 +34,24 @@
       "parentUuid": "464eecd9_b1827a52",
       "revId": "5535cb5a9f4769da9a618967f6dd45021924b095",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e515c2b5_c03b84c0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-05-09T07:26:43Z",
+      "side": 1,
+      "message": "Reference: https://docs.openstack.org/cinder/latest/admin/image-volume-cache.html#configure-the-internal-tenant",
+      "parentUuid": "350695ed_54ecb355",
+      "revId": "5535cb5a9f4769da9a618967f6dd45021924b095",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
