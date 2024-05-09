@@ -16,6 +16,24 @@
       "message": "What\u0027s the rationale for adding the identity-credentails interface?",
       "revId": "5535cb5a9f4769da9a618967f6dd45021924b095",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "350695ed_54ecb355",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-05-09T07:25:59Z",
+      "side": 1,
+      "message": "To populate configurations cinder_internal_tenant_project_id, cinder_internal_tenant_user_id. The cache will be saved in the tenant mentioned in the above configurations as volumes.",
+      "parentUuid": "464eecd9_b1827a52",
+      "revId": "5535cb5a9f4769da9a618967f6dd45021924b095",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
