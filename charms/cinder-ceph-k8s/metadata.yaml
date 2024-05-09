@@ -39,6 +39,9 @@ requires:
   database:
     interface: mysql_client
     limit: 1
+  identity-credentials:
+    interface: keystone-credentials
+    optional: true
 
 provides:
   ceph-access:

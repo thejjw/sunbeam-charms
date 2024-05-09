@@ -18,6 +18,13 @@ transport_url = {{ amqp.transport_url }}
 enabled_backends = {{ cinder_ceph.backend_name }}
 cluster = {{ cinder_ceph.cluster_name }}
 
+{% if identity_credentials and identity_credentials.project_id -%}
+cinder_internal_tenant_project_id = {{ identity_credentials.project_id }}
+{% endif -%}
+{% if identity_credentials and identity_credentials.username -%}
+cinder_internal_tenant_user_id = {{ identity_credentials.username }}
+{% endif -%}
+
 [database]
 {% if database.connection -%}
 connection = {{ database.connection }}
@@ -37,8 +44,12 @@ rbd_pool = {{ cinder_ceph.rbd_pool }}
 rbd_user = {{ cinder_ceph.rbd_user }}
 rbd_secret_uuid = {{ cinder_ceph.secret_uuid }}
 
-{% if cinder_ceph.backend_availability_zone %}
+{% if cinder_ceph.backend_availability_zone -%}
 backend_availability_zone = {{ cinder_ceph.backend_availability_zone }}
-{% endif %}
+{% endif -%}
+
+image_volume_cache_enabled = {{ options.image_volume_cache_enabled }}
+image_volume_cache_max_size_gb = {{ options.image_volume_cache_max_size_gb }}
+image_volume_cache_max_count = {{ options.image_volume_cache_max_count }}
 
 {% include "parts/section-oslo-messaging-rabbit" %}
