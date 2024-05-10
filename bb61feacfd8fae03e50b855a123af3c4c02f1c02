@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "bb61feacfd8fae03e50b855a123af3c4c02f1c02",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40329b12_92f9d4d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-05-10T13:36:22Z",
+      "side": 1,
+      "message": "recheck\n\ntimeout on downloading build artifact",
+      "revId": "bb61feacfd8fae03e50b855a123af3c4c02f1c02",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
