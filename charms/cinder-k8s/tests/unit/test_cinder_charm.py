@@ -42,6 +42,9 @@ class _CinderOperatorCharm(charm.CinderOperatorCharm):
         super().configure_charm(event)
         self._log_event(event)
 
+    @property
+    def public_ingress_address(self):
+        return "cinder.juju"
 
 class TestCinderOperatorCharm(test_utils.CharmTestCase):
     """Unit tests for Cinder Operator."""
