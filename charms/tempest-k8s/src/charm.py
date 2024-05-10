@@ -183,6 +183,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "identity-ops",
             self.configure_charm,
             mandatory="identity-ops" in self.mandatory_relations,
+            region=self.config["region"],
         )
         handlers.append(self.user_id_ops)
         self.loki = LoggingRelationHandler(
@@ -224,7 +225,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         logger.debug("Retrieving OpenStack credentials")
         credential = self.user_id_ops.get_user_credential()
         tempest_env = {
-            "OS_REGION_NAME": "RegionOne",
+            "OS_REGION_NAME": self.config["region"],
             "OS_IDENTITY_API_VERSION": "3",
             "OS_AUTH_VERSION": "3",
             "OS_AUTH_URL": credential.get("auth-url"),

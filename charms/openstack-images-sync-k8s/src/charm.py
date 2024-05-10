@@ -67,7 +67,7 @@ class SyncCharmConfigContext(sunbeam_config_contexts.CharmConfigContext):
                 self.charm.config["architecture"].split()
             ),
             "release": "|".join(self.charm.config["release"].split()),
-            "region": ", ".join(self.charm.config["region"].split()),
+            "region": self.charm.config["region"],
             "frequency": _frequency_to_seconds(self.charm.config["frequency"]),
         }
 
@@ -178,7 +178,7 @@ class OpenstackImagesSyncK8SCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def service_endpoints(self):
         """Describe the openstack images sync service endpoint."""
-        slash_region = "/" + self.config["region"].split()[0]
+        slash_region = "/" + self.config["region"]
         return [
             {
                 "service_name": "image-stream",

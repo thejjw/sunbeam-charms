@@ -5,5 +5,5 @@ options:
     type: boolean
   region:
     default: RegionOne
-    description: Space delimited list of OpenStack regions
+    description: Name of the OpenStack region
     type: string

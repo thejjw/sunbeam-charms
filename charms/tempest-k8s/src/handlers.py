@@ -324,13 +324,6 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         },
     ]
 
-    list_endpoint_ops = [
-        {
-            "name": "list_endpoint",
-            "params": {"name": "keystone", "interface": "admin"},
-        },
-    ]
-
     resource_identifiers: FrozenSet[str] = frozenset(
         {
             "name",
@@ -345,9 +338,11 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         relation_name: str,
         callback_f: Callable,
         mandatory: bool,
+        region: str,
     ):
         super().__init__(charm, relation_name, callback_f, mandatory)
         self.charm = charm
+        self.region = region
 
     @property
     def ready(self) -> bool:
@@ -528,13 +523,26 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         ]
         return setup_ops
 
+    def list_endpoint_ops(self) -> list[dict]:
+        """Operations to list keystone endpoint."""
+        return [
+            {
+                "name": "list_endpoint",
+                "params": {
+                    "name": "keystone",
+                    "interface": "admin",
+                    "region": self.region,
+                },
+            },
+        ]
+
     def _setup_tempest_resource_request(self) -> dict:
         """Set up openstack resource for tempest."""
         ops = []
         # Teardown before setup to ensure it begins with a clean environment.
         ops.extend(self.teardown_ops)
         ops.extend(self._setup_tempest_resource_ops())
-        ops.extend(self.list_endpoint_ops)
+        ops.extend(self.list_endpoint_ops())
         request = {
             "id": self._hash_ops(ops),
             "tag": "setup_tempest_resource",
