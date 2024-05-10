@@ -73,6 +73,10 @@ peers:
 
 config:
   options:
+    region:
+      type: string
+      default: RegionOne
+      description: Name of the OpenStack region
     schedule:
       type: string
       default: "0 */1 * * *"

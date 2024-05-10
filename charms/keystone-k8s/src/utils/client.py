@@ -359,12 +359,14 @@ class KeystoneClient:
         self,
         name: Optional[str] = None,
         interface: Optional[str] = None,
+        region: Optional[str] = None,
     ) -> list:
         """List endpoints.
 
         Returns all the endpoints by default.
         If name is specified, returns the corresponding endpoints.
         If interface is specified, returns the corresponding endpoints.
+        If region is specified, returns the corresponding endpoints.
         Response is in the format
         [
             {
@@ -382,10 +384,13 @@ class KeystoneClient:
         :param type: str | None
         :param interface: Endpoint interface
         :param type: str | None
+        :param region: Endpoint region
+        :param type: str | None
         :rtype: list
         """
         options = {
             "interface": interface,
+            "region": region,
         }
         if name is not None:
             services = self.api.services.list(name=name)
