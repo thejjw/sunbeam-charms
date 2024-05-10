@@ -22,6 +22,7 @@ This charm provide Glance services as part of an OpenStack deployment
 """
 
 import logging
+import re
 from typing import (
     Callable,
     List,
@@ -32,7 +33,18 @@ import ops_sunbeam.compound_status as compound_status
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from lightkube.core.client import (
+    Client,
+)
+from lightkube.core.exceptions import (
+    ApiError,
+)
+from lightkube.resources.core_v1 import (
+    PersistentVolumeClaim,
+    Pod,
+)
 from ops.charm import (
     CharmBase,
 )
@@ -51,6 +63,7 @@ from ops.model import (
 
 logger = logging.getLogger(__name__)
 IMAGES_DIR = "/var/lib/glance/images"
+STORAGE_NAME = "local-repository"
 
 # Use Apache to translate /<model-name> to /.  This should be possible
 # adding rules to the api-paste.ini but this does not seem to work
@@ -186,6 +199,58 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
         return {}
 
 
+class GlanceConfigContext(sunbeam_ctxts.ConfigContext):
+    """Glance configuration context."""
+
+    def __init__(
+        self,
+        charm: sunbeam_charm.OSBaseOperatorAPICharm,
+        namespace: str,
+    ) -> None:
+        """Initialise the context."""
+        super().__init__(charm, namespace)
+
+    def context(self) -> dict:
+        """Context used when rendering templates."""
+        return {
+            "image_size_cap": bytes_from_string(
+                self.charm.config["image-size-cap"]
+            ),
+        }
+
+
+def bytes_from_string(value: str) -> int:
+    """Interpret human readable string value as bytes.
+
+    Returns int
+    """
+    byte_power = {
+        "K": 1,
+        "KB": 1,
+        "Ki": 1,
+        "M": 2,
+        "MB": 2,
+        "Mi": 2,
+        "G": 3,
+        "GB": 3,
+        "Gi": 3,
+        "T": 4,
+        "TB": 4,
+        "Ti": 4,
+        "P": 5,
+        "PB": 5,
+        "Pi": 5,
+    }
+    matches = re.match(r"([0-9]+)\s*([a-zA-Z]+)", value)
+    if matches:
+        return int(matches.group(1)) * (1024 ** byte_power[matches.group(2)])
+    try:
+        return int(value)
+    except ValueError:
+        msg = f"Unable to interpret string value {value!r} as bytes"
+        raise ValueError(msg)
+
+
 class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
@@ -243,6 +308,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                     self, "cinder_ceph"
                 )
             )
+        contexts.append(GlanceConfigContext(self, "glance_config"))
         return contexts
 
     @property
@@ -446,6 +512,75 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if self.has_ceph_relation() and self.ceph.ready:
             logger.info("CONFIG changed and ceph ready: calling request pools")
             self.ceph.request_pools(event)
+
+    def configure_unit(self, event: EventBase) -> None:
+        """Run configuration on this unit."""
+        self.check_configuration(event)
+        return super().configure_unit(event)
+
+    def check_configuration(self, event: EventBase):
+        """Check a configuration key is correct."""
+        try:
+            self._validate_image_size_cap()
+        except ValueError as e:
+            raise sunbeam_guard.BlockedExceptionError(str(e)) from e
+
+    def _validate_image_size_cap(self):
+        """Check image size is valid."""
+        try:
+            image_cap_size = bytes_from_string(self.config["image-size-cap"])
+        except ValueError as e:
+            raise ValueError(
+                "image-size-cap must be a number or a number followed by "
+                "KG, MG, GB, TB, or PB"
+            ) from e
+        if self.has_ceph_relation():
+            logger.debug("ceph relation exists, skipping PVC size check")
+            return
+        pvc_size = self._fetch_volume_size()
+        if pvc_size < image_cap_size:
+            raise ValueError(
+                "image-size-cap must be less than the size"
+                " of the local-repository volume"
+            )
+
+    def _fetch_volume_size(
+        self,
+    ):
+        """Fetch the size of the local-repository volume."""
+        client = Client()  # type: ignore
+        try:
+            pod = client.get(
+                Pod,
+                name="-".join(self.unit.name.rsplit("/", 1)),
+                namespace=self.model.name,
+            )
+        except ApiError as e:
+            if e.status.code == 404:
+                raise Exception("Failed to find associated pod")
+            raise sunbeam_guard.BlockedExceptionError(e.status.message) from e
+        lr_volume = None
+        for volume in pod.spec.volumes:
+            if volume.name.startswith(self.app.name + "-" + STORAGE_NAME):
+                lr_volume = volume
+                break
+        if lr_volume is None:
+            raise sunbeam_guard.BlockedExceptionError(
+                "Failed to find local-repository volume in pod spec"
+            )
+        claim_name = lr_volume.persistentVolumeClaim.claimName
+
+        try:
+            pvc = client.get(
+                PersistentVolumeClaim,
+                name=claim_name,
+                namespace=self.model.name,
+            )
+        except ApiError as e:
+            if e.status.code == 404:
+                raise Exception("Failed to find associated PVC")
+            raise sunbeam_guard.BlockedExceptionError(e.status.message) from e
+        return bytes_from_string(pvc.status.capacity["storage"])
 
 
 if __name__ == "__main__":
