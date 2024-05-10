@@ -322,7 +322,11 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         return [
             {
                 "name": "list_endpoint",
-                "params": {"name": "keystone", "interface": "admin"},
+                "params": {
+                    "name": "keystone",
+                    "interface": "admin",
+                    "region": self.config["region"].split()[0],
+                },
             }
         ]
 
