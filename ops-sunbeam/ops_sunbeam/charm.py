@@ -229,12 +229,7 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
 
     def get_domain_name_sans(self) -> List[str]:
         """Get Domain names for service."""
-        domain_name_sans = []
-        for binding_config in ["admin", "internal", "public"]:
-            hostname = self.config.get(f"os-{binding_config}-hostname")
-            if hostname:
-                domain_name_sans.append(hostname)
-        return domain_name_sans
+        return []
 
     def check_leader_ready(self):
         """Check the leader is reporting as ready."""
@@ -798,10 +793,6 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
     @property
     def public_ingress_address(self) -> str:
         """IP address or hostname for access to this service."""
-        svc_hostname = self.model.config.get("os-public-hostname")
-        if svc_hostname:
-            return svc_hostname
-
         client = Client()
         charm_service = client.get(
             Service, name=self.app.name, namespace=self.model.name

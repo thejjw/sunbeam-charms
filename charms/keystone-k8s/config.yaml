@@ -24,24 +24,6 @@ options:
     description: Name of tenant to associate with service credentials
     type: string
 
-  os-admin-hostname:
-    default:
-    description: |
-      The hostname or address of the admin endpoints that should be advertised
-      in the keystone identity provider.
-    type: string
-  os-internal-hostname:
-    default:
-    description: |
-      The hostname or address of the internal endpoints that should be advertised
-      in the keystone identity provider.
-    type: string
-  os-public-hostname:
-    default:
-    description: |
-      The hostname or address of the internal endpoints that should be advertised
-      in the keystone identity provider.
-    type: string
   region:
     default: RegionOne
     description: Space delimited list of OpenStack regions
