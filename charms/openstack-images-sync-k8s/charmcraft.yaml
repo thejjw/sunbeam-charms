@@ -48,24 +48,6 @@ config:
       description: |
         The maximum number of images to keep in sync per version.
       type: int
-    os-admin-hostname:
-      default: openstack-images-sync.juju
-      description: |
-        The hostname or address of the admin endpoints that should be advertised
-        in the openstack image sync.
-      type: string
-    os-internal-hostname:
-      default: openstack-images-sync.juju
-      description: |
-        The hostname or address of the internal endpoints that should be advertised
-        in the openstack image sync.
-      type: string
-    os-public-hostname:
-      default: openstack-images-sync.juju
-      description: |
-        The hostname or address of the internal endpoints that should be advertised
-        in the openstack image sync.
-      type: string
     region:
       default: RegionOne
       description: Name of the OpenStack region

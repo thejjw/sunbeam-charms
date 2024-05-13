@@ -12,24 +12,6 @@ options:
       will not enable internal cloud dns resolution. This value should end
       with a '.', e.g. 'cloud.example.org.'.
     type: string
-  os-admin-hostname:
-    default:
-    description: |
-      The hostname or address of the admin endpoints that should be advertised
-      in the neutron image provider.
-    type: string
-  os-internal-hostname:
-    default:
-    description: |
-      The hostname or address of the internal endpoints that should be advertised
-      in the neutron image provider.
-    type: string
-  os-public-hostname:
-    default:
-    description: |
-      The hostname or address of the internal endpoints that should be advertised
-      in the neutron image provider.
-    type: string
   region:
     default: RegionOne
     description: Name of the OpenStack region

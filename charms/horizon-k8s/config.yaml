@@ -3,24 +3,6 @@ options:
     default: False
     description: Enable debug logging.
     type: boolean
-  os-admin-hostname:
-    default: glance.juju
-    description: |
-      The hostname or address of the admin endpoints that should be advertised
-      in the glance image provider.
-    type: string
-  os-internal-hostname:
-    default: glance.juju
-    description: |
-      The hostname or address of the internal endpoints that should be advertised
-      in the glance image provider.
-    type: string
-  os-public-hostname:
-    default: glance.juju
-    description: |
-      The hostname or address of the internal endpoints that should be advertised
-      in the glance image provider.
-    type: string
   session-timeout:
     type: int
     default: 3600

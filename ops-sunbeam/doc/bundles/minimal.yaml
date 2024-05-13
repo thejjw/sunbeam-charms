@@ -55,8 +55,6 @@ applications:
     channel: edge
     scale: 1
     trust: true
-    options:
-      os-public-hostname:
   ovn-central:
     charm: ch:ovn-central-k8s
     channel: edge
