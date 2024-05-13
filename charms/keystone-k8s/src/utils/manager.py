@@ -115,9 +115,7 @@ class KeystoneManager(framework.Object):
     @property
     def regions(self):
         """List of regions required for this keystone."""
-        # split regions and strip out empty regions
-        regions = [r for r in self.charm.model.config["region"].split() if r]
-        return regions
+        return [self.charm.model.config["region"]]
 
     def setup_keystone(self):
         """Runs the keystone setup process for first time configuration.
@@ -496,7 +494,7 @@ class KeystoneManager(framework.Object):
             "public": self.public_endpoint,
         }
 
-        for region in self.charm.model.config["region"].split():
+        for region in self.regions:
             if not region:
                 continue
 
