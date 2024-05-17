@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -13,15 +16,18 @@
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 80,
-  "iteration": 1715932076102,
+  "id": 50,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
       "collapsed": false,
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -30,30 +36,35 @@
       },
       "id": 8,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Limits",
       "type": "row"
     },
     {
-      "datasource": "${prometheusds}",
+      "datasource": {
+        "uid": "${prometheusds}"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
         },
         "overrides": [
           {
@@ -96,12 +107,14 @@
                 "id": "mappings",
                 "value": [
                   {
-                    "from": "-100000000000000000000000000000",
-                    "id": 1,
-                    "text": "UNLIMITED",
-                    "to": "-1",
-                    "type": 2,
-                    "value": ""
+                    "options": {
+                      "from": -1e+29,
+                      "result": {
+                        "text": "UNLIMITED"
+                      },
+                      "to": -1
+                    },
+                    "type": "range"
                   }
                 ]
               }
@@ -110,9 +123,9 @@
         ]
       },
       "gridPos": {
-        "h": 10,
+        "h": 8,
         "w": 6,
-        "x": 0,
+        "x": 1,
         "y": 1
       },
       "id": 4,
@@ -123,6 +136,7 @@
         "legend": {
           "displayMode": "table",
           "placement": "right",
+          "showLegend": true,
           "values": [
             "value"
           ]
@@ -135,11 +149,18 @@
           "fields": "",
           "values": false
         },
-        "text": {}
+        "text": {},
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
           "exemplar": false,
           "expr": "openstack_nova_limits_instances_max{tenant_id=\"$Project_id\"} - openstack_nova_limits_instances_used{tenant_id=\"$Project_id\"}",
           "hide": false,
@@ -150,6 +171,9 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
           "exemplar": false,
           "expr": "openstack_nova_limits_instances_used{tenant_id=\"$Project_id\"}",
           "hide": false,
@@ -159,34 +183,28 @@
           "refId": "B"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Instances",
       "transformations": [],
       "transparent": true,
       "type": "piechart"
     },
     {
-      "datasource": "${prometheusds}",
+      "datasource": {
+        "uid": "${prometheusds}"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": []
         },
         "overrides": [
           {
@@ -229,11 +247,14 @@
                 "id": "mappings",
                 "value": [
                   {
-                    "from": "-100000000000000000000000000000",
-                    "id": 1,
-                    "text": "UNLIMITED",
-                    "to": "-1",
-                    "type": 2
+                    "options": {
+                      "from": -1e+29,
+                      "result": {
+                        "text": "UNLIMITED"
+                      },
+                      "to": -1
+                    },
+                    "type": "range"
                   }
                 ]
               }
@@ -242,9 +263,9 @@
         ]
       },
       "gridPos": {
-        "h": 10,
-        "w": 6,
-        "x": 6,
+        "h": 8,
+        "w": 5,
+        "x": 7,
         "y": 1
       },
       "id": 2,
@@ -255,9 +276,11 @@
         "legend": {
           "displayMode": "table",
           "placement": "right",
+          "showLegend": true,
           "values": [
             "value"
-          ]
+          ],
+          "width": 200
         },
         "pieType": "pie",
         "reduceOptions": {
@@ -267,11 +290,18 @@
           "fields": "",
           "values": false
         },
-        "text": {}
+        "text": {},
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
           "exemplar": false,
           "expr": "openstack_nova_limits_vcpus_max{tenant_id=\"$Project_id\"} - openstack_nova_limits_vcpus_used{tenant_id=\"$Project_id\"}",
           "hide": false,
@@ -282,6 +312,9 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
           "exemplar": false,
           "expr": "openstack_nova_limits_vcpus_used{tenant_id=\"$Project_id\"}",
           "hide": false,
@@ -291,34 +324,28 @@
           "refId": "B"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "VCPUS",
       "transformations": [],
       "transparent": true,
       "type": "piechart"
     },
     {
-      "datasource": "${prometheusds}",
+      "datasource": {
+        "uid": "${prometheusds}"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
           },
+          "mappings": [],
           "unit": "decmbytes"
         },
         "overrides": [
@@ -362,12 +389,14 @@
                 "id": "mappings",
                 "value": [
                   {
-                    "from": "-100000000000000000000000000000",
-                    "id": 1,
-                    "text": "UNLIMITED",
-                    "to": "-1",
-                    "type": 2,
-                    "value": "-29"
+                    "options": {
+                      "from": -1e+29,
+                      "result": {
+                        "text": "UNLIMITED"
+                      },
+                      "to": -1
+                    },
+                    "type": "range"
                   }
                 ]
               }
@@ -376,8 +405,8 @@
         ]
       },
       "gridPos": {
-        "h": 11,
-        "w": 6,
+        "h": 8,
+        "w": 5,
         "x": 12,
         "y": 1
       },
@@ -389,9 +418,11 @@
         "legend": {
           "displayMode": "table",
           "placement": "right",
+          "showLegend": true,
           "values": [
             "value"
-          ]
+          ],
+          "width": 200
         },
         "pieType": "pie",
         "reduceOptions": {
@@ -401,11 +432,18 @@
           "fields": "",
           "values": false
         },
-        "text": {}
+        "text": {},
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
           "exemplar": false,
           "expr": "openstack_nova_limits_memory_max{tenant_id=\"$Project_id\"} - openstack_nova_limits_memory_used{tenant_id=\"$Project_id\"}",
           "hide": false,
@@ -416,6 +454,9 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
           "exemplar": false,
           "expr": "openstack_nova_limits_memory_used{tenant_id=\"$Project_id\"}",
           "hide": false,
@@ -425,8 +466,6 @@
           "refId": "B"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Memory",
       "transformations": [
         {
@@ -442,26 +481,22 @@
       "type": "piechart"
     },
     {
-      "datasource": "${prometheusds}",
+      "datasource": {
+        "uid": "${prometheusds}"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
           },
+          "mappings": [],
           "unit": "gbytes"
         },
         "overrides": [
@@ -505,11 +540,14 @@
                 "id": "mappings",
                 "value": [
                   {
-                    "from": "-100000000000000000000000000000",
-                    "id": 1,
-                    "text": "UNLIMITED",
-                    "to": "-1",
-                    "type": 2
+                    "options": {
+                      "from": -1e+29,
+                      "result": {
+                        "text": "UNLIMITED"
+                      },
+                      "to": -1
+                    },
+                    "type": "range"
                   }
                 ]
               }
@@ -518,9 +556,9 @@
         ]
       },
       "gridPos": {
-        "h": 11,
+        "h": 8,
         "w": 6,
-        "x": 18,
+        "x": 17,
         "y": 1
       },
       "id": 5,
@@ -531,6 +569,7 @@
         "legend": {
           "displayMode": "table",
           "placement": "right",
+          "showLegend": true,
           "values": [
             "value"
           ]
@@ -543,11 +582,18 @@
           "fields": "",
           "values": false
         },
-        "text": {}
+        "text": {},
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
           "exemplar": false,
           "expr": "openstack_cinder_limits_volume_max_gb{tenant_id=\"$Project_id\"} - openstack_cinder_limits_volume_used_gb{tenant_id=\"$Project_id\"}",
           "hide": false,
@@ -558,6 +604,9 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
           "exemplar": false,
           "expr": "openstack_cinder_limits_volume_used_gb{tenant_id=\"$Project_id\"}",
           "hide": false,
@@ -567,167 +616,28 @@
           "refId": "B"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Volumes",
       "transformations": [],
       "transparent": true,
       "type": "piechart"
     },
     {
-      "datasource": "${prometheusds}",
+      "datasource": {
+        "uid": "${prometheusds}"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "gbytes"
-        },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Free"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "green",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Used"
-            },
-            "properties": [
-              {
-                "id": "color",
-                "value": {
-                  "fixedColor": "red",
-                  "mode": "fixed"
-                }
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": "Free"
-            },
-            "properties": [
-              {
-                "id": "mappings",
-                "value": [
-                  {
-                    "from": "-100000000000000000000000000000",
-                    "id": 1,
-                    "text": "UNLIMITED",
-                    "to": "-1",
-                    "type": 2
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      "gridPos": {
-        "h": 12,
-        "w": 6,
-        "x": 0,
-        "y": 11
-      },
-      "id": 6,
-      "options": {
-        "displayLabels": [
-          "value"
-        ],
-        "legend": {
-          "displayMode": "table",
-          "placement": "right",
-          "values": [
-            "value"
-          ]
-        },
-        "pieType": "pie",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "text": {}
-      },
-      "pluginVersion": "7.5.17",
-      "targets": [
-        {
-          "exemplar": false,
-          "expr": "openstack_cinder_limits_backup_max_gb{tenant_id=\"$Project_id\"} - openstack_cinder_limits_backup_used_gb{tenant_id=\"$Project_id\"}",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "Free",
-          "queryType": "randomWalk",
-          "refId": "A"
-        },
-        {
-          "exemplar": false,
-          "expr": "openstack_cinder_limits_backup_used_gb{tenant_id=\"$Project_id\"}",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "Used",
-          "refId": "B"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Backups",
-      "transformations": [],
-      "transparent": true,
-      "type": "piechart"
-    },
-    {
-      "datasource": "${prometheusds}",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
           },
           "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
           "unit": "none"
         },
         "overrides": [
@@ -771,11 +681,14 @@
                 "id": "mappings",
                 "value": [
                   {
-                    "from": "-100000000000000000000000000000",
-                    "id": 1,
-                    "text": "UNLIMITED",
-                    "to": "-1",
-                    "type": 2
+                    "options": {
+                      "from": -1e+29,
+                      "result": {
+                        "text": "UNLIMITED"
+                      },
+                      "to": -1
+                    },
+                    "type": "range"
                   }
                 ]
               }
@@ -784,10 +697,10 @@
         ]
       },
       "gridPos": {
-        "h": 12,
-        "w": 6,
-        "x": 6,
-        "y": 11
+        "h": 8,
+        "w": 5,
+        "x": 7,
+        "y": 9
       },
       "id": 13,
       "options": {
@@ -797,6 +710,7 @@
         "legend": {
           "displayMode": "table",
           "placement": "right",
+          "showLegend": true,
           "values": [
             "value"
           ]
@@ -809,11 +723,18 @@
           "fields": "",
           "values": false
         },
-        "text": {}
+        "text": {},
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
           "exemplar": false,
           "expr": "sum by (project_id)(openstack_neutron_network_ip_availabilities_total{project_id=\"$Project_id\"}) - sum by (project_id)(openstack_neutron_network_ip_availabilities_used{project_id=\"$Project_id\"})",
           "hide": false,
@@ -824,6 +745,9 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
           "exemplar": false,
           "expr": "sum by (project_id)(openstack_neutron_network_ip_availabilities_used{project_id=\"$Project_id\"})",
           "hide": false,
@@ -833,37 +757,194 @@
           "refId": "B"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "IPs",
       "transformations": [],
       "transparent": true,
       "type": "piechart"
     },
     {
+      "datasource": {
+        "uid": "${prometheusds}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "unit": "gbytes"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Free"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Used"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Free"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "options": {
+                      "from": -1e+29,
+                      "result": {
+                        "text": "UNLIMITED"
+                      },
+                      "to": -1
+                    },
+                    "type": "range"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 5,
+        "x": 12,
+        "y": 9
+      },
+      "id": 6,
+      "options": {
+        "displayLabels": [
+          "value"
+        ],
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "values": [
+            "value"
+          ]
+        },
+        "pieType": "pie",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "text": {},
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "7.5.17",
+      "targets": [
+        {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
+          "exemplar": false,
+          "expr": "openstack_cinder_limits_backup_max_gb{tenant_id=\"$Project_id\"} - openstack_cinder_limits_backup_used_gb{tenant_id=\"$Project_id\"}",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Free",
+          "queryType": "randomWalk",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
+          "exemplar": false,
+          "expr": "openstack_cinder_limits_backup_used_gb{tenant_id=\"$Project_id\"}",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "Used",
+          "refId": "B"
+        }
+      ],
+      "title": "Backups",
+      "transformations": [],
+      "transparent": true,
+      "type": "piechart"
+    },
+    {
       "collapsed": false,
-      "datasource": null,
+      "datasource": {
+        "type": "datasource",
+        "uid": "grafana"
+      },
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 17
       },
       "id": 12,
       "panels": [],
+      "targets": [
+        {
+          "datasource": {
+            "type": "datasource",
+            "uid": "grafana"
+          },
+          "refId": "A"
+        }
+      ],
       "title": "Virtual Machines Info",
       "type": "row"
     },
     {
-      "datasource": "${prometheusds}",
+      "datasource": {
+        "uid": "${prometheusds}"
+      },
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "thresholds"
           },
           "custom": {
-            "align": null,
-            "filterable": false
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": false,
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -923,10 +1004,19 @@
         "h": 26,
         "w": 24,
         "x": 0,
-        "y": 24
+        "y": 18
       },
       "id": 10,
       "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "frameIndex": 1,
         "showHeader": true,
         "sortBy": [
@@ -936,9 +1026,12 @@
           }
         ]
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.5.3",
       "targets": [
         {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
           "exemplar": false,
           "expr": "openstack_nova_server_status{tenant_id=\"$Project_id\"}",
           "format": "table",
@@ -949,6 +1042,9 @@
           "refId": "A"
         },
         {
+          "datasource": {
+            "uid": "${prometheusds}"
+          },
           "exemplar": false,
           "expr": "openstack_nova_server_local_gb{tenant_id=\"$Project_id\"}",
           "format": "table",
@@ -1023,25 +1119,59 @@
     }
   ],
   "refresh": "5m",
-  "schemaVersion": 27,
+  "schemaVersion": 38,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
-        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Loki datasource",
+        "multi": true,
+        "name": "lokids",
+        "options": [],
+        "query": "loki",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Prometheus datasource",
+        "multi": true,
+        "name": "prometheusds",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
         "current": {
           "selected": true,
-          "text": "bootstack-monitoring-mesh-project",
-          "value": "bootstack-monitoring-mesh-project"
+          "text": "cit-network-prod",
+          "value": "cit-network-prod"
         },
-        "datasource": "${prometheusds}",
+        "datasource": {
+          "uid": "${prometheusds}"
+        },
         "definition": "openstack_nova_limits_instances_max",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": false,
-        "label": null,
         "multi": false,
         "name": "Project",
         "options": [],
@@ -1054,44 +1184,34 @@
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
-        "allValue": null,
         "current": {
           "selected": false,
-          "text": "0d55cf9adf0a47c7af6935c4af640811",
-          "value": "0d55cf9adf0a47c7af6935c4af640811"
+          "text": "d180fa4cc086408bb2251cd80c6bba90",
+          "value": "d180fa4cc086408bb2251cd80c6bba90"
         },
-        "datasource": "${prometheusds}",
+        "datasource": {
+          "uid": "${prometheusds}"
+        },
         "definition": "openstack_nova_limits_memory_max{tenant=\"$Project\"}",
-        "description": null,
-        "error": null,
         "hide": 0,
         "includeAll": false,
-        "label": null,
         "multi": false,
         "name": "Project_id",
-        "options": [
-          {
-            "selected": true,
-            "text": "0d55cf9adf0a47c7af6935c4af640811",
-            "value": "0d55cf9adf0a47c7af6935c4af640811"
-          }
-        ],
+        "options": [],
         "query": {
           "query": "openstack_nova_limits_memory_max{tenant=\"$Project\"}",
           "refId": "StandardVariableQuery"
         },
-        "refresh": 0,
+        "refresh": 1,
         "regex": ".*tenant_id=\"([^\"]+)\".*",
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
@@ -1106,5 +1226,6 @@
   "timezone": "",
   "title": "OpenStack Project Overview",
   "uid": "Lul1WzPIz",
-  "version": 29
+  "version": 1,
+  "weekStart": ""
 }
