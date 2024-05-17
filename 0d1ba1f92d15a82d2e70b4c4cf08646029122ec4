@@ -16,6 +16,24 @@
       "message": "Some comments:\n\nI\u0027m seeing seeing the piecharts all different sizes and alignments?  Can they be made more consistant? \n\nIs it possible to have the the piecharts green where the limit is unlimited?  I think all in red suggests there\u0027s a problem or the limit has been hit.\n\n\nI\u0027m not sure how simple it is to add some information or help to the filters at least?  I\u0027m thinking some explanation about finding the correct project when there are multiple projects with the same name.\nLike a note like \"to filter by project, select a project name.  If there are multiple projects with the same name, then further refine by project id\"?",
       "revId": "0d1ba1f92d15a82d2e70b4c4cf08646029122ec4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "884680fc_e7b8e1c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-05-17T12:36:51Z",
+      "side": 1,
+      "message": "Fixes look good thanks.  I understand that the piechart colour when unlimited is not so simple, seems fine to me since it\u0027s more about aesthetics.",
+      "parentUuid": "2c1015a8_765900a8",
+      "revId": "0d1ba1f92d15a82d2e70b4c4cf08646029122ec4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
