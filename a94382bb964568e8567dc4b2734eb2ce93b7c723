@@ -16,6 +16,23 @@
       "message": "Thanks for contributing this dashboard!  It looks polished and focused to me.",
       "revId": "a94382bb964568e8567dc4b2734eb2ce93b7c723",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e9cc088c_31c7c047",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-05-22T03:25:39Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "a94382bb964568e8567dc4b2734eb2ce93b7c723",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
