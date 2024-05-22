@@ -16,6 +16,23 @@
       "message": "recheck microk8s got restarted",
       "revId": "3f305aaefed7e880e96d0581080195c52309e189",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "859d091d_e6938691",
+        "filename": "charms/neutron-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2024-05-22T05:13:05Z",
+      "side": 1,
+      "message": "Is this actually related to the number of compute hosts in any way? I though it was about the number of tunneled networks.",
+      "revId": "3f305aaefed7e880e96d0581080195c52309e189",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
