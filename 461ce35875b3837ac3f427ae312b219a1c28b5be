@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b0c65ae_ce44ce4f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-05-24T07:42:53Z",
+      "side": 1,
+      "message": "Thanks for looking at this bug.\n\nWe\u0027ll monitor the situation from upstream requests-unixsocket, and decide how to proceed forward at a later date.",
+      "revId": "461ce35875b3837ac3f427ae312b219a1c28b5be",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
