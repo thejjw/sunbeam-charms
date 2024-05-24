@@ -11,7 +11,7 @@ Use links instead.
 # tempest-k8s
 
 Tempest provides a set of integration tests to be run, in ad-hoc
-or periodic fasion, against a live OpenStack cluster for OpenStack API
+or periodic fashion, against a live OpenStack cluster for OpenStack API
 validation, scenarios, and other specific tests useful in validating an
 OpenStack deployment.
 

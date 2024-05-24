@@ -46,7 +46,7 @@ octavia-k8s requires the following relations:
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network
 `ovsdb-cms`: To connect to OVN
-`certificates`: To retreive generated certificates
+`certificates`: To retrieve generated certificates
 
 
 ## OCI Images
