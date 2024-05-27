@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee629844_f5dbb97d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2024-05-27T14:50:14Z",
+      "side": 1,
+      "message": "```\n$ pip3 list \nPackage   Version\n--------- -------\ncodespell 2.2.6\npip       24.0\n\n(venv) nobuto@t14:/tmp/tmp.1VdCt4J4BY$ codespell test \n-\u003e 0\n```\n\n```\n(venv) nobuto@t14:/tmp/tmp.1VdCt4J4BY$ pip3 list \nPackage   Version\n--------- -------\ncodespell 2.3.0\npip       24.0\n(venv) nobuto@t14:/tmp/tmp.1VdCt4J4BY$ codespell test \ntest:1: assertIn \u003d\u003d\u003e asserting, assert in, assertion\n```",
+      "revId": "9663868d14a974420001d96e5052dd6ce919b09a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
