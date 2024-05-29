@@ -361,7 +361,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 # Trying to retrieve an unset parameter results in a snapError
                 # so assume the snap.SnapError means there is missing config
                 # that needs setting.
-                new_settings[k] = snap_data[k]
+                # Setting a value to None will unset the value from the snap,
+                # which will fail if the value was never set.
+                if snap_data[k] is not None:
+                    new_settings[k] = snap_data[k]
         if new_settings:
             logger.debug(f"Applying new snap settings {new_settings}")
             hypervisor.set(new_settings, typed=True)
