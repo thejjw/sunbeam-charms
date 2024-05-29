@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "56825c3c_a71c0d68",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-05-29T08:44:59Z",
+      "side": 1,
+      "message": "Good catch, I\u0027ve amended the commit",
+      "revId": "d68e9c757cc8db2b70c22c030e5d21caff1102d1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}

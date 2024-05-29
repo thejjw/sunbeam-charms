@@ -16,6 +16,24 @@
       "message": "Is this supposed to fix the following bug?\nhttps://bugs.launchpad.net/sunbeam-charms/+bug/2065864\n\nIf so, would you mind adding the line?\n`Closes-Bug: #2065864`",
       "revId": "cd49ddd27085936876ecdf5e8ff2c636e7cbc3e8",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c362a684_96130912",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-05-29T08:44:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29abf00d_2781c4fa",
+      "revId": "cd49ddd27085936876ecdf5e8ff2c636e7cbc3e8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
