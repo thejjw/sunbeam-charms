@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29abf00d_2781c4fa",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2024-05-29T08:34:42Z",
+      "side": 1,
+      "message": "Is this supposed to fix the following bug?\nhttps://bugs.launchpad.net/sunbeam-charms/+bug/2065864\n\nIf so, would you mind adding the line?\n`Closes-Bug: #2065864`",
+      "revId": "cd49ddd27085936876ecdf5e8ff2c636e7cbc3e8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
