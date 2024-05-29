@@ -16,6 +16,23 @@
       "message": "Good catch, I\u0027ve amended the commit",
       "revId": "d68e9c757cc8db2b70c22c030e5d21caff1102d1",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2238fb5_08f381f0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31204
+      },
+      "writtenOn": "2024-05-29T13:26:39Z",
+      "side": 1,
+      "message": "Would this also address [1], or is that a different issue?\n\n[1] https://bugs.launchpad.net/snap-openstack/+bug/2048515",
+      "revId": "d68e9c757cc8db2b70c22c030e5d21caff1102d1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
