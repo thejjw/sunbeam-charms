@@ -62,16 +62,13 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 2
+LIBPATCH = 3
 
 import logging
 from typing import Optional
-from ops import (
-    RelationEvent
-)
+from ops import RelationEvent
 from ops.model import (
     Relation,
-    Secret,
     SecretNotFoundError,
 )
 from ops.framework import (
@@ -80,7 +77,9 @@ from ops.framework import (
     EventSource,
     Object,
 )
+
 logger = logging.getLogger(__name__)
+
 
 class CephAccessConnectedEvent(EventBase):
     """CephAccess connected Event."""
@@ -113,7 +112,6 @@ class CephAccessRequires(Object):
     CephAccessRequires class
     """
 
-
     on = CephAccessServerEvents()
 
     def __init__(self, charm, relation_name: str):
@@ -136,6 +134,7 @@ class CephAccessRequires(Object):
             self.charm.on[relation_name].relation_broken,
             self._on_ceph_access_relation_broken,
         )
+        self._credentials = None
 
     @property
     def _ceph_access_rel(self) -> Relation:
@@ -166,39 +165,45 @@ class CephAccessRequires(Object):
         logging.debug("CephAccess on_broken")
         self.on.goneaway.emit()
 
-    def _retrieve_secret(self) -> Optional[Secret]:
-        try:
-            credentials_id = self.get_remote_app_data('access-credentials')
-            if not credentials_id:
-                return None
-            credentials = self.charm.model.get_secret(id=credentials_id)
+    def _retrieve_credentials(self) -> dict | None:
+        if credentials := self._credentials:
             return credentials
+        credentials_id = self.get_remote_app_data("access-credentials")
+        if not credentials_id:
+            return None
+        try:
+            credentials = self.model.get_secret(id=credentials_id).get_content(
+                refresh=True
+            )
         except SecretNotFoundError:
             logger.warning(f"Secret {credentials_id} not found")
             return None
+        self._credentials = credentials
+        return credentials
 
     @property
     def ceph_access_data(self) -> dict:
         """Return the service_password."""
-        secret = self._retrieve_secret()
-        if not secret:
-            return {}
-        return secret.get_content(refresh=True)
+        return self._retrieve_credentials() or {}
 
     @property
     def ready(self) -> bool:
         """Return the service_password."""
-        return all(k in self.ceph_access_data for k in ["uuid", "key"])
+        ceph_access_data = self.ceph_access_data
+        return all(k in ceph_access_data for k in ["uuid", "key"])
+
 
 class HasCephAccessClientsEvent(EventBase):
     """Has CephAccessClients Event."""
 
     pass
 
+
 class ReadyCephAccessClientsEvent(RelationEvent):
     """Has ReadyCephAccessClients Event."""
 
     pass
+
 
 class CephAccessClientEvents(ObjectEvents):
     """Events class for `on`"""
@@ -240,17 +245,16 @@ class CephAccessProvides(Object):
         """Handle CephAccess joined."""
         logging.debug("CephAccess on_changed")
         self.on.ready_ceph_access_clients.emit(
-            event.relation,
-            app=event.app,
-            unit=event.unit)
+            event.relation, app=event.app, unit=event.unit
+        )
 
     def _on_ceph_access_relation_broken(self, event):
         """Handle CephAccess broken."""
         logging.debug("CephAccessProvides on_broken")
 
-    def set_ceph_access_credentials(self, relation_name: int,
-                                    relation_id: str,
-                                    access_credentials: str):
+    def set_ceph_access_credentials(
+        self, relation_name: int, relation_id: str, access_credentials: str
+    ):
 
         logging.debug("Setting ceph_access connection information.")
         _ceph_access_rel = None
@@ -261,5 +265,4 @@ class CephAccessProvides(Object):
             # Relation has disappeared so skip send of data
             return
         app_data = _ceph_access_rel.data[self.charm.app]
-        logging.debug(access_credentials)
         app_data["access-credentials"] = access_credentials
