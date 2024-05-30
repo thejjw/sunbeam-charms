@@ -942,7 +942,6 @@ class TlsCertificatesHandler(RelationHandler):
     @property
     def private_key(self):
         """Private key for certificates."""
-        logger.debug("Returning private key: {}".format(self._private_key))
         if self._private_key:
             return self._private_key.decode()
         else:
