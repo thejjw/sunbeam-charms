@@ -355,7 +355,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         new_settings = {}
         for k in sorted(snap_data.keys()):
             try:
-                if snap_data[k] != hypervisor.get(k):
+                if snap_data[k] != hypervisor.get(k, typed=True):
                     new_settings[k] = snap_data[k]
             except snap.SnapError:
                 # Trying to retrieve an unset parameter results in a snapError
