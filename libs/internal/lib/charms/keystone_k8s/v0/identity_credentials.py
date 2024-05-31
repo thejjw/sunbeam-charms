@@ -97,7 +97,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 4
+LIBPATCH = 5
 
 logger = logging.getLogger(__name__)
 
@@ -156,6 +156,7 @@ class IdentityCredentialsRequires(Object):
             self.charm.on[relation_name].relation_broken,
             self._on_identity_credentials_relation_broken,
         )
+        self._credentials = None
 
     def _on_identity_credentials_relation_joined(self, event):
         """IdentityCredentials relation joined."""
@@ -169,7 +170,7 @@ class IdentityCredentialsRequires(Object):
         try:
             self.on.ready.emit()
         except (AttributeError, KeyError):
-            logger.exception('Error when emitting event')
+            logger.exception("Error when emitting event")
 
     def _on_identity_credentials_relation_broken(self, event):
         """IdentityCredentials relation broken."""
@@ -183,130 +184,135 @@ class IdentityCredentialsRequires(Object):
 
     def get_remote_app_data(self, key: str) -> str:
         """Return the value for the given key from remote app data."""
-        data = self._identity_credentials_rel.data[self._identity_credentials_rel.app]
+        data = self._identity_credentials_rel.data[
+            self._identity_credentials_rel.app
+        ]
         return data.get(key)
 
     @property
     def api_version(self) -> str:
         """Return the api_version."""
-        return self.get_remote_app_data('api-version')
+        return self.get_remote_app_data("api-version")
 
     @property
     def auth_host(self) -> str:
         """Return the auth_host."""
-        return self.get_remote_app_data('auth-host')
+        return self.get_remote_app_data("auth-host")
 
     @property
     def auth_port(self) -> str:
         """Return the auth_port."""
-        return self.get_remote_app_data('auth-port')
+        return self.get_remote_app_data("auth-port")
 
     @property
     def auth_protocol(self) -> str:
         """Return the auth_protocol."""
-        return self.get_remote_app_data('auth-protocol')
+        return self.get_remote_app_data("auth-protocol")
 
     @property
     def internal_host(self) -> str:
         """Return the internal_host."""
-        return self.get_remote_app_data('internal-host')
+        return self.get_remote_app_data("internal-host")
 
     @property
     def internal_port(self) -> str:
         """Return the internal_port."""
-        return self.get_remote_app_data('internal-port')
+        return self.get_remote_app_data("internal-port")
 
     @property
     def internal_protocol(self) -> str:
         """Return the internal_protocol."""
-        return self.get_remote_app_data('internal-protocol')
+        return self.get_remote_app_data("internal-protocol")
 
     @property
     def credentials(self) -> str:
-        return self.get_remote_app_data('credentials')
+        return self.get_remote_app_data("credentials")
 
-    @property
-    def username(self) -> str:
-        credentials_id = self.get_remote_app_data('credentials')
+    def _retrieve_credentials(self) -> dict[str, str] | None:
+        if credentials := self._credentials:
+            return credentials
+        credentials_id = self.get_remote_app_data("credentials")
         if not credentials_id:
             return None
 
         try:
-            credentials = self.charm.model.get_secret(id=credentials_id)
-            return credentials.get_content(refresh=True).get("username")
+            credentials = self.charm.model.get_secret(
+                id=credentials_id
+            ).get_content(refresh=True)
         except SecretNotFoundError:
             logger.warning(f"Secret {credentials_id} not found")
             return None
+        self._credentials = credentials
+        return credentials
 
     @property
-    def password(self) -> str:
-        credentials_id = self.get_remote_app_data('credentials')
-        if not credentials_id:
-            return None
+    def username(self) -> str | None:
+        if credentials := self._retrieve_credentials():
+            return credentials.get("username")
+        return None
 
-        try:
-            credentials = self.charm.model.get_secret(id=credentials_id)
-            return credentials.get_content(refresh=True).get("password")
-        except SecretNotFoundError:
-            logger.warning(f"Secret {credentials_id} not found")
-            return None
+    @property
+    def password(self) -> str | None:
+        if credentials := self._retrieve_credentials():
+            return credentials.get("password")
+        return None
 
     @property
     def project_name(self) -> str:
         """Return the project name."""
-        return self.get_remote_app_data('project-name')
+        return self.get_remote_app_data("project-name")
 
     @property
     def project_id(self) -> str:
         """Return the project id."""
-        return self.get_remote_app_data('project-id')
+        return self.get_remote_app_data("project-id")
 
     @property
     def user_domain_name(self) -> str:
         """Return the name of the user domain."""
-        return self.get_remote_app_data('user-domain-name')
+        return self.get_remote_app_data("user-domain-name")
 
     @property
     def user_domain_id(self) -> str:
         """Return the id of the user domain."""
-        return self.get_remote_app_data('user-domain-id')
+        return self.get_remote_app_data("user-domain-id")
 
     @property
     def project_domain_name(self) -> str:
         """Return the name of the project domain."""
-        return self.get_remote_app_data('project-domain-name')
+        return self.get_remote_app_data("project-domain-name")
 
     @property
     def project_domain_id(self) -> str:
         """Return the id of the project domain."""
-        return self.get_remote_app_data('project-domain-id')
+        return self.get_remote_app_data("project-domain-id")
 
     @property
     def region(self) -> str:
         """Return the region for the auth urls."""
-        return self.get_remote_app_data('region')
+        return self.get_remote_app_data("region")
 
     @property
     def internal_endpoint(self) -> str:
         """Return the region for the internal auth url."""
-        return self.get_remote_app_data('internal-endpoint')
+        return self.get_remote_app_data("internal-endpoint")
 
     @property
     def public_endpoint(self) -> str:
         """Return the region for the public auth url."""
-        return self.get_remote_app_data('public-endpoint')
+        return self.get_remote_app_data("public-endpoint")
 
     @property
     def admin_role(self) -> str:
         """Return the admin_role."""
-        return self.get_remote_app_data('admin-role')
+        return self.get_remote_app_data("admin-role")
 
     def request_credentials(self) -> None:
         """Request credentials from the IdentityCredentials server."""
         if self.model.unit.is_leader():
-            logging.debug(f'Requesting credentials for {self.charm.app.name}')
+            logging.debug(f"Requesting credentials for {self.charm.app.name}")
             app_data = self._identity_credentials_rel.data[self.charm.app]
-            app_data['username'] = self.charm.app.name
+            app_data["username"] = self.charm.app.name
 
 
 class HasIdentityCredentialsClientsEvent(EventBase):
@@ -391,7 +397,7 @@ class IdentityCredentialsProvides(Object):
     def _on_identity_credentials_relation_changed(self, event):
         """Handle IdentityCredentials changed."""
         logging.debug("IdentityCredentials on_changed")
-        REQUIRED_KEYS = ['username']
+        REQUIRED_KEYS = ["username"]
 
         values = [
             event.relation.data[event.relation.app].get(k)
@@ -399,7 +405,7 @@ class IdentityCredentialsProvides(Object):
         ]
         # Validate data on the relation
         if all(values):
-            username = event.relation.data[event.relation.app]['username']
+            username = event.relation.data[event.relation.app]["username"]
             self.on.ready_identity_credentials_clients.emit(
                 event.relation.id,
                 event.relation.name,
@@ -411,24 +417,27 @@ class IdentityCredentialsProvides(Object):
         logging.debug("IdentityCredentialsProvides on_departed")
         self.on.identity_credentials_clients_gone.emit()
 
-    def set_identity_credentials(self, relation_name: int,
-                              relation_id: str,
-                              api_version: str,
-                              auth_host: str,
-                              auth_port: str,
-                              auth_protocol: str,
-                              internal_host: str,
-                              internal_port: str,
-                              internal_protocol: str,
-                              credentials: str,
-                              project_name: str,
-                              project_id: str,
-                              user_domain_name: str,
-                              user_domain_id: str,
-                              project_domain_name: str,
-                              project_domain_id: str,
-                              region: str,
-                              admin_role: str):
+    def set_identity_credentials(
+        self,
+        relation_name: int,
+        relation_id: str,
+        api_version: str,
+        auth_host: str,
+        auth_port: str,
+        auth_protocol: str,
+        internal_host: str,
+        internal_port: str,
+        internal_protocol: str,
+        credentials: str,
+        project_name: str,
+        project_id: str,
+        user_domain_name: str,
+        user_domain_id: str,
+        project_domain_name: str,
+        project_domain_id: str,
+        region: str,
+        admin_role: str,
+    ):
         logging.debug("Setting identity_credentials connection information.")
         _identity_credentials_rel = None
         for relation in self.framework.model.relations[relation_name]:
