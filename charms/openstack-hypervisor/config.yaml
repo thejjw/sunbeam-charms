@@ -13,9 +13,6 @@ options:
   dns-servers:
     default: "8.8.8.8"
     type: string
-  enable-gateway:
-    default: False
-    type: boolean
   external-bridge:
     default: "br-ex"
     type: string

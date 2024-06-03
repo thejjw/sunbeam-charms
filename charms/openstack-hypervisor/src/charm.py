@@ -433,7 +433,6 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "identity.username": contexts.identity_credentials.username,
                 "logging.debug": config("debug"),
                 "network.dns-servers": config("dns-servers"),
-                "network.enable-gateway": config("enable-gateway"),
                 "network.external-bridge": config("external-bridge"),
                 "network.external-bridge-address": config(
                     "external-bridge-address"
