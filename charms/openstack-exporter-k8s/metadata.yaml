@@ -23,7 +23,7 @@ resources:
   openstack-exporter-image:
     type: oci-image
     description: OCI image for OpenStack openstack-exporter
-    upstream-source: ghcr.io/canonical/openstack-exporter:1.6.0-7533071
+    upstream-source: ghcr.io/canonical/openstack-exporter:1.7.0
 
 requires:
   identity-ops:
