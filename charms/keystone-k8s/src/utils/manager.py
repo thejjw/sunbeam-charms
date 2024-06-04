@@ -477,6 +477,13 @@ class KeystoneManager(framework.Object):
             project_domain="service_domain",
             user_domain="service_domain",
         )
+        self.ksclient.grant_role(
+            role=self.charm.service_role,
+            project=project,
+            user=service_user.get("name"),
+            project_domain="service_domain",
+            user_domain="service_domain",
+        )
         return service_user
 
     def update_service_catalog_for_keystone(self):

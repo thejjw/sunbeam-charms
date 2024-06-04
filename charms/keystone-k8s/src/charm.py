@@ -1359,6 +1359,11 @@ export OS_AUTH_VERSION=3
         return self.model.config["admin-role"]
 
     @property
+    def service_role(self):
+        """Service role."""
+        return self.model.config["service-role"]
+
+    @property
     def charm_user(self):
         """The admin user specific to the charm.
 

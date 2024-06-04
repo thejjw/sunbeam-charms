@@ -23,6 +23,10 @@ options:
     default: services
     description: Name of tenant to associate with service credentials
     type: string
+  service-role:
+    default: service
+    description: Role to associate with service users
+    type: string
 
   region:
     default: RegionOne
