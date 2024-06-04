@@ -470,8 +470,18 @@ class KeystoneManager(framework.Object):
             password=password,
             domain=domain,
         )
+        # NOTE(gboutry): Remove admin role when services support working with
+        # service role only.
         self.ksclient.grant_role(
             role=self.charm.admin_role,
+            project=project,
+            user=service_user.get("name"),
+            project_domain="service_domain",
+            user_domain="service_domain",
+        )
+        # Service role introduced in 2023.2
+        self.ksclient.grant_role(
+            role="service",
             project=project,
             user=service_user.get("name"),
             project_domain="service_domain",
