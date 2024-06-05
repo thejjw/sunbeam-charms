@@ -50,7 +50,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "mappings": [],
           "noValue": "Stable",
@@ -441,7 +441,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "mappings": [],
           "noValue": "Stable",
@@ -508,7 +508,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "mappings": [],
           "noValue": "Stable",
@@ -585,7 +585,7 @@
           "fieldConfig": {
             "defaults": {
               "color": {
-                "mode": "thresholds"
+                "mode": "palette-classic"
               },
               "mappings": [],
               "noValue": "Stable",
@@ -972,7 +972,7 @@
           "fieldConfig": {
             "defaults": {
               "color": {
-                "mode": "thresholds"
+                "mode": "palette-classic"
               },
               "mappings": [],
               "noValue": "Stable",
@@ -1038,7 +1038,7 @@
           "fieldConfig": {
             "defaults": {
               "color": {
-                "mode": "thresholds"
+                "mode": "palette-classic"
               },
               "mappings": [],
               "noValue": "Stable",
@@ -1570,6 +1570,6 @@
   "timezone": "",
   "title": "Capacity Dashboard",
   "uid": "6nJ1jg7Iz",
-  "version": 7,
+  "version": 8,
   "weekStart": ""
 }
