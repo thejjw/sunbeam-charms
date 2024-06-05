@@ -178,12 +178,15 @@ class TestCompoundStatus(test_utils.CharmTestCase):
         # also need to manually activate other default statuses
         pool._pool["container:my-service"].set(ActiveStatus(""))
 
+        self.harness.evaluate_status()
         # all empty messages should end up as an empty unit status
         self.assertEqual(self.harness.charm.unit.status, ActiveStatus(""))
 
         # if there's a message (on the highest priority status),
         # it should also show the status prefix
         status2.set(ActiveStatus("a message"))
+
+        self.harness.evaluate_status()
         self.assertEqual(
             self.harness.charm.unit.status, ActiveStatus("(test2) a message")
         )
