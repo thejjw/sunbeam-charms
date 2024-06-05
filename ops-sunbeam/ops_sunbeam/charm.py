@@ -109,6 +109,9 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
         self.framework.observe(self.on.secret_changed, self._on_secret_changed)
         self.framework.observe(self.on.secret_rotate, self._on_secret_rotate)
         self.framework.observe(self.on.secret_remove, self._on_secret_remove)
+        self.framework.observe(
+            self.on.collect_unit_status, self._on_collect_unit_status_event
+        )
 
     def can_add_handler(
         self,
@@ -344,6 +347,15 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
         with the database named after the service name.
         """
         return {"database": self.service_name.replace("-", "_")}
+
+    def _on_collect_unit_status_event(self, event: ops.CollectStatusEvent):
+        """Publish the unit status.
+
+        collect_unit_status is called at the end of the hook's execution,
+        making it the best place to publish an active status."""
+        status = self.status_pool.compute_status()
+        if status:
+            event.add_status(status)
 
     def _on_config_changed(self, event: ops.framework.EventBase) -> None:
         self.configure_charm(event)

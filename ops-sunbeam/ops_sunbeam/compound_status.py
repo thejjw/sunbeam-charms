@@ -44,7 +44,6 @@ from ops.model import (
     ActiveStatus,
     StatusBase,
     UnknownStatus,
-    WaitingStatus,
 )
 from ops.storage import (
     NoSnapshotError,
@@ -222,10 +221,10 @@ class StatusPool(Object):
         self._charm.framework.save_snapshot(self._state)
         self._charm.framework._storage.commit()
 
-    def on_update(self) -> None:
-        """Update the unit status with the current highest priority status.
+    def compute_status(self) -> StatusBase | None:
+        """Compute the status to show to the user.
 
-        Use as a hook to run whenever a status is updated in the pool.
+        This is the highest priority status in the pool.
         """
         status = (
             sorted(self._pool.values(), key=lambda x: x.priority())[0]
@@ -233,18 +232,30 @@ class StatusPool(Object):
             else None
         )
         if status is None or status.status.name == "unknown":
-            self._charm.unit.status = WaitingStatus("no status set yet")
-        elif status.status.name == "active" and not status.message():
+            return None
+        if status.status.name == "active" and not status.message():
             # Avoid status name prefix if everything is active with no message.
             # If there's a message, then we want the prefix
             # to help identify where the message originates.
-            self._charm.unit.status = ActiveStatus("")
-        else:
-            message = status.message()
-            self._charm.unit.status = StatusBase.from_name(
-                status.status.name,
-                "({}){}".format(
-                    status.label,
-                    " " + message if message else "",
-                ),
-            )
+            return ActiveStatus("")
+        return StatusBase.from_name(
+            status.status.name,
+            "({}){}".format(
+                status.label,
+                " " + status.message() if status.message() else "",
+            ),
+        )
+
+    def on_update(self) -> None:
+        """Update the unit status with the current highest priority status.
+
+        Use as a hook to run whenever a status is updated in the pool.
+        on_update will never update the unit status to active, because this is
+        synced directly to the controller. Making the unit pass to active
+        multiple times during a hook while it's not.
+        """
+        status = self.compute_status()
+        if not status:
+            return
+        if status.name != "active":
+            self._charm.unit.status = status
