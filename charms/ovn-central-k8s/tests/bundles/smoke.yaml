@@ -28,8 +28,7 @@ applications:
     channel: 2024.1/edge
     scale: 1
     trust: true
-    options:
-      admin-role: admin
+
     storage:
       fernet-keys: 5M
       credential-keys: 5M
