@@ -16,6 +16,23 @@
       "message": "recheck\n\ncontroller failed to bootstrap",
       "revId": "74501fd17a141f0f9efa752490a5c057ba623bb2",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e27e5b8_5138cc47",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-06-06T04:00:33Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "74501fd17a141f0f9efa752490a5c057ba623bb2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
