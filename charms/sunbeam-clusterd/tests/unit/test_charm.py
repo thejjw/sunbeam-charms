@@ -65,6 +65,7 @@ class TestCharm(test_utils.CharmTestCase):
         self.harness.set_leader()
         self.harness.charm.on.config_changed.emit()
 
+        self.harness.evaluate_status()
         self.assertEqual(self.harness.charm.unit.status, ops.ActiveStatus())
         self.ensure_snap_present.assert_called()
         self.harness.charm._clusterd.bootstrap.assert_called_once()

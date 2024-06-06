@@ -21,6 +21,7 @@ from typing import (
 )
 
 import ops.pebble
+import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
 from keystoneauth1 import (
     session,
@@ -30,9 +31,6 @@ from keystoneauth1.identity import (
 )
 from keystoneclient.v3 import (
     client,
-)
-from ops import (
-    framework,
 )
 from ops.model import (
     MaintenanceStatus,
@@ -45,12 +43,15 @@ from utils.client import (
 logger = logging.getLogger(__name__)
 
 
-class KeystoneManager(framework.Object):
+class KeystoneManager:
     """Class for managing interactions with keystone api."""
 
-    def __init__(self, charm, container_name):
+    def __init__(
+        self,
+        charm: sunbeam_charm.OSBaseOperatorCharmK8S,
+        container_name: str,
+    ):
         """Setup the manager."""
-        super().__init__(charm, "keystone-manager")
         self.charm = charm
         self.container_name = container_name
         self._api = None
@@ -61,7 +62,7 @@ class KeystoneManager(framework.Object):
         pebble_handler = self.charm.get_named_pebble_handler(
             self.container_name
         )
-        return pebble_handler.execute(cmd, exception_on_error=True, **kwargs)
+        return pebble_handler.execute(cmd, exception_on_error, **kwargs)
 
     @property
     def api(self):

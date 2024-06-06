@@ -70,7 +70,6 @@ from ops.main import (
     main,
 )
 from ops.model import (
-    ActiveStatus,
     MaintenanceStatus,
     ModelError,
     Relation,
@@ -342,10 +341,12 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     SEND_CA_CERT_RELATION_NAME = "send-ca-cert"
 
     def __init__(self, framework):
-        super().__init__(framework)
+        # NOTE(gboutry): super().__init__ will call self.bootstrapped() which tries to
+        # make use of the keystone_manager
         self.keystone_manager = manager.KeystoneManager(
             self, KEYSTONE_CONTAINER
         )
+        super().__init__(framework)
         self._state.set_default(admin_domain_name="admin_domain")
         self._state.set_default(admin_domain_id=None)
         self._state.set_default(default_domain_id=None)
@@ -388,8 +389,6 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self.on.list_ca_certs_action,
             self._list_ca_certs_action,
         )
-        if self.bootstrapped():
-            self.bootstrap_status.set(ActiveStatus())
 
     def _retrieve_or_set_secret(
         self,
