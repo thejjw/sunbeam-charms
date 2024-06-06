@@ -1,0 +1,11 @@
+Verified+2: Zuul
+Code-Review+1: JamesLin <james.lin@canonical.com>
+Workflow+1: Hemanth N <hemanth.nakkina@canonical.com>
+Code-Review+2: Hemanth N <hemanth.nakkina@canonical.com>
+Code-Review+1: Eric Chen <eric.chen@canonical.com>
+Submitted-by: Zuul
+Submitted-at: Thu, 06 Jun 2024 04:12:06 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/921348
+Comments-Total: 2
+Project: openstack/sunbeam-charms
+Branch: refs/heads/main
