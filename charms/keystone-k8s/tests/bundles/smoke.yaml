@@ -28,8 +28,6 @@ applications:
     charm: ../../keystone-k8s.charm
     scale: 1
     trust: true
-    options:
-      admin-role: admin
     storage:
       fernet-keys: 5M
       credential-keys: 5M
