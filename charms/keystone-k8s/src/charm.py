@@ -1169,7 +1169,7 @@ export OS_AUTH_VERSION=3
             name="admin", domain=admin_domain.get("name")
         )
         admin_user = self.keystone_manager.ksclient.show_user(
-            name=self.model.config["admin-user"],
+            name=self.admin_user,
             domain=admin_domain.get("name"),
             project=admin_project.get("name"),
             project_domain=admin_domain.get("name"),
@@ -1350,12 +1350,12 @@ export OS_AUTH_VERSION=3
     @property
     def admin_user(self):
         """Admin User."""
-        return self.model.config["admin-user"]
+        return "admin"
 
     @property
     def admin_role(self):
         """Admin role."""
-        return self.model.config["admin-role"]
+        return "admin"
 
     @property
     def charm_user(self):
@@ -1381,7 +1381,7 @@ export OS_AUTH_VERSION=3
     @property
     def service_project(self):
         """Service project name."""
-        return self.model.config["service-tenant"]
+        return "services"
 
     @property
     def service_project_id(self):

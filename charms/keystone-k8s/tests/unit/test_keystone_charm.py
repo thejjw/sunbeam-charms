@@ -203,7 +203,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "admin-domain-name": "adomain_name",
                 "admin-project-id": "aproject_id",
                 "admin-project-name": "aproject_name",
-                "admin-role": "Admin",
+                "admin-role": "admin",
                 "admin-user-id": "auser_id",
                 "admin-user-name": "auser_name",
                 "api-version": "v3",

@@ -11,19 +11,6 @@ options:
     type: string
     description: Log level (WARNING, INFO, DEBUG, ERROR)
 
-  admin-user:
-    default: admin
-    description: Default admin user for keystone
-    type: string
-  admin-role:
-    default: Admin
-    description: Admin role to be associated with admin and service users
-    type: string
-  service-tenant:
-    default: services
-    description: Name of tenant to associate with service credentials
-    type: string
-
   region:
     default: RegionOne
     description: Name of the OpenStack region
