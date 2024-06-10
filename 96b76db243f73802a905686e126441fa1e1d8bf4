@@ -16,6 +16,23 @@
       "message": "recheck\n\nimages-sync has started in logs, but seems really slow.",
       "revId": "96b76db243f73802a905686e126441fa1e1d8bf4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "38faab65_f380751a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-06-10T14:21:58Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "96b76db243f73802a905686e126441fa1e1d8bf4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
