@@ -244,7 +244,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def healthcheck_period(self) -> str:
         """Healthcheck period for horizon service."""
-        return "15s"
+        return "45s"
 
     @property
     def healthcheck_http_url(self) -> str:
@@ -260,7 +260,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def healthcheck_http_timeout(self) -> str:
         """Healthcheck HTTP check timeout for the service."""
-        return "12s"
+        return "30s"
 
 
 if __name__ == "__main__":
