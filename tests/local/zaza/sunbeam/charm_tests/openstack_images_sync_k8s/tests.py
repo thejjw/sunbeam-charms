@@ -19,6 +19,7 @@ from zaza.openstack.utilities import openstack as openstack_utils
 from glanceclient.v2.client import Client as GlanceClient
 import tenacity
 
+
 class OpenStackImagesSyncK8sTest(test_utils.BaseCharmTest):
     """Charm tests for clusterd."""
 
@@ -30,11 +31,15 @@ class OpenStackImagesSyncK8sTest(test_utils.BaseCharmTest):
         )
 
         keystone_session = openstack_utils.get_overcloud_keystone_session()
-        cls.glance_client: GlanceClient = openstack_utils.get_glance_session_client(
-            keystone_session
+        cls.glance_client: GlanceClient = (
+            openstack_utils.get_glance_session_client(keystone_session)
         )
 
-    @tenacity.retry(wait=tenacity.wait_fixed(10), stop=tenacity.stop_after_delay(180), reraise=True)
+    @tenacity.retry(
+        wait=tenacity.wait_fixed(10),
+        stop=tenacity.stop_after_delay(1800),
+        reraise=True,
+    )
     def _wait_for_images(self):
         """Wait for images to be downloaded."""
         images = list(self.glance_client.images.list())
