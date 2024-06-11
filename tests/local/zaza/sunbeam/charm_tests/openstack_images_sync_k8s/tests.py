@@ -34,7 +34,7 @@ class OpenStackImagesSyncK8sTest(test_utils.BaseCharmTest):
             keystone_session
         )
 
-    @tenacity.retry(wait=tenacity.wait_fixed(10), stop=tenacity.stop_after_delay(180), reraise=True)
+    @tenacity.retry(wait=tenacity.wait_fixed(10), stop=tenacity.stop_after_delay(1800), reraise=True)
     def _wait_for_images(self):
         """Wait for images to be downloaded."""
         images = list(self.glance_client.images.list())
