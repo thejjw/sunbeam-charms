@@ -2,9 +2,15 @@ groups:
 - name: tempest-failed-tests
   rules:
   - alert: FailedTests
-    expr: |
-      sum_over_time({filename="/var/lib/tempest/workspace/tempest-periodic.log", %%juju_topology%%} |~ "- Failed:" | pattern " - <_>: <number_of_tests>" | unwrap number_of_tests [5m]) > 0
+    expr: 'last_over_time({filename="/var/lib/tempest/workspace/tempest-periodic.log",
+      %%juju_topology%%} |~ "- Failed:" | pattern " - <_>: <number_of_tests>" | unwrap
+      number_of_tests [719h]) > 0'
     labels:
       severity: high
+  - alert: AbsentTests
     annotations:
-      summary: "Failed tests: {{ $value }}!"
+      summary: Tempest periodic tests not seen recently
+    expr: absent_over_time({filename="/var/lib/tempest/workspace/tempest-periodic.log",
+      %%juju_topology%%} |~ "- Failed:" [2]) == 1
+    labels:
+      severity: high
