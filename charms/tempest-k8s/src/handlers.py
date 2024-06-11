@@ -51,6 +51,10 @@ from utils.constants import (
     TEMPEST_LIST_DIR,
     TEMPEST_PERIODIC_OUTPUT,
 )
+from utils.alert_rules import (
+    ALERT_RULES_PATH,
+    update_alert_rules_files,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -665,11 +669,16 @@ class LoggingRelationHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for the relation."""
         logger.debug("Setting up Logging Provider event handler")
+
+        # The alerts on file should be updated here,
+        # so it is ready before the relation handler updates the relation data.
+        update_alert_rules_files(self.charm.get_schedule())
+
         interface = loki_push_api.LogProxyConsumer(
             self.charm,
             recursive=True,
             relation_name=self.relation_name,
-            alert_rules_path="src/loki_alert_rules",
+            alert_rules_path=ALERT_RULES_PATH,
             logs_scheme={
                 "tempest": {
                     "log-files": [

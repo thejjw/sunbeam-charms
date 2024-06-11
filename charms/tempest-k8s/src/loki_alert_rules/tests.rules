@@ -2,9 +2,18 @@ groups:
 - name: tempest-failed-tests
   rules:
   - alert: FailedTests
+    # 23d is the max interval here; the aim is to get an accurate alert even if the periodic tests are scheduled infrequently.
     expr: |
-      sum_over_time({filename="/var/lib/tempest/workspace/tempest-periodic.log", %%juju_topology%%} |~ "- Failed:" | pattern " - <_>: <number_of_tests>" | unwrap number_of_tests [5m]) > 0
+      last_over_time({filename="/var/lib/tempest/workspace/tempest-periodic.log", %%juju_topology%%} |~ "- Failed:" | pattern " - <_>: <number_of_tests>" | unwrap number_of_tests [23d]) > 0
     labels:
       severity: high
     annotations:
       summary: "Failed tests: {{ $value }}!"
+  - alert: AbsentTests
+    expr: |
+        # TODO: template the range value - it should be somewhat greater than the period of the periodic tests - we'll need to template it out
+        absent_over_time({filename="/var/lib/tempest/workspace/tempest-periodic.log", %%juju_topology%%} |~ "- Failed:" | pattern " - <_>: <number_of_tests>" | unwrap number_of_tests[2h]) == 1
+    labels:
+      severity: high
+    annotations:
+      summary: "Tempest periodic tests not seen recently"
