@@ -1,0 +1,2 @@
+# alert rules for this charm are dynamically written to disk
+./src/loki_alert_rules/*.rules
