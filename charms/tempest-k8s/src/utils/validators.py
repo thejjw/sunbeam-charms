@@ -31,6 +31,9 @@ class Schedule:
     value: str
     valid: bool
     err: str
+    # in validation, these are the maximum and minimum intervals between runs seen
+    max_interval: int = 0  # in seconds
+    min_interval: int = 0  # in seconds
 
 
 def validated_schedule(schedule: str) -> Schedule:
@@ -66,18 +69,29 @@ def validated_schedule(schedule: str) -> Schedule:
             )
         return Schedule(value=schedule, valid=False, err=msg)
 
-    # This is a rather naive method for enforcing this,
+    # This is a heuristic method of checking because cron schedules aren't regular,
     # and it may be possible to craft an expression
     # that results in some consecutive runs within 15 minutes,
     # however this is fine, as there is process locking for tempest,
     # and this is more of a sanity check than a security requirement.
-    t1 = cron.get_next()
-    t2 = cron.get_next()
-    if t2 - t1 < 15 * 60:  # 15 minutes in seconds
+    intervals = []  # in seconds
+    last = cron.get_next()
+    for _ in range(5):
+        next_ = cron.get_next()
+        intervals.append(next_ - last)
+        last = next_
+
+    if min(intervals) < 15 * 60:  # 15 minutes in seconds
         return Schedule(
             value=schedule,
             valid=False,
             err="Cannot schedule periodic check to run faster than every 15 minutes.",
         )
 
-    return Schedule(value=schedule, valid=True, err="")
+    return Schedule(
+        value=schedule,
+        valid=True,
+        err="",
+        max_interval=max(intervals),
+        min_interval=min(intervals),
+    )
