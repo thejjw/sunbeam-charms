@@ -37,6 +37,11 @@ import ops.model
 import ops.pebble
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from utils.alert_rules import (
+    ALERT_RULES_PATH,
+    ensure_alert_rules_disabled,
+    update_alert_rules_files,
+)
 from utils.cleanup import (
     CleanUpError,
     run_extensive_cleanup,
@@ -665,11 +670,19 @@ class LoggingRelationHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for the relation."""
         logger.debug("Setting up Logging Provider event handler")
+
+        # The alerts on file should be updated here,
+        # so it is ready before the relation handler updates the relation data.
+        if self.charm.is_schedule_ready():
+            update_alert_rules_files(self.charm.schedule)
+        else:
+            ensure_alert_rules_disabled()
+
         interface = loki_push_api.LogProxyConsumer(
             self.charm,
             recursive=True,
             relation_name=self.relation_name,
-            alert_rules_path="src/loki_alert_rules",
+            alert_rules_path=ALERT_RULES_PATH,
             logs_scheme={
                 "tempest": {
                     "log-files": [
