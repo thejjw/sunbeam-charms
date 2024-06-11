@@ -16,6 +16,23 @@
       "message": "recheck\n\nzaza failed to connect to controller",
       "revId": "bf43f5cf8da3ebeee546b1d86e05a5cb235023df",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e619b94d_4969902b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-06-11T13:49:54Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "bf43f5cf8da3ebeee546b1d86e05a5cb235023df",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
