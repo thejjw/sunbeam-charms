@@ -17,6 +17,9 @@
 """Unit tests for Tempest validator utility functions."""
 
 import unittest
+from dataclasses import (
+    FrozenInstanceError,
+)
 
 from utils.validators import (
     validated_schedule,
@@ -85,3 +88,21 @@ class TempestCharmValidatorTests(unittest.TestCase):
         self.assertFalse(schedule.valid)
         self.assertIn("not acceptable", schedule.err)
         self.assertEqual(schedule.value, exp)
+
+    def test_expression_too_sparse(self):
+        """Verify an expression with a very long period is caught."""
+        exp = "0 4 30 2 *"  # on february 30  ;)
+        schedule = validated_schedule(exp)
+        self.assertFalse(schedule.valid)
+        self.assertIn("not calculate a range", schedule.err)
+        self.assertEqual(schedule.value, exp)
+
+    def test_schedule_type_is_immutable(self):
+        """Schedule should be immutable."""
+        # this is both to avoid issues with caching it,
+        # and to ensure a validated schedule is not accidentally modified
+        # (it should not be modified because then it may not be valid any more)
+        schedule = validated_schedule("5 4 * * *")
+        self.assertTrue(schedule.valid)
+        with self.assertRaises(FrozenInstanceError):
+            schedule.valid = False

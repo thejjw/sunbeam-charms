@@ -37,6 +37,9 @@ import ops.model
 import ops.pebble
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+from utils.alert_rules import (
+    ALERT_RULES_PATH,
+)
 from utils.cleanup import (
     CleanUpError,
     run_extensive_cleanup,
@@ -669,7 +672,7 @@ class LoggingRelationHandler(sunbeam_rhandlers.RelationHandler):
             self.charm,
             recursive=True,
             relation_name=self.relation_name,
-            alert_rules_path="src/loki_alert_rules",
+            alert_rules_path=ALERT_RULES_PATH,
             logs_scheme={
                 "tempest": {
                     "log-files": [
