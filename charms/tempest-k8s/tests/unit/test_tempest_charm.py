@@ -96,6 +96,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
     def setUp(self):
         """Setup Placement tests."""
         super().setUp(charm, [])
+
         self.harness = test_utils.get_harness(
             _TempestTestOperatorCharm,
             container_calls=self.container_calls,
@@ -111,16 +112,13 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.patch_obj(
             utils.cleanup, "_get_exclusion_resources"
         ).return_value = {"projects": set(), "users": set()}
-        # We must keep a reference to the patcher object,
-        # because in a couple of tests we need to not patch this.
-        # self.patch_obj doesn't give us a reference to the patcher.
-        self.get_unit_data_patcher = patch.object(
-            charm.TempestOperatorCharm,
-            "get_unit_data",
-            Mock(return_value="true"),
-        )
-        self.get_unit_data_patcher.start()
-        self.addCleanup(self.get_unit_data_patcher.stop)
+
+        self.harness.charm.peers = Mock()
+        self.harness.charm.peers.interface.peers_rel.data = MagicMock()
+        self.harness.charm.peers.interface.peers_rel.data.__getitem__.return_value = {
+            TEMPEST_READY_KEY: "true"
+        }
+
 
     def add_identity_ops_relation(self, harness):
         """Add identity resource relation."""
@@ -507,15 +505,6 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        # We want the real get_unit_data method here,
-        # because its logic is being tested.
-        self.get_unit_data_patcher.stop()
-        self.harness.charm.peers = Mock()
-        self.harness.charm.peers.interface.peers_rel.data = MagicMock()
-        self.harness.charm.peers.interface.peers_rel.data.__getitem__.return_value = {
-            TEMPEST_READY_KEY: "true"
-        }
-
         self.assertTrue(self.harness.charm.is_tempest_ready())
 
     def test_is_tempest_ready_false(self):
@@ -525,11 +514,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        # We want the real get_unit_data method here,
-        # because its logic is being tested.
-        self.get_unit_data_patcher.stop()
-        self.harness.charm.peers = Mock()
-        self.harness.charm.peers.interface.peers_rel.data = MagicMock()
+        # simulate tempest not ready
         self.harness.charm.peers.interface.peers_rel.data.__getitem__.return_value = {
             TEMPEST_READY_KEY: ""
         }
