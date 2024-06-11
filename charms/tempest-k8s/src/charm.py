@@ -21,6 +21,9 @@ This charm provide Tempest as part of an OpenStack deployment
 
 import logging
 import os
+from functools import (
+    cache,
+)
 from typing import (
     Dict,
     List,
@@ -73,6 +76,7 @@ from utils.types import (
     TempestEnvVariant,
 )
 from utils.validators import (
+    Schedule,
     validated_schedule,
 )
 
@@ -85,7 +89,11 @@ class TempestConfigurationContext(ConfigContext):
     def context(self) -> dict:
         """Tempest context."""
         return {
-            "schedule": self.charm.get_schedule(),
+            "schedule": (
+                self.charm.get_schedule().value
+                if self.charm.is_schedule_ready()
+                else ""
+            ),
         }
 
 
@@ -101,6 +109,17 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Run the constructor."""
         # config for openstack, used by tempest
         super().__init__(framework)
+
+        # This must be configured after other relation handlers,
+        # because it depends on the validated schedule.
+        self.loki = LoggingRelationHandler(
+            self,
+            "logging",
+            self.configure_charm,
+            mandatory="logging" in self.mandatory_relations,
+        )
+        self.relation_handlers.append(self.loki)
+
         self.framework.observe(
             self.on.validate_action, self._on_validate_action
         )
@@ -131,31 +150,25 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             ),
         ]
 
-    def get_schedule(self) -> str:
-        """Return the schedule option if valid and should be enabled.
+    @cache
+    def get_schedule(self) -> Schedule:
+        """Validate and return the schedule from config."""
+        return validated_schedule(self.config["schedule"])
 
-        If the schedule option is invalid,
-        or periodic checks shouldn't currently be enabled
-        (eg. observability relations not ready),
-        then return an empty schedule string.
-        An empty string disables the schedule.
+    def is_schedule_ready(self) -> bool:
+        """Return if the schedule option if valid and should be enabled.
+
+        Return True if the schedule config option is valid,
+        and pre-requisites for periodic checks are ready.
         """
-        schedule = validated_schedule(self.config["schedule"])
-        if not schedule.valid:
-            return ""
-
-        # if tempest env isn't ready,
-        # or if the logging relation isn't joined,
-        # or if keystone isn't ready,
-        # then we can't start scheduling periodic tests
-        if not (
-            self.is_tempest_ready()
+        schedule = self.get_schedule()
+        return (
+            schedule.valid
+            and schedule.value
+            and self.is_tempest_ready()
             and self.loki.ready
             and self.user_id_ops.ready
-        ):
-            return ""
-
-        return schedule.value
+        )
 
     @property
     def config_contexts(self) -> List[ConfigContext]:
@@ -186,13 +199,6 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             region=self.config["region"],
         )
         handlers.append(self.user_id_ops)
-        self.loki = LoggingRelationHandler(
-            self,
-            "logging",
-            self.configure_charm,
-            mandatory="logging" in self.mandatory_relations,
-        )
-        handlers.append(self.loki)
         self.grafana = GrafanaDashboardRelationHandler(
             self,
             "grafana-dashboard",
@@ -322,7 +328,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
         logger.info("Configuring the tempest environment")
 
-        schedule = validated_schedule(self.config["schedule"])
+        schedule = self.get_schedule()
         if not schedule.valid:
             raise sunbeam_guard.BlockedExceptionError(
                 f"invalid schedule config: {schedule.err}"

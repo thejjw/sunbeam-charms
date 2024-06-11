@@ -96,6 +96,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
     def setUp(self):
         """Setup Placement tests."""
         super().setUp(charm, [])
+
         self.harness = test_utils.get_harness(
             _TempestTestOperatorCharm,
             container_calls=self.container_calls,
@@ -111,16 +112,6 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.patch_obj(
             utils.cleanup, "_get_exclusion_resources"
         ).return_value = {"projects": set(), "users": set()}
-        # We must keep a reference to the patcher object,
-        # because in a couple of tests we need to not patch this.
-        # self.patch_obj doesn't give us a reference to the patcher.
-        self.get_unit_data_patcher = patch.object(
-            charm.TempestOperatorCharm,
-            "get_unit_data",
-            Mock(return_value="true"),
-        )
-        self.get_unit_data_patcher.start()
-        self.addCleanup(self.get_unit_data_patcher.stop)
 
     def add_identity_ops_relation(self, harness):
         """Add identity resource relation."""
@@ -236,6 +227,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
 
         # ok schedule
         schedule = "0 0 */7 * *"
+        self.harness.charm.get_schedule.cache_clear()
         self.harness.update_config({"schedule": schedule})
         self.assertEqual(
             self.harness.charm.contexts().tempest.schedule, schedule
@@ -243,11 +235,13 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
 
         # too frequent
         schedule = "* * * * *"
+        self.harness.charm.get_schedule.cache_clear()
         self.harness.update_config({"schedule": schedule})
         self.assertEqual(self.harness.charm.contexts().tempest.schedule, "")
 
         # disabled
         schedule = ""
+        self.harness.charm.get_schedule.cache_clear()
         self.harness.update_config({"schedule": schedule})
         self.assertEqual(self.harness.charm.contexts().tempest.schedule, "")
 
@@ -255,6 +249,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.charm.is_tempest_ready = Mock(return_value=False)
         self.harness.charm.peers = Mock()
         schedule = "0 0 */7 * *"
+        self.harness.charm.get_schedule.cache_clear()
         self.harness.update_config({"schedule": schedule})
         self.assertEqual(self.harness.charm.contexts().tempest.schedule, "")
 
@@ -462,11 +457,13 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.charm.is_tempest_ready = Mock(return_value=True)
 
         # invalid schedule should make charm in blocked status
+        self.harness.charm.get_schedule.cache_clear()
         self.harness.update_config({"schedule": "* *"})
         self.assertIn("invalid schedule", self.harness.charm.status.message())
         self.assertEqual(self.harness.charm.status.status.name, "blocked")
 
         # updating the schedule to something valid should unblock it
+        self.harness.charm.get_schedule.cache_clear()
         self.harness.update_config({"schedule": "*/20 * * * *"})
         self.assertEqual(self.harness.charm.status.message(), "")
         self.assertEqual(self.harness.charm.status.status.name, "active")
@@ -491,7 +488,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
 
         self.harness.update_config({"schedule": "*/21 * * * *"})
 
-        self.harness.charm.set_tempest_ready.has_calls(
+        self.harness.charm.set_tempest_ready.assert_has_calls(
             [call(False), call(False)]
         )
         self.assertEqual(self.harness.charm.set_tempest_ready.call_count, 2)
@@ -507,9 +504,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        # We want the real get_unit_data method here,
-        # because its logic is being tested.
-        self.get_unit_data_patcher.stop()
+        # simulate tempest ready
         self.harness.charm.peers = Mock()
         self.harness.charm.peers.interface.peers_rel.data = MagicMock()
         self.harness.charm.peers.interface.peers_rel.data.__getitem__.return_value = {
@@ -525,9 +520,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.add_identity_ops_relation(self.harness)
         self.add_grafana_dashboard_relation(self.harness)
 
-        # We want the real get_unit_data method here,
-        # because its logic is being tested.
-        self.get_unit_data_patcher.stop()
+        # simulate tempest not ready
         self.harness.charm.peers = Mock()
         self.harness.charm.peers.interface.peers_rel.data = MagicMock()
         self.harness.charm.peers.interface.peers_rel.data.__getitem__.return_value = {
