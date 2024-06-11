@@ -21,6 +21,9 @@ This charm provide Tempest as part of an OpenStack deployment
 
 import logging
 import os
+from functools import (
+    cache,
+)
 from typing import (
     Dict,
     List,
@@ -51,6 +54,10 @@ from ops.model import (
 from ops_sunbeam.config_contexts import (
     ConfigContext,
 )
+from utils.alert_rules import (
+    ensure_alert_rules_disabled,
+    update_alert_rules_files,
+)
 from utils.cleanup import (
     CleanUpError,
     run_extensive_cleanup,
@@ -73,8 +80,11 @@ from utils.types import (
     TempestEnvVariant,
 )
 from utils.validators import (
+    Schedule,
     validated_schedule,
 )
+
+LOKI_RELATION_NAME = "logging"
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +95,11 @@ class TempestConfigurationContext(ConfigContext):
     def context(self) -> dict:
         """Tempest context."""
         return {
-            "schedule": self.charm.get_schedule(),
+            "schedule": (
+                self.charm.get_schedule().value
+                if self.charm.is_schedule_ready()
+                else ""
+            ),
         }
 
 
@@ -131,31 +145,30 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             ),
         ]
 
-    def get_schedule(self) -> str:
-        """Return the schedule option if valid and should be enabled.
+    @cache
+    def get_schedule(self) -> Schedule:
+        """Validate and return the schedule from config.
 
-        If the schedule option is invalid,
-        or periodic checks shouldn't currently be enabled
-        (eg. observability relations not ready),
-        then return an empty schedule string.
-        An empty string disables the schedule.
+        This is cached so the validation only needs to happen once.
+        It can be cached because the config option will not change
+        during a charm invocation.
         """
-        schedule = validated_schedule(self.config["schedule"])
-        if not schedule.valid:
-            return ""
+        return validated_schedule(self.config["schedule"])
 
-        # if tempest env isn't ready,
-        # or if the logging relation isn't joined,
-        # or if keystone isn't ready,
-        # then we can't start scheduling periodic tests
-        if not (
-            self.is_tempest_ready()
+    def is_schedule_ready(self) -> bool:
+        """Check if the schedule is valid and periodic tests should be enabled.
+
+        Return True if the schedule config option is valid,
+        and pre-requisites for periodic checks are ready.
+        """
+        schedule = self.get_schedule()
+        return (
+            schedule.valid
+            and schedule.value
+            and self.is_tempest_ready()
             and self.loki.ready
             and self.user_id_ops.ready
-        ):
-            return ""
-
-        return schedule.value
+        )
 
     @property
     def config_contexts(self) -> List[ConfigContext]:
@@ -188,7 +201,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         handlers.append(self.user_id_ops)
         self.loki = LoggingRelationHandler(
             self,
-            "logging",
+            LOKI_RELATION_NAME,
             self.configure_charm,
             mandatory="logging" in self.mandatory_relations,
         )
@@ -322,7 +335,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
         logger.info("Configuring the tempest environment")
 
-        schedule = validated_schedule(self.config["schedule"])
+        schedule = self.get_schedule()
         if not schedule.valid:
             raise sunbeam_guard.BlockedExceptionError(
                 f"invalid schedule config: {schedule.err}"
@@ -339,6 +352,16 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             raise sunbeam_guard.BlockedExceptionError(
                 "tempest init failed, see logs for more info"
             )
+
+        # Ensure the alert rules are in sync with charm config.
+        if self.is_schedule_ready():
+            update_alert_rules_files(schedule)
+        else:
+            ensure_alert_rules_disabled()
+
+        if self.loki.ready:
+            for relation in self.model.relations[LOKI_RELATION_NAME]:
+                self.loki.interface._handle_alert_rules(relation)
 
         self.status.set(ActiveStatus(""))
         logger.info("Finished configuring the tempest environment")
