@@ -85,6 +85,24 @@
       "parentUuid": "0c2ffa6b_aacd7518",
       "revId": "914456f91ea8b20910af8f5233a023076b8810d9",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7bfdffec_fb8de560",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 935
+      },
+      "writtenOn": "2024-06-12T10:45:20Z",
+      "side": 1,
+      "message": "So a subsequent retry hook execution from Juju would result in the same event being processed, hopefully when the keystone service is up and running again?",
+      "parentUuid": "ea7207b9_6a08348a",
+      "revId": "914456f91ea8b20910af8f5233a023076b8810d9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
