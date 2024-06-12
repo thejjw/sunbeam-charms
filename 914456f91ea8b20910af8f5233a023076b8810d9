@@ -1,0 +1,11 @@
+Verified+2: Zuul
+Workflow+1: James Page <james.page@canonical.com>
+Code-Review+1: Hemanth N <hemanth.nakkina@canonical.com>
+Code-Review+2: James Page <james.page@canonical.com>
+Submitted-by: Zuul
+Submitted-at: Wed, 12 Jun 2024 13:07:44 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/921756
+Comments-Total: 6
+Comments-Unresolved: 1
+Project: openstack/sunbeam-charms
+Branch: refs/heads/main
