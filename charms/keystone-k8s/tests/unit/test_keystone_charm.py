@@ -26,6 +26,8 @@ from unittest.mock import (
 )
 
 import charm
+import keystoneauth1.exceptions
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.test_utils as test_utils
 
 
@@ -56,7 +58,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         "pwgen",
     ]
 
-    def add_id_relation(self) -> str:
+    def add_id_relation(self) -> int:
         """Add amqp relation."""
         rel_id = self.harness.add_relation("identity-service", "cinder")
         self.harness.add_relation_unit(rel_id, "cinder/0")
@@ -414,6 +416,137 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
     def test_non_leader_on_secret_rotate_for_label_credential_keys(self):
         """Test secret-rotate event for label credential_keys on non leader unit."""
         self._test_non_leader_on_secret_rotate(label="credential-keys")
+
+    def test_leader_on_secret_rotate_identity_service_secret(self):
+        """Test secret-rotate event for label identity_service_secret on leader unit."""
+        create_service_account = MagicMock(side_effect=[{"name": "cinder"}])
+        configure_mock = MagicMock(
+            side_effect=self.harness.charm.configure_charm
+        )
+
+        self._test_secret_rotate_identity_credentials(
+            create_service_mock=create_service_account,
+            configure_mock=configure_mock,
+        )
+        self.assertEqual(create_service_account.call_count, 1)
+        self.assertEqual(configure_mock.call_count, 0)
+
+    def test_leader_on_secret_rotate_identity_service_secret_when_failing_to_connect_once(
+        self,
+    ):
+        """When the secret rotate hook fails to connect once, it should retry.
+
+        The hook will try to configure the charm, and then retry to create the service account.
+        """
+        create_service_account = MagicMock(
+            side_effect=[
+                keystoneauth1.exceptions.ConnectFailure(
+                    "Failed to connect..."
+                ),
+                {"name": "cinder"},
+            ]
+        )
+        configure_mock = MagicMock(
+            side_effect=self.harness.charm.configure_charm
+        )
+
+        self._test_secret_rotate_identity_credentials(
+            create_service_mock=create_service_account,
+            configure_mock=configure_mock,
+        )
+        self.assertEqual(create_service_account.call_count, 2)
+        self.assertEqual(configure_mock.call_count, 1)
+
+    def test_leader_on_secret_rotate_identity_service_secret_when_failing_to_connect_twice(
+        self,
+    ):
+        """This will fail to connect twice, and then raise an error."""
+        create_service_account = MagicMock(
+            side_effect=[
+                keystoneauth1.exceptions.ConnectFailure(
+                    "Failed to connect..."
+                ),
+                keystoneauth1.exceptions.ConnectFailure(
+                    "Failed to connect..."
+                ),
+            ]
+        )
+        configure_mock = MagicMock(
+            side_effect=self.harness.charm.configure_charm
+        )
+
+        with self.assertRaises(keystoneauth1.exceptions.ConnectFailure):
+            self._test_secret_rotate_identity_credentials(
+                create_service_mock=create_service_account,
+                configure_mock=configure_mock,
+            )
+        self.assertEqual(create_service_account.call_count, 2)
+        self.assertEqual(configure_mock.call_count, 1)
+
+    def test_leader_on_secret_rotate_identity_service_secret_when_unexpected_error(
+        self,
+    ):
+        """This is an unhandled exception, it should have been bubbled up."""
+        create_service_account = MagicMock(
+            side_effect=Exception("I am unexpected..."),
+        )
+        configure_mock = MagicMock(
+            side_effect=self.harness.charm.configure_charm
+        )
+
+        with self.assertRaises(Exception):
+            self._test_secret_rotate_identity_credentials(
+                create_service_mock=create_service_account,
+                configure_mock=configure_mock,
+            )
+        self.assertEqual(create_service_account.call_count, 1)
+        self.assertEqual(configure_mock.call_count, 0)
+
+    def test_leader_on_secret_rotate_identity_service_secret_when_configured_not_active(
+        self,
+    ):
+        """Keystone is not ready, it should raise a blocked exception."""
+        create_service_account = MagicMock(
+            side_effect=keystoneauth1.exceptions.ConnectFailure(
+                "Failed to connect..."
+            ),
+        )
+        configure_mock = MagicMock(
+            side_effect=self.harness.charm.configure_charm
+        )
+        with self.assertRaises(sunbeam_guard.BlockedExceptionError):
+            self._test_secret_rotate_identity_credentials(
+                create_service_mock=create_service_account,
+                configure_mock=configure_mock,
+                remove_ingress=True,
+            )
+        self.assertEqual(create_service_account.call_count, 1)
+        self.assertEqual(configure_mock.call_count, 1)
+
+    def _test_secret_rotate_identity_credentials(
+        self,
+        create_service_mock: MagicMock,
+        configure_mock: MagicMock,
+        remove_ingress=False,
+    ):
+        test_utils.add_complete_ingress_relation(self.harness)
+        test_utils.add_complete_db_relation(self.harness)
+        test_utils.add_complete_peer_relation(self.harness)
+        self.harness.set_leader()
+        self.harness.container_pebble_ready("keystone")
+        rel_id = self.add_id_relation()
+        rel_data = self.harness.get_relation_data(
+            rel_id, self.harness.model.app.name
+        )
+        label = charm.CREDENTIALS_SECRET_PREFIX + "svc_" + "cinder"
+        secret_id = rel_data["service-credentials"]
+        if remove_ingress:
+            rel = self.harness.charm.model.get_relation("ingress-public")
+            rel_id = rel.id
+            self.harness.remove_relation(rel_id)
+        self.km_mock.create_service_account = create_service_mock
+        self.harness.charm.configure_charm = configure_mock
+        self.harness.trigger_secret_rotation(secret_id, label=label)
 
     def test_on_secret_changed_with_fernet_keys_and_fernet_secret_same(self):
         """Test secret change event when fernet keys and secret have same content."""

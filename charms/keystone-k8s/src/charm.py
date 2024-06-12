@@ -46,6 +46,7 @@ import charms.keystone_k8s.v0.identity_credentials as sunbeam_cc_svc
 import charms.keystone_k8s.v0.identity_resource as sunbeam_ops_svc
 import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
 import jinja2
+import keystoneauth1.exceptions
 import ops.charm
 import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
@@ -781,10 +782,10 @@ export OS_AUTH_VERSION=3
                 and len(CREDENTIALS_SECRET_PREFIX) :  # noqa: E203
             ]
             username = f"{username}-{suffix}"
-            password = pwgen.pwgen(12)
+            password = str(pwgen.pwgen(12))
 
             logger.info(f"Creating service account with username {username}")
-            self.keystone_manager.create_service_account(username, password)
+            self._create_service_account_with_retry(event, username, password)
             olduser = event.secret.get_content(refresh=True).get("username")
             event.secret.set_content(
                 {"username": username, "password": password}
@@ -798,6 +799,29 @@ export OS_AUTH_VERSION=3
                 self.peers.set_app_data(
                     {"old_service_users": json.dumps(service_users_to_delete)}
                 )
+
+    def _create_service_account_with_retry(
+        self, event: ops.EventBase, username: str, password: str
+    ) -> dict:
+        """Create a service account, tries to configure the charm if connection fails."""
+        try:
+            return self.keystone_manager.create_service_account(
+                username, password
+            )
+        except keystoneauth1.exceptions.ConnectFailure:
+            logger.debug("Failed to connect to keystone", exc_info=True)
+        self.configure_charm(event)
+        if self.status.status.name != "active":
+            logger.debug("Configure charm did not configure to completion")
+            # note(gboutry): This is not caught by a sunbeam guard,
+            # this will fail the hook.
+            raise sunbeam_guard.BlockedExceptionError(
+                "Failed to create service account"
+            )
+        # note(gboutry): If successfully configured, retry the service account creation
+        # let bubble up this exception, if it fails again,
+        # this hook should be retried again in the future.
+        return self.keystone_manager.create_service_account(username, password)
 
     def _on_secret_remove(self, event: ops.charm.SecretRemoveEvent):
         logger.info(f"secret-remove triggered for label {event.secret.label}")
