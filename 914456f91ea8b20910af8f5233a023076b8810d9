@@ -103,6 +103,24 @@
       "parentUuid": "ea7207b9_6a08348a",
       "revId": "914456f91ea8b20910af8f5233a023076b8810d9",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d0e17a6_59ca3939",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-06-12T14:01:10Z",
+      "side": 1,
+      "message": "Yes, and it will retry to configure the charm every time.\n\nI actually saw the issue where:\n- ingress-public relation is not ready after the reboot of the node (gateway address unavailable)\n- secret rotate tries to perform the rotation but fail because keystone is not up\n- ingress-public comes back to ready after a while but can\u0027t go forward because we don\u0027t configure (still trying to rotate secrets)\n\ningress-public was not ready because the traefik charm was waiting with error message `gateway address unavailable`, this is situation that can solve itself or be solved by a human operator",
+      "parentUuid": "7bfdffec_fb8de560",
+      "revId": "914456f91ea8b20910af8f5233a023076b8810d9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
