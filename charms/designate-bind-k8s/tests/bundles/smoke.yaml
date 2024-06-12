@@ -1,8 +1,0 @@
-bundle: kubernetes
-applications:
-  designate-bind:
-    charm: ../../designate-bind-k8s.charm
-    scale: 1
-    trust: false
-    resources:
-      designate-bind-image: ubuntu/bind9:9.18-22.04_beta
