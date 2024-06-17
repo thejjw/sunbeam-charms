@@ -21,6 +21,6 @@ enabled = True
 
 [storage:sqlalchemy]
 {% include "parts/database-connection" %}
-db_auto_create = false
+{% include "parts/database-connection-settings" %}
 
 {% include "parts/section-oslo-messaging-rabbit" %}

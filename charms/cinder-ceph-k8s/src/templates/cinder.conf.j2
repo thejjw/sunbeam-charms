@@ -25,11 +25,7 @@ cinder_internal_tenant_project_id = {{ identity_credentials.project_id }}
 cinder_internal_tenant_user_id = {{ identity_credentials.username }}
 {% endif -%}
 
-[database]
-{% if database.connection -%}
-connection = {{ database.connection }}
-{% endif -%}
-connection_recycle_time = 200
+{% include "parts/section-database" %}
 
 {% include "parts/section-oslo-notifications" %}
 
