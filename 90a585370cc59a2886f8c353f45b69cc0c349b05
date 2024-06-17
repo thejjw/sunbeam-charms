@@ -16,6 +16,23 @@
       "message": "recheck\n\ncontroller connection failed during func-core",
       "revId": "90a585370cc59a2886f8c353f45b69cc0c349b05",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2bc1b3fa_19573bbc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-06-17T19:01:02Z",
+      "side": 1,
+      "message": "recheck\n\nbuild timeout",
+      "revId": "90a585370cc59a2886f8c353f45b69cc0c349b05",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
