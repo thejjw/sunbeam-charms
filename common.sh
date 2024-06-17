@@ -190,6 +190,7 @@ EXTERNAL_TEMPEST_LIBS=(
 CONFIG_TEMPLATES_AODH=(
 	"parts/section-database"
 	"parts/database-connection"
+	"parts/database-connections-settings"
 	"parts/section-identity"
 	"parts/identity-data"
 	"parts/section-oslo-messaging-rabbit"
@@ -198,10 +199,13 @@ CONFIG_TEMPLATES_AODH=(
 )
 
 CONFIG_TEMPLATES_BARBICAN=(
-        "parts/section-identity"
+	"parts/section-database"
+	"parts/database-connection"
+	"parts/database-connection-settings"
+	"parts/section-identity"
 	"parts/identity-data"
-        "parts/section-oslo-messaging-rabbit"
-        "parts/section-service-user"
+	"parts/section-oslo-messaging-rabbit"
+	"parts/section-service-user"
 	"ca-bundle.pem.j2"
 )
 
@@ -213,54 +217,61 @@ CONFIG_TEMPLATES_CEILOMETER=(
 )
 
 CONFIG_TEMPLATES_CINDER=(
-        "parts/section-database"
+	"parts/section-database"
 	"parts/database-connection"
-        "parts/section-identity"
+	"parts/database-connection-settings"
+	"parts/section-identity"
 	"parts/identity-data"
-        "parts/section-oslo-messaging-rabbit"
-        "parts/section-service-user"
+	"parts/section-oslo-messaging-rabbit"
+	"parts/section-service-user"
 	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_CINDER_CEPH=(
+	"parts/section-database"
+	"parts/database-connection"
+	"parts/database-connection-settings"
 	"parts/section-oslo-messaging-rabbit"
 	"parts/section-oslo-notifications"
 )
 
 CONFIG_TEMPLATES_DESIGNATE=(
 	"parts/database-connection"
+	"parts/database-connection-settings"
 	"parts/section-identity"
 	"parts/identity-data"
 	"parts/section-oslo-messaging-rabbit"
-        "parts/section-service-user"
+	"parts/section-service-user"
 	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_GLANCE=(
 	"parts/section-database"
 	"parts/database-connection"
+	"parts/database-connection-settings"
 	"parts/section-identity"
-        "parts/identity-data"
+	"parts/identity-data"
 	"parts/section-oslo-messaging-rabbit"
-        "parts/section-oslo-notifications"
+	"parts/section-oslo-notifications"
 	"parts/section-service-user"
 	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_GNOCCHI=(
-        "parts/database-connection"
-        "parts/section-identity"
-        "parts/identity-data"
+	"parts/database-connection"
+	"parts/section-identity"
+	"parts/identity-data"
 	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_HEAT=(
-        "parts/section-database"
-        "parts/database-connection"
-        "parts/section-identity"
-        "parts/identity-data"
+	"parts/section-database"
+	"parts/database-connection"
+	"parts/database-connection-settings"
+	"parts/section-identity"
+	"parts/identity-data"
 	"parts/section-trustee"
-        "parts/section-oslo-messaging-rabbit"
+	"parts/section-oslo-messaging-rabbit"
 	"ca-bundle.pem.j2"
 )
 
@@ -271,6 +282,7 @@ CONFIG_TEMPLATES_HORIZON=(
 CONFIG_TEMPLATES_KEYSTONE=(
 	"parts/section-database"
 	"parts/database-connection"
+	"parts/database-connection-settings"
 	"parts/section-federation"
 	"parts/section-middleware"
 	"parts/section-oslo-cache"
@@ -283,8 +295,9 @@ CONFIG_TEMPLATES_KEYSTONE=(
 CONFIG_TEMPLATES_MAGNUM=(
 	"parts/section-database"
 	"parts/database-connection"
+	"parts/database-connection-settings"
 	"parts/section-identity"
-        "parts/identity-data"
+	"parts/identity-data"
 	"parts/section-oslo-messaging-rabbit"
 	"parts/section-service-user"
 	"parts/section-trust"
@@ -292,30 +305,33 @@ CONFIG_TEMPLATES_MAGNUM=(
 )
 
 CONFIG_TEMPLATES_NEUTRON=(
-        "parts/section-database"
-        "parts/database-connection"
-        "parts/section-identity"
-        "parts/identity-data"
-        "parts/section-oslo-messaging-rabbit"
-        "parts/section-service-user"
+	"parts/section-database"
+	"parts/database-connection"
+	"parts/database-connection-settings"
+	"parts/section-identity"
+	"parts/identity-data"
+	"parts/section-oslo-messaging-rabbit"
+	"parts/section-service-user"
 	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_NOVA=${CONFIG_TEMPLATES_NEUTRON[@]}
 
 CONFIG_TEMPLATES_OCTAVIA=(
-        "parts/section-database"
-        "parts/database-connection"
-        "parts/section-identity"
-        "parts/identity-data"
+	"parts/section-database"
+	"parts/database-connection"
+	"parts/database-connection-settings"
+	"parts/section-identity"
+	"parts/identity-data"
 	"ca-bundle.pem.j2"
 )
 
 CONFIG_TEMPLATES_PLACEMENT=(
-        "parts/database-connection"
-        "parts/section-identity"
-        "parts/identity-data"
-        "parts/section-service-user"
+	"parts/database-connection"
+	"parts/database-connection-settings"
+	"parts/section-identity"
+	"parts/identity-data"
+	"parts/section-service-user"
 	"ca-bundle.pem.j2"
 )
 
