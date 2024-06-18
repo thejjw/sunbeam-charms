@@ -34,6 +34,24 @@
       "parentUuid": "07a93900_f1184296",
       "revId": "9018101dbad05cb7ac8c69ad64a8f908f8b11f6c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ff6d4d5_11f2517b",
+        "filename": "charms/tempest-k8s/src/loki_alert_rules/tests.rules",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-06-18T05:46:54Z",
+      "side": 1,
+      "message": "Grafana will automatically calculate this value for you, so it seems that duplicates with you changes if it works",
+      "parentUuid": "e093b1dc_ac472e4a",
+      "revId": "9018101dbad05cb7ac8c69ad64a8f908f8b11f6c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
