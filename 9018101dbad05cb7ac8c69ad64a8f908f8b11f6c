@@ -16,6 +16,24 @@
       "message": "Not sure if you try $__interval instead of hardcoded value",
       "revId": "9018101dbad05cb7ac8c69ad64a8f908f8b11f6c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e093b1dc_ac472e4a",
+        "filename": "charms/tempest-k8s/src/loki_alert_rules/tests.rules",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-06-18T05:17:04Z",
+      "side": 1,
+      "message": "I don\u0027t think that applies here, that\u0027s more for displaying graphs in dashboards.  It\u0027s also not going to be a very large value.  See https://grafana.com/docs/grafana/latest/dashboards/variables/add-template-variables/#__interval",
+      "parentUuid": "07a93900_f1184296",
+      "revId": "9018101dbad05cb7ac8c69ad64a8f908f8b11f6c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
