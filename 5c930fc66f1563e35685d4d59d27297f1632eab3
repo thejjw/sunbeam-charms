@@ -56,6 +56,30 @@
       },
       "revId": "5c930fc66f1563e35685d4d59d27297f1632eab3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "928734d2_dfc76ef0",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-06-19T22:53:38Z",
+      "side": 1,
+      "message": "Done in PS3",
+      "parentUuid": "bd6bfeaf_6750d83b",
+      "range": {
+        "startLine": 967,
+        "startChar": 14,
+        "endLine": 967,
+        "endChar": 30
+      },
+      "revId": "5c930fc66f1563e35685d4d59d27297f1632eab3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
