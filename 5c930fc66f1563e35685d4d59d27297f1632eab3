@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdd1a03d_6e461acd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-06-19T10:10:32Z",
+      "side": 1,
+      "message": "recheck microk8s gets restarted during tests",
+      "revId": "5c930fc66f1563e35685d4d59d27297f1632eab3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
