@@ -963,15 +963,23 @@ export OS_AUTH_VERSION=3
             )
             return False
 
-    def check_outstanding_identity_service_requests(self) -> None:
-        """Check requests from identity service relation."""
+    def check_outstanding_identity_service_requests(
+        self, ignore_processed: bool = True
+    ) -> None:
+        """Check requests from identity service relation.
+
+        If ignore_processed flag is False, process identity services on all
+        the connected relations even if its already processed.
+        """
         for relation in self.framework.model.relations[
             self.IDSVC_RELATION_NAME
         ]:
             app_data = relation.data[relation.app]
-            if relation.data[self.app].get(
-                "service-credentials"
-            ) and relation.data[self.app].get("admin-role"):
+            if (
+                ignore_processed
+                and relation.data[self.app].get("service-credentials")
+                and relation.data[self.app].get("admin-role")
+            ):
                 logger.debug(
                     "Identity service request already processed for "
                     f"{relation.app.name} {relation.name}/{relation.id}"
@@ -1000,8 +1008,8 @@ export OS_AUTH_VERSION=3
     ) -> None:
         """Check requests from identity credentials relation.
 
-        If ignore_processed flag is False, process identtiy credentials on all the connected
-        relations even if its already processed.
+        If ignore_processed flag is False, process identity credentials on all
+        the connected relations even if its already processed.
         """
         for relation in self.framework.model.relations[
             self.IDCREDS_RELATION_NAME
@@ -1644,6 +1652,9 @@ export OS_AUTH_VERSION=3
             self.keystone_manager.update_service_catalog_for_keystone()
 
         if self.can_service_requests():
+            self.check_outstanding_identity_service_requests(
+                ignore_processed=False
+            )
             self.check_outstanding_identity_credentials_requests(
                 ignore_processed=False
             )
