@@ -16,6 +16,23 @@
       "message": "recheck microk8s gets restarted during tests",
       "revId": "5c930fc66f1563e35685d4d59d27297f1632eab3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7c1a0a0_01e977dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-06-19T11:32:39Z",
+      "side": 1,
+      "message": "recheck\n\nsame reason",
+      "revId": "5c930fc66f1563e35685d4d59d27297f1632eab3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
