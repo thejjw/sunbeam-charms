@@ -963,15 +963,23 @@ export OS_AUTH_VERSION=3
             )
             return False
 
-    def check_outstanding_identity_service_requests(self) -> None:
-        """Check requests from identity service relation."""
+    def check_outstanding_identity_service_requests(
+        self, force: bool = False
+    ) -> None:
+        """Check requests from identity service relation.
+
+        If force flag is True, process identity services on all
+        the connected relations even if its already processed.
+        """
         for relation in self.framework.model.relations[
             self.IDSVC_RELATION_NAME
         ]:
             app_data = relation.data[relation.app]
-            if relation.data[self.app].get(
-                "service-credentials"
-            ) and relation.data[self.app].get("admin-role"):
+            if (
+                not force
+                and relation.data[self.app].get("service-credentials")
+                and relation.data[self.app].get("admin-role")
+            ):
                 logger.debug(
                     "Identity service request already processed for "
                     f"{relation.app.name} {relation.name}/{relation.id}"
@@ -996,19 +1004,19 @@ export OS_AUTH_VERSION=3
                     )
 
     def check_outstanding_identity_credentials_requests(
-        self, ignore_processed: bool = True
+        self, force: bool = False
     ) -> None:
         """Check requests from identity credentials relation.
 
-        If ignore_processed flag is False, process identtiy credentials on all the connected
-        relations even if its already processed.
+        If force flag is True, process identity credentials on all
+        the connected relations even if its already processed.
         """
         for relation in self.framework.model.relations[
             self.IDCREDS_RELATION_NAME
         ]:
             app_data = relation.data[relation.app]
             if (
-                ignore_processed
+                not force
                 and relation.data[self.app].get("credentials")
                 and relation.data[self.app].get("admin-role")
             ):
@@ -1644,9 +1652,8 @@ export OS_AUTH_VERSION=3
             self.keystone_manager.update_service_catalog_for_keystone()
 
         if self.can_service_requests():
-            self.check_outstanding_identity_credentials_requests(
-                ignore_processed=False
-            )
+            self.check_outstanding_identity_service_requests(force=True)
+            self.check_outstanding_identity_credentials_requests(force=True)
         self.configure_charm(event)
 
     def _sanitize_secrets(self, request: dict) -> dict:
