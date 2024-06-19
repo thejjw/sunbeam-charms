@@ -84,7 +84,7 @@ class OperatorPeers(Object):
         )
 
     @property
-    def peers_rel(self) -> ops.model.Relation:
+    def peers_rel(self) -> ops.model.Relation | None:
         """Peer relation."""
         return self.framework.model.get_relation(self.relation_name)
 
@@ -146,11 +146,15 @@ class OperatorPeers(Object):
 
     def set_unit_data(self, settings: Dict[str, str]) -> None:
         """Publish settings on the peer unit data bag."""
+        if not self.peers_rel:
+            return
         for k, v in settings.items():
             self.peers_rel.data[self.model.unit][k] = v
 
     def all_joined_units(self) -> List[ops.model.Unit]:
         """All remote units joined to the peer relation."""
+        if not self.peers_rel:
+            return []
         return set(self.peers_rel.units)
 
     def expected_peer_units(self) -> int:
@@ -158,4 +162,6 @@ class OperatorPeers(Object):
 
         NOTE: This count includes this unit
         """
+        if not self.peers_rel:
+            return 0
         return self.peers_rel.app.planned_units()
