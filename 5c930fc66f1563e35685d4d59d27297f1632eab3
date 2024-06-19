@@ -33,6 +33,29 @@
       "message": "recheck\n\nsame reason",
       "revId": "5c930fc66f1563e35685d4d59d27297f1632eab3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd6bfeaf_6750d83b",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-06-19T13:18:24Z",
+      "side": 1,
+      "message": "I\u0027m pondering on the meaning of `ignore_processed`, wouldn\u0027t something like `force` make more sense ?",
+      "range": {
+        "startLine": 967,
+        "startChar": 14,
+        "endLine": 967,
+        "endChar": 30
+      },
+      "revId": "5c930fc66f1563e35685d4d59d27297f1632eab3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
