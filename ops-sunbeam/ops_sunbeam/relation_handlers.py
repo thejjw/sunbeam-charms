@@ -353,6 +353,7 @@ class DBHandler(RelationHandler):
         data = self.get_relation_data()
         database_name = self.database_name
         database_host = data["endpoints"]
+        database_host_readonly = data["read-only-endpoints"]
         user_secret = self.model.get_secret(id=data["secret-user"])
         secret_data = user_secret.get_content(refresh=True)
         database_user = secret_data["username"]
@@ -365,8 +366,13 @@ class DBHandler(RelationHandler):
             f"{database_type}://{database_user}:{database_password}"
             f"@{database_host}/{database_name}"
         )
+        connection_readonly = (
+            f"{database_type}://{database_user}:{database_password}"
+            f"@{database_host_readonly}/{database_name}"
+        )
         if has_tls:
             connection = connection + f"?ssl_ca={tls_ca}"
+            connection_readonly = connection_readonly + f"?ssl_ca={tls_ca}"
 
         # This context ends up namespaced under the relation name
         # (normalised to fit a python identifier - s/-/_/),
@@ -381,6 +387,7 @@ class DBHandler(RelationHandler):
             "database_user": database_user,
             "database_type": database_type,
             "connection": connection,
+            "connection_readonly": connection_readonly,
         }
 
 

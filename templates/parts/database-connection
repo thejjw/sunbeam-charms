@@ -1,5 +1,6 @@
 {% if database.connection -%}
 connection = {{ database.connection }}
+slave_connection = {{ database.connection_readonly }}
 {% else -%}
 connection = sqlite:////var/lib/openstack/openstack.db
 {% endif -%}
