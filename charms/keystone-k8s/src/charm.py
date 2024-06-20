@@ -40,6 +40,9 @@ from typing import (
     Dict,
     List,
 )
+from urllib.parse import (
+    urlparse,
+)
 
 import charms.keystone_k8s.v0.domain_config as sunbeam_dc_svc
 import charms.keystone_k8s.v0.identity_credentials as sunbeam_cc_svc
@@ -1252,6 +1255,12 @@ export OS_AUTH_VERSION=3
                     region=region,
                     may_exist=True,
                 )
+            parsed_internal_endpoint = urlparse(self.internal_endpoint)
+            internal_host = parsed_internal_endpoint.hostname
+            internal_protocol = parsed_internal_endpoint.scheme
+            internal_port = parsed_internal_endpoint.port
+            if not internal_port:
+                internal_port = 80 if internal_protocol == "http" else 443
             self.id_svc.interface.set_identity_service_credentials(
                 relation_name,
                 relation_id,
@@ -1259,9 +1268,9 @@ export OS_AUTH_VERSION=3
                 ingress_address,
                 self.default_public_ingress_port,
                 "http",
-                ingress_address,
-                self.default_public_ingress_port,
-                "http",
+                internal_host,
+                internal_port,
+                internal_protocol,
                 ingress_address,
                 self.default_public_ingress_port,
                 "http",
