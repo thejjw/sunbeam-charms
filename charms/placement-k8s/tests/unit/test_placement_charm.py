@@ -113,7 +113,8 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         auth_strategy = keystone
 
         [placement_database]
-        connection = mysql+pymysql://foo:hardpassword@10.0.0.10/placement_api
+        connection = mysql+pymysql://foo:hardpassword@10.0.0.10:3306/placement_api
+        slave_connection = mysql+pymysql://foo:hardpassword@10.0.0.10:3307/placement_api
 
         connection_recycle_time = 20
         max_pool_size = 2

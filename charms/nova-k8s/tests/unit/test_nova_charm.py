@@ -136,7 +136,7 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
                 "map_cell0",
                 "--database_connection",
                 # values originate in test_utils.add_db_relation_credentials()
-                "mysql+pymysql://foo:hardpassword@10.0.0.10/nova_cell0",
+                "mysql+pymysql://foo:hardpassword@10.0.0.10:3306/nova_cell0",
             ],
             ["sudo", "-u", "nova", "nova-manage", "db", "sync"],
             ["/root/cell_create_wrapper.sh", "cell1"],

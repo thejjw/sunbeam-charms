@@ -473,7 +473,8 @@ def add_db_relation_credentials(harness: Harness, rel_id: str) -> None:
         "mysql",
         {
             "secret-user": secret_id,
-            "endpoints": "10.0.0.10",
+            "endpoints": "10.0.0.10:3306",
+            "read-only-endpoints": "10.0.0.10:3307",
         },
     )
 
