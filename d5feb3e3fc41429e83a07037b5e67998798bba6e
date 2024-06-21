@@ -51,6 +51,24 @@
       "parentUuid": "5d66ead5_fad88411",
       "revId": "d5feb3e3fc41429e83a07037b5e67998798bba6e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1d42f1d_82c567e1",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-06-21T05:31:02Z",
+      "side": 1,
+      "message": "Moved the caching to the `validated_schedule` function, which makes things neater.  I also discovered that cron.get_next() can raise an error, so I addressed that too.",
+      "parentUuid": "8bbd8ab3_f480b277",
+      "revId": "d5feb3e3fc41429e83a07037b5e67998798bba6e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
