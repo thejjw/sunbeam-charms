@@ -95,7 +95,7 @@ class PebbleHandler(ops.framework.Object):
 
     def write_config(
         self, context: sunbeam_core.OPSCharmContexts
-    ) -> List[str]:
+    ) -> list[str]:
         """Write configuration files into the container.
 
         Write self.container_configs into container if there contents
@@ -157,7 +157,8 @@ class PebbleHandler(ops.framework.Object):
         that service is ready for us.
         """
         self.setup_dirs()
-        self.write_config(context)
+        changes = self.write_config(context)
+        self.files_changed(changes)
         self.status.set(ActiveStatus(""))
 
     def default_container_configs(
@@ -314,6 +315,9 @@ class PebbleHandler(ops.framework.Object):
             logger.debug("Stopping all services")
             container.stop(*services.keys())
 
+    def files_changed(self, files: list[str]):
+        """Called when files have changed before restarting services."""
+
 
 class ServicePebbleHandler(PebbleHandler):
     """Container handler for containers which manage a service."""
@@ -326,6 +330,7 @@ class ServicePebbleHandler(PebbleHandler):
         """
         self.setup_dirs()
         files_changed = self.write_config(context)
+        self.files_changed(files_changed)
         if files_changed:
             self.start_service(restart=True)
         else:
@@ -460,6 +465,7 @@ class WSGIPebbleHandler(PebbleHandler):
             # ignore for now - pebble is raising an exited too quickly, but it
             # appears to work properly.
         files_changed.extend(self.write_config(context))
+        self.files_changed(files_changed)
         if files_changed:
             self.start_wsgi(restart=True)
         else:

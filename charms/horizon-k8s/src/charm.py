@@ -87,6 +87,8 @@ def manage_plugins(
 class WSGIHorizonPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Horizon Pebble Handler."""
 
+    charm: "HorizonOperatorCharm"
+
     def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
         """Enable and start WSGI service."""
         container = self.charm.unit.get_container(self.container_name)
@@ -94,6 +96,25 @@ class WSGIHorizonPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         exec(container, "a2disconf openstack-dashboard")
         exec(container, "a2disconf other-vhosts-access-log")
         super().init_service(context)
+
+    def files_changed(self, files: list[str]):
+        """Call django utilities when local_settings.py changes."""
+        logger.debug("Files changed: %r", files)
+        if (
+            self.charm.service_conf in files
+            and self.charm.ingress_public.ready
+        ):
+            logger.debug("local_settings.py changed, running django utilities")
+            container = self.charm.unit.get_container(self.container_name)
+            manage = "/usr/share/openstack-dashboard/manage.py"
+            exec(
+                container,
+                manage + " collectstatic --no-input",
+            )
+            exec(
+                container,
+                manage + " compress --force",
+            )
 
 
 class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):

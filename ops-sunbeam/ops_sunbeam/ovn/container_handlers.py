@@ -48,7 +48,8 @@ class OVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         NOTE: Override default to services being automatically started
         """
         self.setup_dirs()
-        self.write_config(context)
+        changes = self.write_config(context)
+        self.files_changed(changes)
         self.status.set(ActiveStatus(""))
 
     @property

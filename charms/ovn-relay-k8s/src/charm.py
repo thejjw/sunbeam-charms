@@ -84,7 +84,8 @@ class OVNRelayPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         NOTE: Override default to services being automatically started
         """
         self.setup_dirs()
-        self.write_config(context)
+        changes = self.write_config(context)
+        self.files_changed(changes)
         self.start_service()
 
 
