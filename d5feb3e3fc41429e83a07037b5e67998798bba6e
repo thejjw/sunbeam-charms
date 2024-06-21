@@ -33,6 +33,24 @@
       "message": "non-blocking: I will question the usefulness about the cache (but not against using it) since it does not look like `validated_schedule` is computationally expensive; and the argument in the comment is not strong enough to motivate us to use a cache here since there could be places in the charm code where a function is called / or need to happen once.",
       "revId": "d5feb3e3fc41429e83a07037b5e67998798bba6e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8bbd8ab3_f480b277",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 15
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-06-21T03:57:37Z",
+      "side": 1,
+      "message": "Possibly not, I didn\u0027t do any profiling.  But in the validation we do calculate the next several runs for the cron schedule, and that is not trivial.\n\nActually I think we should cache the `validated_schedule` function instead to be more correct.",
+      "parentUuid": "5d66ead5_fad88411",
+      "revId": "d5feb3e3fc41429e83a07037b5e67998798bba6e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
