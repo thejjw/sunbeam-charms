@@ -15,7 +15,6 @@
 """Tests for Openstack hypervisor charm."""
 
 import base64
-import json
 from unittest.mock import (
     MagicMock,
 )
@@ -52,20 +51,9 @@ class TestCharm(test_utils.CharmTestCase):
 
     def initial_setup(self):
         """Setting up relations."""
-        rel_id = self.harness.add_relation("certificates", "vault")
-        self.harness.add_relation_unit(rel_id, "vault/0")
         self.harness.update_config({"snap-channel": "essex/stable"})
         self.harness.begin_with_initial_hooks()
-        csr = {"certificate_signing_request": test_utils.TEST_CSR}
-        self.harness.update_relation_data(
-            rel_id,
-            self.harness.charm.unit.name,
-            {
-                "ingress-address": "10.0.0.34",
-                "certificate_signing_requests": json.dumps([csr]),
-            },
-        )
-        test_utils.add_certificates_relation_certs(self.harness, rel_id)
+        test_utils.add_complete_certificates_relation(self.harness)
         ovs_rel_id = self.harness.add_relation("ovsdb-cms", "ovn-relay")
         self.harness.add_relation_unit(ovs_rel_id, "ovn-relay/0")
         self.harness.update_relation_data(

@@ -431,11 +431,11 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
                     if isinstance(event, RabbitMQGoneAwayEvent):
                         _is_broken = True
                 case "certificates":
-                    from charms.tls_certificates_interface.v1.tls_certificates import (
-                        CertificateExpiredEvent,
+                    from charms.tls_certificates_interface.v3.tls_certificates import (
+                        AllCertificatesInvalidatedEvent,
                     )
 
-                    if isinstance(event, CertificateExpiredEvent):
+                    if isinstance(event, AllCertificatesInvalidatedEvent):
                         _is_broken = True
                 case "ovsdb-cms":
                     from charms.ovn_central_k8s.v0.ovsdb import (

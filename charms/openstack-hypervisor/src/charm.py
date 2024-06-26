@@ -72,111 +72,68 @@ MTLS_USAGES = {x509.OID_SERVER_AUTH, x509.OID_CLIENT_AUTH}
 class MTlsCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
     """Handler for certificates interface."""
 
-    def update_relation_data(self):
-        """Update relation outside of relation context."""
-        relations = self.model.relations[self.relation_name]
-        if len(relations) != 1:
-            logger.debug(
-                f"Unit has wrong number of {self.relation_name!r} relations."
-            )
-            return
-        relation = relations[0]
-        csr = self._get_csr_from_relation_unit_data()
-        if not csr:
-            self._request_certificates()
-            return
-        certs = self._get_cert_from_relation_data(csr)
-        if "cert" not in certs or not self._has_certificate_mtls_extensions(
-            certs["cert"]
-        ):
-            logger.info(
-                "Requesting new certificates, current is missing mTLS extensions."
-            )
-            relation.data[self.model.unit][
-                "certificate_signing_requests"
-            ] = "[]"
-            self._request_certificates()
+    def csrs(self) -> dict[str, bytes]:
+        """Return a dict of generated csrs for self.key_names().
 
-    def _has_certificate_mtls_extensions(self, certificate: str) -> bool:
-        """Check current certificate has mTLS extensions."""
-        cert = x509.load_pem_x509_certificate(certificate.encode())
-        for extension in cert.extensions:
-            if extension.oid != x509.OID_EXTENDED_KEY_USAGE:
-                continue
-            extension_oids = {ext.dotted_string for ext in extension.value}
-            mtls_oids = {oid.dotted_string for oid in MTLS_USAGES}
-            if mtls_oids.issubset(extension_oids):
-                return True
-        return False
-
-    def _request_certificates(self):
-        """Request certificates from remote provider."""
+        The method calling this method will ensure that all keys have a matching
+        csr.
+        """
         # Lazy import to ensure this lib is only required if the charm
         # has this relation.
-        from charms.tls_certificates_interface.v1.tls_certificates import (
+        from charms.tls_certificates_interface.v3.tls_certificates import (
             generate_csr,
         )
 
-        if self.ready:
-            logger.debug("Certificate request already complete.")
-            return
+        main_key = self._private_keys.get("main")
+        if not main_key:
+            return {}
 
-        if self.private_key:
-            logger.debug("Private key found, requesting certificates")
-        else:
-            logger.debug("Cannot request certificates, private key not found")
-            return
-
-        csr = generate_csr(
-            private_key=self.private_key.encode(),
-            subject=socket.getfqdn(),
-            sans_dns=self.sans_dns,
-            sans_ip=self.sans_ips,
-            additional_critical_extensions=[
-                x509.KeyUsage(
-                    digital_signature=True,
-                    content_commitment=False,
-                    key_encipherment=True,
-                    data_encipherment=False,
-                    key_agreement=True,
-                    key_cert_sign=False,
-                    crl_sign=False,
-                    encipher_only=False,
-                    decipher_only=False,
-                ),
-                x509.ExtendedKeyUsage(MTLS_USAGES),
-            ],
-        )
-        self.certificates.request_certificate_creation(
-            certificate_signing_request=csr
-        )
+        return {
+            "main": generate_csr(
+                private_key=main_key.encode(),
+                subject=socket.getfqdn(),
+                sans_dns=self.sans_dns,
+                sans_ip=self.sans_ips,
+                additional_critical_extensions=[
+                    x509.KeyUsage(
+                        digital_signature=True,
+                        content_commitment=False,
+                        key_encipherment=True,
+                        data_encipherment=False,
+                        key_agreement=True,
+                        key_cert_sign=False,
+                        crl_sign=False,
+                        encipher_only=False,
+                        decipher_only=False,
+                    ),
+                    x509.ExtendedKeyUsage(MTLS_USAGES),
+                ],
+            )
+        }
 
     def context(self) -> dict:
         """Certificates context."""
-        csr_from_unit = self._get_csr_from_relation_unit_data()
-        if not csr_from_unit:
+        certs = self.interface.get_assigned_certificates()
+        if len(certs) != len(self.key_names()):
+            return {}
+        # openstack-hypervisor only has a main key
+        csr = self.store.get_csr("main")
+        if csr is None:
             return {}
 
-        certs = self._get_cert_from_relation_data(csr_from_unit)
-        cert = certs["cert"]
-        ca_cert = certs["ca"]
-        ca_with_intermediates = certs["ca"] + "\n" + "\n".join(certs["chain"])
-
-        ctxt = {
-            "key": self.private_key,
-            "cert": cert,
-            "ca_cert": ca_cert,
-            "ca_with_intermediates": ca_with_intermediates,
-        }
-        return ctxt
-
-    @property
-    def ready(self) -> bool:
-        """Whether handler ready for use."""
-        try:
-            return super().ready
-        except KeyError:
-            return False
+        for cert in certs:
+            if cert.csr == csr:
+                return {
+                    "key": self._private_keys["main"],
+                    "cert": cert.certificate,
+                    "ca_cert": cert.ca,
+                    "ca_with_intermediates": cert.ca
+                    + "\n"
+                    + "\n".join(cert.chain),
+                }
+        else:
+            logger.warning("No certificate found for CSR main")
+        return {}
 
 
 class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
