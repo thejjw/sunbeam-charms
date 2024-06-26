@@ -211,21 +211,33 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
         return list(set(self.get_domain_name_sans()))
 
     def _ip_sans(self) -> List[ipaddress.IPv4Address]:
-        """Get IP addresses for service."""
+        """Get IPv4 addresses for service."""
         ip_sans = []
         for relation_name in self.meta.relations.keys():
             for relation in self.framework.model.relations.get(
                 relation_name, []
             ):
                 binding = self.model.get_binding(relation)
-                ip_sans.append(binding.network.ingress_address)
-                ip_sans.append(binding.network.bind_address)
+                if isinstance(
+                    binding.network.ingress_address, ipaddress.IPv4Address
+                ):
+                    ip_sans.append(binding.network.ingress_address)
+                if isinstance(
+                    binding.network.bind_address, ipaddress.IPv4Address
+                ):
+                    ip_sans.append(binding.network.bind_address)
 
         for binding_name in ["public"]:
             try:
                 binding = self.model.get_binding(binding_name)
-                ip_sans.append(binding.network.ingress_address)
-                ip_sans.append(binding.network.bind_address)
+                if isinstance(
+                    binding.network.ingress_address, ipaddress.IPv4Address
+                ):
+                    ip_sans.append(binding.network.ingress_address)
+                if isinstance(
+                    binding.network.bind_address, ipaddress.IPv4Address
+                ):
+                    ip_sans.append(binding.network.bind_address)
             except ops.model.ModelError:
                 logging.debug(f"No binding found for {binding_name}")
         return ip_sans
