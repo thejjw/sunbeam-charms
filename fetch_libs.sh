@@ -14,7 +14,7 @@ charmcraft fetch-lib charms.operator_libs_linux.v0.sysctl
 charmcraft fetch-lib charms.operator_libs_linux.v2.snap
 charmcraft fetch-lib charms.prometheus_k8s.v0.prometheus_scrape
 charmcraft fetch-lib charms.rabbitmq_k8s.v0.rabbitmq
-charmcraft fetch-lib charms.tls_certificates_interface.v1.tls_certificates
+charmcraft fetch-lib charms.tls_certificates_interface.v3.tls_certificates
 charmcraft fetch-lib charms.traefik_k8s.v2.ingress
 charmcraft fetch-lib charms.traefik_route_k8s.v0.traefik_route
 charmcraft fetch-lib charms.vault_k8s.v0.vault_kv

@@ -589,6 +589,7 @@ def add_base_certificates_relation(harness: Harness) -> str:
             "certificate_signing_requests": json.dumps([csr]),
         },
     )
+    harness.charm.certs.store.set_csr("main", TEST_CSR.encode())
     return rel_id
 
 
