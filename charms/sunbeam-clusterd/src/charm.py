@@ -21,7 +21,9 @@ This charm manages a clusterd deployment. Clusterd is a service storing
 every metadata about a sunbeam deployment.
 """
 
+import hashlib
 import logging
+import socket
 from pathlib import (
     Path,
 )
@@ -30,10 +32,17 @@ import clusterd
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import requests
 import tenacity
 from charms.operator_libs_linux.v2 import (
     snap,
+)
+from charms.tls_certificates_interface.v3.tls_certificates import (
+    generate_csr,
+)
+from cryptography import (
+    x509,
 )
 from ops.main import (
     main,
@@ -55,6 +64,87 @@ def _identity(x: bool) -> bool:
     return x
 
 
+class ClusterCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
+    """Handler for certificates interface."""
+
+    def get_entity(self) -> ops.Unit | ops.Application:
+        """Return the entity for the key store."""
+        return self.charm.model.app
+
+    def key_names(self) -> list[str]:
+        """Return the key names managed by this relation.
+
+        First key is considered as default key.
+        """
+        return ["main", "client"]
+
+    def csrs(self) -> dict[str, bytes]:
+        """Return a dict of generated csrs for self.key_names().
+
+        The method calling this method will ensure that all keys have a matching
+        csr.
+        """
+        main_key = self._private_keys.get("main")
+        client_key = self._private_keys.get("client")
+        if not main_key or not client_key:
+            return {}
+        return {
+            "main": generate_csr(
+                private_key=main_key.encode(),
+                subject=self.charm.app.name,
+                sans_ip=self.sans_ips,
+                sans_dns=self.sans_dns,
+                additional_critical_extensions=[
+                    x509.KeyUsage(
+                        digital_signature=True,
+                        content_commitment=False,
+                        key_encipherment=True,
+                        data_encipherment=False,
+                        key_agreement=False,
+                        key_cert_sign=False,
+                        crl_sign=False,
+                        encipher_only=False,
+                        decipher_only=False,
+                    ),
+                    x509.ExtendedKeyUsage({x509.OID_SERVER_AUTH}),
+                ],
+            ),
+            "client": generate_csr(
+                private_key=client_key.encode(),
+                subject=self.charm.app.name + "-client",
+                additional_critical_extensions=[
+                    x509.KeyUsage(
+                        digital_signature=True,
+                        content_commitment=False,
+                        key_encipherment=True,
+                        data_encipherment=False,
+                        key_agreement=False,
+                        key_cert_sign=False,
+                        crl_sign=False,
+                        encipher_only=False,
+                        decipher_only=False,
+                    ),
+                    x509.ExtendedKeyUsage({x509.OID_CLIENT_AUTH}),
+                ],
+            ),
+        }
+
+    def get_client_keypair(self) -> dict[str, str]:
+        """Return client keypair with the CA."""
+        client_key = self.store.get_private_key("client")
+        client_csr = self.store.get_csr("client")
+        if client_key is None or client_csr is None:
+            return {}
+        for cert in self.get_certs():
+            if cert.csr == client_csr:
+                return {
+                    "certificate-authority": cert.ca,
+                    "certificate": cert.certificate,
+                    "private-key-secret": client_key,
+                }
+        return {}
+
+
 class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
     """Charm the service."""
 
@@ -65,7 +155,9 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
     def __init__(self, framework: ops.Framework) -> None:
         """Run constructor."""
         super().__init__(framework)
-        self._state.set_default(channel="config", departed=False)
+        self._state.set_default(
+            channel="config", departed=False, certs_hash=""
+        )
         self.framework.observe(self.on.install, self._on_install)
         self.framework.observe(self.on.stop, self._on_stop)
         self.framework.observe(
@@ -88,7 +180,25 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "peers" in self.mandatory_relations,
             )
             handlers.append(self.peers)
+        if self.can_add_handler("certificates", handlers):
+            self.certs = ClusterCertificatesHandler(
+                self,
+                "certificates",
+                self.configure_charm,
+                self.get_domain_name_sans(),
+                self.get_sans_ips(),
+                mandatory="certificates" in self.mandatory_relations,
+            )
+            handlers.append(self.certs)
         return super().get_relation_handlers(handlers)
+
+    def get_domain_name_sans(self) -> list[str]:
+        """Return domain name sans."""
+        return [socket.gethostname()]
+
+    def get_sans_ips(self) -> list[str]:
+        """Return Subject Alternate Names to use in cert for service."""
+        return ["127.0.0.1"]
 
     def _on_install(self, event: ops.InstallEvent) -> None:
         """Handle install event."""
@@ -115,13 +225,23 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Handle get-credentials action."""
         if not self.peers.interface.state.joined:
             event.fail("Clusterd not joined yet")
+            return
+
+        credentials = {}
+        if relation := self.model.get_relation(self.certs.relation_name):
+            if relation.active:
+                credentials = self.certs.get_client_keypair()
+            if not credentials:
+                event.fail("No credentials found yet")
+                return
 
         event.set_results(
             {
                 "url": "https://"
                 + self._binding_address()
                 + ":"
-                + str(self.clusterd_port)
+                + str(self.clusterd_port),
+                **credentials,
             }
         )
 
@@ -174,10 +294,11 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         if not self.clusterd_ready():
             logger.debug("Clusterd not ready yet.")
             event.defer()
-            return
+            raise sunbeam_guard.WaitingExceptionError("Clusterd not ready yet")
         if not self.is_leader_ready():
             self.bootstrap_cluster()
             self.peers.interface.state.joined = True
+        self.configure_certificates()
         super().configure_app_leader(event)
         if isinstance(event, ClusterdNewNodeEvent):
             self.add_node_to_cluster(event)
@@ -199,6 +320,26 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             "daemon.debug": config("debug", False),
         }
         self.set_snap_data(snap_data)
+
+    def configure_certificates(self):
+        """Configure certificates."""
+        if not self.unit.is_leader():
+            logger.debug("Not leader, skipping certificate configuration.")
+            return
+        if not self.certs.ready:
+            logger.debug("Certificates not ready yet.")
+            return
+        certs = self.certs.context()
+        certs_hash = hashlib.sha256(bytes(str(certs), "utf-8")).hexdigest()
+        if certs_hash == self._state.certs_hash:
+            logger.debug("Certificates have not changed.")
+            return
+        self._clusterd.set_certs(
+            ca=certs["ca_cert_main"],
+            key=certs["key_main"],
+            cert=certs["cert_main"],
+        )
+        self._state.certs_hash = certs_hash
 
     def set_snap_data(self, snap_data: dict):
         """Set snap data on local snap."""
@@ -242,7 +383,6 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             self.unit.name.replace("/", "-"),
             self._binding_address() + ":" + str(self.clusterd_port),
         )
-        self.status.set(ops.ActiveStatus())
 
     def add_node_to_cluster(self, event: ClusterdNewNodeEvent) -> None:
         """Generate token for node joining."""
@@ -277,7 +417,6 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         already_left = self._wait_for_roles_to_settle_before_removal(
             event, self_departing
         )
-        self.status.set(ops.ActiveStatus())
         if already_left:
             return
 
@@ -309,7 +448,6 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             raise sunbeam_guard.WaitingExceptionError(
                 "Waiting for roles to settle"
             )
-        self.status.set(ops.ActiveStatus())
 
     def _wait_for_roles_to_settle_before_removal(
         self, event: ops.EventBase, self_departing: bool
@@ -399,7 +537,6 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             logger.debug("Member %s is still pending", member)
             event.defer()
             return
-        self.status.set(ops.ActiveStatus())
 
     def _wait_until_role_set(self, name: str) -> bool:
         @tenacity.retry(

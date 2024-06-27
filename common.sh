@@ -165,6 +165,7 @@ EXTERNAL_OPENSTACK_IMAGES_SYNC_LIBS=(
 
 EXTERNAL_SUNBEAM_CLUSTERD_LIBS=(
 	"operator_libs_linux"
+	"tls_certificates_interface"
 )
 
 EXTERNAL_SUNBEAM_MACHINE_LIBS=(

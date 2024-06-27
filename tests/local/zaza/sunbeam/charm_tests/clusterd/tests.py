@@ -13,17 +13,34 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
+import contextlib
 import json
 import logging
 import subprocess
+import tempfile
 import unittest
 from random import shuffle
 from typing import Tuple
 
 import requests
+import requests.adapters
 import tenacity
+import zaza
 import zaza.model as model
 import zaza.openstack.charm_tests.test_utils as test_utils
+from juju.client import client
+from juju.model import Model
+
+
+@contextlib.contextmanager
+def keypair(certificate: bytes, private_key: bytes):
+    with tempfile.NamedTemporaryFile() as cert_file, tempfile.NamedTemporaryFile() as key_file:
+        cert_file.write(certificate)
+        cert_file.flush()
+        key_file.write(private_key)
+        key_file.flush()
+        yield (cert_file.name, key_file.name)
 
 
 class ClusterdTest(test_utils.BaseCharmTest):
@@ -69,16 +86,46 @@ class ClusterdTest(test_utils.BaseCharmTest):
         for unit in units:
             model.block_until_unit_wl_status(unit, "active", timeout=60 * 5)
 
+    async def _read_secret(
+        self, model: Model, secret_id: str
+    ) -> dict[str, str]:
+        facade = client.SecretsFacade.from_connection(model.connection())
+        secrets = await facade.ListSecrets(
+            filter_={"uri": secret_id}, show_secrets=True
+        )
+        if len(secrets.results) != 1:
+            self.fail("Secret not found")
+        return secrets["results"][0].value.data
+
     def test_100_connect_to_clusterd(self):
         """Try sending data to an endpoint."""
         action = model.run_action_on_leader(
             self.application_name, "get-credentials"
         )
         url = action.data["results"]["url"] + "/1.0/config/100_connect"
-        response = requests.put(url, json={"data": "test"}, verify=False)
-        response.raise_for_status()
-        response = requests.get(url, verify=False)
-        response.raise_for_status()
+        private_key_secret = action.data["results"].get("private-key-secret")
+        certificate = action.data["results"].get("certificate")
+        if private_key_secret is None or certificate is None:
+            context = contextlib.nullcontext()
+            logging.debug("Request made without mTLS")
+        else:
+            model_impl = zaza.sync_wrapper(model.get_model)()
+            private_key = base64.b64decode(
+                zaza.sync_wrapper(self._read_secret)(
+                    model_impl, private_key_secret
+                )["private-key"]
+            )
+            context = keypair(certificate.encode(), private_key)
+            logging.debug("Request made with mTLS")
+
+        with context as cert:
+            response = requests.put(
+                url, json={"data": "test"}, verify=False, cert=cert
+            )
+            response.raise_for_status()
+            response = requests.get(url, verify=False, cert=cert)
+            response.raise_for_status()
+
         self.assertEqual(
             json.loads(response.json()["metadata"])["data"], "test"
         )
@@ -106,14 +153,11 @@ class ClusterdTest(test_utils.BaseCharmTest):
         """Scale back to 3."""
         self._add_2_units()
 
-
     @unittest.skip("Skip until scale down stable")
     def test_203_scale_down_to_2_units(self):
         """Scale down to 2 units for voter/spare test."""
         leader = model.get_lead_unit_name(self.application_name)
-        model.destroy_unit(
-            self.application_name, leader, wait_disappear=True
-        )
+        model.destroy_unit(self.application_name, leader, wait_disappear=True)
         model.block_until_all_units_idle()
 
         units = self._get_units()

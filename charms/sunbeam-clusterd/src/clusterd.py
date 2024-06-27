@@ -82,6 +82,9 @@ class ClusterdClient:
     def _post(self, path, data=None, json=None, **kwargs):
         return self._request("post", path, data=data, json=json, **kwargs)
 
+    def _put(self, path, data=None, json=None, **kwargs):
+        return self._request("put", path, data=data, json=json, **kwargs)
+
     def _delete(self, path, **kwargs):
         return self._request("delete", path, **kwargs)
 
@@ -177,3 +180,15 @@ class ClusterdClient:
         data = {"name": name}
         result = self._post("/cluster/1.0/tokens", data=json.dumps(data))
         return str(result["metadata"])
+
+    def set_certs(self, ca: str, cert: str, key: str):
+        """Configure cluster certificates.
+
+        The CA is not set in the cluster certificates, but in the config endpoint.
+        This is because we don't want microcluster to go full CA-mode.
+        """
+        self._put("/1.0/config/cluster-ca", data=ca)
+        data = {"public_key": cert, "private_key": key}
+        self._put(
+            "/cluster/internal/cluster/certificates", data=json.dumps(data)
+        )
