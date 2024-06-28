@@ -16,6 +16,23 @@
       "message": "Will add the actual relation for testing the credentials action correctly when github PR https://github.com/canonical/snap-openstack/pull/266 is merged.\n\nChicken and egg issue...",
       "revId": "c81a45e5f992df87a4cb27c1e3b635046aa55aa2",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b173d5b7_135fd40c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-06-28T09:02:48Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "c81a45e5f992df87a4cb27c1e3b635046aa55aa2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
