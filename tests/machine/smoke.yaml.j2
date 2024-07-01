@@ -1,3 +1,11 @@
+variables:
+  constraints: &constraints cores=1 mem=1G virt-type=virtual-machine
+
+machines:
+  '0':
+    constraints: *constraints
+    base: ubuntu@22.04
+
 applications:
   sunbeam-machine:
     {% if sunbeam_machine is defined and sunbeam_machine is sameas true -%}
@@ -7,8 +15,10 @@ applications:
     channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
-    constraints: cores=1 mem=1G virt-type=virtual-machine
+    constraints: *constraints
     scale: 1
+    to:
+     - '0'
   sunbeam-clusterd:
     {% if sunbeam_clusterd is defined and sunbeam_clusterd is sameas true -%}
     charm: ../../../sunbeam-clusterd.charm
@@ -17,5 +27,20 @@ applications:
     channel: 2024.1/edge
     {% endif -%}
     base: ubuntu@22.04
-    constraints: cores=1 mem=1G virt-type=virtual-machine
+    constraints: *constraints
     scale: 1
+    to:
+     - '0'
+  tls-operator:
+    charm: self-signed-certificates
+    channel: latest/beta
+    base: ubuntu@22.04
+    scale: 1
+    options:
+      ca-common-name: internal-ca
+    to:
+     - '0'
+
+relations:
+- - tls-operator:certificates
+  - sunbeam-clusterd:certificates
