@@ -15,7 +15,9 @@ applications:
     base: ubuntu@22.04
     scale: 1
     trust: true
-    constraints: cpu-power=1000 mem=1G
+    options:
+      profile-limit-memory: 2560
+      experimental-max-connections: 150
   vault:
     charm: ch:vault-k8s
     channel: 1.15/edge
