@@ -182,9 +182,10 @@ EXTERNAL_OVN_RELAY_LIBS=(
 )
 
 EXTERNAL_TEMPEST_LIBS=(
-	"observability_libs"
+        "observability_libs"
         "grafana_k8s"
         "loki_k8s"
+        "certificate_transfer_interface"
 )
 
 # Config template parts for each component.
@@ -336,6 +337,10 @@ CONFIG_TEMPLATES_PLACEMENT=(
 	"ca-bundle.pem.j2"
 )
 
+CONFIG_TEMPLATES_TEMPEST=(
+	"ca-bundle.pem.j2"
+)
+
 declare -A INTERNAL_LIBS=(
 	[aodh-k8s]=${INTERNAL_KEYSTONE_LIBS[@]}
 	[barbican-k8s]=${INTERNAL_KEYSTONE_LIBS[@]}
@@ -420,7 +425,7 @@ declare -A CONFIG_TEMPLATES=(
         [ovn-central-k8s]=${NULL_ARRAY[@]}
         [ovn-relay-k8s]=${NULL_ARRAY[@]}
         [placement-k8s]=${CONFIG_TEMPLATES_PLACEMENT[@]}
-        [tempest-k8s]=${NULL_ARRAY[@]}
+        [tempest-k8s]=${CONFIG_TEMPLATES_TEMPEST[@]}
 )
 
 
