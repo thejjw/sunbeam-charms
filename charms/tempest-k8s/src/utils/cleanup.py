@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Utils for cleaning up tempest-related resources."""
+import argparse
 import os
 from collections.abc import (
     Callable,
@@ -47,6 +48,7 @@ def _connect_to_os(env: dict) -> Connection:
         password=env["OS_PASSWORD"],
         user_domain_id=env["OS_USER_DOMAIN_ID"],
         project_domain_id=env["OS_USER_DOMAIN_ID"],
+        cacert=env["OS_CACERT"],
     )
 
 
@@ -298,6 +300,25 @@ def run_extensive_cleanup(env: dict) -> None:
         raise CleanUpError("\n".join(failure_message))
 
 
+def parse_command_line() -> argparse.Namespace:
+    """Parse command line interface."""
+    parser = argparse.ArgumentParser(
+        description="Clean up OpenStack resources created by tempest or discover-tempest-conf."
+    )
+    subparsers = parser.add_subparsers(dest="command")
+    subparsers.add_parser(
+        "quick",
+        description="Run a quick cleanup, suitable in between tempest test runs.",
+        help="run a quick cleanup, suitable in between tempest test runs",
+    )
+    subparsers.add_parser(
+        "extensive",
+        description="Run an extensive cleanup, suitable for a clean environment before creating initial tempest resources.",
+        help="run an extensive cleanup, suitable for a clean environment before creating initial tempest resources",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
     """Entrypoint for executing the script directly.
 
@@ -305,6 +326,7 @@ def main() -> None:
     Quick cleanup will be performed.
     """
     env = {
+        "OS_CACERT": os.getenv("OS_CACERT", ""),
         "OS_AUTH_URL": os.getenv("OS_AUTH_URL", ""),
         "OS_USERNAME": os.getenv("OS_USERNAME", ""),
         "OS_PASSWORD": os.getenv("OS_PASSWORD", ""),
@@ -315,7 +337,12 @@ def main() -> None:
         "TEMPEST_TEST_ACCOUNTS": os.getenv("TEMPEST_TEST_ACCOUNTS", ""),
     }
 
-    run_quick_cleanup(env)
+    args = parse_command_line()
+
+    if args.command == "quick":
+        run_quick_cleanup(env)
+    else:
+        run_extensive_cleanup(env)
 
 
 if __name__ == "__main__":

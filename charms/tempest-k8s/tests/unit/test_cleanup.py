@@ -63,6 +63,7 @@ class TestCleanup(unittest.TestCase):
     def test_connect_to_os(self):
         """Test establishing OS connection."""
         env = {
+            "OS_CACERT": "/usr/local/share/ca-certificates/ca-bundle.pem",
             "OS_AUTH_URL": "http://10.6.0.20/openstack-keystone",
             "OS_USERNAME": "test_user",
             "OS_PASSWORD": "userpass",
@@ -80,6 +81,7 @@ class TestCleanup(unittest.TestCase):
             password=env["OS_PASSWORD"],
             user_domain_id=env["OS_USER_DOMAIN_ID"],
             project_domain_id=env["OS_USER_DOMAIN_ID"],
+            cacert=env["OS_CACERT"],
         )
 
     def test_get_exclude_resources(self):
