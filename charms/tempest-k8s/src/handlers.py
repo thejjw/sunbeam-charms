@@ -40,10 +40,6 @@ import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 from utils.alert_rules import (
     ALERT_RULES_PATH,
 )
-from utils.cleanup import (
-    CleanUpError,
-    run_extensive_cleanup,
-)
 from utils.constants import (
     OPENSTACK_DOMAIN,
     OPENSTACK_PROJECT,
@@ -160,14 +156,13 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         return [x.name for x in files]
 
     @assert_ready
-    def init_tempest(self, env: Dict[str, str]):
-        """Init the openstack environment for tempest.
+    def push_auxiliary_files(self) -> None:
+        """Push auxiliary files to the container.
 
-        Raise a RuntimeError if something goes wrong.
+        The auxiliary files are:
+        * the cleanup script
+        * the exclude list for tempest
         """
-        # push auxiliary files to the container
-        # * the cleanup script
-        # * the exclude list for tempest
         aux_files = [
             "src/utils/cleanup.py",
             "src/utils/tempest_exclude_list.txt",
@@ -182,6 +177,12 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     make_dirs=True,
                 )
 
+    @assert_ready
+    def init_tempest(self, env: Dict[str, str]):
+        """Init the openstack environment for tempest.
+
+        Raise a RuntimeError if something goes wrong.
+        """
         # Pebble runs cron, which runs tempest periodically
         # when periodic checks are enabled.
         # This ensures that tempest gets the env, inherited from cron.
@@ -283,6 +284,21 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             )
 
         return summary
+
+    @assert_ready
+    def run_extensive_cleanup(self, env: Dict[str, str]) -> None:
+        """Wrapper for running extensive cleanup."""
+        try:
+            self.execute(
+                ["python3", "cleanup.py", "extensive"],
+                user="tempest",
+                group="tempest",
+                working_dir=TEMPEST_HOME,
+                exception_on_error=True,
+                environment=env,
+            )
+        except ops.pebble.ExecError:
+            logger.warning("Clean-up failed")
 
 
 class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
@@ -619,22 +635,12 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         # and the environment should be inited again if rejoined.
         self.charm.set_tempest_ready(False)
 
-        credential = self.get_user_credential()
-        if credential and credential.get("auth-url"):
-            env = {
-                "OS_AUTH_URL": credential.get("auth-url"),
-                "OS_USERNAME": credential.get("username"),
-                "OS_PASSWORD": credential.get("password"),
-                "OS_PROJECT_NAME": credential.get("project-name"),
-                "OS_DOMAIN_ID": credential.get("domain-id"),
-                "OS_USER_DOMAIN_ID": credential.get("domain-id"),
-                "OS_PROJECT_DOMAIN_ID": credential.get("domain-id"),
-            }
-            try:
-                # do an extensive clean-up upon identity relation removal
-                run_extensive_cleanup(env)
-            except CleanUpError as e:
-                logger.warning("Clean-up failed: %s", str(e))
+        # Do an extensive clean-up upon identity relation removal if credential
+        # exists.
+        env = self.charm._get_cleanup_env()
+        if env and env.get("OS_AUTH_URL"):
+            pebble = self.charm.pebble_handler()
+            pebble.run_extensive_cleanup(env)
 
         # Delete the stored keystone credentials,
         # because they are no longer valid.
