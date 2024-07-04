@@ -80,6 +80,7 @@ class TestCleanup(unittest.TestCase):
             password=env["OS_PASSWORD"],
             user_domain_id=env["OS_USER_DOMAIN_ID"],
             project_domain_id=env["OS_USER_DOMAIN_ID"],
+            cacert=env.get("OS_CACERT"),
         )
 
     def test_get_exclude_resources(self):

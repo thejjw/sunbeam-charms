@@ -55,12 +55,10 @@ from utils.alert_rules import (
     ensure_alert_rules_disabled,
     update_alert_rules_files,
 )
-from utils.cleanup import (
-    CleanUpError,
-    run_extensive_cleanup,
-)
 from utils.constants import (
     CONTAINER,
+    OS_CACERT,
+    RECEIVE_CA_CERT_RELATION_NAME,
     TEMPEST_ACCOUNTS_COUNT,
     TEMPEST_ADHOC_OUTPUT,
     TEMPEST_CONCURRENCY,
@@ -139,6 +137,12 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 "root",
                 "tempest",
                 0o750,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                OS_CACERT,
+                "root",
+                "tempest",
+                0o640,
             ),
         ]
 
@@ -219,6 +223,12 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             if (value := os.environ.get(proxy_var))
         }
 
+    def _get_os_cacert_environment(self) -> Dict[str, str]:
+        """Return the path to the OS cacert file if receive-ca-cert relation exist."""
+        if not list(self.model.relations[RECEIVE_CA_CERT_RELATION_NAME]):
+            return {}
+        return {"OS_CACERT": OS_CACERT}
+
     def _get_environment_for_tempest(
         self, variant: TempestEnvVariant
     ) -> Dict[str, str]:
@@ -254,6 +264,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_OUTPUT": variant.output_path(),
         }
         tempest_env.update(self._get_proxy_environment())
+        tempest_env.update(self._get_os_cacert_environment())
         return tempest_env
 
     def _get_cleanup_env(self) -> Dict[str, str]:
@@ -273,6 +284,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "OS_PROJECT_DOMAIN_ID": credential.get("domain-id"),
         }
         cleanup_env.update(self._get_proxy_environment())
+        cleanup_env.update(self._get_os_cacert_environment())
         return cleanup_env
 
     def get_unit_data(self, key: str) -> Optional[str]:
@@ -304,10 +316,13 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         env = self._get_environment_for_tempest(TempestEnvVariant.PERIODIC)
         pebble = self.pebble_handler()
 
+        # Push auxiliary files first before doing anything
+        pebble.push_auxiliary_files()
+
         try:
             # do an extensive clean-up before tempest init to remove stalled resources
-            run_extensive_cleanup(self._get_cleanup_env())
-        except CleanUpError:
+            pebble.run_extensive_cleanup(self._get_cleanup_env())
+        except ops.pebble.ExecError:
             logger.debug("Clean-up failed and tempest init not run.")
             self.set_tempest_ready(False)
             return

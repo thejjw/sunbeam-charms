@@ -47,6 +47,7 @@ def _connect_to_os(env: dict) -> Connection:
         password=env["OS_PASSWORD"],
         user_domain_id=env["OS_USER_DOMAIN_ID"],
         project_domain_id=env["OS_USER_DOMAIN_ID"],
+        cacert=env.get("OS_CACERT"),
     )
 
 
@@ -314,6 +315,9 @@ def main() -> None:
         "OS_PROJECT_DOMAIN_ID": os.getenv("OS_PROJECT_DOMAIN_ID", ""),
         "TEMPEST_TEST_ACCOUNTS": os.getenv("TEMPEST_TEST_ACCOUNTS", ""),
     }
+
+    if os_cacert := os.getenv("OS_CACERT"):
+        env["OS_CACERT"] = os_cacert
 
     run_quick_cleanup(env)
 

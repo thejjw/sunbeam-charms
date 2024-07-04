@@ -32,6 +32,13 @@ def get_tempest_concurrency() -> str:
     return str(min(4, cpu_count()))
 
 
+# It's the target location for the OS cacert template file.  See
+# https://opendev.org/openstack/sunbeam-charms/src/branch/main/templates/ca-bundle.pem.j2
+OS_CACERT = "/usr/local/share/ca-certificates/ca-bundle.pem"
+# The relation name of 'receive-ca-cert'. See
+# https://opendev.org/openstack/sunbeam-charms/src/branch/main/ops-sunbeam/ops_sunbeam/charm.py#L194
+RECEIVE_CA_CERT_RELATION_NAME = "receive-ca-cert"
+
 TEMPEST_CONCURRENCY = get_tempest_concurrency()
 
 # It's desirable to have more accounts than the concurrency,
