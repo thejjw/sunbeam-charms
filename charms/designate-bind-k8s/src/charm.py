@@ -20,6 +20,7 @@ This charm provide designate-bind services
 import base64
 import hashlib
 import hmac
+import json
 import logging
 import secrets
 from typing import (
@@ -51,6 +52,7 @@ logger = logging.getLogger(__name__)
 BIND_RNDC_RELATION = "dns-backend"
 RNDC_SECRET_PREFIX = "rndc_"
 RNDC_REVISION_KEY = "rndc_revision"
+RNDC_STORE_KEY = "rndc-store"
 
 
 class BindPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
@@ -76,6 +78,7 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for managing rndc clients."""
 
     interface: bind_rndc.BindRndcProvides
+    charm: "BindOperatorCharm"
 
     def __init__(
         self,
@@ -154,7 +157,9 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
                 )
                 continue
 
-            rndc_keys_secret = self.interface.get_rndc_keys(relation)
+            rndc_keys_secret = self.charm.get_rndc_keys_in_peer_relation(
+                relation
+            )
             rndc_keys_current = {}
             for name, value in rndc_keys_secret.items():
                 secret = self.charm.model.get_secret(id=value["secret"])
@@ -315,7 +320,7 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
     def can_service_requests(self) -> bool:
         """Check if unit can process client requests."""
-        if self.bootstrapped() and self.unit.is_leader():
+        if self.bootstrapped() and self.peers.ready and self.unit.is_leader():
             logger.debug("Can service client requests")
             return True
         else:
@@ -390,6 +395,10 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             logger.debug("Not leader, skipping register_rndc_client")
             return False
 
+        if not self.peers.ready:
+            logger.debug("Peers not ready, skipping register_rndc_client")
+            return False
+
         logger.debug(
             "Registering rndc client on relation %s %d",
             relation_name,
@@ -404,7 +413,6 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         keys = self.bind_rndc.interface.get_rndc_keys(relation)
         any_change = False
         for unit in relation.units:
-            unit_name = unit.name.replace("/", "-")
             nonce = relation.data[unit].get("nonce")
             if nonce is None:
                 logger.debug("No nonce found for %s, skipping", unit.name)
@@ -415,42 +423,81 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 )
                 continue
             any_change = True
-            secret = self._create_or_update_secret(
-                RNDC_SECRET_PREFIX + unit_name,
-                {"secret": self.generate_rndc_key()},
-                relation,
-            )
-            self.bind_rndc.interface.set_rndc_client_key(
-                relation, nonce, self.rndc_algorithm, secret
-            )
+            new_key = self.new_rndc_key(relation, nonce)
+            if new_key is not None:
+                algorithm, secret = new_key
+                self.bind_rndc.interface.set_rndc_client_key(
+                    relation, nonce, algorithm, secret
+                )
         return any_change
 
-    def _create_or_update_secret(
-        self,
-        label: str,
-        content: Dict[str, str],
-        relation: Optional[ops.Relation] = None,
-    ) -> ops.Secret:
-        """Create or update a secret.
+    def store_key(self, relation: ops.Relation) -> str:
+        """Store key for relation."""
+        return relation.name + "-" + str(relation.id)
 
-        Registers the secret label and id in the peer relation.
-        """
+    def _load_store(self) -> dict:
+        """Load rndc store."""
+        store_json = self.peers.get_app_data(RNDC_STORE_KEY)
+        if store_json is None:
+            return {}
+        return json.loads(store_json)
+
+    def _save_store(self, store: dict):
+        """Save rndc store."""
+        self.peers.leader_set(
+            {RNDC_STORE_KEY: json.dumps(store, sort_keys=True)}
+        )
+
+    def get_rndc_keys_in_peer_relation(self, relation: ops.Relation) -> dict:
+        """Get rndc keys in peer relation."""
+        store = self._load_store()
+        return store.get(self.store_key(relation), {})
+
+    def new_rndc_key(
+        self,
+        relation: ops.Relation,
+        client: str,
+    ) -> tuple[str, ops.Secret] | None:
+        """Set rndc key in peer relation."""
         if not self.unit.is_leader():
-            raise Exception("Can only create the secret on the leader unit.")
-        id = self.leader_get(label)
-        if id is None:
+            logger.debug("Not leader, skipping new_rndc_key")
+            return
+        label = RNDC_SECRET_PREFIX + client
+        store = self._load_store()
+        relation_store = store.setdefault(self.store_key(relation), {})
+        client_secret = relation_store.get(client)
+        if client_secret is None:
             secret = self.app.add_secret(
-                content,
+                {"secret": self.generate_rndc_key()},
                 label=label,
                 rotate=ops.SecretRotate.MONTHLY,
             )
-            self.leader_set({label: secret.id})
         else:
-            secret = self.model.get_secret(id=id)
-            secret.set_content(content)
+            secret = self.model.get_secret(id=client_secret["secret"])
+            secret.set_content({"secret": self.generate_rndc_key()})
+        relation_store[client] = {
+            "algorithm": self.rndc_algorithm,
+            "secret": secret.id,
+        }
         if relation is not None:
             secret.grant(relation)
-        return secret
+        self._save_store(store)
+        return self.rndc_algorithm, secret
+
+    def cleanup_rndc_client_from_peer_relation(
+        self, relation: ops.Relation, client: str | list[str]
+    ):
+        if not self.unit.is_leader():
+            logger.debug(
+                "Not leader, skipping cleanup_rndc_client_from_peer_relation"
+            )
+            return
+        store = self._load_store()
+        if isinstance(client, str):
+            client = [client]
+        for c in client:
+            store[self.store_key(relation)].pop(c, None)
+        self._save_store(store)
 
     def cleanup_rndc_clients(
         self, relation_name: str, relation_id: int
@@ -487,6 +534,7 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.bind_rndc.interface.remove_rndc_client_key(
             relation, missing_nonces
         )
+        self.cleanup_rndc_client_from_peer_relation(relation, missing_nonces)
 
         return bool(missing_nonces)
 
