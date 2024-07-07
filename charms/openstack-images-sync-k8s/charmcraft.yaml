@@ -73,3 +73,6 @@ requires:
     limit: 1
   identity-service:
     interface: keystone
+  logging:
+    interface: loki_push_api
+    optional: true

@@ -48,6 +48,9 @@ requires:
     optional: true
   domain-config:
     interface: keystone-domain-config
+  logging:
+    interface: loki_push_api
+    optional: true
 
 peers:
   peers:

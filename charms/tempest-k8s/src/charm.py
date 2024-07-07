@@ -157,7 +157,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             schedule.valid
             and schedule.value
             and self.is_tempest_ready()
-            and self.loki.ready
+            and self.logging.ready
             and self.user_id_ops.ready
         )
 
@@ -179,9 +179,11 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             )
         ]
 
-    def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
+    def get_relation_handlers(
+        self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> list[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
-        handlers = super().get_relation_handlers()
+        handlers = handlers or []
         self.user_id_ops = TempestUserIdentityRelationHandler(
             self,
             "identity-ops",
@@ -190,13 +192,13 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             region=self.config["region"],
         )
         handlers.append(self.user_id_ops)
-        self.loki = LoggingRelationHandler(
+        self.logging = LoggingRelationHandler(
             self,
             LOKI_RELATION_NAME,
             self.configure_charm,
-            mandatory="logging" in self.mandatory_relations,
+            mandatory=LOKI_RELATION_NAME in self.mandatory_relations,
         )
-        handlers.append(self.loki)
+        handlers.append(self.logging)
         self.grafana = GrafanaDashboardRelationHandler(
             self,
             "grafana-dashboard",
@@ -204,7 +206,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             mandatory="grafana-dashboard" in self.mandatory_relations,
         )
         handlers.append(self.grafana)
-        return handlers
+        return super().get_relation_handlers(handlers)
 
     def _get_proxy_environment(self) -> Dict[str, str]:
         """Return dictionary with proxy settings."""
@@ -350,9 +352,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         else:
             ensure_alert_rules_disabled()
 
-        if self.loki.ready:
+        if self.logging.ready:
             for relation in self.model.relations[LOKI_RELATION_NAME]:
-                self.loki.interface._handle_alert_rules(relation)
+                self.logging.interface._handle_alert_rules(relation)
 
         self.status.set(ActiveStatus(""))
         logger.info("Finished configuring the tempest environment")

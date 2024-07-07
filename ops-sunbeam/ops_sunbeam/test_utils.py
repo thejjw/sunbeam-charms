@@ -611,6 +611,26 @@ def add_complete_peer_relation(harness: Harness) -> None:
     return rel_id
 
 
+def add_base_logging_relation(harness: Harness) -> int:
+    """Add logging relation."""
+    rel_id = harness.add_relation("logging", "loki")
+    harness.add_relation_unit(rel_id, "loki/0")
+    harness.update_relation_data(
+        rel_id,
+        "loki/0",
+        {
+            "endpoint": '{"url": "http://10.20.23.1/cos-loki-0/loki/api/v1/push"}'
+        },
+    )
+    return rel_id
+
+
+def add_complete_logging_relation(harness: Harness) -> int:
+    """Add complete ceph relation."""
+    rel_id = add_base_logging_relation(harness)
+    return rel_id
+
+
 test_relations = {
     "database": add_complete_db_relation,
     "amqp": add_complete_amqp_relation,
@@ -619,6 +639,7 @@ test_relations = {
     "peers": add_complete_peer_relation,
     "certificates": add_complete_certificates_relation,
     "ceph": add_complete_ceph_relation,
+    "logging": add_complete_logging_relation,
 }
 
 
@@ -761,6 +782,7 @@ def get_harness(
             with open(metadata_file) as f:
                 charm_metadata = f.read()
 
+    os.environ["JUJU_VERSION"] = "3.4.4"
     harness = Harness(
         charm_class,
         meta=charm_metadata,

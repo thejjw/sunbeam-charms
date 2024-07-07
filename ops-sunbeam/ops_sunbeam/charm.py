@@ -653,6 +653,20 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         self.run_db_sync()
         self._state.unit_bootstrapped = True
 
+    def get_relation_handlers(
+        self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> list[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = handlers or []
+        if self.can_add_handler("logging", handlers):
+            self.logging = sunbeam_rhandlers.LogForwardHandler(
+                self,
+                "logging",
+                "logging" in self.mandatory_relations,
+            )
+            handlers.append(self.logging)
+        return super().get_relation_handlers(handlers)
+
     def add_pebble_health_checks(self):
         """Add health checks for services in payload containers."""
         for ph in self.pebble_handlers:

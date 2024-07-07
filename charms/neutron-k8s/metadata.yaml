@@ -63,6 +63,9 @@ requires:
   external-dns:
     interface: designate
     optional: true
+  logging:
+    interface: loki_push_api
+    optional: true
 
 peers:
   peers:
