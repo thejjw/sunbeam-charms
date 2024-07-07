@@ -42,6 +42,9 @@ requires:
   identity-credentials:
     interface: keystone-credentials
     optional: true
+  logging:
+    interface: loki_push_api
+    optional: true
 
 provides:
   ceph-access:

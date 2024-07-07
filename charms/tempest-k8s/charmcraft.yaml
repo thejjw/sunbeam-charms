@@ -62,6 +62,7 @@ requires:
     interface: keystone-resources
   logging:
     interface: loki_push_api
+    optional: true
 
 provides:
   grafana-dashboard:

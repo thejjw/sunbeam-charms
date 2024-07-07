@@ -34,6 +34,9 @@ requires:
     interface: ovsdb-cms
   certificates:
     interface: tls-certificates
+  logging:
+    interface: loki_push_api
+    optional: true
 
 provides:
   ovsdb-cms-relay:
