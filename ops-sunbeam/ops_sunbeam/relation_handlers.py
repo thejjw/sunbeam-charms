@@ -2178,3 +2178,45 @@ class NovaServiceRequiresHandler(RelationHandler):
             return bool(self.interface.nova_spiceproxy_url)
         except (AttributeError, KeyError):
             return False
+
+
+class LogForwardHandler(RelationHandler):
+    """Handle log forward relation on the requires side."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        mandatory: bool = False,
+    ):
+        """Create a new log-forward handler.
+
+        Create a new LogForwardHandler that handles initial
+        events from the relation and invokes the provided callbacks based on
+        the event raised.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param mandatory: If the relation is mandatory to proceed with
+                          configuring charm
+        :type mandatory: bool
+        """
+        super().__init__(charm, relation_name, lambda *args: None, mandatory)
+
+    def setup_event_handler(self) -> ops.Object:
+        """Configure event handlers for log forward relation."""
+        import charms.loki_k8s.v1.loki_push_api as loki_push_api
+
+        logger.debug("Setting up log forward event handler")
+        log_forwarder = loki_push_api.LogForwarder(
+            self.charm,
+            relation_name=self.relation_name,
+        )
+        return log_forwarder
+
+    @property
+    def ready(self) -> bool:
+        """Whether handler is ready for use."""
+        return self.interface.is_ready()

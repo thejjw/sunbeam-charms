@@ -96,6 +96,9 @@ requires:
   receive-ca-cert:
     interface: certificate_transfer
     optional: true
+  logging:
+    interface: loki_push_api
+    optional: true
 
 provides:
   nova-service:

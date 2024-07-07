@@ -254,6 +254,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         test_utils.add_db_relation_credentials(
             self.harness, test_utils.add_base_db_relation(self.harness)
         )
+        test_utils.add_complete_logging_relation(self.harness)
         self.km_mock.setup_keystone.assert_called_once_with()
         self.km_mock.setup_initial_projects_and_users.assert_called_once_with()
 
@@ -270,6 +271,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "credential-keys-secret-id": credential_secret_id,
             },
         )
+        assert self.harness.charm.logging.ready
 
     def test_on_peer_data_changed_no_bootstrap(self):
         """Test peer_relation_changed on no bootstrap."""
