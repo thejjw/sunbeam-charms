@@ -167,10 +167,9 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
 
     def add_logging_relation(self, harness):
         """Add logging relation."""
-        rel_id = harness.add_relation("logging", "loki")
-        harness.add_relation_unit(rel_id, "loki/0")
-        harness.charm.loki.interface = Mock()
-        harness.charm.loki.interface._promtail_config = Mock()
+        rel_id = test_utils.add_complete_logging_relation(harness)
+        harness.charm.logging.interface = Mock()
+        harness.charm.logging.interface._promtail_config = Mock()
         return rel_id
 
     def add_grafana_dashboard_relation(self, harness):
@@ -625,7 +624,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         rel_id = self.add_logging_relation(self.harness)
 
         # client endpoints found
-        self.harness.charm.loki.interface._promtail_config.return_value = {
+        self.harness.charm.logging.interface._promtail_config.return_value = {
             "clients": [
                 {
                     "url": "http://grafana-agent-k8s-endpoints:3500/loki/api/v1/push"
@@ -633,16 +632,16 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             ],
             "other_key": "other_values",
         }
-        self.assertEqual(self.harness.charm.loki.ready, True)
+        self.assertEqual(self.harness.charm.logging.ready, True)
 
         # empty client endpoints
-        self.harness.charm.loki.interface._promtail_config.return_value = {
+        self.harness.charm.logging.interface._promtail_config.return_value = {
             "clients": [],
             "other_key": "other_values",
         }
-        self.assertEqual(self.harness.charm.loki.ready, False)
+        self.assertEqual(self.harness.charm.logging.ready, False)
 
         # empty promtail config
         self.harness.remove_relation(rel_id)
-        self.harness.charm.loki.interface._promtail_config.return_value = {}
-        self.assertEqual(self.harness.charm.loki.ready, False)
+        self.harness.charm.logging.interface._promtail_config.return_value = {}
+        self.assertEqual(self.harness.charm.logging.ready, False)

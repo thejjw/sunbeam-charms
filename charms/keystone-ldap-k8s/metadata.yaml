@@ -12,3 +12,7 @@ peers:
 provides:
   domain-config:
     interface: keystone-domain-config
+requires:
+  logging:
+    interface: loki_push_api
+    optional: true
