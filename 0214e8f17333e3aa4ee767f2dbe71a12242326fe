@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "0214e8f17333e3aa4ee767f2dbe71a12242326fe",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "37aeaeef_f4da9db1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-07-08T02:01:48Z",
+      "side": 1,
+      "message": "recheck Seems pods got restarted",
+      "revId": "0214e8f17333e3aa4ee767f2dbe71a12242326fe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
