@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9115e3f7_a3b892d6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-08T00:58:31Z",
+      "side": 1,
+      "message": "Thanks, this is looking really good!  I left some questions and a request about calling the cleanup script.",
+      "revId": "4af826b1bc3c42c898e85a674eb99937667f791a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ec2e645_bf8f4f0c",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-08T00:58:31Z",
+      "side": 1,
+      "message": "It would be neater if we could run the script directly.  Could you add a command line argument to cleanup.py, so we can run it directly?\n\nThe script usage could look like:\n\n```\npython3 cleanup.py --help\nUsage: cleanup.py \u003ccommand\u003e\n\nCommands:\n    quick       run a quick cleanup, suitable in between tempest test runs\n    extensive   run an extensive cleanup, suitable for a clean environment before creating initial tempest resources\n```",
+      "revId": "4af826b1bc3c42c898e85a674eb99937667f791a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20ce9210_0580b119",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-08T00:58:31Z",
+      "side": 1,
+      "message": "Is there any disadvantage to setting it similarly to the other env vars above?  Do any apps complain if OS_CACERT is set to an empty string?",
+      "revId": "4af826b1bc3c42c898e85a674eb99937667f791a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a54675b3_5d92bd1f",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-08T00:58:31Z",
+      "side": 1,
+      "message": "This could have a new name to avoid confusing with the `OS_CACERT` env var.\n\n```suggestion\nOS_CACERT_PATH \u003d \"/usr/local/share/ca-certificates/ca-bundle.pem\"\n```",
+      "revId": "4af826b1bc3c42c898e85a674eb99937667f791a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
