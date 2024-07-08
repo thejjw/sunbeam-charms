@@ -1,0 +1,3 @@
+external-libraries:
+  - charms.operator_libs_linux.v2.snap
+  - charms.tls_certificates_interface.v3.tls_certificates

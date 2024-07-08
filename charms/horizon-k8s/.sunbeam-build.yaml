@@ -1,0 +1,10 @@
+external-libraries:
+  - charms.data_platform_libs.v0.data_interfaces
+  - charms.rabbitmq_k8s.v0.rabbitmq
+  - charms.traefik_k8s.v2.ingress
+  - charms.certificate_transfer_interface.v0.certificate_transfer
+  - charms.loki_k8s.v1.loki_push_api
+internal-libraries:
+  - charms.keystone_k8s.v0.identity_credentials
+templates:
+  - ca-bundle.pem.j2

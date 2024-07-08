@@ -2,14 +2,12 @@
 
 set -o xtrace
 
-source common.sh
-
 # print checks to test based on the first arg
 get_charms_to_test() {
     local charm=$1
     if [[ -z "$charm" ]]; then
         ls charms
-    elif [[ "$charm" = "ops-sunbeam" ]]; then
+        elif [[ "$charm" = "ops-sunbeam" ]]; then
         # ops-sunbeam is treated differently, so don't process it here
         false
     else
@@ -69,40 +67,38 @@ then
 
     # Run py3 on ops-sunbeam
     if should_test_ops_sunbeam $2; then
+        path_python=$(python3 ./repository.py pythonpath)
         pushd ops-sunbeam
-	copy_libs_for_ops_sunbeam
-        stestr run --slowest || exit 1
-	remove_libs_for_ops_sunbeam
+        PYTHONPATH=$path_python stestr run --slowest || exit 1
         popd
     fi
 
     # Run py3 on sunbeam charms
     for charm in $(get_charms_to_test $2); do
-        push_common_files $charm || exit 1
+        python3 repository.py -v prepare --clean $charm || exit 1
         pushd charms/$charm
         PYTHONPATH=./src:./lib stestr run --slowest || exit 1
         popd
-        pop_common_files $charm || exit 1
+        python3 repository.py -v clean $charm || exit 1
     done
 
 elif [[ $1 == "cover" ]];
 then
-        coverage erase
+    coverage erase
 
     # Run coverage on ops-sunbeam
     if should_test_ops_sunbeam $2; then
+        path_python=$(python3 ./repository.py pythonpath)
         pushd ops-sunbeam
-	copy_libs_for_ops_sunbeam
         coverage erase
-        PYTHON="coverage run --parallel-mode --omit .tox/*" stestr run --slowest || exit 1
+        PYTHONPATH=$path_python PYTHON="coverage run --parallel-mode --omit .tox/*" stestr run --slowest || exit 1
         coverage combine
-	remove_libs_for_ops_sunbeam
         popd
     fi
 
     # Run coverage on sunbeam charms
     for charm in $(get_charms_to_test $2); do
-        push_common_files $charm || exit 1
+        python3 repository.py -v prepare --clean $charm || exit 1
         pushd charms/$charm
         coverage erase
         PYTHONPATH=./src:./lib:../../ops-sunbeam PYTHON="coverage run --parallel-mode --omit .tox/*,src/templates/*" stestr run --slowest || exit 1
@@ -123,7 +119,7 @@ then
 
     # Common files should be deleted after coverage combine
     for charm in $(get_charms_to_test $2); do
-        pop_common_files $charm || exit 1
+        python3 repository.py -v clean $charm || exit 1
     done
 
 elif [[ $1 == "build" ]];
@@ -142,7 +138,7 @@ then
         exit 1
     fi
 
-    push_common_files $charm || exit 1
+    python3 repository.py -v prepare --clean $charm || exit 1
     pushd charms/$charm || exit 1
     charmcraft -v pack || exit 1
     if [[ -e "${charm}.charm" ]];
@@ -155,8 +151,9 @@ then
     mv ${charm}_*.charm ${charm}.charm
 
     popd || exit 1
-    pop_common_files $charm || exit 1
+    cp charms/$charm/${charm}.charm . || exit 1
+    python3 repository.py -v clean $charm || exit 1
 else
     echo "tox argument should be one of pep8, py3, py310, py311, cover";
-        exit 1
+    exit 1
 fi

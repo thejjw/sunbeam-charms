@@ -3,7 +3,7 @@ jsonschema
 kubernetes
 ops
 python-keystoneclient
-git+https://github.com/openstack/charm-ops-interface-ceph-client#egg=interface_ceph_client
+git+https://opendev.org/openstack/charm-ops-interface-ceph-client#egg=interface_ceph_client
 lightkube
 lightkube-models
 tenacity

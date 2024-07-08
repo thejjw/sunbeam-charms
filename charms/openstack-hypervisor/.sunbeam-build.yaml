@@ -1,0 +1,15 @@
+external-libraries:
+  - charms.data_platform_libs.v0.data_interfaces
+  - charms.grafana_agent.v0.cos_agent
+  - charms.observability_libs.v1.kubernetes_service_patch
+  - charms.operator_libs_linux.v2.snap
+  - charms.rabbitmq_k8s.v0.rabbitmq
+  - charms.traefik_k8s.v2.ingress
+  - charms.tls_certificates_interface.v3.tls_certificates
+  - charms.certificate_transfer_interface.v0.certificate_transfer
+internal-libraries:
+  - charms.keystone_k8s.v0.identity_credentials
+  - charms.ovn_central_k8s.v0.ovsdb
+  - charms.cinder_ceph_k8s.v0.ceph_access
+  - charms.ceilometer_k8s.v0.ceilometer_service
+  - charms.nova_k8s.v0.nova_service
