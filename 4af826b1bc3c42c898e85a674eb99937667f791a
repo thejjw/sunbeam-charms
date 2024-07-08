@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f10f989c_f0a90e50",
+        "filename": "charms/tempest-k8s/src/handlers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-07-08T02:23:39Z",
+      "side": 1,
+      "message": "thanks! that\u0027s true",
+      "parentUuid": "6ec2e645_bf8f4f0c",
+      "revId": "4af826b1bc3c42c898e85a674eb99937667f791a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "20ce9210_0580b119",
         "filename": "charms/tempest-k8s/src/utils/cleanup.py",
         "patchSetId": 2
@@ -54,6 +72,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6fb88998_a16656d8",
+        "filename": "charms/tempest-k8s/src/utils/cleanup.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-07-08T02:23:39Z",
+      "side": 1,
+      "message": "it should be fine to have empty string: https://github.com/openstack/openstacksdk/blob/10e79efeda706c29469500704d700491e0139ae5/openstack/config/cloud_region.py#L379-L403",
+      "parentUuid": "20ce9210_0580b119",
+      "revId": "4af826b1bc3c42c898e85a674eb99937667f791a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a54675b3_5d92bd1f",
         "filename": "charms/tempest-k8s/src/utils/constants.py",
         "patchSetId": 2
@@ -65,6 +101,24 @@
       "writtenOn": "2024-07-08T00:58:31Z",
       "side": 1,
       "message": "This could have a new name to avoid confusing with the `OS_CACERT` env var.\n\n```suggestion\nOS_CACERT_PATH \u003d \"/usr/local/share/ca-certificates/ca-bundle.pem\"\n```",
+      "revId": "4af826b1bc3c42c898e85a674eb99937667f791a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81174242_6f878371",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-07-08T02:23:39Z",
+      "side": 1,
+      "message": "updated",
+      "parentUuid": "a54675b3_5d92bd1f",
       "revId": "4af826b1bc3c42c898e85a674eb99937667f791a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
