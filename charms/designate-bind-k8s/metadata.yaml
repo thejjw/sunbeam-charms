@@ -31,6 +31,11 @@ provides:
   dns-backend:
     interface: bind-rndc
 
+requires:
+  logging:
+    interface: loki_push_api
+    optional: true
+
 peers:
   peers:
     interface: bind-peer
