@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0c37017a_17282c8f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-07-09T06:14:27Z",
+      "side": 1,
+      "message": "LGTM nit in indentation inline",
+      "revId": "16a65cf4e4b58f2aa370d38308875eefbd4b1d25",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ebb38710_49baceec",
+        "filename": "run_tox.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-07-09T06:14:27Z",
+      "side": 1,
+      "message": "wrong indentation",
+      "revId": "16a65cf4e4b58f2aa370d38308875eefbd4b1d25",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "715a72e2_e65f92f8",
+        "filename": "run_tox.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-07-09T06:14:27Z",
+      "side": 1,
+      "message": "Shall we add formatting for internal libs as well. Maybe another patch since libs might change and so LIBPATCH version need to be updated.",
+      "revId": "16a65cf4e4b58f2aa370d38308875eefbd4b1d25",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
