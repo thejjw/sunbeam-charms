@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "502c9dd9_a8abd4f0",
+        "filename": "run_tox.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-07-09T06:26:24Z",
+      "side": 1,
+      "message": "Since this is a minor nit and we plan to remove this file, can we overlook this, or should I trigger a whole ci run again?",
+      "parentUuid": "ebb38710_49baceec",
+      "revId": "16a65cf4e4b58f2aa370d38308875eefbd4b1d25",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "715a72e2_e65f92f8",
         "filename": "run_tox.sh",
         "patchSetId": 1
@@ -48,6 +66,24 @@
       "writtenOn": "2024-07-09T06:14:27Z",
       "side": 1,
       "message": "Shall we add formatting for internal libs as well. Maybe another patch since libs might change and so LIBPATCH version need to be updated.",
+      "revId": "16a65cf4e4b58f2aa370d38308875eefbd4b1d25",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96314a6f_012e0c85",
+        "filename": "run_tox.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-07-09T06:26:24Z",
+      "side": 1,
+      "message": "Yeah we should, but it was already not the case.",
+      "parentUuid": "715a72e2_e65f92f8",
       "revId": "16a65cf4e4b58f2aa370d38308875eefbd4b1d25",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
