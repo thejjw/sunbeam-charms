@@ -42,6 +42,17 @@ The charm by default uses following images:
 
     `ghcr.io/canonical/openstack-exporter:1.6.0-7533071`
 
+## Alerting Rules
+This charm automatically adds Prometheus alert rules using the files at
+`src/prometheus_alert_rules` when related with `grafana-agent`.
+The following alerts are configured by default:
+
+- `CinderStateWarning`: This alert rule will trigger when a cinder service is disabled. The exporter generates metric openstack_cinder_agent_state which checks cinder service status.
+Alerts will appear if any Cinder service is found to be disabled.
+
+- `CinderStateCritical`: This alert rule will trigger when a cinder service is down. The exporter generates metric openstack_cinder_agent_state which checks cinder service status.
+Alerts will appear if any Cinder service is found to be down.
+
 ## Contributing
 
 Please see the [Juju SDK docs](https://juju.is/docs/sdk) for guidelines
