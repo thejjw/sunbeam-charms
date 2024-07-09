@@ -72,7 +72,7 @@ LIBAPI = 2
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 13
+LIBPATCH = 12
 
 PYDEPS = ["pydantic"]
 
@@ -590,7 +590,7 @@ class IngressPerAppProvider(_IngressPerAppBase):
             if PYDANTIC_IS_V1:
                 results[ingress_relation.app.name] = ingress_data.ingress.dict()
             else:
-                results[ingress_relation.app.name] = ingress_data.ingress.model_dump(mode="json")
+                results[ingress_relation.app.name] = ingress_data.ingress.model_dump(mode=json)  # type: ignore
         return results
 
 
