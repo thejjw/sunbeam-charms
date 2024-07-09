@@ -1,0 +1,16 @@
+groups:
+- name: OpenStackServices
+  rules:
+    - alert: OpenStackServicesDown
+      expr: |
+        sum by(service) (
+          label_replace({__name__=~"openstack_(.+)_up"}, "service", "$1", "__name__", "openstack_(.+)_up")
+        ) == 0
+      for: 5m
+      labels:
+        severity: critical
+        service: "{{ $labels.service }}"
+      annotations:
+        summary: OpenStack Services Down
+        description: |
+          The OpenStack service {{ $labels.service }} is down
