@@ -47,6 +47,14 @@ This charm automatically adds Prometheus alert rules using the files at
 `src/prometheus_alert_rules` when related with `grafana-agent`.
 The following alerts are configured by default:
 
+- `CinderStateWarning`: This alert rule will trigger when a cinder service is disabled. The
+exporter generates metric openstack_cinder_agent_state which checks cinder service status.
+Alerts will appear if any Cinder service is found to be disabled.
+
+- `CinderStateCritical`: This alert rule will trigger when a cinder service is down. The exporter
+generates metric openstack_cinder_agent_state which checks cinder service status.
+Alerts will appear if any Cinder service is found to be down.
+
 - `NeutronStateCritical`: This alert rule triggers when a Neutron agent is enabled, but down.
 The exporter generates the metric openstack_neutron_agent_state, which checks the status
 of neutron agents. Alerts will appear if any neutron agent is found to be down.

@@ -1,0 +1,24 @@
+groups:
+- name: Cinder
+  rules:
+    - alert: CinderStateWarning
+      expr: openstack_cinder_agent_state{adminState="disabled"}
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: Cinder service disabled. (Instance {{ $labels.hostname }})
+        description: |
+          The Cinder service is currently disabled on host {{ $labels.hostname }}.
+            LABELS = {{ $labels }}
+
+    - alert: CinderStateCritical
+      expr: openstack_cinder_agent_state{adminState="enabled"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: Cinder service down. (Instance {{ $labels.hostname }})
+        description: |
+          The Cinder service is currently down on host {{ $labels.hostname }}.
+            LABELS = {{ $labels }}
