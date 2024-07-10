@@ -118,6 +118,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.framework.observe(
             self.on.get_lists_action, self._on_get_lists_action
         )
+        self.framework.observe(self.on.start, self._on_start)
         self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
 
     @property
@@ -360,6 +361,21 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def pebble_handler(self) -> TempestPebbleHandler:
         """Get the pebble handler."""
         return self.get_named_pebble_handler(CONTAINER)
+
+    def _on_start(self, event: ops.charm.StartEvent) -> None:
+        """Called on charm start."""
+        # Mark tempest as being unready when it is started or rebooted. This is
+        # because peer relation data `tempest-ready` persists across a reboot
+        # of the host machine, and this can cause the inconsistency between the
+        # actual pod state and the relation data. For example, relation data
+        # `tempest-ready` can still be `True` before and after the host is
+        # rebooted, but the tempest workspace directory created during tempest
+        # init will be gone because the pod is recreated. So when the host is
+        # rebooted we need to consider tempest to be no longer ready, so that
+        # in the follow up config-changed hook, the charm will re-init tempest.
+        #
+        # Also see the bug: https://bugs.launchpad.net/snap-openstack/+bug/2069767
+        self.set_tempest_ready(False)
 
     def _on_upgrade_charm(self, event: ops.charm.UpgradeCharmEvent) -> None:
         """Called on charm upgrade."""

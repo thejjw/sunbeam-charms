@@ -35,7 +35,9 @@ sed $'s/\033\[[0-9;]*m//g' -i "$TMP_FILE"
 # After everything, move it to the actual output.
 # This ensures we don't have issues with logging libs pushing partial files,
 # if we were to stream to the final output.
-mv "$TMP_FILE" "$TEMPEST_OUTPUT"
+# The `mkdir` is to ensure the tempest workspace directory exists, and the
+# temp file can be moved to that directory.
+mkdir -p $TEMPEST_WORKSPACE && mv "$TMP_FILE" "$TEMPEST_OUTPUT"
 
 SUMMARY="$(awk '/^Totals$/,/Sum of execute/ { print }' < "$TEMPEST_OUTPUT")"
 if [[ -n "$SUMMARY" ]]; then
