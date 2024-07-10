@@ -47,6 +47,10 @@ This charm automatically adds Prometheus alert rules using the files at
 `src/prometheus_alert_rules` when related with `grafana-agent`.
 The following alerts are configured by default:
 
+- `NeutronStateCritical`: This alert rule triggers when a Neutron agent is enabled, but down.
+The exporter generates the metric openstack_neutron_agent_state, which checks the status
+of neutron agents. Alerts will appear if any neutron agent is found to be down.
+
 - `OpenStackServicesDown`: This alert rule will trigger when an OpenStack service is down. The
 exporter generates metrics that identify if services are up. E.g.: openstack_loadbalancer_up,
 openstack_designate_up. Individual alerts will appear if one of those services has problems.
