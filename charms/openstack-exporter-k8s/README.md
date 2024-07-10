@@ -42,6 +42,15 @@ The charm by default uses following images:
 
     `ghcr.io/canonical/openstack-exporter:1.6.0-7533071`
 
+## Alerting Rules
+This charm automatically adds Prometheus alert rules using the files at
+`src/prometheus_alert_rules` when related with `grafana-agent`.
+The following alerts are configured by default:
+
+- `NeutronStateCritical`: This alert rule triggers when a Neutron agent is enabled, but down.
+The exporter generates the metric openstack_neutron_agent_state, which checks the status
+of neutron agents. Alerts will appear if any neutron agent is found to be down.
+
 ## Contributing
 
 Please see the [Juju SDK docs](https://juju.is/docs/sdk) for guidelines
