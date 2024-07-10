@@ -118,6 +118,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.framework.observe(
             self.on.get_lists_action, self._on_get_lists_action
         )
+        self.framework.observe(self.on.start, self._on_start)
         self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
 
     @property
@@ -361,11 +362,18 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Get the pebble handler."""
         return self.get_named_pebble_handler(CONTAINER)
 
+    def _on_start(self, event: ops.charm.StartEvent) -> None:
+        """Called on charm start."""
+        # When a charm is started or rebooted, consider tempest to no longer be
+        # ready, so that in the follow up config-changed hook, the charm will
+        # re-init tempest.
+        self.set_tempest_ready(False)
+
     def _on_upgrade_charm(self, event: ops.charm.UpgradeCharmEvent) -> None:
         """Called on charm upgrade."""
-        # When a charm is upgraded, consider tempest to no longer be ready,
-        # so that in the follow up config-changed hook,
-        # the charm will re-init tempest.
+        # When a charm is upgraded, consider tempest to no longer be ready, so
+        # that in the follow up config-changed hook, the charm will re-init
+        # tempest.
         self.set_tempest_ready(False)
 
     def _on_validate_action(self, event: ops.charm.ActionEvent) -> None:
