@@ -1,0 +1,13 @@
+groups:
+- name: Neutron
+  rules:
+    - alert: NeutronStateCritical
+      expr: openstack_neutron_agent_state{adminState="up"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: Neutron service down. (Instance {{ $labels.hostname }})
+        description: |
+          The Neutron service '{{ $labels.service }}' is currently down on host {{ $labels.hostname }}.
+            LABELS = {{ $labels }}
