@@ -1,0 +1,13 @@
+groups:
+- name: NovaCompute
+  rules:
+    - alert: NovaComputeDown
+      expr: |
+        openstack_nova_agent_state{adminState="enabled"} == 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: Nova Compute Agent Down
+        description: |
+          The Compute Agent {{ $labels.service }} on {{ $labels.hostname }} is down

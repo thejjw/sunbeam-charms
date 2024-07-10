@@ -42,6 +42,14 @@ The charm by default uses following images:
 
     `ghcr.io/canonical/openstack-exporter:1.6.0-7533071`
 
+## Alerting Rules
+This charm automatically adds Prometheus alert rules using the files at
+`src/prometheus_alert_rules` when related with `grafana-agent`.
+The following alerts are configured by default:
+
+- `NovaComputeDown`: This alert rule will trigger when a nova agent (nova-conductor,
+nova-scheduler or nova-compute) is enabled, but down.
+
 ## Contributing
 
 Please see the [Juju SDK docs](https://juju.is/docs/sdk) for guidelines
@@ -58,4 +66,3 @@ Please report bugs on [Launchpad][lp-bugs-charm-openstack-exporter-k8s].
 [juju-docs-actions]: https://jaas.ai/docs/actions
 [juju-docs-config-apps]: https://juju.is/docs/configuring-applications
 [lp-bugs-charm-openstack-exporter-k8s]: https://bugs.launchpad.net/charm-openstack-exporter-k8s/+filebug
-
