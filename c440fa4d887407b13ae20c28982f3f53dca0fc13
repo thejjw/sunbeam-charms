@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4095e59_00ce3487",
+        "filename": "charms/openstack-exporter-k8s/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 37135
+      },
+      "writtenOn": "2024-07-11T22:55:09Z",
+      "side": 1,
+      "message": "Fix applied.",
+      "parentUuid": "0f64334a_4cfae370",
+      "revId": "c440fa4d887407b13ae20c28982f3f53dca0fc13",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a2f68e5c_75ab6683",
