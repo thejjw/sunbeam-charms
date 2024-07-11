@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "cea4f260_18c76e7d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-11T08:09:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ee3f1dcb_3ded5b17",
+      "revId": "7526cabee853fa714155f7371e774ef2fb28077e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "8bd36bfe_72abf637",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 3
@@ -52,6 +70,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6db8c9c2_750fa7b4",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-11T08:09:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e75f79b6_bc56e90f",
+      "revId": "7526cabee853fa714155f7371e774ef2fb28077e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c59bbd3_9e698143",
@@ -69,6 +105,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "702dc453_17d4a949",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-11T08:09:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c59bbd3_9e698143",
+      "revId": "7526cabee853fa714155f7371e774ef2fb28077e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3d3eab4c_791b63c3",
@@ -82,6 +136,24 @@
       "writtenOn": "2024-07-11T07:47:01Z",
       "side": 1,
       "message": "Please add a comment that adding the mkdir is to ensure that the log is saved, even if for some reason the workspace wasn\u0027t created already.",
+      "revId": "7526cabee853fa714155f7371e774ef2fb28077e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "804b2972_4d740a04",
+        "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-11T08:09:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d3eab4c_791b63c3",
       "revId": "7526cabee853fa714155f7371e774ef2fb28077e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
