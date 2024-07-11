@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee3f1dcb_3ded5b17",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-11T07:47:01Z",
+      "side": 1,
+      "message": "(useful to add: because the pod is recreate in the process and the workspace files are now gone.)",
+      "revId": "7526cabee853fa714155f7371e774ef2fb28077e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8bd36bfe_72abf637",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-11T07:47:01Z",
+      "side": 1,
+      "message": "Thanks, nice simple fix!  I left some requests around documenting this for later knowledge though.",
+      "revId": "7526cabee853fa714155f7371e774ef2fb28077e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e75f79b6_bc56e90f",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-11T07:47:01Z",
+      "side": 1,
+      "message": "Please add rationale to this information.  (Which here is the explanation you gave regarding the pod getting recreated on host reboot and all workspace files are lost.)",
+      "revId": "7526cabee853fa714155f7371e774ef2fb28077e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c59bbd3_9e698143",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-11T07:47:01Z",
+      "side": 1,
+      "message": "This change seems unrelated",
+      "revId": "7526cabee853fa714155f7371e774ef2fb28077e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3d3eab4c_791b63c3",
+        "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-11T07:47:01Z",
+      "side": 1,
+      "message": "Please add a comment that adding the mkdir is to ensure that the log is saved, even if for some reason the workspace wasn\u0027t created already.",
+      "revId": "7526cabee853fa714155f7371e774ef2fb28077e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
