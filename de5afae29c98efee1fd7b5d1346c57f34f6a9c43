@@ -16,6 +16,24 @@
       "message": "I don\u0027t think you need to mention the bug, because this patch fixes the bug, so the bug is no longer a bug.",
       "revId": "de5afae29c98efee1fd7b5d1346c57f34f6a9c43",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90a2e1ff_bdc8ca0d",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-07-11T09:18:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3f116fb6_faaaf7cd",
+      "revId": "de5afae29c98efee1fd7b5d1346c57f34f6a9c43",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
