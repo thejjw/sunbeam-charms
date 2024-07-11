@@ -581,6 +581,14 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.charm.init_tempest()
         self.harness.charm.set_tempest_ready.assert_not_called()
 
+    def test_start(self):
+        """Test start charm updates things as required."""
+        test_utils.set_all_pebbles_ready(self.harness)
+
+        self.harness.charm.set_tempest_ready = Mock()
+        self.harness.charm._on_start(Mock())
+        self.harness.charm.set_tempest_ready.assert_called_once_with(False)
+
     def test_upgrade_charm(self):
         """Test upgrade charm updates things as required."""
         test_utils.set_all_pebbles_ready(self.harness)
