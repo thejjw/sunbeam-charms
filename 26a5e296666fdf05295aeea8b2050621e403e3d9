@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d83d5b0a_f43f0eba",
+        "filename": "charms/openstack-exporter-k8s/src/prometheus_alert_rules/cinder_rules.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2024-07-11T15:04:44Z",
+      "side": 1,
+      "message": "I\u0027m wondering if we should have a critical whenever is down or just if the service is enabled and down.",
+      "revId": "26a5e296666fdf05295aeea8b2050621e403e3d9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
