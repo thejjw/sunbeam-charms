@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1472efea_d4732283",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2024-07-11T21:42:08Z",
+      "side": 1,
+      "message": "Some small changes, but it\u0027s looking good",
+      "revId": "c440fa4d887407b13ae20c28982f3f53dca0fc13",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0f64334a_4cfae370",
+        "filename": "charms/openstack-exporter-k8s/README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2024-07-11T21:42:08Z",
+      "side": 1,
+      "message": "```suggestion\n- `NeutronStateCritical`: This alert rule triggers when a Neutron agent is enabled, but down.\n```",
+      "revId": "c440fa4d887407b13ae20c28982f3f53dca0fc13",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2f68e5c_75ab6683",
+        "filename": "charms/openstack-exporter-k8s/src/prometheus_alert_rules/neutron_rules.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2024-07-11T21:42:08Z",
+      "side": 1,
+      "message": "We need to give critical for agents that are enabled\n\n```suggestion\n      expr: openstack_neutron_agent_state{adminState\u003d\"up\"} \u003d\u003d 0\n```",
+      "revId": "c440fa4d887407b13ae20c28982f3f53dca0fc13",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d2c4a9f_29cda155",
+        "filename": "charms/openstack-exporter-k8s/src/prometheus_alert_rules/neutron_rules.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2024-07-11T21:42:08Z",
+      "side": 1,
+      "message": "Please also add witch agent is down. This can be done by using the label `service`\n```suggestion\n          The Neutron service \u0027{{ $labels.service }}\u0027 is currently down on host {{ $labels.hostname }}.\n```",
+      "revId": "c440fa4d887407b13ae20c28982f3f53dca0fc13",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
