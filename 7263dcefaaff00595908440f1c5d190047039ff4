@@ -16,6 +16,23 @@
       "message": "Excellent work, this change is concise and well documented, thank you!",
       "revId": "7263dcefaaff00595908440f1c5d190047039ff4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6a2976c_689aab4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-07-12T00:56:05Z",
+      "side": 1,
+      "message": "Leaving my belated +1, thanks for addressing all the review comments. :)",
+      "revId": "7263dcefaaff00595908440f1c5d190047039ff4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
