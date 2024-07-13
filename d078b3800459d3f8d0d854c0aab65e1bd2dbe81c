@@ -16,6 +16,40 @@
       "message": "LGTM",
       "revId": "d078b3800459d3f8d0d854c0aab65e1bd2dbe81c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "281e4575_d6f3fa6b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-07-13T00:28:52Z",
+      "side": 1,
+      "message": "looks good, I would just increase the observation period",
+      "revId": "d078b3800459d3f8d0d854c0aab65e1bd2dbe81c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c3ed9fd_a28b8524",
+        "filename": "charms/openstack-exporter-k8s/src/prometheus_alert_rules/nova_compute.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-07-13T00:28:52Z",
+      "side": 1,
+      "message": "as mentioned in your other PR, 1m may be a bit short. If RMQ has hiccups we could end up with flapping alerts. How about 5m?",
+      "revId": "d078b3800459d3f8d0d854c0aab65e1bd2dbe81c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
