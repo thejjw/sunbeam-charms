@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ad6197b8_0f09e6e0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-07-13T00:18:52Z",
+      "side": 1,
+      "message": "suggestion: be a bit more specific - \"Add Prometheus alerting rules for Cinder agents state\"",
+      "revId": "783105d44d4617599eed73e14ece2db3e0072a1b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c6386e0_8db224f8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-07-13T00:18:52Z",
+      "side": 1,
+      "message": "s/metic/metric/",
+      "range": {
+        "startLine": 9,
+        "startChar": 22,
+        "endLine": 9,
+        "endChar": 27
+      },
+      "revId": "783105d44d4617599eed73e14ece2db3e0072a1b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0638ebec_b1965e39",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-07-13T00:18:52Z",
+      "side": 1,
+      "message": "s/metrics/metric/",
+      "range": {
+        "startLine": 12,
+        "startChar": 7,
+        "endLine": 12,
+        "endChar": 14
+      },
+      "revId": "783105d44d4617599eed73e14ece2db3e0072a1b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1edf3881_09d0e5b1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-07-13T00:18:52Z",
+      "side": 1,
+      "message": "s/metrics/metric/",
+      "range": {
+        "startLine": 13,
+        "startChar": 7,
+        "endLine": 13,
+        "endChar": 14
+      },
+      "revId": "783105d44d4617599eed73e14ece2db3e0072a1b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90358d54_c018bf47",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-07-13T00:18:52Z",
+      "side": 1,
+      "message": "lgtm aside from very minor wording suggestions",
+      "revId": "783105d44d4617599eed73e14ece2db3e0072a1b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
