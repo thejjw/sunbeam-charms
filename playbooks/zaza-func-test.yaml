@@ -1,9 +1,10 @@
 - hosts: all
   roles:
     - ensure-tox
+    - configure-swap
     - role: use-docker-mirror
       when: env_type == 'k8s'
-    - role: microk8s-cloud
+    - role: manual-cloud
       when: env_type == 'k8s'
     - role: lxd-cloud
       when: env_type == 'lxd'

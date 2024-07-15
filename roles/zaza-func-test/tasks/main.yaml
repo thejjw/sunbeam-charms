@@ -26,6 +26,6 @@
   with_items: "{{ relevant_charm_build_jobs }}"
 
 - name: run smoke tests
-  command:
+  ansible.builtin.command:
     cmd: "{{ tox_executable }} -e func -- --smoke --test-directory={{ test_dir }}"
     chdir: "{{ zuul.project.src_dir }}"
