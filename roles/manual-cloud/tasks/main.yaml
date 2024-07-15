@@ -1,0 +1,99 @@
+- name: Snapd is installed
+  ansible.builtin.apt:
+    name: snapd
+  become: true
+
+- name: Nftables is installed
+  ansible.builtin.apt:
+    name: nftables
+  become: true
+  when:
+    - ansible_distribution_release in ('jammy', 'noble')
+    - nftables_enabled | default(true) | bool
+
+- name: Ensure localhost is trusted ssh
+  ansible.builtin.shell:
+    cmd: ssh-keyscan -H {{ ansible_default_ipv4.address }} >> ~/.ssh/known_hosts
+  args:
+    creates: ~/.ssh/known_hosts
+
+- name: Ensure localhost SSH key exists
+  ansible.builtin.command:
+    cmd: ssh-keygen -b 4096 -f $HOME/.ssh/id_rsa -t rsa -N ""
+  args:
+    creates: ~/.ssh/id_rsa
+
+- name: Ensure ssh public key is added to authorized_keys
+  ansible.builtin.shell:
+    cmd: cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+  changed_when: false
+
+- name: Juju is installed
+  community.general.snap:
+    name: juju
+    classic: false
+    channel: "{{ juju_channel | default('latest/stable') }}"
+  become: true
+
+- name: Ensure ~/.local/share directory exist
+  ansible.builtin.file:
+    path: ~/.local/share
+    state: directory
+    mode: '0755'
+
+- name: Ensure the clouds definition are templated
+  ansible.builtin.template:
+    src: clouds.yaml.j2
+    dest: ~/clouds.yaml
+    mode: '0644'
+  vars:
+    host_ip: '{{ ansible_default_ipv4.address }}'
+
+- name: Ensure manual-cloud is added to Juju
+  ansible.builtin.command:
+    cmd: juju add-cloud --client manual-cloud -f ~/clouds.yaml
+  register: res
+  changed_when: '"already exists" not in res.stderr'
+  failed_when: '"ERROR" in res.stderr and "already exists" not in res.stderr'
+
+- name: Ensure a juju controller is bootstrapped on manual-cloud
+  ansible.builtin.command:
+    cmd: juju bootstrap --config caas-image-repo="ghcr.io/juju" manual-cloud manual
+  register: res
+  changed_when: '"already exists" not in res.stderr'
+  failed_when: '"ERROR" in res.stderr and "already exists" not in res.stderr'
+
+- name: Ensure the current juju controller is manual
+  ansible.builtin.command:
+    cmd: juju switch manual
+  register: res
+  changed_when: '"no change" not in res.stderr'
+
+- name: Ensure k8s is bootstrapped
+  ansible.builtin.include_role:
+    name: k8s
+
+- name: Ensure k8s is defined in juju clouds
+  ansible.builtin.shell:
+    cmd: set -o pipefail && sudo k8s config | juju add-k8s k8s --controller manual
+    executable: /bin/bash
+  register: res
+  changed_when: '"already exists" not in res.stderr'
+  failed_when: '"ERROR" in res.stderr and "already exists" not in res.stderr'
+
+- name: Ensure zaza default cloud is k8s
+  ansible.builtin.copy:
+    content: |
+      cloud: k8s
+    dest: '{{ ansible_env.HOME }}/.zaza.yaml'
+    mode: '0644'
+    owner: "{{ ansible_user }}"
+
+- name: Collect snap versions
+  ansible.builtin.command: snap list
+  register: snap_out
+  changed_when: false
+
+- name: Show snap versions
+  ansible.builtin.debug:
+    msg: "{{ snap_out.stdout }}"
