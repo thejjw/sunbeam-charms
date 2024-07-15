@@ -70,6 +70,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "789506cb_55c05d80",
+        "filename": "charms/openstack-exporter-k8s/src/prometheus_alert_rules/neutron_rules.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2024-07-15T13:37:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a2f68e5c_75ab6683",
+      "revId": "c440fa4d887407b13ae20c28982f3f53dca0fc13",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0d2c4a9f_29cda155",
@@ -83,6 +101,24 @@
       "writtenOn": "2024-07-11T21:42:08Z",
       "side": 1,
       "message": "Please also add witch agent is down. This can be done by using the label `service`\n```suggestion\n          The Neutron service \u0027{{ $labels.service }}\u0027 is currently down on host {{ $labels.hostname }}.\n```",
+      "revId": "c440fa4d887407b13ae20c28982f3f53dca0fc13",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23afaf5c_dfe156b6",
+        "filename": "charms/openstack-exporter-k8s/src/prometheus_alert_rules/neutron_rules.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2024-07-15T13:37:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d2c4a9f_29cda155",
       "revId": "c440fa4d887407b13ae20c28982f3f53dca0fc13",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
