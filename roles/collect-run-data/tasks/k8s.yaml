@@ -1,14 +1,15 @@
-- name: collect microk8s inspection report
+- name: collect k8s logs
   args:
     executable: /bin/bash
   shell: |
-    cp /var/snap/microk8s/current/inspection-report-*.tar.gz "{{ zuul.project.src_dir }}/log/"
+    snap logs -n all k8s > "{{ zuul.project.src_dir }}/log/k8s-logs.txt"
+  become: true
   failed_when: false
-- name: collect microk8s logs
+- name: get main resources state
   args:
     executable: /bin/bash
   shell: |
-    snap logs -n all microk8s > "{{ zuul.project.src_dir }}/log/microk8s-logs.txt"
+    k8s kubectl get all --all-namespaces > "{{ zuul.project.src_dir }}/log/k8s-get-all.txt"
   become: true
   failed_when: false
 - name: debug describe pods
@@ -17,9 +18,9 @@
   shell: |
     set -o pipefail
     MODEL="$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')"
-    microk8s.kubectl describe -n $MODEL pods > {{ zuul.project.src_dir }}/log/describe-pods.txt
-    CONTROLLER_MODEL="$(microk8s.kubectl get ns | grep controller | awk '{print $1}')"
-    microk8s.kubectl describe -n $CONTROLLER_MODEL pods > {{ zuul.project.src_dir }}/log/describe-controller-pods.txt
+    sudo k8s kubectl describe -n $MODEL pods > {{ zuul.project.src_dir }}/log/describe-pods.txt
+    CONTROLLER_MODEL="$(sudo k8s kubectl get ns | grep controller | awk '{print $1}')"
+    sudo k8s kubectl describe -n $CONTROLLER_MODEL pods > {{ zuul.project.src_dir }}/log/describe-controller-pods.txt
     exit 0
 - name: Collect var logs
   args:
@@ -30,7 +31,7 @@
     UNITS=$(juju status --format oneline | awk '{print $2}' | sed -e 's!:!!' | grep -Ev '^$' | paste -s -d' ')
     for UNIT_NAME in $UNITS; do
         POD_NAME=$(echo $UNIT_NAME | sed -e 's!/!-!')
-        CONTAINERS=$(microk8s.kubectl get pods -n $MODEL_NAME $POD_NAME -o jsonpath='{.spec.containers[*].name}' | sed -e 's/charm //')
+        CONTAINERS=$(sudo k8s kubectl get pods -n $MODEL_NAME $POD_NAME -o jsonpath='{.spec.containers[*].name}' | sed -e 's/charm //')
         for CONTAINER in $CONTAINERS; do
             juju ssh --container $CONTAINER -m $MODEL_NAME $UNIT_NAME "tar zcf /tmp/logs.tgz /var/log/"
             juju scp --container $CONTAINER -m $MODEL_NAME $UNIT_NAME:/tmp/logs.tgz {{ zuul.project.src_dir }}/log/$POD_NAME-$CONTAINER.tgz
@@ -44,8 +45,8 @@
     LOG_FOLDER={{ zuul.project.src_dir }}/log/pods/
     MODEL_NAME=$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')
     mkdir -p $LOG_FOLDER
-    for pod in $(microk8s.kubectl get pods -n $MODEL_NAME -o=jsonpath='{.items[*].metadata.name}');
+    for pod in $(sudo k8s kubectl get pods -n $MODEL_NAME -o=jsonpath='{.items[*].metadata.name}');
     do
       echo Collecting logs: $pod
-      microk8s.kubectl logs --ignore-errors -n $MODEL_NAME --all-containers $pod > $LOG_FOLDER/$pod.log
+      sudo k8s kubectl logs --ignore-errors -n $MODEL_NAME --all-containers $pod > $LOG_FOLDER/$pod.log
     done

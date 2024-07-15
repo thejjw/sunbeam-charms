@@ -1,0 +1,43 @@
+- name: Ensure k8s is installed
+  ansible.builtin.include_role:
+    name: k8s
+
+- name: Juju is installed
+  communityu.general.snap:
+    name: juju
+    classic: "{{ juju_classic_mode | default(true) }}"
+    channel: "{{ juju_channel | default('latest/stable') }}"
+  become: true
+
+- name: Ensure ~/.local/share directory exist
+  ansible.builtin.file:
+    path: ~/.local/share
+    state: directory
+    mode: '0755'
+
+- name: Juju is bootstrapped on k8s
+  ansible.builtin.command:
+    cmd: juju bootstrap --config bootstrap-timeout=600 --config caas-image-repo="ghcr.io/juju" k8s k8s
+  register: res
+  retries: 3
+  delay: 10
+  until: >
+    "Bootstrap complete" in res.stderr or
+    "already exists" in res.stderr
+  changed_when: '"already exists" not in res.stderr'
+  failed_when: '"ERROR" in res.stderr and "already exists" not in res.stderr'
+
+- name: Current juju controller is k8s
+  ansible.builtin.command:
+    cmd: juju switch k8s
+  register: res
+  changed_when: '"no change" not in res.stderr'
+
+- name: Collect snap versions
+  ansible.builtin.command: snap list
+  register: snap_out
+  changed_when: false
+
+- name: Show snap versions
+  ansible.builtin.debug:
+    msg: "{{ snap_out.stdout }}"
