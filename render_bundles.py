@@ -34,21 +34,24 @@ from jinja2 import (
     FileSystemLoader,
 )
 
-test_directories = [dir_.name for dir_ in list(Path("tests").glob('*')) if dir_.name != "local"]
+test_directories = [
+    dir_.name for dir_ in list(Path("tests").iterdir()) if dir_.name != "local"
+]
 built_charms = glob.glob("*.charm")
 context = {
-    charm.rstrip(".charm").replace("-", "_"): True for charm in built_charms
+    charm.removesuffix(".charm").replace("-", "_"): True for charm in built_charms
 }
 print(f"Using context: {context}")
 
 for test_dir in test_directories:
-    bundle_dir = f"tests/{test_dir}"
+    bundle_dir = Path(f"tests/{test_dir}")
     template_loader = Environment(loader=FileSystemLoader(bundle_dir))
-    bundle_template = template_loader.get_template("smoke.yaml.j2")
-    smoke_file = Path(f"{bundle_dir}/bundles/smoke.yaml")
-    smoke_file.parent.mkdir(parents=True, exist_ok=True)
-    with smoke_file.open("w", encoding="utf-8") as content:
-        content.write(bundle_template.render(context))
-        print(f"Rendered smoke bundle: {smoke_file}")
-    with smoke_file.open("r", encoding="utf-8") as content:
-        print(content.read())
+    for bundle in bundle_dir.glob("*.yaml.j2"):
+        bundle_template = template_loader.get_template(bundle.name)
+        smoke_file = bundle_dir / "bundles" / bundle.name.removesuffix(".j2")
+        smoke_file.parent.mkdir(parents=True, exist_ok=True)
+        with smoke_file.open("w", encoding="utf-8") as content:
+            content.write(bundle_template.render(context))
+            print(f"Rendered smoke bundle: {smoke_file}")
+        with smoke_file.open("r", encoding="utf-8") as content:
+            print(content.read())

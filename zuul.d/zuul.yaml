@@ -18,11 +18,11 @@
             nodeset: ubuntu-jammy
             voting: false
     vars:
-      juju_channel: 3.4/stable
+      juju_channel: 3.5/stable
       juju_classic_mode: false
       env_type: k8s
-      microk8s_channel: 1.28-strict/stable
-      microk8s_classic_mode: false
+      k8s_channel: 1.30-classic/candidate
+      k8s_classic_mode: true
       charmcraft_channel: 2.x/stable
       publish_charm: true
       publish_channels:

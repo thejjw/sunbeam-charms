@@ -1,0 +1,47 @@
+machines:
+  '0':
+    base: ubuntu@22.04
+
+applications:
+  hypervisor:
+    {% if openstack_hypervisor is defined and openstack_hypervisor is sameas true -%}
+    charm: ../../../openstack-hypervisor.charm
+    {% else -%}
+    charm: ch:openstack-hypervisor
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@22.04
+    scale: 1
+    to:
+     - '0'
+    options:
+      # external-bridge-address: 0.0.0.0/0
+      external-bridge-address: 10.206.54.0/24
+
+saas:
+  amqp:
+    url: admin/control-plane.amqp
+  identity-credentials:
+    url: admin/control-plane.identity-credentials
+  send-ca-cert:
+    url: admin/control-plane.send-ca-cert
+  ovsdb-cms:
+    url: admin/control-plane.ovsdb-cms
+  certificates:
+    url: admin/control-plane.certificates
+  nova-service:
+    url: admin/control-plane.nova-service
+
+relations:
+- - amqp
+  - hypervisor:amqp
+- - identity-credentials
+  - hypervisor:identity-credentials
+- - send-ca-cert
+  - hypervisor:receive-ca-cert
+- - ovsdb-cms
+  - hypervisor:ovsdb-cms
+- - certificates
+  - hypervisor:certificates
+- - nova-service
+  - hypervisor:nova-service
