@@ -1,0 +1,82 @@
+- name: Snapd is installed
+  ansible.builtin.apt:
+    name: snapd
+  become: true
+
+- name: NFtables is installed
+  ansible.builtin.apt:
+    name: nftables
+  become: true
+  when:
+    - ansible_distribution_release in ('jammy', 'noble')
+    - nftables_enabled | default(true) | bool
+
+- name: Allow packets from pod cir
+  ansible.builtin.command: nft insert rule filter openstack-INPUT ip saddr {{ k8s_pod_cidr }} accept
+  become: true
+  changed_when: false
+  when:
+    - ansible_distribution_release in ('jammy', 'noble')
+    - nftables_enabled | default(true) | bool
+
+- name: Allow packets to pod cir
+  ansible.builtin.command: nft insert rule filter openstack-INPUT ip daddr {{ k8s_pod_cidr }} accept
+  become: true
+  changed_when: false
+  when:
+    - ansible_distribution_release in ('jammy', 'noble')
+    - nftables_enabled | default(true) | bool
+
+- name: Allow packets to metallb cir
+  ansible.builtin.command: nft insert rule filter openstack-INPUT ip daddr {{ k8s_load_balancer_cidr }} accept
+  become: true
+  changed_when: false
+  when:
+    - ansible_distribution_release in ('jammy', 'noble')
+    - nftables_enabled | default(true) | bool
+
+- name: Ensure /etc/resolv.conf is a symlink to actual resolv.conf
+  ansible.builtin.file:
+    src: /run/systemd/resolve/resolv.conf
+    dest: /etc/resolv.conf
+    state: link
+    force: true
+  become: true
+
+- name: Ensure k8s is installed
+  community.general.snap:
+    name: k8s
+    channel: '{{ k8s_channel }}'
+    classic: '{{ k8s_classic_mode }}'
+  become: true
+
+- name: Template docker.io registry
+  ansible.builtin.include_tasks: registry.yaml
+  when: docker_mirror is defined
+  vars:
+    reg_server_name: docker.io
+    reg_server: https://docker.io
+    reg_mirror_location: '{{ docker_mirror }}'
+
+- name: Template k8s bootstrap configuration
+  ansible.builtin.template:
+    src: k8s-bootstrap.yaml.j2
+    dest: k8s-bootstrap.yaml
+    mode: '0644'
+  become: true
+
+- name: Bootstrap k8s
+  ansible.builtin.command:
+    cmd: k8s bootstrap --file k8s-bootstrap.yaml --timeout 300s --address {{ k8s_host_ip }}
+  become: true
+  register: res
+  failed_when: res.rc != 0 and "already part of a cluster" not in res.stderr
+  changed_when: res.rc == 0 and "Bootstrapped a new Kubernetes cluster" in res.stdout
+
+- name: Wait for k8s readiness
+  ansible.builtin.command:
+    cmd: k8s status --wait-ready --timeout 300s
+  register: res
+  become: true
+  changed_when: false
+  failed_when: 'res.rc != 0 or "status: ready" not in res.stdout'
