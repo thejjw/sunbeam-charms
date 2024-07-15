@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3c3a72c_77325264",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-07-15T19:33:33Z",
+      "side": 1,
+      "message": "lgtm, CI needs to be looked at",
+      "revId": "e3daf1ad0797d7053dffee6926450e62a64bf4f2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}

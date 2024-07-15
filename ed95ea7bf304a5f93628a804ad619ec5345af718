@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4fb0cc6e_e5879ffb",
+        "filename": "charms/openstack-exporter-k8s/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-07-15T19:33:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27bbc998_75d35bd1",
+      "revId": "ed95ea7bf304a5f93628a804ad619ec5345af718",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4a00e573_1764ae9a",
@@ -48,6 +66,24 @@
       "writtenOn": "2024-07-13T00:26:55Z",
       "side": 1,
       "message": "1m may be a bit aggressive... I would suggest a more conservative 5m",
+      "revId": "ed95ea7bf304a5f93628a804ad619ec5345af718",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3029a6c_e823dca2",
+        "filename": "charms/openstack-exporter-k8s/src/prometheus_alert_rules/general.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-07-15T19:33:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a00e573_1764ae9a",
       "revId": "ed95ea7bf304a5f93628a804ad619ec5345af718",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
