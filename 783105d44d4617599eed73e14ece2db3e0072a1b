@@ -102,6 +102,23 @@
       "message": "lgtm aside from very minor wording suggestions",
       "revId": "783105d44d4617599eed73e14ece2db3e0072a1b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf17809a_fff30667",
+        "filename": "charms/openstack-exporter-k8s/src/prometheus_alert_rules/cinder_rules.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2024-07-15T13:33:53Z",
+      "side": 1,
+      "message": "Let\u0027s change this time to 5m on both rules to avoid alerts flipping to much",
+      "revId": "783105d44d4617599eed73e14ece2db3e0072a1b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
