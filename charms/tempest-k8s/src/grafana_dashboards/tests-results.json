@@ -85,13 +85,13 @@
           {
             "matcher": {
               "id": "byFrameRefID",
-              "options": "warning-tests"
+              "options": "skipped-tests"
             },
             "properties": [
               {
                 "id": "color",
                 "value": {
-                  "fixedColor": "dark-yellow",
+                  "fixedColor": "light-green",
                   "mode": "fixed"
                 }
               }
@@ -171,7 +171,7 @@
           "hide": false,
           "legendFormat": "{{ test_type }}",
           "queryType": "range",
-          "refId": "warning-tests"
+          "refId": "skipped-tests"
         },
         {
           "datasource": {
@@ -227,7 +227,7 @@
                   "index": 1
                 },
                 "SKIPPED": {
-                  "color": "dark-yellow",
+                  "color": "light-green",
                   "index": 2
                 },
                 "ok": {
