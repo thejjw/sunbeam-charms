@@ -50,6 +50,24 @@
       "message": "as mentioned in your other PR, 1m may be a bit short. If RMQ has hiccups we could end up with flapping alerts. How about 5m?",
       "revId": "d078b3800459d3f8d0d854c0aab65e1bd2dbe81c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2974ab7_848df258",
+        "filename": "charms/openstack-exporter-k8s/src/prometheus_alert_rules/nova_compute.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 27944
+      },
+      "writtenOn": "2024-07-15T19:31:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c3ed9fd_a28b8524",
+      "revId": "d078b3800459d3f8d0d854c0aab65e1bd2dbe81c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
