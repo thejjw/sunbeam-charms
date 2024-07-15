@@ -16,7 +16,7 @@
   apt:
     name: nftables
   become: true
-  when: ansible_distribution_release == 'jammy'
+  when: ansible_distribution_release in ('jammy', 'noble')
 
 - name: lxd snap is installed
   snap:
@@ -31,7 +31,7 @@
 - name: allow packets from lxd bridge
   command: nft insert rule filter openstack-INPUT iif lxdbr0 accept
   become: true
-  when: ansible_distribution_release == 'jammy'
+  when: ansible_distribution_release in ('jammy', 'noble')
 
 - name: current user is in lxd group
   user:
