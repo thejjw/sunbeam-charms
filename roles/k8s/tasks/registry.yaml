@@ -1,0 +1,22 @@
+- name: Create hosts dir
+  ansible.builtin.file:
+    path: /var/snap/k8s/common/etc/containerd/hosts.d/{{ reg_server_name }}
+    state: directory
+    owner: root
+    group: root
+    mode: "0770"
+  become: true
+
+- name: Render registry mirror template
+  ansible.builtin.template:
+    src: hosts.j2
+    dest: /var/snap/k8s/common/etc/containerd/hosts.d/{{ reg_server_name }}/hosts.toml
+    group: "root"
+    mode: "0660"
+  become: true
+
+- name: Display hosts.toml
+  ansible.builtin.command:
+    cmd: cat /var/snap/k8s/common/etc/containerd/hosts.d/{{ reg_server_name }}/hosts.toml
+  changed_when: false
+  become: true
