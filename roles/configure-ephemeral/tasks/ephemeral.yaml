@@ -1,0 +1,64 @@
+- name: Set partition names
+  ansible.builtin.set_fact:
+    opt_partition: "{{ ephemeral_device }}1"
+
+- name: Ensure ephemeral device is unmounted
+  become: true
+  ansible.posix.mount:
+    name: "{{ ephemeral_device }}"
+    state: "{{ item }}"
+  with_items:
+    - unmounted
+    - absent
+
+- name: Get existing partitions
+  become: true
+  community.general.parted:
+    device: "{{ ephemeral_device }}"
+    unit: MiB
+  register: ephemeral_partitions
+
+- name: Remove any existing partitions
+  become: true
+  community.general.parted:
+    device: "{{ ephemeral_device }}"
+    number: "{{ item.num }}"
+    state: absent
+  with_items:
+    - "{{ ephemeral_partitions.partitions }}"
+
+- name: Create new disk label
+  become: true
+  community.general.parted:
+    label: msdos
+    device: "{{ ephemeral_device }}"
+
+- name: Create opt partition
+  become: true
+  community.general.parted:
+    device: "{{ ephemeral_device }}"
+    number: 1
+    state: present
+    part_start: "0%"
+    part_end: "100%"
+
+- name: Create /opt filesystem
+  become: true
+  community.general.filesystem:
+    fstype: ext4
+    # The default ratio is 16384 bytes per inode or so. Reduce that to 8192
+    # bytes per inode so that we get roughly twice the number of inodes as
+    # by default. This should still be well above the block size of 4096.
+    # We do this because we have found in at least a couple locations that
+    # more inodes is useful and is painful to fix after the fact.
+    opts: -i 8192
+    dev: "{{ opt_partition }}"
+
+- name: Add opt to fstab and mount
+  become: true
+  ansible.posix.mount:
+    path: /opt
+    src: "{{ opt_partition }}"
+    fstype: ext4
+    opts: noatime
+    state: mounted

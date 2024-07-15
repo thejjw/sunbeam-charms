@@ -1,0 +1,15 @@
+# From https://opendev.org/openstack/openstack-zuul-jobs/src/commit/7f5a075f3de7eac295094258cbd309a41d8ac798/roles/configure-swap/tasks/main.yaml
+# On RAX hosts, we have a small root partition and a large,
+# unallocated ephemeral device attached at /dev/xvde
+- name: Set ephemeral device if /dev/xvde exists
+  when: ansible_devices["xvde"] is defined
+  ansible.builtin.set_fact:
+    ephemeral_device: "/dev/xvde"
+
+- name: Configure ephemeral device
+  ansible.builtin.include_tasks: ephemeral.yaml
+  when: ephemeral_device is defined
+
+- name: Debug the ephemeral_device variable
+  ansible.builtin.debug:
+    var: ephemeral_device
