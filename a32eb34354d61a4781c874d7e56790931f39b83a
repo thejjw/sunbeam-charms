@@ -16,6 +16,24 @@
       "message": "Let\u0027s change to 5m like said on the cinder rules",
       "revId": "a32eb34354d61a4781c874d7e56790931f39b83a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "242a27c0_f41f59d8",
+        "filename": "charms/openstack-exporter-k8s/src/prometheus_alert_rules/neutron_rules.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2024-07-16T14:34:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c29c2b9a_c9394a70",
+      "revId": "a32eb34354d61a4781c874d7e56790931f39b83a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
