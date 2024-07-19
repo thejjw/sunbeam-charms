@@ -55,6 +55,9 @@ of neutron agents. Alerts will appear if any neutron agent is found to be down.
 exporter generates metrics that identify if services are up. E.g.: openstack_loadbalancer_up,
 openstack_designate_up. Individual alerts will appear if one of those services has problems.
 
+- `NovaComputeDown`: This alert rule will trigger when a nova agent (nova-conductor,
+nova-scheduler or nova-compute) is enabled, but down.
+
 ## Contributing
 
 Please see the [Juju SDK docs](https://juju.is/docs/sdk) for guidelines
