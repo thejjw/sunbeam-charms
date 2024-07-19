@@ -1,0 +1,11 @@
+Code-Review+1: Andrea Ieri <andrea.ieri@canonical.com>
+Code-Review+1: Xuhui Zhu <simon.zhu@canonical.com>
+Code-Review+2: Hemanth N <hemanth.nakkina@canonical.com>
+Workflow+1: Hemanth N <hemanth.nakkina@canonical.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Fri, 19 Jul 2024 03:51:15 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/923760
+Comments-Total: 9
+Project: openstack/sunbeam-charms
+Branch: refs/heads/main
