@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6abe3e8c_ab6aa51e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-07-24T10:54:29Z",
+      "side": 1,
+      "message": "Tested by manually enable TLS plugin in sunbeam and deploy tempest with \n\n```\njuju deploy ./tempest-k8s.charm --resource tempest-image\u003dghcr.io/canonical/tempest:2024.1\njuju relate tempest-k8s:receive-ca-cert keystone:send-ca-cert\njuju relate tempest-k8s:identity-ops keystone:identity-ops\njuju run tempest-k8s/0 validate regex\u003dsmoke\n```",
+      "revId": "149039d7d6c1441f1119e7066d0e99f426615c03",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
