@@ -10,8 +10,8 @@ clouds:
       project_domain_name: {{ os_exporter.domain_name }}
       user_domain_name: {{ os_exporter.domain_name }}
       auth_url: {{ os_exporter.auth_url }}
-{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-    cacert: {{ receive_ca_cert.ca_bundle }}
-{% else -%}
+{%- if receive_ca_cert and receive_ca_cert.ca_bundle %}
+    cacert: /usr/local/share/ca-certificates/ca-bundle.pem
+{%- else %}
     verify: false
-{% endif -%}
+{%- endif %}
