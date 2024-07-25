@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fcf3392e_6a42ae81",
+        "filename": "charms/openstack-exporter-k8s/src/templates/clouds.yaml.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2024-07-25T09:23:46Z",
+      "side": 1,
+      "message": "Note the `-%` vs \"%-\"",
+      "revId": "d9e88b3ef336c1080a93f50464b5bfc4cf62f8d1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
