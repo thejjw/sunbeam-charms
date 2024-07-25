@@ -54,12 +54,12 @@ def validated_schedule(schedule: str) -> Schedule:
     if not schedule:
         return Schedule(value=schedule, valid=True, err="")
 
-    # croniter supports second repeats, but vixie cron does not.
-    if len(schedule.split()) == 6:
+    # croniter supports more fields, but vixie cron does not.
+    if len(schedule.split()) != 5:
         return Schedule(
             value=schedule,
             valid=False,
-            err="This cron does not support seconds in schedule (6 fields). "
+            err="This cron only support Vixie cron in schedule (5 fields). "
             "Exactly 5 columns must be specified for iterator expression.",
         )
 
@@ -70,9 +70,9 @@ def validated_schedule(schedule: str) -> Schedule:
         cron = croniter(schedule, base, max_years_between_matches=1)
     except ValueError as e:
         msg = str(e)
-        # croniter supports second repeats, but vixie cron does not,
+        # croniter supports more fields, but vixie cron does not,
         # so update the error message here to suit.
-        if "Exactly 5 or 6 columns" in msg:
+        if croniter.bad_length in msg:
             msg = (
                 "Exactly 5 columns must be specified for iterator expression."
             )

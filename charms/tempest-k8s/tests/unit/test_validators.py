@@ -70,7 +70,15 @@ class TempestCharmValidatorTests(unittest.TestCase):
         exp = "*/30 * * * * 6"
         schedule = validated_schedule(exp)
         self.assertFalse(schedule.valid)
-        self.assertIn("not support seconds", schedule.err)
+        self.assertIn("Exactly 5 columns", schedule.err)
+        self.assertEqual(schedule.value, exp)
+
+    def test_expression_seven_fields(self):
+        """Verify an expression with seven fields is caught."""
+        exp = "*/30 * * * * 6 2024/2"
+        schedule = validated_schedule(exp)
+        self.assertFalse(schedule.valid)
+        self.assertIn("Exactly 5 columns", schedule.err)
         self.assertEqual(schedule.value, exp)
 
     def test_expression_missing_column(self):
