@@ -252,3 +252,10 @@ options:
       .
       WARNING: this value should only be increased after careful consideration
       and must be set to a value under 8EB (9223372036854775808 bytes).
+  image-conversion:
+    type: boolean
+    default: False
+    description: |
+      Enable conversion of all images to raw format during image import.
+      This only works on imported images (for example using 'openstack image create --import').
+      Does not work on regular image uploads (like 'openstack image create')

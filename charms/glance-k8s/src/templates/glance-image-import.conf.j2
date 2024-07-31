@@ -1,0 +1,13 @@
+###############################################################################
+# [ WARNING ]
+# glance configuration file maintained by Juju
+# local changes may be overwritten.
+###############################################################################
+
+[image_import_opts]
+image_import_plugins = {{ glance_config.image_import_plugins }}
+
+{% if "image_conversion" in glance_config.image_import_plugins -%}
+[image_conversion]
+output_format = raw
+{% endif %}

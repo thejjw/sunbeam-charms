@@ -21,6 +21,7 @@
 This charm provide Glance services as part of an OpenStack deployment
 """
 
+import json
 import logging
 import re
 from typing import (
@@ -216,6 +217,11 @@ class GlanceConfigContext(sunbeam_ctxts.ConfigContext):
             "image_size_cap": bytes_from_string(
                 self.charm.config["image-size-cap"]
             ),
+            "image_import_plugins": json.dumps(
+                ["image_conversion"]
+                if self.charm.config["image-conversion"]
+                else []
+            ),
         }
 
 
@@ -323,6 +329,12 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ),
             sunbeam_core.ContainerConfigFile(
                 "/etc/apache2/sites-enabled/glance-forwarding.conf",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/glance/glance-image-import.conf",
                 self.service_user,
                 self.service_group,
                 0o640,
