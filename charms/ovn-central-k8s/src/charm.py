@@ -35,6 +35,7 @@ import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 import ovn
 import ovsdb as ch_ovsdb
 import tenacity
@@ -53,6 +54,7 @@ OVN_NORTHD_CONTAINER = "ovn-northd"
 OVN_DB_CONTAINERS = [OVN_SB_DB_CONTAINER, OVN_NB_DB_CONTAINER]
 
 
+@sunbeam_tracing.trace_type
 class OVNNorthBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
     """Handler for North OVN DB."""
 
@@ -82,6 +84,7 @@ class OVNNorthBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         return _cc
 
 
+@sunbeam_tracing.trace_type
 class OVNNorthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
     """Handler for North-bound OVN DB."""
 
@@ -129,6 +132,7 @@ class OVNNorthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         }
 
 
+@sunbeam_tracing.trace_type
 class OVNSouthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
     """Handler for South-bound OVN DB."""
 
@@ -176,6 +180,7 @@ class OVNSouthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         }
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 

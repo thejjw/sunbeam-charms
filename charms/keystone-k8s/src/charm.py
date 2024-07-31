@@ -59,6 +59,7 @@ import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 import pwgen
 from charms.certificate_transfer_interface.v0.certificate_transfer import (
     CertificateTransferProvides,
@@ -96,6 +97,7 @@ KEYSTONE_CONF = "/etc/keystone/keystone.conf"
 LOGGING_CONF = "/etc/keystone/logging.conf"
 
 
+@sunbeam_tracing.trace_type
 class KeystoneLoggingAdapter(sunbeam_contexts.ConfigContext):
     """Config adapter to collect logging config."""
 
@@ -117,6 +119,7 @@ class KeystoneLoggingAdapter(sunbeam_contexts.ConfigContext):
         return ctxt
 
 
+@sunbeam_tracing.trace_type
 class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
     """Config adapter to collect keystone config."""
 
@@ -150,6 +153,7 @@ class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
         }
 
 
+@sunbeam_tracing.trace_type
 class IdentityServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for identity service relation."""
 
@@ -186,6 +190,7 @@ class IdentityServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_type
 class DomainConfigHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for domain config relation."""
 
@@ -228,6 +233,7 @@ class DomainConfigHandler(sunbeam_rhandlers.RelationHandler):
         return bool(self.get_domain_configs())
 
 
+@sunbeam_tracing.trace_type
 class IdentityCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for identity credentials relation."""
 
@@ -264,6 +270,7 @@ class IdentityCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_type
 class IdentityResourceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for identity resource relation."""
 
@@ -298,6 +305,7 @@ class IdentityResourceProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_type
 class WSGIKeystonePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Keystone Pebble Handler."""
 
@@ -316,6 +324,7 @@ class WSGIKeystonePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         super().init_service(context)
 
 
+@sunbeam_tracing.trace_sunbeam_charm(extra_types=(manager.KeystoneManager,))
 class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 

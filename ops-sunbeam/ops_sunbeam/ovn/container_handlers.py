@@ -24,8 +24,10 @@ from ops.model import (
 
 from .. import container_handlers as sunbeam_chandlers
 from .. import core as sunbeam_core
+from .. import tracing as sunbeam_tracing
 
 
+@sunbeam_tracing.trace_type
 class OVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Common class for OVN services."""
 

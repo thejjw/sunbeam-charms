@@ -39,6 +39,7 @@ import ops_sunbeam.core as core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.main import (
     main,
 )
@@ -50,6 +51,7 @@ from ops.model import (
 logger = logging.getLogger(__name__)
 
 
+@sunbeam_tracing.trace_type
 class CephConfigurationContext(config_contexts.ConfigContext):
     """Configuration context to parse ceph parameters."""
 
@@ -68,6 +70,7 @@ class CephConfigurationContext(config_contexts.ConfigContext):
         return ctxt
 
 
+@sunbeam_tracing.trace_type
 class CinderCephConfigurationContext(config_contexts.ConfigContext):
     """Configuration context for cinder parameters."""
 
@@ -94,13 +97,16 @@ class CinderCephConfigurationContext(config_contexts.ConfigContext):
         }
 
 
+@sunbeam_tracing.trace_type
 class StorageBackendProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Relation handler for storage-backend interface type."""
 
     def setup_event_handler(self):
         """Configure event handlers for an storage-backend relation."""
         logger.debug("Setting up Identity Service event handler")
-        sb_svc = sunbeam_storage_backend.StorageBackendProvides(
+        sb_svc = sunbeam_tracing.trace_type(
+            sunbeam_storage_backend.StorageBackendProvides
+        )(
             self.charm,
             self.relation_name,
         )
@@ -119,6 +125,7 @@ class StorageBackendProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return self.interface.remote_ready()
 
 
+@sunbeam_tracing.trace_type
 class CephAccessProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for identity service relation."""
 
@@ -133,7 +140,9 @@ class CephAccessProvidesHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self):
         """Configure event handlers for an Identity service relation."""
         logger.debug("Setting up Ceph Access event handler")
-        ceph_access_svc = sunbeam_ceph_access.CephAccessProvides(
+        ceph_access_svc = sunbeam_tracing.trace_type(
+            sunbeam_ceph_access.CephAccessProvides
+        )(
             self.charm,
             self.relation_name,
         )
@@ -155,6 +164,7 @@ class CephAccessProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_type
 class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
     """Pebble handler for cinder-volume service."""
 
@@ -199,6 +209,7 @@ class CinderVolumePebbleHandler(container_handlers.PebbleHandler):
         self.start_service()
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
     """Cinder/Ceph Operator charm."""
 

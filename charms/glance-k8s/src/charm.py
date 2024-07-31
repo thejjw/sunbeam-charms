@@ -35,6 +35,7 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from lightkube.core.client import (
     Client,
 )
@@ -70,6 +71,7 @@ STORAGE_NAME = "local-repository"
 # and glance always interprets the mode-name as a requested version number.
 
 
+@sunbeam_tracing.trace_type
 class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Handler for glance api container."""
 
@@ -110,6 +112,7 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         return super().init_service(context)
 
 
+@sunbeam_tracing.trace_type
 class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
     """A relation handler for optional glance storage relations.
 
@@ -199,6 +202,7 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
         return {}
 
 
+@sunbeam_tracing.trace_type
 class GlanceConfigContext(sunbeam_ctxts.ConfigContext):
     """Glance configuration context."""
 
@@ -251,6 +255,7 @@ def bytes_from_string(value: str) -> int:
         raise ValueError(msg)
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 

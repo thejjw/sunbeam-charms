@@ -34,6 +34,7 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.main import (
     main,
 )
@@ -45,6 +46,7 @@ CINDER_API_CONTAINER = "cinder-api"
 CINDER_SCHEDULER_CONTAINER = "cinder-scheduler"
 
 
+@sunbeam_tracing.trace_type
 class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Pebble handler for Cinder WSGI services."""
 
@@ -101,6 +103,7 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         ]
 
 
+@sunbeam_tracing.trace_type
 class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
     """Pebble handler for Cinder Scheduler services."""
 
@@ -159,13 +162,16 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
         ]
 
 
+@sunbeam_tracing.trace_type
 class StorageBackendRequiresHandler(sunbeam_rhandlers.RelationHandler):
     """Relation handler for cinder storage backends."""
 
     def setup_event_handler(self):
         """Configure event handlers for an Identity service relation."""
         logger.debug("Setting up Identity Service event handler")
-        sb_svc = sunbeam_storage_backend.StorageBackendRequires(
+        sb_svc = sunbeam_tracing.trace_type(
+            sunbeam_storage_backend.StorageBackendRequires
+        )(
             self.charm,
             self.relation_name,
         )
@@ -188,6 +194,7 @@ class StorageBackendRequiresHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 

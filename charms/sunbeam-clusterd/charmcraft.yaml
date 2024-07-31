@@ -57,3 +57,7 @@ requires:
   certificates:
     interface: tls-certificates
     optional: True
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1

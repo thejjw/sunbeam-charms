@@ -31,6 +31,7 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from charms.ceilometer_k8s.v0.ceilometer_service import (
     CeilometerConfigRequestEvent,
     CeilometerServiceProvides,
@@ -55,6 +56,7 @@ CEILOMETER_CENTRAL_CONTAINER = "ceilometer-central"
 CEILOMETER_NOTIFICATION_CONTAINER = "ceilometer-notification"
 
 
+@sunbeam_tracing.trace_type
 class GnocchiServiceRequiresHandler(sunbeam_rhandlers.RelationHandler):
     """Handle gnocchi service relation on the requires side."""
 
@@ -120,6 +122,7 @@ class GnocchiServiceRequiresHandler(sunbeam_rhandlers.RelationHandler):
         return self.interface.service_ready
 
 
+@sunbeam_tracing.trace_type
 class CeilometerServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for ceilometer service relation."""
 
@@ -154,6 +157,7 @@ class CeilometerServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_type
 class CeilometerCentralPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for ceilometer-central service."""
 
@@ -189,6 +193,7 @@ class CeilometerCentralPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         return self.charm.container_configs
 
 
+@sunbeam_tracing.trace_type
 class CeilometerNotificationPebbleHandler(
     sunbeam_chandlers.ServicePebbleHandler
 ):
@@ -243,6 +248,7 @@ class CeilometerNotificationPebbleHandler(
         return _cconfigs
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 

@@ -35,6 +35,7 @@ import ops.charm
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as config_contexts
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.main import (
     main,
 )
@@ -43,6 +44,7 @@ from ops.main import (
 logger = logging.getLogger(__name__)
 
 
+@sunbeam_tracing.trace_type
 class LDAPConfigContext(config_contexts.ConfigContext):
     """Configuration context for cinder parameters."""
 
@@ -58,6 +60,7 @@ class LDAPConfigContext(config_contexts.ConfigContext):
         return {"config": config}
 
 
+@sunbeam_tracing.trace_type
 class DomainConfigProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for identity credentials relation."""
 
@@ -72,7 +75,9 @@ class DomainConfigProvidesHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self):
         """Configure event handlers for a domain config relation."""
         logger.debug("Setting up domain config event handler")
-        self.domain_config = sunbeam_dc_svc.DomainConfigProvides(
+        self.domain_config = sunbeam_tracing.trace_type(
+            sunbeam_dc_svc.DomainConfigProvides
+        )(
             self.charm,
             self.relation_name,
         )
@@ -92,6 +97,7 @@ class DomainConfigProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class KeystoneLDAPK8SCharm(sunbeam_charm.OSBaseOperatorCharm):
     """Charm the service."""
 

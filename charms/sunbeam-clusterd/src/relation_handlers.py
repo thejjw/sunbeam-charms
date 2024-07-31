@@ -23,6 +23,7 @@ import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.interfaces as sunbeam_interfaces
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 
 logger = logging.getLogger(__name__)
 
@@ -133,6 +134,7 @@ class ClusterdPeers(sunbeam_interfaces.OperatorPeers):
         )
 
 
+@sunbeam_tracing.trace_type
 class ClusterdPeerHandler(sunbeam_rhandlers.BasePeerHandler):
     """Base handler for managing a peers relation."""
 
@@ -151,7 +153,7 @@ class ClusterdPeerHandler(sunbeam_rhandlers.BasePeerHandler):
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for peer relation."""
         logger.debug("Setting up peer event handler")
-        peer_int = ClusterdPeers(self.charm, self.relation_name)  # type: ignore
+        peer_int = sunbeam_tracing.trace_type(ClusterdPeers(self.charm, self.relation_name))  # type: ignore
 
         self.framework.observe(peer_int.on.add_node, self._on_add_node)
         self.framework.observe(peer_int.on.node_added, self._on_node_added)

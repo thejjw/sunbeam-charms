@@ -72,6 +72,10 @@ requires:
   logging:
     interface: loki_push_api
     optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
 
 provides:
   ovsdb:

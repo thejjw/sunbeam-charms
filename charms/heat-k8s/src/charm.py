@@ -35,6 +35,7 @@ import ops_sunbeam.config_contexts as sunbeam_config_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
 )
@@ -56,6 +57,7 @@ HEAT_API_PORT = 8004
 HEAT_API_CFN_PORT = 8000
 
 
+@sunbeam_tracing.trace_type
 class HeatAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Heat API container."""
 
@@ -97,6 +99,7 @@ class HeatAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         }
 
 
+@sunbeam_tracing.trace_type
 class HeatCfnAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Heat CFN API container."""
 
@@ -138,6 +141,7 @@ class HeatCfnAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         }
 
 
+@sunbeam_tracing.trace_type
 class HeatEnginePebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Heat engine container."""
 
@@ -162,6 +166,7 @@ class HeatEnginePebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         }
 
 
+@sunbeam_tracing.trace_type
 class HeatConfigurationContext(sunbeam_config_contexts.ConfigContext):
     """Heat configuration context."""
 
@@ -190,6 +195,7 @@ class HeatConfigurationContext(sunbeam_config_contexts.ConfigContext):
         }
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 

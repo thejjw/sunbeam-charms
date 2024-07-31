@@ -28,6 +28,8 @@ from typing import (
     TYPE_CHECKING,
 )
 
+import ops_sunbeam.tracing as sunbeam_tracing
+
 if TYPE_CHECKING:
     import ops_sunbeam.charm
 
@@ -38,6 +40,7 @@ ERASURE_CODED = "erasure-coded"
 REPLICATED = "replicated"
 
 
+@sunbeam_tracing.trace_type
 class ConfigContext:
     """Base class used for creating a config context."""
 
@@ -63,6 +66,7 @@ class ConfigContext:
         raise NotImplementedError
 
 
+@sunbeam_tracing.trace_type
 class CharmConfigContext(ConfigContext):
     """A context containing all of the charms config options."""
 
@@ -71,6 +75,7 @@ class CharmConfigContext(ConfigContext):
         return self.charm.config
 
 
+@sunbeam_tracing.trace_type
 class WSGIWorkerConfigContext(ConfigContext):
     """Configuration context for WSGI configuration."""
 
@@ -88,6 +93,7 @@ class WSGIWorkerConfigContext(ConfigContext):
         }
 
 
+@sunbeam_tracing.trace_type
 class CephConfigurationContext(ConfigContext):
     """Ceph configuration context."""
 
@@ -103,6 +109,7 @@ class CephConfigurationContext(ConfigContext):
         return ctxt
 
 
+@sunbeam_tracing.trace_type
 class CinderCephConfigurationContext(ConfigContext):
     """Cinder Ceph configuration context."""
 

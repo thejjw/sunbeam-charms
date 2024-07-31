@@ -138,6 +138,10 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
+        if self.can_add_handler("tracing", handlers):
+            self.tracing = sunbeam_rhandlers.TracingRequireHandler(
+                self, "tracing", "tracing" in self.mandatory_relations
+            )
         if self.can_add_handler("amqp", handlers):
             self.amqp = sunbeam_rhandlers.RabbitMQHandler(
                 self,
@@ -200,6 +204,12 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
             handlers.append(self.receive_ca_cert)
 
         return handlers
+
+    def get_tracing_endpoint(self) -> str | None:
+        """Get the tracing endpoint for the service."""
+        if hasattr(self, "tracing"):
+            return self.tracing.tracing_endpoint()
+        return None
 
     def get_sans_ips(self) -> List[str]:
         """Return Subject Alternate Names to use in cert for service."""

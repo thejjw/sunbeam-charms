@@ -32,6 +32,7 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.main import (
     main,
 )
@@ -84,6 +85,7 @@ def manage_plugins(
     return tag in out
 
 
+@sunbeam_tracing.trace_type
 class WSGIHorizonPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Horizon Pebble Handler."""
 
@@ -117,6 +119,7 @@ class WSGIHorizonPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             )
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 

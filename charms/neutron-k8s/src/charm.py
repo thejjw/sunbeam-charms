@@ -36,6 +36,7 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
 )
@@ -49,6 +50,7 @@ from ops.model import (
 logger = logging.getLogger(__name__)
 
 
+@sunbeam_tracing.trace_type
 class DesignateServiceRequiresHandler(sunbeam_rhandlers.RelationHandler):
     """Handle external-dns relation on the requires side."""
 
@@ -80,7 +82,9 @@ class DesignateServiceRequiresHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self) -> None:
         """Configure event handlers for external-dns service relation."""
         logger.debug("Setting up Designate service event handler")
-        svc = designate_svc.DesignateServiceRequires(
+        svc = sunbeam_tracing.trace_type(
+            designate_svc.DesignateServiceRequires
+        )(
             self.charm,
             self.relation_name,
         )
@@ -117,6 +121,7 @@ class DesignateServiceRequiresHandler(sunbeam_rhandlers.RelationHandler):
             return False
 
 
+@sunbeam_tracing.trace_type
 class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Handler for interacting with pebble data."""
 
@@ -345,6 +350,7 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 # Neutron OVN Specific Code
 
 
+@sunbeam_tracing.trace_type
 class OVNContext(sunbeam_ctxts.ConfigContext):
     """OVN configuration."""
 
@@ -380,6 +386,7 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
         }
 
 
+@sunbeam_tracing.trace_type
 class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
     """Handler for interacting with neutron container."""
 
@@ -419,6 +426,7 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
         ]
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class NeutronOVNOperatorCharm(NeutronOperatorCharm):
     """Neutron charm class for OVN."""
 

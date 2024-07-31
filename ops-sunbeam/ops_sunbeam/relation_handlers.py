@@ -38,6 +38,7 @@ import ops.charm
 import ops.framework
 import ops_sunbeam.compound_status as compound_status
 import ops_sunbeam.interfaces as sunbeam_interfaces
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.model import (
     ActiveStatus,
     BlockedStatus,
@@ -53,6 +54,7 @@ ERASURE_CODED = "erasure-coded"
 REPLICATED = "replicated"
 
 
+@sunbeam_tracing.trace_type
 class RelationHandler(ops.framework.Object):
     """Base handler class for relations.
 
@@ -151,6 +153,7 @@ class RelationHandler(ops.framework.Object):
         raise NotImplementedError
 
 
+@sunbeam_tracing.trace_type
 class IngressHandler(RelationHandler):
     """Base class to handle Ingress relations."""
 
@@ -175,7 +178,7 @@ class IngressHandler(RelationHandler):
             IngressPerAppRequirer,
         )
 
-        interface = IngressPerAppRequirer(
+        interface = sunbeam_tracing.trace_type(IngressPerAppRequirer)(
             self.charm,
             self.relation_name,
             port=self.default_ingress_port,
@@ -247,14 +250,17 @@ class IngressHandler(RelationHandler):
         }
 
 
+@sunbeam_tracing.trace_type
 class IngressInternalHandler(IngressHandler):
     """Handler for Ingress relations on internal interface."""
 
 
+@sunbeam_tracing.trace_type
 class IngressPublicHandler(IngressHandler):
     """Handler for Ingress relations on public interface."""
 
 
+@sunbeam_tracing.trace_type
 class DBHandler(RelationHandler):
     """Handler for DB relations."""
 
@@ -285,6 +291,10 @@ class DBHandler(RelationHandler):
         # from trigger handlers for other dbs.
         # It also must be a valid python identifier.
         alias = self.relation_name.replace("-", "_")
+        # tracing this library is currently failing
+        # implement when either one of these is fixed:
+        # https://github.com/canonical/tempo-k8s-operator/issues/155
+        # https://github.com/canonical/data-platform-libs/issues/186
         db = DatabaseRequires(
             self.charm,
             self.relation_name,
@@ -386,6 +396,7 @@ class DBHandler(RelationHandler):
         }
 
 
+@sunbeam_tracing.trace_type
 class RabbitMQHandler(RelationHandler):
     """Handler for managing a rabbitmq relation."""
 
@@ -412,7 +423,7 @@ class RabbitMQHandler(RelationHandler):
         # has this relation.
         import charms.rabbitmq_k8s.v0.rabbitmq as sunbeam_rabbitmq
 
-        amqp = sunbeam_rabbitmq.RabbitMQRequires(
+        amqp = sunbeam_tracing.trace_type(sunbeam_rabbitmq.RabbitMQRequires)(
             self.charm, self.relation_name, self.username, self.vhost
         )
         self.framework.observe(amqp.on.ready, self._on_amqp_ready)
@@ -473,12 +484,14 @@ class RabbitMQHandler(RelationHandler):
         return ctxt
 
 
+@sunbeam_tracing.trace_type
 class AMQPHandler(RabbitMQHandler):
     """Backwards compatibility class for older library consumers."""
 
     pass
 
 
+@sunbeam_tracing.trace_type
 class IdentityServiceRequiresHandler(RelationHandler):
     """Handler for managing a identity-service relation."""
 
@@ -501,7 +514,7 @@ class IdentityServiceRequiresHandler(RelationHandler):
         logger.debug("Setting up Identity Service event handler")
         import charms.keystone_k8s.v1.identity_service as sun_id
 
-        id_svc = sun_id.IdentityServiceRequires(
+        id_svc = sunbeam_tracing.trace_type(sun_id.IdentityServiceRequires)(
             self.charm, self.relation_name, self.service_endpoints, self.region
         )
         self.framework.observe(
@@ -544,6 +557,7 @@ class IdentityServiceRequiresHandler(RelationHandler):
             return False
 
 
+@sunbeam_tracing.trace_type
 class BasePeerHandler(RelationHandler):
     """Base handler for managing a peers relation."""
 
@@ -554,7 +568,9 @@ class BasePeerHandler(RelationHandler):
         logger.debug("Setting up peer event handler")
         # Lazy import to ensure this lib is only required if the charm
         # has this relation.
-        peer_int = sunbeam_interfaces.OperatorPeers(
+        peer_int = sunbeam_tracing.trace_type(
+            sunbeam_interfaces.OperatorPeers
+        )(
             self.charm,
             self.relation_name,
         )
@@ -639,6 +655,7 @@ class BasePeerHandler(RelationHandler):
         )
 
 
+@sunbeam_tracing.trace_type
 class CephClientHandler(RelationHandler):
     """Handler for ceph-client interface."""
 
@@ -663,7 +680,7 @@ class CephClientHandler(RelationHandler):
         # has this relation.
         import interface_ceph_client.ceph_client as ceph_client
 
-        ceph = ceph_client.CephClientRequires(
+        ceph = sunbeam_tracing.trace_type(ceph_client.CephClientRequires)(
             self.charm,
             self.relation_name,
         )
@@ -857,6 +874,7 @@ class _Store(abc.ABC):
         self.save_entry(name, entry)
 
 
+@sunbeam_tracing.trace_type
 class TlsCertificatesHandler(RelationHandler):
     """Handler for certificates interface."""
 
@@ -1008,9 +1026,9 @@ class TlsCertificatesHandler(RelationHandler):
             TLSCertificatesRequiresV3,
         )
 
-        self.certificates = TLSCertificatesRequiresV3(
-            self.charm, "certificates"
-        )
+        self.certificates = sunbeam_tracing.trace_type(
+            TLSCertificatesRequiresV3
+        )(self.charm, "certificates")
 
         self.framework.observe(
             self.charm.on.certificates_relation_joined,
@@ -1247,6 +1265,7 @@ class TlsCertificatesHandler(RelationHandler):
         return ctxt
 
 
+@sunbeam_tracing.trace_type
 class IdentityCredentialsRequiresHandler(RelationHandler):
     """Handles the identity credentials relation on the requires side."""
 
@@ -1277,7 +1296,9 @@ class IdentityCredentialsRequiresHandler(RelationHandler):
         import charms.keystone_k8s.v0.identity_credentials as identity_credentials
 
         logger.debug("Setting up the identity-credentials event handler")
-        credentials_service = identity_credentials.IdentityCredentialsRequires(
+        credentials_service = sunbeam_tracing.trace_type(
+            identity_credentials.IdentityCredentialsRequires
+        )(
             self.charm,
             self.relation_name,
         )
@@ -1308,6 +1329,7 @@ class IdentityCredentialsRequiresHandler(RelationHandler):
             return False
 
 
+@sunbeam_tracing.trace_type
 class IdentityResourceRequiresHandler(RelationHandler):
     """Handles the identity resource relation on the requires side."""
 
@@ -1341,7 +1363,7 @@ class IdentityResourceRequiresHandler(RelationHandler):
         import charms.keystone_k8s.v0.identity_resource as ops_svc
 
         logger.debug("Setting up Identity Resource event handler")
-        ops_svc = ops_svc.IdentityResourceRequires(
+        ops_svc = sunbeam_tracing.trace_type(ops_svc.IdentityResourceRequires)(
             self.charm,
             self.relation_name,
         )
@@ -1384,6 +1406,7 @@ class IdentityResourceRequiresHandler(RelationHandler):
         return self.interface.ready()
 
 
+@sunbeam_tracing.trace_type
 class CeilometerServiceRequiresHandler(RelationHandler):
     """Handle ceilometer service relation on the requires side."""
 
@@ -1417,7 +1440,9 @@ class CeilometerServiceRequiresHandler(RelationHandler):
         import charms.ceilometer_k8s.v0.ceilometer_service as ceilometer_svc
 
         logger.debug("Setting up Ceilometer service event handler")
-        svc = ceilometer_svc.CeilometerServiceRequires(
+        svc = sunbeam_tracing.trace_type(
+            ceilometer_svc.CeilometerServiceRequires
+        )(
             self.charm,
             self.relation_name,
         )
@@ -1454,6 +1479,7 @@ class CeilometerServiceRequiresHandler(RelationHandler):
             return False
 
 
+@sunbeam_tracing.trace_type
 class CephAccessRequiresHandler(RelationHandler):
     """Handles the ceph access relation on the requires side."""
 
@@ -1484,7 +1510,9 @@ class CephAccessRequiresHandler(RelationHandler):
         import charms.cinder_ceph_k8s.v0.ceph_access as ceph_access
 
         logger.debug("Setting up the ceph-access event handler")
-        ceph_access = ceph_access.CephAccessRequires(
+        ceph_access = sunbeam_tracing.trace_type(
+            ceph_access.CephAccessRequires
+        )(
             self.charm,
             self.relation_name,
         )
@@ -1524,6 +1552,7 @@ class CephAccessRequiresHandler(RelationHandler):
 ExtraOpsProcess = Callable[[ops.EventBase, dict], None]
 
 
+@sunbeam_tracing.trace_type
 class UserIdentityResourceRequiresHandler(RelationHandler):
     """Handle user management on IdentityResource relation."""
 
@@ -1585,7 +1614,7 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
         import charms.keystone_k8s.v0.identity_resource as id_ops
 
         logger.debug("Setting up Identity Resource event handler")
-        ops_svc = id_ops.IdentityResourceRequires(
+        ops_svc = sunbeam_tracing.trace_type(id_ops.IdentityResourceRequires)(
             self.charm,
             self.relation_name,
         )
@@ -1958,6 +1987,7 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
         return self.get_config_credentials() is not None
 
 
+@sunbeam_tracing.trace_type
 class CertificateTransferRequiresHandler(RelationHandler):
     """Handle certificate transfer relation on the requires side."""
 
@@ -1994,7 +2024,7 @@ class CertificateTransferRequiresHandler(RelationHandler):
             CertificateTransferRequires,
         )
 
-        recv_ca_cert = CertificateTransferRequires(
+        recv_ca_cert = sunbeam_tracing.trace_type(CertificateTransferRequires)(
             self.charm, "receive-ca-cert"
         )
         self.framework.observe(
@@ -2039,6 +2069,7 @@ class CertificateTransferRequiresHandler(RelationHandler):
         return {"ca_bundle": "\n".join(ca_bundle)}
 
 
+@sunbeam_tracing.trace_type
 class TraefikRouteHandler(RelationHandler):
     """Base class to handle traefik route relations."""
 
@@ -2061,7 +2092,7 @@ class TraefikRouteHandler(RelationHandler):
             TraefikRouteRequirer,
         )
 
-        interface = TraefikRouteRequirer(
+        interface = sunbeam_tracing.trace_type(TraefikRouteRequirer)(
             self.charm,
             self.model.get_relation(self.relation_name),
             self.relation_name,
@@ -2112,6 +2143,7 @@ class TraefikRouteHandler(RelationHandler):
         }
 
 
+@sunbeam_tracing.trace_type
 class NovaServiceRequiresHandler(RelationHandler):
     """Handle nova service relation on the requires side."""
 
@@ -2145,7 +2177,7 @@ class NovaServiceRequiresHandler(RelationHandler):
         import charms.nova_k8s.v0.nova_service as nova_svc
 
         logger.debug("Setting up Nova service event handler")
-        svc = nova_svc.NovaServiceRequires(
+        svc = sunbeam_tracing.trace_type(nova_svc.NovaServiceRequires)(
             self.charm,
             self.relation_name,
         )
@@ -2180,6 +2212,7 @@ class NovaServiceRequiresHandler(RelationHandler):
             return False
 
 
+@sunbeam_tracing.trace_type
 class LogForwardHandler(RelationHandler):
     """Handle log forward relation on the requires side."""
 
@@ -2210,13 +2243,64 @@ class LogForwardHandler(RelationHandler):
         import charms.loki_k8s.v1.loki_push_api as loki_push_api
 
         logger.debug("Setting up log forward event handler")
-        log_forwarder = loki_push_api.LogForwarder(
+        log_forwarder = sunbeam_tracing.trace_type(loki_push_api.LogForwarder)(
             self.charm,
             relation_name=self.relation_name,
         )
         return log_forwarder
 
     @property
+    def ready(self) -> bool:
+        """Whether handler is ready for use."""
+        return self.interface.is_ready()
+
+
+@sunbeam_tracing.trace_type
+class TracingRequireHandler(RelationHandler):
+    """Handle tracing relation on the requires side."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        mandatory: bool = False,
+        protocols: list[str] | None = None,
+    ) -> None:
+        """Create a new tracing-relation handler.
+
+        :param charm: the Charm class the handler
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param mandatory: If the relation is mandatory to proceed with
+                          configuring charm.
+        :type mandatory: bool
+        """
+        if protocols is None:
+            protocols = ["otlp_http"]
+        self.protocols = protocols
+        super().__init__(charm, relation_name, lambda *args: None, mandatory)
+
+    def setup_event_handler(self) -> ops.Object:
+        """Configure event handlers for tracing relation."""
+        import charms.tempo_k8s.v2.tracing as tracing
+
+        tracing_interface = sunbeam_tracing.trace_type(
+            tracing.TracingEndpointRequirer
+        )(
+            self.charm,
+            self.relation_name,
+            protocols=self.protocols,  # type: ignore[arg-type]
+        )
+
+        return tracing_interface
+
+    def tracing_endpoint(self) -> str | None:
+        """Otlp endpoint for charm tracing."""
+        if self.ready():
+            return self.interface.get_endpoint("otlp_http")
+        return None
+
     def ready(self) -> bool:
         """Whether handler is ready for use."""
         return self.interface.is_ready()

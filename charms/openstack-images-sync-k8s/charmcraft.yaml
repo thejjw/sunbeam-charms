@@ -17,6 +17,20 @@ bases:
       - name: ubuntu
         channel: "22.04"
 
+parts:
+  charm:
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc
+      - cargo
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - jinja2
+
 config:
   options:
     debug:
@@ -76,3 +90,7 @@ requires:
   logging:
     interface: loki_push_api
     optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1

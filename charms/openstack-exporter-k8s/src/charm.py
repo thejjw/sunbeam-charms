@@ -33,6 +33,7 @@ import ops_sunbeam.config_contexts as sunbeam_config_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.main import (
     main,
 )
@@ -43,6 +44,7 @@ CONFIGURE_SECRET_PREFIX = "configure-"
 CONTAINER = "openstack-exporter"
 
 
+@sunbeam_tracing.trace_type
 class OSExporterConfigurationContext(sunbeam_config_contexts.ConfigContext):
     """OSExporter configuration context."""
 
@@ -75,6 +77,7 @@ class OSExporterConfigurationContext(sunbeam_config_contexts.ConfigContext):
         }
 
 
+@sunbeam_tracing.trace_type
 class OSExporterPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for the container."""
 
@@ -107,6 +110,7 @@ class OSExporterPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         }
 
 
+@sunbeam_tracing.trace_type
 class MetricsEndpointRelationHandler(sunbeam_rhandlers.RelationHandler):
     """Relation handler for Metrics Endpoint relation."""
 
@@ -117,9 +121,9 @@ class MetricsEndpointRelationHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for the relation."""
         logger.debug("Setting up Metrics Endpoint event handler")
-        interface = prometheus_scrape.MetricsEndpointProvider(
-            self.charm, jobs=self.charm._scrape_jobs
-        )
+        interface = sunbeam_tracing.trace_type(
+            prometheus_scrape.MetricsEndpointProvider
+        )(self.charm, jobs=self.charm._scrape_jobs)
 
         return interface
 
@@ -129,6 +133,7 @@ class MetricsEndpointRelationHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_type
 class GrafanaDashboardsRelationHandler(sunbeam_rhandlers.RelationHandler):
     """Relation handler for Grafana Dashboards relation."""
 
@@ -137,7 +142,9 @@ class GrafanaDashboardsRelationHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for the relation."""
         logger.debug("Setting up Grafana Dashboard event handler")
-        interface = grafana_dashboard.GrafanaDashboardProvider(
+        interface = sunbeam_tracing.trace_type(
+            grafana_dashboard.GrafanaDashboardProvider
+        )(
             self.charm,
         )
 
@@ -149,6 +156,7 @@ class GrafanaDashboardsRelationHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 

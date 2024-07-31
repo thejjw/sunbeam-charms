@@ -20,8 +20,10 @@ These are not specific to a relation.
 """
 
 from .. import config_contexts as sunbeam_ccontexts
+from .. import tracing as sunbeam_tracing
 
 
+@sunbeam_tracing.trace_type
 class OVNDBConfigContext(sunbeam_ccontexts.ConfigContext):
     """Context for OVN charms."""
 

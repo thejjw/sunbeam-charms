@@ -28,6 +28,10 @@ requires:
     optional: true
   nova-service:
     interface: nova
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
 
 provides:
   cos-agent:

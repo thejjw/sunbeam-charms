@@ -32,10 +32,12 @@ from ops.model import (
 )
 
 from .. import relation_handlers as sunbeam_rhandlers
+from .. import tracing as sunbeam_tracing
 
 logger = logging.getLogger(__name__)
 
 
+@sunbeam_tracing.trace_type
 class OVNRelationUtils:
     """Common utilities for processing OVN relations."""
 
@@ -306,6 +308,7 @@ class OVNRelationUtils:
         return list(set(addresses))
 
 
+@sunbeam_tracing.trace_type
 class OVNDBClusterPeerHandler(
     sunbeam_rhandlers.BasePeerHandler, OVNRelationUtils
 ):
@@ -458,6 +461,7 @@ class OVNDBClusterPeerHandler(
         return ctxt
 
 
+@sunbeam_tracing.trace_type
 class OVSDBCMSProvidesHandler(
     sunbeam_rhandlers.RelationHandler, OVNRelationUtils
 ):
@@ -481,7 +485,7 @@ class OVSDBCMSProvidesHandler(
         logger.debug("Setting up ovs-cms provides event handler")
         import charms.ovn_central_k8s.v0.ovsdb as ovsdb
 
-        ovsdb_svc = ovsdb.OVSDBCMSProvides(
+        ovsdb_svc = sunbeam_tracing.trace_type(ovsdb.OVSDBCMSProvides)(
             self.charm,
             self.relation_name,
         )
@@ -510,6 +514,7 @@ class OVSDBCMSProvidesHandler(
         return True
 
 
+@sunbeam_tracing.trace_type
 class OVSDBCMSRequiresHandler(
     sunbeam_rhandlers.RelationHandler, OVNRelationUtils
 ):
@@ -532,7 +537,7 @@ class OVSDBCMSRequiresHandler(
         logger.debug("Setting up ovs-cms requires event handler")
         import charms.ovn_central_k8s.v0.ovsdb as ovsdb
 
-        ovsdb_svc = ovsdb.OVSDBCMSRequires(
+        ovsdb_svc = sunbeam_tracing.trace_type(ovsdb.OVSDBCMSRequires)(
             self.charm,
             self.relation_name,
         )

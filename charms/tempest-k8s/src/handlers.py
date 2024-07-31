@@ -37,6 +37,7 @@ import ops.model
 import ops.pebble
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from utils.alert_rules import (
     ALERT_RULES_PATH,
 )
@@ -69,6 +70,7 @@ def assert_ready(f):
     return wrapper
 
 
+@sunbeam_tracing.trace_type
 class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for the container."""
 
@@ -301,6 +303,7 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             logger.warning("Clean-up failed")
 
 
+@sunbeam_tracing.trace_type
 class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
     """Relation handler for identity ops."""
 
@@ -385,7 +388,7 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         import charms.keystone_k8s.v0.identity_resource as id_ops
 
         logger.debug("Setting up Identity Resource event handler")
-        ops_svc = id_ops.IdentityResourceRequires(
+        ops_svc = sunbeam_tracing.trace_type(id_ops.IdentityResourceRequires)(
             self.charm,
             self.relation_name,
         )
@@ -649,13 +652,16 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         self.callback_f(event)
 
 
+@sunbeam_tracing.trace_type
 class GrafanaDashboardRelationHandler(sunbeam_rhandlers.RelationHandler):
     """Relation handler for grafana-dashboard relation."""
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for the relation."""
         logger.debug("Setting up Grafana Dashboards Provider event handler")
-        interface = grafana_dashboard.GrafanaDashboardProvider(
+        interface = sunbeam_tracing.trace_type(
+            grafana_dashboard.GrafanaDashboardProvider
+        )(
             self.charm,
             relation_name=self.relation_name,
             dashboards_path="src/grafana_dashboards",
@@ -668,13 +674,14 @@ class GrafanaDashboardRelationHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_type
 class LoggingRelationHandler(sunbeam_rhandlers.RelationHandler):
     """Relation handler for logging relation."""
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for the relation."""
         logger.debug("Setting up Logging Provider event handler")
-        interface = loki_push_api.LogProxyConsumer(
+        interface = sunbeam_tracing.trace_type(loki_push_api.LogProxyConsumer)(
             self.charm,
             recursive=True,
             relation_name=self.relation_name,

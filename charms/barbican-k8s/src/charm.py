@@ -34,6 +34,7 @@ import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from charms.vault_k8s.v0 import (
     vault_kv,
 )
@@ -60,6 +61,7 @@ class NoRelationError(Exception):
     pass
 
 
+@sunbeam_tracing.trace_type
 class WSGIBarbicanAdminConfigContext(sunbeam_ctxts.ConfigContext):
     """Configuration context for WSGI configuration."""
 
@@ -77,6 +79,7 @@ class WSGIBarbicanAdminConfigContext(sunbeam_ctxts.ConfigContext):
         }
 
 
+@sunbeam_tracing.trace_type
 class VaultKvRequiresHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for vault-kv relation."""
 
@@ -97,7 +100,7 @@ class VaultKvRequiresHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for a vault-kv relation."""
         logger.debug("Setting up vault-kv event handler")
-        interface = vault_kv.VaultKvRequires(
+        interface = sunbeam_tracing.trace_type(vault_kv.VaultKvRequires)(
             self.charm,
             self.relation_name,
             self.mount_suffix,
@@ -188,6 +191,7 @@ class VaultKvRequiresHandler(sunbeam_rhandlers.RelationHandler):
         }
 
 
+@sunbeam_tracing.trace_type
 class BarbicanWorkerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Barbican worker."""
 
@@ -430,6 +434,7 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return super().healthcheck_http_url + "?build"
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class BarbicanVaultOperatorCharm(BarbicanOperatorCharm):
     """Vault specialized Barbican Operator Charm."""
 

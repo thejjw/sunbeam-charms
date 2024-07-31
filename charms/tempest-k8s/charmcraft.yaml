@@ -65,6 +65,10 @@ requires:
   receive-ca-cert:
     interface: certificate_transfer
     optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
 
 provides:
   grafana-dashboard:

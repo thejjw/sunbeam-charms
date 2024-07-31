@@ -34,6 +34,7 @@ import ops.pebble
 import ops_sunbeam.compound_status as compound_status
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.templating as sunbeam_templating
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.model import (
     ActiveStatus,
     BlockedStatus,
@@ -47,6 +48,7 @@ ContainerDir = collections.namedtuple(
 )
 
 
+@sunbeam_tracing.trace_type
 class PebbleHandler(ops.framework.Object):
     """Base handler for Pebble based containers."""
 
@@ -319,6 +321,7 @@ class PebbleHandler(ops.framework.Object):
         """Called when files have changed before restarting services."""
 
 
+@sunbeam_tracing.trace_type
 class ServicePebbleHandler(PebbleHandler):
     """Container handler for containers which manage a service."""
 
@@ -356,6 +359,7 @@ class ServicePebbleHandler(PebbleHandler):
         self.start_all(restart=restart)
 
 
+@sunbeam_tracing.trace_type
 class WSGIPebbleHandler(PebbleHandler):
     """WSGI oriented handler for a Pebble managed container."""
 

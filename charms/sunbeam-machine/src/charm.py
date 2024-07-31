@@ -26,6 +26,7 @@ import logging
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
+import ops_sunbeam.tracing as sunbeam_tracing
 from charms.operator_libs_linux.v0 import (
     sysctl,
 )
@@ -37,6 +38,7 @@ ETC_ENVIRONMENT = "/etc/environment"
 logger = logging.getLogger(__name__)
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
     """Charm the service."""
 

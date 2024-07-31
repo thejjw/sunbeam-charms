@@ -39,6 +39,7 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 import tenacity
 from charms.designate_k8s.v0.designate_service import (
     DesignateEndpointRequestEvent,
@@ -62,6 +63,7 @@ class NoRelationError(Exception):
     pass
 
 
+@sunbeam_tracing.trace_type
 class DesignatePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Pebble handler for designate services."""
 
@@ -175,6 +177,7 @@ class DesignatePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         super().init_service(context)
 
 
+@sunbeam_tracing.trace_type
 class DesignateServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for designate service relation."""
 
@@ -189,7 +192,7 @@ class DesignateServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self):
         """Configure event handlers for an Ceilometer service relation."""
         logger.debug("Setting up Ceilometer service event handler")
-        svc = DesignateServiceProvides(
+        svc = sunbeam_tracing.trace_type(DesignateServiceProvides)(
             self.charm,
             self.relation_name,
         )
@@ -211,6 +214,7 @@ class DesignateServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_type
 class BindRndcRequiresRelationHandler(sunbeam_rhandlers.RelationHandler):
     """Relation handler class."""
 
@@ -228,7 +232,9 @@ class BindRndcRequiresRelationHandler(sunbeam_rhandlers.RelationHandler):
 
     def setup_event_handler(self) -> ops.Object:
         """Setup event handler for the relation."""
-        interface = bind_rndc.BindRndcRequires(self.charm, BIND_RNDC_RELATION)
+        interface = sunbeam_tracing.trace_type(bind_rndc.BindRndcRequires)(
+            self.charm, BIND_RNDC_RELATION
+        )
         self.framework.observe(
             interface.on.connected,
             self._on_bind_rndc_connected,
@@ -342,6 +348,7 @@ class BindRndcRequiresRelationHandler(sunbeam_rhandlers.RelationHandler):
         }
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 

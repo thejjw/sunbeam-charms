@@ -33,6 +33,7 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
 )
@@ -47,6 +48,7 @@ OCTAVIA_HOUSEKEEPING_CONTAINER = "octavia-housekeeping"
 OCTAVIA_AGENT_SOCKET_DIR = "/var/run/octavia"
 
 
+@sunbeam_tracing.trace_type
 class OctaviaDriverAgentPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Octavia Driver Agent."""
 
@@ -72,6 +74,7 @@ class OctaviaDriverAgentPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         }
 
 
+@sunbeam_tracing.trace_type
 class OctaviaHousekeepingPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Octavia Housekeeping."""
 
@@ -97,6 +100,7 @@ class OctaviaHousekeepingPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         }
 
 
+@sunbeam_tracing.trace_type
 class OVNContext(sunbeam_config_contexts.ConfigContext):
     """OVN configuration."""
 
@@ -295,6 +299,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return ops
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class OctaviaOVNOperatorCharm(OctaviaOperatorCharm):
     """Charm the Octavia service with OVN provider."""
 

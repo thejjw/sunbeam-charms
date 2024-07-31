@@ -40,6 +40,7 @@ import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from charms.ceilometer_k8s.v0.ceilometer_service import (
     CeilometerConfigChangedEvent,
     CeilometerServiceGoneAwayEvent,
@@ -70,6 +71,7 @@ MIGRATION_BINDING = "migration"
 MTLS_USAGES = {x509.OID_SERVER_AUTH, x509.OID_CLIENT_AUTH}
 
 
+@sunbeam_tracing.trace_type
 class MTlsCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
     """Handler for certificates interface."""
 
@@ -143,6 +145,7 @@ class MTlsCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
         return {}
 
 
+@sunbeam_tracing.trace_sunbeam_charm(extra_types=(snap.SnapCache, snap.Snap))
 class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     """Charm the service."""
 

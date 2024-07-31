@@ -23,6 +23,8 @@ from typing import (
     Union,
 )
 
+import ops_sunbeam.tracing as sunbeam_tracing
+
 if TYPE_CHECKING:
     from ops_sunbeam.charm import (
         OSBaseOperatorCharm,
@@ -41,6 +43,7 @@ ContainerConfigFile = collections.namedtuple(
 )
 
 
+@sunbeam_tracing.trace_type
 class OPSCharmContexts:
     """Set of config contexts and contexts from relation handlers."""
 

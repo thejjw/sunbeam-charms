@@ -34,6 +34,7 @@ import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from charms.nova_k8s.v0.nova_service import (
     NovaConfigRequestEvent,
     NovaServiceProvides,
@@ -59,6 +60,7 @@ NOVA_SPICEPROXY_INGRESS_NAME = "nova-spiceproxy"
 NOVA_SPICEPROXY_INGRESS_PORT = 6082
 
 
+@sunbeam_tracing.trace_type
 class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
     """Configuration context for WSGI configuration."""
 
@@ -76,6 +78,7 @@ class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
         }
 
 
+@sunbeam_tracing.trace_type
 class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Nova scheduler."""
 
@@ -133,6 +136,7 @@ class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             return self.pebble_ready
 
 
+@sunbeam_tracing.trace_type
 class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Nova Conductor container."""
 
@@ -176,6 +180,7 @@ class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         ]
 
 
+@sunbeam_tracing.trace_type
 class NovaSpiceProxyPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Nova spice proxy."""
 
@@ -233,6 +238,7 @@ class NovaSpiceProxyPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             return self.pebble_ready
 
 
+@sunbeam_tracing.trace_type
 class CloudComputeRequiresHandler(sunbeam_rhandlers.RelationHandler):
     """Handles the cloud-compute relation on the requires side."""
 
@@ -267,7 +273,9 @@ class CloudComputeRequiresHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self):
         """Configure event handlers for the cloud-compute service relation."""
         logger.debug("Setting up cloud-compute event handler")
-        compute_service = cloud_compute.CloudComputeRequires(
+        compute_service = sunbeam_tracing.trace_type(
+            cloud_compute.CloudComputeRequires
+        )(
             self.charm,
             self.relation_name,
         )
@@ -293,6 +301,7 @@ class CloudComputeRequiresHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_type
 class NovaServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for nova service relation."""
 
@@ -307,7 +316,7 @@ class NovaServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self):
         """Configure event handlers for nova service relation."""
         logger.debug("Setting up Nova service event handler")
-        svc = NovaServiceProvides(
+        svc = sunbeam_tracing.trace_type(NovaServiceProvides)(
             self.charm,
             self.relation_name,
         )
@@ -327,6 +336,7 @@ class NovaServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 

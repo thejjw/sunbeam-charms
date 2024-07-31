@@ -31,6 +31,7 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from charms.gnocchi_k8s.v0.gnocchi_service import (
     GnocchiServiceProvides,
     GnocchiServiceReadinessRequestEvent,
@@ -53,6 +54,7 @@ GNOCHHI_WSGI_CONTAINER = "gnocchi-api"
 GNOCCHI_METRICD_CONTAINER = "gnocchi-metricd"
 
 
+@sunbeam_tracing.trace_type
 class GnocchiServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for Gnocchi service relation on provider side."""
 
@@ -79,7 +81,7 @@ class GnocchiServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self):
         """Configure event handlers for Gnocchi service relation."""
         logger.debug("Setting up Gnocchi service event handler")
-        svc = GnocchiServiceProvides(
+        svc = sunbeam_tracing.trace_type(GnocchiServiceProvides)(
             self.charm,
             self.relation_name,
         )
@@ -101,6 +103,7 @@ class GnocchiServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_type
 class GnocchiWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Pebble handler for Gnocchi WSGI services."""
 
@@ -139,6 +142,7 @@ class GnocchiWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         return _cconfigs
 
 
+@sunbeam_tracing.trace_type
 class GnocchiMetricdPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Gnocchi metricd container."""
 
@@ -314,6 +318,7 @@ class GnocchiOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self.svc_ready_handler.interface.set_service_status(relation, True)
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class GnocchiCephOperatorCharm(GnocchiOperatorCharm):
     """Charm the Gnocchi service with Ceph backend."""
 

@@ -35,6 +35,7 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from handlers import (
     GrafanaDashboardRelationHandler,
     LoggingRelationHandler,
@@ -84,6 +85,7 @@ LOKI_RELATION_NAME = "logging"
 logger = logging.getLogger(__name__)
 
 
+@sunbeam_tracing.trace_type
 class TempestConfigurationContext(ConfigContext):
     """Configuration context for tempest."""
 
@@ -98,6 +100,7 @@ class TempestConfigurationContext(ConfigContext):
         }
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 

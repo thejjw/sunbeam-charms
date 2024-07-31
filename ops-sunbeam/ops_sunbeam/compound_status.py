@@ -31,6 +31,7 @@ from typing import (
     Tuple,
 )
 
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.charm import (
     CharmBase,
 )
@@ -123,6 +124,7 @@ class Status:
         }
 
 
+@sunbeam_tracing.trace_type
 class StatusPool(Object):
     """A pool of Status objects.
 

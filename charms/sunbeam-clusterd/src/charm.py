@@ -33,6 +33,7 @@ import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 import requests
 import tenacity
 from charms.operator_libs_linux.v2 import (
@@ -64,6 +65,7 @@ def _identity(x: bool) -> bool:
     return x
 
 
+@sunbeam_tracing.trace_type
 class ClusterCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
     """Handler for certificates interface."""
 
@@ -145,6 +147,7 @@ class ClusterCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
         return {}
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
     """Charm the service."""
 

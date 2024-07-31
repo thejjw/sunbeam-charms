@@ -40,6 +40,7 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
 )
@@ -55,6 +56,7 @@ RNDC_REVISION_KEY = "rndc_revision"
 RNDC_STORE_KEY = "rndc-store"
 
 
+@sunbeam_tracing.trace_type
 class BindPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for designate-bind service."""
 
@@ -74,6 +76,7 @@ class BindPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         }
 
 
+@sunbeam_tracing.trace_type
 class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for managing rndc clients."""
 
@@ -91,7 +94,9 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
 
     def setup_event_handler(self) -> ops.Object:
         """Setup event handler for the relation."""
-        interface = bind_rndc.BindRndcProvides(self.charm, BIND_RNDC_RELATION)
+        interface = sunbeam_tracing.trace_type(bind_rndc.BindRndcProvides)(
+            self.charm, BIND_RNDC_RELATION
+        )
         self.framework.observe(
             interface.on.new_bind_client_attached,
             self._on_bind_client_attached,
@@ -188,6 +193,7 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
         }
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 

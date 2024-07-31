@@ -42,6 +42,7 @@ import ops_sunbeam.ovn.config_contexts as ovn_ctxts
 import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from charms.observability_libs.v1.kubernetes_service_patch import (
     KubernetesServicePatch,
 )
@@ -57,6 +58,7 @@ logger = logging.getLogger(__name__)
 OVSDB_SERVER = "ovsdb-server"
 
 
+@sunbeam_tracing.trace_type
 class OVNRelayPebbleHandler(ovn_chandlers.OVNPebbleHandler):
     """Handler for OVN Relay container."""
 
@@ -89,6 +91,7 @@ class OVNRelayPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         self.start_service()
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
     """Charm the service."""
 

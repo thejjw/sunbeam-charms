@@ -29,6 +29,7 @@ import ops_sunbeam.config_contexts as sunbeam_config_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
 )
@@ -43,6 +44,7 @@ MAGNUM_API_CONTAINER = "magnum-api"
 MAGNUM_CONDUCTOR_CONTAINER = "magnum-conductor"
 
 
+@sunbeam_tracing.trace_type
 class MagnumConfigurationContext(sunbeam_config_contexts.ConfigContext):
     """Magnum configuration context."""
 
@@ -67,6 +69,7 @@ class MagnumConfigurationContext(sunbeam_config_contexts.ConfigContext):
         }
 
 
+@sunbeam_tracing.trace_type
 class MagnumConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for magnum worker."""
 
@@ -134,6 +137,7 @@ class MagnumConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             return self.pebble_ready
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 

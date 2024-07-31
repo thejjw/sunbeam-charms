@@ -31,6 +31,7 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_config_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.tracing as sunbeam_tracing
 from charms.keystone_k8s.v1.identity_service import (
     IdentityServiceRequires,
 )
@@ -56,6 +57,7 @@ def _frequency_to_seconds(frequency: str) -> int:
             raise ValueError(f"Unknown frequency {frequency!r}")
 
 
+@sunbeam_tracing.trace_type
 class SyncCharmConfigContext(sunbeam_config_contexts.CharmConfigContext):
     """Configure context for templates."""
 
@@ -72,6 +74,7 @@ class SyncCharmConfigContext(sunbeam_config_contexts.CharmConfigContext):
         }
 
 
+@sunbeam_tracing.trace_type
 class HttpSyncConfigContext(sunbeam_config_contexts.ConfigContext):
     """Configuration context for the http sync service."""
 
@@ -88,6 +91,7 @@ class HttpSyncConfigContext(sunbeam_config_contexts.ConfigContext):
         }
 
 
+@sunbeam_tracing.trace_type
 class OpenstackImagesSyncPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Handler for openstack images sync container."""
 
@@ -146,6 +150,7 @@ class OpenstackImagesSyncPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         return super().init_service(context)
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class OpenstackImagesSyncK8SCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the application."""
 

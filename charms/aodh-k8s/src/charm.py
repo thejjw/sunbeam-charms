@@ -27,6 +27,7 @@ import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
 )
@@ -43,6 +44,7 @@ AODH_LISTENER_CONTAINER = "aodh-listener"
 AODH_EXPIRER_CONTAINER = "aodh-expirer"
 
 
+@sunbeam_tracing.trace_type
 class AODHWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Pebble handler for AODH api service."""
 
@@ -56,6 +58,7 @@ class AODHWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         super().init_service(context)
 
 
+@sunbeam_tracing.trace_type
 class AODHEvaluatorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for AODH Evaluator."""
 
@@ -103,6 +106,7 @@ class AODHEvaluatorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         ]
 
 
+@sunbeam_tracing.trace_type
 class AODHNotifierPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for AODH Notifier container."""
 
@@ -147,6 +151,7 @@ class AODHNotifierPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         ]
 
 
+@sunbeam_tracing.trace_type
 class AODHListenerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for AODH Listener container."""
 
@@ -191,6 +196,7 @@ class AODHListenerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         ]
 
 
+@sunbeam_tracing.trace_type
 class AODHExpirerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for AODH Expirer container."""
 
@@ -237,6 +243,7 @@ class AODHExpirerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         ]
 
 
+@sunbeam_tracing.trace_sunbeam_charm
 class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
