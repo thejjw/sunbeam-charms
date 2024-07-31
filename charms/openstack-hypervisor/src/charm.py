@@ -21,6 +21,7 @@ This charm provide hypervisor services as part of an OpenStack deployment
 """
 
 import base64
+import functools
 import logging
 import os
 import secrets
@@ -121,10 +122,16 @@ class MTlsCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
         if csr is None:
             return {}
 
+        main_key = self._private_keys.get("main")
+        if main_key is None:
+            # this can happen when the relation is removed
+            # or unit is departing
+            logger.debug("No main key found")
+            return {}
         for cert in certs:
             if cert.csr == csr:
                 return {
-                    "key": self._private_keys["main"],
+                    "key": main_key,
                     "cert": cert.certificate,
                     "ca_cert": cert.ca,
                     "ca_with_intermediates": cert.ca
@@ -307,21 +314,21 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def set_snap_data(self, snap_data: dict):
         """Set snap data on local snap."""
-        cache = snap.SnapCache()
+        cache = self.get_snap_cache()
         hypervisor = cache["openstack-hypervisor"]
         new_settings = {}
-        for k in sorted(snap_data.keys()):
-            try:
-                if snap_data[k] != hypervisor.get(k, typed=True):
-                    new_settings[k] = snap_data[k]
-            except snap.SnapError:
-                # Trying to retrieve an unset parameter results in a snapError
-                # so assume the snap.SnapError means there is missing config
-                # that needs setting.
-                # Setting a value to None will unset the value from the snap,
-                # which will fail if the value was never set.
-                if snap_data[k] is not None:
-                    new_settings[k] = snap_data[k]
+        old_settings = hypervisor.get(None, typed=True)
+        for key, new_value in snap_data.items():
+            group, subkey = key.split(".")
+            if (
+                old_value := old_settings.get(group, {}).get(subkey)
+            ) is not None:
+                if old_value != new_value:
+                    new_settings[key] = new_value
+            # Setting a value to None will unset the value from the snap,
+            # which will fail if the value was never set.
+            elif new_value is not None:
+                new_settings[key] = new_value
         if new_settings:
             logger.debug(f"Applying new snap settings {new_settings}")
             hypervisor.set(new_settings, typed=True)
@@ -332,7 +339,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Install snap if it is not already present."""
         config = self.model.config.get
         try:
-            cache = snap.SnapCache()
+            cache = self.get_snap_cache()
             hypervisor = cache["openstack-hypervisor"]
 
             if not hypervisor.present:
@@ -344,6 +351,11 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "An exception occurred when installing charmcraft. Reason: %s",
                 e.message,
             )
+
+    @functools.cache
+    def get_snap_cache(self) -> snap.SnapCache:
+        """Return snap cache."""
+        return snap.SnapCache()
 
     def configure_unit(self, event) -> None:
         """Run configuration on this unit."""
