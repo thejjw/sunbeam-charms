@@ -50,6 +50,23 @@
       "message": "recheck microk8s reset",
       "revId": "f45cc8769ffd0ded86ec836571f847a656c90a67",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "78426995_e54fad64",
+        "filename": "charms/glance-k8s/config.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-08-01T01:46:08Z",
+      "side": 1,
+      "message": "nit: spelling mistake importr",
+      "revId": "f45cc8769ffd0ded86ec836571f847a656c90a67",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
