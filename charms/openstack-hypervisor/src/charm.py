@@ -175,6 +175,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self._set_hypervisor_local_settings_action,
         )
         self.framework.observe(
+            self.on.install,
+            self._on_install,
+        )
+        self.framework.observe(
             self.on.cos_agent_relation_joined,
             self._on_cos_agent_relation_joined,
         )
@@ -190,6 +194,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 {"path": "/metrics", "port": 12345},  # node exporter
             ],
         )
+
+    def _on_install(self, _: ops.InstallEvent):
+        """Run install on this unit."""
+        self.ensure_snap_present()
 
     @property
     def migration_address(self) -> Optional[str]:
@@ -351,7 +359,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 )
         except snap.SnapError as e:
             logger.error(
-                "An exception occurred when installing charmcraft. Reason: %s",
+                "An exception occurred when installing openstack-hypervisor. Reason: %s",
                 e.message,
             )
 
