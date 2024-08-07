@@ -24,6 +24,7 @@ aspects of the application without clobbering other parts.
 """
 import json
 import logging
+import typing
 from typing import (
     Callable,
     Dict,
@@ -157,12 +158,14 @@ class StatusPool(Object):
         )
 
         try:
-            self._state = charm.framework.load_snapshot(stored_handle)
-            status_state = json.loads(self._state["statuses"])
+            self._state = typing.cast(
+                StoredStateData, charm.framework.load_snapshot(stored_handle)
+            )
+            status_state: dict = json.loads(self._state["statuses"])
         except NoSnapshotError:
             self._state = StoredStateData(self, "_status_pool")
-            status_state = []
-        self._status_state = status_state
+            status_state = {}
+        self._status_state: dict = status_state
 
         # 'commit' is an ops framework event
         # that tells the object to save a snapshot of its state for later.

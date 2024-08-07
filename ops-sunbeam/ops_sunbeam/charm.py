@@ -32,10 +32,12 @@ containers and managing the service running in the container.
 import ipaddress
 import logging
 import urllib
+import urllib.parse
 from typing import (
     List,
     Mapping,
     Optional,
+    Sequence,
     Set,
 )
 
@@ -52,7 +54,7 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import tenacity
-from lightkube import (
+from lightkube.core.client import (
     Client,
 )
 from lightkube.resources.core_v1 import (
@@ -77,7 +79,8 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
     _state = ops.framework.StoredState()
 
     # Holds set of mandatory relations
-    mandatory_relations = set()
+    mandatory_relations: set[str] = set()
+    service_name: str
 
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run constructor."""
@@ -134,8 +137,8 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
         return True
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
-    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> list[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
         if self.can_add_handler("tracing", handlers):
@@ -147,8 +150,8 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
                 self,
                 "amqp",
                 self.configure_charm,
-                self.config.get("rabbit-user") or self.service_name,
-                self.config.get("rabbit-vhost") or "openstack",
+                str(self.config.get("rabbit-user") or self.service_name),
+                str(self.config.get("rabbit-vhost") or "openstack"),
                 "amqp" in self.mandatory_relations,
             )
             handlers.append(self.amqp)
@@ -220,26 +223,35 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
         """Return Subject Alternate Names to use in cert for service."""
         return list(set(self.get_domain_name_sans()))
 
-    def _ip_sans(self) -> List[ipaddress.IPv4Address]:
-        """Get IPv4 addresses for service."""
-        ip_sans = []
+    def _get_all_relation_addresses(self) -> list[ipaddress.IPv4Address]:
+        """Return all bind/ingress addresses from all relations."""
+        addresses = []
         for relation_name in self.meta.relations.keys():
             for relation in self.framework.model.relations.get(
                 relation_name, []
             ):
                 binding = self.model.get_binding(relation)
+                if binding is None or binding.network is None:
+                    continue
                 if isinstance(
                     binding.network.ingress_address, ipaddress.IPv4Address
                 ):
-                    ip_sans.append(binding.network.ingress_address)
+                    addresses.append(binding.network.ingress_address)
                 if isinstance(
                     binding.network.bind_address, ipaddress.IPv4Address
                 ):
-                    ip_sans.append(binding.network.bind_address)
+                    addresses.append(binding.network.bind_address)
+        return addresses
+
+    def _ip_sans(self) -> list[ipaddress.IPv4Address]:
+        """Get IPv4 addresses for service."""
+        ip_sans = self._get_all_relation_addresses()
 
         for binding_name in ["public"]:
             try:
                 binding = self.model.get_binding(binding_name)
+                if binding is None or binding.network is None:
+                    continue
                 if isinstance(
                     binding.network.ingress_address, ipaddress.IPv4Address
                 ):
@@ -337,7 +349,7 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
     @property
     def config_contexts(
         self,
-    ) -> List[sunbeam_config_contexts.CharmConfigContext]:
+    ) -> list[sunbeam_config_contexts.ConfigContext]:
         """Return the configuration adapters for the operator."""
         return [sunbeam_config_contexts.CharmConfigContext(self, "options")]
 
@@ -537,15 +549,22 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
 
     def bootstrapped(self) -> bool:
         """Determine whether the service has been bootstrapped."""
-        return self._state.unit_bootstrapped and self.is_leader_ready()
+        return (
+            self._state.unit_bootstrapped  # type: ignore[truthy-function] # unit_bootstrapped is not a function
+            and self.is_leader_ready()
+        )
 
-    def leader_set(self, settings: dict = None, **kwargs) -> None:
+    def leader_set(
+        self,
+        settings: sunbeam_core.RelationDataMapping | None = None,
+        **kwargs,
+    ) -> None:
         """Juju set data in peer data bag."""
         settings = settings or {}
         settings.update(kwargs)
         self.peers.set_app_data(settings=settings)
 
-    def leader_get(self, key: str) -> str:
+    def leader_get(self, key: str) -> str | None:
         """Retrieve data from the peer relation."""
         return self.peers.get_app_data(key)
 
@@ -593,24 +612,24 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
 
     def get_named_pebble_handler(
         self, container_name: str
-    ) -> sunbeam_chandlers.PebbleHandler:
+    ) -> sunbeam_chandlers.PebbleHandler | None:
         """Get pebble handler matching container_name."""
         pebble_handlers = [
             h
             for h in self.pebble_handlers
             if h.container_name == container_name
         ]
-        assert len(pebble_handlers) < 2, (
-            "Multiple pebble handlers with the " "same name found."
-        )
+        assert (
+            len(pebble_handlers) < 2
+        ), "Multiple pebble handlers with the same name found."
         if pebble_handlers:
             return pebble_handlers[0]
         else:
             return None
 
     def get_named_pebble_handlers(
-        self, container_names: List[str]
-    ) -> List[sunbeam_chandlers.PebbleHandler]:
+        self, container_names: Sequence[str]
+    ) -> list[sunbeam_chandlers.PebbleHandler]:
         """Get pebble handlers matching container_names."""
         return [
             h
@@ -644,7 +663,7 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
                     "Container service not ready"
                 )
 
-    def stop_services(self, relation: Optional[Set[str]] = None) -> None:
+    def stop_services(self, relation: set[str] | None = None) -> None:
         """Stop all running services."""
         for ph in self.pebble_handlers:
             if ph.pebble_ready:
@@ -653,7 +672,7 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
                 )
                 ph.stop_all()
 
-    def configure_unit(self, event: ops.framework.EventBase) -> None:
+    def configure_unit(self, event: ops.EventBase) -> None:
         """Run configuration on this unit."""
         self.check_leader_ready()
         self.check_relation_handlers_ready(event)
@@ -689,12 +708,12 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         self.status.set(ActiveStatus(""))
 
     @property
-    def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
+    def container_configs(self) -> list[sunbeam_core.ContainerConfigFile]:
         """Container configuration files for the operator."""
         return []
 
     @property
-    def container_names(self) -> List[str]:
+    def container_names(self) -> list[str]:
         """Names of Containers that form part of this service."""
         return [self.service_name]
 
@@ -746,17 +765,18 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         if not self.unit.is_leader():
             logging.info("Not lead unit, skipping DB syncs")
             return
-        try:
-            if self.db_sync_cmds:
+
+        if db_sync_cmds := getattr(self, "db_sync_cmds", None):
+            if db_sync_cmds:
                 logger.info("Syncing database...")
-                for cmd in self.db_sync_cmds:
+                for cmd in db_sync_cmds:
                     try:
                         self._retry_db_sync(cmd)
                     except tenacity.RetryError:
                         raise sunbeam_guard.BlockedExceptionError(
                             "DB sync failed"
                         )
-        except AttributeError:
+        else:
             logger.warning(
                 "Not DB sync ran. Charm does not specify self.db_sync_cmds"
             )
@@ -770,19 +790,21 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
     """Base class for OpenStack API operators."""
 
     mandatory_relations = {"database", "identity-service", "ingress-public"}
+    wsgi_admin_script: str
+    wsgi_public_script: str
 
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run constructor."""
         super().__init__(framework)
 
     @property
-    def service_endpoints(self) -> List[dict]:
+    def service_endpoints(self) -> list[dict]:
         """List of endpoints for this service."""
         return []
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
-    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> list[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
         # Note: intentionally including the ingress handler here in order to
@@ -813,7 +835,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
                 "identity-service",
                 self.configure_charm,
                 self.service_endpoints,
-                self.model.config["region"],
+                str(self.model.config["region"]),
                 "identity-service" in self.mandatory_relations,
             )
             handlers.append(self.id_svc)
@@ -827,15 +849,11 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
         call the configure_charm.
         """
         logger.debug("Received an ingress_changed event")
-        try:
-            if self.id_svc.update_service_endpoints:
-                logger.debug(
-                    "Updating service endpoints after ingress "
-                    "relation changed."
-                )
-                self.id_svc.update_service_endpoints(self.service_endpoints)
-        except (AttributeError, KeyError):
-            pass
+        if hasattr(self, "id_svc"):
+            logger.debug(
+                "Updating service endpoints after ingress " "relation changed."
+            )
+            self.id_svc.update_service_endpoints(self.service_endpoints)
 
         self.configure_charm(event)
 
@@ -850,7 +868,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
         charm_service = client.get(
             Service, name=self.app.name, namespace=self.model.name
         )
-
+        public_address = None
         status = charm_service.status
         if status:
             load_balancer_status = status.loadBalancer
@@ -867,12 +885,21 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
                             "Using ingress address from loadbalancer "
                             f"as {addr}"
                         )
-                        return ingress_address.hostname or ingress_address.ip
+                        public_address = (
+                            ingress_address.hostname or ingress_address.ip
+                        )
 
-        hostname = self.model.get_binding(
-            "identity-service"
-        ).network.ingress_address
-        return hostname
+        if not public_address:
+            binding = self.model.get_binding("identity-service")
+            if binding and binding.network and binding.network.ingress_address:
+                public_address = str(binding.network.ingress_address)
+
+        if not public_address:
+            raise sunbeam_guard.WaitingExceptionError(
+                "No public address found for service"
+            )
+
+        return public_address
 
     @property
     def public_url(self) -> str:
@@ -895,15 +922,19 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
     @property
     def admin_url(self) -> str:
         """Url for accessing the admin endpoint for this service."""
-        hostname = self.model.get_binding(
-            "identity-service"
-        ).network.ingress_address
-        return self.add_explicit_port(self.service_url(hostname))
+        binding = self.model.get_binding("identity-service")
+        if binding and binding.network and binding.network.ingress_address:
+            return self.add_explicit_port(
+                self.service_url(str(binding.network.ingress_address))
+            )
+        raise sunbeam_guard.WaitingExceptionError(
+            "No admin address found for service"
+        )
 
     @property
     def internal_url(self) -> str:
         """Url for accessing the internal endpoint for this service."""
-        try:
+        if hasattr(self, "ingress_internal"):
             if self.ingress_internal.url:
                 logger.debug(
                     "Ingress-internal relation found, returning "
@@ -911,15 +942,17 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
                     self.ingress_internal.url,
                 )
                 return self.add_explicit_port(self.ingress_internal.url)
-        except (AttributeError, KeyError):
-            pass
 
-        hostname = self.model.get_binding(
-            "identity-service"
-        ).network.ingress_address
-        return self.add_explicit_port(self.service_url(hostname))
+        binding = self.model.get_binding("identity-service")
+        if binding and binding.network and binding.network.ingress_address:
+            return self.add_explicit_port(
+                self.service_url(str(binding.network.ingress_address))
+            )
+        raise sunbeam_guard.WaitingExceptionError(
+            "No internal address found for service"
+        )
 
-    def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
+    def get_pebble_handlers(self) -> list[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""
         return [
             sunbeam_chandlers.WSGIPebbleHandler(
@@ -934,7 +967,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
         ]
 
     @property
-    def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
+    def container_configs(self) -> list[sunbeam_core.ContainerConfigFile]:
         """Container configuration files for the service."""
         _cconfigs = super().container_configs
         _cconfigs.extend(
@@ -964,7 +997,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
         return f"/etc/{self.service_name}/{self.service_name}.conf"
 
     @property
-    def config_contexts(self) -> List[sunbeam_config_contexts.ConfigContext]:
+    def config_contexts(self) -> list[sunbeam_config_contexts.ConfigContext]:
         """Generate list of configuration adapters for the charm."""
         _cadapters = super().config_contexts
         _cadapters.extend(

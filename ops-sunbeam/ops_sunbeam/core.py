@@ -18,8 +18,9 @@ import collections
 from typing import (
     TYPE_CHECKING,
     Generator,
-    List,
-    Tuple,
+    Mapping,
+    MutableMapping,
+    Sequence,
     Union,
 )
 
@@ -42,6 +43,10 @@ ContainerConfigFile = collections.namedtuple(
     defaults=(None,),
 )
 
+RelationDataMapping = MutableMapping[str, str]
+ConfigMapping = Mapping[str, bool | int | float | str | None]
+ContextMapping = RelationDataMapping | ConfigMapping
+
 
 @sunbeam_tracing.trace_type
 class OPSCharmContexts:
@@ -50,7 +55,7 @@ class OPSCharmContexts:
     def __init__(self, charm: "OSBaseOperatorCharm") -> None:
         """Run constructor."""
         self.charm = charm
-        self.namespaces = []
+        self.namespaces: list[str] = []
 
     def add_relation_handler(self, handler: "RelationHandler") -> None:
         """Add relation handler."""
@@ -67,7 +72,7 @@ class OPSCharmContexts:
             setattr(self, "leader_db", obj)
 
     def add_config_contexts(
-        self, config_adapters: List["ConfigContext"]
+        self, config_adapters: Sequence["ConfigContext"]
     ) -> None:
         """Add multiple config contexts."""
         for config_adapter in config_adapters:
@@ -83,7 +88,7 @@ class OPSCharmContexts:
     def __iter__(
         self,
     ) -> Generator[
-        Tuple[str, Union["ConfigContext", "RelationHandler"]], None, None
+        tuple[str, Union["ConfigContext", "RelationHandler"]], None, None
     ]:
         """Iterate over the relations presented to the charm."""
         for namespace in self.namespaces:

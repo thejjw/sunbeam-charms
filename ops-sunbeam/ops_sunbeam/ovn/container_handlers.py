@@ -14,17 +14,10 @@
 
 """Base classes for defining OVN Pebble handlers."""
 
-from typing import (
-    List,
-)
-
-from ops.model import (
-    ActiveStatus,
-)
-
-from .. import container_handlers as sunbeam_chandlers
-from .. import core as sunbeam_core
-from .. import tracing as sunbeam_tracing
+import ops
+import ops_sunbeam.container_handlers as sunbeam_chandlers
+import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.tracing as sunbeam_tracing
 
 
 @sunbeam_tracing.trace_type
@@ -52,14 +45,14 @@ class OVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         self.setup_dirs()
         changes = self.write_config(context)
         self.files_changed(changes)
-        self.status.set(ActiveStatus(""))
+        self.status.set(ops.ActiveStatus(""))
 
     @property
     def service_description(self) -> str:
         """Return a short description of service e.g. OVN Southbound DB."""
         raise NotImplementedError
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> ops.pebble.LayerDict:
         """Pebble configuration layer for OVN service.
 
         :returns: pebble layer configuration for service
@@ -80,7 +73,7 @@ class OVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             },
         }
 
-    def get_healthcheck_layer(self) -> dict:
+    def get_healthcheck_layer(self) -> ops.pebble.LayerDict:
         """Health check pebble layer.
 
         :returns: pebble health check layer configuration for OVN service
@@ -97,7 +90,7 @@ class OVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         }
 
     @property
-    def directories(self) -> List[sunbeam_chandlers.ContainerDir]:
+    def directories(self) -> list[sunbeam_chandlers.ContainerDir]:
         """Directories to creete in container."""
         return [
             sunbeam_chandlers.ContainerDir("/etc/ovn", "root", "root"),
@@ -108,7 +101,7 @@ class OVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
     def default_container_configs(
         self,
-    ) -> List[sunbeam_core.ContainerConfigFile]:
+    ) -> list[sunbeam_core.ContainerConfigFile]:
         """Files to render into containers."""
         return [
             sunbeam_core.ContainerConfigFile(

@@ -18,28 +18,43 @@ import ipaddress
 import itertools
 import logging
 import socket
+import typing
 from typing import (
     Callable,
-    Dict,
     Iterator,
-    List,
 )
 
 import ops.charm
 import ops.framework
+import ops_sunbeam.interfaces as sunbeam_interfaces
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.tracing as sunbeam_tracing
 from ops.model import (
     BlockedStatus,
 )
+from ops_sunbeam.charm import (
+    OSBaseOperatorCharm,
+)
 
-from .. import relation_handlers as sunbeam_rhandlers
-from .. import tracing as sunbeam_tracing
+if typing.TYPE_CHECKING:
+    import charms.ovn_central_k8s.v0.ovsdb as ovsdb
 
 logger = logging.getLogger(__name__)
+
+IPAddress = ipaddress.IPv4Address | ipaddress.IPv6Address | str
 
 
 @sunbeam_tracing.trace_type
 class OVNRelationUtils:
     """Common utilities for processing OVN relations."""
+
+    charm: OSBaseOperatorCharm
+    relation_name: str
+    interface: typing.Union[
+        "ovsdb.OVSDBCMSRequires",
+        "ovsdb.OVSDBCMSProvides",
+        sunbeam_interfaces.OperatorPeers,
+    ]
 
     DB_NB_PORT = 6641
     DB_SB_PORT = 6642
@@ -71,7 +86,7 @@ class OVNRelationUtils:
         :returns: addresses published by remote units.
         :rtype: Iterator[str]
         """
-        for addr in self.interface.get_all_unit_values(key):
+        for addr in self.interface.get_all_unit_values(key):  # type: ignore
             try:
                 addr = self._format_addr(addr)
                 yield addr
@@ -86,7 +101,7 @@ class OVNRelationUtils:
         :returns: hostnames published by remote units.
         :rtype: Iterator[str]
         """
-        for hostname in self.interface.get_all_unit_values(key):
+        for hostname in self.interface.get_all_unit_values(key):  # type: ignore
             yield hostname
 
     @property
@@ -117,7 +132,7 @@ class OVNRelationUtils:
         return self._remote_addrs("ingress-bound-address")
 
     def db_connection_strs(
-        self, hostnames: List[str], port: int, proto: str = "ssl"
+        self, hostnames: typing.Iterable[str], port: int, proto: str = "ssl"
     ) -> Iterator[str]:
         """Provide connection strings.
 
@@ -249,7 +264,7 @@ class OVNRelationUtils:
         )
 
     @property
-    def cluster_local_addr(self) -> ipaddress.IPv4Address:
+    def cluster_local_addr(self) -> IPAddress | None:
         """Retrieve local address bound to endpoint.
 
         :returns: IPv4 or IPv6 address bound to endpoint
@@ -258,7 +273,7 @@ class OVNRelationUtils:
         return self._endpoint_local_bound_addr()
 
     @property
-    def cluster_ingress_addr(self) -> ipaddress.IPv4Address:
+    def cluster_ingress_addr(self) -> IPAddress | None:
         """Retrieve local address bound to endpoint.
 
         :returns: IPv4 or IPv6 address bound to endpoint
@@ -284,7 +299,7 @@ class OVNRelationUtils:
         """
         return socket.getfqdn()
 
-    def _endpoint_local_bound_addr(self) -> ipaddress.IPv4Address:
+    def _endpoint_local_bound_addr(self) -> IPAddress | None:
         """Retrieve local address bound to endpoint.
 
         :returns: IPv4 or IPv6 address bound to endpoint
@@ -292,19 +307,25 @@ class OVNRelationUtils:
         addr = None
         for relation in self.charm.model.relations.get(self.relation_name, []):
             binding = self.charm.model.get_binding(relation)
-            addr = binding.network.bind_address
+            if binding and binding.network and binding.network.bind_address:
+                addr = binding.network.bind_address
             break
         return addr
 
-    def _endpoint_ingress_bound_addresses(self) -> ipaddress.IPv4Address:
+    def _endpoint_ingress_bound_addresses(self) -> list[IPAddress]:
         """Retrieve local address bound to endpoint.
 
         :returns: IPv4 or IPv6 address bound to endpoint
         """
-        addresses = []
+        addresses: list[IPAddress] = []
         for relation in self.charm.model.relations.get(self.relation_name, []):
             binding = self.charm.model.get_binding(relation)
-            addresses.extend(binding.network.ingress_addresses)
+            if (
+                binding
+                and binding.network
+                and binding.network.ingress_addresses
+            ):
+                addresses.extend(binding.network.ingress_addresses)
         return list(set(addresses))
 
 
@@ -314,7 +335,9 @@ class OVNDBClusterPeerHandler(
 ):
     """Handle OVN peer relation."""
 
-    def publish_cluster_local_hostname(self, hostname: str = None) -> Dict:
+    interface: sunbeam_interfaces.OperatorPeers
+
+    def publish_cluster_local_hostname(self, hostname: str | None = None):
         """Announce hostname on relation.
 
         This will be used by our peers and clients to build a connection
@@ -467,9 +490,11 @@ class OVSDBCMSProvidesHandler(
 ):
     """Handle provides side of ovsdb-cms."""
 
+    interface: "ovsdb.OVSDBCMSProvides"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         mandatory: bool = False,
@@ -520,9 +545,11 @@ class OVSDBCMSRequiresHandler(
 ):
     """Handle provides side of ovsdb-cms."""
 
+    interface: "ovsdb.OVSDBCMSRequires"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         mandatory: bool = False,

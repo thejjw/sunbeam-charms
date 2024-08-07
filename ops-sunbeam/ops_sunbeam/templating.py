@@ -21,7 +21,6 @@ from pathlib import (
 )
 from typing import (
     TYPE_CHECKING,
-    List,
 )
 
 import ops.pebble
@@ -35,15 +34,15 @@ import jinja2
 log = logging.getLogger(__name__)
 
 
-def get_container(
-    containers: List["ops.model.Container"], name: str
-) -> "ops.model.Container":
-    """Search for container with given name inlist of containers."""
-    container = None
-    for c in containers:
-        if c.name == name:
-            container = c
-    return container
+# def get_container(
+#     containers: list[ops.model.Container], name: str
+# ) -> ops.model.Container | None:
+#     """Search for container with given name inlist of containers."""
+#     container = None
+#     for c in containers:
+#         if c.name == name:
+#             container = c
+#     return container
 
 
 def sidecar_config_render(

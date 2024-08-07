@@ -24,7 +24,7 @@ from typing import (
     overload,
 )
 
-_T = TypeVar("_T")
+_T = TypeVar("_T", bound=type)
 
 try:
     from charms.tempo_k8s.v1.charm_tracing import (
