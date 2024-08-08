@@ -1158,7 +1158,7 @@
           "datasource": {
             "uid": "${prometheusds}"
           },
-          "expr": "sum by(aggregate) (openstack_nova_running_vms{aggregates=~\".+\"})",
+          "expr": "sum by(aggregates) (openstack_nova_running_vms)",
           "intervalFactor": 2,
           "legendFormat": "{{aggregate}}",
           "refId": "A",
