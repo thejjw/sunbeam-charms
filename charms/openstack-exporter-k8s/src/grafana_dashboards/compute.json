@@ -2290,7 +2290,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum by(juju_unit, domain, target_device) (rate(libvirt_domain_block_stats_write_bytes_total[$__rate_interval])) * on(domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
+          "expr": "sum by(juju_unit, domain, target_device) (rate(libvirt_domain_block_stats_write_bytes_total[$__rate_interval])) * on(juju_unit, domain) group_left(project_name, instance_name, uuid) libvirt_domain_info_meta{project_name=~\"$project\"}",
           "interval": "",
           "legendFormat": "{{project_name}} | {{instance_name}} | {{uuid}} | {{target_device}}",
           "refId": "A"
