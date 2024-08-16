@@ -19,16 +19,15 @@ create reusable contexts which translate charm config, deployment state etc.
 These are not specific to a relation.
 """
 
-from __future__ import (
-    annotations,
-)
-
 import logging
 from typing import (
     TYPE_CHECKING,
 )
 
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops_sunbeam.core import (
+    ContextMapping,
+)
 
 if TYPE_CHECKING:
     import ops_sunbeam.charm
@@ -61,7 +60,7 @@ class ConfigContext:
         """Whether the context has all the data is needs."""
         return True
 
-    def context(self) -> dict:
+    def context(self) -> ContextMapping:
         """Context used when rendering templates."""
         raise NotImplementedError
 
@@ -70,7 +69,7 @@ class ConfigContext:
 class CharmConfigContext(ConfigContext):
     """A context containing all of the charms config options."""
 
-    def context(self) -> dict:
+    def context(self) -> ContextMapping:
         """Charms config options."""
         return self.charm.config
 
@@ -79,7 +78,9 @@ class CharmConfigContext(ConfigContext):
 class WSGIWorkerConfigContext(ConfigContext):
     """Configuration context for WSGI configuration."""
 
-    def context(self) -> dict:
+    charm: "ops_sunbeam.charm.OSBaseOperatorAPICharm"
+
+    def context(self) -> ContextMapping:
         """WSGI configuration options."""
         return {
             "name": self.charm.service_name,
@@ -97,7 +98,7 @@ class WSGIWorkerConfigContext(ConfigContext):
 class CephConfigurationContext(ConfigContext):
     """Ceph configuration context."""
 
-    def context(self) -> None:
+    def context(self) -> ContextMapping:
         """Ceph configuration context."""
         config = self.charm.model.config.get
         ctxt = {}
@@ -113,7 +114,7 @@ class CephConfigurationContext(ConfigContext):
 class CinderCephConfigurationContext(ConfigContext):
     """Cinder Ceph configuration context."""
 
-    def context(self) -> None:
+    def context(self) -> ContextMapping:
         """Cinder Ceph configuration context."""
         config = self.charm.model.config.get
         data_pool_name = config("rbd-pool-name") or self.charm.app.name

@@ -23,12 +23,6 @@ import string
 import typing
 from typing import (
     Callable,
-    Dict,
-    FrozenSet,
-    List,
-    Optional,
-    Tuple,
-    Union,
 )
 from urllib.parse import (
     urlparse,
@@ -47,6 +41,30 @@ from ops.model import (
     UnknownStatus,
     WaitingStatus,
 )
+from ops_sunbeam.core import (
+    RelationDataMapping,
+)
+
+if typing.TYPE_CHECKING:
+    import charms.ceilometer_k8s.v0.ceilometer_service as ceilometer_service
+    import charms.certificate_transfer_interface.v0.certificate_transfer as certificate_transfer
+    import charms.cinder_ceph_k8s.v0.ceph_access as ceph_access
+    import charms.data_platform_libs.v0.data_interfaces as data_interfaces
+    import charms.keystone_k8s.v0.identity_credentials as identity_credentials
+    import charms.keystone_k8s.v0.identity_resource as identity_resource
+    import charms.keystone_k8s.v1.identity_service as identity_service
+    import charms.loki_k8s.v1.loki_push_api as loki_push_api
+    import charms.nova_k8s.v0.nova_service as nova_service
+    import charms.rabbitmq_k8s.v0.rabbitmq as rabbitmq
+    import charms.tempo_k8s.v2.tracing as tracing
+    import charms.tls_certificates_interface.v3.tls_certificates as tls_certificates
+    import charms.traefik_k8s.v2.ingress as ingress
+    import charms.traefik_route_k8s.v0.traefik_route as traefik_route
+    import interface_ceph_client.ceph_client as ceph_client  # type: ignore [import-untyped]
+    from ops_sunbeam.charm import (
+        OSBaseOperatorCharm,
+    )
+
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +89,7 @@ class RelationHandler(ops.framework.Object):
 
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         mandatory: bool = False,
@@ -109,7 +127,7 @@ class RelationHandler(ops.framework.Object):
         else:
             status.set(WaitingStatus("integration incomplete"))
 
-    def setup_event_handler(self) -> ops.framework.Object:
+    def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for the relation.
 
         This method must be overridden in concrete class
@@ -117,7 +135,7 @@ class RelationHandler(ops.framework.Object):
         """
         raise NotImplementedError
 
-    def get_interface(self) -> Tuple[ops.framework.Object, str]:
+    def get_interface(self) -> tuple[ops.Object, str]:
         """Return the interface that this handler encapsulates.
 
         This is a combination of the interface object and the
@@ -157,9 +175,11 @@ class RelationHandler(ops.framework.Object):
 class IngressHandler(RelationHandler):
     """Base class to handle Ingress relations."""
 
+    interface: "ingress.IngressPerAppRequirer"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         service_name: str,
         default_ingress_port: int,
@@ -235,7 +255,7 @@ class IngressHandler(RelationHandler):
         return False
 
     @property
-    def url(self) -> Optional[str]:
+    def url(self) -> str | None:
         """Return the URL used by the remote ingress service."""
         if not self.ready:
             return None
@@ -264,9 +284,11 @@ class IngressPublicHandler(IngressHandler):
 class DBHandler(RelationHandler):
     """Handler for DB relations."""
 
+    interface: "data_interfaces.DatabaseRequires"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         database: str,
@@ -323,7 +345,14 @@ class DBHandler(RelationHandler):
         # this will be set to self.interface in parent class
         return db
 
-    def _on_database_updated(self, event: ops.framework.EventBase) -> None:
+    def _on_database_updated(
+        self,
+        event: typing.Union[
+            "data_interfaces.DatabaseCreatedEvent",
+            "data_interfaces.DatabaseEndpointsChangedEvent",
+            "data_interfaces.DatabaseReadOnlyEndpointsChangedEvent",
+        ],
+    ) -> None:
         """Handle database change events."""
         if not (event.username or event.password or event.endpoints):
             return
@@ -342,7 +371,7 @@ class DBHandler(RelationHandler):
         if self.mandatory:
             self.status.set(BlockedStatus("integration missing"))
 
-    def get_relation_data(self) -> dict:
+    def get_relation_data(self) -> RelationDataMapping:
         """Load the data from the relation for consumption in the handler."""
         # there is at most one relation for a database
         for relation in self.model.relations[self.relation_name]:
@@ -400,15 +429,16 @@ class DBHandler(RelationHandler):
 class RabbitMQHandler(RelationHandler):
     """Handler for managing a rabbitmq relation."""
 
+    interface: "rabbitmq.RabbitMQRequires"
     DEFAULT_PORT = "5672"
 
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         username: str,
-        vhost: int,
+        vhost: str,
         mandatory: bool = False,
     ) -> None:
         """Run constructor."""
@@ -495,12 +525,14 @@ class AMQPHandler(RabbitMQHandler):
 class IdentityServiceRequiresHandler(RelationHandler):
     """Handler for managing a identity-service relation."""
 
+    interface: "identity_service.IdentityServiceRequires"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
-        service_endpoints: dict,
+        service_endpoints: list[dict],
         region: str,
         mandatory: bool = False,
     ) -> None:
@@ -543,7 +575,7 @@ class IdentityServiceRequiresHandler(RelationHandler):
         if self.mandatory:
             self.status.set(BlockedStatus("integration missing"))
 
-    def update_service_endpoints(self, service_endpoints: dict) -> None:
+    def update_service_endpoints(self, service_endpoints: list[dict]) -> None:
         """Update service endpoints on the relation."""
         self.service_endpoints = service_endpoints
         self.interface.register_services(service_endpoints, self.region)
@@ -561,9 +593,10 @@ class IdentityServiceRequiresHandler(RelationHandler):
 class BasePeerHandler(RelationHandler):
     """Base handler for managing a peers relation."""
 
+    interface: sunbeam_interfaces.OperatorPeers
     LEADER_READY_KEY = "leader_ready"
 
-    def setup_event_handler(self) -> None:
+    def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for peer relation."""
         logger.debug("Setting up peer event handler")
         # Lazy import to ensure this lib is only required if the charm
@@ -609,19 +642,21 @@ class BasePeerHandler(RelationHandler):
         except (AttributeError, KeyError):
             return {}
 
-    def set_app_data(self, settings: dict) -> None:
+    def set_app_data(self, settings: RelationDataMapping) -> None:
         """Store data in peer app db."""
         self.interface.set_app_data(settings)
 
-    def get_app_data(self, key: str) -> Optional[str]:
+    def get_app_data(self, key: str) -> str | None:
         """Retrieve data from the peer relation."""
         return self.interface.get_app_data(key)
 
-    def leader_get(self, key: str) -> str:
+    def leader_get(self, key: str) -> str | None:
         """Retrieve data from the peer relation."""
-        return self.peers.get_app_data(key)
+        return self.interface.get_app_data(key)
 
-    def leader_set(self, settings: dict, **kwargs) -> None:
+    def leader_set(
+        self, settings: RelationDataMapping | None, **kwargs
+    ) -> None:
         """Store data in peer app db."""
         settings = settings or {}
         settings.update(kwargs)
@@ -639,13 +674,13 @@ class BasePeerHandler(RelationHandler):
         else:
             return json.loads(ready)
 
-    def set_unit_data(self, settings: Dict[str, str]) -> None:
+    def set_unit_data(self, settings: dict[str, str]) -> None:
         """Publish settings on the peer unit data bag."""
         self.interface.set_unit_data(settings)
 
     def get_all_unit_values(
         self, key: str, include_local_unit: bool = False
-    ) -> List[str]:
+    ) -> list[str]:
         """Retrieve value for key from all related units.
 
         :param include_local_unit: Include value set by local unit
@@ -659,13 +694,15 @@ class BasePeerHandler(RelationHandler):
 class CephClientHandler(RelationHandler):
     """Handler for ceph-client interface."""
 
+    interface: "ceph_client.CephClientRequires"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         allow_ec_overwrites: bool = True,
-        app_name: str = None,
+        app_name: str | None = None,
         mandatory: bool = False,
     ) -> None:
         """Run constructor."""
@@ -713,15 +750,22 @@ class CephClientHandler(RelationHandler):
             or config("rbd-pool")
             or self.charm.app.name
         )
-        metadata_pool_name = (
-            config("ec-rbd-metadata-pool") or f"{self.charm.app.name}-metadata"
+        # schema defined as str
+        metadata_pool_name: str = typing.cast(
+            str,
+            config("ec-rbd-metadata-pool")
+            or f"{self.charm.app.name}-metadata",
         )
-        weight = config("ceph-pool-weight")
-        replicas = config("ceph-osd-replication-count")
+        # schema defined as int and with a default
+        # weight is then managed as a float.
+        weight = float(typing.cast(int, config("ceph-pool-weight")))
+        # schema defined as int and with a default
+        replicas = typing.cast(int, config("ceph-osd-replication-count"))
         # TODO: add bluestore compression options
         if config("pool-type") == ERASURE_CODED:
             # General EC plugin config
-            plugin = config("ec-profile-plugin")
+            # schema defined as str and with a default
+            plugin = typing.cast(str, config("ec-profile-plugin"))
             technique = config("ec-profile-technique")
             device_class = config("ec-profile-device-class")
             bdm_k = config("ec-profile-k")
@@ -788,7 +832,7 @@ class CephClientHandler(RelationHandler):
         return self.interface.pools_available
 
     @property
-    def key(self) -> str:
+    def key(self) -> str | None:
         """Retrieve the cephx key provided for the application."""
         return self.interface.get_relation_data().get("key")
 
@@ -796,7 +840,11 @@ class CephClientHandler(RelationHandler):
         """Context containing Ceph connection data."""
         ctxt = super().context()
         data = self.interface.get_relation_data()
-        ctxt["mon_hosts"] = ",".join(sorted(data.get("mon_hosts")))
+        # mon_hosts is a list of sorted host strings
+        mon_hosts = typing.cast(list[str] | None, data.get("mon_hosts"))
+        if not mon_hosts:
+            return {}
+        ctxt["mon_hosts"] = ",".join(mon_hosts)
         ctxt["auth"] = data.get("auth")
         ctxt["key"] = data.get("key")
         ctxt["rbd_features"] = None
@@ -878,12 +926,8 @@ class _Store(abc.ABC):
 class TlsCertificatesHandler(RelationHandler):
     """Handler for certificates interface."""
 
-    if typing.TYPE_CHECKING:
-        from charms.tls_certificates_interface.v3.tls_certificates import (
-            TLSCertificatesRequiresV3,
-        )
-
-        interface: TLSCertificatesRequiresV3
+    interface: "tls_certificates.TLSCertificatesRequiresV3"
+    store: _Store
 
     class PeerStore(_Store):
         """Store private key secret id in peer storage relation."""
@@ -943,7 +987,7 @@ class TlsCertificatesHandler(RelationHandler):
 
     def __init__(
         self,
-        charm: ops.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         sans_dns: list[str] | None = None,
@@ -956,9 +1000,9 @@ class TlsCertificatesHandler(RelationHandler):
         self.sans_ips = sans_ips
         super().__init__(charm, relation_name, callback_f, mandatory)
         try:
-            self.store = self.PeerStore(
-                self.model.get_relation("peers"), self.get_entity()
-            )
+            peer_relation = self.model.get_relation("peers")
+            # TODO(gboutry): fix type ignore
+            self.store = self.PeerStore(peer_relation, self.get_entity())  # type: ignore[arg-type]
         except KeyError:
             if self.app_managed_certificates():
                 raise RuntimeError(
@@ -1269,9 +1313,11 @@ class TlsCertificatesHandler(RelationHandler):
 class IdentityCredentialsRequiresHandler(RelationHandler):
     """Handles the identity credentials relation on the requires side."""
 
+    interface: "identity_credentials.IdentityCredentialsRequires"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         mandatory: bool = False,
@@ -1333,9 +1379,11 @@ class IdentityCredentialsRequiresHandler(RelationHandler):
 class IdentityResourceRequiresHandler(RelationHandler):
     """Handles the identity resource relation on the requires side."""
 
+    interface: "identity_resource.IdentityResourceRequires"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         mandatory: bool = False,
@@ -1410,9 +1458,11 @@ class IdentityResourceRequiresHandler(RelationHandler):
 class CeilometerServiceRequiresHandler(RelationHandler):
     """Handle ceilometer service relation on the requires side."""
 
+    interface: "ceilometer_service.CeilometerServiceRequires"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         mandatory: bool = False,
@@ -1435,7 +1485,7 @@ class CeilometerServiceRequiresHandler(RelationHandler):
         """
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> None:
+    def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for Ceilometer service relation."""
         import charms.ceilometer_k8s.v0.ceilometer_service as ceilometer_svc
 
@@ -1483,9 +1533,11 @@ class CeilometerServiceRequiresHandler(RelationHandler):
 class CephAccessRequiresHandler(RelationHandler):
     """Handles the ceph access relation on the requires side."""
 
+    interface: "ceph_access.CephAccessRequires"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         mandatory: bool = False,
@@ -1510,17 +1562,19 @@ class CephAccessRequiresHandler(RelationHandler):
         import charms.cinder_ceph_k8s.v0.ceph_access as ceph_access
 
         logger.debug("Setting up the ceph-access event handler")
-        ceph_access = sunbeam_tracing.trace_type(
+        ceph_access_requires = sunbeam_tracing.trace_type(
             ceph_access.CephAccessRequires
         )(
             self.charm,
             self.relation_name,
         )
-        self.framework.observe(ceph_access.on.ready, self._ceph_access_ready)
         self.framework.observe(
-            ceph_access.on.goneaway, self._ceph_access_goneaway
+            ceph_access_requires.on.ready, self._ceph_access_ready
         )
-        return ceph_access
+        self.framework.observe(
+            ceph_access_requires.on.goneaway, self._ceph_access_goneaway
+        )
+        return ceph_access_requires
 
     def _ceph_access_ready(self, event: ops.framework.EventBase) -> None:
         """React to credential ready event."""
@@ -1556,10 +1610,12 @@ ExtraOpsProcess = Callable[[ops.EventBase, dict], None]
 class UserIdentityResourceRequiresHandler(RelationHandler):
     """Handle user management on IdentityResource relation."""
 
+    interface: "identity_resource.IdentityResourceRequires"
+
     CREDENTIALS_SECRET_PREFIX = "user-identity-resource-"
     CONFIGURE_SECRET_PREFIX = "configure-credential-"
 
-    resource_identifiers: FrozenSet[str] = frozenset(
+    resource_identifiers: frozenset[str] = frozenset(
         {
             "name",
             "email",
@@ -1574,23 +1630,23 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
 
     def __init__(
         self,
-        charm: ops.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         mandatory: bool,
         name: str,
         domain: str,
-        email: Optional[str] = None,
-        description: Optional[str] = None,
-        project: Optional[str] = None,
-        project_domain: Optional[str] = None,
+        email: str | None = None,
+        description: str | None = None,
+        project: str | None = None,
+        project_domain: str | None = None,
         enable: bool = True,
         may_exist: bool = True,
-        role: Optional[str] = None,
+        role: str | None = None,
         add_suffix: bool = False,
         rotate: ops.SecretRotate = ops.SecretRotate.NEVER,
-        extra_ops: Optional[List[Union[dict, Callable]]] = None,
-        extra_ops_process: Optional[ExtraOpsProcess] = None,
+        extra_ops: list[dict | Callable] | None = None,
+        extra_ops_process: ExtraOpsProcess | None = None,
     ):
         self.username = name
         super().__init__(charm, relation_name, callback_f, mandatory)
@@ -1698,20 +1754,23 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
             label=self.label,
             rotate=self.rotate,
         )
+        if not secret.id:
+            # We just created the secret, therefore id is always set
+            raise RuntimeError("Secret id not set")
         self.charm.leader_set({self.label: secret.id})
-        return secret.id  # type: ignore[union-attr]
+        return secret.id
 
     def _grant_ops_secret(self, relation: ops.Relation):
         secret = self.model.get_secret(id=self._ensure_credentials())
         secret.grant(relation)
 
-    def _get_credentials(self) -> Tuple[str, str]:
+    def _get_credentials(self) -> tuple[str, str]:
         credentials_id = self._ensure_credentials()
         secret = self.model.get_secret(id=credentials_id)
         content = secret.get_content(refresh=True)
         return content["username"], content["password"]
 
-    def get_config_credentials(self) -> Optional[Tuple[str, str]]:
+    def get_config_credentials(self) -> tuple[str, str] | None:
         """Get credential from config secret."""
         credentials_id = self.charm.leader_get(self.config_label)
         if not credentials_id:
@@ -1732,6 +1791,9 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
             secret = self.model.app.add_secret(
                 content, label=self.config_label
             )
+            if not secret.id:
+                # We just created the secret, therefore id is always set
+                raise RuntimeError("Secret id not set")
             self.charm.leader_set({self.config_label: secret.id})
             return True
 
@@ -1787,8 +1849,8 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
         return request
 
     def _create_role_requests(
-        self, username, domain: Optional[str]
-    ) -> List[dict]:
+        self, username, domain: str | None
+    ) -> list[dict]:
         requests = []
         if self.role:
             params = {
@@ -1832,7 +1894,7 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
                 )
         return requests
 
-    def _delete_user_request(self, users: List[str]) -> dict:
+    def _delete_user_request(self, users: list[str]) -> dict:
         requests = []
         for user in users:
             params = {"name": user}
@@ -1991,9 +2053,11 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
 class CertificateTransferRequiresHandler(RelationHandler):
     """Handle certificate transfer relation on the requires side."""
 
+    interface: "certificate_transfer.CertificateTransferRequires"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         mandatory: bool = False,
@@ -2016,7 +2080,7 @@ class CertificateTransferRequiresHandler(RelationHandler):
         """
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> None:
+    def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for tls relation."""
         logger.debug("Setting up certificate transfer event handler")
 
@@ -2073,9 +2137,11 @@ class CertificateTransferRequiresHandler(RelationHandler):
 class TraefikRouteHandler(RelationHandler):
     """Base class to handle traefik route relations."""
 
+    interface: "traefik_route.TraefikRouteRequirer"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         mandatory: bool = False,
@@ -2094,7 +2160,7 @@ class TraefikRouteHandler(RelationHandler):
 
         interface = sunbeam_tracing.trace_type(TraefikRouteRequirer)(
             self.charm,
-            self.model.get_relation(self.relation_name),
+            self.model.get_relation(self.relation_name),  # type: ignore # TraefikRouteRequirer has safeguards against None
             self.relation_name,
         )
 
@@ -2147,9 +2213,11 @@ class TraefikRouteHandler(RelationHandler):
 class NovaServiceRequiresHandler(RelationHandler):
     """Handle nova service relation on the requires side."""
 
+    interface: "nova_service.NovaServiceRequires"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
         mandatory: bool = False,
@@ -2172,7 +2240,7 @@ class NovaServiceRequiresHandler(RelationHandler):
         """
         super().__init__(charm, relation_name, callback_f, mandatory)
 
-    def setup_event_handler(self) -> None:
+    def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for Nova service relation."""
         import charms.nova_k8s.v0.nova_service as nova_svc
 
@@ -2216,9 +2284,11 @@ class NovaServiceRequiresHandler(RelationHandler):
 class LogForwardHandler(RelationHandler):
     """Handle log forward relation on the requires side."""
 
+    interface: "loki_push_api.LogForwarder"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         mandatory: bool = False,
     ):
@@ -2259,9 +2329,11 @@ class LogForwardHandler(RelationHandler):
 class TracingRequireHandler(RelationHandler):
     """Handle tracing relation on the requires side."""
 
+    interface: "tracing.TracingEndpointRequirer"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         relation_name: str,
         mandatory: bool = False,
         protocols: list[str] | None = None,
@@ -2297,10 +2369,11 @@ class TracingRequireHandler(RelationHandler):
 
     def tracing_endpoint(self) -> str | None:
         """Otlp endpoint for charm tracing."""
-        if self.ready():
+        if self.ready:
             return self.interface.get_endpoint("otlp_http")
         return None
 
+    @property
     def ready(self) -> bool:
         """Whether handler is ready for use."""
         return self.interface.is_ready()

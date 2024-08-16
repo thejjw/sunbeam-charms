@@ -21,12 +21,9 @@ in the container.
 
 import collections
 import logging
+import typing
 from collections.abc import (
     Callable,
-)
-from typing import (
-    List,
-    TypedDict,
 )
 
 import ops.charm
@@ -41,6 +38,12 @@ from ops.model import (
     WaitingStatus,
 )
 
+if typing.TYPE_CHECKING:
+    from ops_sunbeam.charm import (
+        OSBaseOperatorAPICharm,
+        OSBaseOperatorCharm,
+    )
+
 logger = logging.getLogger(__name__)
 
 ContainerDir = collections.namedtuple(
@@ -54,10 +57,10 @@ class PebbleHandler(ops.framework.Object):
 
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorCharm",
         container_name: str,
         service_name: str,
-        container_configs: List[sunbeam_core.ContainerConfigFile],
+        container_configs: list[sunbeam_core.ContainerConfigFile],
         template_dir: str,
         callback_f: Callable,
     ) -> None:
@@ -129,16 +132,16 @@ class PebbleHandler(ops.framework.Object):
             logger.debug("No file changes detected")
         return files_updated
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> ops.pebble.LayerDict:
         """Pebble configuration layer for the container."""
         return {}
 
-    def get_healthcheck_layer(self) -> dict:
+    def get_healthcheck_layer(self) -> ops.pebble.LayerDict:
         """Pebble configuration for health check layer for the container."""
         return {}
 
     @property
-    def directories(self) -> List[ContainerDir]:
+    def directories(self) -> list[ContainerDir]:
         """List of directories to create in container."""
         return []
 
@@ -165,7 +168,7 @@ class PebbleHandler(ops.framework.Object):
 
     def default_container_configs(
         self,
-    ) -> List[sunbeam_core.ContainerConfigFile]:
+    ) -> list[sunbeam_core.ContainerConfigFile]:
         """Generate default container configurations.
 
         These should be used by all inheriting classes and are
@@ -189,7 +192,7 @@ class PebbleHandler(ops.framework.Object):
         return all([s.is_running() for s in services.values()])
 
     def execute(
-        self, cmd: List, exception_on_error: bool = False, **kwargs: TypedDict
+        self, cmd: list[str], exception_on_error: bool = False, **kwargs
     ) -> str:
         """Execute given command in container managed by this handler.
 
@@ -214,10 +217,12 @@ class PebbleHandler(ops.framework.Object):
             return stdout
         except ops.pebble.ExecError as e:
             logger.error("Exited with code %d. Stderr:", e.exit_code)
-            for line in e.stderr.splitlines():
-                logger.error("    %s", line)
+            if e.stderr:
+                for line in e.stderr.splitlines():
+                    logger.error("    %s", line)
             if exception_on_error:
                 raise
+        return ""
 
     def add_healthchecks(self) -> None:
         """Add healthcheck layer to the plan."""
@@ -363,12 +368,14 @@ class ServicePebbleHandler(PebbleHandler):
 class WSGIPebbleHandler(PebbleHandler):
     """WSGI oriented handler for a Pebble managed container."""
 
+    charm: "OSBaseOperatorAPICharm"
+
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: "OSBaseOperatorAPICharm",
         container_name: str,
         service_name: str,
-        container_configs: List[sunbeam_core.ContainerConfigFile],
+        container_configs: list[sunbeam_core.ContainerConfigFile],
         template_dir: str,
         callback_f: Callable,
         wsgi_service_name: str,
@@ -406,7 +413,7 @@ class WSGIPebbleHandler(PebbleHandler):
         """Start the service."""
         self.start_wsgi()
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> ops.pebble.LayerDict:
         """Apache WSGI service pebble layer.
 
         :returns: pebble layer configuration for wsgi service
@@ -424,7 +431,7 @@ class WSGIPebbleHandler(PebbleHandler):
             },
         }
 
-    def get_healthcheck_layer(self) -> dict:
+    def get_healthcheck_layer(self) -> ops.pebble.LayerDict:
         """Apache WSGI health check pebble layer.
 
         :returns: pebble health check layer configuration for wsgi service
@@ -483,7 +490,7 @@ class WSGIPebbleHandler(PebbleHandler):
 
     def default_container_configs(
         self,
-    ) -> List[sunbeam_core.ContainerConfigFile]:
+    ) -> list[sunbeam_core.ContainerConfigFile]:
         """Container configs for WSGI service."""
         return [
             sunbeam_core.ContainerConfigFile(self.wsgi_conf, "root", "root")

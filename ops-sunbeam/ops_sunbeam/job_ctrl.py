@@ -20,16 +20,14 @@ case these helpers can limit how frequently they are run.
 
 import logging
 import time
+import typing
 from functools import (
     wraps,
-)
-from typing import (
-    TYPE_CHECKING,
 )
 
 import ops.framework
 
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     import ops_sunbeam.charm
 
 logger = logging.getLogger(__name__)

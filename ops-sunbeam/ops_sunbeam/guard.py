@@ -15,18 +15,21 @@
 """Module to handle errors and bailing out of an event/hook."""
 
 import logging
+import typing
 from contextlib import (
     contextmanager,
 )
 
-from ops.charm import (
-    CharmBase,
-)
 from ops.model import (
     BlockedStatus,
     MaintenanceStatus,
     WaitingStatus,
 )
+
+if typing.TYPE_CHECKING:
+    from ops_sunbeam.charm import (
+        OSBaseOperatorCharm,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -65,12 +68,12 @@ class WaitingExceptionError(BaseStatusExceptionError):
 
 @contextmanager
 def guard(
-    charm: "CharmBase",
+    charm: "OSBaseOperatorCharm",
     section: str,
     handle_exception: bool = True,
     log_traceback: bool = True,
     **__,
-) -> None:
+) -> typing.Generator:
     """Context manager to handle errors and bailing out of an event/hook.
 
     The nature of Juju is that all the information may not be available to run
