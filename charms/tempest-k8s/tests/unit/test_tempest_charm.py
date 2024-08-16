@@ -65,6 +65,7 @@ TEST_TEMPEST_ENV = {
     "TEMPEST_TEST_ACCOUNTS": "/var/lib/tempest/workspace/test_accounts.yaml",
     "TEMPEST_WORKSPACE": "tempest",
     "TEMPEST_WORKSPACE_PATH": "/var/lib/tempest/workspace",
+    "TEMPEST_CONFIG_OVERRIDES": "object-storage-feature-enabled.tempurl_digest_hashlib sha1",
 }
 
 
