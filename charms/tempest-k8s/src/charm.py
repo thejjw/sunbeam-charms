@@ -72,6 +72,9 @@ from utils.constants import (
     TEMPEST_WORKSPACE,
     TEMPEST_WORKSPACE_PATH,
 )
+from utils.overrides import (
+    get_swift_overrides,
+)
 from utils.types import (
     TempestEnvVariant,
 )
@@ -237,6 +240,15 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             return {}
         return {"OS_CACERT": OS_CACERT_PATH}
 
+    def _get_overrides_for_tempest_conf(self) -> str:
+        """Return a string of overrides.
+
+        The format should be section.key value section.key value
+        The returned value should be appened to discover-tempest-config
+        at the end to act as overrides to tempest config.
+        """
+        return get_swift_overrides()
+
     def _get_environment_for_tempest(
         self, variant: TempestEnvVariant
     ) -> Dict[str, str]:
@@ -270,6 +282,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_WORKSPACE": TEMPEST_WORKSPACE,
             "TEMPEST_WORKSPACE_PATH": TEMPEST_WORKSPACE_PATH,
             "TEMPEST_OUTPUT": variant.output_path(),
+            "TEMPEST_CONFIG_OVERRIDES": self._get_overrides_for_tempest_conf(),
         }
         tempest_env.update(self._get_proxy_environment())
         tempest_env.update(self._get_os_cacert_environment())

@@ -14,7 +14,7 @@ rm -rf "${TEMPEST_HOME}/.tempest"
 
 tempest init --name "$TEMPEST_WORKSPACE" "$TEMPEST_WORKSPACE_PATH"
 
-discover-tempest-config --out "$TEMPEST_CONF" --create
+discover-tempest-config --out "$TEMPEST_CONF" --create "$TEMPEST_CONFIG_OVERRIDES"
 
 tempest account-generator -r "$TEMPEST_ACCOUNTS_COUNT" -c "$TEMPEST_CONF" "$TEMPEST_TEST_ACCOUNTS"
 
