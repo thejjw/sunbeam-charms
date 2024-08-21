@@ -851,9 +851,13 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
         logger.debug("Received an ingress_changed event")
         if hasattr(self, "id_svc"):
             logger.debug(
-                "Updating service endpoints after ingress " "relation changed."
+                "Updating service endpoints after ingress relation changed."
             )
-            self.id_svc.update_service_endpoints(self.service_endpoints)
+            try:
+
+                self.id_svc.update_service_endpoints(self.service_endpoints)
+            except (AttributeError, KeyError):
+                pass
 
         self.configure_charm(event)
 
