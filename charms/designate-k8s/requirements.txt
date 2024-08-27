@@ -1,6 +1,6 @@
 ops
 jsonschema
-pydantic<2.0
+pydantic
 jinja2
 lightkube
 

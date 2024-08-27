@@ -6,7 +6,7 @@
 
 cryptography
 jinja2
-pydantic<2.0
+pydantic
 lightkube
 lightkube-models
 requests # Drop - not needed in storage backend interface.

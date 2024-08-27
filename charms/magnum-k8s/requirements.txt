@@ -1,6 +1,6 @@
 ops
 jinja2
-pydantic<2.0
+pydantic
 lightkube
 pwgen
 

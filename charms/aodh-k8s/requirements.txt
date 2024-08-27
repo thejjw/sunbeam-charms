@@ -1,7 +1,7 @@
 ops
 jinja2
 lightkube
-pydantic<2.0
+pydantic
 
 # Uncomment below if charm relates to ceph
 # git+https://github.com/openstack/charm-ops-interface-ceph-client#egg=interface_ceph_client

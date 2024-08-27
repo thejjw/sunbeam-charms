@@ -2,7 +2,7 @@ cryptography
 ops
 jinja2
 jsonschema
-pydantic<2.0
+pydantic
 lightkube
 
 # From ops_sunbeam
