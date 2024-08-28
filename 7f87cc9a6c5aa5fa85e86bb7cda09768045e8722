@@ -16,6 +16,23 @@
       "message": "recheck magnum dbsync retry failed",
       "revId": "7f87cc9a6c5aa5fa85e86bb7cda09768045e8722",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2180f770_f027076f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-08-28T00:29:13Z",
+      "side": 1,
+      "message": "recheck microk8s bootstrap failed",
+      "revId": "7f87cc9a6c5aa5fa85e86bb7cda09768045e8722",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
