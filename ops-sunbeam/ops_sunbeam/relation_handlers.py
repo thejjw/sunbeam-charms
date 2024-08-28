@@ -2377,3 +2377,73 @@ class TracingRequireHandler(RelationHandler):
     def ready(self) -> bool:
         """Whether handler is ready for use."""
         return self.interface.is_ready()
+
+
+@sunbeam_tracing.trace_type
+class GnocchiServiceRequiresHandler(RelationHandler):
+    """Handle gnocchi service relation on the requires side."""
+
+    def __init__(
+        self,
+        charm: "OSBaseOperatorCharm",
+        relation_name: str,
+        callback_f: Callable,
+        mandatory: bool = False,
+    ):
+        """Create a new gnocchi service handler.
+
+        Create a new GnocchiServiceRequiresHandler that handles initial
+        events from the relation and invokes the provided callbacks based on
+        the event raised.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param callback_f: the function to call when the nodes are connected
+        :type callback_f: Callable
+        :param mandatory: If the relation is mandatory to proceed with
+                          configuring charm
+        :type mandatory: bool
+        """
+        super().__init__(charm, relation_name, callback_f, mandatory)
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for Gnocchi service relation."""
+        import charms.gnocchi_k8s.v0.gnocchi_service as gnocchi_svc
+
+        logger.debug("Setting up Gnocchi service event handler")
+        svc = gnocchi_svc.GnocchiServiceRequires(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            svc.on.readiness_changed,
+            self._on_gnocchi_service_readiness_changed,
+        )
+        self.framework.observe(
+            svc.on.goneaway,
+            self._on_gnocchi_service_goneaway,
+        )
+        return svc
+
+    def _on_gnocchi_service_readiness_changed(
+        self, event: ops.framework.EventBase
+    ) -> None:
+        """Handle config_changed  event."""
+        logger.debug("Gnocchi service readiness changed event received")
+        self.callback_f(event)
+
+    def _on_gnocchi_service_goneaway(
+        self, event: ops.framework.EventBase
+    ) -> None:
+        """Handle gone_away  event."""
+        logger.debug("Gnocchi service gone away event received")
+        self.callback_f(event)
+        if self.mandatory:
+            self.status.set(BlockedStatus("integration missing"))
+
+    @property
+    def ready(self) -> bool:
+        """Whether handler is ready for use."""
+        return self.interface.service_ready
