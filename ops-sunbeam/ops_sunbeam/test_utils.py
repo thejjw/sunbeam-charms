@@ -51,6 +51,9 @@ from ops import (
     framework,
     model,
 )
+from ops.jujucontext import (
+    _JujuContext,
+)
 from ops.testing import (
     Harness,
     _TestingModelBackend,
@@ -800,7 +803,10 @@ def get_harness(
         actions=charm_actions,
     )
     harness._backend = _OSTestingModelBackend(
-        harness._unit_name, harness._meta, harness._get_config(charm_config)
+        harness._unit_name,
+        harness._meta,
+        harness._get_config(charm_config),
+        _JujuContext.from_dict({"JUJU_VERSION": "0.0.0"}),
     )
     harness._model = model.Model(harness._meta, harness._backend)  # type: ignore
     harness._framework = framework.Framework(
