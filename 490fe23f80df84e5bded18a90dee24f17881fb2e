@@ -16,6 +16,23 @@
       "message": "recheck microk8s bootstrap failure",
       "revId": "490fe23f80df84e5bded18a90dee24f17881fb2e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "054ba20d_c6ba4dec",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-08-29T01:10:01Z",
+      "side": 1,
+      "message": "recheck microk8s bootstrap failed",
+      "revId": "490fe23f80df84e5bded18a90dee24f17881fb2e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
