@@ -16,6 +16,24 @@
       "message": "There\u0027s a version set here, should just set it at line 809?",
       "revId": "11305024c04f685db38cac90d0b4af45533130ac",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "483fdfea_7fbaa2b2",
+        "filename": "ops-sunbeam/ops_sunbeam/test_utils.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 798,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-08-29T07:06:06Z",
+      "side": 1,
+      "message": "Fixed in next patchset",
+      "parentUuid": "1775681b_106f03d6",
+      "revId": "11305024c04f685db38cac90d0b4af45533130ac",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
