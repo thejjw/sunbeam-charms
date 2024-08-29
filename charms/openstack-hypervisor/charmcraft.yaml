@@ -22,4 +22,5 @@ parts:
     charm-binary-python-packages:
       - cryptography
       - jsonschema
+      - pydantic
       - jinja2
