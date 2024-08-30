@@ -310,6 +310,18 @@
       - rebuild
     vars:
       charm: sunbeam-clusterd
+- job:
+    name: charm-build-watcher-k8s
+    description: Build sunbeam watcher-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/watcher-k8s/*
+      - rebuild
+    vars:
+      charm: watcher-k8s
 
 - job:
     name: func-test-core
@@ -423,6 +435,8 @@
         soft: true
       - name: charm-build-aodh-k8s
         soft: true
+      - name: charm-build-watcher-k8s
+        soft: true
       - name: charm-build-keystone-k8s
         soft: true
     files:
@@ -432,6 +446,7 @@
       - charms/gnocchi-k8s/*
       - charms/ceilometer-k8s/*
       - charms/aodh-k8s/*
+      - charms/watcher-k8s/*
       - rebuild
     vars:
       charm_jobs:
@@ -440,6 +455,7 @@
         - charm-build-gnocchi-k8s
         - charm-build-ceilometer-k8s
         - charm-build-aodh-k8s
+        - charm-build-watcher-k8s
         - charm-build-keystone-k8s
       test_dir: tests/ceph
 - job:
@@ -879,6 +895,19 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/tempest-k8s/*
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-watcher-k8s
+    description: |
+      Publish watcher-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/watcher-k8s/*
       - rebuild
     secrets:
       - charmhub_token
