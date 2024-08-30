@@ -1,0 +1,73 @@
+[DEFAULT]
+debug = {{ options.debug }}
+transport_url = {{ amqp.transport_url }}
+
+{% include "parts/section-database" %}
+
+{% include "parts/section-identity" %}
+
+[watcher_clients_auth]
+{% include "parts/identity-data" %}
+
+
+{% include "parts/section-oslo-notifications" %}
+
+{% include "parts/section-oslo-messaging-rabbit" %}
+
+[api]
+# The listen IP address for the watcher API server (host address value)
+host = 0.0.0.0
+workers = 4
+
+[watcher_applier]
+# Number of workers for applier, default value is 1. (integer value)
+# Minimum value: 1
+workers = 4
+
+[watcher_decision_engine]
+# metric_map_path = /etc/watcher/metric_map.yaml
+
+[watcher_datasources]
+# ceilometer is deprecated, monasca is not supported in sunbeam-charms
+# grafana works only with InfluxDB
+# Available datasources are gnocchi 
+datasources = gnocchi
+
+{% if options.collector_plugins -%}
+[collector]
+# maas is not supported as baremetal collector as watcher strategy
+# implementations are not using baremetal collectors
+# https://opendev.org/openstack/watcher/commit/c95ce4ec17aa7844f64e97d67cf66c017d656c47
+# Not adding baremetal as ironic is not supported in sunbeam-charms
+collector_plugins = {{ options.collector_plugins }}
+{% endif -%}
+
+[cinder_client]
+region_name = {{ options.region }}
+
+[glance_client]
+region_name = {{ options.region }}
+
+[keystone_client]
+region_name = {{ options.region }}
+
+[neutron_client]
+region_name = {{ options.region }}
+
+[nova_client]
+region_name = {{ options.region }}
+
+[placement_client]
+region_name = {{ options.region }}
+
+[gnocchi_client]
+region_name = {{ options.region }}
+
+[ironic_client]
+region_name = {{ options.region }}
+
+{% if options.maas_url and options.maas_api_key -%}
+[maas_client]
+url = {{ options.maas_url }}
+api_key = {{ options.maas_api_key }}
+{% endif -%}
