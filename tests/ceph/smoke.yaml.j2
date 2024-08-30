@@ -77,8 +77,8 @@ applications:
     scale: 1
     trust: true
     resources:
-      gnocchi-api-image: ghcr.io/canonical/gnocchi-consolidated:2023.1
-      gnocchi-metricd-image: ghcr.io/canonical/gnocchi-consolidated:2023.1
+      gnocchi-api-image: ghcr.io/canonical/gnocchi-consolidated:2024.1
+      gnocchi-metricd-image: ghcr.io/canonical/gnocchi-consolidated:2024.1
   ceilometer:
     {% if ceilometer_k8s is defined and ceilometer_k8s is sameas true -%}
     charm: ../../../ceilometer-k8s.charm
@@ -108,6 +108,20 @@ applications:
       aodh-notifier-image: ghcr.io/canonical/aodh-consolidated:2024.1
       aodh-listener-image: ghcr.io/canonical/aodh-consolidated:2024.1
       aodh-expirer-image: ghcr.io/canonical/aodh-consolidated:2024.1
+  watcher:
+    {% if watcher_k8s is defined and watcher_k8s is sameas true -%}
+    charm: ../../../watcher-k8s.charm
+    {% else -%}
+    charm: ch:watcher-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@22.04
+    scale: 1
+    trust: true
+    resources:
+      watcher-api-image: ghcr.io/canonical/watcher-consolidated:2024.1
+      watcher-decision-engine-image: ghcr.io/canonical/watcher-consolidated:2024.1
+      watcher-applier-image: ghcr.io/canonical/watcher-consolidated:2024.1
 
 relations:
 - - mysql:database

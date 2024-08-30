@@ -1,0 +1,232 @@
+type: "charm"
+bases:
+  - build-on:
+    - name: "ubuntu"
+      channel: "22.04"
+    run-on:
+    - name: "ubuntu"
+      channel: "22.04"
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+
+  charm:
+    after: [update-certificates]
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - rustc
+      - cargo
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+
+name: watcher-k8s
+title: OpenStack watcher service
+summary: Resource Optimization service for OpenStack
+description: |
+  watcher-k8s is a charm for OpenStack Watcher service which
+  provides a flexible and scalable resource optimization
+  for multi-tenant OpenStack-based clouds.
+
+  The charm handles instantiation, scaling, configuration and
+  Day 2 operations for OpenStack Watcher services.
+
+links:
+  source: https://opendev.org/openstack/sunbeam-charms
+  issues: https://bugs.launchpad.net/sunbeam-charms
+
+assumes:
+- k8s-api
+- juju >= 3.1
+
+containers:
+  watcher-api:
+    resource: watcher-api-image
+  watcher-applier:
+    resource: watcher-applier-image
+  watcher-decision-engine:
+    resource: watcher-decision-engine-image
+
+resources:
+  watcher-api-image:
+    description: OCI image for OpenStack Watcher API
+    type: oci-image
+    upstream-source: ghcr.io/canonical/watcher-consolidated:2024.1
+  watcher-applier-image:
+    description: OCI image for OpenStack Watcher Applier service
+    type: oci-image
+    upstream-source: ghcr.io/canonical/watcher-consolidated:2024.1
+  watcher-decision-engine-image:
+    description: OCI image for OpenStack Watcher decision engine service
+    type: oci-image
+    upstream-source: ghcr.io/canonical/watcher-consolidated:2024.1
+
+requires:
+  amqp:
+    interface: rabbitmq
+    limit: 1
+  database:
+    interface: mysql_client
+    limit: 1
+  gnocchi-db:
+    interface: gnocchi
+    optional: true
+  identity-service:
+    interface: keystone
+    limit: 1
+  ingress-internal:
+    interface: ingress
+    limit: 1
+    optional: true
+  ingress-public:
+    interface: ingress
+    limit: 1
+  logging:
+    interface: loki_push_api
+    limit: 1
+    optional: true
+  receive-ca-cert:
+    interface: certificate_transfer
+    limit: 1
+    optional: true
+  tracing:
+    interface: tracing
+    limit: 1
+    optional: true
+
+peers:
+  peers:
+    interface: watcher-peer
+
+config:
+  options:
+    collector-plugins:
+      default: compute
+      description: |
+        A comma separated list of cluster data model plugin names.
+        .
+        Available collector-plugins are: compute and storage.
+      type: string
+    datasources:
+      default: gnocchi,grafana
+      description: |
+        Datasources to use in order to query the needed metrics. If one of
+        strategy metric is not available in the first datasource, the next
+        datasource will be chosen.
+        .
+        Available datasources are: gnocchi, grafana.
+      type: string
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+    enable-telemetry-notifications:
+      default: false
+      description: Enable notifications to send to telemetry.
+      type: boolean
+    grafana-attribute-map:
+      default: null
+      description: |
+        Mapping of datasource metrics to resource attributes. For a complete list
+        of available attributes see
+        https://docs.openstack.org/watcher/latest/datasources/grafana.html#attribute
+        .
+        Example:
+        host_cpu_usage:hostname,host_ram_usage:hostname,
+        instance_cpu_usage:name,instance_ram_usage:name
+      type: string
+    grafana-auth-token:
+      description: The authtoken for access to Grafana datasource.
+      type: string
+    grafana-base-url:
+      default: null
+      description: |
+        The base url parameter will need to specify the type of http protocol
+        and the use of plain text http is strongly discouraged due to the
+        transmission of the access token.
+        .
+        Additionally the path to the proxy interface needs to be supplied as
+        well in case Grafana is placed in a sub directory of the web server.
+        .
+        An example would be: https://mygrafana.org/api/datasource/proxy/
+      type: string
+    grafana-database-map:
+      default: null
+      description: |
+        Mapping of datasource metrics to Grafana databases.
+        .
+        Example:
+        host_cpu_usage:monit_production,host_ram_usage:monit_production,
+        instance_cpu_usage:prod_cloud,instance_ram_usage:prod_cloud
+      type: string
+    grafana-project-id-map:
+      default: null
+      description: |
+        Mapping of datasource metrics to Grafana project ids.
+        .
+        Example:
+        host_cpu_usage:1337,host_ram_usage:6969,
+        instance_cpu_usage:1337,instance_ram_usage:9696
+      type: string
+    grafana-query-map:
+      default: null
+      description: |
+        Mapping of datasource metrics to Grafana queries. Values should be
+        strings for which the .format method will transform it.
+        The transformation offers five parameters to the query labeled {0} to
+        {4}. {0} will be replaced with the aggregate, {1} with the resource
+        attribute, {2} with the period, {3} with the granularity and {4} with
+        translator specifics for InfluxDB this will be the retention period.
+        These queries will need to be constructed using tools such as Postman.
+        Example: SELECT cpu FROM {4}.cpu_percent WHERE host == '{1}' AND
+        time > now()-{2}s
+        .
+        Example:
+        host_cpu_usage:SELECT 100-{0}("{0}_value") FROM {4}.cpu WHERE
+        ("host" =~ /^{1}$/ AND "type_instance" =~/^idle$/ AND time > now()-{2}s),
+        host_ram_usage:SELECT {0}("{0}_value")/1000000 FROM {4}.memory WHERE
+        ("host" =~ /^{1}$/) AND "type_instance" =~ /^used$/ AND time >= now()-{2}s
+        GROUP BY "type_instance",instance_cpu_usage:SELECT {0}("{0}_value") FROM
+        "vmstats" WHERE host =~ /^{1}$/ AND "type_instance" =~ /^cpu$/ AND time >=
+        now() - {2}s GROUP BY host,instance_ram_usage:SELECT {0}("{0}_value") FROM
+        "vmstats" WHERE host =~ /^{1}$/ AND "type_instance" =~ /^mem$/ AND time >=
+        now() - {2}s GROUP BY host
+      type: string
+    grafana-retention-periods:
+      default: null
+      description: |
+        Keys are the names of retention periods in InfluxDB and the values should
+        correspond with the maximum time they can retain in seconds.
+        .
+        Example: one_week:10080,one_month:302400,five_years:525600
+      type: string
+    grafana-translator-map:
+      default: null
+      description: |
+        Mapping of datasource metrics to Grafana translators.
+        .
+        Example:
+        host_cpu_usage:influxdb,host_ram_usage:influxdb,
+        instance_cpu_usage:influxdb,instance_ram_usage:influxdb
+      type: string
+    maas_api_key:
+      description: MAAS API authentication key
+      type: string
+    maas_url:
+      description: MAAS URL to connect
+      type: string
+    region:
+      default: RegionOne
+      description: Name of the OpenStack region
+      type: string
+
+actions: {}
