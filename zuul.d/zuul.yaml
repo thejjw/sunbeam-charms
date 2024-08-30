@@ -52,3 +52,4 @@
         sunbeam-machine: 2024.1/edge
         sunbeam-clusterd: 2024.1/edge
         tempest-k8s: 2024.1/edge
+        watcher-k8s: 2024.1/edge
