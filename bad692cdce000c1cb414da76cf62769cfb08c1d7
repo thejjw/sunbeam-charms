@@ -16,6 +16,24 @@
       "message": "Are you planning to do similar changes for neutron and nova_compute rules as well? If so, can the changes go in single commit for all the components.",
       "revId": "bad692cdce000c1cb414da76cf62769cfb08c1d7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6d604130_6125a87b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2024-09-03T12:41:13Z",
+      "side": 1,
+      "message": "Hi Hemanth.\n\nThis issue just happens on cinder and neutron and nova-compute does not have this issue.\n\nThanks for asking",
+      "parentUuid": "993fee8f_40ac9ab8",
+      "revId": "bad692cdce000c1cb414da76cf62769cfb08c1d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
