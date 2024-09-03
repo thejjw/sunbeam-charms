@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "993fee8f_40ac9ab8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-09-03T05:03:33Z",
+      "side": 1,
+      "message": "Are you planning to do similar changes for neutron and nova_compute rules as well? If so, can the changes go in single commit for all the components.",
+      "revId": "bad692cdce000c1cb414da76cf62769cfb08c1d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
