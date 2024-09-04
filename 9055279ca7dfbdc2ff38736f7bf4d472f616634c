@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8dcdf284_240d7274",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-09-04T10:16:44Z",
+      "side": 1,
+      "message": "recheck intermittent error with installing microk8s",
+      "revId": "9055279ca7dfbdc2ff38736f7bf4d472f616634c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
