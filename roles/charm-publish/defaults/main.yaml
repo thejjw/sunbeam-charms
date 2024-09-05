@@ -23,3 +23,4 @@ publish_channels:
   openstack-hypervisor: latest/edge
   sunbeam-machine: latest/edge
   sunbeam-clusterd: latest/edge
+  watcher-k8s: latest/edge
