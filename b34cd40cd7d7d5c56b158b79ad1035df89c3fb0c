@@ -139,6 +139,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d4a71e16_23cef20b",
+        "filename": "charms/watcher-k8s/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-09-05T09:50:06Z",
+      "side": 1,
+      "message": "datasources is set to only gnocchi",
+      "parentUuid": "494ce87a_4a93de81",
+      "revId": "b34cd40cd7d7d5c56b158b79ad1035df89c3fb0c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1906a0ae_6019145e",
@@ -188,6 +206,24 @@
       "side": 1,
       "message": "Looking at [1] on InfluxDB as a Grafana proxied datasource (aka project) is supported and COS does not use InfluxDB AFAIK so I think we can only use Gnocchi at this point in time but I may be wrong!\n\n\n[1] https://docs.openstack.org/watcher/latest/datasources/grafana.html",
       "parentUuid": "adbd2441_6faaa945",
+      "revId": "b34cd40cd7d7d5c56b158b79ad1035df89c3fb0c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b7ade0d_75fd6598",
+        "filename": "charms/watcher-k8s/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-09-05T09:50:06Z",
+      "side": 1,
+      "message": "Removed grafana related config options",
+      "parentUuid": "5587a78f_2eeba44a",
       "revId": "b34cd40cd7d7d5c56b158b79ad1035df89c3fb0c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
