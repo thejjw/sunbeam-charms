@@ -33,6 +33,23 @@
       "message": "recheck juju connection failure",
       "revId": "9342f56111b78a50843e144cdd9ae5e1df7cf4b2",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5b3a44b_599947af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-09-05T12:44:24Z",
+      "side": 1,
+      "message": "recheck microk8s restart",
+      "revId": "9342f56111b78a50843e144cdd9ae5e1df7cf4b2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
