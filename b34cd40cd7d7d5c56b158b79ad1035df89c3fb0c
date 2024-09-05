@@ -86,6 +86,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e79b9a1_d1550741",
+        "filename": "charms/watcher-k8s/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-09-05T09:20:50Z",
+      "side": 1,
+      "message": "Fixed in PS6",
+      "parentUuid": "42e28dbd_1570a6ad",
+      "revId": "b34cd40cd7d7d5c56b158b79ad1035df89c3fb0c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "36bc2b14_d36e9de3",
@@ -99,6 +117,24 @@
       "writtenOn": "2024-09-05T08:52:41Z",
       "side": 1,
       "message": "I feel we should be opinionated here - I see relations for gnocchi, but not for grafana so it feels like having grafana as a supported datasource is not there yet - could we baseline with gnocchi, and add grafana as an extra option if observability is enable?",
+      "revId": "b34cd40cd7d7d5c56b158b79ad1035df89c3fb0c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "494ce87a_4a93de81",
+        "filename": "charms/watcher-k8s/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-09-05T09:20:50Z",
+      "side": 1,
+      "message": "see the other comment on grafana",
+      "parentUuid": "36bc2b14_d36e9de3",
       "revId": "b34cd40cd7d7d5c56b158b79ad1035df89c3fb0c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -122,6 +158,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "adbd2441_6faaa945",
+        "filename": "charms/watcher-k8s/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-09-05T09:20:50Z",
+      "side": 1,
+      "message": "1. Currently gnocchi is restricted to the following metric map [1] and there is config option to override the metric map. However it is not part of charm config just to be opinionated.\nHowever in case of grafana, there is no predefined metric map. The users have to defined the metric map based on the exposed config options [2]. And the metrics should be mapped to the corresponding names in grafana dashboard.\nI believe this can be done with an opinionated metric map.\n\n2. Getting information from relation:\ncharm watcher will be integrated with grafana-agent but not to the actual observability stack. I think the information whether the grafana-agent is connected to observability stack or not is not known by charm watcher.\nAlso the watcher workload connects to grafana via http calls and so the credentials of the observability stack should come from config parameters.\n\n3. The config parameter collector-plugins is an ordered list - gnocchi,grafana. Watcher collects for each metric sequentially starting from first collector and returns if found information.\nSo having both gnocchi, grafana with same opinionated metric map is also redundant (with the opinionated metric map).\nShall we have only gnocchi as the colelctor-plugin for now? \n\n\n[1] https://opendev.org/openstack/watcher/src/branch/master/watcher/decision_engine/datasources/gnocchi.py#L36\n[2] https://opendev.org/openstack/watcher/src/branch/master/watcher/conf/grafana_client.py",
+      "parentUuid": "1906a0ae_6019145e",
+      "revId": "b34cd40cd7d7d5c56b158b79ad1035df89c3fb0c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8703c84b_6638a87e",
         "filename": "charms/watcher-k8s/charmcraft.yaml",
         "patchSetId": 5
@@ -133,6 +187,24 @@
       "writtenOn": "2024-09-05T08:52:41Z",
       "side": 1,
       "message": "please use \u0027-\u0027 rather than \u0027_\u0027 in config option keys.",
+      "revId": "b34cd40cd7d7d5c56b158b79ad1035df89c3fb0c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc0f6669_daadf8d5",
+        "filename": "charms/watcher-k8s/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-09-05T09:20:50Z",
+      "side": 1,
+      "message": "Fixed in PS6",
+      "parentUuid": "8703c84b_6638a87e",
       "revId": "b34cd40cd7d7d5c56b158b79ad1035df89c3fb0c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
