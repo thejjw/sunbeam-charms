@@ -176,6 +176,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5587a78f_2eeba44a",
+        "filename": "charms/watcher-k8s/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 935
+      },
+      "writtenOn": "2024-09-05T09:26:44Z",
+      "side": 1,
+      "message": "Looking at [1] on InfluxDB as a Grafana proxied datasource (aka project) is supported and COS does not use InfluxDB AFAIK so I think we can only use Gnocchi at this point in time but I may be wrong!\n\n\n[1] https://docs.openstack.org/watcher/latest/datasources/grafana.html",
+      "parentUuid": "adbd2441_6faaa945",
+      "revId": "b34cd40cd7d7d5c56b158b79ad1035df89c3fb0c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8703c84b_6638a87e",
         "filename": "charms/watcher-k8s/charmcraft.yaml",
         "patchSetId": 5
