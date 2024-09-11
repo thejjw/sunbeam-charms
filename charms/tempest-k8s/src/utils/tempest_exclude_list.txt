@@ -23,3 +23,15 @@ tempest.api.identity.admin.v3.test_domains.DomainsTestJSON
 tempest.api.identity.admin.v3.test_policies.PoliciesTestJSON
 tempest.api.identity.admin.v3.test_services.ServicesTestJSON
 tempest.api.identity.admin.v3.test_trusts.TrustsV3TestJSON
+watcher_tempest_plugin.tests.api.admin.test_api_discovery.TestApiDiscovery
+watcher_tempest_plugin.tests.api.admin.test_audit.TestShowListAudit
+watcher_tempest_plugin.tests.api.admin.test_scoring_engine.TestShowListScoringEngine
+watcher_tempest_plugin.tests.api.admin.test_action_plan.TestCreateDeleteExecuteActionPlan
+watcher_tempest_plugin.tests.api.admin.test_audit.TestCreateUpdateDeleteAudit
+watcher_tempest_plugin.tests.api.admin.test_action.TestShowListAction
+watcher_tempest_plugin.tests.api.admin.test_action_plan.TestShowListActionPlan
+watcher_tempest_plugin.tests.api.admin.test_audit_template.TestAuditTemplate
+watcher_tempest_plugin.tests.api.admin.test_audit_template.TestCreateDeleteAuditTemplate
+watcher_tempest_plugin.tests.api.admin.test_goal.TestShowListGoal
+watcher_tempest_plugin.tests.api.admin.test_strategy.TestShowListStrategy
+watcher_tempest_plugin.tests.api.admin.test_service.TestShowListService
