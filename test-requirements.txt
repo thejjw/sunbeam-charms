@@ -9,6 +9,7 @@ python-keystoneclient      # keystone-k8s
 cryptography               # neutron-k8s
 jsonschema                 # neutron-k8s
 pytest-interface-tester<2  # barbican-k8s
+ops-scenario<7             # barbican-k8s, see bug https://github.com/canonical/pytest-interface-tester/issues/23
 pydantic<2                 # traefik-k8s ingress lib
 requests                   # cinder-ceph-k8s
 netifaces                  # cinder-ceph-k8s
