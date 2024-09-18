@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7801bb6a_fd4b3eeb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-09-18T10:17:25Z",
+      "side": 1,
+      "message": "func-test-caas is last success is an example of a job configuring the ephemeral storage device",
+      "revId": "473853ca18f03baf82e86543b11b55ed128e0c56",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
