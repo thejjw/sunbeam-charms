@@ -8,6 +8,10 @@
     path: "{{ zuul.project.src_dir }}/log"
     state: directory
     mode: 0755
+- name: collect disk usage
+  shell: df -h > {{ zuul.project.src_dir }}/log/df.txt
+- name: collect mount list
+  shell: mount > {{ zuul.project.src_dir }}/log/mount.txt
 - name: debug logs replay
   args:
     executable: /bin/bash

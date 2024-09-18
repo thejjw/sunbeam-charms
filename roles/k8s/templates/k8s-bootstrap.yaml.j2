@@ -1,0 +1,23 @@
+cluster-config:
+  network:
+    enabled: true
+  dns:
+    enabled: true
+    upstream-nameservers:
+      - 8.8.8.8
+  load-balancer:
+    enabled: true
+    cidrs:
+    - {{ k8s_load_balancer_cidr }}
+    l2-mode: true
+  local-storage:
+    enabled: true
+    default: true
+    local-path: /opt/rawfile-storage
+  ingress:
+    enabled: false
+  gateway:
+    enabled: false
+  metrics-server:
+    enabled: false
+pod-cidr: {{ k8s_pod_cidr }}
