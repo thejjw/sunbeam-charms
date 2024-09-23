@@ -91,7 +91,7 @@ class ClusterdClient:
     def ready(self) -> bool:
         """Is the cluster ready."""
         try:
-            self._get("cluster/1.0/ready")
+            self._get("/core/1.0/ready")
         except ClusterdUnavailableError:
             return False
         return True
@@ -99,7 +99,7 @@ class ClusterdClient:
     def shutdown(self):
         """Shutdown local clusterd."""
         try:
-            self._post("cluster/control/shutdown")
+            self._post("/core/control/shutdown")
         except requests.exceptions.HTTPError as e:
             if e.response is None:
                 raise e
@@ -115,7 +115,7 @@ class ClusterdClient:
     def bootstrap(self, name: str, address: str):
         """Bootstrap clusterd."""
         data = {"bootstrap": True, "address": address, "name": name}
-        self._post("/cluster/control", data=json.dumps(data))
+        self._post("/core/control", data=json.dumps(data))
 
     def join(self, name: str, address: str, token: str) -> None:
         """Join node to the micro cluster.
@@ -124,11 +124,11 @@ class ClusterdClient:
         joins the node with the given name and address.
         """
         data = {"join_token": token, "address": address, "name": name}
-        self._post("cluster/control", data=json.dumps(data))
+        self._post("core/control", data=json.dumps(data))
 
     def get_members(self) -> list[dict]:
         """Get cluster members."""
-        cluster = self._get("/cluster/1.0/cluster")["metadata"]
+        cluster = self._get("/core/1.0/cluster")["metadata"]
         return cluster
 
     def get_member(self, name) -> dict:
@@ -147,7 +147,7 @@ class ClusterdClient:
         """Delete node."""
         int_force = 1 if force else 0
         try:
-            self._delete(f"/cluster/1.0/cluster/{name}?force={int_force}")
+            self._delete(f"/core/1.0/cluster/{name}?force={int_force}")
         except requests.exceptions.HTTPError as e:
             if e.response is None:
                 raise e
@@ -178,7 +178,7 @@ class ClusterdClient:
         Generate a new token for the node with name.
         """
         data = {"name": name}
-        result = self._post("/cluster/1.0/tokens", data=json.dumps(data))
+        result = self._post("/core/control/tokens", data=json.dumps(data))
         return str(result["metadata"])
 
     def set_certs(self, ca: str, cert: str, key: str):

@@ -179,7 +179,7 @@ class ClusterdTest(test_utils.BaseCharmTest):
         )
         def _tenacity_handler() -> Tuple[str, str]:
             voter, spare = None, None
-            output = self._query_clusterd(unit, "GET", "/cluster/1.0/cluster")
+            output = self._query_clusterd(unit, "GET", "/core/1.0/cluster")
             metadata = output.get("metadata")
             if metadata is None:
                 logging.warning("No metadata from clusterd, %r", output)
@@ -217,6 +217,6 @@ class ClusterdTest(test_utils.BaseCharmTest):
             self.fail("No unit found for voter {}".format(voter))
         model.block_until_all_units_idle()
         model.block_until_unit_wl_status(units[0], "active", timeout=60 * 5)
-        output = self._query_clusterd(units[0], "GET", "/cluster/1.0/cluster")
+        output = self._query_clusterd(units[0], "GET", "/core/1.0/cluster")
         self.assertEqual(output["status_code"], 200)
         self.assertEqual(len(output["metadata"]), 1)
