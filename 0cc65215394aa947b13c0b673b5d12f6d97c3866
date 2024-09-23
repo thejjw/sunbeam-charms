@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49cdefe4_930fb11d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-09-23T16:22:13Z",
+      "side": 1,
+      "message": "Requires: https://github.com/canonical/snap-openstack/pull/330",
+      "revId": "0cc65215394aa947b13c0b673b5d12f6d97c3866",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
