@@ -1,0 +1,31 @@
+Listen {{ wsgi_config.public_port }}
+
+<VirtualHost *:{{ wsgi_config.public_port }}>
+    WSGIDaemonProcess {{ wsgi_config.name }} processes=4 threads=1 user={{ wsgi_config.user }} group={{ wsgi_config.group }} \
+                      display-name=%{GROUP}
+    WSGIProcessGroup {{ wsgi_config.name }}
+    {% if ingress_public and ingress_public.ingress_path -%}
+    WSGIScriptAlias {{ ingress_public.ingress_path }} {{ wsgi_config.wsgi_public_script }}
+    {% endif -%}
+    WSGIScriptAlias / {{ wsgi_config.wsgi_public_script }}
+    WSGIApplicationGroup %{GLOBAL}
+    WSGIPassAuthorization On
+    LimitRequestBody 114688
+
+    <IfVersion >= 2.4>
+      ErrorLogFormat "%{cu}t %M"
+    </IfVersion>
+
+    ErrorLog /var/log/apache2/masakari_error.log
+    CustomLog /var/log/apache2/masakari_access.log combined
+
+    <Directory /usr/bin>
+        <IfVersion >= 2.4>
+            Require all granted
+        </IfVersion>
+        <IfVersion < 2.4>
+            Order allow,deny
+            Allow from all
+        </IfVersion>
+    </Directory>
+</VirtualHost>
