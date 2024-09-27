@@ -324,6 +324,19 @@
       charm: watcher-k8s
 
 - job:
+    name: charm-build-masakari-k8s
+    description: Build sunbeam masakari-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/masakari-k8s/*
+      - rebuild
+    vars:
+      charm: masakari-k8s
+
+- job:
     name: func-test-core
     description: |
       Zaza smoke test for all the core sunbeam charms.
@@ -485,7 +498,6 @@
         soft: true
       - name: charm-build-ovn-central-k8s
         soft: true
-
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/heat-k8s/*
@@ -525,6 +537,8 @@
         soft: true
       - name: charm-build-horizon-k8s
         soft: true
+      - name: charm-build-masakari-k8s
+        soft: true
 
     files:
       - ops-sunbeam/ops_sunbeam/*
@@ -533,6 +547,7 @@
       - charms/keystone-ldap-k8s/*
       - charms/openstack-exporter-k8s/*
       - charms/horizon-k8s/*
+      - charms/masakari-k8s/*
       - rebuild
     vars:
       charm_jobs:
@@ -542,6 +557,7 @@
         - charm-build-openstack-exporter-k8s
         - charm-build-keystone-k8s
         - charm-build-horizon-k8s
+        - charm-build-masakari-k8s
       test_dir: tests/misc
 - job:
     name: func-test-machine
@@ -914,6 +930,19 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/watcher-k8s/*
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-masakari-k8s
+    description: |
+      Publish masakari-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/masakari-k8s/*
       - rebuild
     secrets:
       - charmhub_token
