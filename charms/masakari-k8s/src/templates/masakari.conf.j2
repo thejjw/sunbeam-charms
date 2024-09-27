@@ -1,0 +1,25 @@
+[DEFAULT]
+
+{% if amqp.transport_url %}
+transport_url = {{ amqp.transport_url }}
+{% endif %}
+
+graceful_shutdown_timeout = 5
+os_privileged_user_tenant = service
+os_privileged_user_password = admin
+os_privileged_user_auth_url = {{ identity_service.admin_auth_url }}
+os_privileged_user_name = nova
+logging_exception_prefix = %(color)s%(asctime)s.%(msecs)03d TRACE %(name)s [01;35m%(instance)s[00m
+logging_debug_format_suffix = [00;33mfrom (pid=%(process)d) %(funcName)s %(pathname)s:%(lineno)d[00m
+logging_default_format_string = %(asctime)s.%(msecs)03d %(color)s%(levelname)s %(name)s [[00;36m-%(color)s] [01;35m%(instance)s%(color)s%(message)s[00m
+logging_context_format_string = %(asctime)s.%(msecs)03d %(color)s%(levelname)s %(name)s [[01;36m%(request_id)s [00;36m%(project_name)s %(user_name)s%(color)s] [01;35m%(instance)s%(color)s%(message)s[00m
+use_syslog = False
+debug = True
+masakari_api_workers = 2
+
+{% include "parts/section-database" %}
+
+{% include "parts/section-identity" %}
+
+[taskflow]
+{% include "parts/database-connection" %}
