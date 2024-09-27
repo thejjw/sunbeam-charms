@@ -1,0 +1,124 @@
+type: "charm"
+bases:
+  - build-on:
+    - name: "ubuntu"
+      channel: "22.04"
+    run-on:
+    - name: "ubuntu"
+      channel: "22.04"
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after: [update-certificates]
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - rustc
+      - cargo
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+name: masakari-k8s
+title: OpenStack masakari service
+summary: Masakari - Instances High Availability Service
+description: |
+  Masakari provides Instances High Availability Service for OpenStack clouds by
+  automatically recovering failed Instances. Currently, Masakari can recover
+  KVM-based Virtual Machine(VM)s from failure events such as VM process down,
+  provisioning process down, and nova-compute host failure. Masakari also
+  provides an API service to manage and control the automated rescue mechanism.
+links:
+  source: https://opendev.org/openstack/sunbeam-charms
+  issues: https://bugs.launchpad.net/sunbeam-charms
+assumes:
+  - k8s-api
+  - juju >= 3.5
+containers:
+  masakari-api:
+    resource: masakari-image
+  masakari-engine:
+    resource: masakari-image
+  # Note(mylesjp): disabled until implemented
+  # host-monitor:
+  #   resource: masakari-image
+resources:
+  masakari-image:
+    description: OCI image for OpenStack Masakari services
+    type: oci-image
+    upstream-source: ghcr.io/canonical/masakari-consolidated:2024.1
+requires:
+  amqp:
+    interface: rabbitmq
+    limit: 1
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-service:
+    interface: keystone
+    limit: 1
+  ingress-internal:
+    interface: ingress
+    limit: 1
+    optional: true
+  ingress-public:
+    interface: ingress
+    limit: 1
+  logging:
+    interface: loki_push_api
+    limit: 1
+    optional: true
+  receive-ca-cert:
+    interface: certificate_transfer
+    limit: 1
+    optional: true
+  tracing:
+    interface: tracing
+    limit: 1
+    optional: true
+  # Note(mylesjp): consul disabled until charm is published
+  # consul-management:
+  #   interface: consul-client
+  #   limit: 1
+  # consul-tenant:  # Name TBD
+  #   interface: consul-client
+  #   limit: 1
+  #   optional: true
+  # consul-storage:
+  #   interface: consul-client
+  #   limit: 1
+  #   optional: true
+peers:
+  peers:
+    interface: masakari-peer
+config:
+  options:
+    debug:
+      default: False
+      description: Enable debug logging.
+      type: boolean
+    evacuation-delay:
+      type: int
+      default: 60
+      description: |
+        Number of seconds to wait before evacuation after a service is 
+        enabled or disabled.
+    evacuate-all-instances:
+      type: boolean
+      default: True
+      description: |
+        Whether to restrict instance evacuation to instances with ha enabled
+        in their metadata
+    region:
+      type: string
+      default: RegionOne
+      description: Name of the OpenStack region
+actions: {}

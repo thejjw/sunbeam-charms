@@ -102,6 +102,18 @@ applications:
     trust: true
     resources:
       horizon-image: ghcr.io/canonical/horizon:2024.1
+  masakari:
+    {% if masakari_k8s is defined and masakari_k8s is sameas true -%}
+    charm: ../../../masakari-k8s.charm
+    {% else -%}
+    charm: ch:masakari-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@22.04
+    scale: 1
+    trust: true
+    resources:
+      masakari-image: ghcr.io/canonical/masakari:2024.1
 
 relations:
 - - mysql:database
@@ -136,3 +148,12 @@ relations:
   - horizon:ingress-public
 - - keystone:send-ca-cert
   - horizon:receive-ca-cert
+
+- - mysql:database
+  - masakari:database
+- - rabbitmq:amqp
+  - masakari:amqp
+- - keystone:identity-service
+  - masakari:identity-service
+- - traefik:ingress
+  - masakari:ingress-public

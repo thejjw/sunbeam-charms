@@ -72,6 +72,8 @@
             nodeset: ubuntu-jammy
         - charm-build-magnum-k8s:
             nodeset: ubuntu-jammy
+        - charm-build-masakari-k8s:
+            nodeset: ubuntu-jammy
         - charm-build-designate-k8s:
             nodeset: ubuntu-jammy
         - charm-build-designate-bind-k8s:
@@ -128,6 +130,8 @@
         - charm-build-barbican-k8s:
             nodeset: ubuntu-jammy
         - charm-build-magnum-k8s:
+            nodeset: ubuntu-jammy
+        - charm-build-masakari-k8s:
             nodeset: ubuntu-jammy
         - charm-build-designate-k8s:
             nodeset: ubuntu-jammy
@@ -189,6 +193,8 @@
             - publish-charm-barbican-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-magnum-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-masakari-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-designate-k8s:
                 nodeset: ubuntu-jammy
