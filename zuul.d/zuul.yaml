@@ -45,6 +45,7 @@
         designate-k8s: 2024.1/edge
         designate-bind-k8s: 9/edge
         magnum-k8s: 2024.1/edge
+        masakari-k8s: 2024.1/edge
         keystone-ldap-k8s: 2024.1/edge
         openstack-exporter-k8s: 2024.1/edge
         openstack-hypervisor: 2024.1/edge
