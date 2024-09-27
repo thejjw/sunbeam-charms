@@ -918,3 +918,16 @@
     secrets:
       - charmhub_token
     timeout: 3600
+
+- job:
+    name: publish-charm-masakari-k8s
+    description: |
+      Publish masakari-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/masakari-k8s/*
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
