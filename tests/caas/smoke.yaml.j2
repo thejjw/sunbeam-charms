@@ -136,6 +136,19 @@ applications:
     resources:
       magnum-api-image: ghcr.io/canonical/magnum-consolidated:2024.1
       magnum-conductor-image: ghcr.io/canonical/magnum-consolidated:2024.1
+  masakari:
+    {% if masakari_k8s is defined and masakari_k8s is sameas true -%}
+    charm: ../../../masakari-k8s.charm
+    {% else -%}
+    charm: ch:masakari-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@22.04
+    scale: 1
+    trust: false
+    resources:
+      masakari-api-image: ghcr.io/canonical/masakari-consolidated:2024.1
+      masakari-engine-image: ghcr.io/canonical/masakari-consolidated:2024.1
 
 relations:
 - - tls-operator:certificates
@@ -212,3 +225,12 @@ relations:
   - magnum:ingress-public
 - - keystone:send-ca-cert
   - magnum:receive-ca-cert
+
+- - mysql:database
+  - masakari:database
+- - rabbitmq:amqp
+  - masakari:amqp
+- - keystone:identity-service
+  - masakari:identity-service
+- - traefik:ingress
+  - masakari:ingress-public
