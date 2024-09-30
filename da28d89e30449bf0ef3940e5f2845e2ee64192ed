@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4be6c23_de987654",
+        "filename": "charms/masakari-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-09-30T07:35:41Z",
+      "side": 1,
+      "message": "Can you get rid of all trailing spaces?",
+      "range": {
+        "startLine": 15,
+        "startChar": 28,
+        "endLine": 15,
+        "endChar": 34
+      },
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fcb01941_7e22e6a0",
+        "filename": "charms/masakari-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-09-30T07:35:41Z",
+      "side": 1,
+      "message": "I\u0027m not sure tenant is the right name for this interface, since tenant has been superseded by project",
+      "range": {
+        "startLine": 98,
+        "startChar": 11,
+        "endLine": 98,
+        "endChar": 17
+      },
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "52187add_fe490573",
+        "filename": "charms/masakari-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-09-30T07:35:41Z",
+      "side": 1,
+      "message": "Why do you override WSGIPebbleHandler? The default behavior of OSBaseOperatorAPICharm is to already have a WSGIPebbleHandler",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 71
+      },
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "49bc1d60_ecc87df8",
+        "filename": "charms/masakari-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-09-30T07:35:41Z",
+      "side": 1,
+      "message": "This is not needed, you can removed the __init__ altogether",
+      "range": {
+        "startLine": 51,
+        "startChar": 4,
+        "endLine": 54,
+        "endChar": 1
+      },
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a36aee3_2937a519",
+        "filename": "charms/masakari-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-09-30T07:35:41Z",
+      "side": 1,
+      "message": "You should do:\n```\npebble_handlers \u003d super().get_pebble_handlers() # this should already give you the service WSGI pebble handler\n...\nreturn pebble_handlers\n```",
+      "range": {
+        "startLine": 116,
+        "startChar": 6,
+        "endLine": 137,
+        "endChar": 9
+      },
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
