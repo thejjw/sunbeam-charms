@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7746401d_4e0ee8b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-01T05:05:13Z",
+      "side": 1,
+      "message": "Can you also add zuul charm build and integration tests",
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a4be6c23_de987654",
@@ -26,6 +43,40 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b1450d00_27f4b124",
+        "filename": "charms/masakari-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-01T05:05:13Z",
+      "side": 1,
+      "message": "trailing space/tab, check for similar in rest of the file",
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "571bd602_e9df31dd",
+        "filename": "charms/masakari-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-01T05:05:13Z",
+      "side": 1,
+      "message": "This should be 3.5 since this is tested on 3.5",
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fcb01941_7e22e6a0",
         "filename": "charms/masakari-k8s/charmcraft.yaml",
         "patchSetId": 3
@@ -43,6 +94,40 @@
         "endLine": 98,
         "endChar": 17
       },
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f5dd14d_dfbf62c8",
+        "filename": "charms/masakari-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-01T05:05:13Z",
+      "side": 1,
+      "message": "comment can be removed if not required",
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fb6b1891_9a116951",
+        "filename": "charms/masakari-k8s/requirements.txt",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-01T05:05:13Z",
+      "side": 1,
+      "message": "Can you check if all these requirements are necessary. Especially pwgen, lightkube* (not required if kubernetes_service_patch is not used)",
       "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -112,6 +197,91 @@
         "endLine": 137,
         "endChar": 9
       },
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eac270cd_3c1dc4f4",
+        "filename": "charms/masakari-k8s/src/templates/masakari.conf.j2",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-01T05:05:13Z",
+      "side": 1,
+      "message": "Hardcoded values, this should come from identity-service relation",
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f7f8f99e_e9b81b18",
+        "filename": "charms/masakari-k8s/src/templates/masakari.conf.j2",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-01T05:05:13Z",
+      "side": 1,
+      "message": "L#12 - L#15 may not be necessary",
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a879c90a_df0606f9",
+        "filename": "charms/masakari-k8s/src/templates/masakari.conf.j2",
+        "patchSetId": 3
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-01T05:05:13Z",
+      "side": 1,
+      "message": "Value should come from charm config options",
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68dc45b6_12aae25d",
+        "filename": "charms/masakari-k8s/tests/unit/__init__.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-01T05:05:13Z",
+      "side": 1,
+      "message": "2024",
+      "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bcbf3a5d_042b7eab",
+        "filename": "charms/masakari-k8s/tests/unit/test_charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-01T05:05:13Z",
+      "side": 1,
+      "message": "All Copyright for newly introduced files should be 2024",
       "revId": "da28d89e30449bf0ef3940e5f2845e2ee64192ed",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
