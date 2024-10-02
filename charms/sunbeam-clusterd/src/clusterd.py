@@ -188,7 +188,5 @@ class ClusterdClient:
         This is because we don't want microcluster to go full CA-mode.
         """
         self._put("/1.0/config/cluster-ca", data=ca)
-        data = {"public_key": cert, "private_key": key}
-        self._put(
-            "/cluster/internal/cluster/certificates", data=json.dumps(data)
-        )
+        data = {"cert": cert, "key": key}
+        self._put("/core/1.0/cluster/certificates/cluster", json=data)
