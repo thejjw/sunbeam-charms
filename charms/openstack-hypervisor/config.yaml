@@ -25,3 +25,6 @@ options:
   use-migration-binding:
     default: False
     type: boolean
+  use-data-binding:
+    default: False
+    type: boolean
