@@ -33,6 +33,24 @@
       "message": "I\u0027m not a big fan of defining a custom tld on our own. If there is a tld available for this kind of purposes as .internal why not use it by default? As it still allows users to change it if .internal is used for their corporate network for example.\n\nhttps://en.m.wikipedia.org/wiki/Top-level_domain#Reserved_domains",
       "revId": "d30142da5a546453384b00cc75eab22c6685831a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f20d0947_c3e02a94",
+        "filename": "charms/neutron-k8s/config.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-10-03T08:32:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9e19deb_f5f4a3c0",
+      "revId": "d30142da5a546453384b00cc75eab22c6685831a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
