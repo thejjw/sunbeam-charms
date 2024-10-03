@@ -68,6 +68,7 @@ from utils import (
 logger = logging.getLogger(__name__)
 
 MIGRATION_BINDING = "migration"
+DATA_BINDING = "data"
 MTLS_USAGES = {x509.OID_SERVER_AUTH, x509.OID_CLIENT_AUTH}
 
 
@@ -206,6 +207,20 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         if not use_binding:
             return None
         binding = self.model.get_binding(MIGRATION_BINDING)
+        if binding is None:
+            return None
+        address = binding.network.bind_address
+        if address is None:
+            return None
+        return str(address)
+
+    @property
+    def data_address(self) -> Optional[str]:
+        """Get address from data binding."""
+        use_binding = self.model.config.get("use-data-binding")
+        if not use_binding:
+            return None
+        binding = self.model.get_binding(DATA_BINDING)
         if binding is None:
             return None
         address = binding.network.bind_address
@@ -418,7 +433,9 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                     "external-bridge-address"
                 )
                 or "10.20.20.1/24",
-                "network.ip-address": config("ip-address") or local_ip,
+                "network.ip-address": self.data_address
+                or config("ip-address")
+                or local_ip,
                 "network.ovn-key": base64.b64encode(
                     contexts.certificates.key.encode()
                 ).decode(),
