@@ -33,6 +33,23 @@
       "message": "recheck\n\nceph tests timed out.",
       "revId": "5474a2f1f17cb5589dc413e6ab72a9f84851e64d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "474663b7_fc85ca8b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2024-10-04T21:21:06Z",
+      "side": 1,
+      "message": "recheck connection lost",
+      "revId": "5474a2f1f17cb5589dc413e6ab72a9f84851e64d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
