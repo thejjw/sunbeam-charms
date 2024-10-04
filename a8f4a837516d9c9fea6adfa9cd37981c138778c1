@@ -16,6 +16,24 @@
       "message": "Can you add charm-build-masakari-k8s as dependency and the corresponding files and vars. This will help in running test-caas with PR built charm.",
       "revId": "a8f4a837516d9c9fea6adfa9cd37981c138778c1",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "539bfd1c_db3d295d",
+        "filename": "zuul.d/jobs.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 478,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2024-10-04T15:21:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b9477ce_1f0b24bb",
+      "revId": "a8f4a837516d9c9fea6adfa9cd37981c138778c1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }

@@ -16,6 +16,24 @@
       "message": "As Hemanth suggested, you need to add masakari build job as a soft dependency to the caas job, or the functional test job might start before masakari is built.",
       "revId": "e978a903b6c492b6a2b340d5543a47ba68063757",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3bd14674_2c171486",
+        "filename": "zuul.d/jobs.yaml",
+        "patchSetId": 10
+      },
+      "lineNbr": 500,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2024-10-04T15:21:32Z",
+      "side": 1,
+      "message": "CAAS functional tests were failing due to lack of resources so I added masakari to misc.",
+      "parentUuid": "f9634c30_5b5c4650",
+      "revId": "e978a903b6c492b6a2b340d5543a47ba68063757",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
