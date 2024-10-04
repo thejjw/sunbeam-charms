@@ -45,9 +45,6 @@ from charms.designate_k8s.v0.designate_service import (
     DesignateEndpointRequestEvent,
     DesignateServiceProvides,
 )
-from ops.main import (
-    main,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -566,5 +563,5 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             logging.debug("DNS Endpoint not yet set, not sending config")
 
 
-if __name__ == "__main__":
-    main(DesignateOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(DesignateOperatorCharm)

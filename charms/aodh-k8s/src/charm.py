@@ -23,6 +23,7 @@ from typing import (
     List,
 )
 
+import ops
 import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
@@ -30,9 +31,6 @@ import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
-)
-from ops.main import (
-    main,
 )
 
 logger = logging.getLogger(__name__)
@@ -350,5 +348,5 @@ class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return pebble_handlers
 
 
-if __name__ == "__main__":
-    main(AodhOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(AodhOperatorCharm)

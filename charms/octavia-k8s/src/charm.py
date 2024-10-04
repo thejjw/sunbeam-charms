@@ -37,9 +37,6 @@ import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
 )
-from ops.main import (
-    main,
-)
 
 logger = logging.getLogger(__name__)
 OCTAVIA_API_CONTAINER = "octavia-api"
@@ -403,5 +400,5 @@ class OctaviaOVNOperatorCharm(OctaviaOperatorCharm):
         self._state.unit_bootstrapped = True
 
 
-if __name__ == "__main__":
-    main(OctaviaOVNOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(OctaviaOVNOperatorCharm)

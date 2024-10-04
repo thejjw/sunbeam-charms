@@ -25,6 +25,7 @@ from typing import (
 )
 
 import charms.ovn_central_k8s.v0.ovsdb as ovsdb
+import ops
 import ops.charm
 import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
@@ -41,9 +42,6 @@ import ovsdb as ch_ovsdb
 import tenacity
 from ops.framework import (
     StoredState,
-)
-from ops.main import (
-    main,
 )
 
 logger = logging.getLogger(__name__)
@@ -498,5 +496,5 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         )
 
 
-if __name__ == "__main__":
-    main(OVNCentralOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(OVNCentralOperatorCharm)

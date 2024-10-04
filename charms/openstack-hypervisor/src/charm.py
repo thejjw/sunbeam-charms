@@ -34,6 +34,7 @@ from typing import (
 )
 
 import charms.operator_libs_linux.v2.snap as snap
+import ops
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.core as sunbeam_core
@@ -57,9 +58,6 @@ from cryptography import (
 )
 from ops.charm import (
     ActionEvent,
-)
-from ops.main import (
-    main,
 )
 from utils import (
     get_local_ip_by_default_route,
@@ -561,4 +559,4 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    main(HypervisorOperatorCharm)
+    ops.main(HypervisorOperatorCharm)

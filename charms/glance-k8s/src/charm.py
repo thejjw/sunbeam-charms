@@ -29,6 +29,7 @@ from typing import (
     List,
 )
 
+import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.compound_status as compound_status
 import ops_sunbeam.config_contexts as sunbeam_ctxts
@@ -53,9 +54,6 @@ from ops.charm import (
 from ops.framework import (
     EventBase,
     StoredState,
-)
-from ops.main import (
-    main,
 )
 from ops.model import (
     ActiveStatus,
@@ -600,5 +598,5 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return bytes_from_string(pvc.status.capacity["storage"])
 
 
-if __name__ == "__main__":
-    main(GlanceOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(GlanceOperatorCharm)

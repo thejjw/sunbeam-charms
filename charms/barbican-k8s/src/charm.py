@@ -43,9 +43,6 @@ from ops import (
     model,
     pebble,
 )
-from ops.main import (
-    main,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -509,5 +506,5 @@ class BarbicanVaultOperatorCharm(BarbicanOperatorCharm):
             return None
 
 
-if __name__ == "__main__":
-    main(BarbicanVaultOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(BarbicanVaultOperatorCharm)

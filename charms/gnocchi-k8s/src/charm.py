@@ -44,9 +44,6 @@ from ops.framework import (
     EventBase,
     StoredState,
 )
-from ops.main import (
-    main,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -406,5 +403,5 @@ class GnocchiCephOperatorCharm(GnocchiOperatorCharm):
         return _cconfigs
 
 
-if __name__ == "__main__":
-    main(GnocchiCephOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(GnocchiCephOperatorCharm)

@@ -25,6 +25,7 @@ from typing import (
     List,
 )
 
+import ops
 import ops.framework
 import ops.model
 import ops.pebble
@@ -33,9 +34,6 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.tracing as sunbeam_tracing
-from ops.main import (
-    main,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -287,5 +285,5 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return "30s"
 
 
-if __name__ == "__main__":
-    main(HorizonOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(HorizonOperatorCharm)

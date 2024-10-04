@@ -31,6 +31,7 @@ from typing import (
 
 import charms.cinder_ceph_k8s.v0.ceph_access as sunbeam_ceph_access  # noqa
 import charms.cinder_k8s.v0.storage_backend as sunbeam_storage_backend  # noqa
+import ops
 import ops.charm
 import ops_sunbeam.charm as charm
 import ops_sunbeam.config_contexts as config_contexts
@@ -40,9 +41,6 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
-from ops.main import (
-    main,
-)
 from ops.model import (
     Relation,
     SecretRotate,
@@ -484,5 +482,5 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
                 self.send_ceph_access_credentials(relation)
 
 
-if __name__ == "__main__":
-    main(CinderCephOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(CinderCephOperatorCharm)

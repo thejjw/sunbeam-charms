@@ -25,6 +25,7 @@ from typing import (
     List,
 )
 
+import ops
 import ops.charm
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
@@ -38,9 +39,6 @@ from charms.ceilometer_k8s.v0.ceilometer_service import (
 )
 from ops.charm import (
     CharmBase,
-)
-from ops.main import (
-    main,
 )
 
 logger = logging.getLogger(__name__)
@@ -312,5 +310,5 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             logging.debug("Telemetry secret not yet set, not sending config")
 
 
-if __name__ == "__main__":
-    main(CeilometerOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(CeilometerOperatorCharm)

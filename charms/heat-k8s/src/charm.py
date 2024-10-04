@@ -39,9 +39,6 @@ import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
 )
-from ops.main import (
-    main,
-)
 from ops.model import (
     ModelError,
 )
@@ -686,5 +683,5 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             logger.warning("Heat stack user role creation failed.")
 
 
-if __name__ == "__main__":
-    main(HeatOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(HeatOperatorCharm)

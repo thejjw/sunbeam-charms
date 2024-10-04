@@ -59,5 +59,5 @@ class {{ cookiecutter.service_name[0]|upper}}{{cookiecutter.service_name[1:] }}O
         return {{ cookiecutter.ingress_port }}
 
 
-if __name__ == "__main__":
-    main({{ cookiecutter.service_name[0]|upper}}{{cookiecutter.service_name[1:] }}OperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main({{ cookiecutter.service_name[0]|upper}}{{cookiecutter.service_name[1:] }}OperatorCharm)
