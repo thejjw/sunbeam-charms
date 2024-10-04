@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d7abbfa3_84a3381a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2024-10-04T15:22:42Z",
+      "side": 1,
+      "message": "recheck\n\ntox -e cover passing locally. Could be one-off infrastructure issue.",
+      "revId": "919c0864b074e6dc6fc5bab2dbdc465e0a0a1d5e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
