@@ -16,6 +16,23 @@
       "message": "recheck\n\nPrevious test timed out waiting for magnum in the caas tests. I\u0027ve noticed this happens occasionally with local testing.",
       "revId": "5474a2f1f17cb5589dc413e6ab72a9f84851e64d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8938acc_f3f79886",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2024-10-04T18:41:06Z",
+      "side": 1,
+      "message": "recheck\n\nceph tests timed out.",
+      "revId": "5474a2f1f17cb5589dc413e6ab72a9f84851e64d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
