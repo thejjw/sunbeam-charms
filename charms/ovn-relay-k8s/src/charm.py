@@ -35,6 +35,7 @@ from typing import (
     Union,
 )
 
+import ops
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.ovn.charm as ovn_charm
@@ -48,9 +49,6 @@ from charms.observability_libs.v1.kubernetes_service_patch import (
 )
 from lightkube.models.core_v1 import (
     ServicePort,
-)
-from ops.main import (
-    main,
 )
 
 logger = logging.getLogger(__name__)
@@ -174,5 +172,5 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         return {}
 
 
-if __name__ == "__main__":
-    main(OVNRelayOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(OVNRelayOperatorCharm)

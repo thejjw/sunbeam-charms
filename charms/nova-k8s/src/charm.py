@@ -28,6 +28,7 @@ from typing import (
 )
 
 import charms.sunbeam_nova_compute_operator.v0.cloud_compute as cloud_compute
+import ops
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
@@ -41,9 +42,6 @@ from charms.nova_k8s.v0.nova_service import (
 )
 from ops.charm import (
     CharmBase,
-)
-from ops.main import (
-    main,
 )
 from ops.pebble import (
     ExecError,
@@ -851,5 +849,5 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             logging.debug("Nova spiceproxy not yet set, not sending config")
 
 
-if __name__ == "__main__":
-    main(NovaOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(NovaOperatorCharm)

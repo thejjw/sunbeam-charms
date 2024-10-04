@@ -6,8 +6,8 @@ This charm provide {{ cookiecutter.service_name[0]|upper}}{{cookiecutter.service
 
 import logging
 
+import ops
 from ops.framework import StoredState
-from ops.main import main
 
 import ops_sunbeam.charm as sunbeam_charm
 
@@ -59,5 +59,5 @@ class {{ cookiecutter.service_name[0]|upper}}{{cookiecutter.service_name[1:] }}O
         return {{ cookiecutter.ingress_port }}
 
 
-if __name__ == "__main__":
-    main({{ cookiecutter.service_name[0]|upper}}{{cookiecutter.service_name[1:] }}OperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main({{ cookiecutter.service_name[0]|upper}}{{cookiecutter.service_name[1:] }}OperatorCharm)

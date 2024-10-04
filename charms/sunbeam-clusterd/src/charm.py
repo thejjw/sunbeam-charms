@@ -29,6 +29,7 @@ from pathlib import (
 )
 
 import clusterd
+import ops
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
@@ -44,9 +45,6 @@ from charms.tls_certificates_interface.v3.tls_certificates import (
 )
 from cryptography import (
     x509,
-)
-from ops.main import (
-    main,
 )
 from ops_sunbeam.relation_handlers import (
     RelationHandler,
@@ -621,4 +619,4 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
 
 
 if __name__ == "__main__":  # pragma: nocover
-    main(SunbeamClusterdCharm)
+    ops.main(SunbeamClusterdCharm)

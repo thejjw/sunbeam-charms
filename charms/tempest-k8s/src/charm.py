@@ -42,9 +42,6 @@ from handlers import (
     TempestPebbleHandler,
     TempestUserIdentityRelationHandler,
 )
-from ops.main import (
-    main,
-)
 from ops.model import (
     ActiveStatus,
     MaintenanceStatus,
@@ -460,5 +457,5 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         print("\n".join(lists))
 
 
-if __name__ == "__main__":
-    main(TempestOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(TempestOperatorCharm)

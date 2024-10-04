@@ -33,9 +33,6 @@ import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
 )
-from ops.main import (
-    main,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -305,5 +302,5 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             logger.warning("Magnum domain admin role creation failed.")
 
 
-if __name__ == "__main__":
-    main(MagnumOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(MagnumOperatorCharm)

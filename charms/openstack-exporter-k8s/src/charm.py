@@ -34,9 +34,6 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
-from ops.main import (
-    main,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -395,5 +392,5 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                         break
 
 
-if __name__ == "__main__":
-    main(OSExporterOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(OSExporterOperatorCharm)

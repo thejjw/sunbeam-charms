@@ -23,15 +23,13 @@ subordinates that configure machine services.
 
 import logging
 
+import ops
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.tracing as sunbeam_tracing
 from charms.operator_libs_linux.v0 import (
     sysctl,
-)
-from ops.main import (
-    main,
 )
 
 ETC_ENVIRONMENT = "/etc/environment"
@@ -101,4 +99,4 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
 
 
 if __name__ == "__main__":  # pragma: nocover
-    main(SunbeamMachineCharm)
+    ops.main(SunbeamMachineCharm)

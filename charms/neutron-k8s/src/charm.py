@@ -40,9 +40,6 @@ import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
 )
-from ops.main import (
-    main,
-)
 from ops.model import (
     BlockedStatus,
 )
@@ -497,5 +494,5 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
         self._post_db_sync_restart()
 
 
-if __name__ == "__main__":
-    main(NeutronOVNOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(NeutronOVNOperatorCharm)

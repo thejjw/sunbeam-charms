@@ -31,14 +31,12 @@ from typing import (
 
 import charms.keystone_k8s.v0.domain_config as sunbeam_dc_svc
 import jinja2
+import ops
 import ops.charm
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as config_contexts
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
-from ops.main import (
-    main,
-)
 
 # Log messages can be retrieved using juju debug-log
 logger = logging.getLogger(__name__)
@@ -158,4 +156,4 @@ class KeystoneLDAPK8SCharm(sunbeam_charm.OSBaseOperatorCharm):
 
 
 if __name__ == "__main__":  # pragma: nocover
-    main(KeystoneLDAPK8SCharm)
+    ops.main(KeystoneLDAPK8SCharm)

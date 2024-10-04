@@ -50,6 +50,7 @@ import charms.keystone_k8s.v0.identity_resource as sunbeam_ops_svc
 import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
 import jinja2
 import keystoneauth1.exceptions
+import ops
 import ops.charm
 import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
@@ -70,9 +71,6 @@ from ops.charm import (
 )
 from ops.framework import (
     StoredState,
-)
-from ops.main import (
-    main,
 )
 from ops.model import (
     MaintenanceStatus,
@@ -1821,5 +1819,5 @@ export OS_AUTH_VERSION=3
         self._handle_certificate_transfers([event.relation])
 
 
-if __name__ == "__main__":
-    main(KeystoneOperatorCharm)
+if __name__ == "__main__":  # pragma: nocover
+    ops.main(KeystoneOperatorCharm)
