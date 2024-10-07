@@ -40,6 +40,8 @@ from unittest.mock import (
 
 import ops
 import ops.storage
+import yaml
+
 from ops_sunbeam.charm import (
     OSBaseOperatorCharm,
 )
@@ -790,10 +792,19 @@ def get_harness(
     charm_dir = pathlib.Path(filename).parents[2]
 
     if not charm_metadata:
-        metadata_file = f"{charm_dir}/metadata.yaml"
+        metadata_file = f"{charm_dir}/charmcraft.yaml"
         if os.path.isfile(metadata_file):
             with open(metadata_file) as f:
                 charm_metadata = f.read()
+
+    if charm_metadata:
+        loaded_metadata = yaml.safe_load(charm_metadata)
+
+    if not charm_config and (config := loaded_metadata.get("config")):
+        charm_config = yaml.safe_dump(config)
+
+    if not charm_actions and (actions := loaded_metadata.get("actions")):
+        charm_actions = yaml.safe_dump(actions)
 
     os.environ["JUJU_VERSION"] = "3.4.4"
     harness = Harness(

@@ -1,11 +1,76 @@
-type: "charm"
-bases:
-  - build-on:
-    - name: "ubuntu"
-      channel: "22.04"
-    run-on:
-    - name: "ubuntu"
-      channel: "22.04"
+type: charm
+name: placement-k8s
+summary: OpenStack placement service
+description: |
+  OpenStack Placement provides an HTTP service for managing, selecting,
+  and claiming providers of classes of inventory representing available
+  resources in a cloud.
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source:
+    - https://opendev.org/openstack/charm-placement-k8s
+  issues:
+    - https://bugs.launchpad.net/charm-placement-k8s
+
+base: ubuntu@22.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+    region:
+      default: RegionOne
+      description: Name of the OpenStack region
+      type: string
+
+containers:
+  placement-api:
+    resource: placement-api-image
+
+resources:
+  placement-api-image:
+    type: oci-image
+    description: OCI image for OpenStack Placement
+    upstream-source: ghcr.io/canonical/placement-api:2024.1
+
+requires:
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-service:
+    interface: keystone
+  ingress-internal:
+    interface: ingress
+    limit: 1
+  ingress-public:
+    interface: ingress
+    optional: true
+    limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+  logging:
+    interface: loki_push_api
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  placement:
+    interface: placement
+
+peers:
+  peers:
+    interface: placement-peer
+
 parts:
   update-certificates:
     plugin: nil
@@ -13,9 +78,9 @@ parts:
       apt update
       apt install -y ca-certificates
       update-ca-certificates
-
   charm:
-    after: [update-certificates]
+    after:
+      - update-certificates
     build-packages:
       - git
       - libffi-dev

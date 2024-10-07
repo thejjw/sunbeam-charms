@@ -1,11 +1,59 @@
 type: charm
-bases:
-  - build-on:
-    - name: ubuntu
-      channel: "22.04"
-    run-on:
-    - name: ubuntu
-      channel: "22.04"
+name: designate-bind-k8s
+summary: OpenStack designate-bind service
+description:
+  "Domain Name Service (DNS) is an Internet service that maps IP addresses\
+  \ and fully qualified domain names (FQDN) to one another.\nIn this way, DNS alleviates\
+  \ the need to remember IP addresses. Computers that run DNS are called name servers.\
+  \ \nUbuntu ships with BIND (Berkley Internet Naming Daemon), the most common program\
+  \ used for maintaining a name server on Linux.\n"
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source:
+    - https://opendev.org/openstack/charm-designate-bind-k8s
+  issues:
+    - https://bugs.launchpad.net/charm-designate-bind-k8s
+
+base: ubuntu@22.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+
+containers:
+  designate-bind:
+    resource: designate-bind-image
+
+resources:
+  designate-bind-image:
+    type: oci-image
+    description: OCI image for bind9
+    upstream-source: ubuntu/bind9:9.18-22.04_beta
+
+requires:
+  logging:
+    interface: loki_push_api
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  dns-backend:
+    interface: bind-rndc
+
+peers:
+  peers:
+    interface: bind-peer
+
 parts:
   update-certificates:
     plugin: nil
@@ -13,9 +61,9 @@ parts:
       apt update
       apt install -y ca-certificates
       update-ca-certificates
-
   charm:
-    after: [update-certificates]
+    after:
+      - update-certificates
     build-packages:
       - git
       - libffi-dev

@@ -21,12 +21,6 @@ import charm
 import ops_sunbeam.test_utils as test_utils
 import yaml
 
-charmcraft = (
-    pathlib.Path(__file__).parents[2] / "charmcraft.yaml"
-).read_text()
-config = yaml.dump(yaml.safe_load(charmcraft)["config"])
-
-
 class _OISOperatorCharm(charm.OpenstackImagesSyncK8SCharm):
     """Openstack Images Sync test charm."""
 
@@ -61,9 +55,7 @@ class TestOISOperatorCharm(test_utils.CharmTestCase):
         super().setUp(charm, self.PATCHES)
         self.harness = test_utils.get_harness(
             _OISOperatorCharm,
-            charm_metadata=charmcraft,
             container_calls=self.container_calls,
-            charm_config=config,
         )
 
         self.addCleanup(self.harness.cleanup)

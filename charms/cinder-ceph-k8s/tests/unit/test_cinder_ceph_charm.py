@@ -83,12 +83,9 @@ class TestCinderCephOperatorCharm(test_utils.CharmTestCase):
         """Setup fixtures ready for testing."""
         super().setUp(charm, self.PATCHES)
         self.mock_event = MagicMock()
-        with open("config.yaml", "r") as f:
-            config_data = f.read()
         self.harness = test_utils.get_harness(
             _CinderCephOperatorCharm,
             container_calls=self.container_calls,
-            charm_config=config_data,
         )
         mock_get_platform = patch(
             "charmhelpers.osplatform.get_platform", return_value="ubuntu"
