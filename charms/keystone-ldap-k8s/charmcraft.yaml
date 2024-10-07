@@ -1,11 +1,64 @@
-type: "charm"
-bases:
-  - build-on:
-    - name: "ubuntu"
-      channel: "22.04"
-    run-on:
-    - name: "ubuntu"
-      channel: "22.04"
+type: charm
+title: Keystone LDAP integration
+name: keystone-ldap-k8s
+summary: Keystone Domain backend for LDAP or Active Directory
+description: |
+  Keystone support the use of domain specific identity drivers,
+  allowing different types of authentication backend to be deployed in a single Keystone
+  deployment. This charm supports use of LDAP or Active Directory domain backends,
+  with configuration details provided by charm configuration options.
+
+base: ubuntu@22.04
+platforms:
+  amd64:
+
+config:
+  options:
+    domain-name:
+      type: string
+      default: null
+      description: |
+        Name of the keystone domain to configure; defaults to the deployed
+        application name.
+    ldap-config-flags:
+      type: string
+      default: null
+      description: |
+        The are ~50 LDAP configuration options supported by keystone.
+        Use a json like string with double quotes
+        and braces around all the options and single quotes around complex values.
+        "{user_tree_dn: 'DC=dc1,DC=ad,DC=example,DC=com',
+          user_allow_create: False,
+          user_allow_delete: False}"
+        See the README for more details.
+    tls-ca-ldap:
+      type: string
+      default: null
+      description: |
+        This option controls which certificate (or a chain) will be used to connect
+        to an ldap server(s) over TLS. Certificate contents should be either used
+        directly or included via include-file://
+        An LDAP url should also be considered as ldaps and StartTLS are both valid
+        methods of using TLS (see RFC 4513) with StartTLS using a non-ldaps url which,
+        of course, still requires a CA certificate.
+
+requires:
+  logging:
+    interface: loki_push_api
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  domain-config:
+    interface: keystone-domain-config
+
+peers:
+  peers:
+    interface: keystone-dc-peer
+
 parts:
   update-certificates:
     plugin: nil
@@ -13,9 +66,9 @@ parts:
       apt update
       apt install -y ca-certificates
       update-ca-certificates
-
   charm:
-    after: [update-certificates]
+    after:
+      - update-certificates
     build-packages:
       - git
       - libffi-dev

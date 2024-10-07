@@ -1,14 +1,87 @@
-# This file configures Charmcraft.
-# See https://juju.is/docs/sdk/charmcraft-config for guidance.
-
 type: charm
-bases:
-  - build-on:
-    - name: ubuntu
-      channel: "22.04"
-    run-on:
-    - name: ubuntu
-      channel: "22.04"
+title: Barbican
+name: barbican-k8s
+summary: Openstack Key Manager service
+description: |
+  Barbican is the OpenStack Key Manager service.
+  It provides secure storage, provisioning and management of secret data.
+  This includes keying material such as Symmetric Keys, Asymmetric Keys, Certificates and raw binary data.
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source:
+    - https://opendev.org/openstack/charm-barbican-k8s
+  issues:
+    - https://bugs.launchpad.net/charm-barbican-k8s
+
+base: ubuntu@22.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+    region:
+      default: RegionOne
+      description: Name of the OpenStack region
+      type: string
+
+containers:
+  barbican-api:
+    resource: barbican-api-image
+  barbican-worker:
+    resource: barbican-worker-image
+
+resources:
+  barbican-api-image:
+    type: oci-image
+    description: OCI image for OpenStack Barbican API
+    upstream-source: ghcr.io/canonical/barbican-consolidated:2024.1
+  barbican-worker-image:
+    type: oci-image
+    description: OCI image for OpenStack Barbican worker
+    upstream-source: ghcr.io/canonical/barbican-consolidated:2024.1
+
+requires:
+  ingress-internal:
+    interface: ingress
+    limit: 1
+    optional: true
+  ingress-public:
+    interface: ingress
+    limit: 1
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-service:
+    interface: keystone
+  identity-ops:
+    interface: keystone-resources
+    optional: true
+  amqp:
+    interface: rabbitmq
+  vault-kv:
+    interface: vault-kv
+    limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+  logging:
+    interface: loki_push_api
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+peers:
+  peers:
+    interface: barbican-peer
+
 parts:
   charm:
     build-packages:

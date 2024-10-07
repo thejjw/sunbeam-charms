@@ -1,2 +1,0 @@
-get-southbound-db-url:
-  description: Southbound DB Connection URL for access to OVN via the relay.

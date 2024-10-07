@@ -1,40 +1,18 @@
-name: openstack-images-sync-k8s
-
 type: charm
-
 title: OpenStack Images Sync K8S
-
+name: openstack-images-sync-k8s
 summary: Keep OpenStack images in sync with the latest versions
-
 description: |
   Openstack Images Sync operator allows synchronization from a SimpleStreams source to an OpenStack cloud.
 
-bases:
-  - build-on:
-      - name: ubuntu
-        channel: "22.04"
-    run-on:
-      - name: ubuntu
-        channel: "22.04"
-
-parts:
-  charm:
-    build-packages:
-      - git
-      - libffi-dev
-      - libssl-dev
-      - pkg-config
-      - rustc
-      - cargo
-    charm-binary-python-packages:
-      - cryptography
-      - jsonschema
-      - jinja2
+base: ubuntu@22.04
+platforms:
+  amd64:
 
 config:
   options:
     debug:
-      default: False
+      default: false
       type: boolean
     frequency:
       default: hourly
@@ -94,3 +72,17 @@ requires:
     interface: tracing
     optional: true
     limit: 1
+
+parts:
+  charm:
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc
+      - cargo
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - jinja2
