@@ -68,8 +68,8 @@
     type: string
     default: replicated
     description: |
-      Ceph pool type to use for storage - valid values include ‘replicated’
-      and ‘erasure-coded’.
+      Ceph pool type to use for storage - valid values include `replicated`
+      and `erasure-coded`.
   ec-profile-name:
     type: string
     default:
@@ -151,9 +151,9 @@
     description: |
       EC profile technique used for this applications pool - will be
       validated based on the plugin configured via ec-profile-plugin.
-      Supported techniques are ‘reed_sol_van’, ‘reed_sol_r6_op’,
-      ‘cauchy_orig’, ‘cauchy_good’, ‘liber8tion’ for jerasure,
-      ‘reed_sol_van’, ‘cauchy’ for isa and ‘single’, ‘multiple’
+      Supported techniques are `reed_sol_van`, `reed_sol_r6_op`,
+      `cauchy_orig`, `cauchy_good`, `liber8tion` for jerasure,
+      `reed_sol_van`, `cauchy` for isa and `single`, `multiple`
       for shec.
   ec-profile-device-class:
     type: string

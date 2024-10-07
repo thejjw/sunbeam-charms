@@ -5,7 +5,7 @@ description: |
   OpenStack {{ cookiecutter.service_name }} provides an HTTP service for managing, selecting,
   and claiming providers of classes of inventory representing available
   resources in a cloud.
-  .
+
 version: 3
 bases:
   - name: ubuntu
