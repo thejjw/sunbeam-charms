@@ -1,11 +1,115 @@
-type: "charm"
-bases:
-  - build-on:
-    - name: "ubuntu"
-      channel: "22.04"
-    run-on:
-    - name: "ubuntu"
-      channel: "22.04"
+type: charm
+name: aodh-k8s
+summary: OpenStack aodh service
+description: |
+  OpenStack aodh provides an HTTP service for managing, selecting,
+  and claiming providers of classes of inventory representing available
+  resources in a cloud.
+  .
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source:
+    - https://opendev.org/openstack/charm-aodh-k8s
+  issues:
+    - https://bugs.launchpad.net/charm-aodh-k8s
+
+base: ubuntu@22.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+    region:
+      default: RegionOne
+      description: Name of the OpenStack region
+      type: string
+    alarm-history-time-to-live:
+      default: -1
+      description: |
+        Number of seconds that alarm histories are kept in the database for (<= 0
+        means forever)
+      type: int
+    alarm-histories-delete-batch-size:
+      default: 0
+      description: |
+        Number of alarm histories to be deleted in one iteration from the database (0
+        means all). (integer value)
+      type: int
+
+containers:
+  aodh-api:
+    resource: aodh-api-image
+  aodh-evaluator:
+    resource: aodh-evaluator-image
+  aodh-notifier:
+    resource: aodh-notifier-image
+  aodh-listener:
+    resource: aodh-listener-image
+  aodh-expirer:
+    resource: aodh-expirer-image
+
+resources:
+  aodh-api-image:
+    type: oci-image
+    description: OCI image for OpenStack aodh api service
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2024.1
+  aodh-evaluator-image:
+    type: oci-image
+    description: OCI image for OpenStack aodh evaluator service
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2024.1
+  aodh-notifier-image:
+    type: oci-image
+    description: OCI image for OpenStack aodh notifier service
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2024.1
+  aodh-listener-image:
+    type: oci-image
+    description: OCI image for OpenStack aodh listener service
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2024.1
+  aodh-expirer-image:
+    type: oci-image
+    description: OCI image for OpenStack aodh expirer service
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2024.1
+
+requires:
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-service:
+    interface: keystone
+  ingress-internal:
+    interface: ingress
+    optional: true
+    limit: 1
+  ingress-public:
+    interface: ingress
+    limit: 1
+  amqp:
+    interface: rabbitmq
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+  logging:
+    interface: loki_push_api
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  aodh:
+    interface: aodh
+
+peers:
+  peers:
+    interface: aodh-peer
+
 parts:
   update-certificates:
     plugin: nil
@@ -13,9 +117,9 @@ parts:
       apt update
       apt install -y ca-certificates
       update-ca-certificates
-
   charm:
-    after: [update-certificates]
+    after:
+      - update-certificates
     build-packages:
       - git
       - libffi-dev

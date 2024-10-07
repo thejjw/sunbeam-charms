@@ -1,5 +1,0 @@
-options:
-  debug:
-    default: False
-    description: Enable debug logging.
-    type: boolean
