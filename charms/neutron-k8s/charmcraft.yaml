@@ -1,11 +1,167 @@
-type: "charm"
-bases:
-  - build-on:
-    - name: "ubuntu"
-      channel: "22.04"
-    run-on:
-    - name: "ubuntu"
-      channel: "22.04"
+type: charm
+name: neutron-k8s
+summary: OpenStack Networking API service
+description: |
+  Neutron is a virtual network service for OpenStack, and a part of
+  Netstack. Just like OpenStack Nova provides an API to dynamically
+  request and configure virtual servers, Neutron provides an API to
+  dynamically request and configure virtual networks. These networks
+  connect "interfaces" from other OpenStack services (e.g., virtual NICs
+  from Nova VMs). The Neutron API supports extensions to provide
+  advanced network capabilities (e.g., QoS, ACLs, network monitoring,
+  etc.)
+  .
+  This charm provides the OpenStack Neutron API service.
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source:
+    - https://opendev.org/openstack/charm-neutron-k8s
+  issues:
+    - https://bugs.launchpad.net/charm-neutron-k8s
+
+base: ubuntu@22.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+    dns-domain:
+      default: cloud.sunbeam.internal.
+      description: |
+        Specifies the dns domain name that should be used for building instance
+        hostnames. The value of 'openstacklocal' will cause
+        the dhcp agents to broadcast the default domain of openstacklocal and
+        will not enable internal cloud dns resolution. This value should end
+        with a '.', e.g. 'cloud.example.org.'.
+      type: string
+    region:
+      default: RegionOne
+      description: Name of the OpenStack region
+      type: string
+    vlan-ranges:
+      default: physnet1:1:4094
+      description: |
+        Space-delimited list of <physical_network>:<vlan_min>:<vlan_max> or
+        <physical_network> specifying physical_network names usable for VLAN
+        provider and tenant networks, as well as ranges of VLAN tags on each
+        available for allocation to tenant networks.
+      type: string
+    enable-igmp-snooping:
+      default: false
+      description: Enable IGMP snooping for integration bridge.
+      type: boolean
+    global-physnet-mtu:
+      type: int
+      default: 1500
+      description: |
+        MTU of the underlying physical network. Neutron uses this value to
+        calculate MTU for all virtual network components. For flat and
+        VLAN networks, neutron uses this value without modification. For
+        overlay networks such as Geneve, neutron automatically subtracts
+        the overlay protocol overhead from this value.
+    path-mtu:
+      type: int
+      default: 1500
+      description: |
+        Maximum size of an IP packet (MTU) that can traverse the
+        underlying physical network infrastructure without fragmentation
+        when using an overlay/tunnel protocol. This option allows
+        specifying a physical network MTU value that differs from the
+        default global-physnet-mtu value.
+    physical-network-mtus:
+      type: string
+      default: null
+      description: |
+        Space-delimited list of <physical_network>:<mtu> pairs specifying MTU for
+        individual physical networks.
+        .
+        Use this if a subset of your flat or VLAN provider networks have a MTU
+        that differ with what is set in global-physnet-mtu.
+    reverse-dns-lookup:
+      default: false
+      description: |
+        A boolean value specifying whether to enable or not the creation of
+        reverse lookup (PTR) records.
+        .
+        NOTE: Use only when integrating neutron-k8s charm to designate charm.
+      type: boolean
+    ipv4-ptr-zone-prefix-size:
+      default: 24
+      description: |
+        The size in bits of the prefix for the IPv4 reverse lookup (PTR) zones.
+        Valid size has to be multiple of 8, with maximum value of 24 and minimum
+        value of 8.
+        .
+        NOTE: Use only when "reverse-dns-lookup" option is set to "True".
+      type: int
+    ipv6-ptr-zone-prefix-size:
+      default: 64
+      description: |
+        The size in bits of the prefix for the IPv6 reverse lookup (PTR) zones.
+        Valid size has to be multiple of 4, with maximum value of 124 and minimum
+        value of 4.
+        .
+        NOTE: Use only when "reverse-dns-lookup" option is set to "True".
+      type: int
+
+containers:
+  neutron-server:
+    resource: neutron-server-image
+
+resources:
+  neutron-server-image:
+    type: oci-image
+    description: OCI image for OpenStack Neutron API
+    upstream-source: ghcr.io/canonical/neutron-server:2024.1
+
+requires:
+  ingress-internal:
+    interface: ingress
+    optional: true
+    limit: 1
+  ingress-public:
+    interface: ingress
+    limit: 1
+  database:
+    interface: mysql_client
+    limit: 1
+  amqp:
+    interface: rabbitmq
+  identity-service:
+    interface: keystone
+  ovsdb-cms:
+    interface: ovsdb-cms
+  certificates:
+    interface: tls-certificates
+    optional: true
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+  external-dns:
+    interface: designate
+    optional: true
+  logging:
+    interface: loki_push_api
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  neutron-api:
+    interface: neutron-api
+
+peers:
+  peers:
+    interface: neutron-peer
+
 parts:
   update-certificates:
     plugin: nil
@@ -13,9 +169,9 @@ parts:
       apt update
       apt install -y ca-certificates
       update-ca-certificates
-
   charm:
-    after: [update-certificates]
+    after:
+      - update-certificates
     build-packages:
       - git
       - libffi-dev

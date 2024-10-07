@@ -1,11 +1,105 @@
-type: "charm"
-bases:
-  - build-on:
-    - name: "ubuntu"
-      channel: "22.04"
-    run-on:
-    - name: "ubuntu"
-      channel: "22.04"
+type: charm
+name: octavia-k8s
+summary: OpenStack Octavia service
+description: |
+  OpenStack Octavia provides loadbalancing service for an OpenStack cloud.
+  Currently OVN Octavia provider driver is supported.
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source:
+    - https://opendev.org/openstack/charm-octavia-k8s
+  issues:
+    - https://bugs.launchpad.net/charm-octavia-k8s
+
+base: ubuntu@22.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+    region:
+      default: RegionOne
+      description: Name of the OpenStack region
+      type: string
+
+containers:
+  octavia-api:
+    resource: octavia-api-image
+    mounts:
+      - storage: agent-sockets
+        location: /var/run/octavia/
+  octavia-driver-agent:
+    resource: octavia-driver-agent-image
+    mounts:
+      - storage: agent-sockets
+        location: /var/run/octavia/
+  octavia-housekeeping:
+    resource: octavia-housekeeping-image
+
+resources:
+  octavia-api-image:
+    type: oci-image
+    description: OCI image for OpenStack octavia
+    upstream-source: ghcr.io/canonical/octavia-consolidated:2024.1
+  octavia-driver-agent-image:
+    type: oci-image
+    description: OCI image for OpenStack Octavia Driver Agent
+    upstream-source: ghcr.io/canonical/octavia-consolidated:2024.1
+  octavia-housekeeping-image:
+    type: oci-image
+    description: OCI image for OpenStack Octavia Housekeeping
+    upstream-source: ghcr.io/canonical/octavia-consolidated:2024.1
+
+storage:
+  agent-sockets:
+    type: filesystem
+    description: |
+      Storage for the location of agent sockets shared between octavia-api
+      and octavia-driver-agent
+    minimum-size: 100M
+
+requires:
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-service:
+    interface: keystone
+  ingress-internal:
+    interface: ingress
+    optional: true
+    limit: 1
+  ingress-public:
+    interface: ingress
+    limit: 1
+  ovsdb-cms:
+    interface: ovsdb-cms
+  certificates:
+    interface: tls-certificates
+    optional: true
+  identity-ops:
+    interface: keystone-resources
+    optional: true
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+  logging:
+    interface: loki_push_api
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+peers:
+  peers:
+    interface: octavia-peer
+
 parts:
   update-certificates:
     plugin: nil
@@ -13,9 +107,9 @@ parts:
       apt update
       apt install -y ca-certificates
       update-ca-certificates
-
   charm:
-    after: [update-certificates]
+    after:
+      - update-certificates
     build-packages:
       - git
       - libffi-dev

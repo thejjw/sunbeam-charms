@@ -1,11 +1,78 @@
-type: "charm"
-bases:
-  - build-on:
-    - name: "ubuntu"
-      channel: "22.04"
-    run-on:
-    - name: "ubuntu"
-      channel: "22.04"
+type: charm
+name: ceilometer-k8s
+summary: OpenStack ceilometer service
+description: |
+  OpenStack ceilometer provides an HTTP service for managing, selecting,
+  and claiming providers of classes of inventory representing available
+  resources in a cloud.
+  .
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source:
+    - https://opendev.org/openstack/charm-ceilometer-k8s
+  issues:
+    - https://bugs.launchpad.net/charm-ceilometer-k8s
+
+base: ubuntu@22.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+    region:
+      default: RegionOne
+      description: Name of the OpenStack region
+      type: string
+
+containers:
+  ceilometer-central:
+    resource: ceilometer-central-image
+  ceilometer-notification:
+    resource: ceilometer-notification-image
+
+resources:
+  ceilometer-central-image:
+    type: oci-image
+    description: OCI image for OpenStack ceilometer central
+    upstream-source: ghcr.io/canonical/ceilometer-consolidated:2024.1
+  ceilometer-notification-image:
+    type: oci-image
+    description: OCI image for OpenStack ceilometer
+    upstream-source: ghcr.io/canonical/ceilometer-consolidated:2024.1
+
+requires:
+  amqp:
+    interface: rabbitmq
+  identity-credentials:
+    interface: keystone-credentials
+    limit: 1
+  gnocchi-db:
+    interface: gnocchi
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+  logging:
+    interface: loki_push_api
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  ceilometer-service:
+    interface: ceilometer
+
+peers:
+  peers:
+    interface: ceilometer-peer
+
 parts:
   update-certificates:
     plugin: nil
@@ -13,9 +80,9 @@ parts:
       apt update
       apt install -y ca-certificates
       update-ca-certificates
-
   charm:
-    after: [update-certificates]
+    after:
+      - update-certificates
     build-packages:
       - git
       - libffi-dev

@@ -1,14 +1,97 @@
-# This file configures Charmcraft.
-# See https://juju.is/docs/sdk/charmcraft-config for guidance.
-
 type: charm
-bases:
-  - build-on:
-    - name: ubuntu
-      channel: "22.04"
-    run-on:
-    - name: ubuntu
-      channel: "22.04"
+title: OpenStack Hypervisor
+name: openstack-hypervisor
+summary: Deploy the OpenStack hypervisor
+description: |
+  Configure machine to run VMs as part of an OpenStack cloud.
+assumes:
+  - juju >= 3.1
+
+base: ubuntu@22.04
+platforms:
+  amd64:
+
+config:
+  options:
+    snap-channel:
+      default: 2024.1/edge
+      type: string
+    debug:
+      default: false
+      type: boolean
+    resume-on-boot:
+      default: true
+      description: |
+        Whether to resume the guest VMs when the host boots.
+      type: boolean
+    dns-servers:
+      default: 8.8.8.8
+      type: string
+    external-bridge:
+      default: br-ex
+      type: string
+    external-bridge-address:
+      default: 10.20.20.1/24
+      type: string
+    physnet-name:
+      default: physnet1
+      type: string
+    use-migration-binding:
+      default: false
+      type: boolean
+    use-data-binding:
+      default: false
+      type: boolean
+
+actions:
+  set-hypervisor-local-settings:
+    description: |
+      Apply settings specific to this hypervisor unit
+    params:
+      external-nic:
+        type: string
+        description: NIC that hypervisor will configure for North/South traffic
+      spice-proxy-address:
+        type: string
+        description: IP address to use for configuration of SPICE consoles in instances.
+      ip-address:
+        type: string
+        description: IP address to use for service configuration
+    additionalProperties: false
+
+requires:
+  amqp:
+    interface: rabbitmq
+  identity-credentials:
+    interface: keystone-credentials
+  ovsdb-cms:
+    interface: ovsdb-cms
+  certificates:
+    interface: tls-certificates
+    optional: true
+  ceilometer-service:
+    interface: ceilometer
+    optional: true
+  ceph-access:
+    interface: cinder-ceph-key
+    optional: true
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+  nova-service:
+    interface: nova
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  cos-agent:
+    interface: cos_agent
+
+extra-bindings:
+  migration: null
+  data: null
 
 parts:
   charm:

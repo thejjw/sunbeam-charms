@@ -1,13 +1,128 @@
-# Learn more about charmcraft.yaml configuration at:
-# https://juju.is/docs/sdk/charmcraft-config
-type: "charm"
-bases:
-  - build-on:
-    - name: "ubuntu"
-      channel: "22.04"
-    run-on:
-    - name: "ubuntu"
-      channel: "22.04"
+type: charm
+name: ovn-central-k8s
+summary: Open Virtual Network for Open vSwitch
+description: |
+  Principal charm that deploys ovn-northd, the OVN central control daemon,
+  and ovsdb-server, the Open vSwitch Database (OVSDB).
+
+  The ovn-northd daemon is responsible for translating the high-level OVN
+  configuration into logical configuration consumable by daemons such as
+  ovn-controller.
+
+  The ovn-northd process talks to OVN Northbound- and Southbound- databases.
+
+  The ovsdb-server exposes endpoints over relations implemented by the ovsdb
+  interface.
+
+  The charm supports clustering of the OVSDB, you must have a odd number of
+  units for this to work. Note that write performance decreases as you
+  increase the number of units.
+
+  Running multiple ovn-northd daemons is supported and they will operate in
+  active/passive mode. The daemon uses a locking feature in the OVSDB to
+  automatically choose a single active instance.
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source:
+    - https://opendev.org/x/charm-ovn-central-k8s
+  issues:
+    - https://bugs.launchpad.net/charm-ovn-central-k8s
+
+base: ubuntu@22.04
+platforms:
+  amd64:
+
+config:
+  options:
+    ovsdb-server-election-timer:
+      default: 4
+      type: int
+      description: |
+        Raft leader election timeout in seconds. The charm allows a value between
+        1 and 60 seconds.
+        .
+        The Open vSwitch ovsdb-server default of 1 second may not be sufficient
+        for a loaded cluster where the database server may be too busy serving
+        requests to respond to elections in time.
+        .
+        Using a higher value will increase the time to discover a real failure,
+        but you must weigh that against the risk of spurious leader flapping and
+        the unwanted churn that entails.
+        .
+        NOTE: The ovsdb-server will refuse to decrease or increase the value of
+        this timer more than 2x the current value. The charm will compensate for
+        this and decrease / increase the timer in increments, but care should be
+        taken to not decrease / increase the value too much in one operation.
+    ovsdb-server-inactivity-probe:
+      default: 60
+      type: int
+      description: |
+        Maximum number of seconds of idle time on connection to client before
+        sending an inactivity probe message.
+
+        The Open vSwitch ovsdb-server default of 5 seconds may not be sufficient
+        depending on type and load of the CMS you want to connect to OVN.
+
+containers:
+  ovn-sb-db-server:
+    resource: ovn-sb-db-server-image
+    mounts:
+      - storage: databases
+        location: /var/lib/ovn
+  ovn-nb-db-server:
+    resource: ovn-nb-db-server-image
+    mounts:
+      - storage: databases
+        location: /var/lib/ovn
+  ovn-northd:
+    resource: ovn-northd-image
+
+resources:
+  ovn-sb-db-server-image:
+    type: oci-image
+    description: OCI image for OVN Southbound Database Server
+    upstream-source: ghcr.io/canonical/ovn-consolidated:24.03
+  ovn-nb-db-server-image:
+    type: oci-image
+    description: OCI image for OVN Northbound Database Server
+    upstream-source: ghcr.io/canonical/ovn-consolidated:24.03
+  ovn-northd-image:
+    type: oci-image
+    description: OCI image for OVN Northd
+    upstream-source: ghcr.io/canonical/ovn-consolidated:24.03
+
+storage:
+  databases:
+    type: filesystem
+    description: |
+      Persistent storage for OVN Northbound and Southbound databases
+    minimum-size: 100M
+
+requires:
+  certificates:
+    interface: tls-certificates
+  logging:
+    interface: loki_push_api
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  ovsdb:
+    interface: ovsdb
+  ovsdb-cms:
+    interface: ovsdb-cms
+  ovsdb-server:
+    interface: ovsdb-cluster
+
+peers:
+  peers:
+    interface: ovn-central-peer
+
 parts:
   update-certificates:
     plugin: nil
@@ -15,9 +130,9 @@ parts:
       apt update
       apt install -y ca-certificates
       update-ca-certificates
-
   charm:
-    after: [update-certificates]
+    after:
+      - update-certificates
     build-packages:
       - git
       - libffi-dev

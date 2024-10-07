@@ -16,17 +16,8 @@
 
 """Tests for masakari-k8s charm."""
 
-from pathlib import (
-    Path,
-)
-
 import charm
 import ops_sunbeam.test_utils as test_utils
-import yaml
-
-charmcraft = (Path(__file__).parents[2] / "charmcraft.yaml").read_text()
-config = yaml.dump(yaml.safe_load(charmcraft)["config"])
-actions = yaml.dump(yaml.safe_load(charmcraft)["actions"])
 
 
 class _MasakariOperatorCharm(charm.MasakariOperatorCharm):
@@ -57,9 +48,6 @@ class TestMasakariOperatorCharm(test_utils.CharmTestCase):
         self.harness = test_utils.get_harness(
             _MasakariOperatorCharm,
             container_calls=self.container_calls,
-            charm_metadata=charmcraft,
-            charm_config=config,
-            charm_actions=actions,
         )
 
         from charms.data_platform_libs.v0.data_interfaces import (
