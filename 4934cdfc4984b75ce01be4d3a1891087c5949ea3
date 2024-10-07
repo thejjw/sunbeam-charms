@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8da7e6de_56acc22f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-07T02:44:04Z",
+      "side": 1,
+      "message": "Thanks for the contribution, seems good to me.\nWith this PR, the publish job will fail. You need to run `tox -e generate-token` to update the charmhub token.\n\nRequires to wrap up the unresolved review comments before merging this PR.\n\nGuillaume,\nThe wsgi conf file name is different from the base class and hence the override.",
+      "revId": "4934cdfc4984b75ce01be4d3a1891087c5949ea3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
