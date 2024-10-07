@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "2aa9916d36058a981f2a3ff862185da802734e76",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac482700_5b96f33b",
+        "filename": "ops-sunbeam/shared_code/sunbeam_charm/{{cookiecutter.service_name}}/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-07T09:09:57Z",
+      "side": 1,
+      "message": "Should be `import ops`",
+      "revId": "2aa9916d36058a981f2a3ff862185da802734e76",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
