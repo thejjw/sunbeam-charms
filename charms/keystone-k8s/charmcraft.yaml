@@ -1,11 +1,177 @@
-type: "charm"
-bases:
-  - build-on:
-    - name: "ubuntu"
-      channel: "22.04"
-    run-on:
-    - name: "ubuntu"
-      channel: "22.04"
+type: charm
+name: keystone-k8s
+summary: OpenStack identity service
+description: |
+  Keystone is an OpenStack project that provides Identity, Token, Catalog and
+  Policy services for use specifically by projects in the OpenStack family. It
+  implements OpenStack's Identity API.
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source:
+    - https://opendev.org/openstack/charm-keystone-k8s
+  issues:
+    - https://bugs.launchpad.net/charm-keystone-k8s
+
+base: ubuntu@22.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+    log-level:
+      default: WARNING
+      type: string
+      description: Log level (WARNING, INFO, DEBUG, ERROR)
+    region:
+      default: RegionOne
+      description: Name of the OpenStack region
+      type: string
+    catalog-cache-expiration:
+      type: int
+      default: 60
+      description: Amount of time (in seconds) the catalog should be cached for.
+    dogpile-cache-expiration:
+      type: int
+      default: 60
+      description: |
+        Amount of time (in seconds) to cache items in the dogpile.cache. This only applies
+        to cached methods that do not have an explicitly defined cache expiration time.
+    identity-backend:
+      type: string
+      default: sql
+      description: |
+        Keystone identity backend, valid options are sql and pam
+    enable-telemetry-notifications:
+      type: boolean
+      default: false
+      description: Enable notifications to send to telemetry.
+
+actions:
+  get-admin-password:
+    description: Get the password for the Keystone Admin user
+  get-admin-account:
+    description: Get full access details for the Keystone Admin user
+  get-service-account:
+    description: Create/get details for a new/existing service account.
+    params:
+      username:
+        type: string
+        description: The username for the service account.
+    required:
+      - username
+    additionalProperties: false
+  regenerate-password:
+    description: |
+      Regenerate password for the given user.
+    params:
+      username:
+        type: string
+        description: The username for the account.
+    required:
+      - username
+    additionalProperties: false
+  add-ca-certs:
+    description: |
+      Add CA certs for transfer
+    params:
+      name:
+        type: string
+        description: Name of CA certs bundle
+      ca:
+        type: string
+        description: Base64 encoded CA certificate
+      chain:
+        type: string
+        description: Base64 encoded CA Chain
+    required:
+      - name
+      - ca
+    additionalProperties: false
+  remove-ca-certs:
+    description: |
+      Remove CA certs
+    params:
+      name:
+        type: string
+        description: Name of CA certs bundle
+    required:
+      - name
+    additionalProperties: false
+  list-ca-certs:
+    description: |
+      List CA certs uploaded for transfer
+
+containers:
+  keystone:
+    resource: keystone-image
+    mounts:
+      - storage: fernet-keys
+        location: /etc/keystone/fernet-keys/
+      - storage: credential-keys
+        location: /etc/keystone/credential-keys/
+
+resources:
+  keystone-image:
+    type: oci-image
+    description: OCI image for OpenStack Keystone
+    upstream-source: ghcr.io/canonical/keystone:2024.1
+
+storage:
+  fernet-keys:
+    type: filesystem
+    description: |
+      Persistent storage for the location of fernet keys
+    minimum-size: 5M
+  credential-keys:
+    type: filesystem
+    description: |
+      Persistent storage for the location of credential keys
+    minimum-size: 5M
+
+requires:
+  database:
+    interface: mysql_client
+    limit: 1
+  ingress-internal:
+    interface: ingress
+    limit: 1
+    optional: true
+  ingress-public:
+    interface: ingress
+    limit: 1
+  amqp:
+    interface: rabbitmq
+    optional: true
+  domain-config:
+    interface: keystone-domain-config
+  logging:
+    interface: loki_push_api
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  identity-service:
+    interface: keystone
+  identity-credentials:
+    interface: keystone-credentials
+  identity-ops:
+    interface: keystone-resources
+  send-ca-cert:
+    interface: certificate_transfer
+
+peers:
+  peers:
+    interface: keystone-peer
+
 parts:
   update-certificates:
     plugin: nil
@@ -13,9 +179,9 @@ parts:
       apt update
       apt install -y ca-certificates
       update-ca-certificates
-
   charm:
-    after: [update-certificates]
+    after:
+      - update-certificates
     build-packages:
       - git
       - libffi-dev

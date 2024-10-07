@@ -1,34 +1,4 @@
-type: "charm"
-bases:
-  - build-on:
-    - name: "ubuntu"
-      channel: "22.04"
-    run-on:
-    - name: "ubuntu"
-      channel: "22.04"
-parts:
-  update-certificates:
-    plugin: nil
-    override-build: |
-      apt update
-      apt install -y ca-certificates
-      update-ca-certificates
-
-  charm:
-    after: [update-certificates]
-    build-packages:
-      - git
-      - libffi-dev
-      - libssl-dev
-      - rustc
-      - cargo
-      - pkg-config
-    charm-binary-python-packages:
-      - cryptography
-      - jsonschema
-      - pydantic
-      - jinja2
-
+type: charm
 name: tempest-k8s
 summary: OpenStack integration test suite (tempest)
 description: |
@@ -36,47 +6,17 @@ description: |
   or periodic fasion, against a live OpenStack cluster for OpenStack API
   validation, scenarios, and other specific tests useful in validating an
   OpenStack deployment.
-
 assumes:
   - k8s-api
   - juju >= 3.1
-
 links:
   source: https://opendev.org/openstack/sunbeam-charms
   issues: https://bugs.launchpad.net/sunbeam-charms
   documentation: https://discourse.charmhub.io/t/tempest-k8s-docs-index/13258
 
-containers:
-  tempest:
-    resource: tempest-image
-
-resources:
-  tempest-image:
-    type: oci-image
-    description: OCI image for tempest
-    # ghcr.io/canonical/tempest:2024.1
-    upstream-source: ghcr.io/canonical/tempest:2024.1
-
-requires:
-  identity-ops:
-    interface: keystone-resources
-  logging:
-    interface: loki_push_api
-  receive-ca-cert:
-    interface: certificate_transfer
-    optional: true
-  tracing:
-    interface: tracing
-    optional: true
-    limit: 1
-
-provides:
-  grafana-dashboard:
-    interface: grafana_dashboard
-
-peers:
-  peers:
-    interface: tempest-peer
+base: ubuntu@22.04
+platforms:
+  amd64:
 
 config:
   options:
@@ -86,7 +26,7 @@ config:
       description: Name of the OpenStack region
     schedule:
       type: string
-      default: "0 */1 * * *"
+      default: 0 */1 * * *
       description: |
         The cron schedule expression to define when to run tempest periodic checks.
 
@@ -158,7 +98,60 @@ actions:
         default: ""
         description: |
           Use a predefined test list. See `get-lists` for available test lists.
-
   get-lists:
     description: List existing test lists, to be used with validate action.
     additionalProperties: false
+
+containers:
+  tempest:
+    resource: tempest-image
+
+resources:
+  tempest-image:
+    type: oci-image
+    description: OCI image for tempest
+    upstream-source: ghcr.io/canonical/tempest:2024.1
+
+requires:
+  identity-ops:
+    interface: keystone-resources
+  logging:
+    interface: loki_push_api
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  grafana-dashboard:
+    interface: grafana_dashboard
+
+peers:
+  peers:
+    interface: tempest-peer
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - rustc
+      - cargo
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2

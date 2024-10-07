@@ -40,12 +40,9 @@ class TestCharm(test_utils.CharmTestCase):
     def setUp(self):
         """Setup Sunbeam machine tests."""
         super().setUp(charm, self.PATCHES)
-        with open("config.yaml", "r") as f:
-            config_data = f.read()
         self.harness = test_utils.get_harness(
             _SunbeamMachineCharm,
             container_calls=self.container_calls,
-            charm_config=config_data,
         )
         self.addCleanup(self.harness.cleanup)
 

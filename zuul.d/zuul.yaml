@@ -23,7 +23,7 @@
       env_type: k8s
       k8s_channel: 1.30-classic/candidate
       k8s_classic_mode: true
-      charmcraft_channel: 2.x/stable
+      charmcraft_channel: 3.x/stable
       publish_charm: true
       publish_channels:
         keystone-k8s: 2024.1/edge

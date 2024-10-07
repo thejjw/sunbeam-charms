@@ -1,11 +1,88 @@
-type: "charm"
-bases:
-  - build-on:
-    - name: "ubuntu"
-      channel: "22.04"
-    run-on:
-    - name: "ubuntu"
-      channel: "22.04"
+type: charm
+name: designate-k8s
+summary: OpenStack designate service
+description: |
+  Designate is a multi-tenant DNSaaS service for OpenStack. It provides a REST API with integrated Keystone authentication.
+  It can be configured to auto-generate records based on Nova and Neutron actions.
+  Designate supports a variety of DNS servers including Bind9 and PowerDNS 4.
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source:
+    - https://opendev.org/openstack/charm-designate-k8s
+  issues:
+    - https://bugs.launchpad.net/charm-designate-k8s
+
+base: ubuntu@22.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+    region:
+      default: RegionOne
+      description: Name of the OpenStack region
+      type: string
+    nameservers:
+      type: string
+      default: null
+      description: |
+        Space delimited list of nameservers. These are the nameservers that have
+        been provided to the domain registrar in order to delegate the domain to
+        Designate. e.g. "ns1.example.com. ns2.example.com."
+
+containers:
+  designate:
+    resource: designate-image
+
+resources:
+  designate-image:
+    type: oci-image
+    description: OCI image for OpenStack designate
+    upstream-source: ghcr.io/canonical/designate-consolidated:2024.1
+
+requires:
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-service:
+    interface: keystone
+  ingress-internal:
+    interface: ingress
+    optional: true
+    limit: 1
+  ingress-public:
+    interface: ingress
+    limit: 1
+  amqp:
+    interface: rabbitmq
+  dns-backend:
+    interface: bind-rndc
+    limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+  logging:
+    interface: loki_push_api
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  dnsaas:
+    interface: designate
+
+peers:
+  peers:
+    interface: designate-peer
+
 parts:
   update-certificates:
     plugin: nil
@@ -13,9 +90,9 @@ parts:
       apt update
       apt install -y ca-certificates
       update-ca-certificates
-
   charm:
-    after: [update-certificates]
+    after:
+      - update-certificates
     build-packages:
       - git
       - libffi-dev
