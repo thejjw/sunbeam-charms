@@ -90,6 +90,7 @@ class TestCharm(test_utils.CharmTestCase):
             "openstack-hypervisor": hypervisor_snap_mock
         }
         self.socket.getfqdn.return_value = "test.local"
+        self.socket.gethostname.return_value = "test"
         self.initial_setup()
         self.harness.set_leader()
 
@@ -202,6 +203,7 @@ class TestCharm(test_utils.CharmTestCase):
             "openstack-hypervisor": hypervisor_snap_mock
         }
         self.socket.getfqdn.return_value = "test.local"
+        self.socket.gethostname.return_value = "test"
         self.initial_setup()
         self.harness.set_leader()
         test_utils.add_complete_amqp_relation(self.harness)

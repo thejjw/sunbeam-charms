@@ -240,6 +240,15 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         self.enable_monitoring = False
         self.configure_charm(event)
 
+    def get_domain_name_sans(self) -> list[str]:
+        """Get Domain names for service."""
+        sans = super().get_domain_name_sans()
+        sans.append(socket.getfqdn())
+        sans.append(socket.gethostname())
+        if self.migration_address:
+            sans.append(socket.getfqdn(self.migration_address))
+        return sans
+
     def get_relation_handlers(
         self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
