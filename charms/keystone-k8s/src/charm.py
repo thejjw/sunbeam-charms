@@ -1448,7 +1448,7 @@ export OS_AUTH_VERSION=3
     def internal_endpoint(self):
         """Internal endpoint for keystone api."""
         if self.ingress_internal and self.ingress_internal.url:
-            return self.ingress_internal.url + "/v3"
+            return self.ingress_internal.url.removesuffix("/") + "/v3"
 
         internal_hostname = self.model.get_binding(
             self.IDSVC_RELATION_NAME
@@ -1459,7 +1459,7 @@ export OS_AUTH_VERSION=3
     def public_endpoint(self):
         """Public endpoint for keystone api."""
         if self.ingress_public and self.ingress_public.url:
-            return self.ingress_public.url + "/v3"
+            return self.ingress_public.url.removesuffix("/") + "/v3"
 
         address = self.public_ingress_address
         if not address:

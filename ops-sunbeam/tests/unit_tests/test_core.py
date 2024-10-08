@@ -333,9 +333,9 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
         # Add ingress relation
         test_utils.add_complete_ingress_relation(self.harness)
         self.assertEqual(
-            self.harness.charm.internal_url, "http://internal-url:80"
+            self.harness.charm.internal_url, "http://internal-url:80/"
         )
-        self.assertEqual(self.harness.charm.public_url, "http://public-url:80")
+        self.assertEqual(self.harness.charm.public_url, "http://public-url:80/")
 
     @patch("ops_sunbeam.charm.Client")
     def test_endpoint_urls_no_ingress(self, mock_client: patch) -> None:
