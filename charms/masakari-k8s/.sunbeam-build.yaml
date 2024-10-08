@@ -1,4 +1,5 @@
 external-libraries:
+  - charms.consul_k8s.v0.consul_cluster
   - charms.data_platform_libs.v0.data_interfaces
   - charms.rabbitmq_k8s.v0.rabbitmq
   - charms.traefik_k8s.v2.ingress

@@ -114,6 +114,14 @@ applications:
     trust: true
     resources:
       masakari-image: ghcr.io/canonical/masakari-consolidated:2024.1
+  consul:
+    charm: consul-k8s
+    channel: 1.19/edge
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      consul-image: ghcr.io/canonical/consul:1.19.2
 
 relations:
 - - mysql:database
@@ -157,3 +165,6 @@ relations:
   - masakari:identity-service
 - - traefik:ingress
   - masakari:ingress-public
+
+- - masakari:consul-management
+  - consul:consul-cluster

@@ -47,6 +47,8 @@ containers:
     resource: masakari-image
   masakari-engine:
     resource: masakari-image
+  masakari-hostmonitor:
+    resource: masakari-image
 
 resources:
   masakari-image:
@@ -83,18 +85,18 @@ requires:
     interface: tracing
     limit: 1
     optional: true
-# Note(mylesjp): consul disabled until charm is published
-# consul-management:
-#   interface: consul-client
-#   limit: 1
-# consul-tenant:  # Name TBD
-#   interface: consul-client
-#   limit: 1
-#   optional: true
-# consul-storage:
-#   interface: consul-client
-#   limit: 1
-#   optional: true
+  consul-management:
+    interface: consul-cluster
+    limit: 1
+    optional: true
+  consul-tenant:
+    interface: consul-cluster
+    limit: 1
+    optional: true
+  consul-storage:
+    interface: consul-cluster
+    limit: 1
+    optional: true
 
 peers:
   peers:
