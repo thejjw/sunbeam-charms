@@ -33,6 +33,23 @@
       "message": "recheck Download charm failed\n\nIntermittent issue\nERROR cannot deploy controller application: deploying charmhub controller charm: downloading charm \"juju-controller\" from origin {charm-hub charm   0xc000646460 3.5/stable amd64/ubuntu/24.04 }: unexpected EOF",
       "revId": "87782622dd2f684bc53be04d968455828379b8a5",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "215ebb4a_68adf440",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-08T12:17:29Z",
+      "side": 1,
+      "message": "recheck k8s restart",
+      "revId": "87782622dd2f684bc53be04d968455828379b8a5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
