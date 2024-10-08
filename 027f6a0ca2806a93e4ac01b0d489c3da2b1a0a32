@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a671fc4a_25095e2d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-10-08T20:28:30Z",
+      "side": 1,
+      "message": "Minor comments, otherwise this looks good!\n\n+ CI failure to resolve",
+      "revId": "027f6a0ca2806a93e4ac01b0d489c3da2b1a0a32",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3f5619c1_e6733c69",
+        "filename": "charms/masakari-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-10-08T20:28:30Z",
+      "side": 1,
+      "message": "Can we use `list` forward? The code base only needs to be compatible 3.10+",
+      "range": {
+        "startLine": 26,
+        "startChar": 4,
+        "endLine": 26,
+        "endChar": 8
+      },
+      "revId": "027f6a0ca2806a93e4ac01b0d489c3da2b1a0a32",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "aad1844a_804723da",
+        "filename": "charms/masakari-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-10-08T20:28:30Z",
+      "side": 1,
+      "message": "Please add `| None` since that\u0027s the entire method signature.",
+      "range": {
+        "startLine": 338,
+        "startChar": 24,
+        "endLine": 338,
+        "endChar": 63
+      },
+      "revId": "027f6a0ca2806a93e4ac01b0d489c3da2b1a0a32",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "50006ff0_c8a36d29",
+        "filename": "charms/masakari-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-10-08T20:28:30Z",
+      "side": 1,
+      "message": "I\u0027m always mixed with these if conditions in get_relation_handlers, because from this charm POV, these are defined in the metadata. So it can always add them.\n\nKeeping these conditions in the charm might hide code errors when we actually remove one of these integrations.",
+      "range": {
+        "startLine": 342,
+        "startChar": 0,
+        "endLine": 342,
+        "endChar": 2
+      },
+      "revId": "027f6a0ca2806a93e4ac01b0d489c3da2b1a0a32",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a9e6f31_966cbefb",
+        "filename": "tests/misc/smoke.yaml.j2",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-10-08T20:28:30Z",
+      "side": 1,
+      "message": "default base in 20.04, which is not supported by the consul-k8s charm. Need to specify ubuntu@24.04",
+      "revId": "027f6a0ca2806a93e4ac01b0d489c3da2b1a0a32",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
