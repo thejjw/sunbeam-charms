@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "633def09_087296bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-08T11:06:58Z",
+      "side": 1,
+      "message": "recheck Update APT cache issue\n\nIntermittent issue - \u0027Failed to update apt cache: unknown reason\u0027",
+      "revId": "87782622dd2f684bc53be04d968455828379b8a5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
