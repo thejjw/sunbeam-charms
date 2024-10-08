@@ -40,7 +40,7 @@ applications:
     charm: ch:ovn-central-k8s
     channel: 24.03/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
@@ -54,7 +54,7 @@ applications:
     charm: ch:ovn-relay-k8s
     channel: 24.03/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
@@ -66,7 +66,7 @@ applications:
     charm: ch:keystone-k8s
     channel: 2024.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: true
     storage:
@@ -81,7 +81,7 @@ applications:
     charm: ch:glance-k8s
     channel: 2024.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: true
     storage:
@@ -95,7 +95,7 @@ applications:
     charm: ch:nova-k8s
     channel: 2024.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
@@ -110,7 +110,7 @@ applications:
     charm: ch:placement-k8s
     channel: 2024.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
@@ -122,7 +122,7 @@ applications:
     charm: ch:neutron-k8s
     channel: 2024.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: true
     options:
@@ -136,7 +136,7 @@ applications:
     charm: ch:openstack-images-sync-k8s
     channel: 2024.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: true
     options:

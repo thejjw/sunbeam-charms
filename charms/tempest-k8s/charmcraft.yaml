@@ -14,7 +14,7 @@ links:
   issues: https://bugs.launchpad.net/sunbeam-charms
   documentation: https://discourse.charmhub.io/t/tempest-k8s-docs-index/13258
 
-base: ubuntu@22.04
+base: ubuntu@24.04
 platforms:
   amd64:
 

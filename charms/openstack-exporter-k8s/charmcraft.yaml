@@ -12,7 +12,7 @@ links:
   issues:
     - https://bugs.launchpad.net/charm-openstack-exporter-k8s
 
-base: ubuntu@22.04
+base: ubuntu@24.04
 platforms:
   amd64:
 
