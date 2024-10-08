@@ -16,6 +16,40 @@
       "message": "recheck\n\nConnection lost on previous test",
       "revId": "366c0ef259f11eaa236f2e464fef94252017093a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21f85d37_9e806f66",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 16
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-08T01:29:37Z",
+      "side": 1,
+      "message": "Thanks for the contribution.\n\nPlease see the inline comment which can go as subsequent PR across all the charms.",
+      "revId": "366c0ef259f11eaa236f2e464fef94252017093a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ee913949_88fce074",
+        "filename": "charms/masakari-k8s/src/charm.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-08T01:29:37Z",
+      "side": 1,
+      "message": "This function can go into ops-sunbeam since the logic is used by many charms.\ntimeout can be parameterised with defaults as 5*60.\n\nThis can be done in separate PR sweeping across all the charms.",
+      "revId": "366c0ef259f11eaa236f2e464fef94252017093a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
