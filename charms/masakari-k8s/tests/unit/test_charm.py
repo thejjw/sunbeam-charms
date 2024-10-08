@@ -18,6 +18,9 @@
 
 import charm
 import ops_sunbeam.test_utils as test_utils
+from ops.testing import (
+    Harness,
+)
 
 
 class _MasakariOperatorCharm(charm.MasakariOperatorCharm):
@@ -66,6 +69,29 @@ class TestMasakariOperatorCharm(test_utils.CharmTestCase):
 
         self.addCleanup(self.harness.cleanup)
 
+    def _add_all_consul_cluster_relations(self, harness: Harness):
+        harness.add_relation(
+            "consul-management",
+            "consul-management",
+            app_data={
+                "internal_http_address": "consul-management.consul.svc:8500"
+            },
+        )
+        harness.add_relation(
+            "consul-tenant",
+            "consul-tenant",
+            app_data={
+                "internal_http_address": "consul-tenant.consul.svc:8500"
+            },
+        )
+        harness.add_relation(
+            "consul-storage",
+            "consul-storage",
+            app_data={
+                "internal_http_address": "consul-storage.consul.svc:8500"
+            },
+        )
+
     def test_pebble_ready_handler(self):
         """Test Pebble ready event is captured."""
         self.harness.begin()
@@ -73,7 +99,7 @@ class TestMasakariOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         self.assertEqual(
             self.harness.charm.seen_events,
-            ["PebbleReadyEvent", "PebbleReadyEvent"],
+            ["PebbleReadyEvent", "PebbleReadyEvent", "PebbleReadyEvent"],
         )
 
     def test_all_relations(self):
@@ -83,6 +109,7 @@ class TestMasakariOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_api_relations(self.harness)
         test_utils.add_complete_ingress_relation(self.harness)
+        self._add_all_consul_cluster_relations(self.harness)
 
         self.harness.charm.configure_charm(event=None)
 
@@ -106,3 +133,9 @@ class TestMasakariOperatorCharm(test_utils.CharmTestCase):
 
         # Check for rendering of single configuration file in masakari-engine
         self.check_file("masakari-engine", "/etc/masakari/masakari.conf")
+
+        # Check for rendering masakari-hostmonitor config files
+        self.check_file(
+            "masakari-hostmonitor", "/etc/masakari/masakarimonitors.conf"
+        )
+        self.check_file("masakari-hostmonitor", "/etc/masakari/matrix.yaml")
