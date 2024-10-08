@@ -1,0 +1,23 @@
+[DEFAULT]
+
+debug = {{ options.debug }}
+
+{% if consul_management or consul_tenant or consul_storage -%}
+[host]
+monitoring_driver = consul
+{% endif -%}
+
+[consul]
+{% if consul_management and consul_management.internal_http_endpoint -%}
+agent_manage = {{ consul_management.internal_http_endpoint }}
+{% endif -%}
+
+{% if consul_tenant and consul_tenant.internal_http_endpoint -%}
+agent_tenant = {{ consul_tenant.internal_http_endpoint }}
+{% endif -%}
+
+{% if consul_storage and consul_storage.internal_http_endpoint -%}
+agent_storage = {{ consul_storage.internal_http_endpoint }}
+{% endif -%}
+
+matrix_config_file = /etc/masakari/matrix.yaml
