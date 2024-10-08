@@ -38,7 +38,7 @@ applications:
     charm: ch:keystone-k8s
     channel: 2024.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: true
     storage:
@@ -53,7 +53,7 @@ applications:
     charm: ch:designate-bind-k8s
     channel: 9/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: false
     resources:
@@ -65,7 +65,7 @@ applications:
     charm: ch:designate-k8s
     channel: 2024.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: false
     resources:
@@ -77,7 +77,7 @@ applications:
     charm: ch:keystone-ldap-k8s
     channel: 2024.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
   openstack-exporter:
     {% if openstack_exporter_k8s is defined and openstack_exporter_k8s is sameas true -%}
@@ -86,7 +86,7 @@ applications:
     charm: ch:openstack-exporter-k8s
     channel: 2024.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     resources:
       openstack-exporter-image: ghcr.io/canonical/openstack-exporter:1.6.0-7533071
@@ -97,7 +97,7 @@ applications:
     charm: ch:horizon-k8s
     channel: 2024.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
@@ -109,7 +109,7 @@ applications:
     charm: ch:masakari-k8s
     channel: 2024.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     scale: 1
     trust: true
     resources:

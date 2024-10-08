@@ -30,7 +30,7 @@ links:
   issues:
     - https://bugs.launchpad.net/charm-ovn-central-k8s
 
-base: ubuntu@22.04
+base: ubuntu@24.04
 platforms:
   amd64:
 

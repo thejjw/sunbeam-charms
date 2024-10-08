@@ -5,7 +5,7 @@ summary: Keep OpenStack images in sync with the latest versions
 description: |
   Openstack Images Sync operator allows synchronization from a SimpleStreams source to an OpenStack cloud.
 
-base: ubuntu@22.04
+base: ubuntu@24.04
 platforms:
   amd64:
 

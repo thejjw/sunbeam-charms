@@ -67,7 +67,7 @@ then
     ops_sunbeam_src_path="ops-sunbeam/ops_sunbeam"
 
     PYTHONPATH=$(python3 ./repository.py pythonpath) mypy ${ops_sunbeam_src_path}
-elif [[ $1 =~ ^(py3|py310|py311)$ ]];
+elif [[ $1 =~ ^(py3|py310|py312)$ ]];
 then
 
     # Run py3 on ops-sunbeam
@@ -159,6 +159,6 @@ then
     cp charms/$charm/${charm}.charm . || exit 1
     python3 repository.py -v clean $charm || exit 1
 else
-    echo "tox argument should be one of pep8, py3, py310, py311, cover";
+    echo "tox argument should be one of pep8, py3, py310, py312, cover";
     exit 1
 fi

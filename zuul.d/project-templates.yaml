@@ -2,7 +2,7 @@
     name: openstack-python3-sunbeam-jobs
     # NOTE(hemanth): This template is used in openstack sunbeam charms since
     # stable/2023.1. The stable/2023.1 and stable/2023.2 charm branches
-    # support py310 unit tests and main support py310, py311 tests.
+    # support py310 unit tests and main support py310, py312 tests.
     description: |
       Runs unit tests for an OpenStack Sunbeam project under the CPython
       version 3 releases designated for testing the latest release.
@@ -15,7 +15,7 @@
               - stable/2023.1
               - stable/2023.2
               - main
-        - openstack-tox-py311:
+        - openstack-tox-py312:
             branches:
               - main
     gate:
@@ -27,7 +27,7 @@
               - stable/2023.1
               - stable/2023.2
               - main
-        - openstack-tox-py311:
+        - openstack-tox-py312:
             branches:
               - main
 
