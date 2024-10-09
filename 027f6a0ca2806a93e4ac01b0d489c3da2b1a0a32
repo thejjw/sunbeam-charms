@@ -41,6 +41,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1d12a8b4_f903fa20",
+        "filename": "charms/masakari-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-09T00:35:07Z",
+      "side": 1,
+      "message": "I thought i will sweep across the charms in subsequent PR. I modified in PS3 for masakari-charm for now.",
+      "parentUuid": "3f5619c1_e6733c69",
+      "range": {
+        "startLine": 26,
+        "startChar": 4,
+        "endLine": 26,
+        "endChar": 8
+      },
+      "revId": "027f6a0ca2806a93e4ac01b0d489c3da2b1a0a32",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "aad1844a_804723da",
@@ -54,6 +78,30 @@
       "writtenOn": "2024-10-08T20:28:30Z",
       "side": 1,
       "message": "Please add `| None` since that\u0027s the entire method signature.",
+      "range": {
+        "startLine": 338,
+        "startChar": 24,
+        "endLine": 338,
+        "endChar": 63
+      },
+      "revId": "027f6a0ca2806a93e4ac01b0d489c3da2b1a0a32",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9898c74c_3d8517e6",
+        "filename": "charms/masakari-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-09T00:35:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "aad1844a_804723da",
       "range": {
         "startLine": 338,
         "startChar": 24,
@@ -87,6 +135,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "557a18b2_cbb0aa4c",
+        "filename": "charms/masakari-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-09T00:35:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50006ff0_c8a36d29",
+      "range": {
+        "startLine": 342,
+        "startChar": 0,
+        "endLine": 342,
+        "endChar": 2
+      },
+      "revId": "027f6a0ca2806a93e4ac01b0d489c3da2b1a0a32",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6a9e6f31_966cbefb",
@@ -100,6 +172,24 @@
       "writtenOn": "2024-10-08T20:28:30Z",
       "side": 1,
       "message": "default base in 20.04, which is not supported by the consul-k8s charm. Need to specify ubuntu@24.04",
+      "revId": "027f6a0ca2806a93e4ac01b0d489c3da2b1a0a32",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "defba84b_b49bdbcb",
+        "filename": "tests/misc/smoke.yaml.j2",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-09T00:35:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a9e6f31_966cbefb",
       "revId": "027f6a0ca2806a93e4ac01b0d489c3da2b1a0a32",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
