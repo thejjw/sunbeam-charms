@@ -98,6 +98,10 @@ requires:
     limit: 1
     optional: true
 
+provides:
+  masakari-service:
+    interface: service-ready
+
 peers:
   peers:
     interface: masakari-peer
