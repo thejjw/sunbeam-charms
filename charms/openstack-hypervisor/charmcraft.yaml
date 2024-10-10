@@ -80,6 +80,8 @@ requires:
     optional: true
   nova-service:
     interface: nova
+  masakari-service:
+    interface: service-ready
   tracing:
     interface: tracing
     optional: true
