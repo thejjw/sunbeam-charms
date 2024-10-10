@@ -162,6 +162,7 @@ class TestCharm(test_utils.CharmTestCase):
             "rabbitmq.url": "rabbit://hypervisor:rabbit.pass@10.0.0.13:5672/openstack",
             "telemetry.enable": False,
             "ca.bundle": None,
+            "masakari.enable": False,
         }
         hypervisor_snap_mock.set.assert_any_call(expect_settings, typed=True)
 
@@ -193,6 +194,13 @@ class TestCharm(test_utils.CharmTestCase):
             app_data={
                 "spice-proxy-url": "http://INGRESS_IP/nova-spiceproxy/spiceauto.html"
             },
+        )
+
+        # Add masakari-service relation
+        self.harness.add_relation(
+            "masakari-service",
+            "masakari",
+            app_data={"ready": "true"},
         )
 
         self.get_local_ip_by_default_route.return_value = "10.0.0.10"
@@ -266,5 +274,6 @@ class TestCharm(test_utils.CharmTestCase):
             "telemetry.enable": True,
             "telemetry.publisher-secret": "FAKE_SECRET",
             "ca.bundle": None,
+            "masakari.enable": True,
         }
         hypervisor_snap_mock.set.assert_any_call(expect_settings, typed=True)

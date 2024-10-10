@@ -15,3 +15,4 @@ internal-libraries:
   - charms.cinder_ceph_k8s.v0.ceph_access
   - charms.ceilometer_k8s.v0.ceilometer_service
   - charms.nova_k8s.v0.nova_service
+  - charms.sunbeam_libs.v0.service_readiness
