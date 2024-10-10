@@ -33,6 +33,23 @@
       "message": "recheck k8s restart",
       "revId": "0bdc19c4ea477180d0bab4ec43caee0ef96f596e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "603637bb_53101a20",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-10-10T09:41:19Z",
+      "side": 1,
+      "message": "recheck infrastructure failure",
+      "revId": "0bdc19c4ea477180d0bab4ec43caee0ef96f596e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
