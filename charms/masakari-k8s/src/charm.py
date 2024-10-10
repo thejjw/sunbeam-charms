@@ -41,6 +41,9 @@ from charms.consul_k8s.v0.consul_cluster import (
 from ops import (
     main,
 )
+from ops.charm import (
+    RelationEvent,
+)
 from ops.model import (
     BlockedStatus,
 )
@@ -362,6 +365,15 @@ class MasakariOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         )
         handlers.append(self.consul_storage)
 
+        self.svc_ready_handler = (
+            sunbeam_rhandlers.ServiceReadinessProviderHandler(
+                self,
+                "masakari-service",
+                self.handle_readiness_request_from_event,
+            )
+        )
+        handlers.append(self.svc_ready_handler)
+
         handlers = super().get_relation_handlers(handlers)
         return handlers
 
@@ -398,6 +410,27 @@ class MasakariOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ]
         )
         return pebble_handlers
+
+    def post_config_setup(self):
+        """Configuration steps after services have been setup."""
+        super().post_config_setup()
+        self.set_readiness_on_related_units()
+
+    def handle_readiness_request_from_event(
+        self, event: RelationEvent
+    ) -> None:
+        """Set service readiness in relation data."""
+        self.svc_ready_handler.interface.set_service_status(
+            event.relation, self.bootstrapped()
+        )
+
+    def set_readiness_on_related_units(self) -> None:
+        """Set service readiness on masakari-service related units."""
+        logger.debug(
+            "Set service readiness on all connected masakari-service relations"
+        )
+        for relation in self.framework.model.relations["masakari-service"]:
+            self.svc_ready_handler.interface.set_service_status(relation, True)
 
     @property
     def service_name(self):

@@ -1,0 +1,25 @@
+type: charm
+title: Sunbeam common libraries
+name: sunbeam-libs
+summary: Sunbeam common libraries
+description: |
+  Placeholder for the common libraries used in Sunbeam.
+assumes:
+  - k8s-api
+links:
+  source: https://opendev.org/openstack/sunbeam-charms
+  issues: https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+containers:
+  placeholder:
+    resource: placeholder-image
+
+resources:
+  placeholder-image:
+    description: OCI image for placeholder
+    type: oci-image
+    upstream-source: busybox

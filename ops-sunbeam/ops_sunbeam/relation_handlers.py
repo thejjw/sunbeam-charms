@@ -57,6 +57,7 @@ if typing.TYPE_CHECKING:
     import charms.loki_k8s.v1.loki_push_api as loki_push_api
     import charms.nova_k8s.v0.nova_service as nova_service
     import charms.rabbitmq_k8s.v0.rabbitmq as rabbitmq
+    import charms.sunbeam_libs.v0.service_readiness as service_readiness
     import charms.tempo_k8s.v2.tracing as tracing
     import charms.tls_certificates_interface.v3.tls_certificates as tls_certificates
     import charms.traefik_k8s.v2.ingress as ingress
@@ -2450,3 +2451,137 @@ class GnocchiServiceRequiresHandler(RelationHandler):
     def ready(self) -> bool:
         """Whether handler is ready for use."""
         return self.interface.service_ready
+
+
+@sunbeam_tracing.trace_type
+class ServiceReadinessRequiresHandler(RelationHandler):
+    """Handle service-ready relation on the requires side."""
+
+    interface: "service_readiness.ServiceReadinessRequirer"
+
+    def __init__(
+        self,
+        charm: "OSBaseOperatorCharm",
+        relation_name: str,
+        callback_f: Callable,
+        mandatory: bool = False,
+    ):
+        """Create a new service-ready requirer handler.
+
+        Create a new ServiceReadinessRequiresHandler that handles initial
+        events from the relation and invokes the provided callbacks based on
+        the event raised.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param callback_f: the function to call when the nodes are connected
+        :type callback_f: Callable
+        :param mandatory: If the relation is mandatory to proceed with
+                          configuring charm
+        :type mandatory: bool
+        """
+        super().__init__(charm, relation_name, callback_f, mandatory)
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for service-ready relation."""
+        import charms.sunbeam_libs.v0.service_readiness as service_readiness
+
+        logger.debug(
+            f"Setting up service-ready event handler for {self.relation_name}"
+        )
+        svc = sunbeam_tracing.trace_type(
+            service_readiness.ServiceReadinessRequirer
+        )(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            svc.on.readiness_changed,
+            self._on_remote_service_readiness_changed,
+        )
+        self.framework.observe(
+            svc.on.goneaway,
+            self._on_remote_service_goneaway,
+        )
+        return svc
+
+    def _on_remote_service_readiness_changed(
+        self, event: ops.framework.EventBase
+    ) -> None:
+        """Handle config_changed  event."""
+        logger.debug(
+            f"Remote service readiness changed event received for relation {self.relation_name}"
+        )
+        self.callback_f(event)
+
+    def _on_remote_service_goneaway(
+        self, event: ops.framework.EventBase
+    ) -> None:
+        """Handle gone_away  event."""
+        logger.debug(
+            "Remote service gone away event received for relation {self.relation_name}"
+        )
+        self.callback_f(event)
+        if self.mandatory:
+            self.status.set(BlockedStatus("integration missing"))
+
+    @property
+    def ready(self) -> bool:
+        """Whether handler is ready for use."""
+        return self.interface.service_ready
+
+
+@sunbeam_tracing.trace_type
+class ServiceReadinessProviderHandler(RelationHandler):
+    """Handler for service-readiness relation on provider side."""
+
+    interface: "service_readiness.ServiceReadinessProvider"
+
+    def __init__(
+        self,
+        charm: "OSBaseOperatorCharm",
+        relation_name: str,
+        callback_f: Callable,
+    ):
+        """Create a new service-readiness provider handler.
+
+        Create a new ServiceReadinessProvidesHandler that updates service
+        readiness on the related units.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param callback_f: the function to call when the nodes are connected
+        :type callback_f: Callable
+        """
+        super().__init__(charm, relation_name, callback_f)
+
+    def setup_event_handler(self):
+        """Configure event handlers for service-readiness relation."""
+        import charms.sunbeam_libs.v0.service_readiness as service_readiness
+
+        logger.debug(f"Setting up event handler for {self.relation_name}")
+
+        svc = sunbeam_tracing.trace_type(
+            service_readiness.ServiceReadinessProvider
+        )(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            svc.on.service_readiness,
+            self._on_service_readiness,
+        )
+        return svc
+
+    def _on_service_readiness(self, event: ops.framework.EventBase) -> None:
+        """Handle service readiness request event."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return True

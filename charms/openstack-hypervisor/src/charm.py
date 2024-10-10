@@ -53,6 +53,10 @@ from charms.nova_k8s.v0.nova_service import (
     NovaConfigChangedEvent,
     NovaServiceGoneAwayEvent,
 )
+from charms.sunbeam_libs.v0.service_readiness import (
+    ServiceGoneAwayEvent,
+    ServiceReadinessChangedEvent,
+)
 from cryptography import (
     x509,
 )
@@ -292,6 +296,15 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 mandatory="certificates" in self.mandatory_relations,
             )
             handlers.append(self.certs)
+        if self.can_add_handler("masakari-service", handlers):
+            self.masakari_svc = sunbeam_rhandlers.ServiceReadinessRequiresHandler(
+                self,
+                "masakari-service",
+                self.configure_charm,
+                # self.handle_masakari_events,
+                "masakari-service" in self.mandatory_relations,
+            )
+            handlers.append(self.masakari_svc)
         handlers = super().get_relation_handlers(handlers)
         return handlers
 
@@ -468,6 +481,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         snap_data.update(self._handle_ceilometer_service(contexts))
         snap_data.update(self._handle_nova_service(contexts))
         snap_data.update(self._handle_receive_ca_cert(contexts))
+        snap_data.update(self._handle_masakari_service(contexts))
 
         self.set_snap_data(snap_data)
         self.ensure_services_running()
@@ -518,6 +532,21 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
         return {}
 
+    def _handle_masakari_service(
+        self, contexts: sunbeam_core.OPSCharmContexts
+    ) -> dict:
+        try:
+            return {"masakari.enable": contexts.masakari_service.service_ready}
+            """
+            if contexts.masakari_service.service_ready:
+                return {"masakari.enable": self.enable_masakari}
+            else:
+                return {"masakari.enable": self.enable_masakari}
+            """
+        except AttributeError:
+            logger.info("masakari_service relation not integrated")
+            return {"masakari.enable": False}
+
     def _handle_receive_ca_cert(
         self, context: sunbeam_core.OPSCharmContexts
     ) -> dict:
@@ -549,6 +578,15 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         if isinstance(event, NovaConfigChangedEvent) or isinstance(
             event, NovaServiceGoneAwayEvent
         ):
+            self.configure_charm(event)
+
+    def handle_masakari_events(self, event: ops.framework.EventBase) -> None:
+        """Handle masakari events."""
+        if isinstance(event, ServiceReadinessChangedEvent):
+            self.enable_massakari = True
+            self.configure_charm(event)
+        elif isinstance(event, ServiceGoneAwayEvent):
+            self.enable_masakari = False
             self.configure_charm(event)
 
     def stop_services(self, relation: Optional[Set[str]]) -> None:
