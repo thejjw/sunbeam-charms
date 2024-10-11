@@ -90,6 +90,7 @@ class OSExporterPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "command": (
                         "openstack-exporter"
                         " --os-client-config /etc/os-exporter/clouds.yaml"
+                        " --cache --cache-ttl=5m"
                         # Using legacy mode as params are not
                         # supported by prometheus_scrape interface
                         " default"
@@ -244,7 +245,6 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 # this will become the internal exporter metrics when
                 # probe can be configured with params
                 "job_name": "openstack-cloud-metrics",
-                "scrape_timeout": "60s",
                 "static_configs": [
                     {
                         "targets": [
