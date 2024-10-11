@@ -50,6 +50,23 @@
       "message": "recheck",
       "revId": "bc8f21ed7746f00c0c83437c3c66d886a6b2fb4e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c75dfe39_9a7539fc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 34352
+      },
+      "writtenOn": "2024-10-11T06:54:22Z",
+      "side": 1,
+      "message": "oci-image updated to use the latest revision that has the cache feature included. I\u0027ve tested this with a local sunbeam deployment and it\u0027s working for me. :)",
+      "revId": "bc8f21ed7746f00c0c83437c3c66d886a6b2fb4e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
