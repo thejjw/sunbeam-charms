@@ -89,7 +89,7 @@ applications:
     base: ubuntu@24.04
     scale: 1
     resources:
-      openstack-exporter-image: ghcr.io/canonical/openstack-exporter:1.6.0-7533071
+      openstack-exporter-image: ghcr.io/canonical/openstack-exporter:1.7.0-3be9ddb
   horizon:
     {% if horizon_k8s is defined and horizon_k8s is sameas true -%}
     charm: ../../../horizon-k8s.charm
