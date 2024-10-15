@@ -7,15 +7,23 @@ auth_strategy = keystone
 transport_url = {{ amqp.transport_url }}
 {% endif -%}
 
+nova_catalog_admin_info = compute:nova:internalURL
+{% if identity_service.internal_auth_url -%}
+os_privileged_user_auth_url = {{ identity_service.internal_auth_url }}
+{% elif identity_service.internal_host -%}
+os_privileged_user_auth_url = {{ identity_service.internal_protocol }}://{{ identity_service.internal_host }}:{{ identity_service.internal_port }}
+{% endif -%}
+os_privileged_user_name = {{ identity_service.service_user_name }}
+os_privileged_user_password = {{ identity_service.service_password }}
+os_privileged_user_tenant = {{ identity_service.service_project_name }}
+os_user_domain_name = {{ identity_service.service_domain_name }}
+os_project_domain_name = {{ identity_service.service_domain_name }}
+os_region_name = {{ options.region }}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
 nova_ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.pem
 {% endif -%}
 
 graceful_shutdown_timeout = 5
-os_privileged_user_tenant = {{ identity_service.service_project_name }}
-os_privileged_user_password = {{ identity_service.service_password }}
-os_privileged_user_auth_url = {{ identity_service.admin_auth_url }}
-os_privileged_user_name = {{ identity_service.admin_user_name }}
 use_syslog = False
 masakari_api_workers = 2
 
