@@ -58,6 +58,10 @@ actions:
         type: string
         description: IP address to use for service configuration
     additionalProperties: false
+  list-nics:
+    description: |
+      List host NICS, and which one are candidates for use as external NIC.
+    additionalProperties: false
 
 requires:
   amqp:

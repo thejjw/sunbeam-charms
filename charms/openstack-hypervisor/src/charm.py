@@ -27,6 +27,7 @@ import os
 import secrets
 import socket
 import string
+import subprocess
 from typing import (
     List,
     Optional,
@@ -174,6 +175,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self._set_hypervisor_local_settings_action,
         )
         self.framework.observe(
+            self.on.list_nics_action,
+            self._list_nics_action,
+        )
+        self.framework.observe(
             self.on.install,
             self._on_install,
         )
@@ -319,6 +324,39 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 new_snap_settings[setting] = event.params.get(action_param)
         if new_snap_settings:
             self.set_snap_data(new_snap_settings)
+
+    def _list_nics_action(self, event: ActionEvent):
+        """Run list_nics action."""
+        cache = self.get_snap_cache()
+        hypervisor = cache["openstack-hypervisor"]
+
+        if not hypervisor.present:
+            event.fail("Hypervisor is not installed")
+            return
+
+        process = subprocess.run(
+            [
+                "snap",
+                "run",
+                "openstack-hypervisor",
+                "--verbose",
+                "list-nics",
+                "--format",
+                "json",
+            ],
+            capture_output=True,
+        )
+
+        stderr = process.stderr.decode("utf-8")
+        logger.debug("logs: %s", stderr)
+        stdout = process.stdout.decode("utf-8")
+        logger.debug("stdout: %s", stdout)
+        if process.returncode != 0:
+            event.fail(stderr)
+            return
+
+        # cli returns a json dict with keys "nics" and "candidate"
+        event.set_results({"result": stdout})
 
     def ensure_services_running(self):
         """Ensure systemd services running."""

@@ -15,11 +15,14 @@
 """Tests for Openstack hypervisor charm."""
 
 import base64
+import json
 from unittest.mock import (
     MagicMock,
 )
 
 import charm
+import ops
+import ops.testing
 import ops_sunbeam.test_utils as test_utils
 
 
@@ -35,7 +38,13 @@ class _HypervisorOperatorCharm(charm.HypervisorOperatorCharm):
 class TestCharm(test_utils.CharmTestCase):
     """Test charm to test relations."""
 
-    PATCHES = ["socket", "snap", "get_local_ip_by_default_route", "os"]
+    PATCHES = [
+        "socket",
+        "snap",
+        "get_local_ip_by_default_route",
+        "os",
+        "subprocess",
+    ]
 
     def setUp(self):
         """Setup OpenStack Hypervisor tests."""
@@ -277,3 +286,53 @@ class TestCharm(test_utils.CharmTestCase):
             "masakari.enable": True,
         }
         hypervisor_snap_mock.set.assert_any_call(expect_settings, typed=True)
+
+    def test_list_nics_snap_not_installed(self):
+        """Check action raises ActionFailed if snap is not installed."""
+        self.harness.begin()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = False
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock
+        }
+        with self.assertRaises(ops.testing.ActionFailed):
+            self.harness.run_action("list-nics")
+
+    def test_list_nics(self):
+        """Check action returns nics."""
+        self.harness.begin()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = True
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock
+        }
+        subprocess_run_mock = MagicMock()
+        subprocess_run_mock.return_value = MagicMock(
+            stdout=bytes(
+                json.dumps({"nics": ["eth0", "eth1"], "candidates": ["eth2"]}),
+                "utf-8",
+            ),
+            stderr=b"yes things went well",
+            returncode=0,
+        )
+        self.subprocess.run = subprocess_run_mock
+        action_output = self.harness.run_action("list-nics")
+        assert "candidates" in action_output.results["result"]
+
+    def test_list_nics_error(self):
+        """Check action raises ActionFailed if subprocess returns non-zero."""
+        self.harness.begin()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = True
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock
+        }
+        subprocess_run_mock = MagicMock()
+        subprocess_run_mock.return_value = MagicMock(
+            stdout=b"",
+            stderr=b"things did not go well",
+            returncode=1,
+        )
+        self.subprocess.run = subprocess_run_mock
+        with self.assertRaises(ops.testing.ActionFailed):
+            self.harness.run_action("list-nics")
