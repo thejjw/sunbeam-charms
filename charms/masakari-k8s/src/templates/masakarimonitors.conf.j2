@@ -2,8 +2,27 @@
 
 debug = {{ options.debug }}
 
-{% if consul_management or consul_tenant or consul_storage -%}
+[api]
+api_interface = admin
+{% if identity_service.admin_auth_url -%}
+auth_url = {{ identity_service.admin_auth_url }}
+{% elif identity_service.service_host -%}
+auth_url = {{ identity_service.service_protocol }}://{{ identity_service.service_host }}:{{ identity_service.service_port }}
+{% endif -%}
+project_domain_name = {{ identity_service.service_domain_name }}
+user_domain_name = {{ identity_service.service_domain_name }}
+project_name = {{ identity_service.service_project_name }}
+username = {{ identity_service.service_user_name }}
+password = {{ identity_service.service_password }}
+project_domain_id = {{ identity_service.service_domain_id }}
+user_domain_id = {{ identity_service.service_domain_id }}
+region = {{ options.region }}
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+cafile = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}
+
 [host]
+{% if consul_management or consul_tenant or consul_storage -%}
 monitoring_driver = consul
 {% endif -%}
 
