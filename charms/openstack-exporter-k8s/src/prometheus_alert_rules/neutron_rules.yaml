@@ -11,3 +11,27 @@ groups:
         description: |
           The Neutron service '{{ $labels.service }}' is currently down on host {{ $labels.hostname }}.
             LABELS = {{ $labels }}
+
+    - alert: NeutronPortsCritical
+      # router_gateway are ports that connects the router to an external network.
+      expr: openstack_neutron_port{admin_state_up="true", binding_vif_type="binding_failed", device_owner="network:router_gateway"} > 0
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary: Neutron gateway ports binding failing.
+        description: |
+          Please check if neutron workers and/or server is overloaded
+            LABELS = {{ $labels }}
+
+    - alert: NeutronPortsWarning
+      # Other ports are very likely to be workload related, like creating new VMs
+      expr: openstack_neutron_port{admin_state_up="true", binding_vif_type="binding_failed", device_owner!="network:router_gateway"} > 0
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: Neutron ports binding failing.
+        description: |
+          Some ports are failing to bind
+            LABELS = {{ $labels }}
