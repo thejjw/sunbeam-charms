@@ -168,8 +168,8 @@ class MasakariConfigurationContext(config_contexts.ConfigContext):
 
         matrix = []
         if active_agents_count == 1:
-            up = {"health": "up", "action": []}
-            down = {"health": "down", "action": ["recovery"]}
+            up = {"health": ["up"], "action": []}
+            down = {"health": ["down"], "action": ["recovery"]}
             matrix.extend([up, down])
         elif active_agents_count == 2:
             # Defaults for 2*2 matrix with no actions
