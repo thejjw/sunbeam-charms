@@ -2,14 +2,13 @@ stestr
 coverage
 
 tenacity                   # ops-sunbeam
-ops                        # all charms
+ops[testing]>=2.17.0       # all charms, private paths have moved
 lightkube                  # almost all charms
 pwgen                      # keystone-k8s
 python-keystoneclient      # keystone-k8s
 cryptography               # neutron-k8s
 jsonschema                 # neutron-k8s
 pytest-interface-tester    # barbican-k8s
-ops-scenario<7             # barbican-k8s, see bug https://github.com/canonical/pytest-interface-tester/issues/23
 pydantic                   # traefik-k8s ingress lib
 requests                   # cinder-ceph-k8s
 netifaces                  # cinder-ceph-k8s

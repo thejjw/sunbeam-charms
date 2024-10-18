@@ -52,13 +52,15 @@ from ops import (
     framework,
     model,
 )
+from ops._private.harness import (
+    _TestingModelBackend,
+    _TestingPebbleClient,
+)
 from ops.jujucontext import (
     _JujuContext,
 )
 from ops.testing import (
     Harness,
-    _TestingModelBackend,
-    _TestingPebbleClient,
 )
 
 TEST_CA = """-----BEGIN CERTIFICATE-----
