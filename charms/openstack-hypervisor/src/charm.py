@@ -179,6 +179,18 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self._list_nics_action,
         )
         self.framework.observe(
+            self.on.enable_action,
+            self._enable_action,
+        )
+        self.framework.observe(
+            self.on.disable_action,
+            self._disable_action,
+        )
+        self.framework.observe(
+            self.on.running_guests_action,
+            self._running_guests_action,
+        )
+        self.framework.observe(
             self.on.install,
             self._on_install,
         )
@@ -230,6 +242,14 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         if address is None:
             return None
         return str(address)
+
+    def _proxy_configs(self) -> dict[str, str]:
+        """Return proxy configs."""
+        return {
+            "HTTPS_PROXY": os.environ.get("JUJU_CHARM_HTTPS_PROXY", ""),
+            "HTTP_PROXY": os.environ.get("JUJU_CHARM_HTTP_PROXY", ""),
+            "NO_PROXY": os.environ.get("JUJU_CHARM_NO_PROXY", ""),
+        }
 
     def check_relation_exists(self, relation_name: str) -> bool:
         """Check if a relation exists or not."""
@@ -358,6 +378,102 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         # cli returns a json dict with keys "nics" and "candidate"
         event.set_results({"result": stdout})
 
+    def _enable_action(self, event: ActionEvent):
+        """Run enable action."""
+        cache = self.get_snap_cache()
+        hypervisor = cache["openstack-hypervisor"]
+
+        if not hypervisor.present:
+            event.fail("Hypervisor is not installed")
+            return
+
+        process = subprocess.run(
+            [
+                "snap",
+                "run",
+                "openstack-hypervisor",
+                "--verbose",
+                "hypervisor",
+                "enable",
+            ],
+            env=os.environ | self._proxy_configs(),
+            capture_output=True,
+        )
+        stderr = process.stderr.decode("utf-8")
+        logger.debug("logs: %s", stderr)
+        stdout = process.stdout.decode("utf-8")
+        logger.debug("stdout: %s", stdout)
+
+        if process.returncode != 0:
+            event.fail(stderr)
+            return
+        event.set_results({"result": stdout})
+
+    def _disable_action(self, event: ActionEvent):
+        """Run disable action."""
+        cache = self.get_snap_cache()
+        hypervisor = cache["openstack-hypervisor"]
+
+        if not hypervisor.present:
+            event.fail("Hypervisor is not installed")
+            return
+
+        process = subprocess.run(
+            [
+                "snap",
+                "run",
+                "openstack-hypervisor",
+                "--verbose",
+                "hypervisor",
+                "disable",
+            ],
+            env=os.environ | self._proxy_configs(),
+            capture_output=True,
+        )
+        stderr = process.stderr.decode("utf-8")
+        logger.debug("logs: %s", stderr)
+        stdout = process.stdout.decode("utf-8")
+        logger.debug("stdout: %s", stdout)
+
+        if process.returncode != 0:
+            event.fail(stderr)
+            return
+        event.set_results({"result": stdout})
+
+    def _running_guests_action(self, event: ActionEvent):
+        """List running openstack guests."""
+        cache = self.get_snap_cache()
+        hypervisor = cache["openstack-hypervisor"]
+
+        if not hypervisor.present:
+            event.fail("Hypervisor is not installed")
+            return
+
+        process = subprocess.run(
+            [
+                "snap",
+                "run",
+                "openstack-hypervisor",
+                "--verbose",
+                "hypervisor",
+                "running-guests",
+                "--format",
+                "json",
+            ],
+            capture_output=True,
+        )
+
+        stderr = process.stderr.decode("utf-8")
+        logger.debug("logs: %s", stderr)
+        stdout = process.stdout.decode("utf-8")
+        logger.debug("stdout: %s", stdout)
+        if process.returncode != 0:
+            event.fail(stderr)
+            return
+
+        # cli returns a json list
+        event.set_results({"result": stdout})
+
     def ensure_services_running(self):
         """Ensure systemd services running."""
         # This should taken care of by the snap
@@ -476,6 +592,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "identity.password": contexts.identity_credentials.password,
                 "identity.project-domain-id": contexts.identity_credentials.project_domain_id,
                 "identity.project-domain-name": contexts.identity_credentials.project_domain_name,
+                "identity.project-id": contexts.identity_credentials.project_id,
                 "identity.project-name": contexts.identity_credentials.project_name,
                 "identity.region-name": contexts.identity_credentials.region,
                 "identity.user-domain-id": contexts.identity_credentials.user_domain_id,

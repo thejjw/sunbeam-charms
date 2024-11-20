@@ -62,6 +62,25 @@ actions:
     description: |
       List host NICS, and which one are candidates for use as external NIC.
     additionalProperties: false
+  disable:
+    description: |
+      Prevent new instances from being created.
+    params:
+      reason:
+        type: string
+        description: Reason for disabling the hypervisor
+        default: Stopped via operator action
+    additionalProperties: false
+  enable:
+    description: |
+      Allow new instances to be created.
+    additionalProperties: false
+  running-guests:
+    description: |
+      List the running guests on the hypervisor.
+
+      Only lists guests created by the OpenStack cloud.
+    additionalProperties: false
 
 requires:
   amqp:
