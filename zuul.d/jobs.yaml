@@ -372,6 +372,7 @@
       - charms/ovn-central-k8s/*
       - charms/ovn-relay-k8s/*
       - rebuild
+      - zuul.d/zuul.yaml
     vars:
       # Artifacts will be downloaded from below charm jobs
       charm_jobs:
@@ -418,6 +419,7 @@
       - charms/tempest-k8s/*
       - tests/local/zaza/sunbeam/charm_tests/tempest_k8s/*
       - rebuild
+      - zuul.d/zuul.yaml
     vars:
       # Artifacts will be downloaded from below charm jobs
       charm_jobs:
@@ -464,6 +466,7 @@
       - charms/aodh-k8s/*
       - charms/watcher-k8s/*
       - rebuild
+      - zuul.d/zuul.yaml
     vars:
       charm_jobs:
         - charm-build-cinder-k8s
@@ -505,6 +508,7 @@
       - charms/barbican-k8s/*
       - charms/magnum-k8s/*
       - rebuild
+      - zuul.d/zuul.yaml
     vars:
       charm_jobs:
         - charm-build-heat-k8s
@@ -549,6 +553,7 @@
       - charms/horizon-k8s/*
       - charms/masakari-k8s/*
       - rebuild
+      - zuul.d/zuul.yaml
     vars:
       charm_jobs:
         - charm-build-designate-k8s
@@ -577,6 +582,7 @@
       - charms/sunbeam-machine/*
       - charms/sunbeam-clusterd/*
       - rebuild
+      - zuul.d/zuul.yaml
     vars:
       env_type: lxd
       charm_jobs:
