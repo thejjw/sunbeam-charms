@@ -33,6 +33,9 @@ import ops.framework
 import ops_sunbeam.compound_status as compound_status
 import ops_sunbeam.interfaces as sunbeam_interfaces
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops import (
+    ModelError,
+)
 from ops.model import (
     ActiveStatus,
     BlockedStatus,
@@ -587,7 +590,7 @@ class IdentityServiceRequiresHandler(RelationHandler):
         """Whether handler is ready for use."""
         try:
             return bool(self.interface.service_password)
-        except (AttributeError, KeyError):
+        except (AttributeError, KeyError, ModelError):
             return False
 
 
@@ -1373,7 +1376,7 @@ class IdentityCredentialsRequiresHandler(RelationHandler):
         """Whether handler is ready for use."""
         try:
             return bool(self.interface.password)
-        except (AttributeError, KeyError):
+        except (AttributeError, KeyError, ModelError):
             return False
 
 
@@ -2194,7 +2197,10 @@ class TraefikRouteHandler(RelationHandler):
     def ready(self) -> bool:
         """Whether the handler is ready for use."""
         if self.charm.unit.is_leader():
-            return bool(self.interface.external_host)
+            try:
+                return bool(self.interface.external_host)
+            except ModelError:
+                return False
         else:
             return self.interface.is_ready()
 
