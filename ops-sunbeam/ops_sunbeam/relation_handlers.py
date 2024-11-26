@@ -28,6 +28,7 @@ from urllib.parse import (
     urlparse,
 )
 
+from ops import ModelError
 import ops.charm
 import ops.framework
 import ops_sunbeam.compound_status as compound_status
@@ -587,7 +588,7 @@ class IdentityServiceRequiresHandler(RelationHandler):
         """Whether handler is ready for use."""
         try:
             return bool(self.interface.service_password)
-        except (AttributeError, KeyError):
+        except (AttributeError, KeyError, ModelError):
             return False
 
 
@@ -1373,7 +1374,7 @@ class IdentityCredentialsRequiresHandler(RelationHandler):
         """Whether handler is ready for use."""
         try:
             return bool(self.interface.password)
-        except (AttributeError, KeyError):
+        except (AttributeError, KeyError, ModelError):
             return False
 
 
