@@ -16,6 +16,23 @@
       "message": "recheck\n\nMagnum db-sync failed",
       "revId": "d5cbac7c6a7254fb7f1f9c7454a6ac2dba77c2c3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6aa5f7eb_403c6056",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-11-27T11:49:53Z",
+      "side": 1,
+      "message": "recheck failed to bootstrap k8s",
+      "revId": "d5cbac7c6a7254fb7f1f9c7454a6ac2dba77c2c3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
