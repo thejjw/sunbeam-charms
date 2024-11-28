@@ -305,7 +305,6 @@ resources:
 storage:
   local-repository:
     type: filesystem
-    minimum-size: 10GiB
     description: |
       A local filesystem storage repository for glance images to be saved to.
       Note, this must be shared storage in order to support a highly
