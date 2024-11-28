@@ -1,0 +1,872 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 13,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${lokids}"
+      },
+      "description": "The logs of OpenStack service.\n\nThe logs can be filtered by \"Request ID\" using the dashboard variable. \n\nFor the log context, click on the \"Explore\" button in the panel drop down. ",
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": false
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${lokids}"
+          },
+          "editorMode": "code",
+          "expr": "{juju_model=\"openstack\", pebble_service=~\".+\"} |~ \"$request_id\" | pattern \"<_>-<_>-<_> <_>:<_>:<_>.<_> <_> <_> <_> [<_>] <message>\" | message != \"\" | line_format `{{ printf \"%25.25s in %-20.20s %s\" .pebble_service .juju_unit .message}}`",
+          "hide": false,
+          "queryType": "range",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${lokids}"
+          },
+          "editorMode": "code",
+          "expr": "{filename=\"/var/log/syslog\"} |~ \"$request_id\" | pattern `<_> <_> <_>:<_>:<_> <hostname> <application>[<_>]: <_>-<_>-<_> <_>:<_>:<_>.<_>s> <_> <_> <_> [<_>] <message>` | message != \"\" | line_format `{{ printf \"%25.25s in %-20.20s %s\" .application .hostname .message}}`",
+          "hide": false,
+          "queryType": "range",
+          "refId": "B"
+        }
+      ],
+      "title": "OpenStack Service Logs",
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${prometheusds}"
+      },
+      "description": "The overview of the counts of HTTP status code per second for OpenStack internal and public interfaces. \n\n\"severity=OKAY\" implies a status code in [100-399]\n\"severity=WARNING\" implies a status code in [400-499]\n\"severity=ERROR\" implies a status code in [500-599]\n",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Counts per second",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (severity) (\n    label_replace(\n        rate(traefik_service_requests_total{juju_model=\"openstack\", code=~\"(1|2|3)..\"}[$interval]) > 0\n        , \"severity\", \"severity=OKAY\", \"\", \"\"\n    )\n)",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (severity) (\n    label_replace(\n        rate(traefik_service_requests_total{juju_model=\"openstack\", code=~\"4..\"}[$interval]) > 0\n        , \"severity\", \"severity=WARNING\", \"\", \"\"\n    )\n)",
+          "hide": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${prometheusds}"
+          },
+          "editorMode": "code",
+          "expr": "sum by (severity) (\n    label_replace(\n        rate(traefik_service_requests_total{juju_model=\"openstack\", code=~\"5..\"}[$interval]) > 0\n        , \"severity\", \"severity=ERROR\", \"\", \"\"\n    )\n)",
+          "hide": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "OpenStack Internal and Public Interfaces HTTP status code (Overview)",
+      "transformations": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${lokids}"
+      },
+      "description": "The overview of the counts of HTTP status code per second for OpenStack API. \n\nFor the log samples, click on the \"Explore\" button in the panel drop down.\n\n\"severity=OKAY\" implies a status code in [100-399]\n\"severity=WARNING\" implies a status code in [400-499]\n\"severity=ERROR\" implies a status code in [500-599]\n",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Counts per second",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 15,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${lokids}"
+          },
+          "editorMode": "code",
+          "expr": "topk (15, \n    sum by (severity) (\n        rate(\n            {pebble_service=~\"wsgi-.+|glance-api|neutron-server\"} | \n            pattern `<_> \"<_>\" severity: <status_code_a> <_>` | \n            pattern `<_> \"<_>\" <status_code_b> <_>`| \n            status_code_a =~ \"(1|2|3)..\" or status_code_b =~ \"(1|2|3)..\" | \n            label_format severity=\"OKAY\" \n            [$interval]\n        )\n    )\n)",
+          "hide": false,
+          "queryType": "range",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${lokids}"
+          },
+          "editorMode": "code",
+          "expr": "topk (15, \n    sum by (severity) (\n        rate(\n            {pebble_service=~\"wsgi-.+|glance-api|neutron-server\"} | \n            pattern `<_> \"<_>\" severity: <status_code_a> <_>` | \n            pattern `<_> \"<_>\" <status_code_b> <_>`| \n            status_code_a =~ \"4..\" or status_code_b =~ \"4..\" | \n            label_format severity=\"WARNING\" \n            [$interval]\n        )\n    )\n)",
+          "hide": false,
+          "queryType": "range",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${lokids}"
+          },
+          "editorMode": "code",
+          "expr": "topk (15, \n    sum by (severity) (\n        rate(\n            {pebble_service=~\"wsgi-.+|glance-api|neutron-server\"} | \n            pattern `<_> \"<_>\" severity: <status_code_a> <_>` | \n            pattern `<_> \"<_>\" <status_code_b> <_>`| \n            status_code_a =~ \"5..\" or status_code_b =~ \"5..\" | \n            label_format severity=\"ERROR\" \n            [$interval]\n        )\n    )\n)",
+          "hide": false,
+          "queryType": "range",
+          "refId": "C"
+        }
+      ],
+      "title": "OpenStack API HTTP status code (Overview)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${lokids}"
+      },
+      "description": "The counts of different HTTP status code per second grouped by severity for each OpenStack service. \n\nThe service can be filtered by the \"Service\" variable.\n\nThe severity can be filtered by the \"Severity\" variable.\n\nFor the log samples, click on the \"Explore\" button in the panel drop down.\n\n\"severity=OKAY\" implies a status code in [100-399]\n\"severity=WARNING\" implies a status code in [400-499]\n\"severity=ERROR\" implies a status code in [500-599]\n",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Counts per second",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 18,
+        "w": 12,
+        "x": 0,
+        "y": 27
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${lokids}"
+          },
+          "editorMode": "code",
+          "expr": "topk (15, \n    sum by (juju_unit, pebble_service, severity) (\n        rate(\n            {pebble_service=~\"wsgi-.+|glance-api|neutron-server\"} | \n            pebble_service =~ \"$service\" |\n            pattern `<_> \"<_>\" status: <status_code_a> <_>` | \n            pattern `<_> \"<_>\" <status_code_b> <_>` | \n            status_code_a =~ \"(1|2|3)..\" or status_code_b =~ \"(1|2|3)..\" | \n            label_format severity=\"OKAY\" | severity =~ \"$severity\" | \n            label_format status_code=`{{if .status_code_a}}{{.status_code_a}}{{else}}{{.status_code_b}}{{end}}`\n            [$interval]\n        )\n    )\n)",
+          "hide": false,
+          "queryType": "range",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${lokids}"
+          },
+          "editorMode": "code",
+          "expr": "topk (15, \n    sum by (juju_unit, pebble_service, severity) (\n        rate(\n            {pebble_service=~\"wsgi-.+|glance-api|neutron-server\"} | \n            pebble_service =~ \"$service\" |\n            pattern `<_> \"<_>\" status: <status_code_a> <_>` | \n            pattern `<_> \"<_>\" <status_code_b> <_>` | \n            status_code_a =~ \"4..\" or status_code_b =~ \"4..\" | \n            label_format severity=\"WARNING\" | severity =~ \"$severity\" | \n            label_format status_code=`{{if .status_code_a}}{{.status_code_a}}{{else}}{{.status_code_b}}{{end}}` \n            [$interval]\n        )\n    )\n)",
+          "hide": false,
+          "queryType": "range",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${lokids}"
+          },
+          "editorMode": "code",
+          "expr": "topk (15, \n    sum by (juju_unit, pebble_service, severity) (\n        rate(\n            {pebble_service=~\"wsgi-.+|glance-api|neutron-server\"} | \n            pebble_service =~ \"$service\" |\n            pattern `<_> \"<_>\" status: <status_code_a> <_>` | \n            pattern `<_> \"<_>\" <status_code_b> <_>` | \n            status_code_a =~ \"5..\" or status_code_b =~ \"5..\" | \n            label_format severity=\"ERROR\" | severity =~ \"$severity\" | \n            label_format status_code=`{{if .status_code_a}}{{.status_code_a}}{{else}}{{.status_code_b}}{{end}}`\n            [$interval]\n        )\n    )\n)",
+          "hide": false,
+          "queryType": "range",
+          "refId": "C"
+        }
+      ],
+      "title": "OpenStack API HTTP status code by severity ($severity) - aggregate view",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "${lokids}"
+      },
+      "description": "The counts of different HTTP status code per second for each OpenStack service.\n\nThe service can be filtered by the \"service\" variable.\n\nThe severity can be filtered by the \"severity\" variable.\n\nFor the log samples, click on the \"Explore\" button in the panel drop down.\n\n\"severity=OKAY\" implies a status code in [100-399]\n\"severity=WARNING\" implies a status code in [400-499]\n\"severity=ERROR\" implies a status code in [500-599]\n",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "Counts per second",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "noValue": "0",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 18,
+        "w": 12,
+        "x": 12,
+        "y": 27
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "sortBy": "Last *",
+          "sortDesc": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.5.3",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${lokids}"
+          },
+          "editorMode": "code",
+          "expr": "topk (15, \n    sum by (juju_unit, pebble_service, status_code) (\n        rate(\n            {pebble_service=~\"wsgi-.+|glance-api|neutron-server\"} | \n            pebble_service =~ \"$service\" |\n            pattern `<_> \"<_>\" status: <status_code_a> <_>` | \n            pattern `<_> \"<_>\" <status_code_b> <_>` | \n            status_code_a =~ \"(1|2|3)..\" or status_code_b =~ \"(1|2|3)..\" | \n            label_format severity=\"OKAY\" | severity =~ \"$severity\" |\n            label_format status_code=`{{if .status_code_a}}{{.status_code_a}}{{else}}{{.status_code_b}}{{end}}`\n            [$interval]\n        )\n    )\n)",
+          "hide": false,
+          "queryType": "range",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${lokids}"
+          },
+          "editorMode": "code",
+          "expr": "topk (15, \n    sum by (juju_unit, pebble_service, status_code) (\n        rate(\n            {pebble_service=~\"wsgi-.+|glance-api|neutron-server\"} |\n            pebble_service =~ \"$service\" | \n            pattern `<_> \"<_>\" status: <status_code_a> <_>` | \n            pattern `<_> \"<_>\" <status_code_b> <_>` | \n            status_code_a =~ \"4..\" or status_code_b =~ \"4..\" | \n            label_format severity=\"WARNING\" | severity =~ \"$severity\" | \n            label_format status_code=`{{if .status_code_a}}{{.status_code_a}}{{else}}{{.status_code_b}}{{end}}`\n            [$interval]\n        )\n    )\n)",
+          "hide": false,
+          "queryType": "range",
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "${lokids}"
+          },
+          "editorMode": "code",
+          "expr": "topk (15, \n    sum by (juju_unit, pebble_service, status_code) (\n        rate(\n            {pebble_service=~\"wsgi-.+|glance-api|neutron-server\"} | \n            pebble_service =~ \"$service\" |\n            pattern `<_> \"<_>\" status: <status_code_a> <_>` | \n            pattern `<_> \"<_>\" <status_code_b> <_>` | \n            status_code_a =~ \"5..\" or status_code_b =~ \"5..\" | \n            label_format severity=\"ERROR\" | severity =~ \"$severity\" | \n            label_format status_code=`{{if .status_code_a}}{{.status_code_a}}{{else}}{{.status_code_b}}{{end}}`\n            [$interval]\n        )\n    )\n)",
+          "hide": false,
+          "queryType": "range",
+          "refId": "C"
+        }
+      ],
+      "title": "OpenStack API HTTP status code by severity ($severity) - breakdown view",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "uid": "${lokids}"
+        },
+        "definition": "label_values(up{juju_model=~\"$juju_model\",juju_model_uuid=~\"$juju_model_uuid\",juju_application=~\"$juju_application\"},juju_unit)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Juju unit",
+        "multi": true,
+        "name": "juju_unit",
+        "options": [],
+        "query": {
+          "query": "label_values(up{juju_model=~\"$juju_model\",juju_model_uuid=~\"$juju_model_uuid\",juju_application=~\"$juju_application\"},juju_unit)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "uid": "${prometheusds}"
+        },
+        "definition": "label_values(up{juju_model=~\"$juju_model\",juju_model_uuid=~\"$juju_model_uuid\"},juju_application)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Juju application",
+        "multi": true,
+        "name": "juju_application",
+        "options": [],
+        "query": {
+          "query": "label_values(up{juju_model=~\"$juju_model\",juju_model_uuid=~\"$juju_model_uuid\"},juju_application)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "uid": "${prometheusds}"
+        },
+        "definition": "label_values(up{juju_model=~\"$juju_model\"},juju_model_uuid)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Juju model uuid",
+        "multi": true,
+        "name": "juju_model_uuid",
+        "options": [],
+        "query": {
+          "query": "label_values(up{juju_model=~\"$juju_model\"},juju_model_uuid)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "uid": "${prometheusds}"
+        },
+        "definition": "label_values(up,juju_model)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Juju model",
+        "multi": true,
+        "name": "juju_model",
+        "options": [],
+        "query": {
+          "query": "label_values(up,juju_model)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Loki datasource",
+        "multi": true,
+        "name": "lokids",
+        "options": [],
+        "query": "loki",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "label": "Prometheus datasource",
+        "multi": true,
+        "name": "prometheusds",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "5m",
+          "value": "5m"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "label": "Interval",
+        "multi": false,
+        "name": "interval",
+        "options": [
+          {
+            "selected": false,
+            "text": "1m",
+            "value": "1m"
+          },
+          {
+            "selected": true,
+            "text": "5m",
+            "value": "5m"
+          },
+          {
+            "selected": false,
+            "text": "10m",
+            "value": "10m"
+          },
+          {
+            "selected": false,
+            "text": "30m",
+            "value": "30m"
+          },
+          {
+            "selected": false,
+            "text": "1h",
+            "value": "1h"
+          }
+        ],
+        "query": "1m, 5m, 10m, 30m, 1h",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "",
+          "value": ""
+        },
+        "hide": 0,
+        "label": "Request ID",
+        "name": "request_id",
+        "options": [
+          {
+            "selected": true,
+            "text": "",
+            "value": ""
+          }
+        ],
+        "query": "",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "description": "The severity HTTP status code.\n\n\"OKAY\" implies a status code in [100-399]\n\"WARN\" implies a status code in [400-499]\n\"ERROR\" implies a status code in [500-599]",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Severity",
+        "multi": true,
+        "name": "severity",
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "OKAY",
+            "value": "OKAY"
+          },
+          {
+            "selected": false,
+            "text": "WARNING",
+            "value": "WARNING"
+          },
+          {
+            "selected": false,
+            "text": "ERROR",
+            "value": "ERROR"
+          }
+        ],
+        "query": "OKAY, WARNING, ERROR",
+        "queryValue": "",
+        "skipUrlSync": false,
+        "type": "custom"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "type": "loki",
+          "uid": "${lokids}"
+        },
+        "definition": "",
+        "description": "OpenStack Services",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Service",
+        "multi": true,
+        "name": "service",
+        "options": [],
+        "query": {
+          "label": "pebble_service",
+          "refId": "LokiVariableQueryEditor-VariableQuery",
+          "stream": "",
+          "type": 1
+        },
+        "refresh": 1,
+        "regex": "wsgi-.+|glance-api|neutron-server|\n",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-12h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "OpenStack Logging",
+  "version": 65,
+  "weekStart": ""
+}
