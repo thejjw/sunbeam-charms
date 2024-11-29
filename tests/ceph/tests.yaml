@@ -4,6 +4,7 @@ smoke_bundles:
   - smoke
 # There is no storage provider at the moment so cannot run tests.
 configure:
+  - zaza.sunbeam.charm_tests.k8s.setup.add_loadbalancer_annotations
   - zaza.charm_tests.noop.setup.basic_setup
 tests:
   - zaza.charm_tests.noop.tests.NoopTest
