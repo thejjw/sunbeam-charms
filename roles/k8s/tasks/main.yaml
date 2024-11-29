@@ -72,3 +72,16 @@
   become: true
   changed_when: false
   failed_when: 'res.rc != 0 or "status: ready" not in res.stdout'
+
+- name: Get k8s config
+  ansible.builtin.command:
+    cmd: k8s config
+  become: true
+  register: kubeconfig
+
+- name: Copy kubeconfig to local
+  ansible.builtin.copy:
+    content: '{{ kubeconfig.stdout }}'
+    dest: '{{ ansible_env.HOME }}/kubeconfig'
+    mode: '0644'
+    owner: '{{ ansible_user }}'
