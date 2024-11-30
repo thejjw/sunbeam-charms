@@ -16,6 +16,23 @@
       "message": "recheck job post_failure in collecting logs",
       "revId": "45e7919a980e88f18c127db7c00321108608ce48",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f331ea79_19f89ae1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-11-30T03:44:15Z",
+      "side": 1,
+      "message": "recheck git clone failed",
+      "revId": "45e7919a980e88f18c127db7c00321108608ce48",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
