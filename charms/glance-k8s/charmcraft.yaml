@@ -264,7 +264,7 @@ config:
       description: Enable notifications to send to telemetry.
     image-size-cap:
       type: string
-      default: 5GB
+      default: 1GB
       description: |
         Maximum size of image a user can upload. Defaults to 5GB
         (5368709120 bytes). Example values: 500M, 500MB, 5G, 5TB.
