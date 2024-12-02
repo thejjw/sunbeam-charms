@@ -71,4 +71,4 @@
   register: res
   become: true
   changed_when: false
-  failed_when: 'res.rc != 0 or "status: ready" not in res.stdout'
+  failed_when: 'res.rc != 0 or not res.stdout is regex(imultiline=true, match_type="search", pattern="cluster status:\ *ready")'
