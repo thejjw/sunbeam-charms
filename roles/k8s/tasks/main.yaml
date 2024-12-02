@@ -27,6 +27,14 @@
     - ansible_distribution_release in ('jammy', 'noble')
     - nftables_enabled | default(true) | bool
 
+- name: Allow packets to service cidr
+  ansible.builtin.command: nft insert rule filter openstack-INPUT ip daddr {{ k8s_service_cidr }} accept
+  become: true
+  changed_when: false
+  when:
+    - ansible_distribution_release in ('jammy', 'noble')
+    - nftables_enabled | default(true) | bool
+
 - name: Allow packets to metallb cir
   ansible.builtin.command: nft insert rule filter openstack-INPUT ip daddr {{ k8s_load_balancer_cidr }} accept
   become: true
