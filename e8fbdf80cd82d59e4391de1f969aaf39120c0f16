@@ -16,6 +16,23 @@
       "message": "recheck k8s restart",
       "revId": "e8fbdf80cd82d59e4391de1f969aaf39120c0f16",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b72c4c0d_ac49a0b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-12-02T13:26:17Z",
+      "side": 1,
+      "message": "recheck magnum dB resync failed",
+      "revId": "e8fbdf80cd82d59e4391de1f969aaf39120c0f16",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
