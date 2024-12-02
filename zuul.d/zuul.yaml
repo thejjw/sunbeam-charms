@@ -21,7 +21,7 @@
       juju_channel: 3.6/stable
       juju_classic_mode: false
       env_type: k8s
-      k8s_channel: 1.30-classic/candidate
+      k8s_channel: 1.32-classic/stable
       k8s_classic_mode: true
       charmcraft_channel: 3.x/stable
       publish_charm: true
