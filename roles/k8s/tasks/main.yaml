@@ -71,7 +71,7 @@
   register: res
   become: true
   changed_when: false
-  failed_when: 'res.rc != 0 or "status: ready" not in res.stdout'
+  failed_when: 'res.rc != 0 or not res.stdout is ansible.builtin.regex(multiline=true, match_type="search", pattern="cluster status:\ *ready")'
 
 - name: Get k8s config
   ansible.builtin.command:
