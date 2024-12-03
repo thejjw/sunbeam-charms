@@ -79,7 +79,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 
 class NovaConfigRequestEvent(RelationEvent):
@@ -132,7 +132,7 @@ class NovaServiceProvides(Object):
             )
             for relation in self.framework.model.relations[self.relation_name]:
                 relation.data[self.charm.app][
-                    "nova-spiceproxy-url"
+                    "spice-proxy-url"
                 ] = nova_spiceproxy_url
         else:
             logging.debug(
