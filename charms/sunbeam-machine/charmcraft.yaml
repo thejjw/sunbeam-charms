@@ -5,7 +5,7 @@ summary: Manage sunbeam utilities in OpenStack deployment
 description: |
   Manage machine configuration for sunbeam deployment
 
-base: ubuntu@22.04
+base: ubuntu@24.04
 platforms:
   amd64:
 
