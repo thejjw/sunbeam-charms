@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3e2756fe_d902c490",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-12-03T06:46:41Z",
+      "side": 1,
+      "message": "recheck Needs fix in zaza-openstack to retry",
+      "revId": "694b23bbe640e96ebd9ff4bea6ba5f95a48af3c0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
