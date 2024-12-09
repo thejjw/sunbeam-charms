@@ -102,7 +102,7 @@ class WSGIHorizonPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         logger.debug("Files changed: %r", files)
         if (
             self.charm.service_conf in files
-            and self.charm.ingress_public.ready
+            and self.charm.ingress_internal.ready
         ):
             logger.debug("local_settings.py changed, running django utilities")
             container = self.charm.unit.get_container(self.container_name)
@@ -141,7 +141,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     mandatory_relations = {
         "database",
-        "ingress-public",
+        "ingress-internal",
         "identity-credentials",
     }
 
@@ -231,6 +231,10 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                     self.model.app.status = ops.model.ActiveStatus(
                         self.ingress_public.url
                     )
+                elif self.ingress_internal.url:
+                    self.model.app.status = ops.model.ActiveStatus(
+                        self.ingress_internal.url
+                    )
                 else:
                     self.model.app.status = ops.model.ActiveStatus()
 
@@ -273,7 +277,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Healthcheck HTTP URL for the service."""
         return (
             super().healthcheck_http_url
-            + self.ingress_public.context().get(
+            + self.ingress_internal.context().get(
                 "ingress_path", self.model.name + "-horizon"
             )
             + "/auth/login/"

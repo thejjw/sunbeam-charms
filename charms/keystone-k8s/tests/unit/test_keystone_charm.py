@@ -543,7 +543,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         label = charm.CREDENTIALS_SECRET_PREFIX + "svc_" + "cinder"
         secret_id = rel_data["service-credentials"]
         if remove_ingress:
-            rel = self.harness.charm.model.get_relation("ingress-public")
+            rel = self.harness.charm.model.get_relation("ingress-internal")
             rel_id = rel.id
             self.harness.remove_relation(rel_id)
         self.km_mock.create_service_account = create_service_mock

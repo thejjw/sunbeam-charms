@@ -789,7 +789,7 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
 class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
     """Base class for OpenStack API operators."""
 
-    mandatory_relations = {"database", "identity-service", "ingress-public"}
+    mandatory_relations = {"database", "identity-service", "ingress-internal"}
     wsgi_admin_script: str
     wsgi_public_script: str
 
@@ -918,9 +918,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
         except (AttributeError, KeyError):
             pass
 
-        return self.add_explicit_port(
-            self.service_url(self.public_ingress_address)
-        )
+        return self.internal_url
 
     @property
     def admin_url(self) -> str:

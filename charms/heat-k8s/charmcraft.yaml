@@ -55,10 +55,10 @@ requires:
     interface: keystone
   traefik-route-internal:
     interface: traefik_route
-    optional: true
     limit: 1
   traefik-route-public:
     interface: traefik_route
+    optional: true
     limit: 1
   amqp:
     interface: rabbitmq
