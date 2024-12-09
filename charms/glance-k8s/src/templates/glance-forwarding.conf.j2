@@ -3,9 +3,9 @@ Listen 9292
 <VirtualHost *:9292>
   ProxyPreserveHost On
   ProxyRequests Off
-  {% if ingress_public and ingress_public.ingress_path -%}
-  ProxyPass {{ ingress_public.ingress_path }} http://localhost:9282/
-  ProxyPassReverse {{ ingress_public.ingress_path }} http://localhost:9282/
+  {% if ingress_internal and ingress_internal.ingress_path -%}
+  ProxyPass {{ ingress_internal.ingress_path }} http://localhost:9282/
+  ProxyPassReverse {{ ingress_internal.ingress_path }} http://localhost:9282/
   {% endif -%}
   ProxyPass / http://localhost:9282/
   ProxyPassReverse / http://localhost:9282/

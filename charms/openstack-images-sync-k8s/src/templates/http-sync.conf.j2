@@ -3,8 +3,8 @@ Listen {{ httpd_config.public_port }}
 <VirtualHost *:{{ httpd_config.public_port }}>
   DocumentRoot "/var/www/html/simplestreams"
 
- {% if ingress_public and ingress_public.ingress_path %}
-  Alias {{ ingress_public.ingress_path }} "/var/www/html/simplestreams"
+ {% if ingress_internal and ingress_internal.ingress_path %}
+  Alias {{ ingress_internal.ingress_path }} "/var/www/html/simplestreams"
  {% endif %}
 
   <Directory "/var/www/html/simplestreams">

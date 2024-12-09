@@ -144,7 +144,7 @@ relations:
 - - mysql:database
   - keystone:database
 - - traefik:ingress
-  - keystone:ingress-public
+  - keystone:ingress-internal
 
 - - mysql:database
   - glance:database
@@ -153,7 +153,7 @@ relations:
 - - rabbitmq:amqp
   - glance:amqp
 - - traefik:ingress
-  - glance:ingress-public
+  - glance:ingress-internal
 - - keystone:send-ca-cert
   - glance:receive-ca-cert
 
@@ -164,7 +164,7 @@ relations:
 - - keystone:identity-ops
   - heat:identity-ops
 - - traefik:traefik-route
-  - heat:traefik-route-public
+  - heat:traefik-route-internal
 - - rabbitmq:amqp
   - heat:amqp
 - - keystone:send-ca-cert
@@ -177,7 +177,7 @@ relations:
 - - keystone:identity-ops
   - octavia:identity-ops
 - - traefik:ingress
-  - octavia:ingress-public
+  - octavia:ingress-internal
 - - tls-operator:certificates
   - octavia:certificates
 - - octavia:ovsdb-cms
@@ -194,7 +194,7 @@ relations:
 - - keystone:identity-ops
   - barbican:identity-ops
 - - traefik:ingress
-  - barbican:ingress-public
+  - barbican:ingress-internal
 - - vault:vault-kv
   - barbican:vault-kv
 - - keystone:send-ca-cert
@@ -209,6 +209,6 @@ relations:
 - - keystone:identity-ops
   - magnum:identity-ops
 - - traefik:ingress
-  - magnum:ingress-public
+  - magnum:ingress-internal
 - - keystone:send-ca-cert
   - magnum:receive-ca-cert

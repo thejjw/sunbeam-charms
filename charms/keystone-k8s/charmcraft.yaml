@@ -141,9 +141,9 @@ requires:
   ingress-internal:
     interface: ingress
     limit: 1
-    optional: true
   ingress-public:
     interface: ingress
+    optional: true
     limit: 1
   amqp:
     interface: rabbitmq

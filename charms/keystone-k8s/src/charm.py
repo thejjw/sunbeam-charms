@@ -334,7 +334,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     domain_config_dir = Path("/etc/keystone/domains")
     domain_ca_dir = Path("/usr/local/share/ca-certificates")
     service_port = 5000
-    mandatory_relations = {"database", "ingress-public"}
+    mandatory_relations = {"database", "ingress-internal"}
     db_sync_cmds = [
         [
             "sudo",
@@ -1461,12 +1461,7 @@ export OS_AUTH_VERSION=3
         if self.ingress_public and self.ingress_public.url:
             return self.ingress_public.url.removesuffix("/") + "/v3"
 
-        address = self.public_ingress_address
-        if not address:
-            address = self.model.get_binding(
-                self.IDSVC_RELATION_NAME
-            ).network.ingress_address
-        return f"http://{address}:{self.service_port}/v3"
+        return self.internal_endpoint
 
     @property
     def healthcheck_http_url(self) -> str:

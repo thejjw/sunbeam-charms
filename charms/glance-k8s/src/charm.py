@@ -290,7 +290,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     mandatory_relations = {
         "database",
         "identity-service",
-        "ingress-public",
+        "ingress-internal",
         "ceph",
     }
 
