@@ -154,7 +154,7 @@ relations:
 - - mysql:database
   - keystone:database
 - - traefik:ingress
-  - keystone:ingress-public
+  - keystone:ingress-internal
 
 - - mysql:database
   - glance:database
@@ -163,7 +163,7 @@ relations:
 - - rabbitmq:amqp
   - glance:amqp
 - - traefik:ingress
-  - glance:ingress-public
+  - glance:ingress-internal
 - - keystone:send-ca-cert
   - glance:receive-ca-cert
 
@@ -178,7 +178,7 @@ relations:
 - - keystone:identity-service
   - nova:identity-service
 - - traefik:ingress
-  - nova:ingress-public
+  - nova:ingress-internal
 - - traefik:traefik-route
   - nova:traefik-route-public
 - - keystone:send-ca-cert
@@ -189,7 +189,7 @@ relations:
 - - keystone:identity-service
   - placement:identity-service
 - - traefik:ingress
-  - placement:ingress-public
+  - placement:ingress-internal
 - - keystone:send-ca-cert
   - placement:receive-ca-cert
 
@@ -200,7 +200,7 @@ relations:
 - - keystone:identity-service
   - neutron:identity-service
 - - traefik:ingress
-  - neutron:ingress-public
+  - neutron:ingress-internal
 - - tls-operator:certificates
   - neutron:certificates
 - - neutron:ovsdb-cms

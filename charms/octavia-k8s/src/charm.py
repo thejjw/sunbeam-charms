@@ -304,7 +304,7 @@ class OctaviaOVNOperatorCharm(OctaviaOperatorCharm):
         "database",
         "ovsdb-cms",
         "identity-service",
-        "ingress-public",
+        "ingress-internal",
     }
 
     @property

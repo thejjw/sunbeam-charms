@@ -918,9 +918,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
         except (AttributeError, KeyError):
             pass
 
-        return self.add_explicit_port(
-            self.service_url(self.public_ingress_address)
-        )
+        return self.internal_url
 
     @property
     def admin_url(self) -> str:
