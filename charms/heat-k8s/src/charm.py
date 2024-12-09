@@ -207,7 +207,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         "database",
         "amqp",
         "identity-service",
-        "traefik-route-public",
+        "traefik-route-internal",
         "identity-ops",
     }
 
@@ -509,9 +509,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             )
             return self.add_explicit_port(public_url)
         else:
-            return self.add_explicit_port(
-                self.service_url(self.public_ingress_address)
-            )
+            return self.heat_internal_url
 
     @property
     def heat_cfn_public_url(self) -> str:
@@ -528,9 +526,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             )
             return self.add_explicit_port(public_url)
         else:
-            return self.add_explicit_port(
-                self.service_url(self.public_ingress_address)
-            )
+            return self.heat_cfn_internal_url
 
     @property
     def heat_internal_url(self) -> str:

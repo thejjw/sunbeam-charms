@@ -125,7 +125,7 @@ relations:
 - - mysql:database
   - keystone:database
 - - traefik:ingress
-  - keystone:ingress-public
+  - keystone:ingress-internal
 
 - - mysql:database
   - cinder:database
@@ -134,7 +134,7 @@ relations:
 - - keystone:identity-service
   - cinder:identity-service
 - - traefik:ingress
-  - cinder:ingress-public
+  - cinder:ingress-internal
 - - keystone:send-ca-cert
   - cinder:receive-ca-cert
 
@@ -150,7 +150,7 @@ relations:
 - - mysql:database
   - gnocchi:database
 - - traefik:ingress
-  - gnocchi:ingress-public
+  - gnocchi:ingress-internal
 - - keystone:identity-service
   - gnocchi:identity-service
 - - keystone:send-ca-cert
@@ -172,7 +172,7 @@ relations:
 - - keystone:identity-service
   - aodh:identity-service
 - - traefik:ingress
-  - aodh:ingress-public
+  - aodh:ingress-internal
 - - keystone:send-ca-cert
   - aodh:receive-ca-cert
 
@@ -183,7 +183,7 @@ relations:
 - - keystone:identity-service
   - watcher:identity-service
 - - traefik:ingress
-  - watcher:ingress-public
+  - watcher:ingress-internal
 - - keystone:send-ca-cert
   - watcher:receive-ca-cert
 - - gnocchi:gnocchi-service

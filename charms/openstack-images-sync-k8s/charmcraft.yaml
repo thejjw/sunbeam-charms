@@ -62,6 +62,7 @@ requires:
     optional: true
   ingress-public:
     interface: ingress
+    optional: true
     limit: 1
   identity-service:
     interface: keystone

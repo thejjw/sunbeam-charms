@@ -432,7 +432,7 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
         "database",
         "ovsdb-cms",
         "identity-service",
-        "ingress-public",
+        "ingress-internal",
     }
 
     @property
