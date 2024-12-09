@@ -16,6 +16,24 @@
       "message": "A lot of charms redefine `mandatory_relations` such as aodh and barbican, and need to be updated to make internal mandatory",
       "revId": "f23891c5150ad673c2e90c8a2bbb48ddaa217f02",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a52dc0d_d5027790",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-12-09T13:14:23Z",
+      "side": 1,
+      "message": "Fixed in PS3",
+      "parentUuid": "2c09faec_7d0cfc67",
+      "revId": "f23891c5150ad673c2e90c8a2bbb48ddaa217f02",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
