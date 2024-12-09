@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c09faec_7d0cfc67",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2024-12-09T08:05:51Z",
+      "side": 1,
+      "message": "A lot of charms redefine `mandatory_relations` such as aodh and barbican, and need to be updated to make internal mandatory",
+      "revId": "f23891c5150ad673c2e90c8a2bbb48ddaa217f02",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
