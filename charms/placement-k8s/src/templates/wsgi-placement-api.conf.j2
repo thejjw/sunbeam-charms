@@ -3,8 +3,8 @@ Listen {{ wsgi_config.public_port }}
     WSGIDaemonProcess placement processes=4 threads=1 user={{ wsgi_config.user }} group={{ wsgi_config.group }} \
                       display-name=%{GROUP}
     WSGIProcessGroup placement
-    {% if ingress_public and ingress_public.ingress_path -%}
-    WSGIScriptAlias {{ ingress_public.ingress_path }} {{ wsgi_config.wsgi_public_script }}
+    {% if ingress_internal and ingress_internal.ingress_path -%}
+    WSGIScriptAlias {{ ingress_internal.ingress_path }} {{ wsgi_config.wsgi_public_script }}
     {% endif -%}
     WSGIScriptAlias / {{ wsgi_config.wsgi_public_script }}
     WSGIApplicationGroup %{GLOBAL}

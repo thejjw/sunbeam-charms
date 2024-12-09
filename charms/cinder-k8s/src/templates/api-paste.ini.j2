@@ -3,9 +3,9 @@ use = call:cinder.api:root_app_factory
 /: apiversions
 /healthcheck: healthcheck
 /v3: openstack_volume_api_v3
-{% if ingress_public.ingress_path -%}
-{{ ingress_public.ingress_path }}: apiversions
-{{ ingress_public.ingress_path }}/v3: openstack_volume_api_v3
+{% if ingress_internal.ingress_path -%}
+{{ ingress_internal.ingress_path }}: apiversions
+{{ ingress_internal.ingress_path }}/v3: openstack_volume_api_v3
 {% endif -%}
 
 [composite:openstack_volume_api_v3]
