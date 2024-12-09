@@ -146,7 +146,7 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         "database",
         "amqp",
         "identity-service",
-        "ingress-public",
+        "ingress-internal",
         "identity-ops",
     }
 

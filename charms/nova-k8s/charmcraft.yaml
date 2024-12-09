@@ -68,17 +68,17 @@ resources:
 requires:
   ingress-internal:
     interface: ingress
-    optional: true
     limit: 1
   ingress-public:
     interface: ingress
+    optional: true
     limit: 1
   traefik-route-internal:
     interface: traefik_route
-    optional: true
     limit: 1
   traefik-route-public:
     interface: traefik_route
+    optional: true
     limit: 1
   database:
     interface: mysql_client

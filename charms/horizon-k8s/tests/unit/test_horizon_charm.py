@@ -113,5 +113,5 @@ class TestHorizonOperatorCharm(test_utils.CharmTestCase):
         action_event = MagicMock()
         self.harness.charm._get_dashboard_url_action(action_event)
         action_event.set_results.assert_called_with(
-            {"url": "http://dashboard.juju:80"}
+            {"url": "http://10.0.0.10:80"}
         )

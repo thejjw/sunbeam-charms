@@ -206,7 +206,7 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         "amqp",
         "storage-backend",
         "identity-service",
-        "ingress-public",
+        "ingress-internal",
     }
 
     db_sync_cmds = [

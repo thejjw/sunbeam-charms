@@ -364,7 +364,7 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     mandatory_relations = {
         "database",
         "identity-service",
-        "ingress-public",
+        "ingress-internal",
         "amqp",
         BIND_RNDC_RELATION,
     }

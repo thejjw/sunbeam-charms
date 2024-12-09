@@ -127,7 +127,7 @@ relations:
 - - mysql:database
   - keystone:database
 - - traefik:ingress
-  - keystone:ingress-public
+  - keystone:ingress-internal
 
 - - mysql:database
   - designate:database
@@ -136,7 +136,7 @@ relations:
 - - keystone:identity-service
   - designate:identity-service
 - - traefik:ingress
-  - designate:ingress-public
+  - designate:ingress-internal
 - - designate-bind:dns-backend
   - designate:dns-backend
 - - keystone:send-ca-cert
@@ -153,7 +153,7 @@ relations:
 - - keystone:identity-credentials
   - horizon:identity-credentials
 - - traefik:ingress
-  - horizon:ingress-public
+  - horizon:ingress-internal
 - - keystone:send-ca-cert
   - horizon:receive-ca-cert
 
@@ -164,7 +164,7 @@ relations:
 - - keystone:identity-service
   - masakari:identity-service
 - - traefik:ingress
-  - masakari:ingress-public
+  - masakari:ingress-internal
 
 - - masakari:consul-management
   - consul:consul-cluster

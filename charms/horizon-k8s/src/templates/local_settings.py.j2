@@ -833,17 +833,17 @@ REST_API_REQUIRED_SETTINGS = ['OPENSTACK_HYPERVISOR_FEATURES',
 
 # XXX Review theme handling and update here
 
-WEBROOT = '{{ ingress_public.ingress_path }}'
-STATIC_URL = '{{ ingress_public.ingress_path }}/static/'
+WEBROOT = '{{ ingress_internal.ingress_path }}'
+STATIC_URL = '{{ ingress_internal.ingress_path }}/static/'
 
 {% if webroot == "/" %}
 LOGIN_URL='/auth/login/'
 LOGOUT_URL='/auth/logout/'
 {% else %}
-LOGIN_URL='{{ ingress_public.ingress_path }}/auth/login/'
-LOGOUT_URL='{{ ingress_public.ingress_path }}/auth/logout/'
+LOGIN_URL='{{ ingress_internal.ingress_path }}/auth/login/'
+LOGOUT_URL='{{ ingress_internal.ingress_path }}/auth/logout/'
 {% endif %}
-LOGIN_REDIRECT_URL='{{ ingress_public.ingress_path }}'
+LOGIN_REDIRECT_URL='{{ ingress_internal.ingress_path }}'
 
 # By default, validation of the HTTP Host header is disabled.  Production
 # installations should have this set accordingly.  For more information
