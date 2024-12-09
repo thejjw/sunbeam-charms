@@ -1461,12 +1461,7 @@ export OS_AUTH_VERSION=3
         if self.ingress_public and self.ingress_public.url:
             return self.ingress_public.url.removesuffix("/") + "/v3"
 
-        address = self.public_ingress_address
-        if not address:
-            address = self.model.get_binding(
-                self.IDSVC_RELATION_NAME
-            ).network.ingress_address
-        return f"http://{address}:{self.service_port}/v3"
+        return self.internal_endpoint
 
     @property
     def healthcheck_http_url(self) -> str:

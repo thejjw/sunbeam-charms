@@ -2,8 +2,8 @@
 paste.composite_factory = magnum.api:root_app_factory
 /: api
 /healthcheck: healthcheck
-{% if ingress_public.ingress_path -%}
-{{ ingress_public.ingress_path }}: api
+{% if ingress_internal.ingress_path -%}
+{{ ingress_internal.ingress_path }}: api
 {% endif %}
 
 [pipeline:api]

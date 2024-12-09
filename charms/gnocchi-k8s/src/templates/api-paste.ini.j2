@@ -3,10 +3,10 @@ use = egg:Paste#urlmap
 / = gnocchiversions_pipeline
 /v1 = gnocchiv1+noauth
 /healthcheck = healthcheck
-{% if ingress_public.ingress_path -%}
-{{ ingress_public.ingress_path }}: gnocchiversions_pipeline
-{{ ingress_public.ingress_path }}/v1 = gnocchiv1+noauth
-{{ ingress_public.ingress_path }}/healthcheck = healthcheck
+{% if ingress_internal.ingress_path -%}
+{{ ingress_internal.ingress_path }}: gnocchiversions_pipeline
+{{ ingress_internal.ingress_path }}/v1 = gnocchiv1+noauth
+{{ ingress_internal.ingress_path }}/healthcheck = healthcheck
 {% endif -%}
 
 [composite:gnocchi+keystone]
@@ -14,10 +14,10 @@ use = egg:Paste#urlmap
 / = gnocchiversions_pipeline
 /v1 = gnocchiv1+keystone
 /healthcheck = healthcheck
-{% if ingress_public.ingress_path -%}
-{{ ingress_public.ingress_path }}: gnocchiversions_pipeline
-{{ ingress_public.ingress_path }}/v1 = gnocchiv1+keystone
-{{ ingress_public.ingress_path }}/healthcheck = healthcheck
+{% if ingress_internal.ingress_path -%}
+{{ ingress_internal.ingress_path }}: gnocchiversions_pipeline
+{{ ingress_internal.ingress_path }}/v1 = gnocchiv1+keystone
+{{ ingress_internal.ingress_path }}/healthcheck = healthcheck
 {% endif -%}
 
 [composite:gnocchi+remoteuser]
@@ -25,10 +25,10 @@ use = egg:Paste#urlmap
 / = gnocchiversions_pipeline
 /v1 = gnocchiv1+noauth
 /healthcheck = healthcheck
-{% if ingress_public.ingress_path -%}
-{{ ingress_public.ingress_path }}: gnocchiversions_pipeline
-{{ ingress_public.ingress_path }}/v1 = gnocchiv1+noauth
-{{ ingress_public.ingress_path }}/healthcheck = healthcheck
+{% if ingress_internal.ingress_path -%}
+{{ ingress_internal.ingress_path }}: gnocchiversions_pipeline
+{{ ingress_internal.ingress_path }}/v1 = gnocchiv1+noauth
+{{ ingress_internal.ingress_path }}/healthcheck = healthcheck
 {% endif -%}
 
 [pipeline:gnocchiv1+noauth]

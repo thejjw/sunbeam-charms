@@ -84,10 +84,10 @@ requires:
     interface: keystone
   ingress-internal:
     interface: ingress
-    optional: true
     limit: 1
   ingress-public:
     interface: ingress
+    optional: true
     limit: 1
   amqp:
     interface: rabbitmq

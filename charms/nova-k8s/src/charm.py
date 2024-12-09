@@ -448,6 +448,15 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 f"{self.model.name}-{NOVA_SPICEPROXY_INGRESS_NAME}"
             )
             return public_url
+        elif self.traefik_route_internal and self.traefik_route_internal.ready:
+            scheme = self.traefik_route_internal.interface.scheme
+            external_host = self.traefik_route_internal.interface.external_host
+            internal_url = (
+                f"{scheme}://{external_host}/{self.model.name}"
+                f"-{NOVA_SPICEPROXY_INGRESS_NAME}/spice_auto.html?path=/"
+                f"{self.model.name}-{NOVA_SPICEPROXY_INGRESS_NAME}"
+            )
+            return internal_url
 
         return None
 
