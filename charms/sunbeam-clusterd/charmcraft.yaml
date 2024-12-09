@@ -5,7 +5,7 @@ summary: A juju charm to run sunbeam clusterd
 description: |
   Manage sunbeam clusterd deployment
 
-base: ubuntu@22.04
+base: ubuntu@24.04
 platforms:
   amd64:
 
