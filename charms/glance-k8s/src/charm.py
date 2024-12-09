@@ -215,10 +215,16 @@ class GlanceConfigContext(sunbeam_ctxts.ConfigContext):
 
     def context(self) -> dict:
         """Context used when rendering templates."""
+        image_size_cap = self.charm.config.get("image-size-cap")
+        if not image_size_cap:
+            # Defaults to 30G for ceph storage and 1G for local storage
+            if self.charm.has_ceph_relation():
+                image_size_cap = "30G"
+            else:
+                image_size_cap = "1G"
+
         return {
-            "image_size_cap": bytes_from_string(
-                self.charm.config["image-size-cap"]
-            ),
+            "image_size_cap": bytes_from_string(image_size_cap),
             "image_import_plugins": json.dumps(
                 ["image_conversion"]
                 if self.charm.config["image-conversion"]
@@ -542,6 +548,9 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def _validate_image_size_cap(self):
         """Check image size is valid."""
+        if self.config.get("image-size-cap") is None:
+            return
+
         try:
             image_cap_size = bytes_from_string(self.config["image-size-cap"])
         except ValueError as e:
