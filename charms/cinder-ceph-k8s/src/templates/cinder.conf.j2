@@ -11,6 +11,10 @@ use_syslog = {{ options.use_syslog }}
 auth_strategy = keystone
 state_path = /var/lib/cinder
 
+# Disable as workaround for LP: #2091269
+# This makes cinder-volume refuse to work with non-raw images
+image_conversion_disable = True
+
 {% if amqp.transport_url %}
 transport_url = {{ amqp.transport_url }}
 {% endif %}
