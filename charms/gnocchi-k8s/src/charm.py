@@ -184,13 +184,6 @@ class GnocchiOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     db_sync_cmds = [["gnocchi-upgrade"]]
 
-    mandatory_relations = {
-        "database",
-        "identity-service",
-        "ingress-internal",
-        "ceph",
-    }
-
     @property
     def service_conf(self) -> str:
         """Service default configuration file."""

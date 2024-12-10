@@ -327,9 +327,10 @@ requires:
   amqp:
     interface: rabbitmq
     optional: true
+  # ceph is not marked as optional as the GlanceStorage relation handler
+  # falls back to juju storage if ceph relation is not connected.
   ceph:
     interface: ceph-client
-    optional: true
   receive-ca-cert:
     interface: certificate_transfer
     optional: true

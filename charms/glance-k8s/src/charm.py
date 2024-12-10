@@ -290,16 +290,6 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ]
     ]
 
-    # ceph is included in the mandatory list as the GlanceStorage
-    # relation handler falls back to juju storage if ceph relation
-    # is not connected.
-    mandatory_relations = {
-        "database",
-        "identity-service",
-        "ingress-internal",
-        "ceph",
-    }
-
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.framework.observe(

@@ -201,14 +201,6 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_admin_script = "/usr/bin/cinder-wsgi"
     wsgi_public_script = "/usr/bin/cinder-wsgi"
 
-    mandatory_relations = {
-        "database",
-        "amqp",
-        "storage-backend",
-        "identity-service",
-        "ingress-internal",
-    }
-
     db_sync_cmds = [
         [
             "sudo",

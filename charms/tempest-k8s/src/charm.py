@@ -107,8 +107,6 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     _state = ops.framework.StoredState()
     service_name = "tempest"
 
-    mandatory_relations = {"identity-ops"}
-
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run the constructor."""
         # config for openstack, used by tempest
