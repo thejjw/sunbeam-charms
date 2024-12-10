@@ -250,12 +250,6 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     service_name = "barbican-api"
     wsgi_admin_script = "/usr/bin/barbican-wsgi-api"
     wsgi_public_script = "/usr/bin/barbican-wsgi-api"
-    mandatory_relations = {
-        "database",
-        "amqp",
-        "identity-service",
-        "ingress-internal",
-    }
 
     db_sync_cmds = [
         ["sudo", "-u", "barbican", "barbican-manage", "db", "upgrade"]
@@ -435,9 +429,7 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 class BarbicanVaultOperatorCharm(BarbicanOperatorCharm):
     """Vault specialized Barbican Operator Charm."""
 
-    mandatory_relations = BarbicanOperatorCharm.mandatory_relations.union(
-        {VAULT_KV_RELATION}
-    )
+    mandatory_relations = {VAULT_KV_RELATION}
 
     def __init__(self, *args):
         super().__init__(*args)

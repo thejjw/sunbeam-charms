@@ -142,13 +142,6 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     service_name = "magnum-api"
     wsgi_admin_script = "/usr/bin/magnum-api-wsgi"
     wsgi_public_script = "/usr/bin/magnum-api-wsgi"
-    mandatory_relations = {
-        "database",
-        "amqp",
-        "identity-service",
-        "ingress-internal",
-        "identity-ops",
-    }
 
     db_sync_cmds = [["sudo", "-u", "magnum", "magnum-db-manage", "upgrade"]]
 

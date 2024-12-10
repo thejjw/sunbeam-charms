@@ -300,13 +300,6 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 class OctaviaOVNOperatorCharm(OctaviaOperatorCharm):
     """Charm the Octavia service with OVN provider."""
 
-    mandatory_relations = {
-        "database",
-        "ovsdb-cms",
-        "identity-service",
-        "ingress-internal",
-    }
-
     @property
     def config_contexts(self) -> List[sunbeam_config_contexts.ConfigContext]:
         """Configuration contexts for the operator."""

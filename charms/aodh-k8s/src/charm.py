@@ -252,13 +252,6 @@ class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     db_sync_cmds = [["aodh-dbsync"]]
 
-    mandatory_relations = {
-        "database",
-        "identity-service",
-        "ingress-internal",
-        "amqp",
-    }
-
     @property
     def service_conf(self) -> str:
         """Service default configuration file."""

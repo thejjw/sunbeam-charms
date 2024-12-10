@@ -158,13 +158,6 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     METADATA_SECRET_KEY = "ovn-metadata-proxy-shared-secret"
     DEFAULT_SECRET_LENGTH = 32
 
-    mandatory_relations = {
-        "amqp",
-        "identity-credentials",
-        "ovsdb-cms",
-        "nova-service",
-    }
-
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run constructor."""
         super().__init__(framework)

@@ -203,14 +203,6 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     db_sync_cmds = [["heat-manage", "db_sync"]]
 
-    mandatory_relations = {
-        "database",
-        "amqp",
-        "identity-service",
-        "traefik-route-internal",
-        "identity-ops",
-    }
-
     def __init__(self, framework):
         self.traefik_route_public = None
         self.traefik_route_internal = None

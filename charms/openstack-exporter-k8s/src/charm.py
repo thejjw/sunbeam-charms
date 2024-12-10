@@ -158,9 +158,6 @@ class GrafanaDashboardsRelationHandler(sunbeam_rhandlers.RelationHandler):
 class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 
-    mandatory_relations = {
-        "identity-ops",
-    }
     service_name = "openstack-exporter"
 
     @property

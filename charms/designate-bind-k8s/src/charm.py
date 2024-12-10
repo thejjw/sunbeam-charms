@@ -198,8 +198,6 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     _state = StoredState()
     service_name = "designate-bind"
 
-    # mandatory_relations = {}
-
     def __init__(self, *args):
         super().__init__(*args)
         self.framework.observe(self.on.secret_rotate, self._on_secret_rotate)
