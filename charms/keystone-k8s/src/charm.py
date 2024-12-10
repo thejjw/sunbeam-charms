@@ -334,7 +334,6 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     domain_config_dir = Path("/etc/keystone/domains")
     domain_ca_dir = Path("/usr/local/share/ca-certificates")
     service_port = 5000
-    mandatory_relations = {"database", "ingress-internal"}
     db_sync_cmds = [
         [
             "sudo",

@@ -105,6 +105,7 @@ requires:
     interface: nova
   masakari-service:
     interface: service-ready
+    optional: true
   tracing:
     interface: tracing
     optional: true

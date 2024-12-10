@@ -79,6 +79,7 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
     _state = ops.framework.StoredState()
 
     # Holds set of mandatory relations
+    # Auto-updates the mandatory requires relations from charmcraft.yaml
     mandatory_relations: set[str] = set()
     service_name: str
 
@@ -92,6 +93,17 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
                     "by ops_sunbeam"
                 )
             )
+
+        # Update mandatory relations from charmcraft.yaml definitions
+        requires_relations: set[str] = {
+            name
+            for name, metadata in self.meta.requires.items()
+            if metadata.optional is False
+        }
+        self.mandatory_relations = requires_relations.union(
+            self.mandatory_relations
+        )
+
         # unit_bootstrapped is stored in the local unit storage which is lost
         # when the pod is replaced, so this will revert to False on charm
         # upgrade or upgrade of the payload container.
@@ -789,7 +801,6 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
 class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
     """Base class for OpenStack API operators."""
 
-    mandatory_relations = {"database", "identity-service", "ingress-internal"}
     wsgi_admin_script: str
     wsgi_public_script: str
 

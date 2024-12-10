@@ -343,15 +343,6 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_admin_script = "/usr/bin/nova-api-wsgi"
     wsgi_public_script = "/usr/bin/nova-api-wsgi"
     shared_metadata_secret_key = "shared-metadata-secret"
-    mandatory_relations = {
-        "database",
-        "api-database",
-        "cell-database",
-        "amqp",
-        "identity-service",
-        "ingress-internal",
-        "traefik-route-internal",
-    }
 
     def __init__(self, framework):
         self.traefik_route_public = None

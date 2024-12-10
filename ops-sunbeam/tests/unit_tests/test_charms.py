@@ -108,6 +108,7 @@ requires:
     limit: 1
   ingress-public:
     interface: ingress
+    optional: true
     limit: 1
   amqp:
     interface: rabbitmq
@@ -115,9 +116,11 @@ requires:
     interface: keystone
   identity-credentials:
     interface: keystone-credentials
+    optional: true
     limit: 1
   ceph-access:
     interface: cinder-ceph-key
+    optional: true
 
 peers:
   peers:
@@ -253,12 +256,6 @@ class MyAPICharm(sunbeam_charm.OSBaseOperatorAPICharm):
     service_name = "my-service"
     wsgi_admin_script = "/bin/wsgi_admin"
     wsgi_public_script = "/bin/wsgi_public"
-    mandatory_relations = {
-        "database",
-        "amqp",
-        "identity-service",
-        "ingress-public",
-    }
 
     def __init__(self, framework: "ops.framework.Framework") -> None:
         """Run constructor."""

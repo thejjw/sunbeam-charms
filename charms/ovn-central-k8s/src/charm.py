@@ -183,7 +183,7 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 
     _state = StoredState()
-    mandatory_relations = {"certificates", "peers"}
+    mandatory_relations = {"peers"}
 
     def __init__(self, framework):
         """Setup OVN central charm class."""

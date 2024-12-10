@@ -427,14 +427,6 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
 class NeutronOVNOperatorCharm(NeutronOperatorCharm):
     """Neutron charm class for OVN."""
 
-    mandatory_relations = {
-        "amqp",
-        "database",
-        "ovsdb-cms",
-        "identity-service",
-        "ingress-internal",
-    }
-
     @property
     def config_contexts(self) -> list[sunbeam_ctxts.ConfigContext]:
         """Configuration contexts for the operator."""

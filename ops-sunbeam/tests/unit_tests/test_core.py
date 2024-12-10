@@ -365,7 +365,7 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
             self.harness.charm.get_mandatory_relations_not_ready(
                 self.mock_event
             ),
-            {"identity-service", "ingress-public", "amqp"},
+            {"identity-service", "ingress-internal", "amqp"},
         )
 
         amqp_rel_id = test_utils.add_base_amqp_relation(self.harness)
@@ -374,7 +374,7 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
             self.harness.charm.get_mandatory_relations_not_ready(
                 self.mock_event
             ),
-            {"ingress-public", "identity-service"},
+            {"ingress-internal", "identity-service"},
         )
 
         identity_rel_id = test_utils.add_base_identity_service_relation(
@@ -387,14 +387,14 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
             self.harness.charm.get_mandatory_relations_not_ready(
                 self.mock_event
             ),
-            {"ingress-public"},
+            {"ingress-internal"},
         )
 
         ingress_rel_id = test_utils.add_ingress_relation(
-            self.harness, "public"
+            self.harness, "internal"
         )
         test_utils.add_ingress_relation_data(
-            self.harness, ingress_rel_id, "public"
+            self.harness, ingress_rel_id, "internal"
         )
 
         ceph_access_rel_id = test_utils.add_base_ceph_access_relation(
@@ -413,10 +413,10 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
         # Add an optional relation and test if relation_handlers_ready
         # returns True
         optional_rel_id = test_utils.add_ingress_relation(
-            self.harness, "internal"
+            self.harness, "public"
         )
         test_utils.add_ingress_relation_data(
-            self.harness, optional_rel_id, "internal"
+            self.harness, optional_rel_id, "public"
         )
         self.assertSetEqual(
             self.harness.charm.get_mandatory_relations_not_ready(
@@ -432,15 +432,15 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
             self.harness.charm.get_mandatory_relations_not_ready(
                 self.mock_event
             ),
-            {"ingress-public"},
+            {"ingress-internal"},
         )
 
         # Add the mandatory relation back and retest relation_handlers_ready
         ingress_rel_id = test_utils.add_ingress_relation(
-            self.harness, "public"
+            self.harness, "internal"
         )
         test_utils.add_ingress_relation_data(
-            self.harness, ingress_rel_id, "public"
+            self.harness, ingress_rel_id, "internal"
         )
         self.assertSetEqual(
             self.harness.charm.get_mandatory_relations_not_ready(

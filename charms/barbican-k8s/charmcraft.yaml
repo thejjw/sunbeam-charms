@@ -66,6 +66,7 @@ requires:
     interface: rabbitmq
   vault-kv:
     interface: vault-kv
+    optional: true
     limit: 1
   receive-ca-cert:
     interface: certificate_transfer

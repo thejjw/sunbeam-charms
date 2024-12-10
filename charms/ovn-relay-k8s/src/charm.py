@@ -93,11 +93,6 @@ class OVNRelayPebbleHandler(ovn_chandlers.OVNPebbleHandler):
 class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
     """Charm the service."""
 
-    mandatory_relations = {
-        "ovsdb-cms",
-        "certificates",
-    }
-
     def __init__(self, framework):
         super().__init__(framework)
         self.service_patcher = KubernetesServicePatch(

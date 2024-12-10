@@ -118,12 +118,6 @@ class WatcherOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     service_name = "watcher-api"
     wsgi_admin_script = "/usr/bin/watcher-api-wsgi"
     wsgi_public_script = "/usr/bin/watcher-api-wsgi"
-    mandatory_relations = {
-        "database",
-        "amqp",
-        "identity-service",
-        "ingress-internal",
-    }
 
     db_sync_cmds = [
         [

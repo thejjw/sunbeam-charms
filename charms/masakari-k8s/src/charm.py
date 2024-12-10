@@ -290,13 +290,6 @@ class MasakariHostMonitorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 class MasakariOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
-    mandatory_relations = {
-        "database",
-        "amqp",
-        "identity-service",
-        "ingress-internal",
-    }
-
     wsgi_admin_script = "/usr/bin/masakari-wsgi"
     wsgi_public_script = "/usr/bin/masakari-wsgi"
 

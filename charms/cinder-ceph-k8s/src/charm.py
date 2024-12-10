@@ -224,13 +224,6 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
 
     ceph_access_relation_name = "ceph-access"
 
-    mandatory_relations = {
-        "database",
-        "amqp",
-        "ceph",
-        "storage-backend",
-    }
-
     def __init__(self, framework):
         super().__init__(framework)
         self._state.set_default(api_ready=False)
