@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a359de82_3ee6fd49",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-12-10T09:30:11Z",
+      "side": 1,
+      "message": "recheck K8s bootstrap failed",
+      "revId": "4185cf531177a6d29ea519af0f0409cb7e98c505",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
