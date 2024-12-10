@@ -16,6 +16,23 @@
       "message": "recheck NO CONNECTIVITY TO GIT SERVER",
       "revId": "e39d95f45966e5889305979f0389cd463e6c3ad5",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "88a32412_774b5d1b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2024-12-10T01:12:51Z",
+      "side": 1,
+      "message": "recheck K8S RESTART",
+      "revId": "e39d95f45966e5889305979f0389cd463e6c3ad5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
