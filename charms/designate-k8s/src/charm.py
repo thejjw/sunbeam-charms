@@ -361,14 +361,6 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ["sudo", "-u", "designate", "designate-manage", "pool", "update"],
     ]
 
-    mandatory_relations = {
-        "database",
-        "identity-service",
-        "ingress-internal",
-        "amqp",
-        BIND_RNDC_RELATION,
-    }
-
     def __init__(self, *args):
         super().__init__(*args)
         self.framework.observe(self.on.install, self._on_install)

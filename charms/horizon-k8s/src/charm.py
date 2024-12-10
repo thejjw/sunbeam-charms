@@ -139,12 +139,6 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ]
     ]
 
-    mandatory_relations = {
-        "database",
-        "ingress-internal",
-        "identity-credentials",
-    }
-
     def __init__(self, framework):
         super().__init__(framework)
         self._state.set_default(plugins=[])

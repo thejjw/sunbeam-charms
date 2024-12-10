@@ -181,7 +181,6 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     shared_metering_secret_key = "shared-metering-secret"
 
     db_sync_cmds = [["ceilometer-upgrade"]]
-    mandatory_relations = {"amqp", "identity-credentials", "gnocchi-db"}
 
     def __init__(self, framework: ops.framework):
         super().__init__(framework)

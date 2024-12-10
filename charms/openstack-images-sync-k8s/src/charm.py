@@ -155,10 +155,6 @@ class OpenstackImagesSyncK8SCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the application."""
 
     service_name = "openstack-images-sync"
-    mandatory_relations = {
-        "identity-service",
-        "ingress-internal",
-    }
 
     @property
     def service_conf(self) -> str:

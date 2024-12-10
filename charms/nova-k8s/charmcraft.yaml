@@ -91,20 +91,11 @@ requires:
     limit: 1
   amqp:
     interface: rabbitmq
-  image-service:
-    interface: glance
   identity-service:
     interface: keystone
   cloud-compute:
     interface: nova-compute
-  cinder-volume-service:
-    interface: cinder
-  neutron-network-service:
-    interface: neutron
-  neutron-api:
-    interface: neutron-api
-  placement:
-    interface: placement
+    optional: true
   receive-ca-cert:
     interface: certificate_transfer
     optional: true

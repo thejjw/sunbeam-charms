@@ -150,6 +150,7 @@ requires:
     optional: true
   domain-config:
     interface: keystone-domain-config
+    optional: true
   logging:
     interface: loki_push_api
     optional: true
