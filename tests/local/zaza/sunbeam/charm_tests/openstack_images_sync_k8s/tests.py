@@ -30,10 +30,20 @@ class OpenStackImagesSyncK8sTest(test_utils.BaseCharmTest):
             application_name="openstack-images-sync"
         )
 
-        keystone_session = openstack_utils.get_overcloud_keystone_session()
+        keystone_session = cls._get_keystone_session()
         cls.glance_client: GlanceClient = (
             openstack_utils.get_glance_session_client(keystone_session)
         )
+
+    @classmethod
+    @tenacity.retry(
+        wait=tenacity.wait_fixed(7),
+        stop=tenacity.stop_after_attempt(5),
+        reraise=True,
+    )
+    def _get_keystone_session(cls):
+        """Get keystone session."""
+        return openstack_utils.get_overcloud_keystone_session()
 
     @tenacity.retry(
         wait=tenacity.wait_fixed(10),
