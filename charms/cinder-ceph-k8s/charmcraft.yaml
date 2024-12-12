@@ -41,7 +41,7 @@ config:
         your ceph cluster).
     ceph-pool-weight:
       type: int
-      default: 40
+      default: 20
       description: |
         Defines a relative weighting of the pool as a percentage of the total
         amount of data in the Ceph cluster. This effectively weights the number
