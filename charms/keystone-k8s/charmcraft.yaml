@@ -105,7 +105,8 @@ actions:
     additionalProperties: false
   list-ca-certs:
     description: |
-      List CA certs uploaded for transfer
+      List CA certs uploaded for transfer.
+      Certificate names with `.` will be replace with `-`.
 
 containers:
   keystone:

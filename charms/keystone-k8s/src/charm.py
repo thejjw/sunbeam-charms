@@ -631,6 +631,16 @@ export OS_AUTH_VERSION=3
             self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL) or "{}"
         )
         certificates = json.loads(certificates_str)
+
+        # Replace '.' in certificate names with '-'
+        # This is due to the way ops flatten the results dictionary
+        # https://github.com/canonical/operator/blob/e573f8f39c6b11470dcae3ac94ad798e4655ee91/ops/charm.py#L170
+        names_with_dot = [k for k, v in certificates.items() if "." in k]
+        for name in names_with_dot:
+            name_ = name.replace(".", "-")
+            certificates[name_] = certificates[name]
+            certificates.pop(name)
+
         event.set_results(certificates)
 
     def _on_peer_data_changed(self, event: RelationChangedEvent):
