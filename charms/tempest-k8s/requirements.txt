@@ -9,7 +9,9 @@ cosl
 tenacity
 
 # for validating cron expressions
-croniter
+# due to https://github.com/corpusops/croniter/issues/144
+# we might need to find an alternative for croniter project
+croniter==5.0.1
 
 # for handling cleanup
 openstacksdk

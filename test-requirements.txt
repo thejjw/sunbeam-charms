@@ -13,10 +13,13 @@ pydantic                   # traefik-k8s ingress lib
 requests                   # cinder-ceph-k8s
 netifaces                  # cinder-ceph-k8s
 cosl                       # openstack-exporter
-croniter                   # tempest-k8s
 git+https://github.com/juju/charm-helpers.git#egg=charmhelpers                               # cinder-ceph-k8s,glance-k8s,gnocchi-k8s
 git+https://opendev.org/openstack/charm-ops-interface-ceph-client#egg=interface_ceph_client  # cinder-ceph-k8s
 requests-unixsocket # sunbeam-clusterd
 openstacksdk               # tempest-k8s
 
 types-PyYAML # types stub for mypy
+
+# due to https://github.com/corpusops/croniter/issues/144
+# we might need to find an alternative for croniter project
+croniter==5.0.1            # tempest-k8s
