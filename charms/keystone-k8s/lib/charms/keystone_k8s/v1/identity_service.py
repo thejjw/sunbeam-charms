@@ -78,6 +78,7 @@ class IdentityServiceClientCharm(CharmBase):
 import json
 import logging
 
+from ops import ModelError
 from ops.framework import (
     EventBase,
     EventSource,
@@ -100,7 +101,7 @@ LIBAPI = 1
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 4
+LIBPATCH = 5
 
 
 logger = logging.getLogger(__name__)
@@ -181,7 +182,7 @@ class IdentityServiceRequires(Object):
         try:
             self.service_password
             self.on.ready.emit()
-        except (AttributeError, KeyError):
+        except (AttributeError, KeyError, ModelError):
             pass
 
     def _on_identity_service_relation_broken(self, event):
