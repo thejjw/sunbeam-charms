@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "03000df1de5a1529162bc06257d935d6f71f042e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "532b0774_832f649e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-01-20T03:56:00Z",
+      "side": 1,
+      "message": "recheck k8s reset",
+      "revId": "03000df1de5a1529162bc06257d935d6f71f042e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
