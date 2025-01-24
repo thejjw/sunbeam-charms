@@ -3,6 +3,14 @@
     name: snapd
   become: true
 
+- name: curl is installed and up to date
+  ansible.builtin.apt:
+    name: curl
+    state: latest
+  become: true
+  when:
+    - ansible_distribution_release in ('jammy', 'noble')
+
 - name: Nftables is installed
   ansible.builtin.apt:
     name: nftables
