@@ -7,7 +7,7 @@ smoke_bundles:
   - smoke
 configure:
   - zaza.sunbeam.charm_tests.k8s.setup.add_loadbalancer_annotations
-  - zaza.openstack.charm_tests.keystone.setup.wait_for_all_endpoints
+  - zaza.sunbeam.charm_tests.keystone.setup.wait_for_all_endpoints
   - zaza.openstack.charm_tests.keystone.setup.add_tempest_roles
   - zaza.openstack.charm_tests.nova.setup.create_flavors
   - zaza.openstack.charm_tests.nova.setup.manage_ssh_key
@@ -22,7 +22,7 @@ tests_options:
 target_deploy_status:
   traefik:
     workload-status: active
-    workload-status-message-regex: '^$'
+    workload-status-message-regex: '^Serving at.*$'
   mysql:
     workload-status: active
     workload-status-message-regex: '^.*$'
