@@ -1,0 +1,5 @@
+- nodeset:
+    name: charms-ubuntu-noble-32GB
+    nodes:
+      - name: charms-ubuntu-noble-32GB
+        label: ubuntu-noble-32GB
