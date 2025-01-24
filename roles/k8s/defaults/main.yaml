@@ -1,5 +1,5 @@
 k8s_channel: latest/stable
 k8s_classic_mode: false
-k8s_load_balancer_cidr: 10.170.0.248/29
+k8s_load_balancer_cidr: 172.28.28.140/29
 k8s_pod_cidr: 10.1.0.0/16
 k8s_host_ip: "{{ ansible_default_ipv4.address }}"
