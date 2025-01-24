@@ -1,0 +1,607 @@
+bundle: kubernetes
+
+applications:
+  traefik:
+    charm: ch:traefik-k8s
+    channel: 1.0/candidate
+    base: ubuntu@20.04
+    scale: 1
+    trust: true
+    options:
+      kubernetes-service-annotations: metallb.universe.tf/address-pool=public
+  mysql:
+    charm: ch:mysql-k8s
+    channel: 8.0/stable
+    base: ubuntu@22.04
+    scale: 1
+    trust: true
+    options:
+      profile-limit-memory: 6202
+      experimental-max-connections: 466
+  ldap-server:
+    charm: ch:ldap-test-fixture-k8s
+    channel: edge
+    base: ubuntu@22.04
+    scale: 1
+  tls-operator:
+    charm: self-signed-certificates
+    channel: latest/beta
+    base: ubuntu@22.04
+    scale: 1
+    options:
+      ca-common-name: internal-ca
+  rabbitmq:
+    charm: ch:rabbitmq-k8s
+    channel: 3.12/edge
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    options:
+      minimum-replicas: 1
+  ovn-central:
+    {% if ovn_central_k8s is defined and ovn_central_k8s is sameas true -%}
+    charm: ../../../ovn-central-k8s.charm
+    {% else -%}
+    charm: ch:ovn-central-k8s
+    channel: 24.03/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
+      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
+      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:24.03
+  ovn-relay:
+    {% if ovn_relay_k8s is defined and ovn_relay_k8s is sameas true -%}
+    charm: ../../../ovn-relay-k8s.charm
+    {% else -%}
+    charm: ch:ovn-relay-k8s
+    channel: 24.03/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
+  keystone:
+    {% if keystone_k8s is defined and keystone_k8s is sameas true -%}
+    charm: ../../../keystone-k8s.charm
+    {% else -%}
+    charm: ch:keystone-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    storage:
+      fernet-keys: 5M
+      credential-keys: 5M
+    resources:
+      keystone-image: ghcr.io/canonical/keystone:2024.1
+  glance:
+    {% if glance_k8s is defined and glance_k8s is sameas true -%}
+    charm: ../../../glance-k8s.charm
+    {% else -%}
+    charm: ch:glance-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    storage:
+      local-repository: 10G
+    resources:
+      glance-api-image: ghcr.io/canonical/glance-api:2024.1
+  nova:
+    {% if nova_k8s is defined and nova_k8s is sameas true -%}
+    charm: ../../../nova-k8s.charm
+    {% else -%}
+    charm: ch:nova-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      nova-api-image: ghcr.io/canonical/nova-consolidated:2024.1
+      nova-scheduler-image: ghcr.io/canonical/nova-consolidated:2024.1
+      nova-conductor-image: ghcr.io/canonical/nova-consolidated:2024.1
+      nova-spiceproxy-image: ghcr.io/canonical/nova-consolidated:2024.1
+  placement:
+    {% if placement_k8s is defined and placement_k8s is sameas true -%}
+    charm: ../../../placement-k8s.charm
+    {% else -%}
+    charm: ch:placement-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      placement-api-image: ghcr.io/canonical/placement-api:2024.1
+  neutron:
+    {% if neutron_k8s is defined and neutron_k8s is sameas true -%}
+    charm: ../../../neutron-k8s.charm
+    {% else -%}
+    charm: ch:neutron-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    options:
+      debug: true
+    resources:
+      neutron-server-image: ghcr.io/canonical/neutron-server:2024.1
+  cinder:
+    {% if cinder_k8s is defined and cinder_k8s is sameas true -%}
+    charm: ../../../cinder-k8s.charm
+    {% else -%}
+    charm: ch:cinder-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      cinder-api-image: ghcr.io/canonical/cinder-consolidated:2024.1
+      cinder-scheduler-image: ghcr.io/canonical/cinder-consolidated:2024.1
+  cinder-ceph:
+    {% if cinder_ceph_k8s is defined and cinder_ceph_k8s is sameas true -%}
+    charm: ../../../cinder-ceph-k8s.charm
+    {% else -%}
+    charm: ch:cinder-ceph-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      cinder-volume-image: ghcr.io/canonical/cinder-consolidated:2024.1
+  horizon:
+    {% if horizon_k8s is defined and horizon_k8s is sameas true -%}
+    charm: ../../../horizon-k8s.charm
+    {% else -%}
+    charm: ch:horizon-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      horizon-image: ghcr.io/canonical/horizon:2024.1
+  # Images Sync feature
+  openstack-images-sync:
+    {% if openstack_images_sync_k8s is defined and openstack_images_sync_k8s is sameas true -%}
+    charm: ../../../openstack-images-sync-k8s.charm
+    {% else -%}
+    charm: ch:openstack-images-sync-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    options:
+      frequency: test-do-not-use
+      architecture: amd64
+      release: jammy
+      max-items: 1
+    resources:
+      openstack-images-sync-image: ghcr.io/canonical/openstack-images-sync:2024.1
+  # Vault feature
+  vault:
+    charm: ch:vault-k8s
+    channel: 1.15/edge
+    revision: 190
+    base: ubuntu@22.04
+    scale: 1
+    trust: false
+  # Secrets feature
+  barbican:
+    {% if barbican_k8s is defined and barbican_k8s is sameas true -%}
+    charm: ../../../barbican-k8s.charm
+    {% else -%}
+    charm: ch:barbican-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: false
+    resources:
+      barbican-api-image: ghcr.io/canonical/barbican-consolidated:2024.1
+      barbican-worker-image: ghcr.io/canonical/barbican-consolidated:2024.1
+  # Orchestration feature
+  heat:
+    {% if heat_k8s is defined and heat_k8s is sameas true -%}
+    charm: ../../../heat-k8s.charm
+    {% else -%}
+    charm: ch:heat-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      heat-api-image: ghcr.io/canonical/heat-consolidated:2024.1
+      heat-engine-image:  ghcr.io/canonical/heat-consolidated:2024.1
+  # Load Balancer feature
+  octavia:
+    {% if octavia_k8s is defined and octavia_k8s is sameas true -%}
+    charm: ../../../octavia-k8s.charm
+    {% else -%}
+    charm: ch:octavia-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      octavia-api-image: ghcr.io/canonical/octavia-consolidated:2024.1
+      octavia-driver-agent-image: ghcr.io/canonical/octavia-consolidated:2024.1
+      octavia-housekeeping-image: ghcr.io/canonical/octavia-consolidated:2024.1
+  # CAAS feature
+  # magnum:
+  #   {% if magnum_k8s is defined and magnum_k8s is sameas true -%}
+  #   charm: ../../../magnum-k8s.charm
+  #   {% else -%}
+  #   charm: ch:magnum-k8s
+  #   channel: 2024.1/edge
+  #   {% endif -%}
+  #   base: ubuntu@24.04
+  #   scale: 1
+  #   trust: false
+  #   resources:
+  #     magnum-api-image: ghcr.io/canonical/magnum-consolidated:2024.1
+  #     magnum-conductor-image: ghcr.io/canonical/magnum-consolidated:2024.1
+  # Telemetry feature
+  gnocchi:
+    {% if gnocchi_k8s is defined and gnocchi_k8s is sameas true -%}
+    charm: ../../../gnocchi-k8s.charm
+    {% else -%}
+    charm: ch:gnocchi-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      gnocchi-api-image: ghcr.io/canonical/gnocchi-consolidated:2024.1
+      gnocchi-metricd-image: ghcr.io/canonical/gnocchi-consolidated:2024.1
+  ceilometer:
+    {% if ceilometer_k8s is defined and ceilometer_k8s is sameas true -%}
+    charm: ../../../ceilometer-k8s.charm
+    {% else -%}
+    charm: ch:ceilometer-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      ceilometer-central-image: ghcr.io/canonical/ceilometer-consolidated:2024.1
+      ceilometer-notification-image: ghcr.io/canonical/ceilometer-consolidated:2024.1
+  aodh:
+    {% if aodh_k8s is defined and aodh_k8s is sameas true -%}
+    charm: ../../../aodh-k8s.charm
+    {% else -%}
+    charm: ch:aodh-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      aodh-api-image: ghcr.io/canonical/aodh-consolidated:2024.1
+      aodh-evaluator-image: ghcr.io/canonical/aodh-consolidated:2024.1
+      aodh-notifier-image: ghcr.io/canonical/aodh-consolidated:2024.1
+      aodh-listener-image: ghcr.io/canonical/aodh-consolidated:2024.1
+      aodh-expirer-image: ghcr.io/canonical/aodh-consolidated:2024.1
+  openstack-exporter:
+    {% if openstack_exporter_k8s is defined and openstack_exporter_k8s is sameas true -%}
+    charm: ../../../openstack-exporter-k8s.charm
+    {% else -%}
+    charm: ch:openstack-exporter-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    resources:
+      openstack-exporter-image: ghcr.io/canonical/openstack-exporter:1.7.0-3be9ddb
+  # Resource Optimization feature
+  watcher:
+    {% if watcher_k8s is defined and watcher_k8s is sameas true -%}
+    charm: ../../../watcher-k8s.charm
+    {% else -%}
+    charm: ch:watcher-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      watcher-image: ghcr.io/canonical/watcher-consolidated:2024.1
+  # DNS feature
+  designate-bind:
+    {% if designate_bind_k8s is defined and designate_bind_k8s is sameas true -%}
+    charm: ../../../designate-bind-k8s.charm
+    {% else -%}
+    charm: ch:designate-bind-k8s
+    channel: 9/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: false
+    resources:
+      designate-bind-image: ubuntu/bind9:9.18-22.04_beta
+  designate:
+    {% if designate_k8s is defined and designate_k8s is sameas true -%}
+    charm: ../../../designate-k8s.charm
+    {% else -%}
+    charm: ch:designate-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: false
+    resources:
+      designate-image: ghcr.io/canonical/designate-consolidated:2024.1
+  keystone-ldap:
+    {% if keystone_ldap_k8s is defined and keystone_ldap_k8s is sameas true -%}
+    charm: ../../../keystone-ldap-k8s.charm
+    {% else -%}
+    charm: ch:keystone-ldap-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+  # Instance Recovery feature
+  masakari:
+    {% if masakari_k8s is defined and masakari_k8s is sameas true -%}
+    charm: ../../../masakari-k8s.charm
+    {% else -%}
+    charm: ch:masakari-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      masakari-image: ghcr.io/canonical/masakari-consolidated:2024.1
+  consul:
+    charm: consul-k8s
+    channel: 1.19/edge
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      consul-image: ghcr.io/canonical/consul:1.19.2
+
+relations:
+- - tls-operator:certificates
+  - ovn-central:certificates
+
+- - tls-operator:certificates
+  - ovn-relay:certificates
+- - ovn-relay:ovsdb-cms
+  - ovn-central:ovsdb-cms
+
+- - mysql:database
+  - keystone:database
+- - traefik:ingress
+  - keystone:ingress-internal
+
+- - mysql:database
+  - glance:database
+- - keystone:identity-service
+  - glance:identity-service
+- - rabbitmq:amqp
+  - glance:amqp
+- - traefik:ingress
+  - glance:ingress-internal
+- - keystone:send-ca-cert
+  - glance:receive-ca-cert
+
+- - mysql:database
+  - nova:database
+- - mysql:database
+  - nova:api-database
+- - mysql:database
+  - nova:cell-database
+- - rabbitmq:amqp
+  - nova:amqp
+- - keystone:identity-service
+  - nova:identity-service
+- - traefik:ingress
+  - nova:ingress-internal
+- - traefik:traefik-route
+  - nova:traefik-route-internal
+- - keystone:send-ca-cert
+  - nova:receive-ca-cert
+
+- - mysql:database
+  - placement:database
+- - keystone:identity-service
+  - placement:identity-service
+- - traefik:ingress
+  - placement:ingress-internal
+- - keystone:send-ca-cert
+  - placement:receive-ca-cert
+
+- - mysql:database
+  - neutron:database
+- - rabbitmq:amqp
+  - neutron:amqp
+- - keystone:identity-service
+  - neutron:identity-service
+- - traefik:ingress
+  - neutron:ingress-internal
+- - tls-operator:certificates
+  - neutron:certificates
+- - neutron:ovsdb-cms
+  - ovn-central:ovsdb-cms
+- - keystone:send-ca-cert
+  - neutron:receive-ca-cert
+
+- - keystone:identity-service
+  - openstack-images-sync:identity-service
+- - traefik:ingress
+  - openstack-images-sync:ingress-internal
+
+- - mysql:database
+  - heat:database
+- - keystone:identity-service
+  - heat:identity-service
+- - keystone:identity-ops
+  - heat:identity-ops
+- - traefik:traefik-route
+  - heat:traefik-route-internal
+- - rabbitmq:amqp
+  - heat:amqp
+- - keystone:send-ca-cert
+  - heat:receive-ca-cert
+
+- - mysql:database
+  - octavia:database
+- - keystone:identity-service
+  - octavia:identity-service
+- - keystone:identity-ops
+  - octavia:identity-ops
+- - traefik:ingress
+  - octavia:ingress-internal
+- - tls-operator:certificates
+  - octavia:certificates
+- - octavia:ovsdb-cms
+  - ovn-central:ovsdb-cms
+- - keystone:send-ca-cert
+  - octavia:receive-ca-cert
+
+- - mysql:database
+  - barbican:database
+- - rabbitmq:amqp
+  - barbican:amqp
+- - keystone:identity-service
+  - barbican:identity-service
+- - keystone:identity-ops
+  - barbican:identity-ops
+- - traefik:ingress
+  - barbican:ingress-internal
+- - vault:vault-kv
+  - barbican:vault-kv
+- - keystone:send-ca-cert
+  - barbican:receive-ca-cert
+
+# - - mysql:database
+#   - magnum:database
+# - - rabbitmq:amqp
+#   - magnum:amqp
+# - - keystone:identity-service
+#   - magnum:identity-service
+# - - keystone:identity-ops
+#   - magnum:identity-ops
+# - - traefik:ingress
+#   - magnum:ingress-internal
+# - - keystone:send-ca-cert
+#   - magnum:receive-ca-cert
+
+- - mysql:database
+  - cinder:database
+- - cinder:amqp
+  - rabbitmq:amqp
+- - keystone:identity-service
+  - cinder:identity-service
+- - traefik:ingress
+  - cinder:ingress-internal
+- - keystone:send-ca-cert
+  - cinder:receive-ca-cert
+
+- - cinder-ceph:database
+  - mysql:database
+- - cinder-ceph:amqp
+  - rabbitmq:amqp
+- - cinder:storage-backend
+  - cinder-ceph:storage-backend
+- - keystone:identity-credentials
+  - cinder-ceph:identity-credentials
+
+- - mysql:database
+  - gnocchi:database
+- - traefik:ingress
+  - gnocchi:ingress-internal
+- - keystone:identity-service
+  - gnocchi:identity-service
+- - keystone:send-ca-cert
+  - gnocchi:receive-ca-cert
+
+- - rabbitmq:amqp
+  - ceilometer:amqp
+- - keystone:identity-credentials
+  - ceilometer:identity-credentials
+- - gnocchi:gnocchi-service
+  - ceilometer:gnocchi-db
+- - keystone:send-ca-cert
+  - ceilometer:receive-ca-cert
+
+- - mysql:database
+  - aodh:database
+- - rabbitmq:amqp
+  - aodh:amqp
+- - keystone:identity-service
+  - aodh:identity-service
+- - traefik:ingress
+  - aodh:ingress-internal
+- - keystone:send-ca-cert
+  - aodh:receive-ca-cert
+
+- - mysql:database
+  - watcher:database
+- - watcher:amqp
+  - rabbitmq:amqp
+- - keystone:identity-service
+  - watcher:identity-service
+- - traefik:ingress
+  - watcher:ingress-internal
+- - keystone:send-ca-cert
+  - watcher:receive-ca-cert
+- - gnocchi:gnocchi-service
+  - watcher:gnocchi-db
+
+- - mysql:database
+  - designate:database
+- - rabbitmq:amqp
+  - designate:amqp
+- - keystone:identity-service
+  - designate:identity-service
+- - traefik:ingress
+  - designate:ingress-internal
+- - designate-bind:dns-backend
+  - designate:dns-backend
+- - keystone:send-ca-cert
+  - designate:receive-ca-cert
+
+- - keystone:domain-config
+  - keystone-ldap:domain-config
+
+- - keystone:identity-ops
+  - openstack-exporter:identity-ops
+
+- - mysql:database
+  - horizon:database
+- - keystone:identity-credentials
+  - horizon:identity-credentials
+- - traefik:ingress
+  - horizon:ingress-internal
+- - keystone:send-ca-cert
+  - horizon:receive-ca-cert
+
+- - mysql:database
+  - masakari:database
+- - rabbitmq:amqp
+  - masakari:amqp
+- - keystone:identity-service
+  - masakari:identity-service
+- - traefik:ingress
+  - masakari:ingress-internal
+
+- - masakari:consul-management
+  - consul:consul-cluster
