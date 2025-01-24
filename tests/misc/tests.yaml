@@ -6,7 +6,7 @@ configure:
   - zaza.sunbeam.charm_tests.k8s.setup.add_loadbalancer_annotations
   - zaza.charm_tests.noop.setup.basic_setup
   # https://bugs.launchpad.net/snap-openstack/+bug/2045206
-  # - zaza.openstack.charm_tests.keystone.setup.wait_for_all_endpoints
+  # - zaza.sunbeam.charm_tests.keystone.setup.wait_for_all_endpoints
 tests:
   - zaza.charm_tests.noop.tests.NoopTest
   # Tests commented until bug fix for https://bugs.launchpad.net/snap-openstack/+bug/2045206
