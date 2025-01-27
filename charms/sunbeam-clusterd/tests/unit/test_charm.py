@@ -15,6 +15,9 @@ import ops
 import ops.testing as testing
 import ops_sunbeam.test_utils as test_utils
 import yaml
+from charms.operator_libs_linux.v2 import (
+    snap,
+)
 
 
 class _SunbeamClusterdCharm(charm.SunbeamClusterdCharm):
@@ -58,6 +61,13 @@ class TestCharm(test_utils.CharmTestCase):
         """Common setup code for charm tests."""
         self.harness.add_network("10.0.0.10")
         self.harness.begin_with_initial_hooks()
+
+    def test_openstack_snap_not_installed(self):
+        """Check action raises SnapNotFoundError if openstack snap is not installed."""
+        self.harness.begin()
+        self.ensure_snap_present.side_effect = snap.SnapNotFoundError
+        with self.assertRaises(snap.SnapNotFoundError):
+            self.harness.charm.on.install.emit()
 
     def test_initial_bootstrap(self):
         """Test charm is bootstrapped."""

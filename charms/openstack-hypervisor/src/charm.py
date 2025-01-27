@@ -71,6 +71,10 @@ DATA_BINDING = "data"
 MTLS_USAGES = {x509.OID_SERVER_AUTH, x509.OID_CLIENT_AUTH}
 
 
+class SnapInstallationError(Exception):
+    """Custom exception for snap installation failure errors."""
+
+
 class HypervisorError(Exception):
     """Custom exception for Hypervisor errors."""
 
@@ -217,7 +221,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def _on_install(self, _: ops.InstallEvent):
         """Run install on this unit."""
-        self.ensure_snap_present()
+        with sunbeam_guard.guard(
+            self, "Executing install hook event handler", False
+        ):
+            self.ensure_snap_present()
 
     @property
     def migration_address(self) -> Optional[str]:
@@ -490,10 +497,14 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 hypervisor.ensure(
                     snap.SnapState.Latest, channel=config("snap-channel")
                 )
-        except snap.SnapError as e:
+        except (snap.SnapError, snap.SnapNotFoundError) as e:
             logger.error(
                 "An exception occurred when installing openstack-hypervisor. Reason: %s",
                 e.message,
+            )
+
+            raise SnapInstallationError(
+                "openstack-hypervisor installation failed"
             )
 
     @functools.cache

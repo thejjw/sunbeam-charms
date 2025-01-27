@@ -63,6 +63,10 @@ def _identity(x: bool) -> bool:
     return x
 
 
+class SnapInstallationError(Exception):
+    """Custom exception for snap installation failure errors."""
+
+
 @sunbeam_tracing.trace_type
 class ClusterCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
     """Handler for certificates interface."""
@@ -204,7 +208,8 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
     def _on_install(self, event: ops.InstallEvent) -> None:
         """Handle install event."""
         try:
-            self.ensure_snap_present()
+            with sunbeam_guard.guard(self, "Ensure snap installation", False):
+                self.ensure_snap_present()
         except TimeoutError:
             logger.debug("Snap installation failed, retrying.")
             event.defer()
@@ -275,11 +280,12 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
                 openstack.ensure(snap.SnapState.Latest, channel=snap_channel)
                 self._state.channel = openstack.channel
                 self.set_workload_version()
-        except snap.SnapError as e:
+        except (snap.SnapError, snap.SnapNotFoundError) as e:
             logger.error(
                 "An exception occurred when installing snap. Reason: %s",
                 e.message,
             )
+            raise SnapInstallationError("openstack snap installation failed")
 
     def set_workload_version(self):
         """Set workload version."""
