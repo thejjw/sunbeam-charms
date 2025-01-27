@@ -21,6 +21,7 @@ from unittest.mock import (
 )
 
 import charm
+import charms.operator_libs_linux.v2.snap as snap
 import ops
 import ops.testing
 import ops_sunbeam.test_utils as test_utils
@@ -288,6 +289,13 @@ class TestCharm(test_utils.CharmTestCase):
             "masakari.enable": True,
         }
         hypervisor_snap_mock.set.assert_any_call(expect_settings, typed=True)
+
+    def test_openstack_hypervisor_snap_not_installed(self):
+        """Check action raises SnapNotFoundError if openstack-hypervisor snap is not installed."""
+        self.harness.begin()
+        self.snap.SnapCache.side_effect = snap.SnapNotFoundError
+        with self.assertRaises(snap.SnapNotFoundError):
+            self.harness.run_action("list-nics")
 
     def test_list_nics_snap_not_installed(self):
         """Check action raises ActionFailed if snap is not installed."""
