@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ae902c4_1667f475",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-01-28T05:44:33Z",
+      "side": 1,
+      "message": "Thank you for your contribution.\n\nCan you take a look at inline comments on unit tests.",
+      "revId": "f36ae173fe3d0f45be353e695e40ddb01bfb3170",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8cae1b07_9643a985",
+        "filename": "charms/openstack-hypervisor/tests/unit/test_charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-01-28T05:44:33Z",
+      "side": 1,
+      "message": "This can be `self.snap.SnapCache.side_effect \u003d snap.SnapNotFoundError`",
+      "revId": "f36ae173fe3d0f45be353e695e40ddb01bfb3170",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bef06238_d6220a4a",
+        "filename": "charms/sunbeam-clusterd/tests/unit/test_charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-01-28T05:44:33Z",
+      "side": 1,
+      "message": "Same comment as openstack-hypervisor test to use side_effect at snap",
+      "revId": "f36ae173fe3d0f45be353e695e40ddb01bfb3170",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
