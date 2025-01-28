@@ -16,6 +16,23 @@
       "message": "recheck magnum db-sync failed",
       "revId": "374eb5d5060b0df7ad743c71201cee1a3620bbd3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b98b6e4_4875b62a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-01-28T03:51:46Z",
+      "side": 1,
+      "message": "recheck Watcher db_sync failure",
+      "revId": "374eb5d5060b0df7ad743c71201cee1a3620bbd3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
