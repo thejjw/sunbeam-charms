@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7bbe4123_9f1059f7",
+        "filename": "charms/openstack-hypervisor/tests/unit/test_charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-01-28T07:09:56Z",
+      "side": 1,
+      "message": "Fixed as per suggestion",
+      "parentUuid": "8cae1b07_9643a985",
+      "revId": "f36ae173fe3d0f45be353e695e40ddb01bfb3170",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bef06238_d6220a4a",
@@ -48,6 +66,24 @@
       "writtenOn": "2025-01-28T05:44:33Z",
       "side": 1,
       "message": "Same comment as openstack-hypervisor test to use side_effect at snap",
+      "revId": "f36ae173fe3d0f45be353e695e40ddb01bfb3170",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d729e2de_65591910",
+        "filename": "charms/sunbeam-clusterd/tests/unit/test_charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-01-28T07:09:56Z",
+      "side": 1,
+      "message": "Fixed as per suggestion",
+      "parentUuid": "bef06238_d6220a4a",
       "revId": "f36ae173fe3d0f45be353e695e40ddb01bfb3170",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
