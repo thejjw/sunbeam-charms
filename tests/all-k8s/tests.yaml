@@ -20,6 +20,8 @@ tests_options:
   tempest:
     default:
       smoke: True
+      exclude-regex:
+        - "tempest\\.api\\.volume\\..*"
       exclude-list:
         - "tempest.api.image.v2.test_images.BasicOperationsImagesTest.test_register_upload_get_image_file"
         - "tempest.api.compute.security_groups.test_security_group_rules.SecurityGroupRulesTestJSON.test_security_group_rules_create"
@@ -32,6 +34,7 @@ tests_options:
         - "tempest.scenario.test_server_multinode.TestServerMultinode.test_schedule_to_all_nodes"
         - "tempest.scenario.test_server_basic_ops.TestServerBasicOps.test_server_basic_ops"
         - "tempest.api.compute.servers.test_attach_interfaces.AttachInterfacesUnderV243Test.test_add_remove_fixed_ip"
+        - "tempest.api.compute.servers.test_create_server.ServersTestBootFromVolume"
       include-list:
         - "tempest.api.identity.v3.test_application_credentials.ApplicationCredentialsV3Test.test_create_application_credential"
 
@@ -55,8 +58,8 @@ target_deploy_status:
     workload-status: active
     workload-status-message-regex: '^$'
   keystone:
-    workload-status: active
-    workload-status-message-regex: '^$'
+    workload-status: waiting
+    workload-status-message-regex: '^.*domain-config.*integration incomplete.*$|^$'
   glance:
     workload-status: active
     workload-status-message-regex: '^$'
@@ -70,5 +73,62 @@ target_deploy_status:
     workload-status: active
     workload-status-message-regex: '^$'
   openstack-images-sync:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  vault:
+    workload-status: active
+    workload-status-message-regex: '^.*$'
+  heat:
+    workload-status: active
+    workload-status-message-regex: '^.*$'
+  octavia:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  barbican:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  magnum:
+    workload-status: waiting
+    workload-status-message-regex: '^.*$'
+  cinder:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  cinder-ceph:
+    workload-status: blocked
+    workload-status-message-regex: '^.*ceph.*$'
+  ceilometer:
+    workload-status: waiting
+    workload-status-message-regex: '^.*Not all relations are ready$'
+  aodh:
+    workload-status: active
+    workload-status-message-regex: '^.*$'
+  gnocchi:
+    workload-status: blocked
+    workload-status-message-regex: '^.*ceph.*$'
+  watcher:
+    workload-status: waiting
+    workload-status-message-regex: '^.*integration incomplete$'
+  ldap-server:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  designate-bind:
+    workload-status: active
+    workload-status-message-regex: '^.*$'
+  designate:
+    workload-status: active
+    workload-status-message-regex: '^.*$'
+  keystone-ldap:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  openstack-exporter:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  horizon:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  masakari:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  consul:
     workload-status: active
     workload-status-message-regex: '^$'

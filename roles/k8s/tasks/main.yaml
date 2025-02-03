@@ -11,6 +11,15 @@
     - ansible_distribution_release in ('jammy', 'noble')
     - nftables_enabled | default(true) | bool
 
+- name: Increase fs.inotify.max_user_instances
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_instances
+    value: '4096'
+    sysctl_set: true
+    state: present
+    reload: true
+  become: true
+
 - name: Allow packets from pod cir
   ansible.builtin.command: nft insert rule filter openstack-INPUT ip saddr {{ k8s_pod_cidr }} accept
   become: true
