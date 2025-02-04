@@ -543,6 +543,13 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             [NOVA_API_INGRESS_NAME, NOVA_SPICEPROXY_INGRESS_NAME],
         )
         handlers.append(self.traefik_route_internal)
+        self.placement_svc = sunbeam_rhandlers.ServiceReadinessRequiresHandler(
+            self,
+            "placement",
+            self.configure_charm,
+            "placement" in self.mandatory_relations,
+        )
+        handlers.append(self.placement_svc)
 
         return handlers
 

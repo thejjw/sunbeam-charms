@@ -30,7 +30,11 @@ import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops.charm import (
+    RelationEvent,
+)
 from ops.framework import (
     StoredState,
 )
@@ -85,6 +89,44 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 f"wsgi-{self.service_name}",
             )
         ]
+
+    def get_relation_handlers(
+        self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> list[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = handlers or []
+        self.svc_ready_handler = (
+            sunbeam_rhandlers.ServiceReadinessProviderHandler(
+                self,
+                "placement",
+                self.handle_readiness_request_from_event,
+            )
+        )
+        handlers.append(self.svc_ready_handler)
+
+        handlers = super().get_relation_handlers(handlers)
+        return handlers
+
+    def post_config_setup(self):
+        """Configuration steps after services have been setup."""
+        super().post_config_setup()
+        self.set_readiness_on_related_units()
+
+    def handle_readiness_request_from_event(
+        self, event: RelationEvent
+    ) -> None:
+        """Set service readiness in relation data."""
+        self.svc_ready_handler.interface.set_service_status(
+            event.relation, self.bootstrapped()
+        )
+
+    def set_readiness_on_related_units(self) -> None:
+        """Set service readiness on placement related units."""
+        logger.debug(
+            "Set service readiness on all connected placement relations"
+        )
+        for relation in self.framework.model.relations["placement"]:
+            self.svc_ready_handler.interface.set_service_status(relation, True)
 
     @property
     def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:

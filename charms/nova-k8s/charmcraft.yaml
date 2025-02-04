@@ -93,6 +93,8 @@ requires:
     interface: rabbitmq
   identity-service:
     interface: keystone
+  placement:
+    interface: placement
   cloud-compute:
     interface: nova-compute
     optional: true
