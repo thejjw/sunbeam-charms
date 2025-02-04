@@ -94,6 +94,10 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
             app_data={"external_host": "dummy-ip", "scheme": "http"},
         )
 
+    def add_placement_relation(self, harness: Harness) -> None:
+        """Add placement relation."""
+        harness.add_relation("placement", "nova", app_data={"ready": "true"})
+
     def add_db_relation(self, harness: Harness, name: str) -> str:
         """Add db relation."""
         rel_id = harness.add_relation(name, "mysql")
@@ -117,6 +121,7 @@ class TestNovaOperatorCharm(test_utils.CharmTestCase):
         # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
         self.add_complete_ingress_relation(self.harness)
+        self.add_placement_relation(self.harness)
 
         # but nova has some extra db relations, so add them manually here
         rel_id = self.add_db_relation(self.harness, "api-database")
