@@ -1664,17 +1664,17 @@ export OS_AUTH_VERSION=3
     def _ingress_changed(self, event: ops.framework.EventBase) -> None:
         """Ingress changed callback.
 
-        Invoked when the data on the ingress relation has changed. This will
-        update the keystone endpoints, and then call the configure_charm.
+        Invoked when the data on the ingress relation has changed. This will call
+        configure_charm, then update the keystone endpoints.
         """
         logger.debug("Received an ingress_changed event")
+        self.configure_charm(event)
         if self.bootstrapped():
             self.keystone_manager.update_service_catalog_for_keystone()
 
         if self.can_service_requests():
             self.check_outstanding_identity_service_requests(force=True)
             self.check_outstanding_identity_credentials_requests(force=True)
-        self.configure_charm(event)
 
     def _sanitize_secrets(self, request: dict) -> dict:
         """Sanitize any secrets.
