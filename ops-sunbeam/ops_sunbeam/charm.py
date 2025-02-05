@@ -758,8 +758,15 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         try:
             process = container.exec(cmd, timeout=5 * 60)
             out, err = process.wait_output()
+        except ops.pebble.TimeoutError as e:
+            logger.warning(f"DB Sync command timed out: {e}")
+            raise e
+        except ops.pebble.ChangeError as e:
+            logger.warning(f"Failed to run DB Sync command: {e}")
+            raise e
         except ops.pebble.ExecError as e:
-            logger.warning(f"DB Sync pebble exec error: {str(e)}")
+            logger.warning(f"DB Sync stderr: {str(e.stderr)}")
+            logger.warning(f"DB Sync stdout: {str(e.stdout)}")
             raise e
         if err:
             for line in err.splitlines():
