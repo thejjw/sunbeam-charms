@@ -86,8 +86,20 @@ class PebbleHandler(ops.framework.Object):
         """Configure handler for pebble ready event."""
         prefix = self.container_name.replace("-", "_")
         pebble_ready_event = getattr(self.charm.on, f"{prefix}_pebble_ready")
+        pebble_check_failed = getattr(
+            self.charm.on, f"{prefix}_pebble_check_failed"
+        )
+        pebble_check_recovered = getattr(
+            self.charm.on, f"{prefix}_pebble_check_recovered"
+        )
         self.framework.observe(
             pebble_ready_event, self._on_service_pebble_ready
+        )
+        self.framework.observe(
+            pebble_check_failed, self._on_pebble_check_failed
+        )
+        self.framework.observe(
+            pebble_check_recovered, self._on_pebble_check_recovered
         )
 
     def _on_service_pebble_ready(
@@ -97,6 +109,18 @@ class PebbleHandler(ops.framework.Object):
         container = event.workload
         container.add_layer(self.service_name, self.get_layer(), combine=True)
         self.charm.configure_charm(event)
+
+    def _on_pebble_check_failed(
+        self, event: ops.charm.PebbleCheckFailedEvent
+    ) -> None:
+        """Handle pebble check failed event."""
+        self._on_update_status(event)
+
+    def _on_pebble_check_recovered(
+        self, event: ops.charm.PebbleCheckRecoveredEvent
+    ) -> None:
+        """Handle pebble check recovered event."""
+        self._on_update_status(event)
 
     def write_config(
         self, context: sunbeam_core.OPSCharmContexts
