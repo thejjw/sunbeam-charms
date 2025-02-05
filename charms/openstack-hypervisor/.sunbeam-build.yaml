@@ -1,7 +1,6 @@
 external-libraries:
   - charms.data_platform_libs.v0.data_interfaces
   - charms.grafana_agent.v0.cos_agent
-  - charms.observability_libs.v1.kubernetes_service_patch
   - charms.operator_libs_linux.v2.snap
   - charms.rabbitmq_k8s.v0.rabbitmq
   - charms.traefik_k8s.v2.ingress

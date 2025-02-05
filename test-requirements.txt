@@ -23,3 +23,5 @@ types-PyYAML # types stub for mypy
 # due to https://github.com/corpusops/croniter/issues/144
 # we might need to find an alternative for croniter project
 croniter==5.0.1            # tempest-k8s
+
+lightkube-extensions @ git+https://github.com/canonical/lightkube-extensions.git@main        # ovn-relay-k8s,designate-bind-k8s
