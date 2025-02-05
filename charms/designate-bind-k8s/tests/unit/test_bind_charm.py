@@ -41,9 +41,7 @@ class _BindTestOperatorCharm(charm.BindOperatorCharm):
 class TestBindOperatorCharm(test_utils.CharmTestCase):
     """Test charm."""
 
-    PATCHES = [
-        "kubernetes_service_patch",
-    ]
+    PATCHES = []
 
     def setUp(self):
         """Test setup."""
