@@ -44,11 +44,11 @@ import ops_sunbeam.ovn.container_handlers as ovn_chandlers
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
-from charms.observability_libs.v1.kubernetes_service_patch import (
-    KubernetesServicePatch,
-)
 from lightkube.models.core_v1 import (
     ServicePort,
+)
+from ops_sunbeam.k8s_resource_handlers import (
+    KubernetesLoadBalancerHandler,
 )
 
 logger = logging.getLogger(__name__)
@@ -95,11 +95,15 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
 
     def __init__(self, framework):
         super().__init__(framework)
-        self.service_patcher = KubernetesServicePatch(
+
+        service_ports = [ServicePort(6642, name="southbound")]
+        self.lb_handler = KubernetesLoadBalancerHandler(
             self,
-            [ServicePort(6642, name="southbound")],
-            service_type="LoadBalancer",
+            service_ports,
+            refresh_event=[self.on.install],
         )
+        self.unit.set_ports(6642)
+
         self.framework.observe(
             self.on.get_southbound_db_url_action,
             self._get_southbound_db_url_action,

@@ -36,9 +36,7 @@ class _OVNRelayOperatorCharm(charm.OVNRelayOperatorCharm):
 class TestOVNRelayOperatorCharm(test_utils.CharmTestCase):
     """Test OVN relay."""
 
-    PATCHES = [
-        "KubernetesServicePatch",
-    ]
+    PATCHES = []
 
     def setUp(self):
         """Setup OVN relay tests."""
