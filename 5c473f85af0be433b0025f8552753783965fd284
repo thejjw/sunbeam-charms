@@ -33,6 +33,23 @@
       "message": "recheck Unrelated error: cinder service start error",
       "revId": "5c473f85af0be433b0025f8552753783965fd284",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cd042b9_b5d1e2a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-02-06T07:57:07Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "5c473f85af0be433b0025f8552753783965fd284",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
