@@ -16,6 +16,23 @@
       "message": "recheck keystone restarted during the test",
       "revId": "d19b2f0451bda2acd88f179e2dc792c20f787dd7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd4cff22_7b6b719d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-02-06T12:30:30Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "d19b2f0451bda2acd88f179e2dc792c20f787dd7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
