@@ -1,5 +1,4 @@
 external-libraries:
-  - charms.observability_libs.v1.kubernetes_service_patch
   - charms.grafana_k8s.v0.grafana_dashboard
   - charms.loki_k8s.v1.loki_push_api
   - charms.certificate_transfer_interface.v0.certificate_transfer
