@@ -258,9 +258,10 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.check_relation_handlers_ready(event)
         self.update_owned_relation_data()
         self.open_ports()
+        self.configure_containers()
+        self.run_db_sync()
         self.init_container_services()
         self.check_pebble_handlers_ready()
-        self.run_db_sync()
         self._state.unit_bootstrapped = True
 
     def configure_app_leader(self, event: ops.EventBase) -> None:

@@ -816,24 +816,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             else:
                 logger.debug("Metadata secret not ready")
                 return
-        # Do not run service check for nova scheduler as it is broken until db
-        # migrations have run.
-        scheduler_handler = self.get_named_pebble_handler(
-            NOVA_SCHEDULER_CONTAINER
-        )
-        scheduler_handler.enable_service_check = False
-
         super().configure_charm(event)
-        if scheduler_handler.pebble_ready:
-            logging.debug("Starting nova scheduler service, pebble ready")
-            # Restart nova-scheduler service after cell1 is created
-            # Creation of cell1 is part of bootstrap process
-            scheduler_handler.start_all()
-            scheduler_handler.enable_service_check = True
-        else:
-            logging.debug(
-                "Not starting nova scheduler service, pebble not ready"
-            )
 
     def set_config_from_event(self, event: ops.framework.EventBase) -> None:
         """Set config in relation data."""

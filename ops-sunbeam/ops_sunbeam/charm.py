@@ -649,6 +649,19 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
             if h.container_name in container_names
         ]
 
+    def configure_containers(self):
+        """Configure containers."""
+        for ph in self.pebble_handlers:
+            if ph.pebble_ready:
+                ph.configure_container(self.contexts())
+            else:
+                logging.debug(
+                    f"Not configuring {ph.service_name}, container not ready"
+                )
+                raise sunbeam_guard.WaitingExceptionError(
+                    "Payload container not ready"
+                )
+
     def init_container_services(self):
         """Run init on pebble handlers that are ready."""
         for ph in self.pebble_handlers:
@@ -689,9 +702,10 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         self.check_leader_ready()
         self.check_relation_handlers_ready(event)
         self.open_ports()
+        self.configure_containers()
+        self.run_db_sync()
         self.init_container_services()
         self.check_pebble_handlers_ready()
-        self.run_db_sync()
         self._state.unit_bootstrapped = True
 
     def get_relation_handlers(
