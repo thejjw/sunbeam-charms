@@ -236,9 +236,10 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Run configuration on this unit."""
         self.check_leader_ready()
         self.check_relation_handlers_ready(event)
+        self.configure_containers()
+        self.run_db_sync()
         self.init_container_services()
         self.check_pebble_handlers_ready()
-        self.run_db_sync()
         self.configure_plugins(event)
         self._state.unit_bootstrapped = True
 

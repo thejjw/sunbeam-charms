@@ -1643,9 +1643,10 @@ export OS_AUTH_VERSION=3
         self.check_leader_ready()
         self.check_relation_handlers_ready(event)
         self.open_ports()
+        self.configure_containers()
+        self.run_db_sync()
         self.init_container_services()
         self.check_pebble_handlers_ready()
-        self.run_db_sync()
         pre_update_fernet_ready = self.unit_fernet_bootstrapped()
         self.update_fernet_keys_from_peer()
         # If the wsgi service was running with no tokens it will be in a

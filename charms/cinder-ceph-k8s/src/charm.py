@@ -325,8 +325,8 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
         """Provide database name for cinder services."""
         return {"database": "cinder"}
 
-    def init_container_services(self):
-        """Setp ceph keyring and init pebble handlers that are ready."""
+    def configure_containers(self):
+        """Setp ceph keyring and configure container that are ready."""
         for ph in self.pebble_handlers:
             if ph.pebble_ready:
                 # The code for managing ceph client config should move to
@@ -359,7 +359,7 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
                     ],
                     exception_on_error=True,
                 )
-                ph.init_service(self.contexts())
+                ph.configure_container(self.contexts())
             else:
                 logging.debug(
                     f"Not running init for {ph.service_name},"
@@ -368,7 +368,7 @@ class CinderCephOperatorCharm(charm.OSBaseOperatorCharmK8S):
                 raise sunbeam_guard.WaitingExceptionError(
                     "Payload container not ready"
                 )
-        super().init_container_services()
+        super().configure_containers()
 
     def _set_or_update_rbd_secret(
         self,

@@ -374,6 +374,8 @@ class OctaviaOVNOperatorCharm(OctaviaOperatorCharm):
         self.check_leader_ready()
         self.check_relation_handlers_ready(event)
         self.open_ports()
+        self.configure_containers()
+        self.run_db_sync()
         self.init_container_services()
         self.check_pebble_handlers_ready()
         for container in [
@@ -388,8 +390,6 @@ class OctaviaOVNOperatorCharm(OctaviaOperatorCharm):
                     OCTAVIA_AGENT_SOCKET_DIR,
                 ]
             )
-
-        self.run_db_sync()
         self._state.unit_bootstrapped = True
 
 
