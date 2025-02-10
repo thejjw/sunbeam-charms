@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d1cde8bf_35904664",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-02-10T10:01:14Z",
+      "side": 1,
+      "message": "Nice work on the change.\nJust a nit, Can you change ovn_container_handlers init_service() to use self.configure_container() [1]\n\n[1] https://opendev.org/openstack/sunbeam-charms/src/commit/d19b2f0451bda2acd88f179e2dc792c20f787dd7/ops-sunbeam/ops_sunbeam/container_handlers.py#L182",
+      "revId": "58052a8e707757ae904bd2e578eee422bcb0835e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
