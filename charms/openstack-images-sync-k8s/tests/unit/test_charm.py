@@ -93,7 +93,7 @@ class TestOISOperatorCharm(test_utils.CharmTestCase):
 frequency: 3600
 mirrors:
 - content_id: '%(region)s' # Content ID choice
-  custom_properties: {}
+  custom_properties: {"hw_firmware_type": "uefi"}
   hypervisor_mapping: false
   image_conversion: false
   item_filters:
