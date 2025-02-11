@@ -346,3 +346,16 @@ class TestCharm(test_utils.CharmTestCase):
         self.subprocess.run = subprocess_run_mock
         with self.assertRaises(ops.testing.ActionFailed):
             self.harness.run_action("list-nics")
+
+    def test_list_flavors(self):
+        """Check action return flavors."""
+        flavors = "flavor1,flavor2"
+        self.harness.begin()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = True
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock
+        }
+        hypervisor_snap_mock.get.return_value = flavors
+        action_output = self.harness.run_action("list-flavors")
+        assert action_output.results["result"] == flavors

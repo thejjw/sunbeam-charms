@@ -192,6 +192,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self._running_guests_action,
         )
         self.framework.observe(
+            self.on.list_flavors_action,
+            self._list_flavors_action,
+        )
+        self.framework.observe(
             self.on.install,
             self._on_install,
         )
@@ -421,6 +425,18 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         # cli returns a json list
         event.set_results({"result": stdout})
 
+    def _list_flavors_action(self, event: ActionEvent):
+        """List compute host capabilities."""
+        cache = self.get_snap_cache()
+        hypervisor = cache["openstack-hypervisor"]
+        try:
+            flavors = hypervisor.get("compute.flavors", typed=True)
+        except snap.SnapError as e:
+            logger.debug(e)
+            flavors = ""
+
+        event.set_results({"result": flavors})
+
     def ensure_services_running(self):
         """Ensure systemd services running."""
         # This should taken care of by the snap
@@ -585,6 +601,9 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         snap_data.update(self._handle_nova_service(contexts))
         snap_data.update(self._handle_receive_ca_cert(contexts))
         snap_data.update(self._handle_masakari_service(contexts))
+        # Handle config for SEV
+        if reserved_memory := config("reserved-host-memory-mb-for-sev"):
+            snap_data.update({"sev.reserved-host-memory-mb": reserved_memory})
 
         self.set_snap_data(snap_data)
         self.ensure_services_running()

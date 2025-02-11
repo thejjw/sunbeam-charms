@@ -42,6 +42,13 @@ config:
     use-data-binding:
       default: false
       type: boolean
+    reserved-host-memory-mb-for-sev:
+      type: string
+      description: |
+        Memory to be reserved for host for SEV enabled compute
+        hosts. This memory will be used for instances. The compute
+        usage report deducts this memory from the available
+        memory sent to the placement service.
 
 actions:
   set-hypervisor-local-settings:
@@ -81,6 +88,9 @@ actions:
 
       Only lists guests created by the OpenStack cloud.
     additionalProperties: false
+  list-flavors:
+    description: |
+      List the flavors or compute host capabilities.
 
 requires:
   amqp:
