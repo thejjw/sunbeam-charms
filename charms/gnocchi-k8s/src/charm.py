@@ -335,7 +335,7 @@ class GnocchiCephOperatorCharm(GnocchiOperatorCharm):
         handlers.append(self.ceph)
         return handlers
 
-    def init_container_services(self):
+    def configure_containers(self):
         """Setp ceph keyring and init pebble handlers that are ready."""
         for ph in self.pebble_handlers:
             if ph.pebble_ready:
@@ -367,16 +367,16 @@ class GnocchiCephOperatorCharm(GnocchiOperatorCharm):
                     ],
                     exception_on_error=True,
                 )
-                ph.init_service(self.contexts())
+                ph.configure_container(self.contexts())
             else:
                 logging.debug(
-                    f"Not running init for {ph.service_name},"
+                    f"Not running configure containers for {ph.service_name},"
                     " container not ready"
                 )
                 raise sunbeam_guard.WaitingExceptionError(
                     "Payload container not ready"
                 )
-        super().init_container_services()
+        super().configure_containers()
 
     def default_container_configs(
         self,
