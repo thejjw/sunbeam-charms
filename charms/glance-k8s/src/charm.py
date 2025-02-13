@@ -24,6 +24,8 @@ This charm provide Glance services as part of an OpenStack deployment
 import json
 import logging
 import re
+import signal
+import typing
 from typing import (
     Callable,
     List,
@@ -74,7 +76,7 @@ STORAGE_NAME = "local-repository"
 class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Handler for glance api container."""
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> ops.pebble.LayerDict:
         """Glance API service pebble layer.
 
         :returns: pebble layer configuration for glance api service
@@ -86,6 +88,7 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 f"{self.service_name}": {
                     "override": "replace",
                     "summary": f"{self.service_name} standalone",
+                    "startup": "disabled",
                     "command": (
                         "/usr/bin/glance-api "
                         "--config-file /etc/glance/glance-api.conf"
@@ -96,7 +99,16 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "apache forwarder": {
                     "override": "replace",
                     "summary": "apache",
-                    "command": "/usr/sbin/apache2ctl -DFOREGROUND",
+                    "command": "/usr/sbin/apache2 -DFOREGROUND -DNO_DETACH",
+                    "startup": "disabled",
+                    "environment": {
+                        "APACHE_RUN_DIR": "/var/run/apache2",
+                        "APACHE_PID_FILE": "/var/run/apache2/apache2.pid",
+                        "APACHE_LOCK_DIR": "/var/lock/apache2",
+                        "APACHE_RUN_USER": "www-data",
+                        "APACHE_RUN_GROUP": "www-data",
+                        "APACHE_LOG_DIR": "/var/log/apache2",
+                    },
                 },
             },
         }
@@ -109,6 +121,16 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         """
         self.execute(["a2enmod", "proxy_http"], exception_on_error=True)
         return super().init_service(context)
+
+    @property
+    def _restart_methods(
+        self,
+    ) -> typing.Mapping[str, Callable[[ops.Container, str], None]]:
+        return {
+            "apache forwarder": lambda container, service_name: container.send_signal(
+                signal.SIGUSR1, service_name
+            )
+        }
 
 
 @sunbeam_tracing.trace_type
