@@ -22,6 +22,8 @@ This charm deploys the openstack images sync service on Kubernetes.
 
 import logging
 import os
+import signal
+import typing
 from typing import (
     TYPE_CHECKING,
 )
@@ -107,9 +109,14 @@ class OpenstackImagesSyncPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 self.charm.service_user,
                 self.charm.service_group,
             ),
+            sunbeam_chandlers.ContainerDir(
+                "/var/run/apache2",
+                "root",
+                "root",
+            )
         ]
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> ops.pebble.LayerDict:
         """Openstack Images Sync service pebble layer.
 
         :returns: pebble layer configuration for openstack images sync service
@@ -135,7 +142,16 @@ class OpenstackImagesSyncPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "http-mirror": {
                     "override": "replace",
                     "summary": "apache",
-                    "command": "/usr/sbin/apache2ctl -DFOREGROUND",
+                    "command": "/usr/sbin/apache2 -DFOREGROUND -DNO_DETACH",
+                    "startup": "disabled",
+                    "environment": {
+                        "APACHE_RUN_DIR": "/var/run/apache2",
+                        "APACHE_PID_FILE": "/var/run/apache2/apache2.pid",
+                        "APACHE_LOCK_DIR": "/var/lock/apache2",
+                        "APACHE_RUN_USER": "www-data",
+                        "APACHE_RUN_GROUP": "www-data",
+                        "APACHE_LOG_DIR": "/var/log/apache2",
+                    },
                 },
             },
         }
@@ -148,6 +164,16 @@ class OpenstackImagesSyncPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         """
         self.execute(["a2dissite", "000-default"], exception_on_error=True)
         return super().init_service(context)
+
+    @property
+    def _restart_methods(
+        self,
+    ) -> typing.Mapping[str, typing.Callable[[ops.Container, str], None]]:
+        return {
+            "http-mirror": lambda container, service_name: container.send_signal(
+                signal.SIGUSR1, service_name
+            )
+        }
 
 
 @sunbeam_tracing.trace_sunbeam_charm

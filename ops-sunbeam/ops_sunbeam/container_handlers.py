@@ -21,6 +21,7 @@ in the container.
 
 import collections
 import logging
+import signal
 import typing
 from collections.abc import (
     Callable,
@@ -316,7 +317,26 @@ class PebbleHandler(ops.framework.Object):
 
         self.status.set(ActiveStatus(""))
 
-    def start_all(self, restart: bool = True) -> None:
+    @staticmethod
+    def _restart_service(container: ops.Container, service_name: str) -> None:
+        """Restart service in container.
+
+        :param container: Container to restart service in.
+        :param service_name: Service to restart.
+        """
+        container.restart(service_name)
+
+    @property
+    def _restart_methods(
+        self,
+    ) -> typing.Mapping[str, Callable[[ops.Container, str], None]]:
+        """Mapping of service names to restart methods."""
+        return {}
+
+    def start_all(
+        self,
+        restart: bool = True,
+    ) -> None:
         """Start services in container.
 
         :param restart: Whether to stop services before starting them.
@@ -341,7 +361,9 @@ class PebbleHandler(ops.framework.Object):
                 logger.debug(
                     f"Restarting {service_name} in {self.container_name}"
                 )
-                container.restart(service_name)
+                self._restart_methods.get(service_name, self._restart_service)(
+                    container, service_name
+                )
                 self._reset_files_changed()
 
     def stop_all(self) -> None:
@@ -425,6 +447,27 @@ class WSGIPebbleHandler(PebbleHandler):
         )
         self.wsgi_service_name = wsgi_service_name
 
+    @staticmethod
+    def _restart_wsgi_service(
+        container: ops.Container, service_name: str
+    ) -> None:
+        """Restart WSGI service in container.
+
+        WSGI services can be gracefully restarted by sending SIGUSR1 to the
+        service.
+
+        :param container: Container to restart service in.
+        :param service_name: Service to restart.
+        """
+        container.send_signal(signal.SIGUSR1, service_name)
+
+    @property
+    def _restart_methods(
+        self,
+    ) -> typing.Mapping[str, Callable[[ops.Container, str], None]]:
+        """Mapping of service names to restart methods."""
+        return {self.wsgi_service_name: self._restart_wsgi_service}
+
     def start_wsgi(self, restart: bool = True) -> None:
         """Check and start services in container.
 
@@ -459,8 +502,16 @@ class WSGIPebbleHandler(PebbleHandler):
                 f"{self.wsgi_service_name}": {
                     "override": "replace",
                     "summary": f"{self.service_name} wsgi",
-                    "command": "/usr/sbin/apache2ctl -DFOREGROUND",
+                    "command": "/usr/sbin/apache2 -DFOREGROUND -DNO_DETACH",
                     "startup": "disabled",
+                    "environment": {
+                        "APACHE_RUN_DIR": "/var/run/apache2",
+                        "APACHE_PID_FILE": "/var/run/apache2/apache2.pid",
+                        "APACHE_LOCK_DIR": "/var/lock/apache2",
+                        "APACHE_RUN_USER": "www-data",
+                        "APACHE_RUN_GROUP": "www-data",
+                        "APACHE_LOG_DIR": "/var/log/apache2",
+                    },
                 },
             },
         }
