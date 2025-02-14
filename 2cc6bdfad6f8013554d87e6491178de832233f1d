@@ -16,6 +16,24 @@
       "message": "Similar changes are required for WSGIPebbleHandler\n\nhttps://opendev.org/openstack/sunbeam-charms/src/commit/fba9eac56ac465acfacbc07f9004dfc9dd94173c/ops-sunbeam/ops_sunbeam/container_handlers.py#L450",
       "revId": "2cc6bdfad6f8013554d87e6491178de832233f1d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "112c718e_ec44034e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-02-14T07:40:41Z",
+      "side": 1,
+      "message": "@hemanth.nakkina@canonical.com, I don\u0027t get what you mean, what similar changes? There\u0027s already changes to WSGIPebbleHandler included in this change?",
+      "parentUuid": "71a4588d_a1751c41",
+      "revId": "2cc6bdfad6f8013554d87e6491178de832233f1d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
