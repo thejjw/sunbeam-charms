@@ -34,6 +34,23 @@
       "parentUuid": "71a4588d_a1751c41",
       "revId": "2cc6bdfad6f8013554d87e6491178de832233f1d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdaeb372_ef79e2aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-02-14T11:28:15Z",
+      "side": 1,
+      "message": "I overlooked, the changes wrt passing environment variables in WSGIPebbleHandler exists in PS3",
+      "revId": "2cc6bdfad6f8013554d87e6491178de832233f1d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
