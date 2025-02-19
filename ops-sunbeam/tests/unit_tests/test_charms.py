@@ -22,6 +22,9 @@ import tempfile
 from typing import (
     TYPE_CHECKING,
 )
+from unittest.mock import (
+    Mock,
+)
 
 if TYPE_CHECKING:
     import ops.framework
@@ -363,3 +366,43 @@ class TestMultiSvcCharm(MyAPICharm):
                 self.configure_charm,
             )
         ]
+
+
+class MySnapCharm(sunbeam_charm.OSBaseOperatorCharmSnap):
+    """Test charm for testing OSBaseOperatorCharmSnap."""
+
+    service_name = "mysnap"
+
+    def __init__(self, framework: "ops.framework.Framework") -> None:
+        """Run constructor."""
+        self.seen_events = []
+        self.mock_snap = Mock()
+        super().__init__(framework)
+
+    def _log_event(self, event: "ops.framework.EventBase") -> None:
+        """Log events."""
+        self.seen_events.append(type(event).__name__)
+
+    def _on_config_changed(self, event: "ops.framework.EventBase") -> None:
+        """Log config changed event."""
+        self._log_event(event)
+        super()._on_config_changed(event)
+
+    def configure_charm(self, event: "ops.framework.EventBase") -> None:
+        """Log configure_charm call."""
+        self._log_event(event)
+        super().configure_charm(event)
+
+    def get_snap(self):
+        """Return mocked snap."""
+        return self.mock_snap
+
+    @property
+    def snap_name(self) -> str:
+        """Return snap name."""
+        return "mysnap"
+
+    @property
+    def snap_channel(self) -> str:
+        """Return snap channel."""
+        return "latest/stable"
