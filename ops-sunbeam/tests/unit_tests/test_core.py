@@ -489,7 +489,7 @@ class TestOSBaseOperatorMultiSVCAPICharm(_TestOSBaseOperatorAPICharm):
     """Test Charm with multiple services."""
 
     def setUp(self) -> None:
-        """Charm test class setip."""
+        """Charm test class setup."""
         super().setUp(test_charms.TestMultiSvcCharm)
 
     def test_start_services(self) -> None:
@@ -505,4 +505,51 @@ class TestOSBaseOperatorMultiSVCAPICharm(_TestOSBaseOperatorAPICharm):
         self.assertEqual(
             sorted(self.container_calls.started_services("my-service")),
             sorted(["apache forwarder", "my-service"]),
+        )
+
+
+class TestOSBaseOperatorCharmSnap(test_utils.CharmTestCase):
+    """Test snap based charm."""
+
+    PATCHES = []
+
+    def setUp(self) -> None:
+        """Charm test class setup."""
+        super().setUp(sunbeam_charm, self.PATCHES)
+        self.harness = test_utils.get_harness(
+            test_charms.MySnapCharm,
+            test_charms.CHARM_METADATA,
+            None,
+            charm_config=test_charms.CHARM_CONFIG,
+            initial_charm_config=test_charms.INITIAL_CHARM_CONFIG,
+        )
+        self.mock_event = MagicMock()
+        self.harness.begin()
+        self.addCleanup(self.harness.cleanup)
+
+    def test_set_snap_data(self) -> None:
+        """Test snap set data."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.get.return_value = {
+            "settings.debug": False,
+            "settings.region": "RegionOne",
+        }
+        charm.set_snap_data({"settings.debug": True})
+        snap.set.assert_called_once_with({"settings.debug": True}, typed=True)
+
+    def test_set_snap_data_namespace(self) -> None:
+        """Test snap set data under namespace."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        namespace = "ceph.monostack"
+        snap.get.return_value = {
+            "auth": "cephx",
+        }
+        # check unsetting a non-existent value is passed as None
+        new_data = {"key": "abc", "value": None}
+        charm.set_snap_data(new_data, namespace=namespace)
+        snap.get.assert_called_once_with(namespace, typed=True)
+        snap.set.assert_called_once_with(
+            {namespace: {"key": "abc"}}, typed=True
         )
