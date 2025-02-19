@@ -52,6 +52,7 @@ if typing.TYPE_CHECKING:
     import charms.ceilometer_k8s.v0.ceilometer_service as ceilometer_service
     import charms.certificate_transfer_interface.v0.certificate_transfer as certificate_transfer
     import charms.cinder_ceph_k8s.v0.ceph_access as ceph_access
+    import charms.cinder_volume.v0.cinder_volume as sunbeam_cinder_volume
     import charms.data_platform_libs.v0.data_interfaces as data_interfaces
     import charms.gnocchi_k8s.v0.gnocchi_service as gnocchi_service
     import charms.keystone_k8s.v0.identity_credentials as identity_credentials
@@ -298,10 +299,12 @@ class DBHandler(RelationHandler):
         callback_f: Callable,
         database: str,
         mandatory: bool = False,
+        external_access: bool = False,
     ) -> None:
         """Run constructor."""
         # a database name as requested by the charm.
         self.database_name = database
+        self.external_access = external_access
         super().__init__(charm, relation_name, callback_f, mandatory)
 
     def setup_event_handler(self) -> ops.framework.Object:
@@ -327,6 +330,7 @@ class DBHandler(RelationHandler):
             self.relation_name,
             self.database_name,
             relations_aliases=[alias],
+            external_node_connectivity=self.external_access,
         )
         self.framework.observe(
             # db.on[f"{alias}_database_created"], # this doesn't work because:
@@ -2591,3 +2595,53 @@ class ServiceReadinessProviderHandler(RelationHandler):
     def ready(self) -> bool:
         """Report if relation is ready."""
         return True
+
+
+@sunbeam_tracing.trace_type
+class CinderVolumeRequiresHandler(RelationHandler):
+    """Handler for Cinder Volume relation."""
+
+    interface: "sunbeam_cinder_volume.CinderVolumeRequires"
+
+    def __init__(
+        self,
+        charm: "OSBaseOperatorCharm",
+        relation_name: str,
+        backend_key: str,
+        callback_f: Callable,
+        mandatory: bool = True,
+    ):
+        self.backend_key = backend_key
+        super().__init__(charm, relation_name, callback_f, mandatory=mandatory)
+
+    def setup_event_handler(self):
+        """Configure event handlers for Cinder Volume relation."""
+        import charms.cinder_volume.v0.cinder_volume as sunbeam_cinder_volume
+
+        logger.debug("Setting up Cinder Volume event handler")
+        cinder_volume = sunbeam_tracing.trace_type(
+            sunbeam_cinder_volume.CinderVolumeRequires
+        )(
+            self.charm,
+            self.relation_name,
+            backend_key=self.backend_key,
+        )
+        self.framework.observe(
+            cinder_volume.on.ready,
+            self._on_cinder_volume_ready,
+        )
+
+        return cinder_volume
+
+    def _on_cinder_volume_ready(self, event: ops.RelationEvent) -> None:
+        """Handles Cinder Volume change events."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return self.interface.provider_ready()
+
+    def snap(self) -> str | None:
+        """Return snap name."""
+        return self.interface.snap_name()

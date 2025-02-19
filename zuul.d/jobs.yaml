@@ -107,6 +107,30 @@
     vars:
       charm: cinder-k8s
 - job:
+    name: charm-build-cinder-volume
+    description: Build sunbeam cinder-volume charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/cinder-volume/*
+      - rebuild
+    vars:
+      charm: cinder-volume
+- job:
+    name: charm-build-cinder-volume-ceph
+    description: Build sunbeam cinder-volume-ceph charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/cinder-volume-ceph/*
+      - rebuild
+    vars:
+      charm: cinder-volume-ceph
+- job:
     name: charm-build-cinder-ceph-k8s
     description: Build sunbeam cinder-ceph-k8s charm
     run: playbooks/charm/build.yaml
@@ -650,6 +674,32 @@
     files:
       - ops-sunbeam/ops_sunbeam/*
       - charms/cinder-k8s/*
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-cinder-volume
+    description: |
+      Publish cinder-volume built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/cinder-volume/*
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-cinder-volume-ceph
+    description: |
+      Publish cinder-volume-ceph built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/cinder-volume-ceph/*
       - rebuild
     secrets:
       - charmhub_token
