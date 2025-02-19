@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5936fab_e100c071",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-02-19T21:41:36Z",
+      "side": 1,
+      "message": "Wip until charmhub request for track creation for cinder-volume-ceph is granted.",
+      "revId": "b601c5d23c9162a64fabd9f4bfce862c322a82f4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
