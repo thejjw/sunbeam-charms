@@ -1,0 +1,106 @@
+type: charm
+name: cinder-volume
+summary: OpenStack volume service
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances. This charm provides Cinder Volume service.
+assumes:
+  - juju >= 3.1
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      type: boolean
+      default: false
+      description: Enable debug logging.
+    snap-name:
+      default: cinder-volume
+      type: string
+      description: Name of the snap to install.
+    snap-channel:
+      default: 2024.1/edge
+      type: string
+    rabbit-user:
+      type: string
+      default: null
+      description: Username to request access on rabbitmq-server.
+    rabbit-vhost:
+      type: string
+      default: null
+      description: RabbitMQ virtual host to request access on rabbitmq-server.
+    enable-telemetry-notifications:
+      type: boolean
+      default: false
+      description: Enable notifications to send to telemetry.
+    image-volume-cache-enabled:
+      type: boolean
+      default: false
+      description: |
+        Enable the image volume cache.
+    image-volume-cache-max-size-gb:
+      type: int
+      default: 0
+      description: |
+        Max size of the image volume cache in GB. 0 means unlimited.
+    image-volume-cache-max-count:
+      type: int
+      default: 0
+      description: |
+        Max number of entries allowed in the image volume cache. 0 means
+        unlimited.
+    default-volume-type:
+      type: string
+      default: null
+      description: |
+        Default volume type to use when creating volumes.
+
+requires:
+  amqp:
+    interface: rabbitmq
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-credentials:
+    interface: keystone-credentials
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  storage-backend:
+    interface: cinder-backend
+  cinder-volume:
+    interface: cinder-volume
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc
+      - cargo
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2

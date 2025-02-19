@@ -1,0 +1,21 @@
+# This file is managed centrally by release-tools and should not be modified
+# within individual charm repos.  See the 'global' dir contents for available
+# choices of *requirements.txt files for OpenStack Charms:
+#     https://github.com/openstack-charmers/release-tools
+#
+
+cryptography
+jinja2
+pydantic
+lightkube
+lightkube-models
+requests # Drop - not needed in storage backend interface.
+ops
+
+git+https://opendev.org/openstack/charm-ops-interface-tls-certificates#egg=interface_tls_certificates
+
+# TODO
+requests # Drop - not needed in storage backend interface.
+
+# From ops_sunbeam
+tenacity
