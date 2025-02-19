@@ -56,6 +56,10 @@
             nodeset: ubuntu-jammy
         - charm-build-cinder-ceph-k8s:
             nodeset: ubuntu-jammy
+        - charm-build-cinder-volume:
+            nodeset: ubuntu-jammy
+        - charm-build-cinder-volume-ceph:
+            nodeset: ubuntu-jammy
         - charm-build-horizon-k8s:
             nodeset: ubuntu-jammy
         - charm-build-heat-k8s:
@@ -114,6 +118,8 @@
         - charm-build-cinder-k8s:
             nodeset: ubuntu-jammy
         - charm-build-cinder-ceph-k8s:
+            nodeset: ubuntu-jammy
+        - charm-build-cinder-volume:
             nodeset: ubuntu-jammy
         - charm-build-horizon-k8s:
             nodeset: ubuntu-jammy
@@ -177,6 +183,10 @@
             - publish-charm-cinder-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-cinder-ceph-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-cinder-volume:
+                nodeset: ubuntu-jammy
+            - publish-charm-cinder-volume-ceph:
                 nodeset: ubuntu-jammy
             - publish-charm-horizon-k8s:
                 nodeset: ubuntu-jammy

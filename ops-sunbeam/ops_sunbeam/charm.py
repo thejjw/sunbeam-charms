@@ -29,11 +29,13 @@ defines the pebble layers, manages pushing configuration to the
 containers and managing the service running in the container.
 """
 
+import functools
 import ipaddress
 import logging
 import urllib
 import urllib.parse
 from typing import (
+    TYPE_CHECKING,
     List,
     Mapping,
     Optional,
@@ -69,6 +71,9 @@ from ops.model import (
     ActiveStatus,
     MaintenanceStatus,
 )
+
+if TYPE_CHECKING:
+    import charms.operator_libs_linux.v2.snap as snap
 
 logger = logging.getLogger(__name__)
 
@@ -176,6 +181,7 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
                     self.configure_charm,
                     database_name,
                     relation_name in self.mandatory_relations,
+                    external_access=self.database_external_access,
                 )
                 self.dbs[relation_name] = db
                 handlers.append(db)
@@ -219,6 +225,14 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
             handlers.append(self.receive_ca_cert)
 
         return handlers
+
+    @property
+    def database_external_access(self) -> bool:
+        """Whether the database is accessed externally.
+
+        This is required when the charm is not hosted on k8s.
+        """
+        return True
 
     def get_tracing_endpoint(self) -> str | None:
         """Get the tracing endpoint for the service."""
@@ -442,7 +456,11 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
                     )
 
                     if isinstance(event, RelationBrokenEvent):
-                        _is_broken = True
+                        _is_broken = event.relation.name in (
+                            "database",
+                            "api-database",
+                            "cell-database",
+                        )
                 case "ingress-public" | "ingress-internal":
                     from charms.traefik_k8s.v2.ingress import (
                         IngressPerAppRevokedEvent,
@@ -755,6 +773,11 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
     def db_sync_container_name(self) -> str:
         """Name of Containerto run db sync from."""
         return self.service_name
+
+    @property
+    def database_external_access(self) -> bool:
+        """Whether the database is accessed externally."""
+        return False
 
     @tenacity.retry(
         stop=tenacity.stop_after_attempt(10),
@@ -1099,3 +1122,186 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
                 url.fragment,
             )
         )
+
+
+class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
+    """Base charm class for snap based charms."""
+
+    def __init__(self, framework):
+        self.snap_module = self._import_snap()
+        super().__init__(framework)
+
+        self.framework.observe(
+            self.on.install,
+            self._on_install,
+        )
+
+    def _import_snap(self):
+        import charms.operator_libs_linux.v2.snap as snap
+
+        return snap
+
+    def _on_install(self, _: ops.InstallEvent):
+        """Run install on this unit."""
+        self.ensure_snap_present()
+
+    @functools.cache
+    def get_snap(self) -> "snap.Snap":
+        """Return snap object."""
+        return self.snap_module.SnapCache()[self.snap_name]
+
+    @property
+    def snap_name(self) -> str:
+        """Return snap name."""
+        raise NotImplementedError
+
+    @property
+    def snap_channel(self) -> str:
+        """Return snap channel."""
+        raise NotImplementedError
+
+    def ensure_snap_present(self):
+        """Install snap if it is not already present."""
+        try:
+            snap_svc = self.get_snap()
+
+            if not snap_svc.present:
+                snap_svc.ensure(
+                    self.snap_module.SnapState.Latest,
+                    channel=self.snap_channel,
+                )
+        except self.snap_module.SnapError as e:
+            logger.error(
+                "An exception occurred when installing %s. Reason: %s",
+                self.snap_name,
+                e.message,
+            )
+
+    def ensure_services_running(self, enable: bool = True) -> None:
+        """Ensure snap services are up."""
+        snap_svc = self.get_snap()
+        snap_svc.start(enable=enable)
+
+    def stop_services(self, relation: set[str] | None = None) -> None:
+        """Stop snap services."""
+        snap_svc = self.get_snap()
+        snap_svc.stop(disable=True)
+
+    def set_snap_data(self, snap_data: Mapping, namespace: str | None = None):
+        """Set snap data on local snap.
+
+        Setting keys with 3 level or more of indentation is not yet supported.
+        `namespace` offers the possibility to work as if it was supported.
+        """
+        snap_svc = self.get_snap()
+        new_settings = {}
+        try:
+            old_settings = snap_svc.get(namespace, typed=True)
+        except self.snap_module.SnapError:
+            old_settings = {}
+
+        for key, new_value in snap_data.items():
+            key_split = key.split(".")
+            if len(key_split) == 2:
+                group, subkey = key_split
+                old_value = old_settings.get(group, {}).get(subkey)
+            else:
+                old_value = old_settings.get(key)
+            if old_value is not None and old_value != new_value:
+                new_settings[key] = new_value
+            # Setting a value to None will unset the value from the snap,
+            # which will fail if the value was never set.
+            elif new_value is not None:
+                new_settings[key] = new_value
+
+        if new_settings:
+            if namespace is not None:
+                new_settings = {namespace: new_settings}
+            logger.debug(f"Applying new snap settings {new_settings}")
+            snap_svc.set(new_settings, typed=True)
+        else:
+            logger.debug("Snap settings do not need updating")
+
+    def configure_snap(self, event: ops.EventBase) -> None:
+        """Run configuration on managed snap."""
+
+    def configure_unit(self, event: ops.EventBase) -> None:
+        """Run configuration on this unit."""
+        self.ensure_snap_present()
+        self.check_leader_ready()
+        self.check_relation_handlers_ready(event)
+        self.configure_snap(event)
+        self.ensure_services_running()
+        self._state.unit_bootstrapped = True
+
+
+class OSCinderVolumeDriverOperatorCharm(OSBaseOperatorCharmSnap):
+    """Base class charms for Cinder volume drivers.
+
+    Operators implementing this class are subordinates charm that are not
+    responsible for installing / managing the snap.
+    Their only duty is to provide a backend configuration to the
+    snap managed by the principal unit.
+    """
+
+    def __init__(self, framework: ops.Framework):
+        super().__init__(framework)
+        self._state.set_default(volume_ready=False)
+
+    @property
+    def backend_key(self) -> str:
+        """Key for backend configuration."""
+        raise NotImplementedError
+
+    def ensure_snap_present(self):
+        """No-op."""
+
+    def ensure_services_running(self, enable: bool = True) -> None:
+        """No-op."""
+
+    def stop_services(self, relation: set[str] | None = None) -> None:
+        """No-op."""
+
+    @property
+    def snap_name(self) -> str:
+        """Return snap name."""
+        snap_name = self.cinder_volume.interface.snap_name()
+
+        if snap_name is None:
+            raise sunbeam_guard.WaitingExceptionError(
+                "Waiting for snap name from cinder-volume relation"
+            )
+
+        return snap_name
+
+    def get_relation_handlers(
+        self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> list[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the service."""
+        handlers = handlers or []
+        self.cinder_volume = sunbeam_rhandlers.CinderVolumeRequiresHandler(
+            self,
+            "cinder-volume",
+            self.backend_key,
+            self.volume_ready,
+            mandatory="cinder-volume" in self.mandatory_relations,
+        )
+        handlers.append(self.cinder_volume)
+        return super().get_relation_handlers(handlers)
+
+    def volume_ready(self, event) -> None:
+        """Event handler for bootstrap of service when api services are ready."""
+        self._state.volume_ready = True
+        self.configure_charm(event)
+
+    def configure_snap(self, event: ops.EventBase) -> None:
+        """Configure backend for cinder volume driver."""
+        if not bool(self._state.volume_ready):
+            raise sunbeam_guard.WaitingExceptionError("Volume not ready")
+        backend_context = self.get_backend_configuration()
+        self.set_snap_data(backend_context, namespace=self.backend_key)
+        self.cinder_volume.interface.set_ready()
+
+    def get_backend_configuration(self) -> Mapping:
+        """Get backend configuration."""
+        raise NotImplementedError
