@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "321ec2aa_48160baf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-02-21T05:55:14Z",
+      "side": 1,
+      "message": "Nice work, One issue to look at charm configs are not propagated to snap.",
+      "revId": "e752abeb0b2186e111e865785683307eb8d3c6c4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa012b2a_a57fa992",
+        "filename": "charms/cinder-volume/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-02-21T05:55:14Z",
+      "side": 1,
+      "message": "Requires logging interface",
+      "revId": "e752abeb0b2186e111e865785683307eb8d3c6c4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1f684ea_054ed3aa",
+        "filename": "charms/cinder-volume/lib/charms/cinder_volume/v0/cinder_volume.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-02-21T05:55:14Z",
+      "side": 1,
+      "message": "Change the information here",
+      "revId": "e752abeb0b2186e111e865785683307eb8d3c6c4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dbba7aaf_65fa63e8",
+        "filename": "charms/cinder-volume/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-02-21T05:55:14Z",
+      "side": 1,
+      "message": "Need to update snap_data with charm configs like image_volume_cache_max_size_gb, image_volume_cache_max_count, image_volume_cache_enabled.",
+      "revId": "e752abeb0b2186e111e865785683307eb8d3c6c4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9df090b_0296ba92",
+        "filename": "charms/cinder-volume/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-02-21T05:55:14Z",
+      "side": 1,
+      "message": "snap config cinder.default_volume_type is never set",
+      "revId": "e752abeb0b2186e111e865785683307eb8d3c6c4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
