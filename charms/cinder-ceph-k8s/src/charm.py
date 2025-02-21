@@ -23,7 +23,6 @@ of an OpenStack deployment
 import logging
 import uuid
 from typing import (
-    Callable,
     List,
     Mapping,
     Optional,
@@ -126,14 +125,6 @@ class StorageBackendProvidesHandler(sunbeam_rhandlers.RelationHandler):
 @sunbeam_tracing.trace_type
 class CephAccessProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for identity service relation."""
-
-    def __init__(
-        self,
-        charm: ops.charm.CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-    ):
-        super().__init__(charm, relation_name, callback_f)
 
     def setup_event_handler(self):
         """Configure event handlers for an Identity service relation."""

@@ -24,7 +24,6 @@ import json
 import logging
 import secrets
 from typing import (
-    Callable,
     Dict,
     Iterable,
     List,
@@ -82,15 +81,6 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
 
     interface: bind_rndc.BindRndcProvides
     charm: "BindOperatorCharm"
-
-    def __init__(
-        self,
-        charm: ops.charm.CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-        mandatory: bool = True,
-    ):
-        super().__init__(charm, relation_name, callback_f, mandatory)
 
     def setup_event_handler(self) -> ops.Object:
         """Setup event handler for the relation."""

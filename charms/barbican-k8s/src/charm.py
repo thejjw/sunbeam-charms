@@ -85,14 +85,14 @@ class VaultKvRequiresHandler(sunbeam_rhandlers.RelationHandler):
 
     def __init__(
         self,
-        charm: ops.CharmBase,
+        charm: sunbeam_charm.OSBaseOperatorCharm,
         relation_name: str,
         callback_f,
         mount_suffix: str,
         mandatory: bool = False,
     ):
-        self.mount_suffix = mount_suffix
         super().__init__(charm, relation_name, callback_f, mandatory)
+        self.mount_suffix = mount_suffix
 
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for a vault-kv relation."""
