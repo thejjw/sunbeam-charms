@@ -45,6 +45,7 @@ from ops.model import (
     WaitingStatus,
 )
 from ops_sunbeam.core import (
+    PostInitMeta,
     RelationDataMapping,
 )
 
@@ -78,7 +79,7 @@ REPLICATED = "replicated"
 
 
 @sunbeam_tracing.trace_type
-class RelationHandler(ops.framework.Object):
+class RelationHandler(ops.framework.Object, metaclass=PostInitMeta):
     """Base handler class for relations.
 
     A relation handler is used to manage a charms interaction with a relation
@@ -109,10 +110,13 @@ class RelationHandler(ops.framework.Object):
         self.charm = charm
         self.relation_name = relation_name
         self.callback_f = callback_f
-        self.interface = self.setup_event_handler()
         self.mandatory = mandatory
         self.status = compound_status.Status(self.relation_name)
         self.charm.status_pool.add(self.status)
+
+    def __post_init__(self):
+        """Run post init."""
+        self.interface = self.setup_event_handler()
         self.set_status(self.status)
 
     def set_status(self, status: compound_status.Status) -> None:
@@ -192,9 +196,9 @@ class IngressHandler(RelationHandler):
         mandatory: bool = False,
     ) -> None:
         """Run constructor."""
+        super().__init__(charm, relation_name, callback_f, mandatory)
         self.default_ingress_port = default_ingress_port
         self.service_name = service_name
-        super().__init__(charm, relation_name, callback_f, mandatory)
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Ingress relation."""
@@ -301,8 +305,8 @@ class DBHandler(RelationHandler):
     ) -> None:
         """Run constructor."""
         # a database name as requested by the charm.
-        self.database_name = database
         super().__init__(charm, relation_name, callback_f, mandatory)
+        self.database_name = database
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for a MySQL relation."""
@@ -447,9 +451,9 @@ class RabbitMQHandler(RelationHandler):
         mandatory: bool = False,
     ) -> None:
         """Run constructor."""
+        super().__init__(charm, relation_name, callback_f, mandatory)
         self.username = username
         self.vhost = vhost
-        super().__init__(charm, relation_name, callback_f, mandatory)
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an AMQP relation."""
@@ -542,9 +546,9 @@ class IdentityServiceRequiresHandler(RelationHandler):
         mandatory: bool = False,
     ) -> None:
         """Run constructor."""
+        super().__init__(charm, relation_name, callback_f, mandatory)
         self.service_endpoints = service_endpoints
         self.region = region
-        super().__init__(charm, relation_name, callback_f, mandatory)
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Identity service relation."""
@@ -711,9 +715,9 @@ class CephClientHandler(RelationHandler):
         mandatory: bool = False,
     ) -> None:
         """Run constructor."""
+        super().__init__(charm, relation_name, callback_f, mandatory)
         self.allow_ec_overwrites = allow_ec_overwrites
         self.app_name = app_name
-        super().__init__(charm, relation_name, callback_f, mandatory)
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an ceph-client interface."""
@@ -1000,10 +1004,10 @@ class TlsCertificatesHandler(RelationHandler):
         mandatory: bool = False,
     ) -> None:
         """Run constructor."""
+        super().__init__(charm, relation_name, callback_f, mandatory)
         self._private_keys: dict[str, str] = {}
         self.sans_dns = sans_dns
         self.sans_ips = sans_ips
-        super().__init__(charm, relation_name, callback_f, mandatory)
         try:
             peer_relation = self.model.get_relation("peers")
             # TODO(gboutry): fix type ignore
@@ -1320,28 +1324,6 @@ class IdentityCredentialsRequiresHandler(RelationHandler):
 
     interface: "identity_credentials.IdentityCredentialsRequires"
 
-    def __init__(
-        self,
-        charm: "OSBaseOperatorCharm",
-        relation_name: str,
-        callback_f: Callable,
-        mandatory: bool = False,
-    ) -> None:
-        """Create a new identity-credentials handler.
-
-        Create a new IdentityCredentialsRequiresHandler that handles initial
-        events from the relation and invokes the provided callbacks based on
-        the event raised.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        """
-        super().__init__(charm, relation_name, callback_f, mandatory)
-
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for identity-credentials relation."""
         import charms.keystone_k8s.v0.identity_credentials as identity_credentials
@@ -1385,31 +1367,6 @@ class IdentityResourceRequiresHandler(RelationHandler):
     """Handles the identity resource relation on the requires side."""
 
     interface: "identity_resource.IdentityResourceRequires"
-
-    def __init__(
-        self,
-        charm: "OSBaseOperatorCharm",
-        relation_name: str,
-        callback_f: Callable,
-        mandatory: bool = False,
-    ):
-        """Create a new identity-ops handler.
-
-        Create a new IdentityResourceRequiresHandler that handles initial
-        events from the relation and invokes the provided callbacks based on
-        the event raised.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        :param mandatory: If the relation is mandatory to proceed with
-                          configuring charm
-        :type mandatory: bool
-        """
-        super().__init__(charm, relation_name, callback_f, mandatory)
 
     def setup_event_handler(self):
         """Configure event handlers for an Identity resource relation."""
@@ -1465,31 +1422,6 @@ class CeilometerServiceRequiresHandler(RelationHandler):
 
     interface: "ceilometer_service.CeilometerServiceRequires"
 
-    def __init__(
-        self,
-        charm: "OSBaseOperatorCharm",
-        relation_name: str,
-        callback_f: Callable,
-        mandatory: bool = False,
-    ):
-        """Create a new ceilometer-service handler.
-
-        Create a new CeilometerServiceRequiresHandler that handles initial
-        events from the relation and invokes the provided callbacks based on
-        the event raised.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        :param mandatory: If the relation is mandatory to proceed with
-                          configuring charm
-        :type mandatory: bool
-        """
-        super().__init__(charm, relation_name, callback_f, mandatory)
-
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for Ceilometer service relation."""
         import charms.ceilometer_k8s.v0.ceilometer_service as ceilometer_svc
@@ -1539,28 +1471,6 @@ class CephAccessRequiresHandler(RelationHandler):
     """Handles the ceph access relation on the requires side."""
 
     interface: "ceph_access.CephAccessRequires"
-
-    def __init__(
-        self,
-        charm: "OSBaseOperatorCharm",
-        relation_name: str,
-        callback_f: Callable,
-        mandatory: bool = False,
-    ) -> None:
-        """Create a new ceph-access handler.
-
-        Create a new CephAccessRequiresHandler that handles initial
-        events from the relation and invokes the provided callbacks based on
-        the event raised.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        """
-        super().__init__(charm, relation_name, callback_f, mandatory)
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for ceph-access relation."""
@@ -1653,8 +1563,8 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
         extra_ops: list[dict | Callable] | None = None,
         extra_ops_process: ExtraOpsProcess | None = None,
     ):
-        self.username = name
         super().__init__(charm, relation_name, callback_f, mandatory)
+        self.username = name
         self.charm = charm
         self.add_suffix = add_suffix
         # add_suffix is used to add suffix to username to create unique user
@@ -2060,31 +1970,6 @@ class CertificateTransferRequiresHandler(RelationHandler):
 
     interface: "certificate_transfer.CertificateTransferRequires"
 
-    def __init__(
-        self,
-        charm: "OSBaseOperatorCharm",
-        relation_name: str,
-        callback_f: Callable,
-        mandatory: bool = False,
-    ):
-        """Create a new certificate-transfer requires handler.
-
-        Create a new CertificateTransferRequiresHandler that receives the
-        certificates from the provider and updates certificates on all
-        the containers.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        :param mandatory: If the relation is mandatory to proceed with
-                          configuring charm
-        :type mandatory: bool
-        """
-        super().__init__(charm, relation_name, callback_f, mandatory)
-
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for tls relation."""
         logger.debug("Setting up certificate transfer event handler")
@@ -2223,31 +2108,6 @@ class NovaServiceRequiresHandler(RelationHandler):
 
     interface: "nova_service.NovaServiceRequires"
 
-    def __init__(
-        self,
-        charm: "OSBaseOperatorCharm",
-        relation_name: str,
-        callback_f: Callable,
-        mandatory: bool = False,
-    ):
-        """Create a new nova-service handler.
-
-        Create a new NovaServiceRequiresHandler that handles initial
-        events from the relation and invokes the provided callbacks based on
-        the event raised.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        :param mandatory: If the relation is mandatory to proceed with
-                          configuring charm
-        :type mandatory: bool
-        """
-        super().__init__(charm, relation_name, callback_f, mandatory)
-
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for Nova service relation."""
         import charms.nova_k8s.v0.nova_service as nova_svc
@@ -2356,10 +2216,10 @@ class TracingRequireHandler(RelationHandler):
                           configuring charm.
         :type mandatory: bool
         """
+        super().__init__(charm, relation_name, lambda *args: None, mandatory)
         if protocols is None:
             protocols = ["otlp_http"]
         self.protocols = protocols
-        super().__init__(charm, relation_name, lambda *args: None, mandatory)
 
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for tracing relation."""
@@ -2392,31 +2252,6 @@ class GnocchiServiceRequiresHandler(RelationHandler):
     """Handle gnocchi service relation on the requires side."""
 
     interface: "gnocchi_service.GnocchiServiceRequires"
-
-    def __init__(
-        self,
-        charm: "OSBaseOperatorCharm",
-        relation_name: str,
-        callback_f: Callable,
-        mandatory: bool = False,
-    ):
-        """Create a new gnocchi service handler.
-
-        Create a new GnocchiServiceRequiresHandler that handles initial
-        events from the relation and invokes the provided callbacks based on
-        the event raised.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        :param mandatory: If the relation is mandatory to proceed with
-                          configuring charm
-        :type mandatory: bool
-        """
-        super().__init__(charm, relation_name, callback_f, mandatory)
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for Gnocchi service relation."""
@@ -2464,31 +2299,6 @@ class ServiceReadinessRequiresHandler(RelationHandler):
     """Handle service-ready relation on the requires side."""
 
     interface: "service_readiness.ServiceReadinessRequirer"
-
-    def __init__(
-        self,
-        charm: "OSBaseOperatorCharm",
-        relation_name: str,
-        callback_f: Callable,
-        mandatory: bool = False,
-    ):
-        """Create a new service-ready requirer handler.
-
-        Create a new ServiceReadinessRequiresHandler that handles initial
-        events from the relation and invokes the provided callbacks based on
-        the event raised.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        :param mandatory: If the relation is mandatory to proceed with
-                          configuring charm
-        :type mandatory: bool
-        """
-        super().__init__(charm, relation_name, callback_f, mandatory)
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for service-ready relation."""
@@ -2544,26 +2354,6 @@ class ServiceReadinessProviderHandler(RelationHandler):
     """Handler for service-readiness relation on provider side."""
 
     interface: "service_readiness.ServiceReadinessProvider"
-
-    def __init__(
-        self,
-        charm: "OSBaseOperatorCharm",
-        relation_name: str,
-        callback_f: Callable,
-    ):
-        """Create a new service-readiness provider handler.
-
-        Create a new ServiceReadinessProvidesHandler that updates service
-        readiness on the related units.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        """
-        super().__init__(charm, relation_name, callback_f)
 
     def setup_event_handler(self):
         """Configure event handlers for service-readiness relation."""

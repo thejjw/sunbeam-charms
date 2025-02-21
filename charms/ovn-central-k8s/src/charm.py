@@ -185,10 +185,6 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     _state = StoredState()
     mandatory_relations = {"peers"}
 
-    def __init__(self, framework):
-        """Setup OVN central charm class."""
-        super().__init__(framework)
-
     def get_pebble_handlers(self):
         """Pebble handlers for all OVN containers."""
         pebble_handlers = [

@@ -24,7 +24,6 @@ Send domain configuration to the keystone charm.
 import json
 import logging
 from typing import (
-    Callable,
     List,
     Mapping,
 )
@@ -62,14 +61,6 @@ class LDAPConfigContext(config_contexts.ConfigContext):
 class DomainConfigProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for identity credentials relation."""
 
-    def __init__(
-        self,
-        charm: ops.charm.CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-    ):
-        super().__init__(charm, relation_name, callback_f)
-
     def setup_event_handler(self):
         """Configure event handlers for a domain config relation."""
         logger.debug("Setting up domain config event handler")
@@ -100,9 +91,6 @@ class KeystoneLDAPK8SCharm(sunbeam_charm.OSBaseOperatorCharm):
     """Charm the service."""
 
     DOMAIN_CONFIG_RELATION_NAME = "domain-config"
-
-    def __init__(self, *args):
-        super().__init__(*args)
 
     def get_relation_handlers(
         self, handlers=None

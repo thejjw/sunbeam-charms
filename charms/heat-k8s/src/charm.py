@@ -204,9 +204,9 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     db_sync_cmds = [["heat-manage", "db_sync"]]
 
     def __init__(self, framework):
+        super().__init__(framework)
         self.traefik_route_public = None
         self.traefik_route_internal = None
-        super().__init__(framework)
         self._state.set_default(identity_ops_ready=False)
         self.framework.observe(
             self.on.peers_relation_created, self._on_peer_relation_created

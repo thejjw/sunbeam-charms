@@ -40,9 +40,6 @@ from charms.nova_k8s.v0.nova_service import (
     NovaConfigRequestEvent,
     NovaServiceProvides,
 )
-from ops.charm import (
-    CharmBase,
-)
 from ops.pebble import (
     ExecError,
 )
@@ -265,8 +262,8 @@ class CloudComputeRequiresHandler(sunbeam_rhandlers.RelationHandler):
         :param mandatory: flag to determine if relation handler is mandatory
         :type mandatory: bool
         """
-        self.region = region
         super().__init__(charm, relation_name, callback_f, mandatory)
+        self.region = region
 
     def setup_event_handler(self):
         """Configure event handlers for the cloud-compute service relation."""
@@ -303,14 +300,6 @@ class CloudComputeRequiresHandler(sunbeam_rhandlers.RelationHandler):
 class NovaServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for nova service relation."""
 
-    def __init__(
-        self,
-        charm: CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-    ):
-        super().__init__(charm, relation_name, callback_f)
-
     def setup_event_handler(self):
         """Configure event handlers for nova service relation."""
         logger.debug("Setting up Nova service event handler")
@@ -345,9 +334,9 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     shared_metadata_secret_key = "shared-metadata-secret"
 
     def __init__(self, framework):
+        super().__init__(framework)
         self.traefik_route_public = None
         self.traefik_route_internal = None
-        super().__init__(framework)
         self.framework.observe(
             self.on.peers_relation_created, self._on_peer_relation_created
         )

@@ -73,7 +73,9 @@ from ops.model import (
 logger = logging.getLogger(__name__)
 
 
-class OSBaseOperatorCharm(ops.charm.CharmBase):
+class OSBaseOperatorCharm(
+    ops.charm.CharmBase, metaclass=sunbeam_core.PostInitMeta
+):
     """Base charms for OpenStack operators."""
 
     _state = ops.framework.StoredState()
@@ -111,15 +113,10 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
         self.status = compound_status.Status("workload", priority=100)
         self.status_pool = compound_status.StatusPool(self)
         self.status_pool.add(self.status)
-        self.relation_handlers = self.get_relation_handlers()
         self.bootstrap_status = compound_status.Status(
             "bootstrap", priority=90
         )
         self.status_pool.add(self.bootstrap_status)
-        if not self.bootstrapped():
-            self.bootstrap_status.set(
-                MaintenanceStatus("Service not bootstrapped")
-            )
         self.framework.observe(self.on.config_changed, self._on_config_changed)
         self.framework.observe(self.on.secret_changed, self._on_secret_changed)
         self.framework.observe(self.on.secret_rotate, self._on_secret_rotate)
@@ -127,6 +124,14 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
         self.framework.observe(
             self.on.collect_unit_status, self._on_collect_unit_status_event
         )
+
+    def __post_init__(self):
+        """Post init hook."""
+        self.relation_handlers = self.get_relation_handlers()
+        if not self.bootstrapped():
+            self.bootstrap_status.set(
+                MaintenanceStatus("Service not bootstrapped")
+            )
 
     def can_add_handler(
         self,
@@ -604,9 +609,9 @@ class OSBaseOperatorCharm(ops.charm.CharmBase):
 class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
     """Base charm class for k8s based charms."""
 
-    def __init__(self, framework: ops.framework.Framework) -> None:
-        """Run constructor."""
-        super().__init__(framework)
+    def __post_init__(self):
+        """Post init hook."""
+        super().__post_init__()
         self.pebble_handlers = self.get_pebble_handlers()
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
@@ -824,10 +829,6 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
 
     wsgi_admin_script: str
     wsgi_public_script: str
-
-    def __init__(self, framework: ops.framework.Framework) -> None:
-        """Run constructor."""
-        super().__init__(framework)
 
     @property
     def service_endpoints(self) -> list[dict]:

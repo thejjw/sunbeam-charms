@@ -21,7 +21,6 @@ This charm provide Ceilometer services as part of an OpenStack deployment
 import logging
 import uuid
 from typing import (
-    Callable,
     List,
 )
 
@@ -37,9 +36,6 @@ from charms.ceilometer_k8s.v0.ceilometer_service import (
     CeilometerConfigRequestEvent,
     CeilometerServiceProvides,
 )
-from ops.charm import (
-    CharmBase,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -50,14 +46,6 @@ CEILOMETER_NOTIFICATION_CONTAINER = "ceilometer-notification"
 @sunbeam_tracing.trace_type
 class CeilometerServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for ceilometer service relation."""
-
-    def __init__(
-        self,
-        charm: CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-    ):
-        super().__init__(charm, relation_name, callback_f)
 
     def setup_event_handler(self):
         """Configure event handlers for an Ceilometer service relation."""
@@ -181,9 +169,6 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     shared_metering_secret_key = "shared-metering-secret"
 
     db_sync_cmds = [["ceilometer-upgrade"]]
-
-    def __init__(self, framework: ops.framework):
-        super().__init__(framework)
 
     def get_shared_meteringsecret(self):
         """Return the shared metering secret."""

@@ -178,14 +178,6 @@ class DesignatePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
 class DesignateServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for designate service relation."""
 
-    def __init__(
-        self,
-        charm: ops.CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-    ):
-        super().__init__(charm, relation_name, callback_f)
-
     def setup_event_handler(self):
         """Configure event handlers for an Ceilometer service relation."""
         logger.debug("Setting up Ceilometer service event handler")
@@ -217,15 +209,6 @@ class BindRndcRequiresRelationHandler(sunbeam_rhandlers.RelationHandler):
 
     charm: "DesignateOperatorCharm"
     interface: bind_rndc.BindRndcRequires
-
-    def __init__(
-        self,
-        charm: ops.CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-        mandatory: bool = True,
-    ):
-        super().__init__(charm, relation_name, callback_f, mandatory)
 
     def setup_event_handler(self) -> ops.Object:
         """Setup event handler for the relation."""

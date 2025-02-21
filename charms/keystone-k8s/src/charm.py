@@ -36,7 +36,6 @@ from pathlib import (
     Path,
 )
 from typing import (
-    Callable,
     Dict,
     List,
 )
@@ -155,14 +154,6 @@ class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
 class IdentityServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for identity service relation."""
 
-    def __init__(
-        self,
-        charm: ops.charm.CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-    ):
-        super().__init__(charm, relation_name, callback_f)
-
     def setup_event_handler(self):
         """Configure event handlers for an Identity service relation."""
         logger.debug("Setting up Identity Service event handler")
@@ -191,14 +182,6 @@ class IdentityServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
 @sunbeam_tracing.trace_type
 class DomainConfigHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for domain config relation."""
-
-    def __init__(
-        self,
-        charm: ops.charm.CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-    ):
-        super().__init__(charm, relation_name, callback_f)
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Identity service relation."""
@@ -235,14 +218,6 @@ class DomainConfigHandler(sunbeam_rhandlers.RelationHandler):
 class IdentityCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for identity credentials relation."""
 
-    def __init__(
-        self,
-        charm: ops.charm.CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-    ):
-        super().__init__(charm, relation_name, callback_f)
-
     def setup_event_handler(self):
         """Configure event handlers for a Identity Credentials relation."""
         logger.debug("Setting up Identity Credentials event handler")
@@ -271,14 +246,6 @@ class IdentityCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
 @sunbeam_tracing.trace_type
 class IdentityResourceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for identity resource relation."""
-
-    def __init__(
-        self,
-        charm: ops.charm.CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-    ):
-        super().__init__(charm, relation_name, callback_f)
 
     def setup_event_handler(self):
         """Configure event handlers for an Identity resource relation."""
@@ -351,12 +318,10 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     SEND_CA_CERT_RELATION_NAME = "send-ca-cert"
 
     def __init__(self, framework):
-        # NOTE(gboutry): super().__init__ will call self.bootstrapped() which tries to
-        # make use of the keystone_manager
+        super().__init__(framework)
         self.keystone_manager = manager.KeystoneManager(
             self, KEYSTONE_CONTAINER
         )
-        super().__init__(framework)
         self._state.set_default(admin_domain_name="admin_domain")
         self._state.set_default(admin_domain_id=None)
         self._state.set_default(default_domain_id=None)

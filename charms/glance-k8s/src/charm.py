@@ -153,7 +153,6 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
         juju_storage_name: str = None,
     ) -> None:
         """Run constructor."""
-        self.juju_storage_name = juju_storage_name
         super().__init__(
             charm,
             relation_name,
@@ -162,6 +161,7 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
             app_name,
             mandatory=True,
         )
+        self.juju_storage_name = juju_storage_name
 
     def set_status(self, status: compound_status.Status) -> None:
         """Override the base set_status.
@@ -227,13 +227,7 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
 class GlanceConfigContext(sunbeam_ctxts.ConfigContext):
     """Glance configuration context."""
 
-    def __init__(
-        self,
-        charm: sunbeam_charm.OSBaseOperatorAPICharm,
-        namespace: str,
-    ) -> None:
-        """Initialise the context."""
-        super().__init__(charm, namespace)
+    charm: "GlanceOperatorCharm"
 
     def context(self) -> dict:
         """Context used when rendering templates."""

@@ -492,15 +492,9 @@ class OVSDBCMSProvidesHandler(
 
     interface: "ovsdb.OVSDBCMSProvides"
 
-    def __init__(
-        self,
-        charm: "OSBaseOperatorCharm",
-        relation_name: str,
-        callback_f: Callable,
-        mandatory: bool = False,
-    ) -> None:
-        """Run constructor."""
-        super().__init__(charm, relation_name, callback_f, mandatory)
+    def __post_init__(self):
+        """Post init hook."""
+        super().__post_init__()
         self._update_address_data()
 
     def setup_event_handler(self) -> ops.framework.Object:

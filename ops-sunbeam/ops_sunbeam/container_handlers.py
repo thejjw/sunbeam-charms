@@ -53,7 +53,7 @@ ContainerDir = collections.namedtuple(
 
 
 @sunbeam_tracing.trace_type
-class PebbleHandler(ops.framework.Object):
+class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
     """Base handler for Pebble based containers."""
 
     def __init__(
@@ -74,7 +74,6 @@ class PebbleHandler(ops.framework.Object):
         self.container_configs.extend(self.default_container_configs())
         self.template_dir = template_dir
         self.callback_f = callback_f
-        self.setup_pebble_handler()
 
         self.status = compound_status.Status("container:" + container_name)
         self.charm.status_pool.add(self.status)
@@ -83,6 +82,10 @@ class PebbleHandler(ops.framework.Object):
             self.charm.on.update_status, self._on_update_status
         )
         self._files_changed: list[str] = []
+
+    def __post_init__(self) -> None:
+        """Post init."""
+        self.setup_pebble_handler()
 
     def setup_pebble_handler(self) -> None:
         """Configure handler for pebble ready event."""

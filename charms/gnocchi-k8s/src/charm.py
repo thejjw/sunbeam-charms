@@ -20,7 +20,6 @@ This charm provide Gnocchi services as part of an OpenStack deployment
 
 import logging
 from typing import (
-    Callable,
     List,
 )
 
@@ -37,7 +36,6 @@ from charms.gnocchi_k8s.v0.gnocchi_service import (
     GnocchiServiceReadinessRequestEvent,
 )
 from ops.charm import (
-    CharmBase,
     RelationEvent,
 )
 from ops.framework import (
@@ -54,26 +52,6 @@ GNOCCHI_METRICD_CONTAINER = "gnocchi-metricd"
 @sunbeam_tracing.trace_type
 class GnocchiServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for Gnocchi service relation on provider side."""
-
-    def __init__(
-        self,
-        charm: CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-    ):
-        """Create a new gnocchi service handler.
-
-        Create a new GnocchiServiceProvidesHandler that updates service
-        readiness on the related units.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        """
-        super().__init__(charm, relation_name, callback_f)
 
     def setup_event_handler(self):
         """Configure event handlers for Gnocchi service relation."""

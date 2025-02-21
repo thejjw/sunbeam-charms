@@ -22,7 +22,6 @@ This charm provide Neutron services as part of an OpenStack deployment
 import logging
 import re
 from typing import (
-    Callable,
     List,
 )
 
@@ -51,32 +50,7 @@ logger = logging.getLogger(__name__)
 class DesignateServiceRequiresHandler(sunbeam_rhandlers.RelationHandler):
     """Handle external-dns relation on the requires side."""
 
-    def __init__(
-        self,
-        charm: ops.charm.CharmBase,
-        relation_name: str,
-        callback_f: Callable,
-        mandatory: bool = False,
-    ):
-        """Create a new external-dns handler.
-
-        Create a new DesignateServiceRequiresHandler that handles initial
-        events from the relation and invokes the provided callbacks based on
-        the event raised.
-
-        :param charm: the Charm class the handler is for
-        :type charm: ops.charm.CharmBase
-        :param relation_name: the relation the handler is bound to
-        :type relation_name: str
-        :param callback_f: the function to call when the nodes are connected
-        :type callback_f: Callable
-        :param mandatory: If the relation is mandatory to proceed with
-                          configuring charm
-        :type mandatory: bool
-        """
-        super().__init__(charm, relation_name, callback_f, mandatory)
-
-    def setup_event_handler(self) -> None:
+    def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for external-dns service relation."""
         logger.debug("Setting up Designate service event handler")
         svc = sunbeam_tracing.trace_type(

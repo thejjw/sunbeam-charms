@@ -93,3 +93,13 @@ class OPSCharmContexts:
         """Iterate over the relations presented to the charm."""
         for namespace in self.namespaces:
             yield namespace, getattr(self, namespace)
+
+
+class PostInitMeta(type):
+    """Allows object to run post init methods."""
+
+    def __call__(cls, *args, **kw):
+        """Call __post_init__ after __init__."""
+        instance = super().__call__(*args, **kw)
+        instance.__post_init__()
+        return instance
