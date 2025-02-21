@@ -448,12 +448,14 @@ class RabbitMQHandler(RelationHandler):
         callback_f: Callable,
         username: str,
         vhost: str,
+        external_connectivity: bool,
         mandatory: bool = False,
     ) -> None:
         """Run constructor."""
         super().__init__(charm, relation_name, callback_f, mandatory)
         self.username = username
         self.vhost = vhost
+        self.external_connectivity = external_connectivity
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an AMQP relation."""
@@ -463,11 +465,23 @@ class RabbitMQHandler(RelationHandler):
         import charms.rabbitmq_k8s.v0.rabbitmq as sunbeam_rabbitmq
 
         amqp = sunbeam_tracing.trace_type(sunbeam_rabbitmq.RabbitMQRequires)(
-            self.charm, self.relation_name, self.username, self.vhost
+            self.charm,
+            self.relation_name,
+            self.username,
+            self.vhost,
+            self.external_connectivity,
         )
         self.framework.observe(amqp.on.ready, self._on_amqp_ready)
         self.framework.observe(amqp.on.goneaway, self._on_amqp_goneaway)
         return amqp
+
+    def update_relation_data(self):
+        """Update relation outside of relation context."""
+        self.interface.request_access(
+            self.username,
+            self.vhost,
+            self.external_connectivity,
+        )
 
     def _on_amqp_ready(self, event: ops.framework.EventBase) -> None:
         """Handle AMQP change events."""
@@ -488,7 +502,7 @@ class RabbitMQHandler(RelationHandler):
         """Whether handler is ready for use."""
         try:
             return bool(self.interface.password) and bool(
-                self.interface.hostnames
+                self.interface.hostname
             )
         except (AttributeError, KeyError):
             return False
@@ -496,29 +510,22 @@ class RabbitMQHandler(RelationHandler):
     def context(self) -> dict:
         """Context containing AMQP connection data."""
         try:
-            hosts = self.interface.hostnames
+            host = self.interface.hostname
         except (AttributeError, KeyError):
             return {}
-        if not hosts:
+        if not host:
             return {}
         ctxt = super().context()
-        ctxt["hostnames"] = list(set(ctxt["hostnames"]))
-        ctxt["hosts"] = ",".join(ctxt["hostnames"])
+        ctxt["hostname"] = host
         ctxt["port"] = ctxt.get("ssl_port") or self.DEFAULT_PORT
-        transport_url_hosts = ",".join(
-            [
-                "{}:{}@{}:{}".format(
-                    self.username,
-                    ctxt["password"],
-                    host_,  # TODO deal with IPv6
-                    ctxt["port"],
-                )
-                for host_ in ctxt["hostnames"]
-            ]
+        transport_url_host = "{}:{}@{}:{}".format(
+            self.username,
+            ctxt["password"],
+            host,  # TODO deal with IPv6
+            ctxt["port"],
         )
-        transport_url = "rabbit://{}/{}".format(
-            transport_url_hosts, self.vhost
-        )
+
+        transport_url = "rabbit://{}/{}".format(transport_url_host, self.vhost)
         ctxt["transport_url"] = transport_url
         return ctxt
 

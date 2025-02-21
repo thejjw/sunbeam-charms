@@ -95,7 +95,6 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
 
     def __init__(self, framework):
         super().__init__(framework)
-
         service_ports = [ServicePort(6642, name="southbound")]
         self.lb_handler = KubernetesLoadBalancerHandler(
             self,
@@ -115,11 +114,19 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         """Relation handlers for the service."""
         handlers = handlers or []
         self.ovsdb_cms = ovn_relation_handlers.OVSDBCMSRequiresHandler(
-            self, "ovsdb-cms", self.configure_charm, True
+            self,
+            "ovsdb-cms",
+            self.configure_charm,
+            external_connectivity=self.remote_external_access,
+            mandatory=True,
         )
         handlers.append(self.ovsdb_cms)
         self.ovsdb_cms_relay = ovn_relation_handlers.OVSDBCMSProvidesHandler(
-            self, "ovsdb-cms-relay", self.configure_charm, False
+            self,
+            "ovsdb-cms-relay",
+            self.configure_charm,
+            loadbalancer_address=self.lb_handler.get_loadbalancer_ip(),
+            mandatory=False,
         )
         handlers.append(self.ovsdb_cms_relay)
         handlers = super().get_relation_handlers(handlers)
@@ -129,11 +136,14 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         event.set_results({"url": self.southbound_db_url})
 
     @property
-    def ingress_address(self) -> Union[IPv4Address, IPv6Address]:
+    def ingress_address(self) -> Union[str, IPv4Address, IPv6Address]:
         """Network IP address for access to the OVN relay service."""
-        return self.model.get_binding(
-            "ovsdb-cms-relay"
-        ).network.ingress_addresses[0]
+        return (
+            self.lb_handler.get_loadbalancer_ip()
+            or self.model.get_binding(
+                "ovsdb-cms-relay"
+            ).network.ingress_addresses[0]
+        )
 
     @property
     def southbound_db_url(self) -> str:
@@ -169,6 +179,14 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         required.
         """
         return {}
+
+    def get_sans_ips(self) -> list[str]:
+        """Return list of SANs for the certificate."""
+        sans_ips = super().get_sans_ips()
+        lb_address = self.lb_handler.get_loadbalancer_ip()
+        if lb_address and lb_address not in sans_ips:
+            sans_ips.append(lb_address)
+        return sans_ips
 
 
 if __name__ == "__main__":  # pragma: nocover

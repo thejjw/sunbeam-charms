@@ -16,6 +16,10 @@
 
 """Tests for OVN relay."""
 
+from unittest.mock import (
+    Mock,
+)
+
 import charm
 import ops_sunbeam.test_utils as test_utils
 
@@ -36,11 +40,16 @@ class _OVNRelayOperatorCharm(charm.OVNRelayOperatorCharm):
 class TestOVNRelayOperatorCharm(test_utils.CharmTestCase):
     """Test OVN relay."""
 
-    PATCHES = []
+    PATCHES = [
+        "KubernetesLoadBalancerHandler",
+    ]
 
     def setUp(self):
         """Setup OVN relay tests."""
         super().setUp(charm, self.PATCHES)
+        lb_handler = Mock()
+        lb_handler.get_loadbalancer_ip.return_value = "10.27.5.1"
+        self.KubernetesLoadBalancerHandler.return_value = lb_handler
         self.harness = test_utils.get_harness(
             _OVNRelayOperatorCharm, container_calls=self.container_calls
         )
@@ -71,5 +80,5 @@ class TestOVNRelayOperatorCharm(test_utils.CharmTestCase):
     def test_southbound_db_url(self):
         """Return southbound db url."""
         self.assertEqual(
-            "ssl:10.0.0.10:6642", self.harness.charm.southbound_db_url
+            "ssl:10.27.5.1:6642", self.harness.charm.southbound_db_url
         )

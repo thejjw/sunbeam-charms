@@ -180,7 +180,7 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
             "/bin/wsgi_admin",
             "hardpassword",
             "True",
-            "rabbit://my-service:rabbit.pass@10.0.0.13:5672/openstack",
+            "rabbit://my-service:rabbit.pass@rabbithost1.local:5672/openstack",
             "rabbithost1.local",
             "svcpass1",
             "bar",

@@ -11,6 +11,7 @@ relation name:
 Also provide two additional parameters to the charm object:
     - username
     - vhost
+    - external_connectivity: Optional, default False
 
 Two events are also available to respond to:
     - connected
@@ -66,6 +67,12 @@ class RabbitMQClientCharm(CharmBase):
 ```
 """
 
+import json
+import logging
+import typing
+
+import ops
+
 # The unique Charmhub library identifier, never change it
 LIBID = "45622352791142fd9cf87232e3bd6f2a"
 
@@ -74,64 +81,57 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 3
 
-import logging
-
-from ops.framework import (
-    StoredState,
-    EventBase,
-    ObjectEvents,
-    EventSource,
-    Object,
-)
-
-from ops.model import Relation
-
-from typing import List
 
 logger = logging.getLogger(__name__)
 
 
-class RabbitMQConnectedEvent(EventBase):
+class RabbitMQConnectedEvent(ops.EventBase):
     """RabbitMQ connected Event."""
 
     pass
 
 
-class RabbitMQReadyEvent(EventBase):
+class RabbitMQReadyEvent(ops.EventBase):
     """RabbitMQ ready for use Event."""
 
     pass
 
 
-class RabbitMQGoneAwayEvent(EventBase):
-    """RabbitMQ relation has gone-away Event"""
+class RabbitMQGoneAwayEvent(ops.EventBase):
+    """RabbitMQ relation has gone-away Event."""
 
     pass
 
 
-class RabbitMQServerEvents(ObjectEvents):
-    """Events class for `on`"""
+class RabbitMQServerEvents(ops.ObjectEvents):
+    """Events class for `on`."""
 
-    connected = EventSource(RabbitMQConnectedEvent)
-    ready = EventSource(RabbitMQReadyEvent)
-    goneaway = EventSource(RabbitMQGoneAwayEvent)
+    connected = ops.EventSource(RabbitMQConnectedEvent)
+    ready = ops.EventSource(RabbitMQReadyEvent)
+    goneaway = ops.EventSource(RabbitMQGoneAwayEvent)
 
 
-class RabbitMQRequires(Object):
-    """
-    RabbitMQRequires class
-    """
+class RabbitMQRequires(ops.Object):
+    """RabbitMQRequires class."""
 
-    on = RabbitMQServerEvents()
+    on = RabbitMQServerEvents()  # type: ignore
 
-    def __init__(self, charm, relation_name: str, username: str, vhost: str):
+    def __init__(
+        self,
+        charm,
+        relation_name: str,
+        username: str,
+        vhost: str,
+        external_connectivity: bool = False,
+    ):
         super().__init__(charm, relation_name)
         self.charm = charm
         self.relation_name = relation_name
         self.username = username
         self.vhost = vhost
+        self.external_connectivity = external_connectivity
         self.framework.observe(
             self.charm.on[relation_name].relation_joined,
             self._on_amqp_relation_joined,
@@ -149,91 +149,118 @@ class RabbitMQRequires(Object):
             self._on_amqp_relation_broken,
         )
 
-    def _on_amqp_relation_joined(self, event):
-        """RabbitMQ relation joined."""
+    def _on_amqp_relation_joined(self, event: ops.RelationJoinedEvent):
         logging.debug("RabbitMQRabbitMQRequires on_joined")
         self.on.connected.emit()
-        self.request_access(self.username, self.vhost)
+        self.request_access(
+            self.username, self.vhost, self.external_connectivity
+        )
 
-    def _on_amqp_relation_changed(self, event):
-        """RabbitMQ relation changed."""
+    def _on_amqp_relation_changed(
+        self, event: ops.RelationChangedEvent | ops.RelationDepartedEvent
+    ):
         logging.debug("RabbitMQRabbitMQRequires on_changed/departed")
         if self.password:
             self.on.ready.emit()
 
-    def _on_amqp_relation_broken(self, event):
-        """RabbitMQ relation broken."""
+    def _on_amqp_relation_broken(self, event: ops.RelationBrokenEvent):
         logging.debug("RabbitMQRabbitMQRequires on_broken")
         self.on.goneaway.emit()
 
     @property
-    def _amqp_rel(self) -> Relation:
+    def _amqp_rel(self) -> ops.Relation | None:
         """The RabbitMQ relation."""
         return self.framework.model.get_relation(self.relation_name)
 
+    def _get(self, key: str) -> str | None:
+        """Return property from the RabbitMQ relation."""
+        rel = self._amqp_rel
+        if rel and rel.active:
+            return rel.data[rel.app].get(key)
+        return None
+
     @property
-    def password(self) -> str:
+    def password(self) -> str | None:
         """Return the RabbitMQ password from the server side of the relation."""
-        return self._amqp_rel.data[self._amqp_rel.app].get("password")
+        return self._get("password")
 
     @property
-    def hostname(self) -> str:
-        """Return the hostname from the RabbitMQ relation"""
-        return self._amqp_rel.data[self._amqp_rel.app].get("hostname")
+    def hostname(self) -> str | None:
+        """Return the hostname from the RabbitMQ relation."""
+        return self._get("hostname")
 
     @property
-    def ssl_port(self) -> str:
-        """Return the SSL port from the RabbitMQ relation"""
-        return self._amqp_rel.data[self._amqp_rel.app].get("ssl_port")
+    def ssl_port(self) -> str | None:
+        """Return the SSL port from the RabbitMQ relation."""
+        return self._get("ssl_port")
 
     @property
-    def ssl_ca(self) -> str:
-        """Return the SSL port from the RabbitMQ relation"""
-        return self._amqp_rel.data[self._amqp_rel.app].get("ssl_ca")
+    def ssl_ca(self) -> str | None:
+        """Return the SSL port from the RabbitMQ relation."""
+        return self._get("ssl_ca")
 
     @property
-    def hostnames(self) -> List[str]:
-        """Return a list of remote RMQ hosts from the RabbitMQ relation"""
-        _hosts = []
-        for unit in self._amqp_rel.units:
-            _hosts.append(self._amqp_rel.data[unit].get("ingress-address"))
+    def hostnames(self) -> list[str]:
+        """Return a list of remote RMQ hosts from the RabbitMQ relation."""
+        _hosts: list[str] = []
+        rel = self._amqp_rel
+        if not rel:
+            return _hosts
+        for unit in rel.units:
+            if ingress := rel.data[unit].get("ingress-address"):
+                _hosts.append(ingress)
         return _hosts
 
-    def request_access(self, username: str, vhost: str) -> None:
+    def request_access(
+        self, username: str, vhost: str, external_connectivity: bool
+    ) -> None:
         """Request access to the RabbitMQ server."""
-        if self.model.unit.is_leader():
+        if (rel := self._amqp_rel) and self.model.unit.is_leader():
             logging.debug("Requesting RabbitMQ user and vhost")
-            self._amqp_rel.data[self.charm.app]["username"] = username
-            self._amqp_rel.data[self.charm.app]["vhost"] = vhost
+            rel.data[self.charm.app]["username"] = username
+            rel.data[self.charm.app]["vhost"] = vhost
+            rel.data[self.charm.app]["external_connectivity"] = json.dumps(
+                external_connectivity
+            )
 
 
-class HasRabbitMQClientsEvent(EventBase):
+class HasRabbitMQClientsEvent(ops.RelationEvent):
     """Has RabbitMQClients Event."""
 
     pass
 
 
-class ReadyRabbitMQClientsEvent(EventBase):
+class ReadyRabbitMQClientsEvent(ops.RelationEvent):
     """RabbitMQClients Ready Event."""
 
     pass
 
 
-class RabbitMQClientEvents(ObjectEvents):
-    """Events class for `on`"""
+class GoneAwayRabbitMQClientsEvent(ops.RelationEvent):
+    """RabbitMQClients GoneAway Event."""
 
-    has_amqp_clients = EventSource(HasRabbitMQClientsEvent)
-    ready_amqp_clients = EventSource(ReadyRabbitMQClientsEvent)
+    pass
 
 
-class RabbitMQProvides(Object):
-    """
-    RabbitMQProvides class
-    """
+class RabbitMQClientEvents(ops.ObjectEvents):
+    """Events class for `on`."""
 
-    on = RabbitMQClientEvents()
+    has_amqp_clients = ops.EventSource(HasRabbitMQClientsEvent)
+    ready_amqp_clients = ops.EventSource(ReadyRabbitMQClientsEvent)
+    gone_away_amqp_clients = ops.EventSource(GoneAwayRabbitMQClientsEvent)
 
-    def __init__(self, charm, relation_name, callback):
+
+class RabbitMQProvides(ops.Object):
+    """RabbitMQProvides class."""
+
+    on = RabbitMQClientEvents()  # type: ignore
+
+    def __init__(
+        self,
+        charm: ops.CharmBase,
+        relation_name: str,
+        callback: typing.Callable,
+    ):
         super().__init__(charm, relation_name)
         self.charm = charm
         self.relation_name = relation_name
@@ -251,36 +278,60 @@ class RabbitMQProvides(Object):
             self._on_amqp_relation_broken,
         )
 
-    def _on_amqp_relation_joined(self, event):
+    def _on_amqp_relation_joined(self, event: ops.RelationJoinedEvent):
         """Handle RabbitMQ joined."""
-        logging.debug("RabbitMQRabbitMQProvides on_joined data={}"
-                      .format(event.relation.data[event.relation.app]))
-        self.on.has_amqp_clients.emit()
+        logging.debug(
+            "RabbitMQRabbitMQProvides on_joined data={}".format(
+                event.relation.data[event.relation.app]
+            )
+        )
+        self.on.has_amqp_clients.emit(event.relation)
 
-    def _on_amqp_relation_changed(self, event):
+    def _on_amqp_relation_changed(self, event: ops.RelationChangedEvent):
         """Handle RabbitMQ changed."""
-        logging.debug("RabbitMQRabbitMQProvides on_changed data={}"
-                      .format(event.relation.data[event.relation.app]))
+        relation = event.relation
+        logging.debug(
+            "RabbitMQRabbitMQProvides on_changed data={}".format(
+                relation.data[relation.app]
+            )
+        )
         # Validate data on the relation
-        if self.username(event) and self.vhost(event):
-            self.on.ready_amqp_clients.emit()
+        if self.username(relation) and self.vhost(relation):
+            self.on.ready_amqp_clients.emit(relation)
             if self.charm.unit.is_leader():
-                self.callback(event, self.username(event), self.vhost(event))
+                self.callback(
+                    event,
+                    self.username(relation),
+                    self.vhost(relation),
+                    self.external_connectivity(relation),
+                )
         else:
-            logging.warning("Received RabbitMQ changed event without the "
-                            "expected keys ('username', 'vhost') in the "
-                            "application data bag.  Incompatible charm in "
-                            "other end of relation?")
+            logging.warning(
+                "Received RabbitMQ changed event without the "
+                "expected keys ('username', 'vhost') in the "
+                "application data bag.  Incompatible charm in "
+                "other end of relation?"
+            )
 
-    def _on_amqp_relation_broken(self, event):
+    def _on_amqp_relation_broken(self, event: ops.RelationBrokenEvent):
         """Handle RabbitMQ broken."""
         logging.debug("RabbitMQRabbitMQProvides on_departed")
-        # TODO clear data on the relation
+        self.on.gone_away_amqp_clients.emit(event.relation)
 
-    def username(self, event):
+    def _get(self, relation: ops.Relation, key: str) -> str | None:
+        """Return property from the RabbitMQ relation."""
+        return relation.data[relation.app].get(key)
+
+    def username(self, relation: ops.Relation) -> str | None:
         """Return the RabbitMQ username from the client side of the relation."""
-        return event.relation.data[event.relation.app].get("username")
+        return self._get(relation, "username")
 
-    def vhost(self, event):
+    def vhost(self, relation: ops.Relation) -> str | None:
         """Return the RabbitMQ vhost from the client side of the relation."""
-        return event.relation.data[event.relation.app].get("vhost")
+        return self._get(relation, "vhost")
+
+    def external_connectivity(self, relation: ops.Relation) -> bool:
+        """Return the RabbitMQ external_connectivity from the client side of the relation."""
+        return json.loads(
+            self._get(relation, "external_connectivity") or "false"
+        )

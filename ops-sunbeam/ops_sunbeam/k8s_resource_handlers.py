@@ -14,11 +14,15 @@
 
 """Handles management of kubernetes resources."""
 
+import functools
 import logging
 
 import ops_sunbeam.tracing as sunbeam_tracing
 from lightkube.core.client import (
     Client,
+)
+from lightkube.core.exceptions import (
+    ApiError,
 )
 from lightkube.models.core_v1 import (
     ServicePort,
@@ -143,3 +147,30 @@ class KubernetesLoadBalancerHandler(Object):
         )
         klm = self._get_lb_resource_manager()
         klm.delete()
+
+    @functools.cache
+    def get_loadbalancer_ip(self) -> str | None:
+        """Helper to get loadbalancer IP.
+
+        Result is cached for the whole duration of a hook.
+        """
+        try:
+            svc = self.lightkube_client.get(
+                Service, name=self._lb_name, namespace=self.model.name
+            )
+        except ApiError as e:
+            logger.error(f"Failed to fetch LoadBalancer {self._lb_name}: {e}")
+            return None
+
+        if not (status := getattr(svc, "status", None)):
+            return None
+        if not (load_balancer_status := getattr(status, "loadBalancer", None)):
+            return None
+        if not (
+            ingress_addresses := getattr(load_balancer_status, "ingress", None)
+        ):
+            return None
+        if not (ingress_address := ingress_addresses[0]):
+            return None
+
+        return ingress_address.ip
