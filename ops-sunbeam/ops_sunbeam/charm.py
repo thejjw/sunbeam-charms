@@ -169,6 +169,7 @@ class OSBaseOperatorCharm(
                 self.configure_charm,
                 str(self.config.get("rabbit-user") or self.service_name),
                 str(self.config.get("rabbit-vhost") or "openstack"),
+                self.remote_external_access,
                 "amqp" in self.mandatory_relations,
             )
             handlers.append(self.amqp)
@@ -224,6 +225,17 @@ class OSBaseOperatorCharm(
             handlers.append(self.receive_ca_cert)
 
         return handlers
+
+    @property
+    def remote_external_access(self) -> bool:
+        """Whether this charm needs external access for remote service.
+
+        If the service needs special handling for remote access, this function
+        should be overridden to return True.
+
+        Example, remote service needs to expose a LoadBalancer service.
+        """
+        return True
 
     def get_tracing_endpoint(self) -> str | None:
         """Get the tracing endpoint for the service."""
@@ -653,6 +665,14 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
             for h in self.pebble_handlers
             if h.container_name in container_names
         ]
+
+    @property
+    def remote_external_access(self) -> bool:
+        """Whether this charm needs external access for remote service.
+
+        Most often, k8s services don't need a special access to communicate.
+        """
+        return False
 
     def configure_containers(self):
         """Configure containers."""

@@ -492,6 +492,18 @@ class OVSDBCMSProvidesHandler(
 
     interface: "ovsdb.OVSDBCMSProvides"
 
+    def __init__(
+        self,
+        charm: "OSBaseOperatorCharm",
+        relation_name: str,
+        callback_f: Callable,
+        loadbalancer_address: str | None = None,
+        mandatory: bool = False,
+    ) -> None:
+        """Run constructor."""
+        super().__init__(charm, relation_name, callback_f, mandatory)
+        self.loadbalancer_address = loadbalancer_address
+
     def __post_init__(self):
         """Post init hook."""
         super().__post_init__()
@@ -507,6 +519,7 @@ class OVSDBCMSProvidesHandler(
         ovsdb_svc = sunbeam_tracing.trace_type(ovsdb.OVSDBCMSProvides)(
             self.charm,
             self.relation_name,
+            self.loadbalancer_address,
         )
         self.framework.observe(
             ovsdb_svc.on.ready, self._on_ovsdb_service_ready
@@ -546,10 +559,12 @@ class OVSDBCMSRequiresHandler(
         charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
+        external_connectivity: bool = False,
         mandatory: bool = False,
     ) -> None:
         """Run constructor."""
         super().__init__(charm, relation_name, callback_f, mandatory)
+        self.external_connectivity = external_connectivity
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Identity service relation."""
@@ -561,6 +576,7 @@ class OVSDBCMSRequiresHandler(
         ovsdb_svc = sunbeam_tracing.trace_type(ovsdb.OVSDBCMSRequires)(
             self.charm,
             self.relation_name,
+            external_connectivity=self.external_connectivity,
         )
         self.framework.observe(
             ovsdb_svc.on.ready, self._on_ovsdb_service_ready
@@ -598,8 +614,6 @@ class OVSDBCMSRequiresHandler(
                 "hostnames": self.interface.bound_hostnames(),
                 "local_address": self.cluster_local_addr,
                 "addresses": self.interface.bound_addresses(),
-                "db_ingress_sb_connection_strs": self.db_ingress_sb_connection_strs,
-                "db_ingress_nb_connection_strs": self.db_ingress_nb_connection_strs,
                 "db_sb_connection_strs": ",".join(self.db_sb_connection_strs),
                 "db_nb_connection_strs": ",".join(self.db_nb_connection_strs),
                 "db_sb_connection_hostname_strs": ",".join(
@@ -610,5 +624,19 @@ class OVSDBCMSRequiresHandler(
                 ),
             }
         )
+        if lb_address := self.interface.loadbalancer_address():
+            ctxt["db_ingress_sb_connection_strs"] = self.db_connection_strs(
+                [lb_address], self.db_sb_port
+            )
+            ctxt["db_ingress_nb_connection_strs"] = self.db_connection_strs(
+                [lb_address], self.db_nb_port
+            )
+        else:
+            ctxt["db_ingress_sb_connection_strs"] = (
+                self.db_ingress_sb_connection_strs
+            )
+            ctxt["db_ingress_nb_connection_strs"] = (
+                self.db_ingress_nb_connection_strs
+            )
 
         return ctxt

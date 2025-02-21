@@ -32,7 +32,8 @@ class OSBaseOVNOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 self,
                 "ovsdb-cms",
                 self.configure_charm,
-                "ovsdb-cms" in self.mandatory_relations,
+                external_connectivity=self.remote_external_access,
+                mandatory="ovsdb-cms" in self.mandatory_relations,
             )
             handlers.append(self.ovsdb_cms)
         handlers = super().get_relation_handlers(handlers)

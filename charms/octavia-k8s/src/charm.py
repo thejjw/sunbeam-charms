@@ -192,14 +192,6 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
-        if self.can_add_handler("ovsdb-cms", handlers):
-            self.ovsdb_cms = ovn_rhandlers.OVSDBCMSRequiresHandler(
-                self,
-                "ovsdb-cms",
-                self.configure_charm,
-                "ovsdb-cms" in self.mandatory_relations,
-            )
-            handlers.append(self.ovsdb_cms)
         if self.can_add_handler("identity-ops", handlers):
             self.id_ops = sunbeam_rhandlers.IdentityResourceRequiresHandler(
                 self,
@@ -334,7 +326,8 @@ class OctaviaOVNOperatorCharm(OctaviaOperatorCharm):
                 self,
                 "ovsdb-cms",
                 self.configure_charm,
-                "ovsdb-cms" in self.mandatory_relations,
+                external_connectivity=self.remote_external_access,
+                mandatory="ovsdb-cms" in self.mandatory_relations,
             )
             handlers.append(self.ovsdb_cms)
         handlers = super().get_relation_handlers(handlers)

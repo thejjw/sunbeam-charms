@@ -61,12 +61,11 @@ class TestCharm(test_utils.CharmTestCase):
         self.harness.update_config({"snap-channel": "essex/stable"})
         self.harness.begin_with_initial_hooks()
         test_utils.add_complete_certificates_relation(self.harness)
-        ovs_rel_id = self.harness.add_relation("ovsdb-cms", "ovn-relay")
-        self.harness.add_relation_unit(ovs_rel_id, "ovn-relay/0")
-        self.harness.update_relation_data(
-            ovs_rel_id,
-            "ovn-relay/0",
-            {
+        self.harness.add_relation(
+            "ovsdb-cms",
+            "ovn-relay",
+            app_data={"loadbalancer-address": "10.15.24.37"},
+            unit_data={
                 "bound-address": "10.1.176.143",
                 "bound-hostname": "ovn-relay-0.ovn-relay-endpoints.openstack.svc.cluster.local",
                 "egress-subnets": "10.20.21.10/32",
@@ -75,6 +74,7 @@ class TestCharm(test_utils.CharmTestCase):
                 "private-address": "10.20.21.10",
             },
         )
+
         ceph_rel_id = self.harness.add_relation("ceph-access", "cinder-ceph")
         self.harness.add_relation_unit(ceph_rel_id, "cinder-ceph/0")
 
@@ -166,11 +166,11 @@ class TestCharm(test_utils.CharmTestCase):
             "network.ovn-cacert": cacert_with_intermediates,
             "network.ovn-cert": certificate,
             "network.ovn-key": private_key,
-            "network.ovn-sb-connection": "ssl:10.20.21.10:6642",
+            "network.ovn-sb-connection": "ssl:10.15.24.37:6642",
             "network.physnet-name": "physnet1",
             "node.fqdn": "test.local",
             "node.ip-address": "10.0.0.10",
-            "rabbitmq.url": "rabbit://hypervisor:rabbit.pass@10.0.0.13:5672/openstack",
+            "rabbitmq.url": "rabbit://hypervisor:rabbit.pass@rabbithost1.local:5672/openstack",
             "telemetry.enable": False,
             "ca.bundle": None,
             "masakari.enable": False,
@@ -278,11 +278,11 @@ class TestCharm(test_utils.CharmTestCase):
             "network.ovn-cacert": cacert_with_intermediates,
             "network.ovn-cert": certificate,
             "network.ovn-key": private_key,
-            "network.ovn-sb-connection": "ssl:10.20.21.10:6642",
+            "network.ovn-sb-connection": "ssl:10.15.24.37:6642",
             "network.physnet-name": "physnet1",
             "node.fqdn": "test.local",
             "node.ip-address": "10.0.0.10",
-            "rabbitmq.url": "rabbit://hypervisor:rabbit.pass@10.0.0.13:5672/openstack",
+            "rabbitmq.url": "rabbit://hypervisor:rabbit.pass@rabbithost1.local:5672/openstack",
             "telemetry.enable": True,
             "telemetry.publisher-secret": "FAKE_SECRET",
             "ca.bundle": None,

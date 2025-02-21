@@ -233,7 +233,7 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 self,
                 "ovsdb-cms",
                 self.configure_charm,
-                "ovsdb-cms" in self.mandatory_relations,
+                mandatory="ovsdb-cms" in self.mandatory_relations,
             )
             handlers.append(self.ovsdb_cms)
         handlers = super().get_relation_handlers(handlers)
