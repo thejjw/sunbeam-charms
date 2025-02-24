@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d9a2f03_3ba7ce46",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-02-24T13:57:17Z",
+      "side": 1,
+      "message": "Minor change required in config defaults. Can you do this change in subsequent PR to avoid CI running building all charms again. Rest seems good.",
+      "revId": "93eabbfa7217b323fe3449adb715aa1d1c52ba71",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9dbd2b8a_456ec847",
+        "filename": "charms/cinder-volume/charmcraft.yaml",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-02-24T13:57:17Z",
+      "side": 1,
+      "message": "Can we have the defaults same as upstream __DEFAULT__. Otherwise we should change logic when writing to snap config not to change default_volume_type is user does not set any value.\n\nhttps://opendev.org/openstack/cinder/src/commit/a54442aef0860876db85b29f8df1b2c1245aecd9/cinder/common/config.py#L102",
+      "revId": "93eabbfa7217b323fe3449adb715aa1d1c52ba71",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
