@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "23e9a892_a066110a",
+        "filename": "charms/cinder-volume/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-02-24T12:23:09Z",
+      "side": 1,
+      "message": "This is only for k8s charm at the moment. We don\u0027t have a good observability story for machine based charms yet.",
+      "parentUuid": "fa012b2a_a57fa992",
+      "revId": "e752abeb0b2186e111e865785683307eb8d3c6c4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f1f684ea_054ed3aa",
@@ -48,6 +66,24 @@
       "writtenOn": "2025-02-21T05:55:14Z",
       "side": 1,
       "message": "Change the information here",
+      "revId": "e752abeb0b2186e111e865785683307eb8d3c6c4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2605ca20_08698ce4",
+        "filename": "charms/cinder-volume/lib/charms/cinder_volume/v0/cinder_volume.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-02-24T12:23:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1f684ea_054ed3aa",
       "revId": "e752abeb0b2186e111e865785683307eb8d3c6c4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -69,6 +105,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d60e5d03_14862a8c",
+        "filename": "charms/cinder-volume/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-02-24T12:23:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dbba7aaf_65fa63e8",
+      "revId": "e752abeb0b2186e111e865785683307eb8d3c6c4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d9df090b_0296ba92",
@@ -82,6 +136,24 @@
       "writtenOn": "2025-02-21T05:55:14Z",
       "side": 1,
       "message": "snap config cinder.default_volume_type is never set",
+      "revId": "e752abeb0b2186e111e865785683307eb8d3c6c4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40440306_ecea17eb",
+        "filename": "charms/cinder-volume/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-02-24T12:23:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d9df090b_0296ba92",
       "revId": "e752abeb0b2186e111e865785683307eb8d3c6c4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
