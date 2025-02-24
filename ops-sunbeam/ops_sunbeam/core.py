@@ -24,7 +24,11 @@ from typing import (
     Union,
 )
 
+import ops
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops_sunbeam.guard import (
+    BaseStatusExceptionError,
+)
 
 if TYPE_CHECKING:
     from ops_sunbeam.charm import (
@@ -101,5 +105,15 @@ class PostInitMeta(type):
     def __call__(cls, *args, **kw):
         """Call __post_init__ after __init__."""
         instance = super().__call__(*args, **kw)
-        instance.__post_init__()
+        try:
+            instance.__post_init__()
+        except BaseStatusExceptionError as e:
+            # Allow post init to raise an ops_sunbeam status
+            # exception without causing the charm to error.
+            # This status will be collected and set on the
+            # unit.
+            if isinstance(instance, ops.charm.CharmBase):
+                instance.model.unit._collected_statuses.append(e.to_status())
+            else:
+                raise e
         return instance
