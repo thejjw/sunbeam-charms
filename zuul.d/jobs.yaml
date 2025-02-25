@@ -5,8 +5,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/keystone-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/keystone-k8s/
       - rebuild
     vars:
       charm: keystone-k8s
@@ -17,8 +17,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/tempest-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/tempest-k8s/
       - rebuild
     vars:
       charm: tempest-k8s
@@ -29,8 +29,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/glance-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/glance-k8s/
       - rebuild
     vars:
       charm: glance-k8s
@@ -41,8 +41,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/nova-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/nova-k8s/
       - rebuild
     vars:
       charm: nova-k8s
@@ -53,8 +53,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/placement-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/placement-k8s/
       - rebuild
     vars:
       charm: placement-k8s
@@ -65,8 +65,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/neutron-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/neutron-k8s/
       - rebuild
     vars:
       charm: neutron-k8s
@@ -77,8 +77,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/ovn-central-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/ovn-central-k8s/
       - rebuild
     vars:
       charm: ovn-central-k8s
@@ -89,8 +89,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/ovn-relay-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/ovn-relay-k8s/
       - rebuild
     vars:
       charm: ovn-relay-k8s
@@ -101,8 +101,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/cinder-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/cinder-k8s/
       - rebuild
     vars:
       charm: cinder-k8s
@@ -113,8 +113,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/cinder-volume/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/cinder-volume/
       - rebuild
     vars:
       charm: cinder-volume
@@ -125,8 +125,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/cinder-volume-ceph/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/cinder-volume-ceph/
       - rebuild
     vars:
       charm: cinder-volume-ceph
@@ -137,8 +137,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/cinder-ceph-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/cinder-ceph-k8s/
       - rebuild
     vars:
       charm: cinder-ceph-k8s
@@ -149,8 +149,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/horizon-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/horizon-k8s/
       - rebuild
     vars:
       charm: horizon-k8s
@@ -161,8 +161,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/heat-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/heat-k8s/
       - rebuild
     vars:
       charm: heat-k8s
@@ -173,8 +173,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/octavia-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/octavia-k8s/
       - rebuild
     vars:
       charm: octavia-k8s
@@ -185,8 +185,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/aodh-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/aodh-k8s/
       - rebuild
     vars:
       charm: aodh-k8s
@@ -197,8 +197,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/ceilometer-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/ceilometer-k8s/
       - rebuild
     vars:
       charm: ceilometer-k8s
@@ -209,8 +209,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/gnocchi-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/gnocchi-k8s/
       - rebuild
     vars:
       charm: gnocchi-k8s
@@ -221,8 +221,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/barbican-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/barbican-k8s/
       - rebuild
     vars:
       charm: barbican-k8s
@@ -233,8 +233,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/magnum-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/magnum-k8s/
       - rebuild
     vars:
       charm: magnum-k8s
@@ -245,8 +245,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/designate-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/designate-k8s/
       - rebuild
     vars:
       charm: designate-k8s
@@ -257,8 +257,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/designate-bind-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/designate-bind-k8s/
       - rebuild
     vars:
       charm: designate-bind-k8s
@@ -269,8 +269,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/keystone-ldap-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/keystone-ldap-k8s/
       - rebuild
     vars:
       charm: keystone-ldap-k8s
@@ -281,8 +281,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/openstack-exporter-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/openstack-exporter-k8s/
       - rebuild
     vars:
       charm: openstack-exporter-k8s
@@ -293,8 +293,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/openstack-hypervisor/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/openstack-hypervisor/
       - rebuild
     vars:
       charm: openstack-hypervisor
@@ -305,8 +305,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/openstack-images-sync-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/openstack-images-sync-k8s/
       - rebuild
     vars:
       charm: openstack-images-sync-k8s
@@ -317,8 +317,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/sunbeam-machine/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/sunbeam-machine/
       - rebuild
     vars:
       charm: sunbeam-machine
@@ -329,8 +329,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/sunbeam-clusterd/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/sunbeam-clusterd/
       - rebuild
     vars:
       charm: sunbeam-clusterd
@@ -341,8 +341,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/watcher-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/watcher-k8s/
       - rebuild
     vars:
       charm: watcher-k8s
@@ -354,8 +354,8 @@
     timeout: 3600
     match-on-config-updates: false
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/masakari-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/masakari-k8s/
       - rebuild
     vars:
       charm: masakari-k8s
@@ -386,15 +386,15 @@
       - name: charm-build-ovn-relay-k8s
         soft: true
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/keystone-k8s/*
-      - charms/glance-k8s/*
-      - charms/nova-k8s/*
-      - charms/neutron-k8s/*
-      - charms/placement-k8s/*
-      - charms/openstack-images-sync-k8s/*
-      - charms/ovn-central-k8s/*
-      - charms/ovn-relay-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/keystone-k8s/
+      - charms/glance-k8s/
+      - charms/nova-k8s/
+      - charms/neutron-k8s/
+      - charms/placement-k8s/
+      - charms/openstack-images-sync-k8s/
+      - charms/ovn-central-k8s/
+      - charms/ovn-relay-k8s/
       - rebuild
       - zuul.d/zuul.yaml
     vars:
@@ -439,9 +439,9 @@
       - name: charm-build-tempest-k8s
         soft: true
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/tempest-k8s/*
-      - tests/local/zaza/sunbeam/charm_tests/tempest_k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/tempest-k8s/
+      - tests/local/zaza/sunbeam/charm_tests/tempest_k8s/
       - rebuild
       - zuul.d/zuul.yaml
     vars:
@@ -482,13 +482,13 @@
       - name: charm-build-keystone-k8s
         soft: true
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/cinder-k8s/*
-      - charms/cinder-ceph-k8s/*
-      - charms/gnocchi-k8s/*
-      - charms/ceilometer-k8s/*
-      - charms/aodh-k8s/*
-      - charms/watcher-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/cinder-k8s/
+      - charms/cinder-ceph-k8s/
+      - charms/gnocchi-k8s/
+      - charms/ceilometer-k8s/
+      - charms/aodh-k8s/
+      - charms/watcher-k8s/
       - rebuild
       - zuul.d/zuul.yaml
     vars:
@@ -526,11 +526,11 @@
       - name: charm-build-ovn-central-k8s
         soft: true
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/heat-k8s/*
-      - charms/octavia-k8s/*
-      - charms/barbican-k8s/*
-      - charms/magnum-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/heat-k8s/
+      - charms/octavia-k8s/
+      - charms/barbican-k8s/
+      - charms/magnum-k8s/
       - rebuild
       - zuul.d/zuul.yaml
     vars:
@@ -569,13 +569,13 @@
         soft: true
 
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/designate-k8s/*
-      - charms/designate-bind-k8s/*
-      - charms/keystone-ldap-k8s/*
-      - charms/openstack-exporter-k8s/*
-      - charms/horizon-k8s/*
-      - charms/masakari-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/designate-k8s/
+      - charms/designate-bind-k8s/
+      - charms/keystone-ldap-k8s/
+      - charms/openstack-exporter-k8s/
+      - charms/horizon-k8s/
+      - charms/masakari-k8s/
       - rebuild
       - zuul.d/zuul.yaml
     vars:
@@ -602,9 +602,9 @@
       - name: charm-build-sunbeam-clusterd
         soft: true
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/sunbeam-machine/*
-      - charms/sunbeam-clusterd/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/sunbeam-machine/
+      - charms/sunbeam-clusterd/
       - rebuild
       - zuul.d/zuul.yaml
     vars:
@@ -620,8 +620,8 @@
       Publish aodh-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/aodh-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/aodh-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -633,8 +633,8 @@
       Publish barbican-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/barbican-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/barbican-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -646,8 +646,8 @@
       Publish ceilometer-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/ceilometer-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/ceilometer-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -659,8 +659,8 @@
       Publish cinder-ceph-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/cinder-ceph-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/cinder-ceph-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -672,8 +672,8 @@
       Publish cinder-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/cinder-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/cinder-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -685,8 +685,8 @@
       Publish cinder-volume built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/cinder-volume/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/cinder-volume/
       - rebuild
     secrets:
       - charmhub_token
@@ -698,8 +698,8 @@
       Publish cinder-volume-ceph built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/cinder-volume-ceph/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/cinder-volume-ceph/
       - rebuild
     secrets:
       - charmhub_token
@@ -711,8 +711,8 @@
       Publish designate-bind-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/designate-bind-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/designate-bind-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -724,8 +724,8 @@
       Publish designate-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/designate-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/designate-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -737,8 +737,8 @@
       Publish glance-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/glance-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/glance-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -750,8 +750,8 @@
       Publish gnocchi-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/gnocchi-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/gnocchi-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -763,8 +763,8 @@
       Publish heat-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/heat-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/heat-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -776,8 +776,8 @@
       Publish horizon-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/horizon-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/horizon-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -789,8 +789,8 @@
       Publish keystone-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/keystone-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/keystone-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -802,8 +802,8 @@
       Publish keystone-ldap-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/keystone-ldap-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/keystone-ldap-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -815,8 +815,8 @@
       Publish magnum-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/magnum-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/magnum-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -828,8 +828,8 @@
       Publish neutron-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/neutron-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/neutron-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -841,8 +841,8 @@
       Publish nova-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/nova-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/nova-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -854,8 +854,8 @@
       Publish octavia-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/octavia-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/octavia-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -867,8 +867,8 @@
       Publish openstack-exporter-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/openstack-exporter-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/openstack-exporter-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -880,8 +880,8 @@
       Publish openstack-hypervisor built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/openstack-hypervisor/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/openstack-hypervisor/
       - rebuild
     secrets:
       - charmhub_token
@@ -893,8 +893,8 @@
       Publish openstack-images-sync-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/openstack-images-sync-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/openstack-images-sync-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -906,8 +906,8 @@
       Publish ovn-central-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/ovn-central-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/ovn-central-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -919,8 +919,8 @@
       Publish ovn-relay-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/ovn-relay-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/ovn-relay-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -932,8 +932,8 @@
       Publish placement-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/placement-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/placement-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -945,8 +945,8 @@
       Publish sunbeam-machine built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/sunbeam-machine/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/sunbeam-machine/
       - rebuild
     secrets:
       - charmhub_token
@@ -958,8 +958,8 @@
       Publish sunbeam-clusterd built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/sunbeam-clusterd/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/sunbeam-clusterd/
       - rebuild
     secrets:
       - charmhub_token
@@ -971,8 +971,8 @@
       Publish tempest-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/tempest-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/tempest-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -984,8 +984,8 @@
       Publish watcher-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/watcher-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/watcher-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -997,8 +997,8 @@
       Publish masakari-k8s built in gate pipeline.
     run: playbooks/charm/publish.yaml
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/masakari-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/masakari-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -1062,31 +1062,31 @@
       - name: charm-build-masakari-k8s
         soft: true
     files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/keystone-k8s/*
-      - charms/glance-k8s/*
-      - charms/nova-k8s/*
-      - charms/neutron-k8s/*
-      - charms/placement-k8s/*
-      - charms/openstack-images-sync-k8s/*
-      - charms/ovn-central-k8s/*
-      - charms/ovn-relay-k8s/*
-      - charms/cinder-k8s/*
-      - charms/cinder-ceph-k8s/*
-      - charms/gnocchi-k8s/*
-      - charms/ceilometer-k8s/*
-      - charms/aodh-k8s/*
-      - charms/watcher-k8s/*
-      - charms/heat-k8s/*
-      - charms/octavia-k8s/*
-      - charms/barbican-k8s/*
-      - charms/magnum-k8s/*
-      - charms/designate-k8s/*
-      - charms/designate-bind-k8s/*
-      - charms/keystone-ldap-k8s/*
-      - charms/openstack-exporter-k8s/*
-      - charms/horizon-k8s/*
-      - charms/masakari-k8s/*
+      - ops-sunbeam/ops_sunbeam/
+      - charms/keystone-k8s/
+      - charms/glance-k8s/
+      - charms/nova-k8s/
+      - charms/neutron-k8s/
+      - charms/placement-k8s/
+      - charms/openstack-images-sync-k8s/
+      - charms/ovn-central-k8s/
+      - charms/ovn-relay-k8s/
+      - charms/cinder-k8s/
+      - charms/cinder-ceph-k8s/
+      - charms/gnocchi-k8s/
+      - charms/ceilometer-k8s/
+      - charms/aodh-k8s/
+      - charms/watcher-k8s/
+      - charms/heat-k8s/
+      - charms/octavia-k8s/
+      - charms/barbican-k8s/
+      - charms/magnum-k8s/
+      - charms/designate-k8s/
+      - charms/designate-bind-k8s/
+      - charms/keystone-ldap-k8s/
+      - charms/openstack-exporter-k8s/
+      - charms/horizon-k8s/
+      - charms/masakari-k8s/
       - rebuild
       - zuul.d/zuul.yaml
     vars:
