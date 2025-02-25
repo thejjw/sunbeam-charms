@@ -121,6 +121,8 @@
             nodeset: ubuntu-jammy
         - charm-build-cinder-volume:
             nodeset: ubuntu-jammy
+        - charm-build-cinder-volume-ceph:
+            nodeset: ubuntu-jammy
         - charm-build-horizon-k8s:
             nodeset: ubuntu-jammy
         - charm-build-heat-k8s:
