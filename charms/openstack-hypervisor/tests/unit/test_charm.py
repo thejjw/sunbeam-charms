@@ -174,6 +174,7 @@ class TestCharm(test_utils.CharmTestCase):
             "telemetry.enable": False,
             "ca.bundle": None,
             "masakari.enable": False,
+            "sev.reserved-host-memory-mb": None,
         }
         hypervisor_snap_mock.set.assert_any_call(expect_settings, typed=True)
 
@@ -287,6 +288,7 @@ class TestCharm(test_utils.CharmTestCase):
             "telemetry.publisher-secret": "FAKE_SECRET",
             "ca.bundle": None,
             "masakari.enable": True,
+            "sev.reserved-host-memory-mb": None,
         }
         hypervisor_snap_mock.set.assert_any_call(expect_settings, typed=True)
 
@@ -346,3 +348,16 @@ class TestCharm(test_utils.CharmTestCase):
         self.subprocess.run = subprocess_run_mock
         with self.assertRaises(ops.testing.ActionFailed):
             self.harness.run_action("list-nics")
+
+    def test_list_flavors(self):
+        """Check action return flavors."""
+        flavors = "flavor1,flavor2"
+        self.harness.begin()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = True
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock
+        }
+        hypervisor_snap_mock.get.return_value = flavors
+        action_output = self.harness.run_action("list-flavors")
+        assert action_output.results["result"] == flavors

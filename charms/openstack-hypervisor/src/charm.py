@@ -192,6 +192,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self._running_guests_action,
         )
         self.framework.observe(
+            self.on.list_flavors_action,
+            self._list_flavors_action,
+        )
+        self.framework.observe(
             self.on.install,
             self._on_install,
         )
@@ -422,6 +426,18 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         # cli returns a json list
         event.set_results({"result": stdout})
 
+    def _list_flavors_action(self, event: ActionEvent):
+        """List compute host capabilities."""
+        cache = self.get_snap_cache()
+        hypervisor = cache["openstack-hypervisor"]
+        try:
+            flavors = hypervisor.get("compute.flavors", typed=True)
+        except snap.SnapError as e:
+            logger.debug(e)
+            flavors = ""
+
+        event.set_results({"result": flavors})
+
     def ensure_services_running(self):
         """Ensure systemd services running."""
         # This should taken care of by the snap
@@ -575,6 +591,9 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "node.ip-address": config("ip-address") or local_ip,
                 "rabbitmq.url": contexts.amqp.transport_url,
                 "monitoring.enable": self.enable_monitoring,
+                "sev.reserved-host-memory-mb": config(
+                    "reserved-host-memory-mb-for-sev"
+                ),
             }
         except AttributeError as e:
             raise sunbeam_guard.WaitingExceptionError(
