@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c878dfe_a2498731",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 605,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-02-25T08:10:25Z",
+      "side": 1,
+      "message": "Should we if that? I think if the `reserved-host-memory-mb-for-sev` value goes away, we would want to unconfigure the snap? Or is it something that can\u0027t be undone?",
+      "revId": "a6fe2c53a87bfcb21e687431dc0c8b5a6c73d347",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
