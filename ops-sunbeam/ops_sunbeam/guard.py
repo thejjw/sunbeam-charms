@@ -20,9 +20,11 @@ from contextlib import (
     contextmanager,
 )
 
-from ops.model import (
+from ops import (
+    ActiveStatus,
     BlockedStatus,
     MaintenanceStatus,
+    StatusBase,
     WaitingStatus,
 )
 
@@ -43,27 +45,33 @@ class GuardExceptionError(Exception):
 class BaseStatusExceptionError(Exception):
     """Charm is blocked."""
 
-    def __init__(self, msg):
+    status_type: type[StatusBase] = ActiveStatus
+
+    def __init__(self, msg: str):
+        super().__init__(msg)
         self.msg = msg
-        super().__init__(self.msg)
+
+    def to_status(self):
+        """Convert the exception to an ops status."""
+        return self.status_type(self.msg)
 
 
 class BlockedExceptionError(BaseStatusExceptionError):
     """Charm is blocked."""
 
-    pass
+    status_type = BlockedStatus
 
 
 class MaintenanceExceptionError(BaseStatusExceptionError):
     """Charm is performing maintenance."""
 
-    pass
+    status_type = MaintenanceStatus
 
 
 class WaitingExceptionError(BaseStatusExceptionError):
     """Charm is waiting."""
 
-    pass
+    status_type = WaitingStatus
 
 
 @contextmanager
@@ -103,19 +111,19 @@ def guard(
         logger.warning(
             "Charm is blocked in section '%s' due to '%s'", section, str(e)
         )
-        charm.status.set(BlockedStatus(e.msg))
+        charm.status.set(e.to_status())
     except WaitingExceptionError as e:
         logger.warning(
             "Charm is waiting in section '%s' due to '%s'", section, str(e)
         )
-        charm.status.set(WaitingStatus(e.msg))
+        charm.status.set(e.to_status())
     except MaintenanceExceptionError as e:
         logger.warning(
             "Charm performing maintenance in section '%s' due to '%s'",
             section,
             str(e),
         )
-        charm.status.set(MaintenanceStatus(e.msg))
+        charm.status.set(e.to_status())
     except Exception as e:
         # something else went wrong
         if handle_exception:
