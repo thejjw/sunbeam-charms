@@ -16,6 +16,23 @@
       "message": "can you post a line log before/after the change? it looks like we\u0027re losing a bit of contextual information",
       "revId": "361755080701a5a7ee15771d0cb40539fa5d6066",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0635f03e_7db3af0d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-02-26T08:37:19Z",
+      "side": 1,
+      "message": "LGTM\n\nLogs in launchpad bug",
+      "revId": "361755080701a5a7ee15771d0cb40539fa5d6066",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
