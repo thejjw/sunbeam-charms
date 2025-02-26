@@ -2,7 +2,7 @@
 keys=root
 
 [formatters]
-keys=normal,normal_with_name,debug
+keys=normal,normal_with_name,debug,context
 
 [handlers]
 keys=production,devel
@@ -22,13 +22,13 @@ level={{ ks_logging.log_level }}
 {% else -%}
 level=ERROR
 {% endif -%}
-formatter=normal_with_name
+formatter=context
 args=(sys.stdout,)
 
 [handler_file]
 class=FileHandler
 level=DEBUG
-formatter=normal_with_name
+formatter=context
 # args=('/var/log/keystone/keystone.log', 'a')
 
 [handler_devel]
@@ -45,3 +45,6 @@ format=(%(name)s): %(asctime)s %(levelname)s %(message)s
 
 [formatter_debug]
 format=(%(name)s): %(asctime)s %(levelname)s %(module)s %(funcName)s %(message)s
+
+[formatter_context]
+class=oslo_log.formatters.ContextFormatter
