@@ -865,6 +865,23 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
         """List of endpoints for this service."""
         return []
 
+    @property
+    def ingress_healthcheck_params(self):
+        """Default values for ingress healthcheck configuration."""
+        path = getattr(self, "ingress_healthcheck_path", None) or "/"
+        interval = getattr(self, "ingress_healthcheck_interval", None)
+        timeout = getattr(self, "ingress_healthcheck_timeout", None)
+
+        params = {"path": path}
+
+        if interval is not None:
+            params["interval"] = interval
+
+        if timeout is not None:
+            params["timeout"] = timeout
+
+        return params
+
     def get_relation_handlers(
         self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> list[sunbeam_rhandlers.RelationHandler]:
@@ -878,6 +895,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
                 "ingress-internal",
                 self.service_name,
                 self.default_public_ingress_port,
+                self.ingress_healthcheck_params,
                 self._ingress_changed,
                 "ingress-internal" in self.mandatory_relations,
             )
@@ -888,6 +906,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
                 "ingress-public",
                 self.service_name,
                 self.default_public_ingress_port,
+                self.ingress_healthcheck_params,
                 self._ingress_changed,
                 "ingress-public" in self.mandatory_relations,
             )
