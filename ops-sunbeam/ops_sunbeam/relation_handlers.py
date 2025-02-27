@@ -193,6 +193,7 @@ class IngressHandler(RelationHandler):
         relation_name: str,
         service_name: str,
         default_ingress_port: int,
+        ingress_healthcheck_path: str,
         callback_f: Callable,
         mandatory: bool = False,
     ) -> None:
@@ -200,6 +201,7 @@ class IngressHandler(RelationHandler):
         super().__init__(charm, relation_name, callback_f, mandatory)
         self.default_ingress_port = default_ingress_port
         self.service_name = service_name
+        self.ingress_healthcheck_path = ingress_healthcheck_path
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Ingress relation."""
@@ -212,6 +214,7 @@ class IngressHandler(RelationHandler):
             self.charm,
             self.relation_name,
             port=self.default_ingress_port,
+            healthcheck_path=self.ingress_healthcheck_path,
         )
         self.framework.observe(interface.on.ready, self._on_ingress_ready)
         self.framework.observe(interface.on.revoked, self._on_ingress_revoked)
