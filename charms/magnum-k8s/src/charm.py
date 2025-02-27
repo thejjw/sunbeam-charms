@@ -185,6 +185,11 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return 9511
 
     @property
+    def ingress_healthcheck_path(self):
+        """Healthcheck path for ingress relation."""
+        return "/healthcheck"
+
+    @property
     def config_contexts(self) -> List[sunbeam_config_contexts.ConfigContext]:
         """Generate list of configuration adapters for the charm."""
         _cadapters = super().config_contexts

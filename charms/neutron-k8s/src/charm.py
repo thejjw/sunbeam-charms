@@ -303,6 +303,11 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return 9696
 
     @property
+    def ingress_healthcheck_path(self):
+        """Healthcheck path for ingress relation."""
+        return "/healthcheck"
+
+    @property
     def service_user(self) -> str:
         """Service user file and directory ownership."""
         return "neutron"
