@@ -50,6 +50,24 @@
       "message": "What\u0027s the motivation to change it from the default value?\n\nhttps://docs.openstack.org/oslo.log/latest/configuration/#DEFAULT.logging_context_format_string\n\u003e  logging_context_format_string¶\n\u003e \n\u003e     Type:\n\u003e \n\u003e         string\n\u003e     Default:\n\u003e \n\u003e         %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(global_request_id)s %(request_id)s %(user_identity)s] %(instance)s%(message)s",
       "revId": "361755080701a5a7ee15771d0cb40539fa5d6066",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b513d52d_f6502658",
+        "filename": "charms/keystone-k8s/src/templates/keystone.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-02-27T05:23:51Z",
+      "side": 1,
+      "message": "@nobuto.murata@canonical.com, thanks for the feedback.\n\nThe motivation was to keep the previous logging values that have \u003c format\u003d(%(name)s): %(asctime)s %(levelname)s %(message)s\n \u003e with added request ids as required \u003c [%(global_request_id)s %(request_id)s %(user_identity)s] \u003e\n \n If you prefer exhaustive list as in default logging_context_format_string then we can make this change.",
+      "parentUuid": "55d830e5_23afc1ce",
+      "revId": "361755080701a5a7ee15771d0cb40539fa5d6066",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
