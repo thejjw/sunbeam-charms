@@ -68,6 +68,24 @@
       "parentUuid": "55d830e5_23afc1ce",
       "revId": "361755080701a5a7ee15771d0cb40539fa5d6066",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "176bc0a1_bb06efec",
+        "filename": "charms/keystone-k8s/src/templates/keystone.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2025-02-27T07:03:58Z",
+      "side": 1,
+      "message": "My theoretical concern was that by deriving from the upstream format, we may have to carry the diff on our own in a logging parser to have a tracing dashboard (not sure if the tracing dashboard is in the current plan or not though).",
+      "parentUuid": "b513d52d_f6502658",
+      "revId": "361755080701a5a7ee15771d0cb40539fa5d6066",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
