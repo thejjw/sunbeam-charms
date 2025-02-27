@@ -1440,7 +1440,12 @@ export OS_AUTH_VERSION=3
     @property
     def healthcheck_http_url(self) -> str:
         """Healthcheck HTTP URL for the service."""
-        return f"http://localhost:{self.default_public_ingress_port}/v3"
+        return f"http://localhost:{self.default_public_ingress_port}/{self.ingress_healthcheck_path}"
+
+    @property
+    def ingress_healthcheck_path(self):
+        """Healthcheck URL for ingress relation."""
+        return "/v3"
 
     def _create_fernet_secret(self) -> None:
         """Create fernet juju secret.
