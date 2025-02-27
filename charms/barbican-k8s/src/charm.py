@@ -419,6 +419,11 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return 9311
 
     @property
+    def ingress_healthcheck_path(self):
+        """Healthcheck path for ingress relation."""
+        return "/healthcheck"
+
+    @property
     def healthcheck_http_url(self) -> str:
         """Healthcheck HTTP URL for the service."""
         # / returns a 300 return code, which is not understood by Pebble as OK

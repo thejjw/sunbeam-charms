@@ -283,6 +283,11 @@ class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Ingress Port for API service."""
         return 8042
 
+    @property
+    def ingress_healthcheck_path(self):
+        """Healthcheck path for ingress relation."""
+        return "/healthcheck"
+
     def get_pebble_handlers(
         self,
     ) -> List[sunbeam_chandlers.ServicePebbleHandler]:

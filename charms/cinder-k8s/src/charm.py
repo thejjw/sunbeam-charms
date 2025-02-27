@@ -299,6 +299,11 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return 8776
 
     @property
+    def ingress_healthcheck_path(self):
+        """Healthcheck path for ingress relation."""
+        return "/healthcheck"
+
+    @property
     def service_conf(self) -> str:
         """Service default configuration file."""
         return "/etc/cinder/cinder.conf"

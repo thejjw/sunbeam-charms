@@ -456,6 +456,11 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return 9001
 
     @property
+    def ingress_healthcheck_path(self):
+        """Healthcheck path for ingress relation."""
+        return "/healthcheck"
+
+    @property
     def ns_records(self) -> List[str]:
         """Get nameserver records."""
         nameservers = self.config.get("nameservers")

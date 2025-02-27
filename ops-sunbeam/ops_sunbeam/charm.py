@@ -865,6 +865,44 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
         """List of endpoints for this service."""
         return []
 
+    @property
+    def ingress_healthcheck_path(self):
+        """Default ingress healthcheck path.
+
+        This value can be overridden at the charm level as shown in
+        keystone-k8s/src/charm.py.
+        """
+        return "/"
+
+    @property
+    def ingress_healthcheck_interval(self):
+        """Default ingress healthcheck interval.
+
+        This value can be overridden at the charm level. Time values
+        following Golang time.ParseDuration() format are valid.
+        """
+        return "30s"
+
+    @property
+    def ingress_healthcheck_timeout(self):
+        """Default ingress healthcheck timeout.
+
+        This value can be overridden at the charm level. Time values
+        following Golang time.ParseDuration() format are valid.
+        """
+        return "5s"
+
+    @property
+    def ingress_healthcheck_params(self):
+        """Dictionary of ingress healthcheck values."""
+        params = {
+            "path": self.ingress_healthcheck_path,
+            "interval": self.ingress_healthcheck_interval,
+            "timeout": self.ingress_healthcheck_timeout,
+        }
+
+        return params
+
     def get_relation_handlers(
         self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> list[sunbeam_rhandlers.RelationHandler]:
@@ -878,6 +916,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
                 "ingress-internal",
                 self.service_name,
                 self.default_public_ingress_port,
+                self.ingress_healthcheck_params,
                 self._ingress_changed,
                 "ingress-internal" in self.mandatory_relations,
             )
@@ -888,6 +927,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
                 "ingress-public",
                 self.service_name,
                 self.default_public_ingress_port,
+                self.ingress_healthcheck_params,
                 self._ingress_changed,
                 "ingress-public" in self.mandatory_relations,
             )
