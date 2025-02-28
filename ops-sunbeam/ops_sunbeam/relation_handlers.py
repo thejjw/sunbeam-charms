@@ -311,6 +311,40 @@ class DBHandler(RelationHandler):
         self.database_name = database
         self.external_access = external_access
 
+    def update_relation_data(self):
+        """Update relation outside of relation context."""
+        self._update_mysql_data()
+
+    def _update_mysql_data(self):
+        """Publish mysql encoded fields."""
+        if not self.charm.model.unit.is_leader():
+            return
+
+        relation = self.get_relation()
+        if relation is None or not relation.active:
+            return
+
+        # note(gboutry): Need to mimic a created_event
+        # to ensure mysql db publishes all the data
+        try:
+            self.interface._on_relation_created_event(
+                ops.RelationCreatedEvent(
+                    self.handle, relation, relation.app, None
+                )
+            )
+        except ops.ModelError:
+            logger.debug("Failed to publish encoded fields.", exc_info=True)
+
+    def get_relation(self) -> ops.Relation | None:
+        """Fetch the relation for the handler.
+
+        We're guaranteed to have only one relation for a given
+        database.
+        """
+        for relation in self.model.relations[self.relation_name]:
+            return relation
+        return None
+
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for a MySQL relation."""
         logger.debug("Setting up DB event handler")
@@ -387,9 +421,8 @@ class DBHandler(RelationHandler):
     def get_relation_data(self) -> RelationDataMapping:
         """Load the data from the relation for consumption in the handler."""
         # there is at most one relation for a database
-        for relation in self.model.relations[self.relation_name]:
-            if relation.app is None:
-                continue
+        relation = self.get_relation()
+        if relation:
             return relation.data[relation.app]
         return {}
 
