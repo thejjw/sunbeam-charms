@@ -12,7 +12,7 @@
 
 - name: Get relevant charm build jobs
   set_fact:
-    relevant_charm_build_jobs: "{{ build_output.json | selectattr('job_name', 'match', '^charm-build-'+ charm_name +'.*$') | map(attribute='job_name') | list }}"
+    relevant_charm_build_jobs: "{{ build_output.json | selectattr('job_name', 'match', '^charm-build-'+ charm_name +'$') | map(attribute='job_name') | list }}"
 
 - name: Print relevant build jobs
   debug:
