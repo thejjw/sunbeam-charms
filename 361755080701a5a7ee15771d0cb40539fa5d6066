@@ -86,6 +86,24 @@
       "parentUuid": "b513d52d_f6502658",
       "revId": "361755080701a5a7ee15771d0cb40539fa5d6066",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45861a89_d7c47b8e",
+        "filename": "charms/keystone-k8s/src/templates/keystone.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-03-03T10:36:11Z",
+      "side": 1,
+      "message": "The log format should be defaults and need not be different from upstream one.",
+      "parentUuid": "176bc0a1_bb06efec",
+      "revId": "361755080701a5a7ee15771d0cb40539fa5d6066",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
