@@ -104,6 +104,24 @@
       "parentUuid": "176bc0a1_bb06efec",
       "revId": "361755080701a5a7ee15771d0cb40539fa5d6066",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ded66cf8_e6d4d156",
+        "filename": "charms/keystone-k8s/src/templates/keystone.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-03-03T10:36:37Z",
+      "side": 1,
+      "message": "@nobuto.murata@canonical.com I will update in a new PR and keep the default values with oslo formatter.",
+      "parentUuid": "176bc0a1_bb06efec",
+      "revId": "361755080701a5a7ee15771d0cb40539fa5d6066",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
