@@ -102,23 +102,8 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
 
 
 @sunbeam_tracing.trace_type
-class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
+class CinderSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Cinder Scheduler services."""
-
-    def start_service(self):
-        """Start services in container."""
-        container = self.charm.unit.get_container(self.container_name)
-        if not container:
-            logger.debug(
-                f"{self.container_name} container is not ready. "
-                "Cannot start service."
-            )
-            return
-        service = container.get_service(self.service_name)
-        if service.is_running():
-            container.stop(self.service_name)
-
-        container.start(self.service_name)
 
     def get_layer(self) -> dict:
         """Cinder Scheduler service.
@@ -139,11 +124,6 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.PebbleHandler):
                 }
             },
         }
-
-    def init_service(self, context) -> None:
-        """Initialize services and write configuration."""
-        self.write_config(context)
-        self.start_service()
 
     def default_container_configs(self) -> List[Dict]:
         """Generate default configuration files for container."""
