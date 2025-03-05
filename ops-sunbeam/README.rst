@@ -6,7 +6,6 @@ Tutorials
 ---------
 
 * `Deploying Sunbeam Charms <doc/deploy-sunbeam-charms.rst>`_
-* `Writing an OpenStack API charm with Sunbeam <doc/writing-OS-API-charm.rst>`_
 
 How-Tos
 -------

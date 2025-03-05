@@ -1,8 +1,0 @@
-  debug:
-    default: False
-    description: Enable debug logging.
-    type: boolean
-  region:
-    default: RegionOne
-    description: Name of the OpenStack region
-    type: string

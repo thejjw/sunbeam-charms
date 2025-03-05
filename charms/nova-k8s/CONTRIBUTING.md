@@ -54,4 +54,4 @@ To deploy the local test instance:
 
 <!-- LINKS -->
 
-[sunbeam-docs]: https://opendev.org/openstack/charm-ops-sunbeam/src/branch/main/README.rst
+[sunbeam-docs]: https://opendev.org/openstack/sunbeam-charms/src/branch/main/README.md

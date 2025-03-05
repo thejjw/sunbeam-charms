@@ -57,4 +57,4 @@ To deploy the local test instance:
 <!-- LINKS -->
 
 [keystone-k8s-libs-docs]: https://charmhub.io/sunbeam-keystone-operator/libraries/identity_service
-[sunbeam-docs]: https://opendev.org/openstack/charm-ops-sunbeam/src/branch/main/README.rst
+[sunbeam-docs]: https://opendev.org/openstack/sunbeam-charms/src/branch/main/README.md
