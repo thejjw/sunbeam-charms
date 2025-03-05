@@ -35,3 +35,8 @@ watcher_tempest_plugin.tests.api.admin.test_audit_template.TestCreateDeleteAudit
 watcher_tempest_plugin.tests.api.admin.test_goal.TestShowListGoal
 watcher_tempest_plugin.tests.api.admin.test_strategy.TestShowListStrategy
 watcher_tempest_plugin.tests.api.admin.test_service.TestShowListService
+
+# Skip because of discrepancy between Swift and RadosGW behavior
+tempest.api.object_storage.test_account_services.AccountTest.test_list_no_account_metadata
+tempest.api.object_storage.test_container_acl.ObjectTestACLs.test_read_object_with_rights
+tempest.api.object_storage.test_container_acl.ObjectTestACLs.test_write_object_with_rights
