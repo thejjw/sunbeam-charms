@@ -14,3 +14,15 @@ groups:
         summary: OpenStack Services Down
         description: |
           The OpenStack service {{ $labels.service }} is down
+- name: OpenStackMetrics
+  rules:
+    - alert: OpenStackMetricsMissing
+      expr: |
+        absent_over_time({__name__=~"openstack_(.+)_up"}[5m])
+      labels:
+        severity: critical
+      annotations:
+        summary: OpenStack Metrics Missing
+        description: |
+          All OpenStack metrics are missing for over 5 minutes. This could be due to the
+          connectivity issue of the OpenStack APIs, or the cache of the metrics has expired.
