@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5bd995d_0d8e41d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-03-10T09:34:32Z",
+      "side": 1,
+      "message": "That\u0027s very neat! LGTM! let\u0027s wait for CI",
+      "revId": "e632c03547161544c97145133d54d45e6cabda00",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
