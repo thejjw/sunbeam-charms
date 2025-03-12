@@ -16,6 +16,23 @@
       "message": "Healthchecks need to be added in charms that use traefik-route interface",
       "revId": "f17a6ed721e53da66abeae9e9d964e6f65b61908",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ab736c5_0ae15ef2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2025-03-12T18:33:51Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "f17a6ed721e53da66abeae9e9d964e6f65b61908",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
