@@ -21,7 +21,6 @@ in the container.
 
 import collections
 import logging
-import signal
 import typing
 from collections.abc import (
     Callable,
@@ -449,27 +448,6 @@ class WSGIPebbleHandler(PebbleHandler):
             callback_f,
         )
         self.wsgi_service_name = wsgi_service_name
-
-    @staticmethod
-    def _restart_wsgi_service(
-        container: ops.Container, service_name: str
-    ) -> None:
-        """Restart WSGI service in container.
-
-        WSGI services can be gracefully restarted by sending SIGUSR1 to the
-        service.
-
-        :param container: Container to restart service in.
-        :param service_name: Service to restart.
-        """
-        container.send_signal(signal.SIGUSR1, service_name)
-
-    @property
-    def _restart_methods(
-        self,
-    ) -> typing.Mapping[str, Callable[[ops.Container, str], None]]:
-        """Mapping of service names to restart methods."""
-        return {self.wsgi_service_name: self._restart_wsgi_service}
 
     def start_wsgi(self, restart: bool = True) -> None:
         """Check and start services in container.
