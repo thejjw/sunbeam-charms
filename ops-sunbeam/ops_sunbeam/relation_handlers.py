@@ -628,6 +628,10 @@ class IdentityServiceRequiresHandler(RelationHandler):
         if self.mandatory:
             self.status.set(BlockedStatus("integration missing"))
 
+    def update_relation_data(self):
+        """Update relation outside of relation context."""
+        self.interface.register_services(self.service_endpoints, self.region)
+
     def update_service_endpoints(self, service_endpoints: list[dict]) -> None:
         """Update service endpoints on the relation."""
         self.service_endpoints = service_endpoints
@@ -1396,6 +1400,10 @@ class IdentityCredentialsRequiresHandler(RelationHandler):
         self.callback_f(event)
         if self.mandatory:
             self.status.set(BlockedStatus("integration missing"))
+
+    def update_relation_data(self):
+        """Update relation outside of relation context."""
+        self.interface.request_credentials()
 
     @property
     def ready(self) -> bool:
