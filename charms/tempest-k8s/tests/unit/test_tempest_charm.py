@@ -294,7 +294,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.charm._on_validate_action(action_event)
         action_event.fail.assert_called_once()
         self.assertEqual(
-            "'nonexistent' is not a known test list. Please run list-tests action to view available lists.",
+            "'nonexistent' is not a known test list. Please run get-lists action to view available lists.",
             action_event.set_results.call_args.args[0]["error"],
         )
 

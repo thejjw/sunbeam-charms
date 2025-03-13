@@ -247,7 +247,7 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         if test_list and test_list not in self.get_test_lists():
             raise RuntimeError(
                 f"'{test_list}' is not a known test list. "
-                "Please run list-tests action to view available lists."
+                "Please run get-lists action to view available lists."
             )
 
         # now build the command line for tempest
