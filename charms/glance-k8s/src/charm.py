@@ -423,6 +423,11 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return 9292
 
     @property
+    def ingress_healthcheck_path(self):
+        """Healthcheck path for ingress relation."""
+        return "/healthcheck"
+
+    @property
     def healthcheck_http_url(self) -> str:
         """Healthcheck HTTP URL for the service."""
         # / returns 300 and /versions return 200
