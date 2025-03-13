@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2ee2bb5c_7ac0abe1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-03-13T09:57:06Z",
+      "side": 1,
+      "message": "LGTM!\n\nThank you for this much needed feature!\n\nWe will look into traefik-route based healthcheck as a follow up change.",
+      "revId": "1f30344dbfd5e838dd96c15b37979917df1a4767",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
