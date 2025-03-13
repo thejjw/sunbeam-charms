@@ -24,8 +24,6 @@ This charm provide Glance services as part of an OpenStack deployment
 import json
 import logging
 import re
-import signal
-import typing
 from typing import (
     Callable,
     List,
@@ -121,16 +119,6 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         """
         self.execute(["a2enmod", "proxy_http"], exception_on_error=True)
         return super().init_service(context)
-
-    @property
-    def _restart_methods(
-        self,
-    ) -> typing.Mapping[str, Callable[[ops.Container, str], None]]:
-        return {
-            "apache forwarder": lambda container, service_name: container.send_signal(
-                signal.SIGUSR1, service_name
-            )
-        }
 
 
 @sunbeam_tracing.trace_type

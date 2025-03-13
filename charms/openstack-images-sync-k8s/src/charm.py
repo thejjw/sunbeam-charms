@@ -22,8 +22,6 @@ This charm deploys the openstack images sync service on Kubernetes.
 
 import logging
 import os
-import signal
-import typing
 from typing import (
     TYPE_CHECKING,
 )
@@ -164,16 +162,6 @@ class OpenstackImagesSyncPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         """
         self.execute(["a2dissite", "000-default"], exception_on_error=True)
         return super().init_service(context)
-
-    @property
-    def _restart_methods(
-        self,
-    ) -> typing.Mapping[str, typing.Callable[[ops.Container, str], None]]:
-        return {
-            "http-mirror": lambda container, service_name: container.send_signal(
-                signal.SIGUSR1, service_name
-            )
-        }
 
 
 @sunbeam_tracing.trace_sunbeam_charm
