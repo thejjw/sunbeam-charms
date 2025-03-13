@@ -16,6 +16,24 @@
       "message": "You need an extra blank line between the title and description. \n\nhttps://docs.opendev.org/opendev/infra-manual/latest/developers.html#committing-changes",
       "revId": "bd7d20113d33623166c74a30932b24f47a39484a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d057900d_b5eda830",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2025-03-13T03:46:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e7ea2a1e_2dd8928d",
+      "revId": "bd7d20113d33623166c74a30932b24f47a39484a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
