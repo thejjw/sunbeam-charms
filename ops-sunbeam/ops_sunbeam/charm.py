@@ -636,6 +636,11 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         super().__post_init__()
         self.pebble_handlers = self.get_pebble_handlers()
 
+    @property
+    def service_dns(self) -> str:
+        """Dns name for the service."""
+        return f"{self.app.name}.{self.model.name}.svc"
+
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the operator."""
         return [
@@ -1025,15 +1030,16 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
 
     @property
     def admin_url(self) -> str:
-        """Url for accessing the admin endpoint for this service."""
+        """Url for accessing the admin endpoint for this service.
+
+        Fallback to k8s resolvable hostname if no identity-service relation.
+        """
         binding = self.model.get_binding("identity-service")
         if binding and binding.network and binding.network.ingress_address:
             return self.add_explicit_port(
                 self.service_url(str(binding.network.ingress_address))
             )
-        raise sunbeam_guard.WaitingExceptionError(
-            "No admin address found for service"
-        )
+        return self.add_explicit_port(self.service_url(self.service_dns))
 
     @property
     def internal_url(self) -> str:
@@ -1052,9 +1058,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
             return self.add_explicit_port(
                 self.service_url(str(binding.network.ingress_address))
             )
-        raise sunbeam_guard.WaitingExceptionError(
-            "No internal address found for service"
-        )
+        return self.add_explicit_port(self.service_url(self.service_dns))
 
     def get_pebble_handlers(self) -> list[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""

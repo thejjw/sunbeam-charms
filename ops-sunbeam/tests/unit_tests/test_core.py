@@ -484,6 +484,77 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
             "https://test.org:8443/something",
         )
 
+    def test_admin_url_id_svc(self):
+        """Test admin_url with service ID."""
+        test_utils.add_complete_identity_relation(self.harness)
+        self.assertEqual(
+            self.harness.charm.admin_url,
+            "http://10.0.0.10:789",
+        )
+
+    def test_admin_url_fallback_to_service_dns(self):
+        """Test admin_url fallback to service DNS."""
+        with patch.object(
+            self.harness.charm.model,
+            "get_binding",
+            MagicMock(return_value=None),
+        ):
+            self.assertEqual(
+                self.harness.charm.admin_url,
+                "http://my-service.test-model.svc:789",
+            )
+
+    def test_internal_url_ingress_internal(self):
+        """Test internal_url with internal ingress."""
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.assertEqual(
+            self.harness.charm.internal_url,
+            "http://internal-url:80/",
+        )
+
+    def test_internal_url_fallback_to_id_svc(self):
+        """Test internal_url with service ID."""
+        test_utils.add_complete_identity_relation(self.harness)
+        self.assertEqual(
+            self.harness.charm.internal_url,
+            "http://10.0.0.10:789",
+        )
+
+    def test_internal_url_fallback_to_service_dns(self):
+        """Test internal fallback to service DNS."""
+        with patch.object(
+            self.harness.charm.model,
+            "get_binding",
+            MagicMock(return_value=None),
+        ):
+            self.assertEqual(
+                self.harness.charm.internal_url,
+                "http://my-service.test-model.svc:789",
+            )
+
+    def test_public_url_ingress_public(self):
+        """Test public_url with public ingress."""
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.assertEqual(
+            self.harness.charm.public_url,
+            "http://public-url:80/",
+        )
+
+    def test_public_url_fallback_to_internal(self):
+        """Test public_url fallback to internal."""
+        self.assertEqual(
+            self.harness.charm.public_url,
+            self.harness.charm.internal_url,
+        )
+
+    def test_public_url_attribute_error(self):
+        """Test public_url with attribute error."""
+        del self.harness.charm.ingress_public
+        self.assertEqual(
+            self.harness.charm.public_url,
+            self.harness.charm.internal_url,
+        )
+
 
 class TestOSBaseOperatorMultiSVCAPICharm(_TestOSBaseOperatorAPICharm):
     """Test Charm with multiple services."""
