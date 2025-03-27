@@ -8,6 +8,7 @@ transport_url = {{ amqp.transport_url }}
 {% include "parts/section-database" %}
 
 {% include "parts/section-identity" %}
+region_name = {{ options.region }}
 
 [keystone_auth]
 auth_section = keystone_authtoken
@@ -23,7 +24,7 @@ driver = messaging
 
 [cinder_client]
 endpoint_type = adminURL
-region_name = RegionOne
+region_name = {{ options.region }}
 
 [api]
 api_paste_config=/etc/magnum/api-paste.ini
@@ -35,26 +36,31 @@ workers = 4
 {% include "parts/section-oslo-messaging-rabbit" %}
 
 [glance_client]
+region_name = {{ options.region }}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
 ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
 {% endif -%}
 
 [heat_client]
+region_name = {{ options.region }}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
 ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
 {% endif -%}
 
 [neutron_client]
+region_name = {{ options.region }}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
 ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
 {% endif -%}
 
 [nova_client]
+region_name = {{ options.region }}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
 ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
 {% endif -%}
 
 [octavia_client]
+region_name = {{ options.region }}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
 ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
 {% endif -%}
