@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "63db1e37_68cae3bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-04-24T09:42:57Z",
+      "side": 1,
+      "message": "Should be backported to 2024.1",
+      "revId": "d5a9cfd1f4f43aa7e50c3cd7920a0bb60c34eb27",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
