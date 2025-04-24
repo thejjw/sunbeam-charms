@@ -121,7 +121,7 @@ resources:
   keystone-image:
     type: oci-image
     description: OCI image for OpenStack Keystone
-    upstream-source: ghcr.io/canonical/keystone:2024.1
+    upstream-source: ghcr.io/canonical/keystone:2025.1
 
 storage:
   fernet-keys:

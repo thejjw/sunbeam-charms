@@ -31,7 +31,7 @@ applications:
     charm: ../../../keystone-k8s.charm
     {% else -%}
     charm: ch:keystone-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
@@ -40,86 +40,86 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
     resources:
-      keystone-image: ghcr.io/canonical/keystone:2024.1
+      keystone-image: ghcr.io/canonical/keystone:2025.1
   cinder:
     {% if cinder_k8s is defined and cinder_k8s is sameas true -%}
     charm: ../../../cinder-k8s.charm
     {% else -%}
     charm: ch:cinder-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      cinder-api-image: ghcr.io/canonical/cinder-consolidated:2024.1
-      cinder-scheduler-image: ghcr.io/canonical/cinder-consolidated:2024.1
+      cinder-api-image: ghcr.io/canonical/cinder-consolidated:2025.1
+      cinder-scheduler-image: ghcr.io/canonical/cinder-consolidated:2025.1
   cinder-ceph:
     {% if cinder_ceph_k8s is defined and cinder_ceph_k8s is sameas true -%}
     charm: ../../../cinder-ceph-k8s.charm
     {% else -%}
     charm: ch:cinder-ceph-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      cinder-volume-image: ghcr.io/canonical/cinder-consolidated:2024.1
+      cinder-volume-image: ghcr.io/canonical/cinder-consolidated:2025.1
   gnocchi:
     {% if gnocchi_k8s is defined and gnocchi_k8s is sameas true -%}
     charm: ../../../gnocchi-k8s.charm
     {% else -%}
     charm: ch:gnocchi-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      gnocchi-api-image: ghcr.io/canonical/gnocchi-consolidated:2024.1
-      gnocchi-metricd-image: ghcr.io/canonical/gnocchi-consolidated:2024.1
+      gnocchi-api-image: ghcr.io/canonical/gnocchi-consolidated:2025.1
+      gnocchi-metricd-image: ghcr.io/canonical/gnocchi-consolidated:2025.1
   ceilometer:
     {% if ceilometer_k8s is defined and ceilometer_k8s is sameas true -%}
     charm: ../../../ceilometer-k8s.charm
     {% else -%}
     charm: ch:ceilometer-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      ceilometer-central-image: ghcr.io/canonical/ceilometer-consolidated:2024.1
-      ceilometer-notification-image: ghcr.io/canonical/ceilometer-consolidated:2024.1
+      ceilometer-central-image: ghcr.io/canonical/ceilometer-consolidated:2025.1
+      ceilometer-notification-image: ghcr.io/canonical/ceilometer-consolidated:2025.1
   aodh:
     {% if aodh_k8s is defined and aodh_k8s is sameas true -%}
     charm: ../../../aodh-k8s.charm
     {% else -%}
     charm: ch:aodh-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      aodh-api-image: ghcr.io/canonical/aodh-consolidated:2024.1
-      aodh-evaluator-image: ghcr.io/canonical/aodh-consolidated:2024.1
-      aodh-notifier-image: ghcr.io/canonical/aodh-consolidated:2024.1
-      aodh-listener-image: ghcr.io/canonical/aodh-consolidated:2024.1
-      aodh-expirer-image: ghcr.io/canonical/aodh-consolidated:2024.1
+      aodh-api-image: ghcr.io/canonical/aodh-consolidated:2025.1
+      aodh-evaluator-image: ghcr.io/canonical/aodh-consolidated:2025.1
+      aodh-notifier-image: ghcr.io/canonical/aodh-consolidated:2025.1
+      aodh-listener-image: ghcr.io/canonical/aodh-consolidated:2025.1
+      aodh-expirer-image: ghcr.io/canonical/aodh-consolidated:2025.1
   watcher:
     {% if watcher_k8s is defined and watcher_k8s is sameas true -%}
     charm: ../../../watcher-k8s.charm
     {% else -%}
     charm: ch:watcher-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      watcher-image: ghcr.io/canonical/watcher-consolidated:2024.1
+      watcher-image: ghcr.io/canonical/watcher-consolidated:2025.1
 
 relations:
 - - mysql:database

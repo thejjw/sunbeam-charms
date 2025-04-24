@@ -12,7 +12,7 @@ platforms:
 config:
   options:
     snap-channel:
-      default: 2024.1/edge
+      default: 2025.1/edge
       type: string
     debug:
       default: false

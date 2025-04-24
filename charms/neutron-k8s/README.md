@@ -50,7 +50,7 @@ neutron-k8s requires the following relations:
 
 ## OCI Images
 
-The charm by default uses `ghcr.io/canonical/neutron-server:2024.1` image.
+The charm by default uses `ghcr.io/canonical/neutron-server:2025.1` image.
 
 ## Contributing
 

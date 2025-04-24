@@ -36,7 +36,7 @@ applications:
     charm: ../../../keystone-k8s.charm
     {% else -%}
     charm: ch:keystone-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
@@ -45,7 +45,7 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
     resources:
-      keystone-image: ghcr.io/canonical/keystone:2024.1
+      keystone-image: ghcr.io/canonical/keystone:2025.1
   designate-bind:
     {% if designate_bind_k8s is defined and designate_bind_k8s is sameas true -%}
     charm: ../../../designate-bind-k8s.charm
@@ -63,19 +63,19 @@ applications:
     charm: ../../../designate-k8s.charm
     {% else -%}
     charm: ch:designate-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: false
     resources:
-      designate-image: ghcr.io/canonical/designate-consolidated:2024.1
+      designate-image: ghcr.io/canonical/designate-consolidated:2025.1
   keystone-ldap:
     {% if keystone_ldap_k8s is defined and keystone_ldap_k8s is sameas true -%}
     charm: ../../../keystone-ldap-k8s.charm
     {% else -%}
     charm: ch:keystone-ldap-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
@@ -84,7 +84,7 @@ applications:
     charm: ../../../openstack-exporter-k8s.charm
     {% else -%}
     charm: ch:openstack-exporter-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
@@ -95,25 +95,25 @@ applications:
     charm: ../../../horizon-k8s.charm
     {% else -%}
     charm: ch:horizon-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      horizon-image: ghcr.io/canonical/horizon:2024.1
+      horizon-image: ghcr.io/canonical/horizon:2025.1
   masakari:
     {% if masakari_k8s is defined and masakari_k8s is sameas true -%}
     charm: ../../../masakari-k8s.charm
     {% else -%}
     charm: ch:masakari-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      masakari-image: ghcr.io/canonical/masakari-consolidated:2024.1
+      masakari-image: ghcr.io/canonical/masakari-consolidated:2025.1
   consul:
     charm: consul-k8s
     channel: 1.19/edge

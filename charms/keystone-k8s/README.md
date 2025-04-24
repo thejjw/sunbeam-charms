@@ -72,7 +72,7 @@ developers:
 
 ## OCI Images
 
-The charm by default uses `ghcr.io/canonical/keystone:2024.1` image.
+The charm by default uses `ghcr.io/canonical/keystone:2025.1` image.
 
 ## Contributing
 

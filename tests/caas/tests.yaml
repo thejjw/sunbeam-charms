@@ -7,7 +7,7 @@ configure:
   - zaza.sunbeam.charm_tests.keystone.setup.wait_for_all_endpoints
   - zaza.openstack.charm_tests.keystone.setup.add_tempest_roles
 tests:
-  - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneMinimal
+  - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneMinimalNewRBAC
 tests_options:
   trust:
     - smoke

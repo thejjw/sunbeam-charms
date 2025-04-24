@@ -10,7 +10,7 @@ configure:
 tests:
   - zaza.charm_tests.noop.tests.NoopTest
   # Tests commented until bug fix for https://bugs.launchpad.net/snap-openstack/+bug/2045206
-  # - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneMinimal
+  # - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneMinimalNewRBAC
   # - zaza.openstack.charm_tests.keystone.tests_ldap_k8s.LdapExplicitCharmConfigTestsK8S
   # - zaza.openstack.charm_tests.openstack_exporter.tests.OpenstackExporterTest
 tests_options:
