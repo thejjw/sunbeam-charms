@@ -45,7 +45,7 @@ cinder-ceph-k8s requires the following relations:
 
 ## OCI Images
 
-The charm by default uses `ghcr.io/canonical/cinder-volume:2024.1`
+The charm by default uses `ghcr.io/canonical/cinder-volume:2025.1`
 
 ## Contributing
 

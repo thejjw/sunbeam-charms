@@ -43,33 +43,33 @@ applications:
     charm: ../../../ovn-central-k8s.charm
     {% else -%}
     charm: ch:ovn-central-k8s
-    channel: 24.03/edge
+    channel: 25.03/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
-      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
-      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:24.03
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:25.03
+      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:25.03
+      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:25.03
   ovn-relay:
     {% if ovn_relay_k8s is defined and ovn_relay_k8s is sameas true -%}
     charm: ../../../ovn-relay-k8s.charm
     {% else -%}
     charm: ch:ovn-relay-k8s
-    channel: 24.03/edge
+    channel: 25.03/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:25.03
   keystone:
     {% if keystone_k8s is defined and keystone_k8s is sameas true -%}
     charm: ../../../keystone-k8s.charm
     {% else -%}
     charm: ch:keystone-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
@@ -78,13 +78,13 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
     resources:
-      keystone-image: ghcr.io/canonical/keystone:2024.1
+      keystone-image: ghcr.io/canonical/keystone:2025.1
   glance:
     {% if glance_k8s is defined and glance_k8s is sameas true -%}
     charm: ../../../glance-k8s.charm
     {% else -%}
     charm: ch:glance-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
@@ -92,40 +92,40 @@ applications:
     storage:
       local-repository: 10G
     resources:
-      glance-api-image: ghcr.io/canonical/glance-api:2024.1
+      glance-api-image: ghcr.io/canonical/glance-api:2025.1
   nova:
     {% if nova_k8s is defined and nova_k8s is sameas true -%}
     charm: ../../../nova-k8s.charm
     {% else -%}
     charm: ch:nova-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      nova-api-image: ghcr.io/canonical/nova-consolidated:2024.1
-      nova-scheduler-image: ghcr.io/canonical/nova-consolidated:2024.1
-      nova-conductor-image: ghcr.io/canonical/nova-consolidated:2024.1
-      nova-spiceproxy-image: ghcr.io/canonical/nova-consolidated:2024.1
+      nova-api-image: ghcr.io/canonical/nova-consolidated:2025.1
+      nova-scheduler-image: ghcr.io/canonical/nova-consolidated:2025.1
+      nova-conductor-image: ghcr.io/canonical/nova-consolidated:2025.1
+      nova-spiceproxy-image: ghcr.io/canonical/nova-consolidated:2025.1
   placement:
     {% if placement_k8s is defined and placement_k8s is sameas true -%}
     charm: ../../../placement-k8s.charm
     {% else -%}
     charm: ch:placement-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      placement-api-image: ghcr.io/canonical/placement-api:2024.1
+      placement-api-image: ghcr.io/canonical/placement-api:2025.1
   neutron:
     {% if neutron_k8s is defined and neutron_k8s is sameas true -%}
     charm: ../../../neutron-k8s.charm
     {% else -%}
     charm: ch:neutron-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
@@ -133,51 +133,51 @@ applications:
     options:
       debug: true
     resources:
-      neutron-server-image: ghcr.io/canonical/neutron-server:2024.1
+      neutron-server-image: ghcr.io/canonical/neutron-server:2025.1
   cinder:
     {% if cinder_k8s is defined and cinder_k8s is sameas true -%}
     charm: ../../../cinder-k8s.charm
     {% else -%}
     charm: ch:cinder-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      cinder-api-image: ghcr.io/canonical/cinder-consolidated:2024.1
-      cinder-scheduler-image: ghcr.io/canonical/cinder-consolidated:2024.1
+      cinder-api-image: ghcr.io/canonical/cinder-consolidated:2025.1
+      cinder-scheduler-image: ghcr.io/canonical/cinder-consolidated:2025.1
   cinder-ceph:
     {% if cinder_ceph_k8s is defined and cinder_ceph_k8s is sameas true -%}
     charm: ../../../cinder-ceph-k8s.charm
     {% else -%}
     charm: ch:cinder-ceph-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      cinder-volume-image: ghcr.io/canonical/cinder-consolidated:2024.1
+      cinder-volume-image: ghcr.io/canonical/cinder-consolidated:2025.1
   horizon:
     {% if horizon_k8s is defined and horizon_k8s is sameas true -%}
     charm: ../../../horizon-k8s.charm
     {% else -%}
     charm: ch:horizon-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      horizon-image: ghcr.io/canonical/horizon:2024.1
+      horizon-image: ghcr.io/canonical/horizon:2025.1
   # Images Sync feature
   openstack-images-sync:
     {% if openstack_images_sync_k8s is defined and openstack_images_sync_k8s is sameas true -%}
     charm: ../../../openstack-images-sync-k8s.charm
     {% else -%}
     charm: ch:openstack-images-sync-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
@@ -188,7 +188,7 @@ applications:
       release: jammy
       max-items: 1
     resources:
-      openstack-images-sync-image: ghcr.io/canonical/openstack-images-sync:2024.1
+      openstack-images-sync-image: ghcr.io/canonical/openstack-images-sync:2025.1
   # Vault feature
   vault:
     charm: ch:vault-k8s
@@ -203,106 +203,106 @@ applications:
     charm: ../../../barbican-k8s.charm
     {% else -%}
     charm: ch:barbican-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: false
     resources:
-      barbican-api-image: ghcr.io/canonical/barbican-consolidated:2024.1
-      barbican-worker-image: ghcr.io/canonical/barbican-consolidated:2024.1
+      barbican-api-image: ghcr.io/canonical/barbican-consolidated:2025.1
+      barbican-worker-image: ghcr.io/canonical/barbican-consolidated:2025.1
   # Orchestration feature
   heat:
     {% if heat_k8s is defined and heat_k8s is sameas true -%}
     charm: ../../../heat-k8s.charm
     {% else -%}
     charm: ch:heat-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      heat-api-image: ghcr.io/canonical/heat-consolidated:2024.1
-      heat-engine-image:  ghcr.io/canonical/heat-consolidated:2024.1
+      heat-api-image: ghcr.io/canonical/heat-consolidated:2025.1
+      heat-engine-image:  ghcr.io/canonical/heat-consolidated:2025.1
   # Load Balancer feature
   octavia:
     {% if octavia_k8s is defined and octavia_k8s is sameas true -%}
     charm: ../../../octavia-k8s.charm
     {% else -%}
     charm: ch:octavia-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      octavia-api-image: ghcr.io/canonical/octavia-consolidated:2024.1
-      octavia-driver-agent-image: ghcr.io/canonical/octavia-consolidated:2024.1
-      octavia-housekeeping-image: ghcr.io/canonical/octavia-consolidated:2024.1
+      octavia-api-image: ghcr.io/canonical/octavia-consolidated:2025.1
+      octavia-driver-agent-image: ghcr.io/canonical/octavia-consolidated:2025.1
+      octavia-housekeeping-image: ghcr.io/canonical/octavia-consolidated:2025.1
   # CAAS feature
   magnum:
     {% if magnum_k8s is defined and magnum_k8s is sameas true -%}
     charm: ../../../magnum-k8s.charm
     {% else -%}
     charm: ch:magnum-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: false
     resources:
-      magnum-api-image: ghcr.io/canonical/magnum-consolidated:2024.1
-      magnum-conductor-image: ghcr.io/canonical/magnum-consolidated:2024.1
+      magnum-api-image: ghcr.io/canonical/magnum-consolidated:2025.1
+      magnum-conductor-image: ghcr.io/canonical/magnum-consolidated:2025.1
   # Telemetry feature
   gnocchi:
     {% if gnocchi_k8s is defined and gnocchi_k8s is sameas true -%}
     charm: ../../../gnocchi-k8s.charm
     {% else -%}
     charm: ch:gnocchi-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      gnocchi-api-image: ghcr.io/canonical/gnocchi-consolidated:2024.1
-      gnocchi-metricd-image: ghcr.io/canonical/gnocchi-consolidated:2024.1
+      gnocchi-api-image: ghcr.io/canonical/gnocchi-consolidated:2025.1
+      gnocchi-metricd-image: ghcr.io/canonical/gnocchi-consolidated:2025.1
   ceilometer:
     {% if ceilometer_k8s is defined and ceilometer_k8s is sameas true -%}
     charm: ../../../ceilometer-k8s.charm
     {% else -%}
     charm: ch:ceilometer-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      ceilometer-central-image: ghcr.io/canonical/ceilometer-consolidated:2024.1
-      ceilometer-notification-image: ghcr.io/canonical/ceilometer-consolidated:2024.1
+      ceilometer-central-image: ghcr.io/canonical/ceilometer-consolidated:2025.1
+      ceilometer-notification-image: ghcr.io/canonical/ceilometer-consolidated:2025.1
   aodh:
     {% if aodh_k8s is defined and aodh_k8s is sameas true -%}
     charm: ../../../aodh-k8s.charm
     {% else -%}
     charm: ch:aodh-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      aodh-api-image: ghcr.io/canonical/aodh-consolidated:2024.1
-      aodh-evaluator-image: ghcr.io/canonical/aodh-consolidated:2024.1
-      aodh-notifier-image: ghcr.io/canonical/aodh-consolidated:2024.1
-      aodh-listener-image: ghcr.io/canonical/aodh-consolidated:2024.1
-      aodh-expirer-image: ghcr.io/canonical/aodh-consolidated:2024.1
+      aodh-api-image: ghcr.io/canonical/aodh-consolidated:2025.1
+      aodh-evaluator-image: ghcr.io/canonical/aodh-consolidated:2025.1
+      aodh-notifier-image: ghcr.io/canonical/aodh-consolidated:2025.1
+      aodh-listener-image: ghcr.io/canonical/aodh-consolidated:2025.1
+      aodh-expirer-image: ghcr.io/canonical/aodh-consolidated:2025.1
   openstack-exporter:
     {% if openstack_exporter_k8s is defined and openstack_exporter_k8s is sameas true -%}
     charm: ../../../openstack-exporter-k8s.charm
     {% else -%}
     charm: ch:openstack-exporter-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
@@ -314,13 +314,13 @@ applications:
   #   charm: ../../../watcher-k8s.charm
   #   {% else -%}
   #   charm: ch:watcher-k8s
-  #   channel: 2024.1/edge
+  #   channel: 2025.1/edge
   #   {% endif -%}
   #   base: ubuntu@24.04
   #   scale: 1
   #   trust: true
   #   resources:
-  #     watcher-image: ghcr.io/canonical/watcher-consolidated:2024.1
+  #     watcher-image: ghcr.io/canonical/watcher-consolidated:2025.1
   # DNS feature
   designate-bind:
     {% if designate_bind_k8s is defined and designate_bind_k8s is sameas true -%}
@@ -339,19 +339,19 @@ applications:
     charm: ../../../designate-k8s.charm
     {% else -%}
     charm: ch:designate-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: false
     resources:
-      designate-image: ghcr.io/canonical/designate-consolidated:2024.1
+      designate-image: ghcr.io/canonical/designate-consolidated:2025.1
   keystone-ldap:
     {% if keystone_ldap_k8s is defined and keystone_ldap_k8s is sameas true -%}
     charm: ../../../keystone-ldap-k8s.charm
     {% else -%}
     charm: ch:keystone-ldap-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
@@ -361,13 +361,13 @@ applications:
     charm: ../../../masakari-k8s.charm
     {% else -%}
     charm: ch:masakari-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      masakari-image: ghcr.io/canonical/masakari-consolidated:2024.1
+      masakari-image: ghcr.io/canonical/masakari-consolidated:2025.1
   consul:
     charm: consul-k8s
     channel: 1.19/edge
