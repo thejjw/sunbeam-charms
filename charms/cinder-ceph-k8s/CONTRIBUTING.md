@@ -47,7 +47,7 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./cinder-ceph-k8s_ubuntu-20.04-amd64.charm --resource cinder-volume-image=ghcr.io/canonical/cinder-volume:2024.1
+    juju deploy ./cinder-ceph-k8s_ubuntu-20.04-amd64.charm --resource cinder-volume-image=ghcr.io/canonical/cinder-volume:2025.1
 
 <!-- LINKS -->
 
