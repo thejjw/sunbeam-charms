@@ -726,20 +726,22 @@ def get_harness(  # noqa: C901
             services: list[str],
             timeout: float = 30.0,
             delay: float = 0.1,
-        ) -> None:
+        ) -> ops.pebble.ChangeID:
             """Record start service events."""
-            super().start_services(services, timeout, delay)
+            change_id = super().start_services(services, timeout, delay)
             container_calls.add_start(self.container_name, services)  # type: ignore
+            return change_id
 
         def stop_services(
             self,
             services: List[str],
             timeout: float = 30.0,
             delay: float = 0.1,
-        ) -> None:
+        ) -> ops.pebble.ChangeID:
             """Record stop service events."""
-            super().stop_services(services, timeout, delay)
+            change_id = super().stop_services(services, timeout, delay)
             container_calls.add_stop(self.container_name, services)  # type: ignore
+            return change_id
 
     class _OSTestingModelBackend(_TestingModelBackend):
         def get_pebble(self, socket_path: str) -> _OSTestingPebbleClient:
