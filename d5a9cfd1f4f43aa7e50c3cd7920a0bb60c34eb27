@@ -16,6 +16,23 @@
       "message": "Should be backported to 2024.1",
       "revId": "d5a9cfd1f4f43aa7e50c3cd7920a0bb60c34eb27",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e98c63a1_53115a43",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-04-24T10:22:06Z",
+      "side": 1,
+      "message": "recheck\n\nnode failure",
+      "revId": "d5a9cfd1f4f43aa7e50c3cd7920a0bb60c34eb27",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
