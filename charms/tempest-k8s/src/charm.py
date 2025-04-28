@@ -42,6 +42,7 @@ from handlers import (
     TempestPebbleHandler,
     TempestUserIdentityRelationHandler,
 )
+from openstack import connection
 from ops.model import (
     ActiveStatus,
     MaintenanceStatus,
@@ -71,6 +72,7 @@ from utils.constants import (
 )
 from utils.overrides import (
     get_swift_overrides,
+    get_external_net_override,
 )
 from utils.types import (
     TempestEnvVariant,
@@ -242,7 +244,16 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         The returned value should be append to discover-tempest-config
         at the end to act as overrides to tempest config.
         """
-        return get_swift_overrides()
+        overrides = []
+
+        if swift := get_swift_overrides():
+            overrides.append(swift)
+
+        credentials = self.user_id_ops.get_user_credential()
+        if ext := get_external_net_override(credentials, self.config["region"]):
+            overrides.append(ext)
+
+        return " ".join(overrides)
 
     def _get_environment_for_tempest(
         self, variant: TempestEnvVariant
@@ -302,6 +313,22 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         cleanup_env.update(self._get_proxy_environment())
         cleanup_env.update(self._get_os_cacert_environment())
         return cleanup_env
+
+    def _find_external_net_id(self) -> Optional[str]:
+        credential = self.user_id_ops.get_user_credential()
+        conn = connection.Connection(
+            auth_url=credential.get("auth-url"),
+            username=credential.get("username"),
+            password=credential.get("password"),
+            project_name=credential.get("project-name"),
+            user_domain_name=credential.get("domain-name"),
+            project_domain_name=credential.get("domain-name"),
+            region_name=self.config.get("region"),
+        )
+        for net in conn.network.networks(is_router_external=True, status="ACTIVE"):
+            if net.subnet_ids:
+                return net.id
+        return None
 
     def get_unit_data(self, key: str) -> Optional[str]:
         """Retrieve a value set for this unit on the peer relation."""
