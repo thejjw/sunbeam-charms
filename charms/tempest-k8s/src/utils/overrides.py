@@ -13,6 +13,10 @@
 # limitations under the License.
 """Tempest configuration overrides."""
 
+from openstack import (
+    connection,
+)
+
 
 def get_swift_overrides() -> str:
     """Return swift configuration override.
@@ -24,3 +28,20 @@ def get_swift_overrides() -> str:
     [1] https://github.com/ceph/ceph/commit/e2023d28dc6e6e835303716e7235df720d33a01c
     """
     return "object-storage-feature-enabled.tempurl_digest_hashlib sha1"
+
+
+def get_external_net_override(credentials: dict, region: str) -> str:
+    """Return 'public_network_id <uuid>' or ''."""
+    conn = connection.Connection(
+        auth_url=credentials.get("auth-url"),
+        username=credentials.get("username"),
+        password=credentials.get("password"),
+        project_name=credentials.get("project-name"),
+        user_domain_name=credentials.get("domain-name"),
+        project_domain_name=credentials.get("domain-name"),
+        region_name=region,
+    )
+    for net in conn.network.networks(is_router_external=True, status="ACTIVE"):
+        if net.subnet_ids:
+            return f"network.public_network_id {net.id}"
+    return ""

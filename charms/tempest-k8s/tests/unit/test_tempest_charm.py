@@ -654,3 +654,27 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.remove_relation(rel_id)
         self.harness.charm.logging.interface._promtail_config.return_value = {}
         self.assertEqual(self.harness.charm.logging.ready, False)
+
+    @patch("utils.overrides.external_net_override")
+    def test_get_overrides_for_tempest_conf(self, mock_ext_override):
+        """_get_overrides_for_tempest_conf builds the correct string."""
+        test_utils.set_all_pebbles_ready(self.harness)
+        self.add_identity_ops_relation(self.harness)
+
+        swift_pair = (
+            "object-storage-feature-enabled.tempurl_digest_hashlib sha1"
+        )
+        mock_ext_override.return_value = (
+            "network.public_network_id mytest-neutron-ext-network-000000000001"
+        )
+        overrides = self.harness.charm._get_overrides_for_tempest_conf()
+        expected = (
+            f"{swift_pair} "
+            "network.public_network_id mytest-neutron-ext-network-000000000001"
+        )
+        self.assertEqual(overrides, expected)
+
+        creds = self.harness.charm.user_id_ops.get_user_credential()
+        mock_ext_override.assert_called_once_with(
+            creds, self.harness.charm.config["region"]
+        )
