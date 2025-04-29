@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb16590e_5f64bfd2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-04-29T01:02:02Z",
+      "side": 1,
+      "message": "There are successful runs earlier without this change. Do you know why these errors are triggered.\n\nAlso please note from documentation the expectation is to have minimum number of avaialble IPs https://github.com/canonical/canonical-openstack-docs/pull/60/files",
+      "revId": "1e127bcb7c5b67bed859a250e1c374f36204253c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
