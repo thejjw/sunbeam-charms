@@ -1,8 +1,0 @@
-ops
-jinja2
-pydantic
-lightkube
-pwgen
-
-# From ops_sunbeam
-tenacity
