@@ -1,7 +1,0 @@
-ops
-jinja2
-lightkube
-pydantic<2.0
-
-# From ops_sunbeam
-tenacity
