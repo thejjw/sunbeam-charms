@@ -1,0 +1,18 @@
+# Copyright 2025 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+[project]
+name = "ovn-central-k8s"
+version = "25.03"
+requires-python = "~=3.12.0"
+
+dependencies = [
+    "cryptography",
+    "jinja2",
+    "jsonschema",
+    "lightkube",
+    "lightkube-models",
+    "ops",
+    "tenacity", # From ops_sunbeam
+    "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
+]
