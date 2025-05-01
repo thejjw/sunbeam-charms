@@ -158,6 +158,29 @@ then
     popd || exit 1
     cp charms/$charm/${charm}.charm . || exit 1
     python3 repository.py -v clean $charm || exit 1
+
+elif [[ $1 == "uv" ]];
+then
+    if [[ $# != 2 ]];
+    then
+        echo "Command format: tox -e uv <charm>"
+        exit 1
+    fi
+
+    charm=$2
+    charms=($(ls charms))
+    if [[ ! ${charms[@]} =~ $charm ]];
+    then
+        echo "Argument should be one of ${charms[@]}";
+        exit 1
+    fi
+
+    python3 repository.py -v prepare --clean $charm || exit 1
+    pushd charms/$charm || exit 1
+    JUJU_VERSION=3.6 PYTHONPATH=./lib uv lock --upgrade --no-cache
+    popd || exit 1
+    python3 repository.py -v clean $charm || exit 1
+
 else
     echo "tox argument should be one of pep8, py3, py310, py312, cover";
     exit 1

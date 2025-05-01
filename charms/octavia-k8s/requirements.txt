@@ -1,9 +1,0 @@
-cryptography
-ops
-jinja2
-jsonschema
-pydantic
-lightkube
-
-# From ops_sunbeam
-tenacity

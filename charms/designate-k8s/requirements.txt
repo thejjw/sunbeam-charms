@@ -1,8 +1,0 @@
-ops
-jsonschema
-pydantic
-jinja2
-lightkube
-
-# From ops_sunbeam
-tenacity

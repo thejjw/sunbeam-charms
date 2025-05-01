@@ -1,0 +1,22 @@
+# Copyright 2025 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+[project]
+name = "tempest-k8s"
+version = "2025.1"
+requires-python = "~=3.12.0"
+
+dependencies = [
+    "jinja2",
+    "lightkube",
+    "lightkube-models",
+    "ops",
+    "cosl",
+    # for validating cron expressions
+    # due to https://github.com/corpusops/croniter/issues/144
+    # we might need to find an alternative for croniter project
+    "croniter==5.0.1",
+    "openstacksdk",  # for handling cleanup
+    "tenacity", # From ops_sunbeam
+    "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
+]
