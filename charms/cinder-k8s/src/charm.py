@@ -230,6 +230,14 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "public_url": f"{self.public_url}/v3/$(tenant_id)s",
                 "admin_url": f"{self.admin_url}/v3/$(tenant_id)s",
             },
+            {
+                "service_name": "cinder",
+                "type": "block-storage",
+                "description": "Cinder Block Storage service",
+                "internal_url": f"{self.internal_url}/v3/$(tenant_id)s",
+                "public_url": f"{self.public_url}/v3/$(tenant_id)s",
+                "admin_url": f"{self.admin_url}/v3/$(tenant_id)s",
+            },
         ]
 
     @property
