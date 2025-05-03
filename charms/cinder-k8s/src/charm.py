@@ -215,14 +215,6 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Service endpoints for the Cinder API services."""
         return [
             {
-                "service_name": "cinderv2",
-                "type": "volumev2",
-                "description": "Cinder Volume Service v2",
-                "internal_url": f"{self.internal_url}/v2/$(tenant_id)s",
-                "public_url": f"{self.public_url}/v2/$(tenant_id)s",
-                "admin_url": f"{self.admin_url}/v2/$(tenant_id)s",
-            },
-            {
                 "service_name": "cinderv3",
                 "type": "volumev3",
                 "description": "Cinder Volume Service v3",

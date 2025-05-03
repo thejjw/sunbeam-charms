@@ -75,16 +75,16 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "service-endpoints": json.dumps(
                     [
                         {
-                            "service_name": "cinderv2",
-                            "type": "volumev2",
-                            "description": "Cinder Volume Service v2",
-                            "internal_url": f"{interal_url}/v2/$(tenant_id)s",
-                            "public_url": f"{public_url}/v2/$(tenant_id)s",
-                            "admin_url": f"{interal_url}/v2/$(tenant_id)s",
-                        },
-                        {
                             "service_name": "cinderv3",
                             "type": "volumev3",
+                            "description": "Cinder Volume Service v3",
+                            "internal_url": f"{interal_url}/v3/$(tenant_id)s",
+                            "public_url": f"{public_url}/v3/$(tenant_id)s",
+                            "admin_url": f"{interal_url}/v3/$(tenant_id)s",
+                        },
+                        {
+                            "service_name": "cinder",
+                            "type": "block-storage",
                             "description": "Cinder Volume Service v3",
                             "internal_url": f"{interal_url}/v3/$(tenant_id)s",
                             "public_url": f"{public_url}/v3/$(tenant_id)s",
