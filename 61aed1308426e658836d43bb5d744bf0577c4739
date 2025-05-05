@@ -16,6 +16,23 @@
       "message": "recheck issue with setuptools https://github.com/pypa/setuptools/issues/4976 fixed and released",
       "revId": "61aed1308426e658836d43bb5d744bf0577c4739",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "488e7969_9fa07056",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-05T02:00:45Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "61aed1308426e658836d43bb5d744bf0577c4739",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
