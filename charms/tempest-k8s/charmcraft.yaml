@@ -47,6 +47,13 @@ config:
         "*/30 * * * *" every 30 minutes
         "5 2 * * *"    at 2:05am every day
         "5 2 * * mon"  at 2:05am every Monday
+    roles:
+      type: string
+      default: storage,compute,control
+      description: |
+        A comma-separated list of Sunbeam node roles to be used for enabling
+        tempest tests. Removing a role from the list will disable tempest tests
+        relating to that role. Valid roles are: storage, compute, control.
 
 actions:
   validate:

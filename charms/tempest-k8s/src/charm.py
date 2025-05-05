@@ -19,6 +19,8 @@
 This charm provide Tempest as part of an OpenStack deployment
 """
 
+import hashlib
+import json
 import logging
 import os
 from typing import (
@@ -71,6 +73,7 @@ from utils.constants import (
 )
 from utils.overrides import (
     get_compute_overrides,
+    get_role_based_overrides,
     get_swift_overrides,
 )
 from utils.types import (
@@ -112,6 +115,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Run the constructor."""
         # config for openstack, used by tempest
         super().__init__(framework)
+        self._state.set_default(config_rebuild_hash="")
         self.framework.observe(
             self.on.validate_action, self._on_validate_action
         )
@@ -247,8 +251,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             (
                 get_swift_overrides(),
                 get_compute_overrides(),
+                get_role_based_overrides(self.config["roles"]),
             )
-        )
+        ).strip()
 
     def _get_environment_for_tempest(
         self, variant: TempestEnvVariant
@@ -369,6 +374,11 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 f"invalid schedule config: {schedule.err}"
             )
 
+        # Only trigger rebuild if config options change
+        updated_hash = self._current_config_hash()
+        if updated_hash != self._state.config_rebuild_hash:
+            self.set_tempest_ready(False)
+
         self.status.set(MaintenanceStatus("tempest init in progress"))
         self.init_tempest()
 
@@ -391,6 +401,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             for relation in self.model.relations[LOKI_RELATION_NAME]:
                 self.logging.interface._handle_alert_rules(relation)
 
+        self._state.config_rebuild_hash = updated_hash
         self.status.set(ActiveStatus(""))
         logger.info("Finished configuring the tempest environment")
 
@@ -459,6 +470,19 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             return
         # display neatly to the user.  This will also end up in the action output results.stdout
         print("\n".join(lists))
+
+    def _get_relevant_tempest_config_values(self) -> dict:
+        """Return values that should trigger a rebuild."""
+        return {
+            "roles": self.config.get("roles"),
+            "region": self.config.get("region"),
+        }
+
+    def _current_config_hash(self) -> str:
+        data = self._get_relevant_tempest_config_values()
+        blob = json.dumps(data, sort_keys=True).encode()
+        logger.info(f"Hashing config data: {blob}")
+        return hashlib.sha256(blob).hexdigest()
 
 
 if __name__ == "__main__":  # pragma: nocover

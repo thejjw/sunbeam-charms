@@ -29,6 +29,9 @@ import charm
 import ops_sunbeam.test_utils as test_utils
 import utils
 import yaml
+from ops_sunbeam.guard import (
+    BlockedExceptionError,
+)
 from utils import (
     overrides,
 )
@@ -489,7 +492,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.charm.set_tempest_ready.assert_has_calls(
             [call(False), call(False)]
         )
-        self.assertEqual(self.harness.charm.set_tempest_ready.call_count, 2)
+        self.assertEqual(self.harness.charm.set_tempest_ready.call_count, 3)
         self.assertIn(
             "tempest init failed", self.harness.charm.status.message()
         )
@@ -659,3 +662,127 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.remove_relation(rel_id)
         self.harness.charm.logging.interface._promtail_config.return_value = {}
         self.assertEqual(self.harness.charm.logging.ready, False)
+
+    def _check_override_in_string(
+        self,
+        key: str,
+        value: str,
+        actual_string: str,
+        should_be_present: bool = True,
+    ):
+        """Checks if a specific 'key value' pair is in the override string."""
+        expected_pair = f"{key} {value}"
+        if should_be_present:
+            self.assertIn(
+                expected_pair,
+                actual_string,
+                f"Expected '{expected_pair}' to be in '{actual_string}'",
+            )
+        else:
+            self.assertNotIn(
+                expected_pair,
+                actual_string,
+                f"Expected '{expected_pair}' NOT to be in '{actual_string}'",
+            )
+
+    def test_roles_default_overrides(self):
+        """Verify role-based overrides when roles config is default (all roles)."""
+        self.add_identity_ops_relation(self.harness)
+        test_utils.set_all_pebbles_ready(self.harness)
+
+        self.harness.update_config({"roles": "compute,control,storage"})
+
+        env = self.harness.charm._get_environment_for_tempest(
+            TempestEnvVariant.ADHOC
+        )
+        actual_combined_overrides = env.get("TEMPEST_CONFIG_OVERRIDES", "")
+
+        self._check_override_in_string(
+            "service_available.cinder",
+            "false",
+            actual_combined_overrides,
+            should_be_present=False,
+        )
+        self._check_override_in_string(
+            "service_available.nova",
+            "false",
+            actual_combined_overrides,
+            should_be_present=False,
+        )
+
+    def test_roles_compute_only_overrides(self):
+        """Verify role-based overrides when roles = 'compute'."""
+        self.add_identity_ops_relation(self.harness)
+        test_utils.set_all_pebbles_ready(self.harness)
+
+        self.harness.update_config({"roles": "compute"})
+        env = self.harness.charm._get_environment_for_tempest(
+            TempestEnvVariant.ADHOC
+        )
+        actual_combined_overrides = env.get("TEMPEST_CONFIG_OVERRIDES", "")
+
+        self._check_override_in_string(
+            "service_available.cinder",
+            "false",
+            actual_combined_overrides,
+            should_be_present=True,
+        )
+        self._check_override_in_string(
+            "service_available.nova",
+            "false",
+            actual_combined_overrides,
+            should_be_present=False,
+        )
+
+    def test_roles_storage_only_overrides(self):
+        """Verify role-based overrides when roles = 'storage'."""
+        self.add_identity_ops_relation(self.harness)
+        test_utils.set_all_pebbles_ready(self.harness)
+
+        self.harness.update_config({"roles": "storage"})
+        env = self.harness.charm._get_environment_for_tempest(
+            TempestEnvVariant.ADHOC
+        )
+        actual_combined_overrides = env.get("TEMPEST_CONFIG_OVERRIDES", "")
+
+        self._check_override_in_string(
+            "service_available.cinder",
+            "false",
+            actual_combined_overrides,
+            should_be_present=False,
+        )
+        self._check_override_in_string(
+            "service_available.nova",
+            "false",
+            actual_combined_overrides,
+            should_be_present=True,
+        )
+
+    def test_roles_blank_raises(self):
+        """Blank 'roles' config should raise a BlockedExceptionError."""
+        with self.assertRaises(BlockedExceptionError):
+            overrides._parse_roles_config("")
+
+    def test_current_config_hash_changes(self):
+        """Hash is stable for unchanged config and updates when roles/region change."""
+        initial_roles = "compute,control"
+        initial_region = "RegionOne"
+        self.harness.update_config(
+            {"roles": initial_roles, "region": initial_region}
+        )
+        hash_1 = self.harness.charm._current_config_hash()
+        self.harness.update_config(
+            {"roles": initial_roles, "region": initial_region}
+        )
+        hash_2 = self.harness.charm._current_config_hash()
+        self.assertEqual(hash_1, hash_2)
+
+        self.harness.update_config({"roles": "compute"})
+        hash_3 = self.harness.charm._current_config_hash()
+        self.assertNotEqual(hash_1, hash_3)
+
+        self.harness.update_config(
+            {"roles": initial_roles, "region": "RegionTwo"}
+        )
+        hash_4 = self.harness.charm._current_config_hash()
+        self.assertNotEqual(hash_1, hash_4)
