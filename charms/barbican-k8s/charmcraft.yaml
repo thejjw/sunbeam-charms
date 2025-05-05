@@ -89,8 +89,16 @@ parts:
       - git
       - libffi-dev
       - libssl-dev
+      - rustc
+      - cargo
+      - pkg-config
     charm-binary-python-packages:
       - cryptography
       - jsonschema
       - pydantic
       - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
