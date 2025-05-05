@@ -19,6 +19,8 @@
 This charm provide Tempest as part of an OpenStack deployment
 """
 
+import hashlib
+import json
 import logging
 import os
 from typing import (
@@ -71,6 +73,7 @@ from utils.constants import (
 )
 from utils.overrides import (
     get_compute_overrides,
+    get_role_based_overrides,
     get_swift_overrides,
 )
 from utils.types import (
@@ -112,6 +115,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Run the constructor."""
         # config for openstack, used by tempest
         super().__init__(framework)
+        self._state.set_default(previous_hash="")
         self.framework.observe(
             self.on.validate_action, self._on_validate_action
         )
@@ -247,8 +251,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             (
                 get_swift_overrides(),
                 get_compute_overrides(),
+                get_role_based_overrides(self.config["roles"]),
             )
-        )
+        ).strip()
 
     def _get_environment_for_tempest(
         self, variant: TempestEnvVariant
@@ -361,6 +366,19 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Custom configuration steps for this unit."""
         super().configure_unit(event)
 
+        # Only trigger rebuild if config options change
+        updated_hash = self._current_config_hash()
+        if (
+            self.is_tempest_ready()
+            and updated_hash == self._state.previous_hash
+        ):
+            logger.info("Tempest workspace still valid - skipping re-init.")
+            if self.is_schedule_ready():
+                update_alert_rules_files(self.get_schedule())
+            self.status.set(ActiveStatus(""))
+            return
+
+        self.set_tempest_ready(False)
         logger.info("Configuring the tempest environment")
 
         schedule = self.get_schedule()
@@ -459,6 +477,18 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             return
         # display neatly to the user.  This will also end up in the action output results.stdout
         print("\n".join(lists))
+
+    def _get_relevant_tempest_config_values(self) -> dict:
+        """Return values that should trigger a rebuild."""
+        return {
+            "roles": self.config.get("roles"),
+            "region": self.config.get("region"),
+        }
+
+    def _current_config_hash(self) -> str:
+        data = self._get_relevant_tempest_config_values()
+        blob = json.dumps(data, sort_keys=True).encode()
+        return hashlib.sha256(blob).hexdigest()
 
 
 if __name__ == "__main__":  # pragma: nocover
