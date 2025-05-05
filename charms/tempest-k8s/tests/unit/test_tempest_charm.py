@@ -484,7 +484,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.charm.set_tempest_ready.assert_has_calls(
             [call(False), call(False)]
         )
-        self.assertEqual(self.harness.charm.set_tempest_ready.call_count, 2)
+        self.assertEqual(self.harness.charm.set_tempest_ready.call_count, 3)
         self.assertIn(
             "tempest init failed", self.harness.charm.status.message()
         )
@@ -654,3 +654,61 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.remove_relation(rel_id)
         self.harness.charm.logging.interface._promtail_config.return_value = {}
         self.assertEqual(self.harness.charm.logging.ready, False)
+
+    @patch("charm.get_swift_overrides", return_value="swift.key swift_value")
+    def test_overrides_config_cinder_disabled(self, mock_get_swift):
+        """Verify TEMPEST_CONFIG_OVERRIDES when skip-cinder-tests=True."""
+        self.add_identity_ops_relation(self.harness)
+        test_utils.set_all_pebbles_ready(self.harness)
+
+        self.harness.update_config({"skip-cinder-tests": True})
+
+        env = self.harness.charm._get_environment_for_tempest(
+            TempestEnvVariant.ADHOC
+        )
+
+        expected_overrides = (
+            "swift.key swift_value service_available.cinder false"
+        )
+        self.assertEqual(
+            env.get("TEMPEST_CONFIG_OVERRIDES"), expected_overrides
+        )
+        mock_get_swift.assert_called_once()
+
+    @patch("charm.get_swift_overrides", return_value="swift.key swift_value")
+    def test_overrides_config_cinder_enabled(self, mock_get_swift):
+        """Verify TEMPEST_CONFIG_OVERRIDES when skip-cinder-tests=False."""
+        self.add_identity_ops_relation(self.harness)
+        test_utils.set_all_pebbles_ready(self.harness)
+
+        self.harness.update_config({"skip-cinder-tests": False})
+
+        env = self.harness.charm._get_environment_for_tempest(
+            TempestEnvVariant.ADHOC
+        )
+
+        expected_overrides = "swift.key swift_value"
+        self.assertEqual(
+            env.get("TEMPEST_CONFIG_OVERRIDES"), expected_overrides
+        )
+        mock_get_swift.assert_called_once()
+
+    def test_configure_unit_resets_ready_flag_on_config_change(self):
+        """Verify configure_unit calls set_tempest_ready(False) on config-changed."""
+        self.add_identity_ops_relation(self.harness)
+        self.add_logging_relation(self.harness)
+        self.add_grafana_dashboard_relation(self.harness)
+        test_utils.set_all_pebbles_ready(self.harness)
+
+        self.harness.charm.get_schedule = Mock(
+            return_value=MagicMock(valid=True, value="* * * * *")
+        )
+        self.harness.charm.init_tempest = Mock()
+        self.harness.charm.is_tempest_ready = Mock(return_value=True)
+        self.harness.charm.is_schedule_ready = Mock(return_value=True)
+        self.harness.charm.set_tempest_ready = Mock()
+
+        self.harness.update_config({"skip-cinder-tests": True})
+
+        self.harness.charm.set_tempest_ready.assert_any_call(False)
+        self.harness.charm.init_tempest.assert_called_once()

@@ -235,6 +235,10 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             return {}
         return {"OS_CACERT": OS_CACERT_PATH}
 
+    def _get_cinder_tests_disabled(self):
+        """Return true if user disables cinder storage tests in charm config."""
+        return bool(self.config["skip-cinder-tests"])
+
     def _get_overrides_for_tempest_conf(self) -> str:
         """Return a string of overrides.
 
@@ -242,7 +246,12 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         The returned value should be append to discover-tempest-config
         at the end to act as overrides to tempest config.
         """
-        return get_swift_overrides()
+        overrides: List[str] = get_swift_overrides().split()
+
+        if self._get_cinder_tests_disabled():
+            overrides += ["service_available.cinder", "false"]
+
+        return " ".join(overrides)
 
     def _get_environment_for_tempest(
         self, variant: TempestEnvVariant
@@ -354,7 +363,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def configure_unit(self, event: ops.framework.EventBase) -> None:
         """Custom configuration steps for this unit."""
         super().configure_unit(event)
-
+        self.set_tempest_ready(False)
         logger.info("Configuring the tempest environment")
 
         schedule = self.get_schedule()

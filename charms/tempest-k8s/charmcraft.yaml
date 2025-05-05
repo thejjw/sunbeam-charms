@@ -47,6 +47,13 @@ config:
         "*/30 * * * *" every 30 minutes
         "5 2 * * *"    at 2:05am every day
         "5 2 * * mon"  at 2:05am every Monday
+    skip-cinder-tests:
+      type: boolean
+      default: false
+      description: |
+        Skip cinder volume storage tests. By default, all tests are run.
+        This option should be set to "true" when running tempest in a non-storage 
+        environment, such as a control plane or compute only Sunbeam deployment.
 
 actions:
   validate:
