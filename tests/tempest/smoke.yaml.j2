@@ -134,13 +134,13 @@ applications:
     charm: ../../../tempest-k8s.charm
     {% else -%}
     charm: ch:tempest-k8s
-    channel: 2024.1/edge
+    channel: 2025.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      tempest-image: ghcr.io/canonical/tempest:2024.1
+      tempest-image: ghcr.io/canonical/tempest:2025.1
 
 relations:
 - - tls-operator:certificates
