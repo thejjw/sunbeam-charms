@@ -956,6 +956,15 @@ class _Store(abc.ABC):
         store[name] = entry
         self.save_entries(store)
 
+    def delete_entry(self, name: str):
+        """Delete store entry."""
+        if not self.ready():
+            logger.debug("Store not ready, cannot delete entry.")
+            return
+        store = self.get_entries()
+        store.pop(name, None)
+        self.save_entries(store)
+
     def get_private_key(self, name: str) -> str | None:
         """Return private key."""
         if entry := self.get_entry(name):
@@ -1189,6 +1198,10 @@ class TlsCertificatesHandler(RelationHandler):
                     "SecretNotFoundError not found, likely due to departing "
                     "unit."
                 )
+                # There's an entry, but the secret is missing
+                # in the juju controller. Remove entry from
+                # the store.
+                self.store.delete_entry(key)
                 return
             private_key_secret = self.model.get_secret(
                 id=private_key_secret_id
