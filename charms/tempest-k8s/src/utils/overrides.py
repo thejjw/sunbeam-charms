@@ -24,3 +24,13 @@ def get_swift_overrides() -> str:
     [1] https://github.com/ceph/ceph/commit/e2023d28dc6e6e835303716e7235df720d33a01c
     """
     return "object-storage-feature-enabled.tempurl_digest_hashlib sha1"
+
+
+def get_compute_overrides() -> str:
+    """Return compute configuration override."""
+    return " ".join(
+        (
+            "compute-feature-enabled.resize false",  # lp:2082056
+            "compute-feature-enabled.cold_migration false",  # lp:2082056
+        )
+    )
