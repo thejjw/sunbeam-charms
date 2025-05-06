@@ -29,6 +29,9 @@ import charm
 import ops_sunbeam.test_utils as test_utils
 import utils
 import yaml
+from utils import (
+    overrides,
+)
 from utils.constants import (
     CONTAINER,
     TEMPEST_ADHOC_OUTPUT,
@@ -65,7 +68,9 @@ TEST_TEMPEST_ENV = {
     "TEMPEST_TEST_ACCOUNTS": "/var/lib/tempest/workspace/test_accounts.yaml",
     "TEMPEST_WORKSPACE": "tempest",
     "TEMPEST_WORKSPACE_PATH": "/var/lib/tempest/workspace",
-    "TEMPEST_CONFIG_OVERRIDES": "object-storage-feature-enabled.tempurl_digest_hashlib sha1",
+    "TEMPEST_CONFIG_OVERRIDES": " ".join(
+        (overrides.get_swift_overrides(), overrides.get_compute_overrides())
+    ),
 }
 
 

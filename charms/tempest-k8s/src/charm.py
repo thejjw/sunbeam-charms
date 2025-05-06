@@ -70,6 +70,7 @@ from utils.constants import (
     TEMPEST_WORKSPACE_PATH,
 )
 from utils.overrides import (
+    get_compute_overrides,
     get_swift_overrides,
 )
 from utils.types import (
@@ -242,7 +243,12 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         The returned value should be append to discover-tempest-config
         at the end to act as overrides to tempest config.
         """
-        return get_swift_overrides()
+        return " ".join(
+            (
+                get_swift_overrides(),
+                get_compute_overrides(),
+            )
+        )
 
     def _get_environment_for_tempest(
         self, variant: TempestEnvVariant
