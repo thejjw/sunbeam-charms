@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62307163_c8893931",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-06T02:33:42Z",
+      "side": 1,
+      "message": "what do you think of pushing all overrides as functions in utils/overrides.py and here just calling the functions.",
+      "revId": "8aa288cbff8959fac4a1bca13a5a96a3b71263fa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9eece7b_8a3c8272",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-06T02:33:42Z",
+      "side": 1,
+      "message": "self.init_tempest() has logic to skip running tempest init if TEMPEST_READY_KEY is True.\n\nAdding L#366 will always trigger tempest init command for every event even though it is already ran successfully.\n\nCan you elaborate why this is added. There could be some corner case which is not handled properly.",
+      "revId": "8aa288cbff8959fac4a1bca13a5a96a3b71263fa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "720a0aad_463c80f9",
+        "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-06T02:33:42Z",
+      "side": 1,
+      "message": "Nice change, can you add ${TEMPEST_CONFIG_OVERRIDES:+$TEMPEST_CONFIG_OVERRIDES} to tempest-init.j2 as well.",
+      "revId": "8aa288cbff8959fac4a1bca13a5a96a3b71263fa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
