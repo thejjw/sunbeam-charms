@@ -18,6 +18,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6ae5073_e824bbfc",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2025-05-06T03:04:02Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "62307163_c8893931",
+      "revId": "8aa288cbff8959fac4a1bca13a5a96a3b71263fa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e9eece7b_8a3c8272",
@@ -37,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b888ae73_cee93f4b",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2025-05-06T03:04:02Z",
+      "side": 1,
+      "message": "The issue I was having is that the charm wouldn\u0027t rebuild on config change. I\u0027d have skip-cinder-tests\u003dFalse by default, the charm would init, then I\u0027d change it to True, but the charm would not rebuild and tempest.conf would not update to reflect that change.",
+      "parentUuid": "e9eece7b_8a3c8272",
+      "revId": "8aa288cbff8959fac4a1bca13a5a96a3b71263fa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "720a0aad_463c80f9",
         "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
         "patchSetId": 1
@@ -48,6 +84,24 @@
       "writtenOn": "2025-05-06T02:33:42Z",
       "side": 1,
       "message": "Nice change, can you add ${TEMPEST_CONFIG_OVERRIDES:+$TEMPEST_CONFIG_OVERRIDES} to tempest-init.j2 as well.",
+      "revId": "8aa288cbff8959fac4a1bca13a5a96a3b71263fa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "993ad32e_45c3e003",
+        "filename": "charms/tempest-k8s/src/templates/tempest-run-wrapper.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2025-05-06T03:04:02Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "720a0aad_463c80f9",
       "revId": "8aa288cbff8959fac4a1bca13a5a96a3b71263fa",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
