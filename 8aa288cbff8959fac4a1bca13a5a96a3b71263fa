@@ -3,6 +3,52 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "afff7000_38140d50",
+        "filename": "charms/tempest-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-05-06T08:24:51Z",
+      "side": 1,
+      "message": "I would rather have an option like:\n`roles` which takes a comma separated list of roles (the sunbeam cluster roles). The charm should use that logic to enable / disable compute or storage related tests depending on missing roles 😊",
+      "range": {
+        "startLine": 50,
+        "startChar": 4,
+        "endLine": 50,
+        "endChar": 21
+      },
+      "revId": "8aa288cbff8959fac4a1bca13a5a96a3b71263fa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "79482f1d_57399206",
+        "filename": "charms/tempest-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-05-06T08:24:51Z",
+      "side": 1,
+      "message": "please no dangling whitespaces",
+      "range": {
+        "startLine": 55,
+        "startChar": 81,
+        "endLine": 55,
+        "endChar": 82
+      },
+      "revId": "8aa288cbff8959fac4a1bca13a5a96a3b71263fa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "62307163_c8893931",
         "filename": "charms/tempest-k8s/src/charm.py",
         "patchSetId": 1
@@ -67,6 +113,24 @@
       "side": 1,
       "message": "The issue I was having is that the charm wouldn\u0027t rebuild on config change. I\u0027d have skip-cinder-tests\u003dFalse by default, the charm would init, then I\u0027d change it to True, but the charm would not rebuild and tempest.conf would not update to reflect that change.",
       "parentUuid": "e9eece7b_8a3c8272",
+      "revId": "8aa288cbff8959fac4a1bca13a5a96a3b71263fa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92cd3a70_8a180c96",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-05-06T08:24:51Z",
+      "side": 1,
+      "message": "configure_unit is on the hot path, and reconfiguring tempest here everytime is NOT good since it\u0027s a process that takes around 10 minutes.\n\nAn idea could be to store in local storage the configuration parameters that would trigger a rebuild, and only rebuild if they change.\n\n(A hash of the parameters is sufficient)",
+      "parentUuid": "b888ae73_cee93f4b",
       "revId": "8aa288cbff8959fac4a1bca13a5a96a3b71263fa",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
