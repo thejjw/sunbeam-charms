@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cda1bab_ccb0d87a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-05-07T06:59:53Z",
+      "side": 1,
+      "message": "Can we continue the review in the first change request? (this commit has 2 change ids, the first one and a new one)\n\nhttps://review.opendev.org/c/openstack/sunbeam-charms/+/948835",
+      "revId": "fa2257d3bc4d8fb61e7dad23ab185c48d0f326b5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
