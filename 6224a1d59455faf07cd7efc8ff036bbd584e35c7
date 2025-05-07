@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b470511d_f0d75352",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-07T01:15:27Z",
+      "side": 1,
+      "message": "I do not see previous_hash updatde anywhere else",
+      "revId": "6224a1d59455faf07cd7efc8ff036bbd584e35c7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4348e4d8_7d3e2b97",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-07T01:15:27Z",
+      "side": 1,
+      "message": "Misses check similar to L#385 to raise exception if schedule config is not valid",
+      "revId": "6224a1d59455faf07cd7efc8ff036bbd584e35c7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90a2bc65_cf9528c1",
+        "filename": "charms/tempest-k8s/src/utils/overrides.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-07T01:15:27Z",
+      "side": 1,
+      "message": "If user provides empty config_roles, better to raise an exception like L#98 instead of defaulting to control.",
+      "revId": "6224a1d59455faf07cd7efc8ff036bbd584e35c7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
