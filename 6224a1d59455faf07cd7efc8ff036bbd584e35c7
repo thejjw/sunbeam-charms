@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "fc722bca_2510e20e",
+        "filename": "charms/tempest-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-05-07T06:58:17Z",
+      "side": 1,
+      "message": "I think `previous_hash` is not clear enough in its purpose. It is better to call it something like `config_hash` or `config_rebuild_hash`.",
+      "parentUuid": "b470511d_f0d75352",
+      "revId": "6224a1d59455faf07cd7efc8ff036bbd584e35c7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4348e4d8_7d3e2b97",
         "filename": "charms/tempest-k8s/src/charm.py",
         "patchSetId": 2
