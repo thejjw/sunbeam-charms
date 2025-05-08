@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a614f0e8_75aedd4c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2025-05-08T01:44:12Z",
+      "side": 1,
+      "message": "LGTM - thanks for the backport",
+      "revId": "0298c5a68852faccd8abf79c41280d4e7e5b3938",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
