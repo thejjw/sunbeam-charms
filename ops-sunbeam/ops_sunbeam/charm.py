@@ -631,6 +631,8 @@ class OSBaseOperatorCharm(
 class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
     """Base charm class for k8s based charms."""
 
+    db_sync_timeout = 300
+
     def __post_init__(self):
         """Post init hook."""
         super().__post_init__()
@@ -810,7 +812,7 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         container = self.unit.get_container(self.db_sync_container_name)
         logging.debug("Running sync: \n%s", cmd)
         try:
-            process = container.exec(cmd, timeout=5 * 60)
+            process = container.exec(cmd, timeout=self.db_sync_timeout)
             out, err = process.wait_output()
         except ops.pebble.TimeoutError as e:
             logger.warning(f"DB Sync command timed out: {e}")
