@@ -174,6 +174,7 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             "head",
         ]
     ]
+    db_sync_timeout = 480
 
     def check_configuration(self, event: ops.EventBase):
         """Check a configuration key is correct."""
