@@ -43,8 +43,8 @@ parts:
       - libffi-dev
       - libssl-dev
       - pkg-config
-      - rustc
-      - cargo
+      - rustc-1.80
+      - cargo-1.80
     charm-binary-python-packages:
       - cryptography
       - jsonschema
