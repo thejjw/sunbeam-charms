@@ -50,6 +50,9 @@ from charms.ceilometer_k8s.v0.ceilometer_service import (
 from charms.grafana_agent.v0.cos_agent import (
     COSAgentProvider,
 )
+from charms.consul_client.v0.consul_notify import (
+    ConsulNotifyRequirer,
+)
 from charms.nova_k8s.v0.nova_service import (
     NovaConfigChangedEvent,
     NovaServiceGoneAwayEvent,
@@ -69,6 +72,8 @@ logger = logging.getLogger(__name__)
 MIGRATION_BINDING = "migration"
 DATA_BINDING = "data"
 MTLS_USAGES = {x509.OID_SERVER_AUTH, x509.OID_CLIENT_AUTH}
+HYPERVISOR_SNAP_NAME = "openstack-hypervisor"
+EVACUATION_UNIX_SOCKET_FILEPATH = "data/shutdown.sock"
 
 
 class SnapInstallationError(Exception):
@@ -216,6 +221,12 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             ],
         )
 
+        self.consul_notify = ConsulNotifyRequirer(self, "consul-notify")
+        self.framework.observe(
+            self.consul_notify.on.relation_ready,
+            self._on_consul_notify_ready,
+        )
+
     def _on_install(self, _: ops.InstallEvent):
         """Run install on this unit."""
         with sunbeam_guard.guard(
@@ -272,6 +283,20 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def _on_cos_agent_relation_departed(self, event: ops.framework.EventBase):
         self.enable_monitoring = False
         self.configure_charm(event)
+
+    def _on_consul_notify_ready(self, event: ops.framework.EventBase):
+        """Handle the consul-notify relation ready event.
+
+        This event happens when the relation is created or joined.
+        """
+        logger.debug("Handling consul-notify relation ready event")
+        snap_name = HYPERVISOR_SNAP_NAME
+        unix_socket_filepath = EVACUATION_UNIX_SOCKET_FILEPATH
+
+        self.consul_notify.set_socket_info(
+            snap_name=snap_name,
+            unix_socket_filepath=unix_socket_filepath,
+        )
 
     def get_domain_name_sans(self) -> list[str]:
         """Get Domain names for service."""
