@@ -33,7 +33,19 @@ class _HypervisorOperatorCharm(charm.HypervisorOperatorCharm):
     def __init__(self, framework):
         """Setup event logging."""
         self.seen_events = []
+        original_observe = framework.observe
+
+        def patched_observe(event, handler):
+            if (
+                hasattr(handler, "__name__")
+                and "consul_notify" in handler.__name__
+            ):
+                return
+            return original_observe(event, handler)
+
+        framework.observe = patched_observe
         super().__init__(framework)
+        framework.observe = original_observe
 
 
 class TestCharm(test_utils.CharmTestCase):
@@ -45,11 +57,16 @@ class TestCharm(test_utils.CharmTestCase):
         "get_local_ip_by_default_route",
         "os",
         "subprocess",
+        "ConsulNotifyRequirer",
     ]
 
     def setUp(self):
         """Setup OpenStack Hypervisor tests."""
         super().setUp(charm, self.PATCHES)
+
+        self.consul_notify_mock = MagicMock()
+        self.ConsulNotifyRequirer.return_value = self.consul_notify_mock
+
         self.harness = test_utils.get_harness(
             _HypervisorOperatorCharm,
             container_calls=self.container_calls,
@@ -215,6 +232,11 @@ class TestCharm(test_utils.CharmTestCase):
             app_data={"ready": "true"},
         )
 
+        self.harness.add_relation(
+            "consul-notify",
+            "consul",
+        )
+
         self.get_local_ip_by_default_route.return_value = "10.0.0.10"
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = False
@@ -361,3 +383,24 @@ class TestCharm(test_utils.CharmTestCase):
         hypervisor_snap_mock.get.return_value = flavors
         action_output = self.harness.run_action("list-flavors")
         assert action_output.results["result"] == flavors
+
+    def test_consul_notify_initialization(self):
+        """Test consul notify requirer initialization."""
+        self.harness.begin()
+
+        self.assertTrue(hasattr(self.harness.charm, "consul_notify"))
+
+        self.assertIsNotNone(self.harness.charm.consul_notify)
+
+    def test_consul_notify_event_handler(self):
+        """Test consul notify event handler."""
+        self.harness.begin()
+
+        event_mock = MagicMock()
+
+        self.harness.charm._on_consul_notify_ready(event_mock)
+
+        self.harness.charm.consul_notify.set_socket_info.assert_called_once_with(
+            snap_name=charm.HYPERVISOR_SNAP_NAME,
+            unix_socket_filepath=charm.EVACUATION_UNIX_SOCKET_FILEPATH,
+        )
