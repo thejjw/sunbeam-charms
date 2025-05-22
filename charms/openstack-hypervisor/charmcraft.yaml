@@ -124,6 +124,8 @@ requires:
 provides:
   cos-agent:
     interface: cos_agent
+  consul-notify:
+    interface: consul-notify
 
 extra-bindings:
   migration: null
