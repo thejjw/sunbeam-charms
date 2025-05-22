@@ -211,6 +211,9 @@ requires:
   masakari-service:
     interface: service-ready
     optional: true
+  consul-notify:
+    interface: consul-notify
+    optional: true
   tracing:
     interface: tracing
     optional: true
