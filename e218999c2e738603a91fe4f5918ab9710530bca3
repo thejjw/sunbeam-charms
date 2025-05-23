@@ -16,6 +16,40 @@
       "message": "Thanks for the contribution\n\nCan you change the library consul_notify so that requirer provides snap name and socket path to the provider. And make openstack-hypervisor as requirer for consul_notify.\n\nCan you have newline after the first line in the commit message. Some examples - https://wiki.openstack.org/wiki/GitCommitMessages\n\nIs snap name setin relation data should be snap-openstack-hypervisor or just openstack-hypervisor?",
       "revId": "e218999c2e738603a91fe4f5918ab9710530bca3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2a6d5fd_77d80767",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-23T02:37:49Z",
+      "side": 1,
+      "message": "Can you also have snap name as constant. This may lead to refer constant in several places that may not be related to this PR.",
+      "revId": "e218999c2e738603a91fe4f5918ab9710530bca3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9b2e86d_1012c57c",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-23T02:37:49Z",
+      "side": 1,
+      "message": "Can you make \u0027data/shutdown.sock\u0027 as a constant",
+      "revId": "e218999c2e738603a91fe4f5918ab9710530bca3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
