@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "344817db_def9ade4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-23T02:35:10Z",
+      "side": 1,
+      "message": "Thanks for the contribution\n\nCan you change the library consul_notify so that requirer provides snap name and socket path to the provider. And make openstack-hypervisor as requirer for consul_notify.\n\nCan you have newline after the first line in the commit message. Some examples - https://wiki.openstack.org/wiki/GitCommitMessages\n\nIs snap name setin relation data should be snap-openstack-hypervisor or just openstack-hypervisor?",
+      "revId": "e218999c2e738603a91fe4f5918ab9710530bca3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
