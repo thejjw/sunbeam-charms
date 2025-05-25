@@ -13,7 +13,7 @@ openstack-images-sync-k8s is deployed using below command:
 
     juju deploy openstack-images-sync-k8s openstack-images-sync
 
-Now connect the openstack images sync operator to existing ingress, 
+Now connect the openstack images sync operator to existing ingress,
 and keystone identity operators:
 
     juju relate keystone:identity-service openstack-images-sync:identity-service

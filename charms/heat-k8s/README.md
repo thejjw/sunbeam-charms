@@ -19,7 +19,7 @@ keystone ops and rabbitmq operators:
     juju relate mysql:database heat:database
     juju relate keystone:identity-service heat:identity-service
     juju relate keystone:identity-ops heat:identity-ops
-    juju relate rabbitmq:amqp heat:amqp 
+    juju relate rabbitmq:amqp heat:amqp
 
 heat-api-cfn is deployed as separate instance of charm using below command:
 

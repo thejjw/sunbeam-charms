@@ -2,7 +2,7 @@
 
 ## Description
 
-masakari-k8s is an operator to manage the Masakari services masakari-api and 
+masakari-k8s is an operator to manage the Masakari services masakari-api and
 masakari-engine in a Kubernetes-based environment.
 
 ## Usage

@@ -76,6 +76,7 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ["sudo", "-u", "placement", "placement-manage", "db", "sync"]
     ]
 
+    # Adding big comment nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnaaaaaaaaaaaaaaaaaaaaa
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""
         return [

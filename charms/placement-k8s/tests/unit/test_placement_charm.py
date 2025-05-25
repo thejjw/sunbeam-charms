@@ -28,6 +28,7 @@ class _PlacementOperatorCharm(charm.PlacementOperatorCharm):
     def __init__(self, framework):
         """Setup event logging."""
         self.seen_events = []
+        # big comment aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
         super().__init__(framework)
 
     def _log_event(self, event):
