@@ -60,7 +60,7 @@ and restarting services. The charm can also query the handler to find the
 state of the container, configuration within the container and the status
 of services within the container.
 
-When a Container handler is initialised the charm passes it a list of 
+When a Container handler is initialised the charm passes it a list of
 `ContainerConfigFile`. These objects instruct the handler which containers
 a configuration file should be pushed to, the path to the configuration file
 and the permission the file should have. The charm instructs the handler to
