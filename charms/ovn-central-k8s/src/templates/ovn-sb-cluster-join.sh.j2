@@ -5,7 +5,7 @@ WRAPPER_LOG=/var/log/ovn/cluster_join_wrapper.log
 function log_msg()
 {
     msg=$1
-    echo "$(date): $msg" >> $WRAPPER_LOG 
+    echo "$(date): $msg" >> $WRAPPER_LOG
 }
 ls -l /var/lib/ovn/{.ovn,ovn}sb* &> /dev/null && { log_msg "Existing DB files found, skipping join"; exit 0; }
 log_msg "No existing DB files present"
