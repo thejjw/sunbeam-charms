@@ -3,6 +3,8 @@
 debug = {{ options.debug }}
 auth_strategy = keystone
 
+api_paste_confg = /etc/masakari/api-paste.ini
+
 {% if amqp.transport_url -%}
 transport_url = {{ amqp.transport_url }}
 {% endif -%}
@@ -40,3 +42,6 @@ wait_period_after_service_update = {{ options.evacuation_delay }}
 
 [host_failure]
 evacuate_all_instances = {{ options.evacuate_all_instances }}
+
+[audit_middleware_notifications]
+driver = log

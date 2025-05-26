@@ -153,6 +153,16 @@ class DesignatePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
                     "designate",
                     0o640,
                 ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/designate/api_audit_map.conf",
+                    "designate",
+                    "designate",
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/designate/api-paste.ini",
+                    "designate",
+                    "designate",
+                ),
             ]
         )
         return _cconfig

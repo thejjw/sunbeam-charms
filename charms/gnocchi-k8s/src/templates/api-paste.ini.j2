@@ -34,8 +34,14 @@ use = egg:Paste#urlmap
 [pipeline:gnocchiv1+noauth]
 pipeline = http_proxy_to_wsgi gnocchiv1
 
+[filter:audit]
+paste.filter_factory = keystonemiddleware.audit:filter_factory
+audit_map_file = /etc/gnocchi/api_audit_map.conf
+service_name = gnocchi
+driver = log
+
 [pipeline:gnocchiv1+keystone]
-pipeline = http_proxy_to_wsgi keystone_authtoken gnocchiv1
+pipeline = http_proxy_to_wsgi keystone_authtoken audit gnocchiv1
 
 [pipeline:gnocchiversions_pipeline]
 pipeline = http_proxy_to_wsgi gnocchiversions

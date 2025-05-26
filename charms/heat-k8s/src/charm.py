@@ -617,6 +617,12 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
+                "/etc/heat/api_audit_map.conf",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
                 "/usr/local/share/ca-certificates/ca-bundle.pem",
                 "root",
                 self.service_group,
@@ -635,6 +641,12 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ),
             sunbeam_core.ContainerConfigFile(
                 "/etc/heat/api-paste-cfn.ini",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/heat/api_audit_map_cfn.conf",
                 self.service_user,
                 self.service_group,
                 0o640,
