@@ -1,0 +1,65 @@
+#! /usr/bin/python3
+
+import sys
+
+import oslo_messaging
+from oslo_config import cfg  # noqa
+from oslo_log import log as logging
+
+LOG = logging.getLogger("keystone_audit_monitor")
+CONF = cfg.CONF
+
+NOTIFICATION_TOPIC = "notifications"
+NOTIFICATION_EXCHANGE = "keystone"
+NOTIFICATION_POOL = "keystone-charm"
+
+
+class NotificationEndpoint(object):
+    filter_rule = oslo_messaging.NotificationFilter(
+        publisher_id='^identity.*')
+
+    def info(self, ctxt, publisher_id, event_type, payload, metadata):
+        self._log_notification(
+            ctxt, "info", publisher_id, event_type, payload, metadata)
+
+    def _log_notification(self, ctxt, priority, publisher_id,
+                          event_type, payload, metadata):
+        LOG.info(
+           "Received %(priority)s notification, "
+           "publisher: %(publisher_id)s, "
+           "event: %(event_type)s, "
+           "payload: %(payload)s, "
+           "metadata: %(metadata)s.",
+           dict(priority=priority,
+                publisher_id=publisher_id,
+                event_type=event_type,
+                payload=payload,
+                metadata=metadata))
+
+
+def run_monitor():
+    LOG.info("Starting Keystone audit monitor")
+
+    transport = oslo_messaging.get_notification_transport(CONF)
+    targets = [
+        oslo_messaging.Target(
+            topic=NOTIFICATION_TOPIC,
+            exchange=NOTIFICATION_EXCHANGE),
+    ]
+    endpoints = [NotificationEndpoint()]
+    pool = NOTIFICATION_POOL
+    server = oslo_messaging.get_notification_listener(transport, targets,
+                                                      endpoints, pool=pool)
+    server.start()
+    server.wait()
+
+
+if __name__ == "__main__":
+    logging.register_options(CONF)
+
+    CONF(sys.argv[1:], project="keystone",
+         default_config_files=["/etc/keystone/keystone.conf"])
+
+    logging.setup(CONF, "keystone_audit_monitor")
+
+    run_monitor()
