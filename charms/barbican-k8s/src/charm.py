@@ -347,6 +347,26 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         )
         return _cadapters
 
+    @property
+    def container_configs(self) -> list[sunbeam_core.ContainerConfigFile]:
+        """Container configuration files for the service."""
+        _cconfigs = super().container_configs
+        _cconfigs.extend(
+            [
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/barbican/api_audit_map.conf",
+                    self.service_user,
+                    self.service_group,
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/barbican/barbican-api-paste.ini",
+                    self.service_user,
+                    self.service_group,
+                ),
+            ]
+        )
+        return _cconfigs
+
     def disable_barbican_config(self):
         """Disable default barbican config."""
         container = self.unit.get_container(BARBICAN_API_CONTAINER)

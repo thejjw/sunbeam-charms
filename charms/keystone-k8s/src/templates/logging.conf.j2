@@ -1,17 +1,17 @@
 [loggers]
-keys=root
+keys=root,keystone_audit_monitor
 
 [formatters]
 keys=normal,normal_with_name,debug,context
 
 [handlers]
-keys=production,devel
+keys=production,devel,keystone_audit_monitor
 
 [logger_root]
 {% if ks_logging.root_level -%}
 level={{ ks_logging.root_level }}
 {% else -%}
-level=WARNING
+level=INFO
 {% endif -%}
 handlers=production
 
@@ -20,8 +20,19 @@ class=StreamHandler
 {% if ks_logging.log_level -%}
 level={{ ks_logging.log_level }}
 {% else -%}
-level=ERROR
+level=INFO
 {% endif -%}
+formatter=context
+args=(sys.stdout,)
+
+[logger_keystone_audit_monitor]
+level=INFO
+handlers=keystone_audit_monitor
+qualname=keystone_audit_monitor
+
+[handler_keystone_audit_monitor]
+class=StreamHandler
+level=INFO
 formatter=context
 args=(sys.stdout,)
 
