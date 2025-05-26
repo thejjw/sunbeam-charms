@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46fe9aed_169d42e5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-26T13:58:31Z",
+      "side": 1,
+      "message": "Can you update unit tests for openstack-hypervisor. Otherwise LGTM",
+      "revId": "319a8825b2a3021f8c10fee264181c3f02765ebf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
