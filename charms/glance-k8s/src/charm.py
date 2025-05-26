@@ -343,6 +343,18 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
+                "/etc/glance/api_audit_map.conf",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/glance/glance-api-paste.ini",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
                 "/usr/local/share/ca-certificates/ca-bundle.pem",
                 self.service_user,
                 self.service_group,
