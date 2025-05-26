@@ -216,6 +216,12 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
+                "/etc/octavia/api_audit_map.conf",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
                 "/usr/local/share/ca-certificates/ca-bundle.pem",
                 "root",
                 self.service_group,
