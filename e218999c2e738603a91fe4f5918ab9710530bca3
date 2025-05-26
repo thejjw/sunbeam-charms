@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e743dfca_50a46d45",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-05-26T11:56:36Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "d2a6d5fd_77d80767",
+      "revId": "e218999c2e738603a91fe4f5918ab9710530bca3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f9b2e86d_1012c57c",
@@ -48,6 +66,24 @@
       "writtenOn": "2025-05-23T02:37:49Z",
       "side": 1,
       "message": "Can you make \u0027data/shutdown.sock\u0027 as a constant",
+      "revId": "e218999c2e738603a91fe4f5918ab9710530bca3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e84aa563_41b4b53c",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-05-26T11:56:36Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "f9b2e86d_1012c57c",
       "revId": "e218999c2e738603a91fe4f5918ab9710530bca3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }

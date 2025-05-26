@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fecd39be_3882fc6d",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-05-26T11:56:36Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "6091fc51_5c8f3cfc",
+      "revId": "4ef05fe696cd2f02b05561ca0e4f6dfdd219a63e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "19e4cbb9_59d4541e",
@@ -48,6 +66,24 @@
       "writtenOn": "2025-05-26T04:50:05Z",
       "side": 1,
       "message": "LIBPATCH should be 1",
+      "revId": "4ef05fe696cd2f02b05561ca0e4f6dfdd219a63e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "55269987_e62efedb",
+        "filename": "libs/external/lib/charms/consul_notify/v0/consul_notify.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-05-26T11:56:36Z",
+      "side": 1,
+      "message": "Resolved",
+      "parentUuid": "19e4cbb9_59d4541e",
       "revId": "4ef05fe696cd2f02b05561ca0e4f6dfdd219a63e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
