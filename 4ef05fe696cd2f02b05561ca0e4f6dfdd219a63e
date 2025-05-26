@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b21b9943_b0447103",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-26T04:19:57Z",
+      "side": 1,
+      "message": "There are couple of more comments that need to be handled, otherwise this looks good",
+      "revId": "4ef05fe696cd2f02b05561ca0e4f6dfdd219a63e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6091fc51_5c8f3cfc",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-05-26T04:19:57Z",
+      "side": 1,
+      "message": "Add `optional: true`",
+      "revId": "4ef05fe696cd2f02b05561ca0e4f6dfdd219a63e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
