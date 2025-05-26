@@ -20,3 +20,6 @@ auth_strategy = keystone
 lock_path = /var/lib/cinder/tmp
 
 {% include "parts/section-oslo-messaging-rabbit" %}
+
+[audit_middleware_notifications]
+driver = log
