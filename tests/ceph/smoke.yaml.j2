@@ -126,6 +126,8 @@ relations:
   - keystone:database
 - - traefik:ingress
   - keystone:ingress-internal
+- - rabbitmq:amqp
+  - keystone:amqp
 
 - - mysql:database
   - cinder:database

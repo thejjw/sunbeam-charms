@@ -93,6 +93,9 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
                 "/etc/cinder/cinder.conf", "root", "cinder", 0o640
             ),
             sunbeam_core.ContainerConfigFile(
+                "/etc/cinder/api_audit_map.conf", "root", "cinder", 0o640
+            ),
+            sunbeam_core.ContainerConfigFile(
                 "/usr/local/share/ca-certificates/ca-bundle.pem",
                 "root",
                 "cinder",
