@@ -31,3 +31,10 @@ ovn_sb_ca_cert = {{ ovn.ovn_ca_cert }}
 {% include "parts/identity-data" %}
 
 {% include "parts/section-identity" %}
+
+[audit]
+enabled = True
+audit_map_file = /etc/octavia/api_audit_map.conf
+
+[audit_middleware_notifications]
+driver = log
