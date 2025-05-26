@@ -1,0 +1,111 @@
+[DEFAULT]
+# default target endpoint type
+# should match the endpoint type defined in service catalog
+target_endpoint_type = network
+
+[custom_actions]
+add_router_interface = update/add
+remove_router_interface = update/remove
+add_allowed_address_pairs = update/add
+remove_allowed_address_pairs = update/remove
+activate = activate
+add_subports = update/add
+remove_subports = update/remove
+get_subports = get/list
+add_extraroutes = update/add
+remove_extraroutes = update/remove
+add_external_gateways = update/add
+update_external_gateways = update
+remove_external_gateways = update/remove
+add_prefixes = update/add
+remove_prefixes = update/remove
+add_addresses = update/add
+remove_addresses = update/remove
+insert_rule = update/add
+remove_rule = update/remove
+add_bgp_peer = update/add
+remove_bgp_peer = update/remove
+add_gateway_network = update/add
+remove_gateway_network = update/remove
+get_advertised_routes = get/list
+bgp-dragents = get/list
+
+
+# possible end path of api requests
+[path_keywords]
+floatingips = ip
+healthmonitors = healthmonitor
+health_monitors = health_monitor
+lb = None
+members = member
+metering-labels = label
+metering-label-rules = rule
+networks = network
+pools = pool
+ports = port
+routers = router
+quotas = quota
+security-groups = security-group
+security-group-rules = rule
+subnets = subnet
+vips = vip
+extensions = extension
+network_segment_ranges = network-segment-range
+bindings = binding
+segments = segment
+trunks = trunk
+address-scopes = address-scope
+conntrack_helpers = conntrack_helper
+port_forwardings = port-forwarding
+ndp_proxies = ndp_proxy
+subnetpools = subnetpool
+local_ips = local_ip
+port_associations = port-association
+address-groups = address-group
+firewall_groups = firewall-groups
+firewall_policies = firewall-policy
+firewall_rules = firewall-rule
+rbac-policies = rbac-policy
+default-security-group-rules = default-security-group-rule
+ikepolicies = ikepolicy
+ipsecpolicies = ipsecpolicy
+ipsec-site-connections = ipsec-site-connection
+endpoint-groups = endpoint-group
+vpnservices = vpnservice
+flavors = flavor
+service_profiles = service-profile
+metering-labels = metering-label
+metering-label-rules = metering-label-rule
+network-ip-availabilities = network-ip-availability
+service-providers = service-provider
+tags = tag
+qos/rule-types = qos/rule-type
+qos/policies = qos/policy
+bandwidth_limit_rules = bandwidth_limit_rule
+dscp_marking_rules = dscp_marking_rule
+minimum_bandwidth_rules = minimum_bandwidth_rule
+minimum_packet_rate_rules = minimum_packet_rate_rule
+packet_rate_limit_rules = packet_rate_limit_rule
+alias_bandwidth_limit_rules = alias_bandwidth_limit_rule
+alias_minimum_packet_rate_rules = alias_minimum_packet_rate_rule
+logging_resources = logging_resource
+firewall_logs = firewall_log
+bgpvpns = bgpvpn
+network_associations = network_association
+router_associations = router_association
+port_associations = port_association
+bgp-speakers = bgp-speaker
+dhcp-agents = dhcp-agent
+auto-allocated-topology = auto-allocated-topology
+tap_services = tap-service
+tap_flows = tap-flow
+tap_mirrors = tap-mirror
+port_chains = port-chain
+port_pair_groups = port-pair-group
+port_pairs = port-pairs
+flow_classifiers = flow-classifier
+service_graphs = service-graph
+
+# map endpoint type defined in service catalog to CADF typeURI
+[service_endpoints]
+network = service/network
