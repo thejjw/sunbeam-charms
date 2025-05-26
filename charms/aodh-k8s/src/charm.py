@@ -288,6 +288,36 @@ class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Healthcheck path for ingress relation."""
         return "/healthcheck"
 
+    @property
+    def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
+        """Container configurations files."""
+        return [
+            sunbeam_core.ContainerConfigFile(
+                "/etc/aodh/aodh.conf",
+                "root",
+                "aodh",
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/aodh/api-paste.ini",
+                "root",
+                "aodh",
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/aodh/api_audit_map.conf",
+                "root",
+                "aodh",
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
+                "aodh",
+                0o640,
+            ),
+        ]
+
     def get_pebble_handlers(
         self,
     ) -> List[sunbeam_chandlers.ServicePebbleHandler]:

@@ -64,3 +64,6 @@ region_name = {{ options.region }}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
 ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
 {% endif -%}
+
+[audit_middleware_notifications]
+driver = log
