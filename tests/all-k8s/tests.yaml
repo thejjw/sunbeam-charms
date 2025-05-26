@@ -11,6 +11,19 @@ configure:
 tests:
   - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneMinimalNewRBAC
   - zaza.sunbeam.charm_tests.openstack_images_sync_k8s.tests.OpenStackImagesSyncK8sTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.AodhAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.BarbicanAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.CinderAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.DesignateAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.GlanceAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.HeatAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.KeystoneAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.MagnumAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.MasakariAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.NeutronAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.NovaAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.OctaviaAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.WatcherAPIAuditTest
 tests_options:
   trust:
     - smoke
