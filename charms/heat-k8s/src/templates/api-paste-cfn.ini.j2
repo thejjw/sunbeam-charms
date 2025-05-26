@@ -70,14 +70,14 @@ paste.composite_factory = heat.api:root_app_factory
 
 [composite:api]
 paste.composite_factory = heat.api:pipeline_factory
-default = cors request_id faultwrap http_proxy_to_wsgi versionnegotiation authurl authtoken context osprofiler apiv1app
+default = cors request_id faultwrap http_proxy_to_wsgi versionnegotiation authurl authtoken context osprofiler audit apiv1app
 standalone = cors request_id faultwrap http_proxy_to_wsgi versionnegotiation authurl authpassword context apiv1app
 custombackend = cors request_id context faultwrap versionnegotiation custombackendauth apiv1app
 noauth = cors request_id faultwrap noauth context http_proxy_to_wsgi versionnegotiation apiv1app
 
 [composite:api-cfn]
 paste.composite_factory = heat.api:pipeline_factory
-default = cors request_id http_proxy_to_wsgi cfnversionnegotiation ec2authtoken authtoken context osprofiler apicfnv1app
+default = cors request_id http_proxy_to_wsgi cfnversionnegotiation ec2authtoken authtoken context osprofiler audit apicfnv1app
 standalone = cors request_id http_proxy_to_wsgi cfnversionnegotiation ec2authtoken context apicfnv1app
 
 [app:apiv1app]
@@ -90,6 +90,11 @@ heat.app_factory = heat.api.cfn.v1:API
 
 [app:healthcheck]
 paste.app_factory = oslo_middleware:Healthcheck.app_factory
+
+[filter:audit]
+paste.filter_factory = keystonemiddleware.audit:filter_factory
+audit_map_file = /etc/heat/api_audit_map_cfn.conf
+service_name = heat
 
 [filter:versionnegotiation]
 paste.filter_factory = heat.common.wsgi:filter_factory
