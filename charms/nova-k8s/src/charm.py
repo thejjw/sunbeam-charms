@@ -567,6 +567,18 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
+                "/etc/nova/api_audit_map.conf",
+                "root",
+                "nova",
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/nova/api-paste.ini",
+                "root",
+                "nova",
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
                 "/usr/local/share/ca-certificates/ca-bundle.pem",
                 "root",
                 "nova",
