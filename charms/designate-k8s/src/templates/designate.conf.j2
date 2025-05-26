@@ -2,6 +2,7 @@
 debug = {{ options.debug }}
 lock_path = /var/lock/designate
 state_path = /var/lib/designate
+api_paste_confg = /etc/designate/api-paste.ini
 
 transport_url = {{ amqp.transport_url }}
 
@@ -24,3 +25,6 @@ enabled = True
 {% include "parts/database-connection-settings" %}
 
 {% include "parts/section-oslo-messaging-rabbit" %}
+
+[audit_middleware_notifications]
+driver = log

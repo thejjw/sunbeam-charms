@@ -16,8 +16,8 @@ Listen {{ wsgi_config.public_port }}
       ErrorLogFormat "%{cu}t %M"
     </IfVersion>
 
-    ErrorLog /var/log/apache2/masakari_error.log
-    CustomLog /var/log/apache2/masakari_access.log combined
+    ErrorLog {{ wsgi_config.error_log }}
+    CustomLog {{ wsgi_config.custom_log }} combined
 
     <Directory /usr/bin>
         <IfVersion >= 2.4>
