@@ -228,6 +228,11 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                     "magnum",
                 ),
                 sunbeam_core.ContainerConfigFile(
+                    "/etc/magnum/api_audit_map.conf",
+                    "magnum",
+                    "magnum",
+                ),
+                sunbeam_core.ContainerConfigFile(
                     "/etc/magnum/keystone_auth_default_policy.json",
                     "magnum",
                     "magnum",

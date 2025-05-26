@@ -297,6 +297,18 @@ class MasakariOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                     group=self.service_group,
                     permissions=0o640,
                 ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/masakari/api_audit_map.conf",
+                    self.service_user,
+                    self.service_group,
+                    permissions=0o640,
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/masakari/api-paste.ini",
+                    self.service_user,
+                    self.service_group,
+                    permissions=0o640,
+                ),
             ]
         )
         return _cconfigs

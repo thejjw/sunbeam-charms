@@ -111,6 +111,12 @@ class GnocchiWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
                     self.charm.service_group,
                     0o640,
                 ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/gnocchi/api_audit_map.conf",
+                    self.charm.service_user,
+                    self.charm.service_group,
+                    0o640,
+                ),
             ]
         )
         _cconfigs.extend(self.charm.default_container_configs())

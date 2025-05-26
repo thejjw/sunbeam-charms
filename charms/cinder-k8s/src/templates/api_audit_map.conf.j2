@@ -1,0 +1,55 @@
+[DEFAULT]
+# Default target endpoint type,
+# should match the endpoint type defined in service catalog.
+# Possible values: cinderv3, block-storage.
+target_endpoint_type = block-storage
+
+# map urls ending with specific text to a unique action
+[custom_actions]
+associate = update/associate
+disassociate = update/disassociate
+disassociate_all = update/disassociate_all
+associations = read/list/associations
+backups/import_record = import_backup
+restore = restore
+export_record = export
+accept = accept-transfer
+cleanup = cleanup
+
+# possible end path of api requests
+[path_keywords]
+defaults = None
+detail = None
+limits = None
+os-quota-specs = project
+os-quota-sets = quota-set
+os-quota-class-sets = quota-class
+qos-specs = qos-spec
+snapshots = snapshot
+types = type
+volumes = volume
+default-types = default-type
+manageable_volumes = manageable-volume
+manageable_snapshots = manageable-snapshot
+attachments = attachment
+os-availability-zone = availability-zone
+scheduler-stats = scheduler-stats
+os-volume-transfers = volume-transfer
+volume-transfers = volume-transfer
+backups = backup
+encryption = volume-encryption
+os-services = service
+consistencygroups = consistency-group
+clusters = cluster
+groups = group
+group_snapshots = group_snapshot
+group_specs = group_specs
+messages = message
+os-hosts = host
+resource_filters = resource_filter
+workers = worker
+
+# map endpoint type defined in service catalog to CADF typeURI
+[service_endpoints]
+volume = service/storage/block
+volumev2 = service/storage/block
