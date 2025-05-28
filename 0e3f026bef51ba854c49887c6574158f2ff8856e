@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "924f362d_269431cb",
+        "filename": "charms/cinder-k8s/src/templates/api_audit_map.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-05-28T12:28:29Z",
+      "side": 1,
+      "message": "TODO: define \"target_endpoint_type\". The default maps set this to \"None\", however that won\u0027t work when the url doesn\u0027t contain a tcp port: https://github.com/openstack/keystonemiddleware/commit/782729b6e98c1d2857c7e4f24bb69219e43c108f\n\nTo ensure that the event gets properly populated (i.e. avoid `\"target\": {\"id\": \"unknown\", \"typeURI\": \"unknown\", \"name\": \"unknown\"}`, we\u0027ll need to set the endpoint type.",
+      "revId": "0e3f026bef51ba854c49887c6574158f2ff8856e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "11b6e7ab_2dc8c562",
         "filename": "charms/glance-k8s/src/templates/api_audit_map.conf.j2",
         "patchSetId": 1
