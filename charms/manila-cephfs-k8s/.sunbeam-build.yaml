@@ -7,6 +7,7 @@ external-libraries:
   - charms.tempo_k8s.v1.charm_tracing
 internal-libraries:
   - charms.keystone_k8s.v0.identity_credentials
+  - charms.manila_k8s.v0.manila
 templates:
   - parts/section-database
   - parts/database-connection
