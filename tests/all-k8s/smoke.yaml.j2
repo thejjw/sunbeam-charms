@@ -254,6 +254,20 @@ applications:
     resources:
       magnum-api-image: ghcr.io/canonical/magnum-consolidated:2024.1
       magnum-conductor-image: ghcr.io/canonical/magnum-consolidated:2024.1
+  # Shared filesystems feature
+  manila:
+    {% if manila_k8s is defined and manila_k8s is sameas true -%}
+    charm: ../../../manila-k8s.charm
+    {% else -%}
+    charm: ch:manila-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: false
+    resources:
+      manila-api-image: ghcr.io/canonical/manila-consolidated:2024.1
+      manila-scheduler-image: ghcr.io/canonical/manila-consolidated:2024.1
   # Telemetry feature
   gnocchi:
     {% if gnocchi_k8s is defined and gnocchi_k8s is sameas true -%}
@@ -509,6 +523,15 @@ relations:
   - magnum:ingress-internal
 - - keystone:send-ca-cert
   - magnum:receive-ca-cert
+
+- - mysql:database
+  - manila:database
+- - rabbitmq:amqp
+  - manila:amqp
+- - keystone:identity-service
+  - manila:identity-service
+- - traefik:ingress
+  - manila:ingress-internal
 
 - - mysql:database
   - cinder:database
