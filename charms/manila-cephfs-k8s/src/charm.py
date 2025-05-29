@@ -27,6 +27,7 @@ from typing import (
 )
 
 import charms.ceph_nfs_client.v0.ceph_nfs_client as ceph_nfs_client
+import charms.manila_k8s.v0.manila as manila_k8s
 import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
@@ -39,6 +40,8 @@ logger = logging.getLogger(__name__)
 
 MANILA_SHARE_CONTAINER = "manila-share"
 CEPH_NFS_RELATION_NAME = "ceph-nfs"
+MANILA_RELATION_NAME = "manila"
+SHARE_PROTOCOL_NFS = "NFS"
 
 
 @sunbeam_tracing.trace_type
@@ -140,6 +143,54 @@ class ManilaSharePebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         }
 
 
+@sunbeam_tracing.trace_type
+class ManilaProvidesHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for manila relation."""
+
+    interface: "manila_k8s.ManilaProvides"
+
+    def setup_event_handler(self):
+        """Configure event handlers for manila service relation."""
+        logger.debug("Setting up manila event handler")
+        handler = sunbeam_tracing.trace_type(manila_k8s.ManilaProvides)(
+            self.charm,
+            self.relation_name,
+        )
+
+        self.framework.observe(
+            handler.on.manila_connected,
+            self._on_manila_connected,
+        )
+        self.framework.observe(
+            handler.on.manila_goneaway,
+            self._on_manila_goneaway,
+        )
+
+        return handler
+
+    def _on_manila_connected(
+        self, event: manila_k8s.ManilaConnectedEvent
+    ) -> None:
+        """Handle ManilaConnectedEvent event."""
+        self.callback_f(event)
+
+    def _on_manila_goneaway(
+        self, event: manila_k8s.ManilaGoneAwayEvent
+    ) -> None:
+        """Handle ManilaGoneAwayEvent event."""
+        pass
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        # This relation is not ready if there is no ceph-nfs relation.
+        relation = self.model.get_relation(CEPH_NFS_RELATION_NAME)
+        if not relation or not relation.data[relation.app].get("client"):
+            return False
+
+        return True
+
+
 @sunbeam_tracing.trace_sunbeam_charm
 class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
@@ -160,11 +211,30 @@ class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             )
             handlers.append(self.ceph_nfs)
 
+        if self.can_add_handler(MANILA_RELATION_NAME, handlers):
+            self.manila_handler = ManilaProvidesHandler(
+                self,
+                MANILA_RELATION_NAME,
+                self.handle_manila,
+            )
+            handlers.append(self.manila_handler)
+
         return handlers
 
     def handle_ceph_nfs(self, event: ops.framework.EventBase) -> None:
         """Handle the ceph-nfs relation changes."""
         self.configure_charm(event)
+        self.handle_manila(event)
+
+    def handle_manila(self, event: ops.framework.EventBase) -> None:
+        """Handle the manila relation data."""
+        if self.ceph_nfs.ready:
+            self.manila_handler.interface.update_share_protocol(
+                SHARE_PROTOCOL_NFS
+            )
+        else:
+            # ceph-nfs relation not ready, remove relation data, if set.
+            self.manila_handler.interface.update_share_protocol(None)
 
     @property
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
