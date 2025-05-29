@@ -21,6 +21,7 @@ This charm provides Manila services as part of an OpenStack deployment.
 
 import logging
 from typing import (
+    Callable,
     Dict,
     List,
     Mapping,
@@ -28,15 +29,37 @@ from typing import (
 
 import ops
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+
+import charms.manila_k8s.v0.manila as manila_k8s
 
 logger = logging.getLogger(__name__)
 
 MANILA_API_PORT = 8786
 MANILA_API_CONTAINER = "manila-api"
 MANILA_SCHEDULER_CONTAINER = "manila-scheduler"
+MANILA_RELATION_NAME = "manila"
+
+
+@sunbeam_tracing.trace_type
+class ManilaConfigurationContext(sunbeam_ctxts.ConfigContext):
+    """Configuration context to set manila parameters."""
+
+    def context(self) -> dict:
+        """Generate configuration information for manila config."""
+        share_protocols = self.charm.get_share_protocols()
+        if not share_protocols:
+            share_protocols = ["NFS", "CIFS"]
+
+        ctxt = {
+            "enabled_share_protocols": ",".join(share_protocols),
+        }
+
+        return ctxt
 
 
 @sunbeam_tracing.trace_type
@@ -81,6 +104,69 @@ class ManilaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 0o640,
             ),
         ]
+
+
+@sunbeam_tracing.trace_type
+class ManilaRequiresHandler(sunbeam_rhandlers.RelationHandler):
+    """Handles the manila relation on the requires side."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        region: str,
+        callback_f: Callable,
+        mandatory: bool = False,
+    ):
+        """Constructor for ManilaRequiresHandler.
+
+        Creates a new ManilaRequiresHandler that handles initial
+        events from the relation and invokes the provided callbacks based on
+        the event raised.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param region: the region the manila services are configured for
+        :type region: str
+        :param callback_f: the function to call when the nodes are connected
+        :type callback_f: Callable
+        :param mandatory: flag to determine if relation handler is mandatory
+        :type mandatory: bool
+        """
+        super().__init__(charm, relation_name, callback_f, mandatory)
+        self.region = region
+
+    def setup_event_handler(self):
+        """Configure event handlers for the manila service relation."""
+        logger.debug("Setting up manila event handler")
+        manila_handler = sunbeam_tracing.trace_type(manila_k8s.ManilaRequires)(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            manila_handler.on.manila_connected,
+            self._manila_connected,
+        )
+        self.framework.observe(
+            manila_handler.on.manila_goneaway,
+            self._manila_goneaway,
+        )
+        return manila_handler
+
+    def _manila_connected(self, event) -> None:
+        """Handles manila connected events."""
+        self.callback_f(event)
+
+    def _manila_goneaway(self, event) -> None:
+        """Handles manila goneaway events."""
+        pass
+
+    @property
+    def ready(self) -> bool:
+        """Interface ready for use."""
+        return True
 
 
 @sunbeam_tracing.trace_sunbeam_charm
@@ -178,6 +264,29 @@ class ManilaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ]
         return pebble_handlers
 
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the operator."""
+        handlers = super().get_relation_handlers(handlers or [])
+        if self.can_add_handler(MANILA_RELATION_NAME, handlers):
+            self.manila_share = ManilaRequiresHandler(
+                self,
+                MANILA_RELATION_NAME,
+                self.model.config["region"],
+                self.configure_charm,
+            )
+            handlers.append(self.manila_share)
+
+        return handlers
+
+    @property
+    def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
+        """Configuration contexts for the operator."""
+        contexts = super().config_contexts
+        contexts.append(ManilaConfigurationContext(self, "manila_config"))
+        return contexts
+
     @property
     def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
         """Container configuration files for the service."""
@@ -205,6 +314,15 @@ class ManilaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def db_sync_container_name(self) -> str:
         """Name of Container to run db sync from."""
         return MANILA_SCHEDULER_CONTAINER
+
+    def get_share_protocols(self) -> List[str]:
+        protocols = set()
+        for relation in self.framework.model.relations[MANILA_RELATION_NAME]:
+            app_data = relation.data[relation.app]
+            if manila_k8s.SHARE_PROTOCOL in app_data:
+                protocols.add(app_data[manila_k8s.SHARE_PROTOCOL])
+
+        return list(protocols)
 
 
 if __name__ == "__main__":  # pragma: nocover

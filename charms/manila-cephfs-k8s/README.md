@@ -23,6 +23,7 @@ keystone identity, and manila operators:
     juju relate rabbitmq:amqp manila-cephfs:amqp
     juju relate keystone:identity-credentials manila-cephfs:identity-credentials
     juju relate manila-cephfs:ceph-nfs admin/openstack-machines.microceph-ceph-nfs
+    juju relate manila:manila manila-cephfs:manila
 
 ### Configuration
 
@@ -51,6 +52,10 @@ The following relations are optional:
 
 - `logging`: To send logs to Loki.
 - `tracing`: To connect to a tracing backend.
+
+The charm provides the following relation:
+
+- `manila`: To provide Manila with the CEPHFS storage backend.
 
 ## OCI Images
 

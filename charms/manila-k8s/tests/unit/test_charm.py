@@ -22,6 +22,8 @@ from ops.testing import (
     Harness,
 )
 
+import charms.manila_k8s.v0.manila as manila_k8s
+
 
 class _ManilaOperatorCharm(charm.ManilaOperatorCharm):
     """Test implementation of Manila operator."""
@@ -91,6 +93,23 @@ class TestManilaOperatorCharm(test_utils.CharmTestCase):
         )
         return rel_id
 
+    def add_manila_relation(self, harness: Harness) -> int:
+        return harness.add_relation(
+            "manila",
+            "manila-cephfs",
+            app_data={manila_k8s.SHARE_PROTOCOL: "foo"},
+        )
+
+    def _check_file_contents(self, container, path, strings=None):
+        strings = strings or []
+        client = self.harness.charm.unit.get_container(container)._pebble  # type: ignore
+
+        with client.pull(path) as infile:
+            received_data = infile.read()
+
+        for string in strings:
+            self.assertIn(string, received_data)
+
     def test_pebble_ready_handler(self):
         """Test pebble ready event handling."""
         self.assertEqual(self.harness.charm.seen_events, [])
@@ -134,3 +153,32 @@ class TestManilaOperatorCharm(test_utils.CharmTestCase):
         ]
         for f in config_files:
             self.check_file("manila-scheduler", f)
+
+        # We haven't added the manila relation yet, so the manila.conf field
+        # enabled_share_protocols should have its default value.
+        for container_name in ["manila-api", "manila-scheduler"]:
+           self._check_file_contents(
+                container_name,
+                "/etc/manila/manila.conf",
+                ["enabled_share_protocols = NFS,CIFS"],
+            )
+
+        # Add the manila relation, and the field should be updated.
+        manila_rel_id = self.add_manila_relation(self.harness)
+
+        for container_name in ["manila-api", "manila-scheduler"]:
+           self._check_file_contents(
+                container_name,
+                "/etc/manila/manila.conf",
+                ["enabled_share_protocols = foo"],
+            )
+
+        # The field should revert back to normal if we remove the relation.
+        self.harness.remove_relation(manila_rel_id)
+
+        for container_name in ["manila-api", "manila-scheduler"]:
+           self._check_file_contents(
+                container_name,
+                "/etc/manila/manila.conf",
+                ["enabled_share_protocols = NFS,CIFS"],
+            )
