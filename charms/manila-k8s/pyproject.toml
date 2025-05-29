@@ -1,0 +1,17 @@
+# Copyright 2025 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+[project]
+name = "manila-k8s"
+version = "2024.1"
+requires-python = "~=3.12.0"
+
+dependencies = [
+    "jinja2",
+    "jsonschema",
+    "pydantic",
+    "ops",
+    "interface_tls_certificates@git+https://opendev.org/openstack/charm-ops-interface-tls-certificates",
+    "tenacity", # From ops_sunbeam
+    "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
+]

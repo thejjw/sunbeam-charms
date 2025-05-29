@@ -251,6 +251,18 @@
     vars:
       charm: magnum-k8s
 - job:
+    name: charm-build-manila-k8s
+    description: Build sunbeam manila-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/manila-k8s/
+      - rebuild
+    vars:
+      charm: manila-k8s
+- job:
     name: charm-build-designate-k8s
     description: Build sunbeam designate-k8s charm
     run: playbooks/charm/build.yaml
@@ -1132,6 +1144,8 @@
         soft: true
       - name: charm-build-magnum-k8s
         soft: true
+      - name: charm-build-manila-k8s
+        soft: true
       - name: charm-build-designate-k8s
         soft: true
       - name: charm-build-designate-bind-k8s
@@ -1164,6 +1178,7 @@
       - charms/octavia-k8s/
       - charms/barbican-k8s/
       - charms/magnum-k8s/
+      - charms/manila-k8s/
       - charms/designate-k8s/
       - charms/designate-bind-k8s/
       - charms/keystone-ldap-k8s/
@@ -1193,6 +1208,7 @@
         - charm-build-octavia-k8s
         - charm-build-barbican-k8s
         - charm-build-magnum-k8s
+        - charm-build-manila-k8s
         - charm-build-designate-k8s
         - charm-build-designate-bind-k8s
         - charm-build-keystone-ldap-k8s

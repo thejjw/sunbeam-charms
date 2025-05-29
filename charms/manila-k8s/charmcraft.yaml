@@ -1,0 +1,106 @@
+type: charm
+title: OpenStack manila service
+name: manila-k8s
+summary: OpenStack shared filesystems service
+description: |
+  manila-k8s is a charm for the OpenStack Manila service, which
+  provides Shared Filesystems as a service.
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source: https://opendev.org/openstack/sunbeam-charms
+  issues: https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+    region:
+      default: RegionOne
+      description: Name of the OpenStack region
+      type: string
+
+containers:
+  manila-api:
+    resource: manila-api-image
+  manila-scheduler:
+    resource: manila-scheduler-image
+
+resources:
+  manila-api-image:
+    type: oci-image
+    description: OCI image for OpenStack Manila API
+    upstream-source: ghcr.io/canonical/manila-api:2024.1
+  manila-scheduler-image:
+    type: oci-image
+    description: OCI image for OpenStack Manila Scheduler
+    upstream-source: ghcr.io/canonical/manila-scheduler:2024.1
+
+requires:
+  amqp:
+    interface: rabbitmq
+    limit: 1
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-service:
+    interface: keystone
+    limit: 1
+  ingress-internal:
+    interface: ingress
+    limit: 1
+  ingress-public:
+    interface: ingress
+    optional: true
+    limit: 1
+  logging:
+    interface: loki_push_api
+    optional: true
+    limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+peers:
+  peers:
+    interface: manila-peer
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - rustc-1.80
+      - cargo-1.80
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]

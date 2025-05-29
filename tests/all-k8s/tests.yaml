@@ -102,6 +102,9 @@ target_deploy_status:
   magnum:
     workload-status: active
     workload-status-message-regex: '^$'
+  manila:
+    workload-status: active
+    workload-status-message-regex: '^$'
   cinder:
     workload-status: active
     workload-status-message-regex: '^$'
