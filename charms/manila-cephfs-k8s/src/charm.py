@@ -36,11 +36,14 @@ import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 
 import charms.manila_cephfs_k8s.v0.cephfs as cephfs
+import charms.manila_k8s.v0.manila as manila_k8s
 
 logger = logging.getLogger(__name__)
 
 MANILA_SHARE_CONTAINER = "manila-share"
 CEPH_NFS_RELATION_NAME = "ceph-nfs"
+MANILA_RELATION_NAME = "manila"
+SHARE_PROTOCOL_CEPHFS = "CEPHFS"
 
 
 @sunbeam_tracing.trace_type
@@ -134,6 +137,48 @@ class ManilaSharePebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         }
 
 
+@sunbeam_tracing.trace_type
+class ManilaProvidesHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for manila relation."""
+
+    def setup_event_handler(self):
+        """Configure event handlers for manila service relation."""
+        logger.debug("Setting up manila event handler")
+        handler = sunbeam_tracing.trace_type(manila_k8s.ManilaProvides)(
+            self.charm,
+            self.relation_name,
+            SHARE_PROTOCOL_CEPHFS,
+        )
+
+        self.framework.observe(
+            handler.on.manila_connected,
+            self._on_manila_connected,
+        )
+        self.framework.observe(
+            handler.on.manila_goneaway,
+            self._on_manila_goneaway,
+        )
+
+        return handler
+
+    def _on_manila_connected(
+        self, event: manila_k8s.ManilaConnectedEvent
+    ) -> None:
+        """Handle ManilaConnectedEvent event."""
+        self.callback_f(event)
+
+    def _on_manila_goneaway(
+        self, event: manila_k8s.ManilaGoneAwayEvent
+    ) -> None:
+        """Handle ManilaGoneAwayEvent event."""
+        pass
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return True
+
+
 @sunbeam_tracing.trace_sunbeam_charm
 class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
@@ -150,15 +195,39 @@ class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             self.ceph_nfs = CephNfsRequiresHandler(
                 self,
                 CEPH_NFS_RELATION_NAME,
-                self.configure_charm,
+                self.handle_ceph_nfs,
             )
             handlers.append(self.ceph_nfs)
 
+        if self.can_add_handler(MANILA_RELATION_NAME, handlers):
+            self.manila_handler = ManilaProvidesHandler(
+                self,
+                MANILA_RELATION_NAME,
+                self.handle_manila,
+            )
+            handlers.append(self.manila_handler)
+
         return handlers
 
-    def set_config_from_event(self, event: ops.framework.EventBase) -> None:
-        """Set config in relation data."""
-        pass
+    def handle_ceph_nfs(self, event: ops.framework.EventBase) -> None:
+        """Handle the ceph-nfs relation changes."""
+        self.configure_charm(event)
+        self.handle_manila(event)
+
+    def handle_manila(self, event: ops.framework.EventBase) -> None:
+        """Handle the manila relation data."""
+        manila_rel = self.model.get_relation("manila")
+        if not manila_rel:
+            return
+
+        manila_rel_data = manila_rel.data[self.model.app]
+
+        ceph_nfs_rel = self.model.get_relation("ceph-nfs")
+        if not ceph_nfs_rel:
+            # ceph-nfs relation not set, remove relation data, if set.
+            manila_rel_data.pop(manila_k8s.SHARE_PROTOCOL)
+        else:
+            manila_rel_data[manila_k8s.SHARE_PROTOCOL] = SHARE_PROTOCOL_CEPHFS
 
     @property
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:

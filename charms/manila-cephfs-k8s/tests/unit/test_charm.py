@@ -22,6 +22,8 @@ from ops.testing import (
     Harness,
 )
 
+import charms.manila_k8s.v0.manila as manila_k8s
+
 
 class _ManilaCephfsCharm(charm.ManilaShareCephfsCharm):
     """Test implementation of Manila Share (Cephfs) Operator charm."""
@@ -57,6 +59,24 @@ class TestManilaCephfsCharm(test_utils.CharmTestCase):
         self.harness = test_utils.get_harness(
             _ManilaCephfsCharm, container_calls=self.container_calls
         )
+
+        # clean up events that were dynamically defined,
+        # otherwise we get issues because they'll be redefined,
+        # which is not allowed.
+        from charms.data_platform_libs.v0.data_interfaces import (
+            DatabaseRequiresEvents,
+        )
+
+        for attr in (
+            "database_database_created",
+            "database_endpoints_changed",
+            "database_read_only_endpoints_changed",
+        ):
+            try:
+                delattr(DatabaseRequiresEvents, attr)
+            except AttributeError:
+                pass
+
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
@@ -100,6 +120,14 @@ class TestManilaCephfsCharm(test_utils.CharmTestCase):
 
         # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
+
+        self.harness.add_relation("manila", "manila")
+
+        # The ceph-nfs relation is not set yet, so there should not be any
+        # data here.
+        manila_rel = self.harness.model.get_relation("manila")
+        manila_rel_data = manila_rel.data[self.harness.model.app]
+        self.assertEqual({}, manila_rel_data)
 
         # The files should not contain ceph-related options set if the relation
         # is not present.
@@ -149,6 +177,13 @@ class TestManilaCephfsCharm(test_utils.CharmTestCase):
             manila_strings,
         )
 
+        # After the ceph-nfs relation has been established, the charm should
+        # set the manila relation data.
+        self.assertEqual(
+            charm.SHARE_PROTOCOL_CEPHFS,
+            manila_rel_data.get(manila_k8s.SHARE_PROTOCOL),
+        )
+
         # Remove the ceph-nfs relation, the config files should no longer have
         # the ceph-related options from above.
         self.harness.remove_relation(ceph_rel_id)
@@ -168,3 +203,7 @@ class TestManilaCephfsCharm(test_utils.CharmTestCase):
             "/etc/manila/manila.conf",
             excluded_strings=manila_strings,
         )
+
+        # Because the ceph-nfs relation has been removed, the manila relation
+        # data should be cleared.
+        self.assertEqual({}, manila_rel_data)
