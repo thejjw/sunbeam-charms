@@ -104,8 +104,8 @@ target_deploy_status:
     workload-status: blocked
     workload-status-message-regex: '^.*Configuration parameter kubeconfig not set$'
   manila:
-    workload-status: active
-    workload-status-message-regex: '^$'
+    workload-status: waiting
+    workload-status-message-regex: '^.*Not all relations are ready$'
   manila-cephfs:
     workload-status: waiting
     workload-status-message-regex: '^.*Not all relations are ready$'

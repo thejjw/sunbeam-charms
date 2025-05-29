@@ -11,6 +11,9 @@ debug = {{ options.debug }}
 transport_url = {{ amqp.transport_url }}
 auth_strategy = keystone
 
+# enabled_share_protocols = NFS,CIFS
+enabled_share_protocols = {{ manila_config.enabled_share_protocols }}
+
 {% include "parts/section-database" %}
 
 {% include "parts/section-identity" %}

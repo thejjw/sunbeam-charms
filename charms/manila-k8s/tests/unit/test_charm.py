@@ -17,7 +17,11 @@
 """Unit tests for the Manila K8s charm."""
 
 import charm
+import charms.manila_k8s.v0.manila as manila_k8s
 import ops_sunbeam.test_utils as test_utils
+from ops import (
+    model,
+)
 from ops.testing import (
     Harness,
 )
@@ -91,6 +95,23 @@ class TestManilaOperatorCharm(test_utils.CharmTestCase):
         )
         return rel_id
 
+    def add_manila_relation(self) -> int:
+        """Add the manila relation and unit data."""
+        return self.harness.add_relation(
+            "manila",
+            "manila-cephfs",
+            app_data={manila_k8s.SHARE_PROTOCOL: "foo"},
+        )
+
+    def _check_file_contents(self, container, path, strings):
+        client = self.harness.charm.unit.get_container(container)._pebble  # type: ignore
+
+        with client.pull(path) as infile:
+            received_data = infile.read()
+
+        for string in strings:
+            self.assertIn(string, received_data)
+
     def test_pebble_ready_handler(self):
         """Test pebble ready event handling."""
         self.assertEqual(self.harness.charm.seen_events, [])
@@ -105,6 +126,13 @@ class TestManilaOperatorCharm(test_utils.CharmTestCase):
         # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
         test_utils.add_complete_ingress_relation(self.harness)
+
+        # manila is a required relation.
+        manila_share_status = self.harness.charm.manila_share.status
+        self.assertIsInstance(manila_share_status.status, model.BlockedStatus)
+
+        # Add the manila relation.
+        manila_rel_id = self.add_manila_relation()
 
         setup_cmds = [
             ["a2ensite", "wsgi-manila-api"],
@@ -134,3 +162,14 @@ class TestManilaOperatorCharm(test_utils.CharmTestCase):
         ]
         for f in config_files:
             self.check_file("manila-scheduler", f)
+
+        for container_name in ["manila-api", "manila-scheduler"]:
+            self._check_file_contents(
+                container_name,
+                "/etc/manila/manila.conf",
+                ["enabled_share_protocols = foo"],
+            )
+
+        self.harness.remove_relation(manila_rel_id)
+
+        self.assertIsInstance(manila_share_status.status, model.BlockedStatus)
