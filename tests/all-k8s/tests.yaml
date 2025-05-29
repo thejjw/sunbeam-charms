@@ -103,6 +103,9 @@ target_deploy_status:
   magnum:
     workload-status: blocked
     workload-status-message-regex: '^.*Configuration parameter kubeconfig not set$'
+  manila:
+    workload-status: active
+    workload-status-message-regex: '^$'
   cinder:
     workload-status: active
     workload-status-message-regex: '^$'
