@@ -18,6 +18,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "09f87a70_dedacfe1",
+        "filename": "charms/cinder-k8s/src/templates/api_audit_map.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-05-29T12:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "924f362d_269431cb",
+      "revId": "0e3f026bef51ba854c49887c6574158f2ff8856e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "11b6e7ab_2dc8c562",
@@ -31,6 +49,24 @@
       "writtenOn": "2025-05-28T11:34:47Z",
       "side": 1,
       "message": "TODO: remove the executable bit. I created those files over SMB and 755 was the default mode.",
+      "revId": "0e3f026bef51ba854c49887c6574158f2ff8856e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6d473458_73efb303",
+        "filename": "charms/glance-k8s/src/templates/api_audit_map.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-05-29T12:47:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11b6e7ab_2dc8c562",
       "revId": "0e3f026bef51ba854c49887c6574158f2ff8856e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
