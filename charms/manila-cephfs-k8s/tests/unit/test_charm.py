@@ -17,6 +17,7 @@
 """Unit tests for the Manila Share (Cephfs) K8s Operator charm."""
 
 import charm
+import charms.manila_k8s.v0.manila as manila_k8s
 import ops_sunbeam.test_utils as test_utils
 from ops import (
     model,
@@ -58,6 +59,24 @@ class TestManilaCephfsCharm(test_utils.CharmTestCase):
         self.harness = test_utils.get_harness(
             _ManilaCephfsCharm, container_calls=self.container_calls
         )
+
+        # clean up events that were dynamically defined,
+        # otherwise we get issues because they'll be redefined,
+        # which is not allowed.
+        from charms.data_platform_libs.v0.data_interfaces import (
+            DatabaseRequiresEvents,
+        )
+
+        for attr in (
+            "database_database_created",
+            "database_endpoints_changed",
+            "database_read_only_endpoints_changed",
+        ):
+            try:
+                delattr(DatabaseRequiresEvents, attr)
+            except AttributeError:
+                pass
+
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
@@ -129,6 +148,14 @@ class TestManilaCephfsCharm(test_utils.CharmTestCase):
             self._file_exists("manila-share", "/etc/manila/manila.conf")
         )
 
+        self.harness.add_relation("manila", "manila")
+
+        # The ceph-nfs relation is not set yet, so there should not be any
+        # data here.
+        manila_rel = self.harness.model.get_relation("manila")
+        manila_rel_data = manila_rel.data[self.harness.model.app]
+        self.assertEqual({}, manila_rel_data)
+
         ceph_rel_id = self.add_ceph_nfs_client_relation()
 
         # Now that the relation is added, we should have the ceph-related
@@ -165,8 +192,19 @@ class TestManilaCephfsCharm(test_utils.CharmTestCase):
             manila_strings,
         )
 
+        # After the ceph-nfs relation has been established, the charm should
+        # set the manila relation data.
+        self.assertEqual(
+            charm.SHARE_PROTOCOL_NFS,
+            manila_rel_data.get(manila_k8s.SHARE_PROTOCOL),
+        )
+
         # Remove the ceph-nfs relation. The relation handler should be in a
         # BlockedStatus.
         self.harness.remove_relation(ceph_rel_id)
 
         self.assertIsInstance(ceph_nfs_status.status, model.BlockedStatus)
+
+        # Because the ceph-nfs relation has been removed, the manila relation
+        # data should be cleared.
+        self.assertEqual({}, manila_rel_data)

@@ -60,6 +60,10 @@ requires:
     optional: true
     limit: 1
 
+provides:
+  manila:
+    interface: manila-backend
+
 parts:
   update-certificates:
     plugin: nil
