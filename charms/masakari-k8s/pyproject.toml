@@ -11,6 +11,8 @@ dependencies = [
     "jinja2",
     "jsonschema",
     "pydantic",
+    "lightkube",
+    "lightkube-models",
     "ops",
     "pytest-interface-tester",
     "tenacity", # From ops_sunbeam
