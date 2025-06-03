@@ -1,0 +1,10 @@
+###############################################################################
+# [ WARNING ]
+# ceph keyring file maintained by Juju
+# local changes may be overwritten.
+###############################################################################
+
+{% if cephfs_config.cephfs_auth_id -%}
+[client.{{ cephfs_config.cephfs_auth_id }}]
+        key = {{ cephfs_config.client_key }}
+{% endif -%}
