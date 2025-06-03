@@ -1,0 +1,34 @@
+###############################################################################
+# [ WARNING ]
+# manila configuration file maintained by Juju
+# local changes may be overwritten.
+###############################################################################
+[DEFAULT]
+rootwrap_config = /etc/manila/rootwrap.conf
+api_paste_config = /etc/manila/api-paste.ini
+debug = {{ options.debug }}
+transport_url = {{ amqp.transport_url }}
+auth_strategy = keystone
+enabled_share_backends = {{ cephfs_config.share_backend_name | lower }}
+
+{% include "parts/section-database" %}
+
+[keystone_authtoken]
+{% include "parts/identity-data-id-creds" %}
+
+{% include "parts/section-service-credentials-from-identity-service" %}
+
+{% include "parts/section-oslo-messaging-rabbit" %}
+
+[oslo_concurrency]
+lock_path = /var/lib/manila/tmp
+
+[{{ cephfs_config.share_backend_name | lower }}]
+driver_handles_share_servers = {{ cephfs_config.driver_handles_share_servers }}
+share_backend_name = {{ cephfs_config.share_backend_name }}
+share_driver = manila.share.drivers.cephfs.driver.CephFSDriver
+cephfs_conf_path = /etc/ceph/ceph.conf
+cephfs_protocol_helper_type = CEPHFS
+cephfs_auth_id = {{ cephfs_config.cephfs_auth_id }}
+cephfs_cluster_name = {{ cephfs_config.cephfs_cluster_name }}
+cephfs_filesystem_name = {{ cephfs_config.cephfs_filesystem_name }}
