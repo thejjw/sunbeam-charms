@@ -3,7 +3,8 @@
 ## Description
 
 manila-cephfs-k8s is an operator to manage the Manila Share for CephFS services
-on a Kubernetes based environment.
+on a Kubernetes based environment. This operator will allow CEPHFS NFS Manila
+shares to be created (`storage_protocol=NFS`).
 
 ## Usage
 
@@ -22,6 +23,7 @@ keystone identity, and manila operators:
     juju relate manila-mysql-router:database manila-cephfs:database
     juju relate rabbitmq:amqp manila-cephfs:amqp
     juju relate keystone:identity-credentials manila-cephfs:identity-credentials
+    juju relate manila-cephfs:ceph-nfs admin/openstack-machines.microceph-ceph-nfs
 
 ### Configuration
 
@@ -42,6 +44,7 @@ not deployed then see file `actions.yaml`.
 manila-cephfs-k8s requires the following relations:
 
 - `amqp`: To connect to RabbitMQ.
+- `ceph-nfs`: To connect to the Ceph Cluster.
 - `database`: To connect to MySQL.
 - `identity-credentials`: To connect to Keystone.
 
