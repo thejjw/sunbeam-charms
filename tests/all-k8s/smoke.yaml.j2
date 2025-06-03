@@ -268,6 +268,18 @@ applications:
     resources:
       manila-api-image: ghcr.io/canonical/manila-consolidated:2024.1
       manila-scheduler-image: ghcr.io/canonical/manila-consolidated:2024.1
+  manila-cephfs:
+    {% if manila_cephfs_k8s is defined and manila_cephfs_k8s is sameas true -%}
+    charm: ../../../manila-cephfs-k8s.charm
+    {% else -%}
+    charm: ch:manila-cephfs-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: false
+    resources:
+      manila-share-image: ghcr.io/canonical/manila-share:2024.1
   # Telemetry feature
   gnocchi:
     {% if gnocchi_k8s is defined and gnocchi_k8s is sameas true -%}
@@ -532,6 +544,13 @@ relations:
   - manila:identity-service
 - - traefik:ingress
   - manila:ingress-internal
+
+- - mysql:database
+  - manila-cephfs:database
+- - rabbitmq:amqp
+  - manila-cephfs:amqp
+- - keystone:identity-credentials
+  - manila-cephfs:identity-credentials
 
 - - mysql:database
   - cinder:database

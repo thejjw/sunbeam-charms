@@ -1,0 +1,24 @@
+###############################################################################
+# [ WARNING ]
+# manila configuration file maintained by Juju
+# local changes may be overwritten.
+###############################################################################
+
+[DEFAULT]
+rootwrap_config = /etc/manila/rootwrap.conf
+api_paste_config = /etc/manila/api-paste.ini
+debug = {{ options.debug }}
+transport_url = {{ amqp.transport_url }}
+auth_strategy = keystone
+
+{% include "parts/section-database" %}
+
+[keystone_authtoken]
+{% include "parts/identity-data-id-creds" %}
+
+{% include "parts/section-service-credentials-from-identity-service" %}
+
+{% include "parts/section-oslo-messaging-rabbit" %}
+
+[oslo_concurrency]
+lock_path = /var/lib/manila/tmp
