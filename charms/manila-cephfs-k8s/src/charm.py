@@ -19,12 +19,15 @@
 This charm provides Cephfs-based Manila Share capabilities for OpenStack.
 """
 
+import json
 import logging
 from typing import (
+    Callable,
     List,
     Mapping,
 )
 
+import charms.manila_cephfs_k8s.v0.cephfs as cephfs
 import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
@@ -36,6 +39,73 @@ import ops_sunbeam.tracing as sunbeam_tracing
 logger = logging.getLogger(__name__)
 
 MANILA_SHARE_CONTAINER = "manila-share"
+CEPH_NFS_RELATION_NAME = "ceph-nfs"
+
+
+@sunbeam_tracing.trace_type
+class CephfsConfigurationContext(sunbeam_ctxts.ConfigContext):
+    """Configuration context to set cephfs parameters."""
+
+    def context(self) -> dict:
+        """Generate configuration information for cephfs config."""
+        ctxt = self.charm.get_cephfs_config()
+        return ctxt
+
+
+@sunbeam_tracing.trace_type
+class CephNfsRequiresHandler(sunbeam_rhandlers.RelationHandler):
+    """Handles the ceph-nfs relation on the requires side."""
+
+    def __init__(
+        self,
+        charm: ops.charm.CharmBase,
+        relation_name: str,
+        callback_f: Callable,
+    ):
+        """Constructor for CephNfsRequiresHandler.
+
+        Creates a new CephNfsRequiresHandler that handles initial
+        events from the relation and invokes the provided callbacks based on
+        the event raised.
+
+        :param charm: the Charm class the handler is for
+        :type charm: ops.charm.CharmBase
+        :param relation_name: the relation the handler is bound to
+        :type relation_name: str
+        :param callback_f: the function to call when the nodes are connected
+        :type callback_f: Callable
+        """
+        super().__init__(charm, relation_name, callback_f, mandatory=True)
+
+    def setup_event_handler(self):
+        """Configure event handlers for the cephfs relation."""
+        logger.debug("Setting up ceph-nfs event handler")
+        ceph_nfs_handler = sunbeam_tracing.trace_type(cephfs.CephNfsRequires)(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            ceph_nfs_handler.on.ceph_nfs_connected,
+            self._ceph_nfs_connected,
+        )
+        self.framework.observe(
+            ceph_nfs_handler.on.ceph_nfs_goneaway,
+            self._ceph_nfs_goneaway,
+        )
+        return ceph_nfs_handler
+
+    def _ceph_nfs_connected(self, event) -> None:
+        """Handles ceph-nfs connected events."""
+        self.callback_f(event)
+
+    def _ceph_nfs_goneaway(self, event) -> None:
+        """Handles ceph-nfs goneaway events."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Interface ready for use."""
+        return True
 
 
 @sunbeam_tracing.trace_type
@@ -74,6 +144,15 @@ class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = super().get_relation_handlers(handlers or [])
+
+        if self.can_add_handler(CEPH_NFS_RELATION_NAME, handlers):
+            self.ceph_nfs = CephNfsRequiresHandler(
+                self,
+                CEPH_NFS_RELATION_NAME,
+                self.configure_charm,
+            )
+            handlers.append(self.ceph_nfs)
+
         return handlers
 
     def set_config_from_event(self, event: ops.framework.EventBase) -> None:
@@ -84,6 +163,7 @@ class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
         """Configuration contexts for the operator."""
         contexts = super().config_contexts
+        contexts.append(CephfsConfigurationContext(self, "cephfs_config"))
         return contexts
 
     @property
@@ -92,6 +172,18 @@ class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         _cconfigs = [
             sunbeam_core.ContainerConfigFile(
                 "/etc/manila/manila.conf",
+                "root",
+                "manila",
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/ceph/ceph.conf",
+                "root",
+                "manila",
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/ceph/manila.keyring",
                 "root",
                 "manila",
                 0o640,
@@ -127,6 +219,26 @@ class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def service_group(self) -> str:
         """Service group file and directory ownership."""
         return "manila"
+
+    def get_cephfs_config(self) -> dict:
+        """Get the cephfs-related config from the the relation data."""
+        relations = self.framework.model.relations[CEPH_NFS_RELATION_NAME]
+        if not relations:
+            return {}
+
+        relation = relations[0]
+        relation_data = relation.data[relation.app]
+
+        mon_hosts = json.loads(relation_data["mon-hosts"])
+
+        return {
+            "share_backend_name": "CEPHFSNATIVE1",
+            "cephfs_auth_id": relation_data["client"].lstrip("client."),
+            "client_key": relation_data["keyring"],
+            "cephfs_cluster_name": relation_data["cluster-id"],
+            "cephfs_filesystem_name": relation_data["volume"],
+            "mon_hosts": ",".join(mon_hosts),
+        }
 
 
 if __name__ == "__main__":  # pragma: nocover

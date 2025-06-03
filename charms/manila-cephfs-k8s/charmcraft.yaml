@@ -42,6 +42,9 @@ requires:
   amqp:
     interface: rabbitmq
     limit: 1
+  ceph-nfs:
+    interface: ceph-nfs-client
+    limit: 1
   database:
     interface: mysql_client
     limit: 1
