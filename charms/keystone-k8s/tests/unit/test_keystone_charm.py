@@ -58,6 +58,40 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         "pwgen",
     ]
 
+    def add_trusted_dashboard_relation(self) -> int:
+        """Add trusted-dashboard relation."""
+        rel_id = self.harness.add_relation("trusted-dashboard", "horizon")
+        self.harness.add_relation_unit(rel_id, "horizon/0")
+        self.harness.update_relation_data(
+            rel_id, "horizon/0", {"ingress-address": "10.0.0.11"}
+        )
+        return rel_id
+
+    def add_oauth_relation(self) -> int:
+        """Add oauth relation."""
+        rel_id = self.harness.add_relation("oauth", "hydra")
+        self.harness.add_relation_unit(rel_id, "hydra/0")
+        self.harness.update_relation_data(
+            rel_id, "hydra/0", {"ingress-address": "10.0.0.12"}
+        )
+        self.harness.update_relation_data(
+            rel_id,
+            "hydra",
+            {
+                "authorization_endpoint": "https://172.16.1.207/iam-hydra/oauth2/auth",
+                "client_id": "c733827d-d6e0-45dd-8210-fdc9b6525f29",
+                "client_secret_id": "secret://test_oauth_secret",
+                "introspection_endpoint": "http://hydra.iam.svc.cluster.local:4445/admin/oauth2/introspect",
+                "issuer_url": "https://172.16.1.207/iam-hydra",
+                "jwks_endpoint": "https://172.16.1.207/iam-hydra/.well-known/jwks.json",
+                "jwt_access_token": "True",
+                "scope": "openid profile email phone",
+                "token_endpoint": "https://172.16.1.207/iam-hydra/oauth2/token",
+                "userinfo_endpoint": "https://172.16.1.207/iam-hydra/userinfo",
+            },
+        )
+        return rel_id
+
     def add_id_relation(self) -> int:
         """Add amqp relation."""
         rel_id = self.harness.add_relation("identity-service", "cinder")
@@ -182,6 +216,157 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self.harness.container_pebble_ready("keystone")
         self.assertEqual(self.harness.charm.seen_events, ["PebbleReadyEvent"])
 
+    def test_trusted_dashboard_relation(self):
+        """Test trusted-dashboard relation."""
+        secret_mock = MagicMock()
+        secret_mock.id = "test_oauth_secret"
+        secret_mock.get_content.return_value = {"secret": "super secret"}
+        self.harness.model.app.add_secret = MagicMock()
+        self.harness.model.app.add_secret.return_value = secret_mock
+        self.harness.model.get_secret = MagicMock()
+        self.harness.model.get_secret.return_value = secret_mock
+
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        self.harness.container_pebble_ready("keystone")
+        test_utils.add_db_relation_credentials(
+            self.harness, test_utils.add_base_db_relation(self.harness)
+        )
+
+        rel_id = self.add_trusted_dashboard_relation()
+        rel_data = self.harness.get_relation_data(
+            rel_id, self.harness.charm.unit.app.name
+        )
+        # trusted dashboard requirer needs oauth data to be set before
+        # it notifies the provider.
+        self.assertEqual(rel_data, {})
+
+        self.add_oauth_relation()
+        rel_data = self.harness.get_relation_data(
+            rel_id, self.harness.charm.unit.app.name
+        )
+        self.assertEqual(
+            rel_data,
+            {
+                "federated-providers": json.dumps(
+                    [
+                        {
+                            "name": "hydra",
+                            "protocol": "openid",
+                            "description": "Hydra",
+                        }
+                    ]
+                )
+            },
+        )
+
+    def test_oauth_relation(self):
+        """Test responding to an identity client."""
+        secret_mock = MagicMock()
+        secret_mock.id = "test_oauth_secret"
+        secret_mock.get_content.return_value = {"secret": "super secret"}
+        self.harness.model.app.add_secret = MagicMock()
+        self.harness.model.app.add_secret.return_value = secret_mock
+        self.harness.model.get_secret = MagicMock()
+        self.harness.model.get_secret.return_value = secret_mock
+
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        self.harness.container_pebble_ready("keystone")
+        test_utils.add_db_relation_credentials(
+            self.harness, test_utils.add_base_db_relation(self.harness)
+        )
+        oauth_rel_id = self.add_oauth_relation()
+        rel_data = self.harness.get_relation_data(
+            oauth_rel_id, self.harness.charm.unit.app.name
+        )
+        rel_data_hydra = self.harness.get_relation_data(oauth_rel_id, "hydra")
+        self.assertEqual(
+            rel_data,
+            {
+                "redirect_uri": "http://public-url/v3/OS-FEDERATION/protocols/openid/redirect_uri",
+                "scope": "openid email profile",
+                "grant_types": json.dumps(
+                    [
+                        "authorization_code",
+                        "client_credentials",
+                        "refresh_token",
+                    ]
+                ),
+                "audience": "[]",
+                "token_endpoint_auth_method": "client_secret_basic",
+            },
+        )
+        issuer_url = "https://172.16.1.207/iam-hydra"
+        self.assertEqual(
+            rel_data_hydra,
+            {
+                "authorization_endpoint": f"{issuer_url}/oauth2/auth",
+                "client_id": "c733827d-d6e0-45dd-8210-fdc9b6525f29",
+                "client_secret_id": "secret://test_oauth_secret",
+                "introspection_endpoint": "http://hydra.iam.svc.cluster.local:4445/admin/oauth2/introspect",
+                "issuer_url": issuer_url,
+                "jwks_endpoint": f"{issuer_url}/.well-known/jwks.json",
+                "jwt_access_token": "True",
+                "scope": "openid profile email phone",
+                "token_endpoint": f"{issuer_url}/oauth2/token",
+                "userinfo_endpoint": f"{issuer_url}/userinfo",
+            },
+        )
+
+    def test_sync_oidc_providers(self):
+        """Tests that OIDC provider metadata is written to disk."""
+        secret_mock = MagicMock()
+        secret_mock.id = "test_oauth_secret"
+        secret_mock.get_content.return_value = {"secret": "super secret"}
+        self.harness.model.app.add_secret = MagicMock()
+        self.harness.model.app.add_secret.return_value = secret_mock
+        self.harness.model.get_secret = MagicMock()
+        self.harness.model.get_secret.return_value = secret_mock
+
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        self.harness.container_pebble_ready("keystone")
+        test_utils.add_db_relation_credentials(
+            self.harness, test_utils.add_base_db_relation(self.harness)
+        )
+        self.add_oauth_relation()
+
+        _get_oidc_metadata_mock = MagicMock()
+        _get_oidc_metadata_mock.return_value = {"hello": "world"}
+        self.harness.charm._get_oidc_metadata = _get_oidc_metadata_mock
+
+        # this needs to be a url encoded string which consists
+        # of the issuer URL, with the scheme and trailing slash removed.
+        encoded_issuer_url = "172.16.1.207%2Fiam-hydra"
+        self.harness.charm.sync_oidc_providers()
+
+        self.assertEqual(self.km_mock.setup_oidc_metadata_folder.call_count, 1)
+        self.assertEqual(self.km_mock.write_oidc_metadata.call_count, 1)
+        self.km_mock.write_oidc_metadata.assert_called_with(
+            {
+                f"{encoded_issuer_url}.provider": json.dumps(
+                    {"hello": "world"}
+                ),
+                f"{encoded_issuer_url}.client": json.dumps(
+                    {
+                        "client_id": "c733827d-d6e0-45dd-8210-fdc9b6525f29",
+                        "client_secret": "super secret",
+                    }
+                ),
+            }
+        )
+
+    def test_get_idp_file_name_from_issuer_url(self):
+        """Test we get a base file name from issuer_url."""
+        issuer_url = "https://172.16.1.207/iam-hydra/"
+        encoded_issuer_url = "172.16.1.207%2Fiam-hydra"
+
+        result = self.harness.charm.get_idp_file_name_from_issuer_url(
+            issuer_url
+        )
+        self.assertEqual(encoded_issuer_url, result)
+
     def test_id_client(self):
         """Test responding to an identity client."""
         test_utils.add_complete_ingress_relation(self.harness)
@@ -234,6 +419,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         )
         fernet_secret_id = self.get_secret_by_label("fernet-keys")
         credential_secret_id = self.get_secret_by_label("credential-keys")
+        oidc_secret_id = self.get_secret_by_label("oidc-crypto-passphrase")
         self.assertEqual(
             peer_data,
             {
@@ -241,6 +427,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "fernet-secret-id": fernet_secret_id,
                 "credential-keys-secret-id": credential_secret_id,
                 "credentials_svc_cinder": secret_svc_cinder,
+                "oidc-crypto-passphrase": oidc_secret_id,
             },
         )
 
@@ -263,12 +450,14 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         )
         fernet_secret_id = self.get_secret_by_label("fernet-keys")
         credential_secret_id = self.get_secret_by_label("credential-keys")
+        oidc_secret_id = self.get_secret_by_label("oidc-crypto-passphrase")
         self.assertEqual(
             peer_data,
             {
                 "leader_ready": "true",
                 "fernet-secret-id": fernet_secret_id,
                 "credential-keys-secret-id": credential_secret_id,
+                "oidc-crypto-passphrase": oidc_secret_id,
             },
         )
         assert self.harness.charm.logging.ready
