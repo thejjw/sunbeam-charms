@@ -6,6 +6,7 @@ external-libraries:
   - charms.loki_k8s.v1.loki_push_api
   - charms.tempo_k8s.v2.tracing
   - charms.tempo_k8s.v1.charm_tracing
+  - charms.horizon_k8s.v0.trusted_dashboard
 templates:
   - parts/section-database
   - parts/database-connection
@@ -17,3 +18,4 @@ templates:
   - parts/section-oslo-middleware
   - parts/section-oslo-notifications
   - parts/section-signing
+  - parts/apache2-oidc-params

@@ -234,6 +234,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         )
         fernet_secret_id = self.get_secret_by_label("fernet-keys")
         credential_secret_id = self.get_secret_by_label("credential-keys")
+        oidc_secret_id = self.get_secret_by_label("oidc-crypto-passphrase")
         self.assertEqual(
             peer_data,
             {
@@ -241,6 +242,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "fernet-secret-id": fernet_secret_id,
                 "credential-keys-secret-id": credential_secret_id,
                 "credentials_svc_cinder": secret_svc_cinder,
+                "oidc-crypto-passphrase": oidc_secret_id,
             },
         )
 
@@ -263,12 +265,14 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         )
         fernet_secret_id = self.get_secret_by_label("fernet-keys")
         credential_secret_id = self.get_secret_by_label("credential-keys")
+        oidc_secret_id = self.get_secret_by_label("oidc-crypto-passphrase")
         self.assertEqual(
             peer_data,
             {
                 "leader_ready": "true",
                 "fernet-secret-id": fernet_secret_id,
                 "credential-keys-secret-id": credential_secret_id,
+                "oidc-crypto-passphrase": oidc_secret_id,
             },
         )
         assert self.harness.charm.logging.ready
