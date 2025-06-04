@@ -41,6 +41,10 @@ from utils.client import (
 )
 
 logger = logging.getLogger(__name__)
+_OIDC_METADATA_FOLDER = "/etc/apache2/oidc-metadata"
+_KEYSTONE_COMBINED_CA = (
+    "/usr/local/share/ca-certificates/keystone-combined.crt"
+)
 
 
 class KeystoneManager:
@@ -131,6 +135,14 @@ class KeystoneManager:
             self._credential_setup()
             self._bootstrap()
 
+    def setup_oidc_metadata_folder(self):
+        """Create the OIDC metadata folder and set permissions."""
+        self.run_cmd(["sudo", "mkdir", "-p", _OIDC_METADATA_FOLDER])
+        self.run_cmd(
+            ["sudo", "chown", "keystone:www-data", _OIDC_METADATA_FOLDER]
+        )
+        self.run_cmd(["sudo", "chmod", "550", _OIDC_METADATA_FOLDER])
+
     def rotate_fernet_keys(self):
         """Rotate the fernet keys.
 
@@ -189,6 +201,48 @@ class KeystoneManager:
                     "keystone",
                 ]
             )
+
+    def write_combined_ca(self) -> None:
+        """Write the combined CA to the container."""
+        ca_contents = self.charm.get_ca_and_chain()
+        container = self.charm.unit.get_container(self.container_name)
+        if not ca_contents:
+            logger.debug(
+                "No CA contents found to write to keystone container."
+            )
+            # remove the existing CA file if it exists
+            try:
+                container.remove_path(_KEYSTONE_COMBINED_CA)
+            except ops.pebble.PathError:
+                logger.debug("No existing CA file to remove.")
+            return
+        else:
+            container.push(
+                _KEYSTONE_COMBINED_CA,
+                ca_contents,
+                user="root",
+                group="root",
+                permissions=0o644,
+            )
+        self.run_cmd(["sudo", "update-ca-certificates", "--fresh"])
+
+    def write_oidc_metadata(self, metadata: Mapping[str, str]) -> None:
+        """Write the OIDC metadata to the container."""
+        container = self.charm.unit.get_container(self.container_name)
+        for filename, contents in metadata.items():
+            container.push(
+                f"{_OIDC_METADATA_FOLDER}/{filename}",
+                contents,
+                user="keystone",
+                group="www-data",
+                permissions=0o440,
+            )
+
+        # remove old metadata files
+        files = container.list_files(_OIDC_METADATA_FOLDER)
+        for file in files:
+            if file.name not in metadata:
+                container.remove_path(file.path)
 
     def read_keys(self, key_repository: str) -> Mapping[str, str]:
         """Pull the fernet keys from the on-disk repository."""
