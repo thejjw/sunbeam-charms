@@ -159,6 +159,15 @@ requires:
     interface: tracing
     optional: true
     limit: 1
+  oauth:
+    interface: oauth
+    optional: true
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+  trusted-dashboard:
+    interface: trusted-dashboard
+    optional: true
 
 provides:
   identity-service:

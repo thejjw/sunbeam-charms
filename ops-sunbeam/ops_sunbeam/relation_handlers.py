@@ -58,6 +58,7 @@ if typing.TYPE_CHECKING:
     import charms.cinder_volume.v0.cinder_volume as sunbeam_cinder_volume
     import charms.data_platform_libs.v0.data_interfaces as data_interfaces
     import charms.gnocchi_k8s.v0.gnocchi_service as gnocchi_service
+    import charms.horizon_k8s.v0.trusted_dashboard as trusted_dashboard
     import charms.keystone_k8s.v0.identity_credentials as identity_credentials
     import charms.keystone_k8s.v0.identity_resource as identity_resource
     import charms.keystone_k8s.v1.identity_service as identity_service
@@ -2505,3 +2506,44 @@ class CinderVolumeRequiresHandler(RelationHandler):
     def snap(self) -> str | None:
         """Return snap name."""
         return self.interface.snap_name()
+
+
+@sunbeam_tracing.trace_type
+class TrustedDashboardProvidesHandler(RelationHandler):
+    """Handler for identity service relation."""
+
+    interface: "trusted_dashboard.TrustedDashboardProvider"
+
+    def setup_event_handler(self):
+        """Configure event handlers for the trusted dashboard relation."""
+        logger.debug("Setting up trusted dashboard event handler")
+        import charms.horizon_k8s.v0.trusted_dashboard as trusted_dashboard
+
+        dashboard = trusted_dashboard.TrustedDashboardProvider(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            dashboard.on.providers_changed,
+            self._on_providers_changed,
+        )
+        return dashboard
+
+    def set_provider_info(self, trusted_dashboard: str) -> None:
+        """Set the provider information for the trusted dashboard."""
+        self.interface.set_provider_info(trusted_dashboard)
+
+    def _on_providers_changed(self, event) -> None:
+        if self.interface.fid_providers:
+            self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return True
+
+    def context(self) -> dict:
+        """Return context for the trusted dashboard relation."""
+        return {
+            "fid_providers": self.interface.fid_providers,
+        }
