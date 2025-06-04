@@ -23,6 +23,10 @@ import json
 import logging
 from typing import (
     List,
+    Mapping,
+)
+from urllib import (
+    parse,
 )
 
 import ops
@@ -30,14 +34,17 @@ import ops.framework
 import ops.model
 import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.config_contexts as sunbeam_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 
 logger = logging.getLogger(__name__)
 
 HORIZON = "horizon"
+TRUSTED_DASHBOARD_RELATION_NAME = "trusted-dashboard"
 
 
 def exec(container: ops.model.Container, cmd: str):
@@ -81,6 +88,47 @@ def manage_plugins(
         logger.warning("Warning when using %r on plugins: %s", command, err)
     tag = "Enabled" if enable else "Disabled"
     return tag in out
+
+
+def _remove_redundant_port(url: str) -> str:
+    """Remove redundant port from URL if it matches the default for the scheme."""
+    parsed = parse.urlparse(url)
+    scheme_to_port = {
+        "http": 80,
+        "https": 443,
+    }
+    port = scheme_to_port.get(parsed.scheme, None)
+    if port and port == parsed.port:
+        return parse.urlunparse(
+            (
+                parsed.scheme,
+                parsed.hostname,
+                parsed.path,
+                parsed.params,
+                parsed.query,
+                parsed.fragment,
+            )
+        )
+    return url
+
+
+@sunbeam_tracing.trace_type
+class AdditionalConfigAdapter(sunbeam_contexts.ConfigContext):
+    """Configuration context for additional settings."""
+
+    def context(self):
+        """Configuration context."""
+        parsed_pub_url = parse.urlparse(
+            _remove_redundant_port(self.charm.public_url)
+        )
+        parsed_int_url = parse.urlparse(
+            _remove_redundant_port(self.charm.internal_url)
+        )
+        return {
+            "public_endpoint": f"{parsed_pub_url.scheme}://{parsed_pub_url.netloc}",
+            "internal_endpoint": f"{parsed_int_url.scheme}://{parsed_int_url.netloc}",
+            "ssl_enabled": parsed_pub_url.scheme == "https",
+        }
 
 
 @sunbeam_tracing.trace_type
@@ -150,6 +198,38 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def _get_dashboard_url_action(self, event):
         """Retrieve the URL for the Horizon OpenStack Dashboard."""
         event.set_results({"url": self.public_url})
+
+    @property
+    def _websso_url(self) -> str:
+        # remove redundant port if it exists. If we include the port,
+        # keystone will not correctly match the dashboard URL to what is
+        # configured in the [federation]/trusted_dashboard setting, making
+        # authentication fail. The port is still needed if horizon is running
+        # on a non-standard port.
+        url = _remove_redundant_port(self.public_url)
+        return url.rstrip("/") + "/auth/websso/"
+
+    def _on_trusted_dashboard_providers_changed(self, event):
+        """Handle changes in trusted dashboard providers."""
+        if not self.model.unit.is_leader():
+            return
+
+        fid_providers = event.fid_providers
+        if not fid_providers:
+            logger.debug("No FID providers found, skipping update.")
+            return
+
+        logger.debug(
+            "Setting trusted dashboard provider info: %s", fid_providers
+        )
+        self.trusted_dashboard.set_provider_info(
+            trusted_dashboard=self._websso_url
+        )
+
+    @property
+    def federated_providers(self) -> List[Mapping[str, str]]:
+        """List of federated identity providers."""
+        return self.trusted_dashboard.federated_providers
 
     @property
     def default_public_ingress_port(self):
@@ -262,6 +342,26 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if any_changes:
             container.restart("wsgi-" + self.service_name)
 
+    def _on_trusted_dashboard(self, event):
+        self._on_trusted_dashboard_providers_changed(event)
+        self.configure_unit(event)
+
+    def get_relation_handlers(
+        self, handlers=None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        """Get relation handlers for the charm."""
+        handlers = handlers or []
+        if self.can_add_handler(TRUSTED_DASHBOARD_RELATION_NAME, handlers):
+            self.trusted_dashboard = (
+                sunbeam_rhandlers.TrustedDashboardProvidesHandler(
+                    self,
+                    TRUSTED_DASHBOARD_RELATION_NAME,
+                    self._on_trusted_dashboard,
+                )
+            )
+            handlers.append(self.trusted_dashboard)
+        return super().get_relation_handlers(handlers)
+
     @property
     def healthcheck_period(self) -> str:
         """Healthcheck period for horizon service."""
@@ -282,6 +382,17 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def healthcheck_http_timeout(self) -> str:
         """Healthcheck HTTP check timeout for the service."""
         return "30s"
+
+    @property
+    def config_contexts(self) -> List[sunbeam_contexts.ConfigContext]:
+        """Configuration adapters for the operator."""
+        contexts = super().config_contexts
+        contexts.extend(
+            [
+                AdditionalConfigAdapter(self, "extra_config"),
+            ]
+        )
+        return contexts
 
 
 if __name__ == "__main__":  # pragma: nocover

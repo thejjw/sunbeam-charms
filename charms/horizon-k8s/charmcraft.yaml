@@ -232,6 +232,9 @@ requires:
 provides:
   horizon:
     interface: horizon
+  trusted-dashboard:
+    interface: trusted-dashboard
+    limit: 1
 
 peers:
   peers:

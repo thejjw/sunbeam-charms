@@ -16,6 +16,7 @@
 
 """Unit tests for Horizon operator."""
 
+import json
 from unittest.mock import (
     MagicMock,
 )
@@ -81,12 +82,46 @@ class TestHorizonOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         self.assertEqual(self.harness.charm.seen_events, ["PebbleReadyEvent"])
 
+    def add_trusted_dashboard_relation(self) -> int:
+        """Add trusted-dashboard relation."""
+        rel_id = self.harness.add_relation("trusted-dashboard", "keystone")
+        self.harness.add_relation_unit(rel_id, "keystone/0")
+        self.harness.update_relation_data(
+            rel_id, "keystone/0", {"ingress-address": "10.0.0.11"}
+        )
+        self.harness.update_relation_data(
+            rel_id,
+            "keystone",
+            {
+                "federated-providers": json.dumps(
+                    [
+                        {
+                            "name": "hydra",
+                            "protocol": "openid",
+                            "description": "Hydra",
+                        }
+                    ]
+                )
+            },
+        )
+        return rel_id
+
     def test_all_relations(self):
         """Test all integrations for Operator."""
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_all_relations(self.harness)
         test_utils.add_complete_ingress_relation(self.harness)
+
+        self.harness.set_leader()
+        rel_id = self.add_trusted_dashboard_relation()
+        rel_data = self.harness.get_relation_data(
+            rel_id, self.harness.charm.unit.app.name
+        )
+        self.assertEqual(
+            rel_data,
+            {"dashboard-url": "http://public-url/auth/websso/"},
+        )
         setup_cmds = [
             ["a2dissite", "000-default"],
             ["a2disconf", "openstack-dashboard"],
