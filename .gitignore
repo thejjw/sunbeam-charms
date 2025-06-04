@@ -19,6 +19,6 @@ charms/*/.jujuignore
 charms/*/.stestr.conf
 charms/*/lib/
 charms/*/src/templates/parts/
-
+!charms/horizon-k8s/lib/
 # artefacts from functional tests
 tempest.log
