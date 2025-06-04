@@ -14,7 +14,6 @@ from openstack_dashboard.settings import HORIZON_CONFIG
 DEBUG = {{ options.debug }}
 TEMPLATE_DEBUG = DEBUG
 
-
 # WEBROOT is the location relative to Webserver root
 # should end with a slash.
 #LOGIN_URL = WEBROOT + 'auth/login/'
@@ -31,21 +30,21 @@ TEMPLATE_DEBUG = DEBUG
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 #ALLOWED_HOSTS = ['horizon.example.com', ]
 
+{% if extra_config.ssl_enabled %}
 # Set SSL proxy settings:
 # Pass this header from the proxy after terminating the SSL,
 # and don't forget to strip it from the client's request.
 # For more information see:
 # https://docs.djangoproject.com/en/dev/ref/settings/#secure-proxy-ssl-header
-#SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # If Horizon is being served through SSL, then uncomment the following two
 # settings to better secure the cookies from security exploits
-#CSRF_COOKIE_SECURE = True
-#SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+{% endif %}
 
-# XXX Add these when SSL is added
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = ['{{extra_config.public_endpoint}}', '{{extra_config.internal_endpoint}}']
 
 # A method to supersede the token timeout with a shorter dashboard session
 # timeout in seconds.
@@ -195,7 +194,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 OPENSTACK_HOST = "{{ identity_credentials.internal_host }}"
 OPENSTACK_KEYSTONE_DEFAULT_ROLE = "{{ options.default_role }}"
-OPENSTACK_KEYSTONE_URL = "{{ identity_credentials.internal_protocol }}://%s:{{ identity_credentials.internal_port }}/v3" % OPENSTACK_HOST
+# The public_endpoint has an already composed auth URL. If no ingress_public
+# exists, the public_endpoint defaults to internal_endpoint. We use the public
+# endpoint, because we need potentially enable federated identity, which uses this
+# endpoint to redirect users to the keystone websso endpoint.
+OPENSTACK_KEYSTONE_URL = "{{ identity_credentials.public_endpoint }}"
 OPENSTACK_API_VERSIONS = { "identity": 3, }
 OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
 OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "{{ options.default_domain or identity_credentials.project_domain_id }}"
@@ -203,11 +206,12 @@ OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "{{ options.default_domain or identity_crede
 OPENSTACK_SSL_CACERT = "/usr/local/share/ca-certificates/ca-bundle.pem"
 {% endif -%}
 
+{% if trusted_dashboard and trusted_dashboard.fid_providers -%}
 # Enables keystone web single-sign-on if set to True.
-#WEBSSO_ENABLED = False
+WEBSSO_ENABLED = True
 
 # Determines which authentication choice to show as default.
-#WEBSSO_INITIAL_CHOICE = "credentials"
+WEBSSO_INITIAL_CHOICE = "credentials"
 
 # The list of authentication mechanisms which include keystone
 # federation protocols and identity provider/federation protocol
@@ -217,13 +221,12 @@ OPENSTACK_SSL_CACERT = "/usr/local/share/ca-certificates/ca-bundle.pem"
 # Do not remove the mandatory credentials mechanism.
 # Note: The last two tuples are sample mapping keys to a identity provider
 # and federation protocol combination (WEBSSO_IDP_MAPPING).
-#WEBSSO_CHOICES = (
-#    ("credentials", _("Keystone Credentials")),
-#    ("oidc", _("OpenID Connect")),
-#    ("saml2", _("Security Assertion Markup Language")),
-#    ("acme_oidc", "ACME - OpenID Connect"),
-#    ("acme_saml2", "ACME - SAML2"),
-#)
+WEBSSO_CHOICES = (
+    ("credentials", _("Keystone Credentials")),
+    {% for provider in trusted_dashboard.fid_providers -%}
+    ("{{ provider.name }}", _("{{ provider.description}}")),
+    {% endfor -%}
+)
 
 # A dictionary of specific identity provider and federation protocol
 # combinations. From the selected authentication mechanism, the value
@@ -232,10 +235,12 @@ OPENSTACK_SSL_CACERT = "/usr/local/share/ca-certificates/ca-bundle.pem"
 # specific WebSSO endpoint in keystone, otherwise it will use the value
 # as the protocol_id when redirecting to the WebSSO by protocol endpoint.
 # NOTE: The value is expected to be a tuple formatted as: (<idp_id>, <protocol_id>).
-#WEBSSO_IDP_MAPPING = {
-#    "acme_oidc": ("acme", "oidc"),
-#    "acme_saml2": ("acme", "saml2"),
-#}
+WEBSSO_IDP_MAPPING = {
+    {% for provider in trusted_dashboard.fid_providers -%}
+    "{{ provider.name }}": ("{{ provider.name }}", "{{ provider.protocol }}"),
+    {% endfor -%}
+}
+{% endif -%}
 
 # Disable SSL certificate checks (useful for self-signed certificates):
 #OPENSTACK_SSL_NO_VERIFY = True
