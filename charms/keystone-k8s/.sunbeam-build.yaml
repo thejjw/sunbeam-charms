@@ -17,3 +17,4 @@ templates:
   - parts/section-oslo-middleware
   - parts/section-oslo-notifications
   - parts/section-signing
+  - parts/apache2-oidc-params

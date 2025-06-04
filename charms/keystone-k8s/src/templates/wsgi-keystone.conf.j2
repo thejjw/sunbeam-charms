@@ -25,4 +25,5 @@ Listen 0.0.0.0:{{ ks_config.public_port }}
             Allow from all
         </IfVersion>
     </Directory>
+    {% include "parts/apache2-oidc-params" %}
 </VirtualHost>
