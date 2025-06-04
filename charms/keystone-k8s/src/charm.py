@@ -29,6 +29,8 @@ import base64
 import binascii
 import json
 import logging
+import os
+import tempfile
 from collections import (
     defaultdict,
 )
@@ -38,8 +40,11 @@ from pathlib import (
 from typing import (
     Dict,
     List,
+    Mapping,
 )
 from urllib.parse import (
+    quote,
+    urljoin,
     urlparse,
 )
 
@@ -61,8 +66,16 @@ import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 import pwgen
+import requests
 from charms.certificate_transfer_interface.v0.certificate_transfer import (
     CertificateTransferProvides,
+)
+from charms.horizon_k8s.v0 import (
+    trusted_dashboard,
+)
+from charms.hydra.v0.oauth import (
+    ClientConfig,
+    OAuthRequirer,
 )
 from ops.charm import (
     ActionEvent,
@@ -92,6 +105,16 @@ SECRET_PREFIX = "secret://"
 CERTIFICATE_TRANSFER_LABEL = "certs_to_transfer"
 KEYSTONE_CONF = "/etc/keystone/keystone.conf"
 LOGGING_CONF = "/etc/keystone/logging.conf"
+SYSTEM_CA_CERTS = "/etc/ssl/certs/ca-certificates.crt"
+
+OAUTH = "oauth"
+RECEIVE_CA_CERTS = "receive-ca-cert"
+OAUTH_SCOPES = "openid email profile"
+OAUTH_GRANT_TYPES = [
+    "authorization_code",
+    "client_credentials",
+    "refresh_token",
+]
 
 
 @sunbeam_tracing.trace_type
@@ -130,7 +153,7 @@ class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
             "service_tenant_id": self.charm.service_project_id,
             "admin_domain_name": self.charm.admin_domain_name,
             "admin_domain_id": self.charm.admin_domain_id,
-            "auth_methods": "external,password,token,oauth1,mapped,application_credential",
+            "auth_methods": "external,password,token,oauth1,openid,mapped,application_credential",
             "default_domain_id": self.charm.default_domain_id,
             "public_port": self.charm.service_port,
             "debug": config["debug"],
@@ -270,6 +293,235 @@ class IdentityResourceProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+class OAuthRequiresHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for oauth relation."""
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for the oauth relation."""
+        oauth = OAuthRequirer(self.charm, relation_name=self.relation_name)
+
+        self.framework.observe(
+            oauth.on.oauth_info_changed,
+            self._oauth_info_changed,
+        )
+
+        self.framework.observe(
+            self.charm.on.oauth_relation_changed,
+            self._oauth_relation_changed,
+        )
+        return oauth
+
+    @property
+    def oidc_redirect_uri(self):
+        """Generate the OIDC redirect URI."""
+        return urljoin(
+            self.charm.public_endpoint.rstrip("/") + "/",
+            "OS-FEDERATION/protocols/openid/redirect_uri",
+        )
+
+    def _oauth_relation_changed(self, event):
+        if not self.charm.unit.is_leader():
+            logger.debug("Not leader, skipping OAuth info update")
+            return
+        client_config = ClientConfig(
+            self.oidc_redirect_uri, OAUTH_SCOPES, OAUTH_GRANT_TYPES
+        )
+        self.interface.update_client_config(client_config)
+        self.callback_f(event)
+
+    def _oauth_info_changed(self, event):
+        if not self.charm.unit.is_leader():
+            logger.debug("Not leader, skipping OAuth info update")
+            return
+
+        if not self.interface.is_client_created():
+            logger.debug("OAuth client not created, skipping update")
+            return
+        self.callback_f(event)
+
+    def get_oidc_providers(self):
+        """Get all OIDC providers."""
+        data = []
+        for relation in self.charm.model.relations[self.relation_name]:
+            data.append(
+                {
+                    "name": relation.app.name,
+                    "protocol": "openid",
+                    "description": relation.app.name.replace("-", " ").title(),
+                }
+            )
+        if not data:
+            return {}
+        return {"federated-providers": data}
+
+    def get_all_provider_info(self):
+        """Get all OIDC provider configs."""
+        info = []
+        for relation in self.charm.model.relations[self.relation_name]:
+            if not self.interface.is_client_created(relation_id=relation.id):
+                continue
+            provider_info = self.interface.get_provider_info(
+                relation_id=relation.id
+            )
+            if not provider_info:
+                continue
+
+            provider = {
+                "name": relation.app.name,
+                "protocol": "openid",
+                "encoded_issuer_url": quote(provider_info.issuer_url, safe=""),
+                "info": provider_info,
+            }
+            info.append(provider)
+        return info
+
+    def _get_oidc_metadata(
+        self, metadata_url, additional_chain: List[str] = []
+    ):
+        try:
+            chains = self.charm._get_all_ca_bundles(additional_chain)
+            with tempfile.NamedTemporaryFile() as fd:
+                fd.write(chains.encode())
+                fd.flush()
+                metadata = requests.get(metadata_url, verify=fd.name)
+                metadata.raise_for_status()
+                return metadata.json()
+        except Exception as err:
+            logger.error(
+                f"failed to retrieve idp metadata from {metadata_url}: {err}"
+            )
+
+    def _get_idp_file_name_from_issuer_url(self, issuer_url):
+        """Generate a sanitized file name from the issuer URL.
+
+        The openidc apache
+        module expects that the provider metadata exist in a folder defined by
+        OIDCMetadataDir and the file name must be a url encoded string, without
+        the schema and the trailing slash.
+        For example, if the issuer URL of the IDP is:
+
+        https://172.16.1.207/iam-hydra
+
+        then the generated file names will be:
+
+          * 172.16.1.207%2Fiam-hydra.client - client ID and client secret
+          * 172.16.1.207%2Fiam-hydra.provider - the provider metadata file.
+
+          The contents of the .provider file can be fetched from:
+
+          https://172.16.1.207/iam-hydra/.well-known/openid-configuration
+        """
+        sanitized = issuer_url.lstrip("https://").lstrip("http://").rstrip("/")
+        return quote(sanitized, safe="")
+
+    def get_provider_metadata_files(self) -> Mapping[str, str]:
+        """Get OIDC metadata files."""
+        all_providers = self.get_all_provider_info()
+        if not all_providers:
+            return {}
+        files = {}
+        for provider in all_providers:
+            provider_info = provider.get("info", None)
+            if not provider_info:
+                continue
+            provider_metadata_url = urljoin(
+                provider_info.issuer_url.rstrip("/") + "/",
+                ".well-known/openid-configuration",
+            )
+            metadata = self._get_oidc_metadata(
+                provider_metadata_url, provider_info.ca_chain or []
+            )
+            if not metadata:
+                continue
+            base_file_name = self._get_idp_file_name_from_issuer_url(
+                provider_info.issuer_url
+            )
+            provider_file = f"{base_file_name}.provider"
+            client_file = f"{base_file_name}.client"
+
+            files[provider_file] = json.dumps(metadata)
+            files[client_file] = json.dumps(
+                {
+                    "client_id": provider_info.client_id,
+                    "client_secret": provider_info.client_secret,
+                },
+            )
+        return files
+
+    def context(self):
+        """Configuration context."""
+        oidc_secret = self.charm.get_oidc_secret()
+        if not oidc_secret:
+            return {}
+
+        provider_info = self.get_all_provider_info()
+        if not provider_info:
+            return {}
+        ctxt = {
+            "oidc_crypto_passphrase": oidc_secret,
+            "oidc_providers": provider_info,
+            "redirect_uri": self.oidc_redirect_uri,
+            "redirect_uri_path": urlparse(self.oidc_redirect_uri).path,
+            "public_url_path": urlparse(self.charm.public_endpoint).path,
+        }
+        return ctxt
+
+    def ready(self):
+        """Check if handler is ready."""
+        if self.context():
+            return True
+        return False
+
+
+class TrustedDashboardRequiresHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for trusted-dashboard relation."""
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for trusted-dashboard relation."""
+        logger.debug("Setting up the trusted-dashboard event handler")
+
+        dashboard = trusted_dashboard.TrustedDashboardRequirer(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            dashboard.on.dashboard_changed,
+            self._on_trusted_dashboard,
+        )
+
+        self.framework.observe(
+            self.charm.on.trusted_dashboard_relation_changed,
+            self._on_trusted_dashboard,
+        )
+        return dashboard
+
+    def set_requirer_info(self, data):
+        """Set trusted-dashboard requirer info."""
+        for relation in self.charm.model.relations[self.relation_name]:
+            self.interface.set_requirer_info(
+                federated_providers=data, relation_id=relation.id
+            )
+
+    def _on_trusted_dashboard(self, event):
+        if self.interface.get_trusted_dashboard():
+            self.callback_f(event)
+
+    def context(self):
+        """Configuration context."""
+        dashboards = []
+        for relation in self.charm.model.relations[self.relation_name]:
+            dashboard = self.interface.get_trusted_dashboard(
+                relation_id=relation.id
+            )
+            if dashboard:
+                dashboards.append(dashboard)
+        return {"dashboards": dashboards}
+
+    def ready(self):
+        """Check if handler is ready."""
+        return len(self.context()) > 0
+
+
 @sunbeam_tracing.trace_type
 class WSGIKeystonePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Keystone Pebble Handler."""
@@ -346,6 +598,8 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     IDCREDS_RELATION_NAME = "identity-credentials"
     IDOPS_RELATION_NAME = "identity-ops"
     SEND_CA_CERT_RELATION_NAME = "send-ca-cert"
+    RECEIVE_CA_CERT_RELATION_NAME = "receive-ca-cert"
+    TRUSTED_DASHBOARD = "trusted-dashboard"
 
     def __init__(self, framework):
         super().__init__(framework)
@@ -395,6 +649,28 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self._list_ca_certs_action,
         )
 
+    def _handle_trusted_dashboard_changed(self, event: RelationChangedEvent):
+        self._handle_update_trusted_dashboard(event)
+        if not self.trusted_dashboard.ready():
+            logger.debug("No trusted dashboard found, skipping update")
+            return
+        self.configure_charm(event)
+
+    def _handle_update_trusted_dashboard(self, event: RelationChangedEvent):
+        if not self.unit.is_leader():
+            logger.debug("Not leader, skipping trusted-dashboard info update")
+            return
+        relation_data = self.oauth.get_oidc_providers()
+        if not relation_data:
+            logger.debug("No OAuth relations found, skipping update")
+            return
+        self.trusted_dashboard.set_requirer_info(relation_data)
+
+    def _handle_oauth_info_changed(self, event: RelationChangedEvent):
+        """Handle OAuth info changed event."""
+        self._handle_update_trusted_dashboard(event)
+        self.configure_charm(event)
+
     def _retrieve_or_set_secret(
         self,
         username: str,
@@ -428,6 +704,101 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             credentials_secret.grant(scope["relation"])
 
         return credentials_secret.id
+
+    def get_ca_and_chain(self):
+        """Get CA and chain from peer data."""
+        ca, chain = self._get_combined_ca_and_chain()
+        if not ca:
+            logging.debug("No CA certificate found in peer data.")
+            return None
+        combined = [ca]
+        if chain:
+            combined.extend(chain)
+        return "\n".join(combined)
+
+    def _get_ca_bundles_from_send_cert(self) -> List[str]:
+        ca_certs = []
+        receive_ca_cert_relations = list(
+            self.model.relations[RECEIVE_CA_CERTS]
+        )
+        if receive_ca_cert_relations:
+            for relation in receive_ca_cert_relations:
+                for k, v in relation.data.items():
+                    ca = v.get("ca")
+                    chain = json.loads(v.get("chain", "[]"))
+                    if ca and ca not in ca_certs:
+                        ca_certs.append(ca)
+                    for item in chain:
+                        ca_certs.append(item)
+        return ca_certs
+
+    def _get_all_ca_bundles(self, additional_chain: List[str] = []) -> str:
+        combined = []
+        if os.path.isfile(SYSTEM_CA_CERTS):
+            certs = open(SYSTEM_CA_CERTS).read()
+            if len(certs):
+                combined.append(certs)
+
+        uploaded_cas = self.get_ca_and_chain()
+        if uploaded_cas:
+            combined.append(uploaded_cas)
+
+        ca_certs = self._get_ca_bundles_from_send_cert()
+        if ca_certs:
+            combined.extend(ca_certs)
+
+        if additional_chain:
+            combined.extend(additional_chain)
+
+        return "\n".join(combined)
+
+    def get_ca_bundles_from_oauth_relations(self) -> List[str]:
+        """Get CA bundles from oauth relations."""
+        ca_certs = []
+        all_provider_info = self.oauth.get_all_provider_info()
+        for provider in all_provider_info:
+            provider_info = provider.get("info", None)
+            if not provider_info:
+                continue
+            if provider_info.ca_chain:
+                ca_certs.extend(provider_info.ca_chain)
+        return ca_certs
+
+    def sync_oidc_providers(self):
+        """Sync OIDC provider metadata to apache2 OIDCMetadataDir."""
+        files = self.oauth.get_provider_metadata_files()
+        logger.info("Writing oidc metadata files")
+        self.keystone_manager.setup_oidc_metadata_folder()
+        self.keystone_manager.write_oidc_metadata(files)
+        return True
+
+    def get_oidc_secret(self):
+        """Get the OIDC secret from the peers relation."""
+        oidc_secret_id = self.peers.get_app_data("oidc-crypto-passphrase")
+        if not oidc_secret_id and not self.unit.is_leader():
+            return
+
+        crypto_secret = None
+        if not oidc_secret_id:
+            secret = pwgen.pwgen(32)
+            oidc_secret = self.model.app.add_secret(
+                {"oidc-crypto-passphrase": secret},
+                label="oidc-crypto-passphrase",
+                rotate=SecretRotate.NEVER,
+            )
+            self.peers.set_app_data(
+                {
+                    "oidc-crypto-passphrase": oidc_secret.id,
+                }
+            )
+            crypto_secret = secret
+        else:
+            oidc_secret = self.model.get_secret(id=oidc_secret_id)
+            crypto_secret = oidc_secret.get_content(refresh=True).get(
+                "oidc-crypto-passphrase", None
+            )
+
+        return crypto_secret
 
     def _get_admin_password_action(self, event: ActionEvent) -> None:
         if not self.unit.is_leader():
@@ -930,6 +1301,21 @@ export OS_AUTH_VERSION=3
             )
             handlers.append(self.dc)
 
+        if self.can_add_handler(self.TRUSTED_DASHBOARD, handlers):
+            self.trusted_dashboard = TrustedDashboardRequiresHandler(
+                self,
+                self.TRUSTED_DASHBOARD,
+                self._handle_trusted_dashboard_changed,
+            )
+            handlers.append(self.trusted_dashboard)
+
+        if self.can_add_handler(OAUTH, handlers):
+            self.oauth = OAuthRequiresHandler(
+                self,
+                OAUTH,
+                self._handle_oauth_info_changed,
+            )
+            handlers.append(self.oauth)
         return super().get_relation_handlers(handlers)
 
     @property
@@ -945,7 +1331,7 @@ export OS_AUTH_VERSION=3
         return contexts
 
     @property
-    def container_configs(self):
+    def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
         """Container configs for keystone."""
         _cconfigs = [
             sunbeam_core.ContainerConfigFile(
@@ -957,6 +1343,19 @@ export OS_AUTH_VERSION=3
             sunbeam_core.ContainerConfigFile(
                 LOGGING_CONF,
                 "root",
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                # Any CA cert that also needs to be added to the system CA store
+                # must have the crt extension. We need to add the ca-bundle.crt
+                # to the system CA store so that it can be used by apache and
+                # the openidc modules to call into any IAM provider we need to trust,
+                # such as a Canonical Identity Platform deployment that has self
+                # signed certificates, or uses a CA that is not in the default
+                # certificate store.
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
+                self.service_user,
                 self.service_group,
                 0o640,
             ),
@@ -1059,6 +1458,14 @@ export OS_AUTH_VERSION=3
         """Remove domain files from domains no longer related."""
         active_domains = [c["domain-name"] for c in domain_configs]
         removed_domains = []
+        # These files do not belong to any domain. The keystone-combined.crt
+        # holds any CA uploaded via add-ca-certs action and the ca-bundle.crt
+        # is added by receive-ca-certs relation. Both of these get added to the
+        # system CA store in the keystone container.
+        exclude_list = [
+            "ca-bundle.crt",
+            "keystone-combined.crt",
+        ]
         for domain_file in container.list_files(self.domain_config_dir):
             domain_on_disk = domain_file.name.split(".")[1]
             if domain_on_disk in active_domains:
@@ -1068,7 +1475,10 @@ export OS_AUTH_VERSION=3
                 removed_domains.append(domain_on_disk)
         for domain_file in container.list_files(self.domain_ca_dir):
             domain_on_disk = domain_file.name.split(".")[1]
-            if domain_on_disk in active_domains:
+            if (
+                domain_on_disk in active_domains
+                or domain_file.name in exclude_list
+            ):
                 logger.debug("Keeping CA {}".format(domain_file.name))
             else:
                 container.remove_path(domain_file.path)
@@ -1645,10 +2055,12 @@ export OS_AUTH_VERSION=3
         self.open_ports()
         self.configure_containers()
         self.run_db_sync()
+        self.sync_oidc_providers()
         self.init_container_services()
         self.check_pebble_handlers_ready()
         pre_update_fernet_ready = self.unit_fernet_bootstrapped()
         self.update_fernet_keys_from_peer()
+        self.keystone_manager.write_combined_ca()
         # If the wsgi service was running with no tokens it will be in a
         # wedged state so restart it.
         if self.unit_fernet_bootstrapped() and not pre_update_fernet_ready:
