@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0c5ede5_2bc82b6c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-05T01:38:38Z",
+      "side": 1,
+      "message": "Nice work, LGTM. Will wait for functional tests",
+      "revId": "b3613a0775e2c3b7617f58aa2ce6b8aed21704c9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
