@@ -16,6 +16,24 @@
       "message": "TODO: double check the api audit maps, some might be slightly out of date.",
       "revId": "943aa7bee588c1743b53d4b51c24975542aee13d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dfffb44d_9e941c99",
+        "filename": "charms/glance-k8s/src/templates/api_audit_map.conf.j2",
+        "patchSetId": 13
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-06-06T08:19:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dc284443_edb1ee88",
+      "revId": "943aa7bee588c1743b53d4b51c24975542aee13d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
