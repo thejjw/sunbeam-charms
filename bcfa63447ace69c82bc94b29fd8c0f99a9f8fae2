@@ -33,6 +33,23 @@
       "message": "recheck temporary failure in snap installation",
       "revId": "bcfa63447ace69c82bc94b29fd8c0f99a9f8fae2",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1dcb93b_ef6964cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-06-11T13:32:18Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "bcfa63447ace69c82bc94b29fd8c0f99a9f8fae2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
