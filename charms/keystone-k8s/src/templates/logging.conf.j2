@@ -1,11 +1,11 @@
 [loggers]
-keys=root,keystone_audit_monitor
+keys=root,oslo.messaging.notification
 
 [formatters]
 keys=normal,normal_with_name,debug,context
 
 [handlers]
-keys=production,devel,keystone_audit_monitor
+keys=production,devel,oslo.messaging.notification
 
 [logger_root]
 {% if ks_logging.root_level -%}
@@ -25,12 +25,12 @@ level=INFO
 formatter=context
 args=(sys.stdout,)
 
-[logger_keystone_audit_monitor]
+[logger_oslo.messaging.notification]
 level=INFO
-handlers=keystone_audit_monitor
-qualname=keystone_audit_monitor
+handlers=oslo.messaging.notification
+qualname=oslo.messaging.notification
 
-[handler_keystone_audit_monitor]
+[handler_oslo.messaging.notification]
 class=StreamHandler
 level=INFO
 formatter=context
