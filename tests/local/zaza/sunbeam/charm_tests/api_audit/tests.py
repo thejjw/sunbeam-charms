@@ -89,8 +89,7 @@ class KeystoneAPIAuditTest(OpenStackAPIAuditTest):
                 alternate_config=alternate_config,
                 application_name="keystone"):
             exp_msg = (
-                "keystone_audit_monitor Received info notification, "
-                "publisher: identity.keystone")
+                "oslo.messaging.notification.identity.user.updated")
             self.check_audit_logs(exp_msg)
 
 

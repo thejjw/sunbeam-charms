@@ -1,10 +1,14 @@
 #! /usr/bin/python3
 
 import sys
+import uuid
 
 import oslo_messaging
 from oslo_config import cfg  # noqa
 from oslo_log import log as logging
+from oslo_serialization import jsonutils  # noqa
+from oslo_utils import strutils  # noqa
+from oslo_utils import timeutils  # noqa
 
 LOG = logging.getLogger("keystone_audit_monitor")
 CONF = cfg.CONF
@@ -24,18 +28,22 @@ class NotificationEndpoint(object):
 
     def _log_notification(self, ctxt, priority, publisher_id,
                           event_type, payload, metadata):
-        LOG.info(
-           "Received %(priority)s notification, "
-           "publisher: %(publisher_id)s, "
-           "event: %(event_type)s, "
-           "payload: %(payload)s, "
-           "metadata: %(metadata)s.",
-           dict(priority=priority,
-                publisher_id=publisher_id,
-                event_type=event_type,
-                payload=payload,
-                metadata=metadata))
-
+        # We'll use the same format as the LogDriver from oslo.messaging.
+        msg = dict(message_id=str(uuid.uuid4()),
+                   publisher_id=publisher_id,
+                   event_type=event_type,
+                   priority=priority,
+                   payload=payload,
+                   timestamp=str(timeutils.utcnow()))
+        logger = logging.getLogger('%s.%s' % ('oslo.messaging.notification',
+                                              event_type))
+        method = getattr(logger, priority.lower(), None)
+        if method:
+            method(jsonutils.dumps(strutils.mask_dict_password(msg)))
+        else:
+            LOG.warning('Unable to log message as notify cannot find a '
+                        'logger with the priority specified '
+                        '%s' % priority.lower())
 
 def run_monitor():
     LOG.info("Starting Keystone audit monitor")
