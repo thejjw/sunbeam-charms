@@ -70,26 +70,34 @@ class OpenStackAPIAuditTest(test_utils.BaseCharmTest):
 class KeystoneAPIAuditTest(OpenStackAPIAuditTest):
     application_name = "keystone"
 
-    def _trigger_audit_event(self):
-        # We'll update the user email to trigger an audit event.
-        auth = openstack_utils.get_overcloud_auth()
-        username = auth["OS_USERNAME"]
-        user = self.keystone_client.users.find(name=username)
-
-        rand_num = random.randint(0, 32768)
-        email = f"test{rand_num}.example.com"
-        self.keystone_client.users.update(user.id, email=email)
-
     def test_audit(self):
         # Expects the following relation: rabbitmq:amqp keystone:amqp
         default_config = {'enable-telemetry-notifications': False}
         alternate_config = {'enable-telemetry-notifications': True}
+
+        rand_num = random.randint(0, 32768)
+        name = f"test-{rand_num}"
+
+        # Check that audit messages are logged with telemetry enabled.
         with self.config_change(
                 default_config=default_config,
                 alternate_config=alternate_config,
                 application_name="keystone"):
+            # Create a domain to trigger an event.
+            domain = self.keystone_client.domains.create(name, enabled=False)
             exp_msg = (
-                "oslo.messaging.notification.identity.user.updated")
+                "oslo.messaging.notification.identity.domain.created")
+            self.check_audit_logs(exp_msg)
+
+        # Check that audit messages are logged with telemetry disabled.
+        with self.config_change(
+                default_config=alternate_config,
+                alternate_config=default_config,
+                application_name="keystone"):
+            # Delete the newly created domain and check the event.
+            self.keystone_client.domains.delete(domain.id)
+            exp_msg = (
+                "oslo.messaging.notification.identity.domain.deleted")
             self.check_audit_logs(exp_msg)
 
 
