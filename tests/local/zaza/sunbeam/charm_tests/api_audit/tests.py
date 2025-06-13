@@ -84,9 +84,24 @@ class KeystoneAPIAuditTest(OpenStackAPIAuditTest):
         # Expects the following relation: rabbitmq:amqp keystone:amqp
         default_config = {'enable-telemetry-notifications': False}
         alternate_config = {'enable-telemetry-notifications': True}
+
+        # Check that audit messages are logged with telemetry enabled.
+        # We expect the "keystone-audit-monitor" service to receive
+        # and log the CADF events.
         with self.config_change(
                 default_config=default_config,
                 alternate_config=alternate_config,
+                application_name="keystone"):
+            exp_msg = (
+                "oslo.messaging.notification.identity.user.updated")
+            self.check_audit_logs(exp_msg)
+
+        # Check that audit messages are logged with telemetry disabled.
+        # We expect the "wsgi-keystone" service to receive and log the
+        # CADF events.
+        with self.config_change(
+                default_config=alternate_config,
+                alternate_config=default_config,
                 application_name="keystone"):
             exp_msg = (
                 "oslo.messaging.notification.identity.user.updated")

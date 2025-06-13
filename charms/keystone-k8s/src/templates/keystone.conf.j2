@@ -113,6 +113,22 @@ admin_project_name = admin
 # Bug #1819134
 max_request_body_size = 114688
 
-{% include "parts/section-oslo-notifications" %}
+# Keystone doesn't support the audit middleware as the api paste was dropped.
+# The CADF notifications are emitted using oslo.messaging notifications.
+#
+# If telemetry is enabled, we use a separate service to consume CADF
+# notifications using a custom pool (queue) called "keystone-charm".
+# If it's disabled, we'll just configure oslo notifications to use the log
+# driver.
+#
+# The CADF messages will be logged by the "keystone-audit-monitor" service
+# if telemetry is enabled, otherwise by "wsgi-keystone".
+{% if options.enable_telemetry_notifications -%}
+[oslo_messaging_notifications]
+driver = messagingv2
+{% else -%}
+[oslo_messaging_notifications]
+driver = log
+{%- endif %}
 
 {% include "parts/section-oslo-messaging-rabbit" %}
