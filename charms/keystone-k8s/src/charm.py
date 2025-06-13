@@ -274,36 +274,6 @@ class IdentityResourceProvidesHandler(sunbeam_rhandlers.RelationHandler):
 class WSGIKeystonePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Keystone Pebble Handler."""
 
-    def get_layer(self) -> dict:
-        """Keystone WSGI service layer.
-
-        :returns: pebble layer configuration
-        :rtype: dict
-        """
-        layer = super().get_layer()
-        # Append the audit monitor service, which will receive audit
-        # messages over AMQP and log them.
-        layer["services"]["keystone-audit-monitor"] = {
-            "override": "replace",
-            "summary": "keystone audit monitor",
-            "command": "/usr/bin/python3 /usr/bin/keystone_audit_monitor.py",
-            "user": "keystone",
-            "group": "keystone",
-        }
-        return layer
-
-    def default_container_configs(
-        self,
-    ) -> list[sunbeam_core.ContainerConfigFile]:
-        """Container configs for WSGI service."""
-        configs = super().default_container_configs()
-        configs += [
-            sunbeam_core.ContainerConfigFile(
-                "/usr/bin/keystone_audit_monitor.py", "root", "keystone", 0o750
-            ),
-        ]
-        return configs
-
     def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
         """Enable and start WSGI service."""
         container = self.charm.unit.get_container(self.container_name)
