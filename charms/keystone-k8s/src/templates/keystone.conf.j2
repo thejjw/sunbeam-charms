@@ -113,6 +113,15 @@ admin_project_name = admin
 # Bug #1819134
 max_request_body_size = 114688
 
+# Keystone doesn't support the audit middleware as the api paste was dropped.
+# The CADF notifications are emitted using oslo.messaging notifications.
+#
+# Multiple oslo.messaging notification drivers may be enabled. By default,
+# we'll enable the "log" driver while the "messagingv2" driver may also be
+# enabled through the "telemetry" feature.
+[oslo_messaging_notifications]
+driver = log
+
 {% include "parts/section-oslo-notifications" %}
 
 {% include "parts/section-oslo-messaging-rabbit" %}
