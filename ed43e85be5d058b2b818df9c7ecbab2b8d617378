@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d8d007ae_cb7431e7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-16T10:00:02Z",
+      "side": 1,
+      "message": "yes. Will push an update as soon as it\u0027s done.",
+      "parentUuid": "891dc7a6_550a3762",
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e0d73693_9e78e744",
         "filename": "charms/keystone-k8s/src/charm.py",
         "patchSetId": 6
@@ -66,6 +84,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "76f88ca5_4fc6aa60",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-16T10:00:02Z",
+      "side": 1,
+      "message": "Moved the `TrustedDashboardProvidesHandler` class to `ops-sunbeam/relation_handler.py`. Will implement the requires classes for `trusted-dashboard` and `oauth`",
+      "parentUuid": "85d01a3b_8851d404",
+      "range": {
+        "startLine": 468,
+        "startChar": 8,
+        "endLine": 480,
+        "endChar": 9
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "35c77a8a_6b98c5a5",
         "filename": "charms/keystone-k8s/src/charm.py",
         "patchSetId": 6
@@ -77,6 +119,30 @@
       "writtenOn": "2025-06-16T08:34:12Z",
       "side": 1,
       "message": "This is not subscribing at all to the events, can you look into using the `CertificateTransferRequiresHandler`? You might need to inherit it and just update the child class to update the system ca certificates?",
+      "range": {
+        "startLine": 625,
+        "startChar": 33,
+        "endLine": 625,
+        "endChar": 49
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e744836f_ebd8b08c",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-16T10:00:02Z",
+      "side": 1,
+      "message": "I will see about extending the `CertificateTransferRequiresHandler` class.\n\nTo add some context here, there are 3 sources from which we need to gather certificates to account for all possible scenarios:\n\n* The receive-ca-cert relation\n* The add-ca-cert action in keystone\n* the ca_chain provider parameter in the oauth provider relation\n\nMoreover, we also need the default system CA certs, because some OIDC providers use public CAs.\n\nThis function is used in `_get_ca_bundle_from_all_relations()` to compose a single bundle that is passed to `requests.get()` to validate the remote endpoint when fetching the `openid-configuration` which is ultimately written to the OpenID connect metadata folder in the keystone workload container.\n\nThe update of the system CA is done by the `ca-bundle.crt.j2` template (it needs to have the .crt extension, otherwise it\u0027s ignored), and is rendered with the context from the existing `CertificateTransferRequiresHandler`.",
+      "parentUuid": "35c77a8a_6b98c5a5",
       "range": {
         "startLine": 625,
         "startChar": 33,
@@ -112,6 +178,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5d250362_15ab880f",
+        "filename": "libs/external/lib/charms/horizon_k8s/v0/trusted_dashboard.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-16T10:00:02Z",
+      "side": 1,
+      "message": "yes. As soon as we stabilize the behavior of the relation.",
+      "parentUuid": "b8f934f5_e938daea",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 116
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "180c546a_9c5ac97c",
         "filename": "libs/external/lib/charms/horizon_k8s/v0/trusted_dashboard.py",
         "patchSetId": 6
@@ -123,6 +213,24 @@
       "writtenOn": "2025-06-16T08:34:12Z",
       "side": 1,
       "message": "There are multiple trailing whitespaces",
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4f0a44f_5a5e7ea3",
+        "filename": "libs/external/lib/charms/horizon_k8s/v0/trusted_dashboard.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-16T10:00:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "180c546a_9c5ac97c",
       "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -140,6 +248,30 @@
       "writtenOn": "2025-06-16T08:34:12Z",
       "side": 1,
       "message": "Does this file need to be in the global templates? Or is it specific to keystone-k8s?",
+      "range": {
+        "startLine": 1,
+        "startChar": 5,
+        "endLine": 1,
+        "endChar": 6
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cea3fe3e_be0696bd",
+        "filename": "templates/parts/apache2-oidc-params",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-16T10:00:02Z",
+      "side": 1,
+      "message": "moved to the keystone charm templates folder.",
+      "parentUuid": "0da8dfb3_ed7fe6eb",
       "range": {
         "startLine": 1,
         "startChar": 5,
