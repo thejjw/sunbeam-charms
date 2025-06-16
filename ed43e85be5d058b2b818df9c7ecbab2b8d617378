@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "891dc7a6_550a3762",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-06-16T08:34:12Z",
+      "side": 1,
+      "message": "Can you look into separating the OpenIDC logic from the core keystone charm class if possible?",
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0d73693_9e78e744",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-06-16T08:34:12Z",
+      "side": 1,
+      "message": "You\u0027ll need to write a `OauthHandler` to manage this relation.\n\nThis one can be hosted directly in the keystone-k8s charm (meaning the code won\u0027t have to go in https://opendev.org/openstack/sunbeam-charms/src/branch/main/ops-sunbeam/ops_sunbeam/relation_handlers.py) but be please, do take a look at what a RelationHandler looks like.",
+      "range": {
+        "startLine": 456,
+        "startChar": 8,
+        "endLine": 466,
+        "endChar": 9
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85d01a3b_8851d404",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-06-16T08:34:12Z",
+      "side": 1,
+      "message": "Same a previous comment, this will need a `TrustedDashboardRequiresHandler`. (and a mirror, TrustedDashboardProvidesHandler for horizon).\n\nThe requires handler can live in keystone-k8s code, but the Provides will need to live in the `ops-sunbeam/relation_handler.py` file, as it will be re-used in the future for skyline.",
+      "range": {
+        "startLine": 468,
+        "startChar": 8,
+        "endLine": 480,
+        "endChar": 9
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35c77a8a_6b98c5a5",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-06-16T08:34:12Z",
+      "side": 1,
+      "message": "This is not subscribing at all to the events, can you look into using the `CertificateTransferRequiresHandler`? You might need to inherit it and just update the child class to update the system ca certificates?",
+      "range": {
+        "startLine": 625,
+        "startChar": 33,
+        "endLine": 625,
+        "endChar": 49
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8f934f5_e938daea",
+        "filename": "libs/external/lib/charms/horizon_k8s/v0/trusted_dashboard.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-06-16T08:34:12Z",
+      "side": 1,
+      "message": "Are you planning to contribute this relation to https://github.com/canonical/charm-relation-interfaces ?",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 116
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "180c546a_9c5ac97c",
+        "filename": "libs/external/lib/charms/horizon_k8s/v0/trusted_dashboard.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-06-16T08:34:12Z",
+      "side": 1,
+      "message": "There are multiple trailing whitespaces",
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0da8dfb3_ed7fe6eb",
+        "filename": "templates/parts/apache2-oidc-params",
+        "patchSetId": 6
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-06-16T08:34:12Z",
+      "side": 1,
+      "message": "Does this file need to be in the global templates? Or is it specific to keystone-k8s?",
+      "range": {
+        "startLine": 1,
+        "startChar": 5,
+        "endLine": 1,
+        "endChar": 6
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
