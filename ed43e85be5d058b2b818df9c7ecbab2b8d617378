@@ -36,6 +36,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9192135_5d8c6f01",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-16T20:29:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8d007ae_cb7431e7",
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e0d73693_9e78e744",
@@ -96,6 +114,30 @@
       "side": 1,
       "message": "Moved the `TrustedDashboardProvidesHandler` class to `ops-sunbeam/relation_handler.py`. Will implement the requires classes for `trusted-dashboard` and `oauth`",
       "parentUuid": "85d01a3b_8851d404",
+      "range": {
+        "startLine": 468,
+        "startChar": 8,
+        "endLine": 480,
+        "endChar": 9
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbd7c6ba_b890da73",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-16T20:29:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "76f88ca5_4fc6aa60",
       "range": {
         "startLine": 468,
         "startChar": 8,
