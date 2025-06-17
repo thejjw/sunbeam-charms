@@ -77,6 +77,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0dbd2542_cea47276",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-17T07:29:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0d73693_9e78e744",
+      "range": {
+        "startLine": 456,
+        "startChar": 8,
+        "endLine": 466,
+        "endChar": 9
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "85d01a3b_8851d404",
