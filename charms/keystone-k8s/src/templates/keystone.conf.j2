@@ -5,7 +5,7 @@
 ###############################################################################
 [DEFAULT]
 log_config_append = /etc/keystone/logging.conf
-logging_context_format_string = %(asctime)s %(levelname)s %(name)s [%(global_request_id)s %(request_id)s %(user_identity)s] %(message)s
+logging_context_format_string = %(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s [%(global_request_id)s %(request_id)s %(user_identity)s] %(message)s
 logging_default_format_string = %(asctime)s %(levelname)s %(name)s %(message)s
 debug = {{ options.debug }}
 

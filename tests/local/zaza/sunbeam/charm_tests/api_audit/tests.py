@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import random
+import re
 import subprocess
 
 import barbicanclient.client as barbican_client
@@ -63,8 +64,21 @@ class OpenStackAPIAuditTest(test_utils.BaseCharmTest):
         # logs using COS.
         pod_name = f"{self.application_name}-0"
         pod_logs = self.get_pod_logs(pod_name)
+
         assert exp_msg in pod_logs, (
             f"{pod_name} logs do not contain the expected message: {exp_msg}")
+
+        # We'll ensure that all services use the same log format, making those
+        # records easier to parse.
+        #
+        # {timestamp} {pid} {log level} oslo.messaging.notification.*
+        #     [{global-req-id} {req-id} {user context}] {payload}
+        audit_re = (
+            r"\d+-\d+-\d+ \d+:\d+:\d+\.\d+ \d+ "
+            r"INFO oslo.messaging.notification[\w.]+ \[.* "
+            r"req-[\w-]+ .*\] \{.*\}")
+        assert re.search(audit_re, pod_logs), (
+            f"{pod_name} logs do not follow the expected format")
 
 
 class KeystoneAPIAuditTest(OpenStackAPIAuditTest):
