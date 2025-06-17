@@ -17,12 +17,12 @@ tests:
   - zaza.sunbeam.charm_tests.api_audit.tests.DesignateAPIAuditTest
   - zaza.sunbeam.charm_tests.api_audit.tests.GlanceAPIAuditTest
   - zaza.sunbeam.charm_tests.api_audit.tests.HeatAPIAuditTest
-  - zaza.sunbeam.charm_tests.api_audit.tests.KeystoneAPIAuditTest
   - zaza.sunbeam.charm_tests.api_audit.tests.MagnumAPIAuditTest
   - zaza.sunbeam.charm_tests.api_audit.tests.MasakariAPIAuditTest
   - zaza.sunbeam.charm_tests.api_audit.tests.NeutronAPIAuditTest
   - zaza.sunbeam.charm_tests.api_audit.tests.NovaAPIAuditTest
   - zaza.sunbeam.charm_tests.api_audit.tests.OctaviaAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.KeystoneAPIAuditTest
 tests_options:
   trust:
     - smoke
