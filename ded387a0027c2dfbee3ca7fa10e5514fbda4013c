@@ -16,6 +16,46 @@
       "message": "recheck",
       "revId": "ded387a0027c2dfbee3ca7fa10e5514fbda4013c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77b16180_1a00df45",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-06-18T12:08:12Z",
+      "side": 1,
+      "message": "This overall looks good",
+      "revId": "ded387a0027c2dfbee3ca7fa10e5514fbda4013c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "749c2009_b0c6b0dd",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 2058,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-06-18T12:08:12Z",
+      "side": 1,
+      "message": "nitpicking:\n\nIs there a reason sync_oidc_providers is run before init_container_services? \n\ninit_container_services will bailout the charm if any container is missing / unready. While that\u0027s not an issue here as the run_db_sync will also bailout as there\u0027s only 1 workload container, let\u0027s keep the semantics",
+      "range": {
+        "startLine": 2058,
+        "startChar": 13,
+        "endLine": 2058,
+        "endChar": 32
+      },
+      "revId": "ded387a0027c2dfbee3ca7fa10e5514fbda4013c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
