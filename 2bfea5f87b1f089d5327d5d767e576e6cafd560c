@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5841988_7ed991c2",
+        "filename": "charms/manila-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-18T01:32:23Z",
+      "side": 1,
+      "message": "If there is no backend, then can we have these protocols as defaults?",
+      "revId": "2bfea5f87b1f089d5327d5d767e576e6cafd560c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5f8bc62_71efe6aa",
+        "filename": "charms/manila-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-18T01:32:23Z",
+      "side": 1,
+      "message": "What happens on juju remove-relation \u003cprovider\u003e \u003crequirer\u003e on this interface, is share protocols in manila.conf get updated?",
+      "revId": "2bfea5f87b1f089d5327d5d767e576e6cafd560c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f468bc83_98774ebc",
+        "filename": "charms/manila-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-18T01:32:23Z",
+      "side": 1,
+      "message": "v1 is not supported after Kilo, so can you remove this.\n\nhttps://docs.openstack.org/manila/latest/contributor/api_microversion_history.html",
+      "revId": "2bfea5f87b1f089d5327d5d767e576e6cafd560c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a8afaf01_26e6d6ac",
+        "filename": "charms/manila-k8s/tests/unit/test_charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-18T01:32:23Z",
+      "side": 1,
+      "message": "Add tests to include all relations and only mandatory relations",
+      "revId": "2bfea5f87b1f089d5327d5d767e576e6cafd560c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
