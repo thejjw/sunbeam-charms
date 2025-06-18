@@ -35,6 +35,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4b5defe_f9ca5b4a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-06-18T12:38:37Z",
+      "side": 1,
+      "message": "Resetting vote while I debug a local deployment",
+      "revId": "ded387a0027c2dfbee3ca7fa10e5514fbda4013c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "749c2009_b0c6b0dd",
