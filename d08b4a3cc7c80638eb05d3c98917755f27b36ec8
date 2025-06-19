@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "872f3c81_1d72a87d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-06-19T12:50:07Z",
+      "side": 1,
+      "message": "The last questions that I have are:\n- Would it make sense for keystone to also transfer the certificates it got from the receive-ca-cert to the send-ca-cert relation?\n- What\u0027s the certificate story when the certificates are updated? Will the old certificate and new certificates live in the container truststore?\n- What\u0027s the ceritifcate story when the `receive-ca-cert` relation goes away, is that certificate removed from the global trust store?",
+      "revId": "d08b4a3cc7c80638eb05d3c98917755f27b36ec8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
