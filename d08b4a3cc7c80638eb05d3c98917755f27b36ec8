@@ -34,6 +34,24 @@
       "parentUuid": "872f3c81_1d72a87d",
       "revId": "d08b4a3cc7c80638eb05d3c98917755f27b36ec8",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c6ea562_ec7f8613",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-19T13:12:51Z",
+      "side": 1,
+      "message": "\u003eWould it make sense for keystone to also transfer the certificates it got from the receive-ca-cert to the send-ca-cert relation?\n\nIf you believe it would make sense for other purposes, we can do that.",
+      "parentUuid": "2b683717_25b32f82",
+      "revId": "d08b4a3cc7c80638eb05d3c98917755f27b36ec8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
