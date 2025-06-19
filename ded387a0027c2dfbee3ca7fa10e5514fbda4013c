@@ -54,6 +54,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "de33d712_b0d4f24a",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-06-19T12:44:35Z",
+      "side": 1,
+      "message": "After tripping on this, I feel like this section should raise a `sunbeam_guard.BlockedException` stating that we can\u0027t validate the issuer url got from the relation.\n\nCurrent behaviour is just a log message and we don\u0027t want the user to feel like everything is going good while that\u0027s not the case.",
+      "range": {
+        "startLine": 390,
+        "startChar": 12,
+        "endLine": 390,
+        "endChar": 18
+      },
+      "revId": "ded387a0027c2dfbee3ca7fa10e5514fbda4013c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "749c2009_b0c6b0dd",
         "filename": "charms/keystone-k8s/src/charm.py",
         "patchSetId": 8
