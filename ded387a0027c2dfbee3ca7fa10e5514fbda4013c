@@ -77,6 +77,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0b4dd65b_831a8145",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-19T13:11:56Z",
+      "side": 1,
+      "message": "That is a great idea. Will push an update soon.",
+      "parentUuid": "de33d712_b0d4f24a",
+      "range": {
+        "startLine": 390,
+        "startChar": 12,
+        "endLine": 390,
+        "endChar": 18
+      },
+      "revId": "ded387a0027c2dfbee3ca7fa10e5514fbda4013c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "749c2009_b0c6b0dd",
         "filename": "charms/keystone-k8s/src/charm.py",
         "patchSetId": 8

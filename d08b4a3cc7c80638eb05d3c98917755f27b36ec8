@@ -16,6 +16,24 @@
       "message": "The last questions that I have are:\n- Would it make sense for keystone to also transfer the certificates it got from the receive-ca-cert to the send-ca-cert relation?\n- What\u0027s the certificate story when the certificates are updated? Will the old certificate and new certificates live in the container truststore?\n- What\u0027s the ceritifcate story when the `receive-ca-cert` relation goes away, is that certificate removed from the global trust store?",
       "revId": "d08b4a3cc7c80638eb05d3c98917755f27b36ec8",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b683717_25b32f82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-19T13:11:56Z",
+      "side": 1,
+      "message": "\u003e Would it make sense for keystone to also transfer the certificates it got from the receive-ca-cert to the send-ca-cert relation?\n\nFor the purposes of this particular change (enabling OpenID connect), it does not. The certificates are used by the charm to validate the IAM provider and be able to fetch the `.well-known/openid-configuration` and by the apache2 mod-openid-connect module when validating the JWT bearer tokens.\n\nThe charm passes the CA bundle to `requests.get()` to get the metadata and push it to the workload container and apache needs that same CA to be part of the system certificate store.\n\n\u003e What\u0027s the certificate story when the certificates are updated? Will the old certificate and new certificates live in the container truststore?\n\nthe `keystone-combined.crt` bundle where these CA certs end up is regenerated and pushed every time the hooks run, from the existing relation data. Then we run `update-ca-certificates --fresh` which should recreate the `ca-certificates.crt` file from all existing certificates (public and additional).\n\n\u003eWhat\u0027s the ceritifcate story when the receive-ca-cert relation goes away, is that certificate removed from the global trust store?\n\nIf the relation is broken, and no certs are set on the receive-ca-cert relation, the `keystone-combined.crt` file gets removed and the system ca store regenerated without the previously added certificates.\n\nIf we relate keystone to multiple send-ca-cert providers and later remove one, the one we remove will have its certificate removed, as the `keystone-combined.crt` will be regenerated every time `configure_unit()` is called.",
+      "parentUuid": "872f3c81_1d72a87d",
+      "revId": "d08b4a3cc7c80638eb05d3c98917755f27b36ec8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
