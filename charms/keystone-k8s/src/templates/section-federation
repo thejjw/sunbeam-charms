@@ -1,11 +1,11 @@
-{% if trusted_dashboard and trusted_dashboard.dashboards %}
+{% if fid and fid.oidc_providers and trusted_dashboard and trusted_dashboard.dashboards %}
 [federation]
 {% for dashboard_url in trusted_dashboard.dashboards -%}
 trusted_dashboard = {{ dashboard_url }}
 {% endfor -%}
 {% endif %}
 
-{% if oauth and oauth.oidc_providers -%}
+{% if fid and fid.oidc_providers -%}
 [openid]
 remote_id_attribute = HTTP_OIDC_ISS
 {% endif -%}
