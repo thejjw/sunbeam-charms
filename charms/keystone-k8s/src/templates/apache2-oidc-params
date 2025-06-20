@@ -1,4 +1,4 @@
-{% if oauth and oauth.oidc_providers -%}
+{% if fid and fid.oidc_providers %}
     OIDCClaimPrefix "OIDC-"
     OIDCClaimDelimiter ";"
     OIDCResponseType code
@@ -6,34 +6,38 @@
     OIDCStateInputHeaders none
     OIDCXForwardedHeaders X-Forwarded-Proto X-Forwarded-Host X-Forwarded-Port
     OIDCSessionType client-cookie:persistent
-    OIDCCryptoPassphrase {{ oauth.oidc_crypto_passphrase }}
+    OIDCCryptoPassphrase {{ fid.oidc_crypto_passphrase }}
     OIDCMetadataDir /etc/apache2/oidc-metadata
-    OIDCRedirectURI {{ oauth.redirect_uri }}
+    OIDCRedirectURI {{ fid.redirect_uri }}
 
-
-    <Location {{ oauth.redirect_uri_path }}>
-       AuthType auth-openidc
-       Require valid-user
-    </Location>
-
-{% for provider in oauth.oidc_providers -%}
-
-    <Location {{oauth.public_url_path}}/OS-FEDERATION/identity_providers/{{ provider.name }}/protocols/{{ provider.protocol }}/auth>
+    <Location {{ fid.redirect_uri_path }}>
         AuthType auth-openidc
         Require valid-user
-
-        OAuth2TokenVerify jwks_uri {{provider.info.jwks_endpoint}}
-        Require claim iss:{{provider.info.issuer_url}}
-        SetEnv HTTP_OIDC_ISS {{provider.info.issuer_url}}
     </Location>
 
-    <Location {{oauth.public_url_path}}/auth/OS-FEDERATION/identity_providers/{{ provider.name }}/protocols/{{ provider.protocol }}/websso>
-        Require valid-user
+{% for provider in fid.oidc_providers %}
+    <Location {{fid.public_url_path}}/OS-FEDERATION/identity_providers/{{ provider.name }}/protocols/{{ provider.protocol }}/auth>
+        AuthType auth-openidc
+        <RequireAll>
+            Require valid-user
+            Require claim iss:{{provider.issuer_url}}
+        </RequireAll>
+        OIDCUnAutzAction auth true
+
+        OAuth2TokenVerify jwks_uri {{provider.jwks_endpoint}}
+        SetEnv HTTP_OIDC_ISS {{provider.issuer_url}}
+    </Location>
+
+    <Location {{fid.public_url_path}}/auth/OS-FEDERATION/identity_providers/{{ provider.name }}/protocols/{{ provider.protocol }}/websso>
         AuthType openid-connect
+        <RequireAll>
+            Require valid-user
+            Require claim iss:{{provider.issuer_url}}
+        </RequireAll>
 
-        OIDCDiscoverURL {{ oauth.redirect_uri }}?iss={{provider.encoded_issuer_url}}
-        Require claim iss:{{provider.info.issuer_url}}
+        OIDCDiscoverURL {{ fid.redirect_uri }}?iss={{provider.encoded_issuer_url}}
+        OIDCUnAuthAction auth true
+        OIDCUnAutzAction auth true
     </Location>
-
-{% endfor -%}
-{% endif -%}
+{% endfor %}
+{% endif %}
