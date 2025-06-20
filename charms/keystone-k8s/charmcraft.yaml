@@ -168,6 +168,9 @@ requires:
   trusted-dashboard:
     interface: trusted-dashboard
     optional: true
+  external-idp:
+    interface: external_provider
+    optional: true
 
 provides:
   identity-service:
