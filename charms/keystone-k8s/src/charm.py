@@ -52,6 +52,7 @@ import charms.keystone_k8s.v0.domain_config as sunbeam_dc_svc
 import charms.keystone_k8s.v0.identity_credentials as sunbeam_cc_svc
 import charms.keystone_k8s.v0.identity_resource as sunbeam_ops_svc
 import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
+import charms.kratos_external_idp_integrator.v0.kratos_external_provider as external_idp
 import jinja2
 import keystoneauth1.exceptions
 import ops
@@ -293,7 +294,60 @@ class IdentityResourceProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
-class OAuthRequiresHandler(sunbeam_rhandlers.RelationHandler):
+class _BaseIDPHandler(sunbeam_rhandlers.RelationHandler):
+
+    def _get_idp_file_name_from_issuer_url(self, issuer_url):
+        """Generate a sanitized file name from the issuer URL.
+
+        The openidc apache
+        module expects that the provider metadata exist in a folder defined by
+        OIDCMetadataDir and the file name must be a url encoded string, without
+        the schema and the trailing slash.
+        For example, if the issuer URL of the IDP is:
+
+        https://172.16.1.207/iam-hydra
+
+        then the generated file names will be:
+
+          * 172.16.1.207%2Fiam-hydra.client - client ID and client secret
+          * 172.16.1.207%2Fiam-hydra.provider - the provider metadata file.
+
+          The contents of the .provider file can be fetched from:
+
+          https://172.16.1.207/iam-hydra/.well-known/openid-configuration
+        """
+        sanitized = issuer_url.lstrip("https://").lstrip("http://").rstrip("/")
+        return quote(sanitized, safe="")
+
+    def _get_oidc_metadata(
+        self, metadata_url, additional_chain: List[str] = []
+    ):
+        try:
+            chains = self.charm._get_all_ca_bundles(additional_chain)
+            with tempfile.NamedTemporaryFile() as fd:
+                fd.write(chains.encode())
+                fd.flush()
+                metadata = requests.get(metadata_url, verify=fd.name)
+                metadata.raise_for_status()
+                return metadata.json()
+        except Exception as err:
+            logger.error(
+                f"failed to retrieve idp metadata from {metadata_url}: {err}"
+            )
+            raise sunbeam_guard.BlockedExceptionError(
+                f"failed to retrieve idp metadata from {metadata_url}"
+            ) from err
+
+    @property
+    def oidc_redirect_uri(self):
+        """Generate the OIDC redirect URI."""
+        return urljoin(
+            self.charm.public_endpoint.rstrip("/") + "/",
+            "OS-FEDERATION/protocols/openid/redirect_uri",
+        )
+
+
+class OAuthRequiresHandler(_BaseIDPHandler):
     """Handler for oauth relation."""
 
     def setup_event_handler(self) -> ops.framework.Object:
@@ -310,14 +364,6 @@ class OAuthRequiresHandler(sunbeam_rhandlers.RelationHandler):
             self._oauth_relation_changed,
         )
         return oauth
-
-    @property
-    def oidc_redirect_uri(self):
-        """Generate the OIDC redirect URI."""
-        return urljoin(
-            self.charm.public_endpoint.rstrip("/") + "/",
-            "OS-FEDERATION/protocols/openid/redirect_uri",
-        )
 
     def _oauth_relation_changed(self, event):
         if not self.charm.unit.is_leader():
@@ -370,52 +416,14 @@ class OAuthRequiresHandler(sunbeam_rhandlers.RelationHandler):
                 "name": relation.app.name,
                 "protocol": "openid",
                 "encoded_issuer_url": quote(provider_info.issuer_url, safe=""),
-                "info": provider_info,
+                "jwks_endpoint": provider_info.jwks_endpoint,
+                "issuer_url": provider_info.issuer_url,
+                "client_id": provider_info.client_id,
+                "client_secret": provider_info.client_secret,
+                "ca_chain": provider_info.ca_chain,
             }
             info.append(provider)
         return info
-
-    def _get_oidc_metadata(
-        self, metadata_url, additional_chain: List[str] = []
-    ):
-        try:
-            chains = self.charm._get_all_ca_bundles(additional_chain)
-            with tempfile.NamedTemporaryFile() as fd:
-                fd.write(chains.encode())
-                fd.flush()
-                metadata = requests.get(metadata_url, verify=fd.name)
-                metadata.raise_for_status()
-                return metadata.json()
-        except Exception as err:
-            logger.error(
-                f"failed to retrieve idp metadata from {metadata_url}: {err}"
-            )
-            raise sunbeam_guard.BlockedExceptionError(
-                f"failed to retrieve idp metadata from {metadata_url}"
-            ) from err
-
-    def _get_idp_file_name_from_issuer_url(self, issuer_url):
-        """Generate a sanitized file name from the issuer URL.
-
-        The openidc apache
-        module expects that the provider metadata exist in a folder defined by
-        OIDCMetadataDir and the file name must be a url encoded string, without
-        the schema and the trailing slash.
-        For example, if the issuer URL of the IDP is:
-
-        https://172.16.1.207/iam-hydra
-
-        then the generated file names will be:
-
-          * 172.16.1.207%2Fiam-hydra.client - client ID and client secret
-          * 172.16.1.207%2Fiam-hydra.provider - the provider metadata file.
-
-          The contents of the .provider file can be fetched from:
-
-          https://172.16.1.207/iam-hydra/.well-known/openid-configuration
-        """
-        sanitized = issuer_url.lstrip("https://").lstrip("http://").rstrip("/")
-        return quote(sanitized, safe="")
 
     def get_provider_metadata_files(self) -> Mapping[str, str]:
         """Get OIDC metadata files."""
@@ -424,20 +432,17 @@ class OAuthRequiresHandler(sunbeam_rhandlers.RelationHandler):
             return {}
         files = {}
         for provider in all_providers:
-            provider_info = provider.get("info", None)
-            if not provider_info:
-                continue
             provider_metadata_url = urljoin(
-                provider_info.issuer_url.rstrip("/") + "/",
+                provider["issuer_url"].rstrip("/") + "/",
                 ".well-known/openid-configuration",
             )
             metadata = self._get_oidc_metadata(
-                provider_metadata_url, provider_info.ca_chain or []
+                provider_metadata_url, provider["ca_chain"] or []
             )
             if not metadata:
                 continue
             base_file_name = self._get_idp_file_name_from_issuer_url(
-                provider_info.issuer_url
+                provider["issuer_url"]
             )
             provider_file = f"{base_file_name}.provider"
             client_file = f"{base_file_name}.client"
@@ -445,8 +450,8 @@ class OAuthRequiresHandler(sunbeam_rhandlers.RelationHandler):
             files[provider_file] = json.dumps(metadata)
             files[client_file] = json.dumps(
                 {
-                    "client_id": provider_info.client_id,
-                    "client_secret": provider_info.client_secret,
+                    "client_id": provider["client_id"],
+                    "client_secret": provider["client_secret"],
                 },
             )
         return files
@@ -474,6 +479,143 @@ class OAuthRequiresHandler(sunbeam_rhandlers.RelationHandler):
         if self.context():
             return True
         return False
+
+
+class ExternalIDPRequiresHandler(_BaseIDPHandler):
+    """Handler for external-idp relation."""
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for external-idp relation."""
+        logger.debug("Setting up the external-idp event handler")
+
+        idp = external_idp.ExternalIdpRequirer(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            idp.on.client_config_changed,
+            self._set_redirect_uri,
+        )
+
+        self.framework.observe(
+            idp.on.client_config_removed,
+            self._on_config_changed,
+        )
+
+        self.framework.observe(
+            self.charm.on.external_idp_relation_changed,
+            self._on_config_changed,
+        )
+        return idp
+
+    def get_oidc_providers(self):
+        """Get all OIDC providers."""
+        providers = self.interface.get_providers()
+
+        data = []
+        for provider in providers:
+            data.append(
+                {
+                    "name": provider.id,
+                    "protocol": "openid",
+                    "description": provider.label,
+                }
+            )
+        if not data:
+            return {}
+        return {"federated-providers": data}
+
+    def get_all_provider_info(self):
+        """Get all OIDC provider configs."""
+        providers = self.interface.get_providers()
+        if not providers:
+            return {}
+        info = []
+        for provider in providers:
+            if not provider.client_id or not provider.client_secret:
+                continue
+
+            if not provider.issuer_url:
+                continue
+
+            provider_metadata_url = urljoin(
+                provider.issuer_url.rstrip("/") + "/",
+                ".well-known/openid-configuration",
+            )
+            metadata = self._get_oidc_metadata(provider_metadata_url, [])
+            if not metadata:
+                continue
+
+            provider = {
+                "name": provider.id,
+                "protocol": "openid",
+                "encoded_issuer_url": quote(provider.issuer_url, safe=""),
+                "jwks_endpoint": metadata["jwks_uri"],
+                "issuer_url": provider.issuer_url,
+                "client_id": provider.client_id,
+                "client_secret": provider.client_secret,
+                "ca_chain": [],
+                "oidc_metadata": metadata,
+            }
+            info.append(provider)
+        return info
+
+    def get_provider_metadata_files(self) -> Mapping[str, str]:
+        """Get OIDC metadata files."""
+        providers = self.get_all_provider_info()
+        if not providers:
+            return {}
+        files = {}
+        for provider in providers:
+            if not provider["oidc_metadata"]:
+                continue
+
+            base_file_name = self._get_idp_file_name_from_issuer_url(
+                provider["issuer_url"]
+            )
+            provider_file = f"{base_file_name}.provider"
+            client_file = f"{base_file_name}.client"
+
+            files[provider_file] = json.dumps(provider["oidc_metadata"])
+            files[client_file] = json.dumps(
+                {
+                    "client_id": provider["client_id"],
+                    "client_secret": provider["client_secret"],
+                },
+            )
+        return files
+
+    def _set_redirect_uri(self, event):
+        self.interface.set_relation_registered_provider(
+            self.oidc_redirect_uri,
+            event.provider_id,
+            event.relation_id,
+        )
+        self.callback_f(event)
+
+    def _on_config_changed(self, event):
+        self.callback_f(event)
+
+    def ready(self):
+        """Check if handler is ready."""
+        return True
+
+    def context(self):
+        """Configuration context."""
+        providers = self.get_all_provider_info()
+        if not providers:
+            return {}
+
+        oidc_secret = self.charm.get_oidc_secret()
+        if not oidc_secret:
+            return {}
+        return {
+            "oidc_providers": providers,
+            "oidc_crypto_passphrase": oidc_secret,
+            "redirect_uri": self.oidc_redirect_uri,
+            "redirect_uri_path": urlparse(self.oidc_redirect_uri).path,
+            "public_url_path": urlparse(self.charm.public_endpoint).path,
+        }
 
 
 class TrustedDashboardRequiresHandler(sunbeam_rhandlers.RelationHandler):
@@ -573,6 +715,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     SEND_CA_CERT_RELATION_NAME = "send-ca-cert"
     RECEIVE_CA_CERT_RELATION_NAME = "receive-ca-cert"
     TRUSTED_DASHBOARD = "trusted-dashboard"
+    EXTERNAL_IDP = "external-idp"
 
     def __init__(self, framework):
         super().__init__(framework)
@@ -633,11 +776,23 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if not self.unit.is_leader():
             logger.debug("Not leader, skipping trusted-dashboard info update")
             return
-        relation_data = self.oauth.get_oidc_providers()
-        if not relation_data:
+        oauth_providers = self.oauth.get_oidc_providers()
+        external_providers = self.external_idp.get_oidc_providers()
+        if not oauth_providers and not external_providers:
             logger.debug("No OAuth relations found, skipping update")
             return
-        self.trusted_dashboard.set_requirer_info(relation_data)
+        data = {"federated-providers": []}
+        if oauth_providers:
+            data["federated-providers"].extend(
+                oauth_providers.get("federated-providers", [])
+            )
+        if external_providers:
+            data["federated-providers"].extend(
+                external_providers.get("federated-providers", [])
+            )
+        if not data["federated-providers"]:
+            return
+        self.trusted_dashboard.set_requirer_info(data)
 
     def _handle_oauth_info_changed(self, event: RelationChangedEvent):
         """Handle OAuth info changed event."""
@@ -739,11 +894,16 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def sync_oidc_providers(self):
         """Sync OIDC provider metadata to apache2 OIDCMetadataDir."""
-        files = self.oauth.get_provider_metadata_files()
+        files = {}
+        oauth_files = self.oauth.get_provider_metadata_files()
+        external_idp_files = self.external_idp.get_provider_metadata_files()
+        if oauth_files:
+            files.update(oauth_files)
+        if external_idp_files:
+            files.update(external_idp_files)
         logger.info("Writing oidc metadata files")
         self.keystone_manager.setup_oidc_metadata_folder()
         self.keystone_manager.write_oidc_metadata(files)
-        return True
 
     def get_oidc_secret(self):
         """Get the OIDC secret from the peers relation."""
@@ -1289,6 +1449,14 @@ export OS_AUTH_VERSION=3
                 self._handle_oauth_info_changed,
             )
             handlers.append(self.oauth)
+        if self.can_add_handler(self.EXTERNAL_IDP, handlers):
+            self.external_idp = ExternalIDPRequiresHandler(
+                self,
+                self.EXTERNAL_IDP,
+                self._handle_oauth_info_changed,
+            )
+            handlers.append(self.external_idp)
+
         return super().get_relation_handlers(handlers)
 
     @property

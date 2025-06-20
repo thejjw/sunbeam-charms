@@ -1,4 +1,4 @@
-{% if oauth and oauth.oidc_providers -%}
+{% if (oauth and oauth.oidc_providers) or (external_idp and external_idp.oidc_providers) -%}
     OIDCClaimPrefix "OIDC-"
     OIDCClaimDelimiter ";"
     OIDCResponseType code
@@ -6,9 +6,17 @@
     OIDCStateInputHeaders none
     OIDCXForwardedHeaders X-Forwarded-Proto X-Forwarded-Host X-Forwarded-Port
     OIDCSessionType client-cookie:persistent
+    {% if oauth and oauth.oidc_crypto_passphrase -%}
     OIDCCryptoPassphrase {{ oauth.oidc_crypto_passphrase }}
+    {% elif external_idp and external_idp.oidc_crypto_passphrase -%}
+    OIDCCryptoPassphrase {{ external_idp.oidc_crypto_passphrase }}
+    {% endif -%}
     OIDCMetadataDir /etc/apache2/oidc-metadata
+    {% if oauth and oauth.redirect_uri -%}
     OIDCRedirectURI {{ oauth.redirect_uri }}
+    {% elif external_idp and external_idp.redirect_uri -%}
+    OIDCRedirectURI {{ external_idp.redirect_uri }}
+    {% endif -%}
 
 
     <Location {{ oauth.redirect_uri_path }}>
@@ -16,15 +24,16 @@
        Require valid-user
     </Location>
 
+{% if oauth and oauth.oidc_providers -%}
 {% for provider in oauth.oidc_providers -%}
 
     <Location {{oauth.public_url_path}}/OS-FEDERATION/identity_providers/{{ provider.name }}/protocols/{{ provider.protocol }}/auth>
         AuthType auth-openidc
         Require valid-user
 
-        OAuth2TokenVerify jwks_uri {{provider.info.jwks_endpoint}}
-        Require claim iss:{{provider.info.issuer_url}}
-        SetEnv HTTP_OIDC_ISS {{provider.info.issuer_url}}
+        OAuth2TokenVerify jwks_uri {{provider.jwks_endpoint}}
+        Require claim iss:{{provider.issuer_url}}
+        SetEnv HTTP_OIDC_ISS {{provider.issuer_url}}
     </Location>
 
     <Location {{oauth.public_url_path}}/auth/OS-FEDERATION/identity_providers/{{ provider.name }}/protocols/{{ provider.protocol }}/websso>
@@ -32,8 +41,31 @@
         AuthType openid-connect
 
         OIDCDiscoverURL {{ oauth.redirect_uri }}?iss={{provider.encoded_issuer_url}}
-        Require claim iss:{{provider.info.issuer_url}}
+        Require claim iss:{{provider.issuer_url}}
     </Location>
 
 {% endfor -%}
+{% endif -%}
+
+{% if external_idp and external_idp.oidc_providers -%}
+{% for external in external_idp.oidc_providers -%}
+    <Location {{oauth.public_url_path}}/OS-FEDERATION/identity_providers/{{ external.name }}/protocols/{{ external.protocol }}/auth>
+        AuthType auth-openidc
+        Require valid-user
+
+        OAuth2TokenVerify jwks_uri {{external.jwks_endpoint}}
+        Require claim iss:{{external.issuer_url}}
+        SetEnv HTTP_OIDC_ISS {{external.issuer_url}}
+    </Location>
+
+    <Location {{oauth.public_url_path}}/auth/OS-FEDERATION/identity_providers/{{ external.name }}/protocols/{{ external.protocol }}/websso>
+        Require valid-user
+        AuthType openid-connect
+
+        OIDCDiscoverURL {{ oauth.redirect_uri }}?iss={{external.encoded_issuer_url}}
+        Require claim iss:{{external.issuer_url}}
+    </Location>
+
+{% endfor -%}
+{% endif -%}
 {% endif -%}
