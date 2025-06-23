@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d99a60c3_374a6434",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-23T02:03:13Z",
+      "side": 1,
+      "message": "Thanks for the contribution, Overall LGTM, can you move the trusted-dashboard library to horizon-k8s instead of external.",
+      "revId": "8f346d3a090ade8e51ba4f309276bd189368bb9e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc48175a_d30069de",
+        "filename": "charms/horizon-k8s/.sunbeam-build.yaml",
+        "patchSetId": 10
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-23T02:03:13Z",
+      "side": 1,
+      "message": "Not required once the library is moved to charms/horizon-k8s/lib/charms",
+      "revId": "8f346d3a090ade8e51ba4f309276bd189368bb9e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "513616e3_17bc8101",
+        "filename": "templates/parts/section-federation",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-23T02:03:13Z",
+      "side": 1,
+      "message": "This file can be moved to charms/keystone-k8s/src/templates as no other charm might be using this except for keystone",
+      "revId": "8f346d3a090ade8e51ba4f309276bd189368bb9e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
