@@ -219,6 +219,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "25e1b996_9bf36e80",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 625,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-23T08:41:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e744836f_ebd8b08c",
+      "range": {
+        "startLine": 625,
+        "startChar": 33,
+        "endLine": 625,
+        "endChar": 49
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b8f934f5_e938daea",
@@ -280,6 +304,30 @@
       "side": 1,
       "message": "As discussed offline, the library will stay in sunbeam-charms project. So can you update the above links and move this file to charms/horizon-k8s/lib/charms",
       "parentUuid": "5d250362_15ab880f",
+      "range": {
+        "startLine": 32,
+        "startChar": 12,
+        "endLine": 32,
+        "endChar": 116
+      },
+      "revId": "ed43e85be5d058b2b818df9c7ecbab2b8d617378",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0940d46a_26747b83",
+        "filename": "libs/external/lib/charms/horizon_k8s/v0/trusted_dashboard.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-23T08:41:57Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "fa8b8f08_87ff41fd",
       "range": {
         "startLine": 32,
         "startChar": 12,

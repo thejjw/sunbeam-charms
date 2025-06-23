@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f53f68e2_bc18e89b",
+        "filename": "charms/horizon-k8s/.sunbeam-build.yaml",
+        "patchSetId": 10
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-23T08:41:57Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "fc48175a_d30069de",
+      "revId": "8f346d3a090ade8e51ba4f309276bd189368bb9e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "513616e3_17bc8101",
@@ -48,6 +66,24 @@
       "writtenOn": "2025-06-23T02:03:13Z",
       "side": 1,
       "message": "This file can be moved to charms/keystone-k8s/src/templates as no other charm might be using this except for keystone",
+      "revId": "8f346d3a090ade8e51ba4f309276bd189368bb9e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71ddce54_4258a443",
+        "filename": "templates/parts/section-federation",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-23T08:41:57Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "513616e3_17bc8101",
       "revId": "8f346d3a090ade8e51ba4f309276bd189368bb9e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
