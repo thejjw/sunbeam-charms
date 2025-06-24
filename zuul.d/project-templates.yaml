@@ -60,6 +60,8 @@
             nodeset: ubuntu-jammy
         - charm-build-cinder-volume-ceph:
             nodeset: ubuntu-jammy
+        - charm-build-epa-orchestrator:
+            nodeset: ubuntu-jammy
         - charm-build-horizon-k8s:
             nodeset: ubuntu-jammy
         - charm-build-heat-k8s:
@@ -122,6 +124,8 @@
         - charm-build-cinder-volume:
             nodeset: ubuntu-jammy
         - charm-build-cinder-volume-ceph:
+            nodeset: ubuntu-jammy
+        - charm-build-epa-orchestrator:
             nodeset: ubuntu-jammy
         - charm-build-horizon-k8s:
             nodeset: ubuntu-jammy
@@ -189,6 +193,8 @@
             - publish-charm-cinder-volume:
                 nodeset: ubuntu-jammy
             - publish-charm-cinder-volume-ceph:
+                nodeset: ubuntu-jammy
+            - publish-charm-epa-orchestrator:
                 nodeset: ubuntu-jammy
             - publish-charm-horizon-k8s:
                 nodeset: ubuntu-jammy
