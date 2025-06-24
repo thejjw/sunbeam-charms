@@ -1,0 +1,22 @@
+# Copyright 2025 Canonical Ltd.
+# See LICENSE file for licensing details.
+
+[project]
+name = "epa-orchestrator"
+version = "2025.1"
+requires-python = "~=3.12.0"
+
+dependencies = [
+    "cryptography",
+    "jinja2",
+    "jsonschema",
+    "pydantic",
+    "pyroute2",
+    "netifaces",
+    "cosl==0.0.24",
+    "lightkube",
+    "lightkube-models",
+    "ops",
+    "tenacity", # From ops_sunbeam
+    "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
+]
