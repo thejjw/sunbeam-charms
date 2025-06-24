@@ -1,0 +1,35 @@
+type: charm
+name: epa-orchestrator
+title: Epa Orchestrator
+summary: Deploy the epa-orchestrator snap.
+description: |
+  Configures the epa-orchestrator snap as a part of the openstack deployment.
+assumes:
+  - juju >= 3.1
+base: ubuntu@24.04
+platforms:
+  amd64:
+config:
+  options:
+    snap-channel:
+      default: latest/stable
+      type: string
+parts:
+  charm:
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - rustc-1.80
+      - cargo-1.80
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
