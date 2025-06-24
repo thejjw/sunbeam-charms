@@ -49,6 +49,25 @@ config:
         hosts. This memory will be used for instances. The compute
         usage report deducts this memory from the available
         memory sent to the placement service.
+    pci-aliases:
+      type: string
+      default: "[]"
+      description:
+        Sets the `pci-alias` option in nova.conf, defining aliases for assignable
+        PCI devices that can be requested through flavor extra specs.
+    pci-device-specs:
+      type: string
+      default: "[]"
+      description: |
+        A list of device specs used to set the `pci.device_spec` option in
+        nova.conf, which allows PCI passthrough of specific devices to VMs.
+
+        Example applications: GPU processing, SR-IOV networking, etc.
+
+        NOTE: For PCI passthrough to work IOMMU must be enabled on the machine
+        deployed to. This can be accomplished by setting kernel parameters on
+        capable machines in MAAS, tagging them and using these tags as
+        constraints in the model.
 
 actions:
   set-hypervisor-local-settings:
