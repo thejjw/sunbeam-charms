@@ -18,6 +18,7 @@
 This charm provide Nova services as part of an OpenStack deployment
 """
 
+import json
 import logging
 import socket
 import uuid
@@ -71,6 +72,23 @@ class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
             "error_log": "/dev/stdout",
             "custom_log": "/dev/stdout",
         }
+
+
+@sunbeam_tracing.trace_type
+class NovaConfigContext(sunbeam_ctxts.ConfigContext):
+    """Configuration context for Nova configuration."""
+
+    def context(self) -> dict:
+        """Nova configuration options."""
+        config = self.charm.model.config
+        ctxt = {}
+
+        aliases = json.loads(config.get("pci-aliases") or "[]")
+        ctxt["pci_aliases"] = [
+            json.dumps(alias, sort_keys=True) for alias in aliases
+        ]
+
+        return ctxt
 
 
 @sunbeam_tracing.trace_type
@@ -551,7 +569,8 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 WSGINovaMetadataConfigContext(
                     self,
                     "wsgi_nova_metadata",
-                )
+                ),
+                NovaConfigContext(self, "nova"),
             ]
         )
         return _cadapters
@@ -808,36 +827,34 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         metadata_secret = self.get_shared_metadatasecret()
         if metadata_secret:
             logger.debug("Found metadata secret in leader DB")
+        elif self.unit.is_leader():
+            logger.debug("Creating metadata secret")
+            self.set_shared_metadatasecret()
         else:
-            if self.unit.is_leader():
-                logger.debug("Creating metadata secret")
-                self.set_shared_metadatasecret()
-                self.handle_traefik_ready(event)
-                self.set_config_on_update()
-            else:
-                logger.debug("Metadata secret not ready")
-                return
+            logger.debug("Metadata secret not ready")
+            return
+
+        if self.unit.is_leader():
+            self.handle_traefik_ready(event)
+            self.set_config_on_update()
+
         super().configure_charm(event)
 
     def set_config_from_event(self, event: ops.framework.EventBase) -> None:
         """Set config in relation data."""
-        if self.nova_spiceproxy_public_url:
-            self.config_svc.interface.set_config(
-                relation=event.relation,
-                nova_spiceproxy_url=self.nova_spiceproxy_public_url,
-            )
-        else:
-            logging.debug("Nova spiceproxy not yet set, not sending config")
+        self.config_svc.interface.set_config(
+            relation=event.relation,
+            nova_spiceproxy_url=self.nova_spiceproxy_public_url,
+            pci_aliases=self.model.config.get("pci-aliases"),
+        )
 
     def set_config_on_update(self) -> None:
         """Set config on relation on update of local data."""
-        if self.nova_spiceproxy_public_url:
-            self.config_svc.interface.set_config(
-                relation=None,
-                nova_spiceproxy_url=self.nova_spiceproxy_public_url,
-            )
-        else:
-            logging.debug("Nova spiceproxy not yet set, not sending config")
+        self.config_svc.interface.set_config(
+            relation=None,
+            nova_spiceproxy_url=self.nova_spiceproxy_public_url,
+            pci_aliases=self.model.config.get("pci-aliases"),
+        )
 
 
 if __name__ == "__main__":  # pragma: nocover
