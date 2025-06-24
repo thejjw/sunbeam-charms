@@ -4,7 +4,7 @@ variables:
 machines:
   '0':
     constraints: *constraints
-    base: ubuntu@22.04
+    base: ubuntu@24.04
 
 applications:
   sunbeam-machine:
@@ -14,7 +14,7 @@ applications:
     charm: ch:sunbeam-machine
     channel: 2025.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     constraints: *constraints
     scale: 1
     to:
@@ -26,18 +26,30 @@ applications:
     charm: ch:sunbeam-clusterd
     channel: 2025.1/edge
     {% endif -%}
-    base: ubuntu@22.04
+    base: ubuntu@24.04
     constraints: *constraints
     scale: 1
     to:
      - '0'
   tls-operator:
     charm: self-signed-certificates
-    channel: latest/beta
-    base: ubuntu@22.04
+    channel: 1/beta
+    base: ubuntu@24.04
     scale: 1
     options:
       ca-common-name: internal-ca
+    to:
+     - '0'
+  epa-orchestrator:
+    {% if epa_orchestrator is defined and epa_orchestrator is sameas true -%}
+    charm: ../../../epa-orchestrator.charm
+    {% else -%}
+    charm: ch:epa-orchestrator
+    channel: latest/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    constraints: *constraints
+    scale: 1
     to:
      - '0'
 

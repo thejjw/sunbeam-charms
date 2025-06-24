@@ -598,6 +598,14 @@ class TestOSBaseOperatorCharmSnap(test_utils.CharmTestCase):
         self.harness.begin()
         self.addCleanup(self.harness.cleanup)
 
+    def test_snap_name_property(self):
+        """Test snap_name property returns configured snap name."""
+        self.assertEqual(self.harness.charm.snap_name, "mysnap")
+
+    def test_snap_channel_property_default(self):
+        """Test snap_channel property returns default value."""
+        self.assertEqual(self.harness.charm.snap_channel, "latest/stable")
+
     def test_set_snap_data(self) -> None:
         """Test snap set data."""
         charm = self.harness.charm
