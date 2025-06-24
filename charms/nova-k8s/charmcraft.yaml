@@ -36,6 +36,12 @@ config:
       default: RegionOne
       description: Name of the OpenStack region
       type: string
+    pci-aliases:
+      type: string
+      default: ""
+      description:
+        Sets the `pci-alias` option in nova.conf, defining aliases for assignable
+        PCI devices that can be requested through flavor extra specs.
 
 containers:
   nova-api:
