@@ -49,6 +49,42 @@ config:
         hosts. This memory will be used for instances. The compute
         usage report deducts this memory from the available
         memory sent to the placement service.
+    pci-device-specs:
+      type: string
+      description: |
+        A list of device specs used to set the `pci.device_spec` option in
+        nova.conf, which allows PCI passthrough of specific devices to VMs.
+
+        Example applications: GPU processing, SR-IOV networking, etc.
+
+        NOTE: For PCI passthrough to work IOMMU must be enabled on the machine
+        deployed to. This can be accomplished by setting kernel parameters on
+        capable machines in MAAS, tagging them and using these tags as
+        constraints in the model.
+
+        Examples:
+
+        * specify the PF address, exposing all the corresponding VFs:
+          [{"physical_network": "physnet1", "address": "0000:1b:00.0"}]
+        * pick VFs individually:
+          [{"physical_network": "physnet2", "address": "0000:1b:10.0"},
+           {"physical_network": "physnet2", "address": "0000:1b:10.2}]
+        * address wildcards:
+          [{"physical_network": "physnet1", "address": "*:1b:10.*"},
+           {"physical_network": "physnet1", "address": ":1b:}]
+        * address regex patterns:
+          [{"physical_network": "physnet1",
+            "address":
+              {"domain": ".*", "bus": "1b", "slot": "10", "function": "[0-4]"}}]
+        * vendor and product id:
+          [{"physical_network": "physnet1", "vendor_id": "8086", "product_id": "1563"}]
+    sriov-nic-exclude-devices:
+      type: string
+      description: |
+        Comma-separated list of `<network_device>:<vfs_to_exclude>` tuples, mapping interfaces
+        to PCI address of excluded SR-IOV VFs, which will not be handled by the SR-IOV agent.
+
+        Example: eno3:0000:1b:10.0,eno3:0000:1b:10.2
 
 actions:
   set-hypervisor-local-settings:

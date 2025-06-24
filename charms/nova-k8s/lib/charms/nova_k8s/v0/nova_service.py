@@ -114,7 +114,7 @@ class NovaServiceProvides(Object):
         self.on.config_request.emit(event.relation)
 
     def set_config(
-        self, relation: Relation | None, nova_spiceproxy_url: str
+        self, relation: Relation | None, nova_spiceproxy_url: str, pci_aliases: str,
     ) -> None:
         """Set nova configuration on the relation."""
         if not self.charm.unit.is_leader():
@@ -125,23 +125,23 @@ class NovaServiceProvides(Object):
         # applications. This happens usually when config data is
         # updated by provider and wants to send the data to all
         # related applications
+        relation_data_updates = {
+            "spice-proxy-url": nova_spiceproxy_url,
+            "pci-aliases": pci_aliases,
+        }
         if relation is None:
             logging.debug(
                 "Sending config to all related applications of relation"
                 f"{self.relation_name}"
             )
             for relation in self.framework.model.relations[self.relation_name]:
-                relation.data[self.charm.app][
-                    "spice-proxy-url"
-                ] = nova_spiceproxy_url
+                relation.data[self.charm.app].update(relation_data_updates)
         else:
             logging.debug(
                 f"Sending config on relation {relation.app.name} "
                 f"{relation.name}/{relation.id}"
             )
-            relation.data[self.charm.app][
-                "spice-proxy-url"
-            ] = nova_spiceproxy_url
+            relation.data[self.charm.app].update(relation_data_updates)
 
 
 class NovaConfigChangedEvent(RelationEvent):
@@ -208,3 +208,8 @@ class NovaServiceRequires(Object):
     def nova_spiceproxy_url(self) -> str | None:
         """Return the nova_spiceproxy url."""
         return self.get_remote_app_data("spice-proxy-url")
+
+    @property
+    def pci_aliases(self) -> str | None:
+        """Return pci aliases."""
+        return self.get_remote_app_data("pci-aliases")
