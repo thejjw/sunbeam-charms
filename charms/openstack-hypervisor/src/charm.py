@@ -579,6 +579,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 or config("ip-address")
                 or local_ip,
                 "compute.resume-on-boot": config("resume-on-boot"),
+                "compute.pci-device-specs": config("pci-device-specs"),
                 "credentials.ovn-metadata-proxy-shared-secret": self.metadata_secret(),
                 "identity.admin-role": contexts.identity_credentials.admin_role,
                 "identity.auth-url": contexts.identity_credentials.internal_endpoint,
@@ -612,6 +613,9 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 ).decode(),
                 "network.ovn-sb-connection": sb_connection_strs[0],
                 "network.physnet-name": config("physnet-name"),
+                "network.sriov-nic-exclude-devices": config(
+                    "sriov-nic-exclude-devices"
+                ),
                 "node.fqdn": socket.getfqdn(),
                 "node.ip-address": config("ip-address") or local_ip,
                 "rabbitmq.url": contexts.amqp.transport_url,
@@ -670,15 +674,20 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def _handle_nova_service(
         self, contexts: sunbeam_core.OPSCharmContexts
     ) -> dict:
+        config = {}
         try:
             if contexts.nova_service.nova_spiceproxy_url:
-                return {
-                    "compute.spice-proxy-url": contexts.nova_service.nova_spiceproxy_url,
-                }
+                config["compute.spice-proxy-url"] = (
+                    contexts.nova_service.nova_spiceproxy_url
+                )
+            if contexts.nova_service.pci_aliases:
+                config["compute.pci-aliases"] = (
+                    contexts.nova_service.pci_aliases
+                )
         except AttributeError as e:
             logger.debug(f"Nova service relation not integrated: {str(e)}")
 
-        return {}
+        return config
 
     def _handle_masakari_service(
         self, contexts: sunbeam_core.OPSCharmContexts
