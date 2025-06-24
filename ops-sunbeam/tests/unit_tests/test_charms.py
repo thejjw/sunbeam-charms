@@ -26,11 +26,17 @@ from unittest.mock import (
     Mock,
 )
 
+import ops_sunbeam.test_utils as test_utils
+
 if TYPE_CHECKING:
     import ops.framework
 
 from typing import (
     List,
+)
+
+from . import (
+    test_charms,
 )
 
 sys.path.append("tests/unit_tests/lib")  # noqa
@@ -406,3 +412,26 @@ class MySnapCharm(sunbeam_charm.OSBaseOperatorCharmSnap):
     def snap_channel(self) -> str:
         """Return snap channel."""
         return "latest/stable"
+
+
+class TestMyCharmSnap(test_utils.CharmTestCase):
+    """Test charm to test MyCharmSnap charm."""
+
+    PATCHES = []
+
+    def setUp(self):
+        """Setup MyCharmSnap tests."""
+        super().setUp(sunbeam_charm, self.PATCHES)
+        self.harness = test_utils.get_harness(
+            MySnapCharm, test_charms.CHARM_METADATA, self.container_calls
+        )
+        self.harness.begin()
+        self.addCleanup(self.harness.cleanup)
+
+    def test_snap_name_property(self):
+        """Test snap_name property returns configured snap name."""
+        self.assertEqual(self.harness.charm.snap_name, "mysnap")
+
+    def test_snap_channel_property_default(self):
+        """Test snap_channel property returns default value."""
+        self.assertEqual(self.harness.charm.snap_channel, "latest/stable")

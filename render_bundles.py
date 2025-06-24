@@ -37,7 +37,7 @@ from jinja2 import (
 test_directories = [dir_.name for dir_ in list(Path("tests").glob('*')) if dir_.name != "local"]
 built_charms = glob.glob("*.charm")
 context = {
-    charm.rstrip(".charm").replace("-", "_"): True for charm in built_charms
+    charm.replace(".charm", "").replace("-", "_"): True for charm in built_charms
 }
 print(f"Using context: {context}")
 
