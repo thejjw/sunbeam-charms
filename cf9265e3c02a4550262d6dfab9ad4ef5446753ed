@@ -18,6 +18,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "767238e9_d69b04a5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-25T06:51:31Z",
+      "side": 1,
+      "message": "will do so after finalizing the name \u0027epa-orchestrator\u0027 with @billy.olsen@canonical.com today.",
+      "parentUuid": "7eb412b5_2d8f7c10",
+      "revId": "cf9265e3c02a4550262d6dfab9ad4ef5446753ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "71fbe698_c6e62bc3",
@@ -31,6 +49,30 @@
       "writtenOn": "2025-06-24T11:21:29Z",
       "side": 1,
       "message": "Is there a reason you can\u0027t use the `OSBaseOperatorCharmSnap` base class? This should help reduce duplication across the charms.",
+      "range": {
+        "startLine": 41,
+        "startChar": 41,
+        "endLine": 41,
+        "endChar": 60
+      },
+      "revId": "cf9265e3c02a4550262d6dfab9ad4ef5446753ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "692060ab_71e0459a",
+        "filename": "charms/epa-orchestrator/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-25T06:51:31Z",
+      "side": 1,
+      "message": "Good point. Fixed now.",
+      "parentUuid": "71fbe698_c6e62bc3",
       "range": {
         "startLine": 41,
         "startChar": 41,
