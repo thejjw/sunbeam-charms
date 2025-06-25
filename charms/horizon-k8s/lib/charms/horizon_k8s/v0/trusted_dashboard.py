@@ -14,7 +14,7 @@ from typing import Dict, List, Mapping, Optional
 logger = logging.getLogger(__name__)
 
 # The unique Charmhub library identifier, never change it
-LIBID = "61f4f7e4e91947c9bbb12f4e262ee244"
+LIBID = "e4fb4edd6e1242cbbb669d70937d0cdf"
 
 # Increment this major API version when introducing breaking changes
 LIBAPI = 0
