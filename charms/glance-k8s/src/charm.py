@@ -291,7 +291,16 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             "/etc/glance",
             "db",
             "sync",
-        ]
+        ],
+        [
+            "sudo",
+            "-u",
+            "glance",
+            "glance-manage",
+            "--config-dir",
+            "/etc/glance",
+            "db_load_metadefs",
+        ],
     ]
 
     def __init__(self, *args, **kwargs) -> None:
