@@ -33,6 +33,24 @@
       "message": "Can you check the possibility to merge the list of providers from oauth.oidc-providers and external_idp.oidc_providers so that we need not repeat the chunk inside for loop.\n\nSomething like:\n{% set list1 \u003d [\u0027apple\u0027, \u0027banana\u0027] %}\n{% set list2 \u003d [\u0027orange\u0027, \u0027grape\u0027] %}\n{% set merged_list \u003d list1 + list2 %}",
       "revId": "4647a7af357c8f06d0e8a882a791c0730d1a41ff",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac3ab29c_d4c7ceb5",
+        "filename": "charms/keystone-k8s/src/templates/apache2-oidc-params",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-06-27T10:41:46Z",
+      "side": 1,
+      "message": "I created a config adapter that merges the contexts from both relations and simplified the templates.\n\nPTAL.",
+      "parentUuid": "8c03d3f8_3ef43315",
+      "revId": "4647a7af357c8f06d0e8a882a791c0730d1a41ff",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
