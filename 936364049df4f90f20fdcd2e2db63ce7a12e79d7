@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d23ebc90_b2f6d25f",
+        "filename": "charms/epa-orchestrator/.gitignore",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T06:30:46Z",
+      "side": 1,
+      "message": "removed. once in root dir suffice.",
+      "parentUuid": "dd6fc3c3_7dfc87e2",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3b7081a4_d23539b2",
@@ -48,6 +66,24 @@
       "writtenOn": "2025-06-30T04:56:01Z",
       "side": 1,
       "message": "This information needs to be changed. This is needed for rest of the charms but that need to be taken care as separate PR. Since this is a new charm, can we have this information with what you are running locally.",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9bfd8138_690ea3a6",
+        "filename": "charms/epa-orchestrator/CONTRIBUTING.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T06:30:46Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "3b7081a4_d23539b2",
       "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -69,6 +105,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f81cb65e_542070b2",
+        "filename": "charms/epa-orchestrator/__init__.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T06:30:46Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "8a915e54_bad7c3c7",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0edf2558_48b0d41f",
@@ -82,6 +136,24 @@
       "writtenOn": "2025-06-30T04:56:01Z",
       "side": 1,
       "message": "Once snap is published, can we change this to 2025.1/edge or 1/edge whichever is decided",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "41934e73_dd464819",
+        "filename": "charms/epa-orchestrator/charmcraft.yaml",
+        "patchSetId": 10
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T06:30:46Z",
+      "side": 1,
+      "message": "agree.",
+      "parentUuid": "0edf2558_48b0d41f",
       "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -105,6 +177,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c825559c_4bc4913b",
+        "filename": "charms/epa-orchestrator/charmcraft.yaml",
+        "patchSetId": 10
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T06:30:46Z",
+      "side": 1,
+      "message": "added tracing \nrequires:\n  tracing:\n    interface: tracing\n    optional: true\n    limit: 1",
+      "parentUuid": "f030a33d_fab01703",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6a6d1e75_88fe8d01",
         "filename": "charms/epa-orchestrator/pyproject.toml",
         "patchSetId": 10
@@ -116,6 +206,24 @@
       "writtenOn": "2025-06-30T04:56:01Z",
       "side": 1,
       "message": "Since this is a machine charm, why it requires lightkube? Can you recheck the dependencies and update this list",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "940dac7a_cf82b42f",
+        "filename": "charms/epa-orchestrator/pyproject.toml",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T06:30:46Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "6a6d1e75_88fe8d01",
       "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -139,6 +247,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "10d50e2a_9f37dff0",
+        "filename": "charms/epa-orchestrator/src/charm.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T06:30:46Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "0a323477_06cc317b",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "4e156bd3_af641224",
         "filename": "charms/epa-orchestrator/src/charm.py",
         "patchSetId": 10
@@ -150,6 +276,24 @@
       "writtenOn": "2025-06-30T04:56:01Z",
       "side": 1,
       "message": "Is it raising an error if this is a NO-OP? If so, do we need to change stop_services as well to no-op?",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8dcffa3a_d0029cf8",
+        "filename": "charms/epa-orchestrator/src/charm.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T06:30:46Z",
+      "side": 1,
+      "message": "yes it raises an error. added no-op for stop_services too",
+      "parentUuid": "4e156bd3_af641224",
       "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -173,6 +317,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d951b146_879f2cb6",
+        "filename": "charms/epa-orchestrator/tests/unit/__init__.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T06:30:46Z",
+      "side": 1,
+      "message": "fixed",
+      "parentUuid": "c869b78a_24db35e0",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c8264a28_9087befe",
         "filename": "charms/epa-orchestrator/tests/unit/test_charm.py",
         "patchSetId": 10
@@ -184,6 +346,24 @@
       "writtenOn": "2025-06-30T04:56:01Z",
       "side": 1,
       "message": "Thanks for writing these tests, I would prefer these tests goes into ops_sunbeam/tests/unit_tests/test_charm.py::MySnapCharm (cross check if these tests already exists or not) since these need not be repeated for every new charm that derives OSBaseOperatorCharmSnap.",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5090f7d_403b606d",
+        "filename": "charms/epa-orchestrator/tests/unit/test_charm.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T06:30:46Z",
+      "side": 1,
+      "message": "moved the generic ones to MySnapCharm. Others are specific to this charm",
+      "parentUuid": "c8264a28_9087befe",
       "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -218,6 +398,24 @@
       "writtenOn": "2025-06-30T04:56:01Z",
       "side": 1,
       "message": "Job func-test-machine needs to be updated to trigger when there are changes in epa-orchestrator-charm\n\nhttps://opendev.org/openstack/sunbeam-charms/src/branch/main/zuul.d/jobs.yaml#L591",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fa89cc59_b7a7b82f",
+        "filename": "zuul.d/jobs.yaml",
+        "patchSetId": 10
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T06:30:46Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "9302781f_c21aa6d4",
       "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
