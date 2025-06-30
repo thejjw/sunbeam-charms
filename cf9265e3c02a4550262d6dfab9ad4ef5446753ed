@@ -36,6 +36,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "79c7cdc4_888baebf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T04:40:25Z",
+      "side": 1,
+      "message": "done. and charm ownnership is also transferred to openstack-charmers https://discourse.charmhub.io/t/request-transfer-ownership-and-track-requests-for-epa-orchestrator-charm/18133",
+      "parentUuid": "767238e9_d69b04a5",
+      "revId": "cf9265e3c02a4550262d6dfab9ad4ef5446753ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "71fbe698_c6e62bc3",
