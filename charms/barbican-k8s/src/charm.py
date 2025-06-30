@@ -149,6 +149,9 @@ class VaultKvRequiresHandler(sunbeam_rhandlers.RelationHandler):
         if binding is None:
             logger.debug("No binding found for vault-kv relation")
             return
+        if not binding.network.interfaces:
+            logger.debug("No network interface found for vault-kv relation")
+            return
         egress_subnet = str(binding.network.interfaces[0].subnet)
         interface.request_credentials(relation, egress_subnet, nonce)
 
