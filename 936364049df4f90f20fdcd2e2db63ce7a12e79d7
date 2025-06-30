@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7cd4ffa_e78d499b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "Some minor changes required, mostly nit",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd6fc3c3_7dfc87e2",
+        "filename": "charms/epa-orchestrator/.gitignore",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "Is this required? Because typically most of the build/tox etc will be done from sunbeam-charms folder itself",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b7081a4_d23539b2",
+        "filename": "charms/epa-orchestrator/CONTRIBUTING.md",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "This information needs to be changed. This is needed for rest of the charms but that need to be taken care as separate PR. Since this is a new charm, can we have this information with what you are running locally.",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8a915e54_bad7c3c7",
+        "filename": "charms/epa-orchestrator/__init__.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "Change the year",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0edf2558_48b0d41f",
+        "filename": "charms/epa-orchestrator/charmcraft.yaml",
+        "patchSetId": 10
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "Once snap is published, can we change this to 2025.1/edge or 1/edge whichever is decided",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f030a33d_fab01703",
+        "filename": "charms/epa-orchestrator/charmcraft.yaml",
+        "patchSetId": 10
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "NO requires but .sunbeam-build refers some external libraries. Need to add requires section",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a6d1e75_88fe8d01",
+        "filename": "charms/epa-orchestrator/pyproject.toml",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "Since this is a machine charm, why it requires lightkube? Can you recheck the dependencies and update this list",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a323477_06cc317b",
+        "filename": "charms/epa-orchestrator/src/charm.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "Can we remove this since its not adding any value.",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e156bd3_af641224",
+        "filename": "charms/epa-orchestrator/src/charm.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "Is it raising an error if this is a NO-OP? If so, do we need to change stop_services as well to no-op?",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c869b78a_24db35e0",
+        "filename": "charms/epa-orchestrator/tests/unit/__init__.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "Change Year",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8264a28_9087befe",
+        "filename": "charms/epa-orchestrator/tests/unit/test_charm.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "Thanks for writing these tests, I would prefer these tests goes into ops_sunbeam/tests/unit_tests/test_charm.py::MySnapCharm (cross check if these tests already exists or not) since these need not be repeated for every new charm that derives OSBaseOperatorCharmSnap.",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "330b2eb6_98f08175",
+        "filename": "tests/machine/smoke.yaml.j2",
+        "patchSetId": 10
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "Thanks for all these changes",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9302781f_c21aa6d4",
+        "filename": "zuul.d/jobs.yaml",
+        "patchSetId": 10
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-06-30T04:56:01Z",
+      "side": 1,
+      "message": "Job func-test-machine needs to be updated to trigger when there are changes in epa-orchestrator-charm\n\nhttps://opendev.org/openstack/sunbeam-charms/src/branch/main/zuul.d/jobs.yaml#L591",
+      "revId": "936364049df4f90f20fdcd2e2db63ce7a12e79d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
