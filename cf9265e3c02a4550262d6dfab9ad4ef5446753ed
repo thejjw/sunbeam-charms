@@ -99,6 +99,30 @@
       },
       "revId": "cf9265e3c02a4550262d6dfab9ad4ef5446753ed",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e03c488_3daf135f",
+        "filename": "charms/epa-orchestrator/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-06-30T08:52:43Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "692060ab_71e0459a",
+      "range": {
+        "startLine": 41,
+        "startChar": 41,
+        "endLine": 41,
+        "endChar": 60
+      },
+      "revId": "cf9265e3c02a4550262d6dfab9ad4ef5446753ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
