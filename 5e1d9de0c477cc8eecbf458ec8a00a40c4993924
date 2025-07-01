@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e29d91e_dd0c3e9f",
+        "filename": "ops-sunbeam/ops_sunbeam/k8s_resource_handlers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-01T23:51:57Z",
+      "side": 1,
+      "message": "Can you change this to logger.info since not setting annotations is not really an error",
+      "revId": "5e1d9de0c477cc8eecbf458ec8a00a40c4993924",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c109b4a_8494fb8e",
+        "filename": "ops-sunbeam/ops_sunbeam/k8s_resource_handlers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-01T23:51:57Z",
+      "side": 1,
+      "message": "Block the charm only if user input fails in the validation logic. If the user does not set the annotations, the charm should still create lb with no annotations",
+      "revId": "5e1d9de0c477cc8eecbf458ec8a00a40c4993924",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
