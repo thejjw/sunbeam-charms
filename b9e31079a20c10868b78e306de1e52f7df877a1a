@@ -16,6 +16,23 @@
       "message": "recheck neutron-ovn intermittent issue https://bugs.launchpad.net/snap-openstack/+bug/2115704",
       "revId": "b9e31079a20c10868b78e306de1e52f7df877a1a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1eb926b5_71b5ebda",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 15
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-01T06:12:27Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "b9e31079a20c10868b78e306de1e52f7df877a1a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
