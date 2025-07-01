@@ -143,6 +143,18 @@
     vars:
       charm: cinder-ceph-k8s
 - job:
+    name: charm-build-epa-orchestrator
+    description: Build sunbeam epa-orchestrator charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/*
+      - charms/epa-orchestrator/*
+      - rebuild
+    vars:
+      charm: epa-orchestrator
+- job:
     name: charm-build-horizon-k8s
     description: Build sunbeam horizon-k8s charm
     run: playbooks/charm/build.yaml
@@ -601,10 +613,13 @@
         soft: true
       - name: charm-build-sunbeam-clusterd
         soft: true
+      - name: charm-build-epa-orchestrator
+        soft: true
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/sunbeam-machine/
       - charms/sunbeam-clusterd/
+      - charms/epa-orchestrator/
       - rebuild
       - zuul.d/zuul.yaml
     vars:
@@ -612,6 +627,7 @@
       charm_jobs:
         - charm-build-sunbeam-machine
         - charm-build-sunbeam-clusterd
+        - charm-build-epa-orchestrator
       test_dir: tests/machine
 
 - job:
@@ -700,6 +716,19 @@
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/cinder-volume-ceph/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-epa-orchestrator
+    description: |
+      Publish epa-orchestrator built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/epa-orchestrator/
       - rebuild
     secrets:
       - charmhub_token
