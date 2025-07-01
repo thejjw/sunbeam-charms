@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "116d4d03_060853db",
+        "filename": "ops-sunbeam/ops_sunbeam/k8s_resource_handlers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-07-01T14:44:44Z",
+      "side": 1,
+      "message": "What\u0027s the goal of this comment?",
+      "revId": "d8814352c6a8f84d1235afb5f1c2fb9e0dba75d9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
