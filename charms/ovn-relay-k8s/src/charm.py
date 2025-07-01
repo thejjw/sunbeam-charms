@@ -99,7 +99,7 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         self.lb_handler = KubernetesLoadBalancerHandler(
             self,
             service_ports,
-            refresh_event=[self.on.install],
+            refresh_event=[self.on.install, self.on.config_changed],
         )
         self.unit.set_ports(6642)
 
