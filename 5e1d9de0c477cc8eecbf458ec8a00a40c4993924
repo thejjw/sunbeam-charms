@@ -36,6 +36,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "78716766_e8b4377e",
+        "filename": "ops-sunbeam/ops_sunbeam/k8s_resource_handlers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-02T07:29:08Z",
+      "side": 1,
+      "message": "Yes seems error cases gets None for loadbalancer_annotations and {} if config is not set.",
+      "parentUuid": "8aa5c3ae_2c8ef68b",
+      "revId": "5e1d9de0c477cc8eecbf458ec8a00a40c4993924",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8c109b4a_8494fb8e",
@@ -67,6 +85,24 @@
       "side": 1,
       "message": "In case of `loadbalancer_annotations` being unset or set to `\u0027\u0027`, the charm will not enter blocked state and the Service will be created",
       "parentUuid": "8c109b4a_8494fb8e",
+      "revId": "5e1d9de0c477cc8eecbf458ec8a00a40c4993924",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d6e7384_c708724d",
+        "filename": "ops-sunbeam/ops_sunbeam/k8s_resource_handlers.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-02T07:29:08Z",
+      "side": 1,
+      "message": "Got the logic, mentioned in above comment.",
+      "parentUuid": "6cb3b13e_01cef019",
       "revId": "5e1d9de0c477cc8eecbf458ec8a00a40c4993924",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
