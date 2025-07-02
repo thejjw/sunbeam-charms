@@ -205,7 +205,7 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.lb_handler = KubernetesLoadBalancerHandler(
             self,
             service_ports,
-            refresh_event=[self.on.install],
+            refresh_event=[self.on.install, self.on.config_changed],
         )
         self.unit.set_ports(53, 953)
 
