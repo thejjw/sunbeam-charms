@@ -38,6 +38,8 @@ from charms.keystone_k8s.v1.identity_service import (
 
 logger = logging.getLogger(__name__)
 
+IMAGES_SYNC_CONTAINER = "openstack-images-sync"
+
 
 def _frequency_to_seconds(frequency: str) -> int:
     """Convert given frequency word to seconds.
@@ -243,6 +245,12 @@ class OpenstackImagesSyncK8SCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "root",
                 0o640,
             ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
         ]
         return _cconfigs
 
@@ -261,6 +269,7 @@ class OpenstackImagesSyncK8SCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "OS_PROJECT_NAME": interface.service_project_name,
                 "OS_USER_DOMAIN_NAME": interface.service_domain_name,
                 "OS_PROJECT_DOMAIN_NAME": interface.service_domain_name,
+                "OS_CACERT": "/usr/local/share/ca-certificates/ca-bundle.pem",
             }
         return {}
 
