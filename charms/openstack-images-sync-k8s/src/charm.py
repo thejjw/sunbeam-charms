@@ -38,6 +38,8 @@ from charms.keystone_k8s.v1.identity_service import (
 
 logger = logging.getLogger(__name__)
 
+IMAGES_SYNC_CONTAINER = "openstack-images-sync"
+
 
 def _frequency_to_seconds(frequency: str) -> int:
     """Convert given frequency word to seconds.
@@ -243,6 +245,12 @@ class OpenstackImagesSyncK8SCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "root",
                 0o640,
             ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
         ]
         return _cconfigs
 
@@ -276,6 +284,20 @@ class OpenstackImagesSyncK8SCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             for proxy_var in juju_proxy_vars
             if (value := os.environ.get(proxy_var))
         }
+
+    def post_config_setup(self):
+        """Configuration steps after services have been setup."""
+        if (ctx := self.receive_ca_cert.context()) and ctx.get("ca_bundle"):
+            cmd = ["sudo", "update-ca-certificates", "--fresh"]
+            pebble_handler = self.get_named_pebble_handler(
+                IMAGES_SYNC_CONTAINER
+            )
+            logging.debug(
+                f"Running update-ca-certificates on {IMAGES_SYNC_CONTAINER} container"
+            )
+            pebble_handler.execute(cmd)
+
+        super().post_config_setup()
 
 
 if __name__ == "__main__":  # pragma: nocover

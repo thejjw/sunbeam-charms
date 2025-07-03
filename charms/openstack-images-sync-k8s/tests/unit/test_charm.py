@@ -76,6 +76,11 @@ class TestOISOperatorCharm(test_utils.CharmTestCase):
             id_svc_rel.id, "keystone", {"service-domain-id": "svcdomid"}
         )
         test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.add_relation(
+            "receive-ca-cert",
+            "keystone",
+            unit_data={"ca": "TESTCA", "chain": "[]"},
+        )
 
         setup_cmds = [
             ["a2dissite", "000-default"],
