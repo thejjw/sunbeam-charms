@@ -243,6 +243,12 @@ class OpenstackImagesSyncK8SCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "root",
                 0o640,
             ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
         ]
         return _cconfigs
 
@@ -261,6 +267,7 @@ class OpenstackImagesSyncK8SCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "OS_PROJECT_NAME": interface.service_project_name,
                 "OS_USER_DOMAIN_NAME": interface.service_domain_name,
                 "OS_PROJECT_DOMAIN_NAME": interface.service_domain_name,
+                "OS_CACERT": "/usr/local/share/ca-certificates/ca-bundle.pem",
             }
         return {}
 

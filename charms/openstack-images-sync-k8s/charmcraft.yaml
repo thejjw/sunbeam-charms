@@ -72,6 +72,9 @@ requires:
     interface: tracing
     optional: true
     limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
 
 parts:
   charm:

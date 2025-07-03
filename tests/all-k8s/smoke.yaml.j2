@@ -451,6 +451,8 @@ relations:
   - openstack-images-sync:identity-service
 - - traefik:ingress
   - openstack-images-sync:ingress-internal
+- - keystone:send-ca-cert
+  - openstack-images-sync:receive-ca-cert
 
 - - mysql:database
   - heat:database
