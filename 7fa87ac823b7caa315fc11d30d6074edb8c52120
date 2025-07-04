@@ -33,6 +33,40 @@
       "message": "recheck",
       "revId": "7fa87ac823b7caa315fc11d30d6074edb8c52120",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6c4632e4_55366b52",
+        "filename": "charms/nova-k8s/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-04T01:32:14Z",
+      "side": 1,
+      "message": "`self.nova_spiceproxy_public_url` can have value None if traefik-public relation is not yet ready. The library expects a string as per the definition.",
+      "revId": "7fa87ac823b7caa315fc11d30d6074edb8c52120",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74a9a8ac_48126ba5",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-04T01:32:14Z",
+      "side": 1,
+      "message": "This configuration is applied on all SR-IOV enabled compute nodes. Do we want it per node?",
+      "revId": "7fa87ac823b7caa315fc11d30d6074edb8c52120",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
