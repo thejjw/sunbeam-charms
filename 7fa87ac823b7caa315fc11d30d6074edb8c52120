@@ -103,6 +103,24 @@
       "parentUuid": "639d1cf4_4f6e2807",
       "revId": "7fa87ac823b7caa315fc11d30d6074edb8c52120",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d288cc1e_e37b977a",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-07-07T07:13:03Z",
+      "side": 1,
+      "message": "I\u0027d like to add that the \"exclude-devices\" setting is only used by the sr-iov agent and will be ignored by the ovn mechanism driver when using hardware offloading. In this case, individual VFs can be excluded through the \"pci-device-specs\" setting.\n\nWe decided to drop this for the time being.",
+      "parentUuid": "e487f3bf_0bc67755",
+      "revId": "7fa87ac823b7caa315fc11d30d6074edb8c52120",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
