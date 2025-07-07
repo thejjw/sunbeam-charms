@@ -85,6 +85,24 @@
       "parentUuid": "74a9a8ac_48126ba5",
       "revId": "7fa87ac823b7caa315fc11d30d6074edb8c52120",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e487f3bf_0bc67755",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-07-07T06:41:39Z",
+      "side": 1,
+      "message": "So Juju doesn\u0027t support per node or per unit config options. Emulating this at the charm level won\u0027t scale very well.\n\nLet\u0027s say we have 100 nodes (plausible since we\u0027re adding cell support), having one entry per node will be troublesome.\n\nFor what is worth, the old reactive charms had a global setting as well.",
+      "parentUuid": "639d1cf4_4f6e2807",
+      "revId": "7fa87ac823b7caa315fc11d30d6074edb8c52120",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
