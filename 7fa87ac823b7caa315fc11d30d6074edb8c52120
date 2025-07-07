@@ -67,6 +67,24 @@
       "message": "This configuration is applied on all SR-IOV enabled compute nodes. Do we want it per node?",
       "revId": "7fa87ac823b7caa315fc11d30d6074edb8c52120",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "639d1cf4_4f6e2807",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-07T06:00:46Z",
+      "side": 1,
+      "message": "I think the value should be map of hostname regex with value comma separated \u003cnetwork_device\u003e:\u003cvfs_to_exclude\u003e.\n\nExample: {\u0027compute*-rack-01.test.com\u0027: \u0027eno3:0000:1b:10.0,eno3:0000:1b:10.2\u0027, \u0027compute*-rack-02.test.com\u0027: \u0027eno4:\u00270000:1b:10.0\u0027}",
+      "parentUuid": "74a9a8ac_48126ba5",
+      "revId": "7fa87ac823b7caa315fc11d30d6074edb8c52120",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
