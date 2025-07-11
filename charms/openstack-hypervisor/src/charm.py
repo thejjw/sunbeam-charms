@@ -580,6 +580,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 or local_ip,
                 "compute.resume-on-boot": config("resume-on-boot"),
                 "compute.pci-device-specs": config("pci-device-specs"),
+                "compute.pci-excluded-devices": config("pci-excluded-devices"),
                 "credentials.ovn-metadata-proxy-shared-secret": self.metadata_secret(),
                 "identity.admin-role": contexts.identity_credentials.admin_role,
                 "identity.auth-url": contexts.identity_credentials.internal_endpoint,
@@ -677,7 +678,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 config["compute.spice-proxy-url"] = (
                     contexts.nova_service.nova_spiceproxy_url
                 )
-            if contexts.nova_service.pci_aliases:
+            if getattr(contexts.nova_service, "pci_aliases", None):
                 config["compute.pci-aliases"] = (
                     contexts.nova_service.pci_aliases
                 )
