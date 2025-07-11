@@ -370,6 +370,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             "network.external-nic",
             "compute.spice-proxy-address",
             "network.ip-address",
+            "compute.pci-excluded-devices",
         ]
         new_snap_settings = {}
         for setting in local_settings:
@@ -677,7 +678,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 config["compute.spice-proxy-url"] = (
                     contexts.nova_service.nova_spiceproxy_url
                 )
-            if contexts.nova_service.pci_aliases:
+            if getattr(contexts.nova_service, "pci_aliases", None):
                 config["compute.pci-aliases"] = (
                     contexts.nova_service.pci_aliases
                 )

@@ -126,8 +126,8 @@ class NovaServiceProvides(Object):
         # updated by provider and wants to send the data to all
         # related applications
         relation_data_updates = {
-            "spice-proxy-url": nova_spiceproxy_url,
-            "pci-aliases": pci_aliases,
+            "spice-proxy-url": nova_spiceproxy_url or "",
+            "pci-aliases": pci_aliases or "",
         }
         if relation is None:
             logging.debug(
