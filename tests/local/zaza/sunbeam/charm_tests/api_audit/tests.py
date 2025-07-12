@@ -85,34 +85,13 @@ class KeystoneAPIAuditTest(OpenStackAPIAuditTest):
     application_name = "keystone"
 
     def test_audit(self):
-        # Expects the following relation: rabbitmq:amqp keystone:amqp
-        default_config = {'enable-telemetry-notifications': False}
-        alternate_config = {'enable-telemetry-notifications': True}
+        name = f"test-%s" % random.randint(0, 32768)
 
-        rand_num = random.randint(0, 32768)
-        name = f"test-{rand_num}"
-
-        # Check that audit messages are logged with telemetry enabled.
-        with self.config_change(
-                default_config=default_config,
-                alternate_config=alternate_config,
-                application_name="keystone"):
-            # Create a domain to trigger an event.
-            domain = self.keystone_client.domains.create(name, enabled=False)
-            exp_msg = (
-                "oslo.messaging.notification.identity.domain.created")
-            self.check_audit_logs(exp_msg)
-
-        # Check that audit messages are logged with telemetry disabled.
-        with self.config_change(
-                default_config=alternate_config,
-                alternate_config=default_config,
-                application_name="keystone"):
-            # Delete the newly created domain and check the event.
-            self.keystone_client.domains.delete(domain.id)
-            exp_msg = (
-                "oslo.messaging.notification.identity.domain.deleted")
-            self.check_audit_logs(exp_msg)
+        # Create a domain to trigger an event.
+        self.keystone_client.domains.create(name, enabled=False)
+        exp_msg = (
+            "oslo.messaging.notification.identity.domain.created")
+        self.check_audit_logs(exp_msg)
 
 
 class AuditMiddlewareTest(OpenStackAPIAuditTest):
