@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5e83002f_91e9d593",
+        "filename": "charms/manila-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-07-16T22:12:32Z",
+      "side": 1,
+      "message": "Will handle this in a subsequent commit, will keep this to just adding the basic charm first.",
+      "parentUuid": "c5841988_7ed991c2",
+      "revId": "2bfea5f87b1f089d5327d5d767e576e6cafd560c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d5f8bc62_71efe6aa",
         "filename": "charms/manila-k8s/src/charm.py",
         "patchSetId": 2
@@ -31,6 +49,24 @@
       "writtenOn": "2025-06-18T01:32:23Z",
       "side": 1,
       "message": "What happens on juju remove-relation \u003cprovider\u003e \u003crequirer\u003e on this interface, is share protocols in manila.conf get updated?",
+      "revId": "2bfea5f87b1f089d5327d5d767e576e6cafd560c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fad95a12_e7525b21",
+        "filename": "charms/manila-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-07-16T22:12:32Z",
+      "side": 1,
+      "message": "as above.",
+      "parentUuid": "d5f8bc62_71efe6aa",
       "revId": "2bfea5f87b1f089d5327d5d767e576e6cafd560c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -52,6 +88,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e7e616d_5a2736e9",
+        "filename": "charms/manila-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-07-16T22:12:32Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "f468bc83_98774ebc",
+      "revId": "2bfea5f87b1f089d5327d5d767e576e6cafd560c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a8afaf01_26e6d6ac",
@@ -65,6 +119,24 @@
       "writtenOn": "2025-06-18T01:32:23Z",
       "side": 1,
       "message": "Add tests to include all relations and only mandatory relations",
+      "revId": "2bfea5f87b1f089d5327d5d767e576e6cafd560c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3806f39f_3e3e7514",
+        "filename": "charms/manila-k8s/tests/unit/test_charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-07-16T22:12:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a8afaf01_26e6d6ac",
       "revId": "2bfea5f87b1f089d5327d5d767e576e6cafd560c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
