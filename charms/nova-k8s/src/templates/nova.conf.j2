@@ -52,7 +52,10 @@ alias = {{ alias }}
 [filter_scheduler]
 enabled_filters = ComputeFilter, ComputeCapabilitiesFilter, ImagePropertiesFilter, ServerGroupAntiAffinityFilter, ServerGroupAffinityFilter, PciPassthroughFilter, NUMATopologyFilter
 available_filters = nova.scheduler.filters.all_filters
-pci_in_placement = True
+# TODO: consider enabling the following once Nova supports
+# tracking SR-IOV ports consumed by Neutron.
+# https://docs.openstack.org/nova/latest/admin/pci-passthrough.html
+pci_in_placement = False
 
 [scheduler]
 # NOTE(jamespage): perform automatic host cell mapping
