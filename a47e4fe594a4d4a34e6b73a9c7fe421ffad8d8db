@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "264f0f91_e71e25d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-17T08:25:26Z",
+      "side": 1,
+      "message": "LGTM, clean backport",
+      "revId": "a47e4fe594a4d4a34e6b73a9c7fe421ffad8d8db",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
