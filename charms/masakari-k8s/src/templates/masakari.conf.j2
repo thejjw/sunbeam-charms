@@ -3,7 +3,7 @@
 debug = {{ options.debug }}
 auth_strategy = keystone
 
-api_paste_confg = /etc/masakari/api-paste.ini
+api_paste_config = /etc/masakari/api-paste.ini
 
 {% if amqp.transport_url -%}
 transport_url = {{ amqp.transport_url }}
