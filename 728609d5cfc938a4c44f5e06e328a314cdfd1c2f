@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "491b4a04_61dcdd8f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2025-07-17T13:29:36Z",
+      "side": 1,
+      "message": "recheck\n\nthe task failed to check if charmcraft was installed.\n\n2025-07-17 13:09:42.514372 | ubuntu-jammy |   \"exception\": \"Traceback (most recent call last):\\n  File \\\"/tmp/ansible_snap_payload_vm5uixzh/ansible_snap_payload.zip/ansible_collections/community/general/plugins/module_utils/mh/deco.py\\\", line 52, in wrapper\\n    func(self, *args, **kwargs)\\n  File \\\"/tmp/ansible_snap_payload_vm5uixzh/ansible_snap_payload.zip/ansible_collections/community/general/plugins/module_utils/mh/base.py\\\", line 80, in run\\n    self.__run__()\\n  File \\\"/tmp/ansible_snap_payload_vm5uixzh/ansible_snap_payload.zip/ansible_collections/community/general/plugins/module_utils/mh/mixins/state.py\\\", line 37, in __run__\\n    return func()\\n  File \\\"/tmp/ansible_snap_payload_vm5uixzh/ansible_snap_payload.zip/ansible_collections/community/general/plugins/modules/snap.py\\\", line 416, in state_present\\n  File \\\"/tmp/ansible_snap_payload_vm5uixzh/ansible_snap_payload.zip/ansible_collections/community/general/plugins/modules/snap.py\\\", line 404, in _present\\n  File \\\"/tmp/ansible_snap_payload_vm5uixzh/ansible_snap_payload.zip/ansible_collections/community/general/plugins/module_utils/mh/base.py\\\", line 40, in do_raise\\n    raise _MHE(*args, **kwargs)\\nansible_collections.community.general.plugins.module_utils.mh.exceptions.ModuleHelperException\\n\",\n\n2025-07-17 13:09:42.514547 | ubuntu-jammy |   \"msg\": \"Ooops! Snap installation failed while executing \u0027[\u0027state\u0027, \u0027classic\u0027, \u0027channel\u0027, \u0027dangerous\u0027, \u0027charmcraft\u0027]\u0027, please examine logs and error output for more details.\",",
+      "revId": "728609d5cfc938a4c44f5e06e328a314cdfd1c2f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
