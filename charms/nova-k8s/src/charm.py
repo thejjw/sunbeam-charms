@@ -845,7 +845,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self.config_svc.interface.set_config(
             relation=event.relation,
             nova_spiceproxy_url=self.nova_spiceproxy_public_url,
-            pci_aliases=self.model.config.get("pci-aliases"),
+            pci_aliases=self.model.config.get("pci-aliases") or "[]",
         )
 
     def set_config_on_update(self) -> None:
@@ -853,7 +853,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self.config_svc.interface.set_config(
             relation=None,
             nova_spiceproxy_url=self.nova_spiceproxy_public_url,
-            pci_aliases=self.model.config.get("pci-aliases"),
+            pci_aliases=self.model.config.get("pci-aliases") or "[]",
         )
 
 
