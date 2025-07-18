@@ -50,6 +50,23 @@
       "message": "The tests failed again, there seem to be some issue with the snap store:\n\n```\nOoops! Snap installation failed while executing \u0027[\u0027state\u0027, \u0027classic\u0027, \u0027channel\u0027, \u0027dangerous\u0027, \u0027lxd\u0027]\u0027, please examine logs and error output for more details.\n```\n\nI see that the downloads speeds are extremely low:\n\n```\n$ sudo snap install openstack-hypervisor --edge\nDownload snap \"core24\" (1055) from channel \"stable\"                             1% 63.1kB/s 18.3m\n```",
       "revId": "728609d5cfc938a4c44f5e06e328a314cdfd1c2f",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5f42356_10e0aefb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-18T00:26:10Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "728609d5cfc938a4c44f5e06e328a314cdfd1c2f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
