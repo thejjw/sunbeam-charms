@@ -673,8 +673,7 @@ class TrustedDashboardRequiresHandler(sunbeam_rhandlers.RelationHandler):
             )
 
     def _on_trusted_dashboard(self, event):
-        if self.interface.get_trusted_dashboard():
-            self.callback_f(event)
+        self.callback_f(event)
 
     def context(self):
         """Configuration context."""
