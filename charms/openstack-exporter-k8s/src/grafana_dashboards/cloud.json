@@ -1068,7 +1068,7 @@
           "datasource": {
             "uid": "${prometheusds}"
           },
-          "expr": "(sum by(aggregates) (openstack_nova_local_storage_available_bytes * on(hostname) group_left() openstack_placement_resource_allocation_ratio{resourcetype=\"DISK_GB\"})) - (sum by(aggregates) (openstack_nova_local_storage_used_bytes))",
+          "expr": "sum(${ceph_without_ephemeral} * (ceph_cluster_total_bytes - ceph_cluster_total_used_bytes)) + ((1 - ${ceph_without_ephemeral}) * ((sum by(aggregates) (openstack_nova_local_storage_available_bytes * on(hostname) group_left() openstack_placement_resource_allocation_ratio{resourcetype=\"DISK_GB\"})) - (sum by(aggregates) (openstack_nova_local_storage_used_bytes))))",
           "intervalFactor": 2,
           "legendFormat": "{{aggregate}}",
           "refId": "A",
@@ -1669,6 +1669,39 @@
         "regex": ".*aggregates=\"([^\"]+).*",
         "skipUrlSync": false,
         "sort": 0,
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "0",
+          "value": "0"
+        },
+        "datasource": {
+          "uid": "${prometheusds}"
+        },
+        "definition": "query_result(((ceph_cluster_total_bytes > bool(0)) * scalar(stddev(openstack_nova_local_storage_available_bytes) < bool(1e8)) * scalar(abs(sum(ceph_cluster_total_bytes) - max(openstack_nova_local_storage_available_bytes)) < bool(5e9))))",
+        "description": "Detect if Ceph is used as shared backend storage (no ephemeral available)",
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Ceph Shared Storage",
+        "multi": false,
+        "name": "ceph_without_ephemeral",
+        "options": [],
+        "query": {
+          "query": "query_result(((ceph_cluster_total_bytes > bool(0)) * scalar(stddev(openstack_nova_local_storage_available_bytes) < bool(1e8)) * scalar(abs(sum(ceph_cluster_total_bytes) - max(openstack_nova_local_storage_available_bytes)) < bool(5e9))))",
+          "refId": "${prometheusds}-ceph_without_ephemeral-Variable-Query"
+        },
+        "refresh": 1,
+        "regex": "/.*}\\s+(\\d+)\\s.*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
         "type": "query",
         "useTags": false
       }

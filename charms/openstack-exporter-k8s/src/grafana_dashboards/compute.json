@@ -279,7 +279,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum(openstack_nova_local_storage_used_bytes{hostname=~\"$hypervisor.*\"}) / sum(openstack_nova_local_storage_available_bytes{hostname=~\"$hypervisor.*\"}) * 100",
+          "expr": "sum(${ceph_without_ephemeral} * (ceph_cluster_total_used_bytes / clamp_min(ceph_cluster_total_bytes, 1) * 100)) + ((1 - ${ceph_without_ephemeral}) * (sum(openstack_nova_local_storage_used_bytes{hostname=~\"$hypervisor.*\"}) / sum(openstack_nova_local_storage_available_bytes{hostname=~\"$hypervisor.*\"}) * 100))",
           "instant": false,
           "interval": "",
           "legendFormat": "",
@@ -621,7 +621,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum(openstack_nova_local_storage_available_bytes{hostname=~\"$hypervisor.*\"})",
+          "expr": "sum(${ceph_without_ephemeral} * ceph_cluster_total_bytes) + ((1 - ${ceph_without_ephemeral}) * sum(openstack_nova_local_storage_available_bytes{hostname=~\"$hypervisor.*\"}))",
           "instant": false,
           "interval": "",
           "legendFormat": "",
@@ -2367,6 +2367,39 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
+      },
+      {
+        "allValue": null,
+        "current": {
+          "selected": false,
+          "text": "0",
+          "value": "0"
+        },
+        "datasource": {
+          "uid": "${prometheusds}"
+        },
+        "definition": "query_result(((ceph_cluster_total_bytes > bool(0)) * scalar(stddev(openstack_nova_local_storage_available_bytes) < bool(1e8)) * scalar(abs(sum(ceph_cluster_total_bytes) - max(openstack_nova_local_storage_available_bytes)) < bool(5e9))))",
+        "description": "Detect if Ceph is used as shared backend storage (no ephemeral available)",
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": "Ceph Shared Storage",
+        "multi": false,
+        "name": "ceph_without_ephemeral",
+        "options": [],
+        "query": {
+          "query": "query_result(((ceph_cluster_total_bytes > bool(0)) * scalar(stddev(openstack_nova_local_storage_available_bytes) < bool(1e8)) * scalar(abs(sum(ceph_cluster_total_bytes) - max(openstack_nova_local_storage_available_bytes)) < bool(5e9))))",
+          "refId": "${prometheusds}-ceph_without_ephemeral-Variable-Query"
+        },
+        "refresh": 1,
+        "regex": "/.*}\\s+(\\d+)\\s.*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": null,
+        "tags": [],
+        "tagsQuery": null,
+        "type": "query",
+        "useTags": false
       }
     ]
   },
