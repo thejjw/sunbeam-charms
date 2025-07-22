@@ -308,7 +308,6 @@ class TrustedDashboardRequirer(Object):
         """Handle relation broken event."""
 
         logger.info("Relation broken, clearing federated providers.")
-        event.relation.data[event.app].clear()
         self.on.dashboard_changed.emit(trusted_dashboard="")
 
     def get_trusted_dashboard(self, relation_id: Optional[int] = None) -> Optional[str]:
