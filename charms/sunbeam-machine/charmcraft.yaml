@@ -24,6 +24,10 @@ config:
       description: Set NO_PROXY in /etc/environment
       type: string
 
+provides:
+  sunbeam-machine:
+    interface: sunbeam-machine
+
 requires:
   tracing:
     interface: tracing
