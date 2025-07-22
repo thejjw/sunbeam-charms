@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9adab6a7_05259f4e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-22T07:43:01Z",
+      "side": 1,
+      "message": "Can you update https://opendev.org/openstack/sunbeam-charms/src/branch/main/tests/machine/smoke.yaml.j2 to add integration just for completeness.",
+      "revId": "cf4a20c0faf670659ffcd815d4fb57193469ccb4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
