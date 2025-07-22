@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5021d957_19a59e22",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-22T23:29:24Z",
+      "side": 1,
+      "message": "Thanks for the contribution.\n\nCan you run the following commands and fix any issues\n\ntox -e fmt\ntox -e pep8\ntox -e linters\ntox -e py3 -- cinder-volume-hitachi",
+      "revId": "27c97067677cb4a40b039c80d9cb6e60fc70d1c1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
