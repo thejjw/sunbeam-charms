@@ -214,14 +214,8 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if not self.model.unit.is_leader():
             return
 
-        fid_providers = event.fid_providers
-        if not fid_providers:
-            logger.debug("No FID providers found, skipping update.")
-            return
-
-        logger.debug(
-            "Setting trusted dashboard provider info: %s", fid_providers
-        )
+        # Set the trusted dashboard URL regardless of whether or not the
+        # requirer sets FID providers.
         self.trusted_dashboard.set_provider_info(
             trusted_dashboard=self._websso_url
         )
@@ -299,6 +293,9 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Configure charm services."""
         super().configure_charm(event)
         if self.bootstrapped():
+            # Handle the case where TLS is enabled/external hostname is changed
+            # and we need to update the trusted dashboard URL in keystone.
+            self._on_trusted_dashboard_providers_changed(event)
             self.status.set(ops.model.ActiveStatus(""))
             if self.model.unit.is_leader():
                 if self.ingress_public.url:
