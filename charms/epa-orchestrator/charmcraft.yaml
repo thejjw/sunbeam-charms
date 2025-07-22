@@ -7,6 +7,7 @@ description: |
 assumes:
   - juju >= 3.1
 base: ubuntu@24.04
+subordinate: true
 platforms:
   amd64:
 config:
@@ -20,6 +21,10 @@ config:
       type: string
       description: The channel of the snap to install.
 requires:
+  sunbeam-machine:
+    interface: sunbeam-machine
+    scope: container
+    limit: 1
   tracing:
     interface: tracing
     optional: true

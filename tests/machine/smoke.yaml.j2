@@ -49,10 +49,9 @@ applications:
     {% endif -%}
     base: ubuntu@24.04
     constraints: *constraints
-    scale: 1
-    to:
-     - '0'
 
 relations:
 - - tls-operator:certificates
   - sunbeam-clusterd:certificates
+- - sunbeam-machine:sunbeam-machine
+  - epa-orchestrator:sunbeam-machine
