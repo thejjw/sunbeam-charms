@@ -56,12 +56,6 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import tenacity
-from lightkube.core.client import (
-    Client,
-)
-from lightkube.resources.core_v1 import (
-    Service,
-)
 from ops.charm import (
     SecretChangedEvent,
     SecretRemoveEvent,
@@ -977,6 +971,13 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
     @property
     def public_ingress_address(self) -> str:
         """IP address or hostname for access to this service."""
+        from lightkube.core.client import (
+            Client,
+        )
+        from lightkube.resources.core_v1 import (
+            Service,
+        )
+
         client = Client()
         charm_service = client.get(
             Service, name=self.app.name, namespace=self.model.name
