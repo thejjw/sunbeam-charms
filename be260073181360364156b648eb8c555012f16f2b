@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "40c52b00_20cf88bb",
+        "filename": "zuul.d/secrets.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-23T23:55:42Z",
+      "side": 1,
+      "message": "This file not required in backports. can you remove this file and update commit message",
+      "revId": "be260073181360364156b648eb8c555012f16f2b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
