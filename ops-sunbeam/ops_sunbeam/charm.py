@@ -56,12 +56,6 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import tenacity
-from lightkube.core.client import (
-    Client,
-)
-from lightkube.resources.core_v1 import (
-    Service,
-)
 from ops.charm import (
     SecretChangedEvent,
     SecretRemoveEvent,
@@ -74,6 +68,12 @@ from ops.model import (
 
 if TYPE_CHECKING:
     import charms.operator_libs_linux.v2.snap as snap
+    from lightkube.core.client import (
+        Client,
+    )
+    from lightkube.resources.core_v1 import (
+        Service,
+    )
 
 logger = logging.getLogger(__name__)
 
