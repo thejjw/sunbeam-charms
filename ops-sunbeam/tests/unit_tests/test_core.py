@@ -339,7 +339,7 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
             self.harness.charm.public_url, "http://public-url:80/"
         )
 
-    @patch("ops_sunbeam.charm.Client")
+    @patch("lightkube.core.client.Client")
     def test_endpoint_urls_no_ingress(self, mock_client: patch) -> None:
         """Test public_url and internal_url with no ingress defined."""
 
