@@ -45,14 +45,14 @@ class EpaOrchestratorCharm(sunbeam_charm.OSBaseOperatorCharmSnap):
         """Returns the snap channel."""
         return str(self.model.config["snap-channel"])
 
-    def ensure_services_running(self) -> None:
+    def ensure_services_running(self, enable: bool = True) -> None:
         """Override to prevent service start - this snap has no services."""
         logger.debug(
             "Skipping service start - %s snap has no services", self.snap_name
         )
         pass
 
-    def stop_services(self) -> None:
+    def stop_services(self, relation: set[str] | None = None) -> None:
         """Override to prevent service stop - this snap has no services."""
         logger.debug(
             "Skipping service stop - %s snap has no services", self.snap_name
