@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e33db50c_51efc609",
+        "filename": "charms/epa-orchestrator/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-23T23:54:09Z",
+      "side": 1,
+      "message": "Any reason for *args, **kwargs? The base function does not have those args https://opendev.org/openstack/sunbeam-charms/src/branch/main/ops-sunbeam/ops_sunbeam/charm.py#L1234",
+      "revId": "6c2d99a728a74fd6ee0e22f930facbbd6006e499",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "236012e0_2d8e70cb",
+        "filename": "charms/epa-orchestrator/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-23T23:54:09Z",
+      "side": 1,
+      "message": "Same comment as above",
+      "revId": "6c2d99a728a74fd6ee0e22f930facbbd6006e499",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d507c517_8ea253be",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-23T23:54:09Z",
+      "side": 1,
+      "message": "These should be imported in functions where they are used",
+      "revId": "6c2d99a728a74fd6ee0e22f930facbbd6006e499",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
