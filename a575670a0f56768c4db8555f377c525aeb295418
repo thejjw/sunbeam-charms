@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "678c9e80_01f6c42e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-23T14:53:33Z",
+      "side": 1,
+      "message": "Hey Hemanth, thanks for the guidance. i fixed the requested formats, and unit test.",
+      "revId": "a575670a0f56768c4db8555f377c525aeb295418",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
