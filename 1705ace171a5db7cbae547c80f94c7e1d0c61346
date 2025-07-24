@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d55fa62_0c14ef84",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-07-24T10:11:12Z",
+      "side": 1,
+      "message": "recheck sunbeam-machine Failed to retrieve list of storage pools",
+      "revId": "1705ace171a5db7cbae547c80f94c7e1d0c61346",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
