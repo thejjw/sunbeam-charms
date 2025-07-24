@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "cc3f2b19_7428fb17",
+        "filename": "charms/epa-orchestrator/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-07-24T05:09:33Z",
+      "side": 1,
+      "message": "I have matched the exact signature\n\ndef ensure_services_running(self, enable: bool \u003d True) -\u003e None:\n        \"\"\"Ensure snap services are up.\"\"\"\n        snap_svc \u003d self.get_snap()\n        snap_svc.start(enable\u003denable)\n\n    def stop_services(self, relation: set[str] | None \u003d None) -\u003e None:\n        \"\"\"Stop snap services.\"\"\"\n        snap_svc \u003d self.get_snap()\n        snap_svc.stop(disable\u003dTrue)",
+      "parentUuid": "e33db50c_51efc609",
+      "revId": "6c2d99a728a74fd6ee0e22f930facbbd6006e499",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "236012e0_2d8e70cb",
         "filename": "charms/epa-orchestrator/src/charm.py",
         "patchSetId": 2
@@ -37,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "449f6631_b887a9a5",
+        "filename": "charms/epa-orchestrator/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-07-24T05:09:33Z",
+      "side": 1,
+      "message": "same as above",
+      "parentUuid": "236012e0_2d8e70cb",
+      "revId": "6c2d99a728a74fd6ee0e22f930facbbd6006e499",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d507c517_8ea253be",
         "filename": "ops-sunbeam/ops_sunbeam/charm.py",
         "patchSetId": 2
@@ -48,6 +84,24 @@
       "writtenOn": "2025-07-23T23:54:09Z",
       "side": 1,
       "message": "These should be imported in functions where they are used",
+      "revId": "6c2d99a728a74fd6ee0e22f930facbbd6006e499",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b82c8ee_abae0905",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-07-24T05:09:33Z",
+      "side": 1,
+      "message": "yes as we need it at runtime for other charms",
+      "parentUuid": "d507c517_8ea253be",
       "revId": "6c2d99a728a74fd6ee0e22f930facbbd6006e499",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
