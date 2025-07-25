@@ -72,7 +72,7 @@ class TestEpaOrchestratorCharm(test_utils.CharmTestCase):
         self.harness.begin()
 
         # This should not raise any exceptions
-        result = self.harness.charm.ensure_services_running()
+        result = self.harness.charm.ensure_services_running(False)
 
         # Should return None (no-op)
         self.assertIsNone(result)
