@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71774fab_6eaa3c8b",
+        "filename": "tests/identity/iam.yaml.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-07-29T09:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01b02a28_20cc5475",
+      "revId": "f3ebfd573d0123f4c50a3424fdca2f1943ade888",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8d175c0a_d3447bb3",
@@ -48,6 +66,30 @@
       "writtenOn": "2025-07-29T08:40:28Z",
       "side": 1,
       "message": "```suggestion\n    channel: latest/candidate\n```",
+      "range": {
+        "startLine": 39,
+        "startChar": 13,
+        "endLine": 39,
+        "endChar": 26
+      },
+      "revId": "f3ebfd573d0123f4c50a3424fdca2f1943ade888",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7bf7d42a_6ba64487",
+        "filename": "tests/identity/iam.yaml.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-07-29T09:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8d175c0a_d3447bb3",
       "range": {
         "startLine": 39,
         "startChar": 13,
@@ -75,6 +117,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ac949b5_058aa21b",
+        "filename": "tests/identity/iam.yaml.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-07-29T09:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc1a27d8_1733082b",
+      "revId": "f3ebfd573d0123f4c50a3424fdca2f1943ade888",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "169bb63c_a189113a",
@@ -88,6 +148,24 @@
       "writtenOn": "2025-07-29T08:40:28Z",
       "side": 1,
       "message": "```suggestion\n    channel: latest/candidate\n```",
+      "revId": "f3ebfd573d0123f4c50a3424fdca2f1943ade888",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4a509efd_7547fe5d",
+        "filename": "tests/identity/iam.yaml.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-07-29T09:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "169bb63c_a189113a",
       "revId": "f3ebfd573d0123f4c50a3424fdca2f1943ade888",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -109,6 +187,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cd75f537_a1de6a61",
+        "filename": "tests/identity/iam.yaml.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-07-29T09:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "33d06c23_126dc49b",
+      "revId": "f3ebfd573d0123f4c50a3424fdca2f1943ade888",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "79eb9fba_054e1c98",
@@ -122,6 +218,24 @@
       "writtenOn": "2025-07-29T08:40:28Z",
       "side": 1,
       "message": "issue: remove pinning revision",
+      "revId": "f3ebfd573d0123f4c50a3424fdca2f1943ade888",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a3b121d_232c03d2",
+        "filename": "tests/identity/smoke.yaml.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-07-29T09:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "79eb9fba_054e1c98",
       "revId": "f3ebfd573d0123f4c50a3424fdca2f1943ade888",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -143,6 +257,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac4948aa_082f6491",
+        "filename": "tests/identity/tests.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-07-29T09:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27e5cc82_84847e67",
+      "revId": "f3ebfd573d0123f4c50a3424fdca2f1943ade888",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fc2582cc_8ac78819",
@@ -160,6 +292,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "caae3ac7_8b7f01c4",
+        "filename": "tests/identity/tests.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-07-29T09:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fc2582cc_8ac78819",
+      "revId": "f3ebfd573d0123f4c50a3424fdca2f1943ade888",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "472f600b_1421c7d9",
@@ -173,6 +323,24 @@
       "writtenOn": "2025-07-29T08:40:28Z",
       "side": 1,
       "message": "```suggestion\n    workload-status-message-regex: \u0027^Serving at\u0027\n```",
+      "revId": "f3ebfd573d0123f4c50a3424fdca2f1943ade888",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b56b2c5_f2dfc39d",
+        "filename": "tests/identity/tests.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-07-29T09:58:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "472f600b_1421c7d9",
       "revId": "f3ebfd573d0123f4c50a3424fdca2f1943ade888",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
