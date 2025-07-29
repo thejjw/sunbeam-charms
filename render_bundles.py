@@ -44,11 +44,13 @@ print(f"Using context: {context}")
 for test_dir in test_directories:
     bundle_dir = f"tests/{test_dir}"
     template_loader = Environment(loader=FileSystemLoader(bundle_dir))
-    bundle_template = template_loader.get_template("smoke.yaml.j2")
-    smoke_file = Path(f"{bundle_dir}/bundles/smoke.yaml")
-    smoke_file.parent.mkdir(parents=True, exist_ok=True)
-    with smoke_file.open("w", encoding="utf-8") as content:
-        content.write(bundle_template.render(context))
-        print(f"Rendered smoke bundle: {smoke_file}")
-    with smoke_file.open("r", encoding="utf-8") as content:
-        print(content.read())
+    templates = [pth.name for pth in Path(bundle_dir).glob('*.yaml.j2')]
+    for tpl in templates:
+        bundle_template = template_loader.get_template(tpl)
+        bundle_file = Path(f"{bundle_dir}/bundles/{tpl[:-3]}")
+        bundle_file.parent.mkdir(parents=True, exist_ok=True)
+        with bundle_file.open("w", encoding="utf-8") as content:
+            content.write(bundle_template.render(context))
+            print(f"Rendered bundle: {bundle_file}")
+        with bundle_file.open("r", encoding="utf-8") as content:
+            print(content.read())
