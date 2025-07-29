@@ -1,0 +1,64 @@
+# This is a modified version of the 0.3/edge bundle published by
+# the canonical identity team.
+bundle: kubernetes
+
+applications:
+  hydra:
+    charm: hydra
+    channel: latest/edge
+    base: ubuntu@22.04/stable
+    scale: 1
+    trust: true
+  kratos:
+    charm: kratos
+    channel: latest/edge
+    base: ubuntu@22.04/stable
+    scale: 1
+    trust: true
+  identity-platform-login-ui-operator:
+    charm: identity-platform-login-ui-operator
+    channel: latest/edge
+    base: ubuntu@22.04/stable
+    scale: 1
+    trust: true
+  postgresql-k8s:
+    charm: postgresql-k8s
+    base: ubuntu@22.04/stable
+    channel: 14/stable
+    scale: 1
+    trust: true
+    options:
+      plugin_pg_trgm_enable: true
+      plugin_btree_gin_enable: true
+  self-signed-certificates:
+    charm: self-signed-certificates
+    base: ubuntu@22.04/stable
+    channel: latest/stable
+    scale: 1
+  traefik-admin:
+    charm: traefik-k8s
+    base: ubuntu@20.04/stable
+    channel: latest/candidate
+    scale: 1
+    trust: true
+  traefik-public:
+    charm: traefik-k8s
+    channel: latest/candidate
+    base: ubuntu@20.04/stable
+    scale: 1
+    trust: true
+relations:
+  - [hydra:pg-database, postgresql-k8s:database]
+  - [kratos:pg-database, postgresql-k8s:database]
+  - [kratos:hydra-endpoint-info, hydra:hydra-endpoint-info]
+  - [hydra:admin-ingress, traefik-admin:ingress]
+  - [hydra:public-ingress, traefik-public:ingress]
+  - [kratos:admin-ingress, traefik-admin:ingress]
+  - [kratos:public-ingress, traefik-public:ingress]
+  - [identity-platform-login-ui-operator:ingress, traefik-public:ingress]
+  - [identity-platform-login-ui-operator:hydra-endpoint-info, hydra:hydra-endpoint-info]
+  - [identity-platform-login-ui-operator:ui-endpoint-info, hydra:ui-endpoint-info]
+  - [identity-platform-login-ui-operator:ui-endpoint-info, kratos:ui-endpoint-info]
+  - [identity-platform-login-ui-operator:kratos-info, kratos:kratos-info]
+  - [traefik-admin:certificates, self-signed-certificates:certificates]
+  - [traefik-public:certificates, self-signed-certificates:certificates]
