@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "964042cd_4c6a6c31",
+        "filename": "charms/epa-orchestrator/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-07-30T11:57:09Z",
+      "side": 1,
+      "message": "How about returning ope.framework.Object() and overriding function interface_properties to return empty dictionary\nOR\ncreate a new interface noopinterface and use it in this handler.",
+      "revId": "11285752f91b12724b93b1af77071332a41ffe19",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
