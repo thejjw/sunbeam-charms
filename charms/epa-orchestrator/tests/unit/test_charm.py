@@ -41,6 +41,14 @@ class TestEpaOrchestratorCharm(test_utils.CharmTestCase):
         )
         self.addCleanup(self.harness.cleanup)
 
+    def _get_sunbeam_machine_handler(self):
+        """Get the sunbeam-machine relation handler."""
+        handlers = self.harness.charm.relation_handlers
+        for handler in handlers:
+            if handler.relation_name == "sunbeam-machine":
+                return handler
+        return None
+
     def initial_setup(self):
         """Setting up configuration."""
         self.harness.update_config(
@@ -86,3 +94,11 @@ class TestEpaOrchestratorCharm(test_utils.CharmTestCase):
 
         # Should return None (no-op)
         self.assertIsNone(result)
+
+    def test_all_relations(self):
+        """Test that all relation handlers are properly configured."""
+        self.harness.begin()
+
+        sunbeam_machine_handler = self._get_sunbeam_machine_handler()
+        self.harness.add_relation("sunbeam-machine", "sunbeam-machine")
+        self.assertTrue(sunbeam_machine_handler.ready)
