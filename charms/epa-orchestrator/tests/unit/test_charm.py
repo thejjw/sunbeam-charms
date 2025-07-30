@@ -86,3 +86,10 @@ class TestEpaOrchestratorCharm(test_utils.CharmTestCase):
 
         # Should return None (no-op)
         self.assertIsNone(result)
+
+    def test_all_relations(self):
+        """Test that all relation handlers are properly configured."""
+        self.harness.begin()
+
+        self.harness.add_relation("sunbeam-machine", "sunbeam-machine")
+        self.assertTrue(self.harness.charm.sunbeam_machine.ready)
