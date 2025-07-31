@@ -265,8 +265,8 @@ config:
     image-size-cap:
       type: string
       description: |
-        Maximum size of image a user can upload. Defaults to 5GB
-        (5368709120 bytes). Example values: 500M, 500MB, 5G, 5TB.
+        Maximum size of image a user can upload.
+        Example values: 500M, 500MB, 5G, 5TB.
         Valid units: K, KB, M, MB, G, GB, T, TB, P, PB. If no units provided,
         bytes are assumed.
         Defaults to 30G for ceph storage and 1G for local storage.
