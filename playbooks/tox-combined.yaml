@@ -1,0 +1,159 @@
+---
+- hosts: all
+  become: false
+  vars:
+    project_src: "{{ zuul.project.src_dir }}"
+    tox_parallel: true
+    python_versions: "{{ python_versions | default(['py310', 'py312']) }}"
+    run_linters: "{{ run_linters | default(true) }}"
+    run_pep8: "{{ run_pep8 | default(true) }}"
+    run_tests: "{{ run_tests | default(true) }}"
+    run_cover: "{{ run_cover | default(true) }}"
+
+  tasks:
+    - name: Install system dependencies
+      apt:
+        name:
+          - python3-pip
+          - python3-venv
+          - python3-dev
+          - git
+          - tox
+        state: present
+        update_cache: yes
+
+    - name: Create virtual environment
+      command: python3 -m venv /tmp/venv
+      args:
+        creates: /tmp/venv/bin/activate
+
+    - name: Activate virtual environment
+      set_fact:
+        ansible_python_interpreter: /tmp/venv/bin/python
+
+    - name: Install Python dependencies
+      pip:
+        requirements: "{{ project_src }}/test-requirements.txt"
+        virtualenv: /tmp/venv
+        state: present
+
+    - name: Set up environment variables
+      set_fact:
+        PYTHONPATH: "{{ project_src }}"
+        TOX_PARALLEL: "{{ tox_parallel }}"
+
+    - name: Run all checks in parallel
+      block:
+        - name: Run linters (mypy) check
+          command: tox -e linters
+          args:
+            chdir: "{{ project_src }}"
+          register: linters_result
+          failed_when: false
+          when: run_linters
+          async: 1800  # 30 minutes timeout
+          poll: 0
+
+        - name: Run PEP8 checks
+          command: tox -e pep8
+          args:
+            chdir: "{{ project_src }}"
+          register: pep8_result
+          failed_when: false
+          when: run_pep8
+          async: 1800  # 30 minutes timeout
+          poll: 0
+
+        - name: Run Python 3.10 tests
+          command: tox -e py310
+          args:
+            chdir: "{{ project_src }}"
+          register: py310_result
+          failed_when: false
+          when: run_tests and 'py310' in python_versions
+          async: 3600  # 1 hour timeout
+          poll: 0
+
+        - name: Run Python 3.12 tests (main branch only)
+          command: tox -e py312
+          args:
+            chdir: "{{ project_src }}"
+          register: py312_result
+          failed_when: false
+          when: run_tests and 'py312' in python_versions and zuul.branch == 'main'
+          async: 3600  # 1 hour timeout
+          poll: 0
+
+        - name: Run coverage tests
+          command: tox -e cover
+          args:
+            chdir: "{{ project_src }}"
+          register: cover_result
+          failed_when: false
+          when: run_cover
+          async: 1800  # 30 minutes timeout
+          poll: 0
+
+        - name: Wait for linters to complete
+          async_status:
+            jid: "{{ linters_result.ansible_job_id }}"
+          register: linters_async_result
+          until: linters_async_result.finished
+          retries: 60
+          delay: 30
+          when: run_linters
+
+        - name: Wait for PEP8 to complete
+          async_status:
+            jid: "{{ pep8_result.ansible_job_id }}"
+          register: pep8_async_result
+          until: pep8_async_result.finished
+          retries: 60
+          delay: 30
+          when: run_pep8
+
+        - name: Wait for Python 3.10 tests to complete
+          async_status:
+            jid: "{{ py310_result.ansible_job_id }}"
+          register: py310_async_result
+          until: py310_async_result.finished
+          retries: 60
+          delay: 30
+          when: run_tests and 'py310' in python_versions
+
+        - name: Wait for Python 3.12 tests to complete
+          async_status:
+            jid: "{{ py312_result.ansible_job_id }}"
+          register: py312_async_result
+          until: py312_async_result.finished
+          retries: 60
+          delay: 30
+          when: run_tests and 'py312' in python_versions and zuul.branch == 'main'
+
+        - name: Wait for coverage tests to complete
+          async_status:
+            jid: "{{ cover_result.ansible_job_id }}"
+          register: cover_async_result
+          until: cover_async_result.finished
+          retries: 60
+          delay: 30
+          when: run_cover
+
+    - name: Display results
+      debug:
+        msg: |
+          Linters check: {{ linters_async_result.rc | default('skipped') }}
+          PEP8 check: {{ pep8_async_result.rc | default('skipped') }}
+          Python 3.10 tests: {{ py310_async_result.rc | default('skipped') }}
+          Python 3.12 tests: {{ py312_async_result.rc | default('skipped') }}
+          Coverage tests: {{ cover_async_result.rc | default('skipped') }}
+
+    - name: Fail if any check failed
+      fail:
+        msg: "One or more checks failed. Check the logs above for details."
+      when: >
+        (run_linters and linters_async_result.rc != 0) or
+        (run_pep8 and pep8_async_result.rc != 0) or
+        (run_tests and 'py310' in python_versions and py310_async_result.rc != 0) or
+        (run_tests and 'py312' in python_versions and zuul.branch == 'main' and py312_async_result.rc != 0) or
+        (run_cover and cover_async_result.rc != 0) 

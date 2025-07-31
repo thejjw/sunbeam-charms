@@ -1147,3 +1147,19 @@
         - charm-build-masakari-k8s
       # test_dir relative to project src dir
       test_dir: tests/all-k8s
+
+- job:
+    name: openstack-tox-combined
+    description: Combined tox job for all checks (linters, pep8, py310, py312)
+    run: playbooks/tox-combined.yaml
+    timeout: 7200  # 2 hours
+    nodeset: ubuntu-jammy
+    match-on-config-updates: false
+    files:
+      - ^(ops-sunbeam/|charms/|tox\.ini|pyproject\.toml|run_tox\.sh|test-requirements\.txt|repository\.py)
+    vars:
+      python_versions: ["py310", "py312"]
+      run_linters: true
+      run_pep8: true
+      run_tests: true
+      run_cover: true

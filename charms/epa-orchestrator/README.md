@@ -6,7 +6,7 @@ The epa-orchestrator charm is an operator designed to manage the EPA (Enhanced P
 
 ### Testing
 
-Run the unit tests:
+Run the unit tests
 
 ```bash
 tox -e py3 -- epa-orchestrator
