@@ -556,6 +556,31 @@
         - charm-build-ovn-central-k8s
       test_dir: tests/caas
 - job:
+    name: func-test-identity
+    description: |
+      Zaza smoke test for the identity feature, which
+      involves keystone and horizon.
+    timeout: 3600
+    pre-run: playbooks/pre-run-func-test.yaml
+    run: playbooks/zaza-func-test.yaml
+    post-run: playbooks/collect-run-data.yaml
+    dependencies:
+      - name: charm-build-keystone-k8s
+        soft: true
+      - name: charm-build-horizon-k8s
+        soft: true
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/horizon-k8s/
+      - charms/keystone-k8s/
+      - rebuild
+      - zuul.d/zuul.yaml
+    vars:
+      charm_jobs:
+        - charm-build-keystone-k8s
+        - charm-build-horizon-k8s
+      test_dir: tests/identity
+- job:
     name: func-test-misc
     description: |
       Zaza smoke test for designate, desginate-bind,
