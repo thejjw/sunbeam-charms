@@ -69,6 +69,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b60a992b_f1d240a1",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f07117bb_77ebb31c",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b4ad46fa_c01f1b84",
@@ -82,6 +100,24 @@
       "writtenOn": "2025-07-31T00:21:42Z",
       "side": 1,
       "message": "This doesn\u0027t appear to exist anymore.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a11bcb3a_e5546f76",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4ad46fa_c01f1b84",
       "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -103,6 +139,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f52de619_1a3b41c3",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae74a60e_0538b054",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f4694343_55f7056e",
@@ -116,6 +170,24 @@
       "writtenOn": "2025-07-31T00:21:42Z",
       "side": 1,
       "message": "This is actually use_chap_auth inherited from the base cinder volume driver.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1894d918_833aef08",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4694343_55f7056e",
       "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -137,6 +209,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c110ceeb_e24f43e9",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22a5cdef_af261b4a",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7d7d2f76_3738b519",
@@ -150,6 +240,24 @@
       "writtenOn": "2025-07-31T00:21:42Z",
       "side": 1,
       "message": "This is actually chap_password from the base cinder volume driver.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6aa7d3e2_15ee014a",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7d7d2f76_3738b519",
       "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -171,6 +279,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1fed73d4_c5363738",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8361c1ae_0bf18026",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "109ed803_8c41a1be",
@@ -184,6 +310,24 @@
       "writtenOn": "2025-07-31T00:21:42Z",
       "side": 1,
       "message": "This option no longer exists. It existed in a previous incarnation of the driver, but that driver was removed. The Hitachi driver was later re-added but the \u0027hitachi-add-chap-user\u0027 option was not included in the reintroduction of this driver.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b07b565_7e42d7b0",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "109ed803_8c41a1be",
       "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -205,6 +349,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "69a79156_7720f0f0",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2b742b41_7248d4c4",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b327efaa_172f2a20",
@@ -218,6 +380,24 @@
       "writtenOn": "2025-07-31T00:21:42Z",
       "side": 1,
       "message": "I don\u0027t see the pool ID options any more. Instead, the Hitachi code queries the pool id from the pool name that is set (via the hitachi_pools parameter).\n\nI suspect this is matching to the hitach_pool option, but that\u0027s deprecated so we should just remove this option.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1277029f_070877ec",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b327efaa_172f2a20",
       "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -239,6 +419,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "57b2c783_aba91113",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f6326e1d_25bd0310",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "22ea57ce_01725dfe",
@@ -256,6 +454,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5102c2b4_9cdae0ad",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22ea57ce_01725dfe",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9cc66cee_79e1ea1b",
@@ -269,6 +485,24 @@
       "writtenOn": "2025-07-31T00:21:42Z",
       "side": 1,
       "message": "This option doesn\u0027t appear to be present in the cinder drivers - I think we should just use the `hitachi-storage-id` and leave it at that.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa7dab38_646e0fe9",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9cc66cee_79e1ea1b",
       "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }

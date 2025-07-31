@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbf78301_0ff7d9bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-07-31T15:15:05Z",
+      "side": 1,
+      "message": "Hey Billy!, thanks for taking the time and valuable review. i have addressed your observations and modified all the sensitive credentials to be managed via juju secrets.\n\nalso removed the options that where obsolete deprectated as requested.",
+      "revId": "a9bd0ce8eb1dd85d36148d31f7bd654ef242d56b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
