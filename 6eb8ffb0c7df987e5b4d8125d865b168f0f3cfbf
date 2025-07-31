@@ -33,6 +33,244 @@
       "message": "also check: https://github.com/canonical/snap-openstack/pull/544. for other related changes",
       "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ac64795_c00c3ace",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "Review still in progress - current comments saved.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f07117bb_77ebb31c",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "As this is sensitive data, I think we should ensure that we use [Juju secrets](https://documentation.ubuntu.com/juju/3.6/reference/secret/) here. Potentially for both the username and password as one credential secret. The reference would be a secret url where the user needs to create the secret.\n\nThis also has good implications for secret rotation - so the user can update the username/password in the secret store and it will propagate to the units securely.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4ad46fa_c01f1b84",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "This doesn\u0027t appear to exist anymore.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae74a60e_0538b054",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "This doesn\u0027t appear to exist any more",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4694343_55f7056e",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "This is actually use_chap_auth inherited from the base cinder volume driver.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22a5cdef_af261b4a",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "This is actually chap_username from the base cinder volume driver.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7d7d2f76_3738b519",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "This is actually chap_password from the base cinder volume driver.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8361c1ae_0bf18026",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "My same comment applies to the hitachi-auth-user/password options as above. These should use juju secrets.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "109ed803_8c41a1be",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "This option no longer exists. It existed in a previous incarnation of the driver, but that driver was removed. The Hitachi driver was later re-added but the \u0027hitachi-add-chap-user\u0027 option was not included in the reintroduction of this driver.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2b742b41_7248d4c4",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "The horcm drivers were removed from Cinder and are no longer available. As such, the hitachi-horcm-* options are not applicable and should be removed.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b327efaa_172f2a20",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "I don\u0027t see the pool ID options any more. Instead, the Hitachi code queries the pool id from the pool name that is set (via the hitachi_pools parameter).\n\nI suspect this is matching to the hitach_pool option, but that\u0027s deprecated so we should just remove this option.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f6326e1d_25bd0310",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "This option doesn\u0027t exist in the upstream driver.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22ea57ce_01725dfe",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "I don\u0027t see this as an available option.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9cc66cee_79e1ea1b",
+        "filename": "charms/cinder-volume-hitachi/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-07-31T00:21:42Z",
+      "side": 1,
+      "message": "This option doesn\u0027t appear to be present in the cinder drivers - I think we should just use the `hitachi-storage-id` and leave it at that.",
+      "revId": "6eb8ffb0c7df987e5b4d8125d865b168f0f3cfbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
