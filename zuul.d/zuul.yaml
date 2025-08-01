@@ -11,6 +11,8 @@
         - func-test-tempest:
             nodeset: ubuntu-noble
             voting: false
+        - func-test-identity:
+            nodeset: ubuntu-noble
     vars:
       juju_channel: 3.6/stable
       juju_classic_mode: false
