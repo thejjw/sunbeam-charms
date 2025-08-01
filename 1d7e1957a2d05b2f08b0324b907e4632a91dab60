@@ -16,6 +16,24 @@
       "message": "Can you please follow the format:\n\n[charm-name]\u003cwhitespace\u003emessage\n\nLet\u0027s keep the history consistent if possible.",
       "revId": "1d7e1957a2d05b2f08b0324b907e4632a91dab60",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ccc3a5e_168de124",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38075
+      },
+      "writtenOn": "2025-08-01T07:37:56Z",
+      "side": 1,
+      "message": "Thanks for the reminder, I have changed it. Will notice for any later submission!",
+      "parentUuid": "c5ebeba2_472f30a0",
+      "revId": "1d7e1957a2d05b2f08b0324b907e4632a91dab60",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
