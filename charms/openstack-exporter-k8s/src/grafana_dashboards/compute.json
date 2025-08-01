@@ -2378,7 +2378,7 @@
         "datasource": {
           "uid": "${prometheusds}"
         },
-        "definition": "query_result(((ceph_cluster_total_bytes or vector(0) > bool(0)) * scalar(stddev(openstack_nova_local_storage_available_bytes) < bool(1e8)) * scalar(abs(sum(ceph_cluster_total_bytes or vector(0)) - max(openstack_nova_local_storage_available_bytes)) < bool(5e9))))",
+        "definition": "query_result(max(((ceph_cluster_total_bytes or vector(0)) > bool(0)) * scalar(stddev(openstack_nova_local_storage_available_bytes) < bool(1e8)) * scalar(abs(sum(ceph_cluster_total_bytes or vector(0)) - max(openstack_nova_local_storage_available_bytes)) < bool(5e9))))",
         "description": "Detect if Ceph is used as shared backend storage (no ephemeral available)",
         "error": null,
         "hide": 0,
@@ -2388,7 +2388,7 @@
         "name": "ceph_without_ephemeral",
         "options": [],
         "query": {
-          "query": "query_result(((ceph_cluster_total_bytes or vector(0) > bool(0)) * scalar(stddev(openstack_nova_local_storage_available_bytes) < bool(1e8)) * scalar(abs(sum(ceph_cluster_total_bytes or vector(0)) - max(openstack_nova_local_storage_available_bytes)) < bool(5e9))))",
+          "query": "query_result(max(((ceph_cluster_total_bytes or vector(0)) > bool(0)) * scalar(stddev(openstack_nova_local_storage_available_bytes) < bool(1e8)) * scalar(abs(sum(ceph_cluster_total_bytes or vector(0)) - max(openstack_nova_local_storage_available_bytes)) < bool(5e9))))",
           "refId": "${prometheusds}-ceph_without_ephemeral-Variable-Query"
         },
         "refresh": 1,
