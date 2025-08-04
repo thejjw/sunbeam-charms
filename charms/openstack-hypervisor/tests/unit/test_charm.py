@@ -113,8 +113,11 @@ class TestCharm(test_utils.CharmTestCase):
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = False
         self.snap.SnapState.Latest = "latest"
+        epa_orchestrator_snap_mock = MagicMock()
+        epa_orchestrator_snap_mock.present = False
         self.snap.SnapCache.return_value = {
-            "openstack-hypervisor": hypervisor_snap_mock
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": epa_orchestrator_snap_mock,
         }
         self.socket.getfqdn.return_value = "test.local"
         self.socket.gethostname.return_value = "test"
@@ -242,8 +245,11 @@ class TestCharm(test_utils.CharmTestCase):
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = False
         self.snap.SnapState.Latest = "latest"
+        epa_orchestrator_snap_mock = MagicMock()
+        epa_orchestrator_snap_mock.present = False
         self.snap.SnapCache.return_value = {
-            "openstack-hypervisor": hypervisor_snap_mock
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": epa_orchestrator_snap_mock,
         }
         self.socket.getfqdn.return_value = "test.local"
         self.socket.gethostname.return_value = "test"
@@ -328,8 +334,11 @@ class TestCharm(test_utils.CharmTestCase):
         self.harness.begin()
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = False
+        epa_orchestrator_snap_mock = MagicMock()
+        epa_orchestrator_snap_mock.present = False
         self.snap.SnapCache.return_value = {
-            "openstack-hypervisor": hypervisor_snap_mock
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": epa_orchestrator_snap_mock,
         }
         with self.assertRaises(ops.testing.ActionFailed):
             self.harness.run_action("list-nics")
@@ -339,8 +348,11 @@ class TestCharm(test_utils.CharmTestCase):
         self.harness.begin()
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = True
+        epa_orchestrator_snap_mock = MagicMock()
+        epa_orchestrator_snap_mock.present = False
         self.snap.SnapCache.return_value = {
-            "openstack-hypervisor": hypervisor_snap_mock
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": epa_orchestrator_snap_mock,
         }
         subprocess_run_mock = MagicMock()
         subprocess_run_mock.return_value = MagicMock(
@@ -360,8 +372,11 @@ class TestCharm(test_utils.CharmTestCase):
         self.harness.begin()
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = True
+        epa_orchestrator_snap_mock = MagicMock()
+        epa_orchestrator_snap_mock.present = False
         self.snap.SnapCache.return_value = {
-            "openstack-hypervisor": hypervisor_snap_mock
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": epa_orchestrator_snap_mock,
         }
         subprocess_run_mock = MagicMock()
         subprocess_run_mock.return_value = MagicMock(
@@ -379,8 +394,11 @@ class TestCharm(test_utils.CharmTestCase):
         self.harness.begin()
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = True
+        epa_orchestrator_snap_mock = MagicMock()
+        epa_orchestrator_snap_mock.present = False
         self.snap.SnapCache.return_value = {
-            "openstack-hypervisor": hypervisor_snap_mock
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": epa_orchestrator_snap_mock,
         }
         hypervisor_snap_mock.get.return_value = flavors
         action_output = self.harness.run_action("list-flavors")
@@ -406,3 +424,43 @@ class TestCharm(test_utils.CharmTestCase):
             snap_name=charm.HYPERVISOR_SNAP_NAME,
             unix_socket_filepath=charm.EVACUATION_UNIX_SOCKET_FILEPATH,
         )
+
+    def test_snap_connect_success(self):
+        """Test successful snap connect to epa-orchestrator."""
+        self.harness.begin()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = True
+        epa_orchestrator_snap_mock = MagicMock()
+        epa_orchestrator_snap_mock.present = True
+        hypervisor_snap_mock.connect.return_value = None
+
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": epa_orchestrator_snap_mock,
+        }
+
+        self.harness.charm._connect_to_epa_orchestrator()
+        hypervisor_snap_mock.connect.assert_called_once_with(
+            "epa-info", slot="epa-orchestrator:epa-info"
+        )
+
+    def test_snap_connect_failure_snaperror(self):
+        """Test snap connect failure with SnapError."""
+        self.harness.begin()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = True
+        epa_orchestrator_snap_mock = MagicMock()
+        epa_orchestrator_snap_mock.present = True
+        hypervisor_snap_mock.connect.side_effect = snap.SnapError(
+            "Connection failed"
+        )
+
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": epa_orchestrator_snap_mock,
+        }
+
+        with self.assertRaises(snap.SnapError):
+            hypervisor_snap_mock.connect(
+                "epa-info", slot="epa-orchestrator:epa-info"
+            )
