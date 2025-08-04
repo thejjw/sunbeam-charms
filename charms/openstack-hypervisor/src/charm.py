@@ -69,6 +69,8 @@ logger = logging.getLogger(__name__)
 MIGRATION_BINDING = "migration"
 DATA_BINDING = "data"
 MTLS_USAGES = {x509.OID_SERVER_AUTH, x509.OID_CLIENT_AUTH}
+EPA_INFO_PLUG = "epa-info"
+EPA_INFO_SLOT = "epa-orchestrator:epa-info"
 
 
 class SnapInstallationError(Exception):
@@ -508,6 +510,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 hypervisor.ensure(
                     snap.SnapState.Latest, channel=config("snap-channel")
                 )
+                self._connect_to_epa_orchestrator()
         except (snap.SnapError, snap.SnapNotFoundError) as e:
             logger.error(
                 "An exception occurred when installing openstack-hypervisor. Reason: %s",
@@ -517,6 +520,33 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             raise SnapInstallationError(
                 "openstack-hypervisor installation failed"
             )
+
+    def _connect_to_epa_orchestrator(self):
+        """Connect openstack-hypervisor snap plug to epa-orchestrator snap slot."""
+        cache = self.get_snap_cache()
+        hypervisor = cache["openstack-hypervisor"]
+
+        try:
+            epa_orchestrator = cache["epa-orchestrator"]
+            if not epa_orchestrator.present:
+                logger.info(
+                    "epa-orchestrator not installed, skipping connection"
+                )
+                return
+        except snap.SnapNotFoundError:
+            logger.info(
+                "epa-orchestrator not found in snap cache, skipping connection"
+            )
+            return
+
+        try:
+            hypervisor.connect(EPA_INFO_PLUG, slot=EPA_INFO_SLOT)
+            logger.info(
+                "Successfully connected openstack-hypervisor to epa-orchestrator"
+            )
+        except snap.SnapError as e:
+            logger.error(f"Failed to connect to epa-orchestrator: {e.message}")
+            raise
 
     @functools.cache
     def get_snap_cache(self) -> snap.SnapCache:
