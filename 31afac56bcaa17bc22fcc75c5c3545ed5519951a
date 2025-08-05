@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31ab57ec_c1bae07b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-05T05:28:54Z",
+      "side": 1,
+      "message": "Can you check the manila conf templates",
+      "revId": "31afac56bcaa17bc22fcc75c5c3545ed5519951a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18c513ec_42a6a94b",
+        "filename": "charms/manila-cephfs-k8s/lib/charms/manila_cephfs_k8s/v0/cephfs.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-05T05:28:54Z",
+      "side": 1,
+      "message": "It will be good if this library along with Provides is part of charm-microceph. See my comment https://github.com/canonical/charm-microceph/pull/190#pullrequestreview-3086540744",
+      "revId": "31afac56bcaa17bc22fcc75c5c3545ed5519951a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "193facad_c123b997",
+        "filename": "charms/manila-cephfs-k8s/src/templates/manila.conf.j2",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-05T05:28:54Z",
+      "side": 1,
+      "message": "Can we add enabled_share_protocols. Is this required for manila-share or required in manila\u003dapi,manila-scheduler  as well?",
+      "revId": "31afac56bcaa17bc22fcc75c5c3545ed5519951a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd8920bf_c3709887",
+        "filename": "charms/manila-cephfs-k8s/src/templates/manila.conf.j2",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-05T05:28:54Z",
+      "side": 1,
+      "message": "This should be NFS instead of CEPHFS\n\nhttps://docs.openstack.org/manila/latest/configuration/shared-file-systems/drivers/cephfs_driver.html#configure-cephfs-nfs-share-backend-in-manila-conf\n\ncephfs_nfs_cluster_id \u003d mycephfsnfscluster --\u003e this parameter is missing",
+      "revId": "31afac56bcaa17bc22fcc75c5c3545ed5519951a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
