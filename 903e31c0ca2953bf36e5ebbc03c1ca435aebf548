@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91765ee0_76c00500",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-05T05:12:38Z",
+      "side": 1,
+      "message": "Overall LGTM, Would like to give a try before merge",
+      "revId": "903e31c0ca2953bf36e5ebbc03c1ca435aebf548",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b7e65ae7_8490971e",
+        "filename": "charms/manila-cephfs-k8s/build-requirements.txt",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-05T05:12:38Z",
+      "side": 1,
+      "message": "Same comment as mentioned in https://review.opendev.org/c/openstack/sunbeam-charms/+/952353/7",
+      "revId": "903e31c0ca2953bf36e5ebbc03c1ca435aebf548",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
