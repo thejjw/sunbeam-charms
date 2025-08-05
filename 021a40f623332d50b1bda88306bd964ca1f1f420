@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c8468d62_033a9ae2",
+        "filename": "charms/manila-k8s/build-requirements.txt",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-05T13:46:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "665875ff_041d37ca",
+      "revId": "021a40f623332d50b1bda88306bd964ca1f1f420",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "64263f30_ee005ba6",
@@ -52,6 +70,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "426ce17d_ca574557",
+        "filename": "charms/manila-k8s/pyproject.toml",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-05T13:46:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64263f30_ee005ba6",
+      "revId": "021a40f623332d50b1bda88306bd964ca1f1f420",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "960f594e_19ac7465",
@@ -65,6 +101,24 @@
       "writtenOn": "2025-08-05T05:07:12Z",
       "side": 1,
       "message": "Can you check if Auditmiddleware is supported in upstream for Manila. If so, can you enable it by default",
+      "revId": "021a40f623332d50b1bda88306bd964ca1f1f420",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15068bcc_c6b254c0",
+        "filename": "charms/manila-k8s/src/templates/api-paste.ini.j2",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-05T13:46:43Z",
+      "side": 1,
+      "message": "audit middleware could be added to manila, but it\u0027s not officially supported upstream at this point, as there\u0027s no official api_audit_map.conf file for Manila at this point, though it may be added in the future.\n\nReferences:\n- https://bugs.launchpad.net/manila/+bug/1929936\n- https://meetings.opendev.org/meetings/manila/2024/manila.2024-11-07-15.00.log.html\n- https://meetings.opendev.org/meetings/manila/2025/manila.2025-01-23-15.00.log.html\n- https://github.com/openstack/pycadf/tree/master/etc/pycadf",
+      "parentUuid": "960f594e_19ac7465",
       "revId": "021a40f623332d50b1bda88306bd964ca1f1f420",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
