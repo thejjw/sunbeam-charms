@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b34fd1a_45c17462",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-05T05:07:12Z",
+      "side": 1,
+      "message": "Overall LGTM, Would like to try before merge this PR.\n\nLeft few comments",
+      "revId": "021a40f623332d50b1bda88306bd964ca1f1f420",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "665875ff_041d37ca",
+        "filename": "charms/manila-k8s/build-requirements.txt",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-05T05:07:12Z",
+      "side": 1,
+      "message": "The preference to use charmcraft is to install via snap rather than github repo link",
+      "revId": "021a40f623332d50b1bda88306bd964ca1f1f420",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "64263f30_ee005ba6",
+        "filename": "charms/manila-k8s/pyproject.toml",
+        "patchSetId": 7
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-05T05:07:12Z",
+      "side": 1,
+      "message": "Can you cross check if all these requirements are necessary",
+      "revId": "021a40f623332d50b1bda88306bd964ca1f1f420",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "960f594e_19ac7465",
+        "filename": "charms/manila-k8s/src/templates/api-paste.ini.j2",
+        "patchSetId": 7
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-05T05:07:12Z",
+      "side": 1,
+      "message": "Can you check if Auditmiddleware is supported in upstream for Manila. If so, can you enable it by default",
+      "revId": "021a40f623332d50b1bda88306bd964ca1f1f420",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
