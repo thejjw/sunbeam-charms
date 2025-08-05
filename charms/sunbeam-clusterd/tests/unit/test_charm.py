@@ -18,6 +18,7 @@ import yaml
 from charms.operator_libs_linux.v2 import (
     snap,
 )
+from ops_sunbeam import guard as sunbeam_guard
 
 
 class _SunbeamClusterdCharm(charm.SunbeamClusterdCharm):
@@ -39,7 +40,7 @@ actions = yaml.dump(yaml.safe_load(charmcraft)["actions"])
 class TestCharm(test_utils.CharmTestCase):
     """Test the charm."""
 
-    PATCHES = ["snap", "clusterd"]
+    PATCHES = ["snap", "clusterd", "service_running"]
 
     def setUp(self):
         """Setup charm and harness."""
@@ -105,3 +106,17 @@ class TestCharm(test_utils.CharmTestCase):
 
         output = self.harness.run_action("get-credentials")
         self.assertEqual({"url": "https://10.0.0.10:7000"}, output.results)
+
+    def test_check_system_services_raises_when_ovs_running(self):
+        """Test check_system_services raises BlockedExceptionError if OVS is running."""
+        self.service_running.return_value = True
+        self.initial_setup()
+        with self.assertRaises(sunbeam_guard.BlockedExceptionError):
+            self.harness.set_leader()
+
+    def test_check_system_services_passes_when_ovs_not_running(self):
+        """Test check_system_services does nothing if OVS is not running."""
+        self.service_running.return_value = False
+        self.initial_setup()
+        # Should not raise
+        self.harness.set_leader()
