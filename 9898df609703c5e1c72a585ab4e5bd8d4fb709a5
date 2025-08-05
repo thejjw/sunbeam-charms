@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "76bd9aa1_5c9d9d33",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-05T06:30:42Z",
+      "side": 1,
+      "message": "Can you make Snap Name and slot name as constants",
+      "revId": "9898df609703c5e1c72a585ab4e5bd8d4fb709a5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
