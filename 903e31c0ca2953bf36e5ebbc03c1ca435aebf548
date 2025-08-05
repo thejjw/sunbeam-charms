@@ -33,6 +33,24 @@
       "message": "Same comment as mentioned in https://review.opendev.org/c/openstack/sunbeam-charms/+/952353/7",
       "revId": "903e31c0ca2953bf36e5ebbc03c1ca435aebf548",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "95d9e427_041ad5f4",
+        "filename": "charms/manila-cephfs-k8s/build-requirements.txt",
+        "patchSetId": 5
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-05T14:41:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b7e65ae7_8490971e",
+      "revId": "903e31c0ca2953bf36e5ebbc03c1ca435aebf548",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
