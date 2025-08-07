@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "6235f546bcaa29c4791f91325af7f7923554851b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ae7621e_c1dc9c5a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-07T06:55:28Z",
+      "side": 1,
+      "message": "recheck TEMPORARY issue in downloading images",
+      "revId": "6235f546bcaa29c4791f91325af7f7923554851b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
