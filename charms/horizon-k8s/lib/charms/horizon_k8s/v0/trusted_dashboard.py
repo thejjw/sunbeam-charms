@@ -296,7 +296,7 @@ class TrustedDashboardRequirer(Object):
         }
 
         if not requirer_data["dashboard-url"]:
-            logger.info("No trustwed dashboard found in relation data.")
+            logger.info("No trusted dashboard found in relation data.")
             return
 
         _validate_data(requirer_data, TRUSTED_DASHBOARD_PROVIDER_JSON_SCHEMA)
