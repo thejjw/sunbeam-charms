@@ -30,6 +30,7 @@ import binascii
 import json
 import logging
 import os
+import re
 import tempfile
 from collections import (
     defaultdict,
@@ -78,6 +79,9 @@ from charms.hydra.v0.oauth import (
     ClientConfig,
     OAuthRequirer,
 )
+from charms.keystone_saml_k8s.v1.keystone_saml import (
+    KeystoneSAMLRequirer,
+)
 from ops.charm import (
     ActionEvent,
     RelationChangedEvent,
@@ -116,6 +120,28 @@ OAUTH_GRANT_TYPES = [
     "client_credentials",
     "refresh_token",
 ]
+_MELLON_SP_TEMPLATE = """<?xml version="1.0" encoding="utf-8"?>
+<EntityDescriptor entityID="%(entity_id)s" xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+  <SPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" AuthnRequestsSigned="true">
+    <KeyDescriptor use="encryption">
+      <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:X509Data>
+          <ds:X509Certificate>%(sp_cert)s</ds:X509Certificate>
+        </ds:X509Data>
+      </ds:KeyInfo>
+    </KeyDescriptor>
+    <KeyDescriptor use="signing">
+      <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+        <ds:X509Data>
+          <ds:X509Certificate>%(sp_cert)s</ds:X509Certificate>
+        </ds:X509Data>
+      </ds:KeyInfo>
+    </KeyDescriptor>
+    <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="%(base_url)s/logout"/>
+    <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="%(base_url)s/postResponse" index="0"/>
+  </SPSSODescriptor>
+</EntityDescriptor>
+"""
 
 
 @sunbeam_tracing.trace_type
@@ -154,9 +180,10 @@ class KeystoneConfigAdapter(sunbeam_contexts.ConfigContext):
             "service_tenant_id": self.charm.service_project_id,
             "admin_domain_name": self.charm.admin_domain_name,
             "admin_domain_id": self.charm.admin_domain_id,
-            "auth_methods": "external,password,token,oauth1,openid,mapped,application_credential",
+            "auth_methods": "external,password,token,oauth1,openid,saml2,mapped,application_credential",
             "default_domain_id": self.charm.default_domain_id,
             "public_port": self.charm.service_port,
+            "server_name": self.charm.server_name,
             "debug": config["debug"],
             "token_expiration": 3600,  # 1 hour
             "allow_expired_window": 169200,  # 2 days - 1 hour
@@ -488,9 +515,8 @@ class OAuthRequiresHandler(_BaseIDPHandler):
         ctxt = {
             "oidc_crypto_passphrase": oidc_secret,
             "oidc_providers": provider_info,
-            "redirect_uri": self.oidc_redirect_uri,
-            "redirect_uri_path": urlparse(self.oidc_redirect_uri).path,
-            "public_url_path": urlparse(self.charm.public_endpoint).path,
+            "oidc_redirect_uri": self.oidc_redirect_uri,
+            "oidc_redirect_uri_path": urlparse(self.oidc_redirect_uri).path,
         }
         return ctxt
 
@@ -499,6 +525,171 @@ class OAuthRequiresHandler(_BaseIDPHandler):
         if self.context():
             return True
         return False
+
+
+class KeystoneSAML2RequiresHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for keystone-saml relation."""
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for the keystone-saml relation."""
+        saml = KeystoneSAMLRequirer(
+            self.charm, relation_name=self.relation_name
+        )
+
+        self.framework.observe(
+            saml.on.changed,
+            self._saml_relation_changed,
+        )
+
+        self.framework.observe(
+            self.charm.on.keystone_saml_relation_changed,
+            self._saml_relation_changed,
+        )
+        return saml
+
+    def _saml_relation_changed(self, event):
+        self.callback_f(event)
+
+    def set_requirer_info(self, event):
+        """Set SAML2 requirer info."""
+        providers = self.interface.get_providers()
+        if not providers:
+            return {}
+
+        # Set provider info for all providers.
+        for provider in providers:
+            if not provider.get("name", None):
+                continue
+            relation_id = provider.pop("relation_id", None)
+            if not relation_id:
+                continue
+            sp_url = self._get_sp_url(provider)
+            acs_url = f"{sp_url}/postResponse"
+            logout_url = f"{sp_url}/logout"
+            metadata_url = f"{sp_url}/metadata"
+            self.interface.set_requirer_info(
+                {
+                    "acs-url": acs_url,
+                    "logout-url": logout_url,
+                    "metadata-url": metadata_url,
+                },
+                relation_id=relation_id,
+            )
+
+    def get_saml_providers(self):
+        """Get all SAML2 providers."""
+        providers = self.interface.get_providers()
+
+        data = []
+        for provider in providers:
+            data.append(
+                {
+                    "name": provider["name"],
+                    "protocol": "saml2",
+                    "description": provider["label"],
+                }
+            )
+        if not data:
+            return {}
+        return {"federated-providers": data}
+
+    def _get_sp_url(self, provider: Mapping[str, str]):
+        provider_name = provider["name"]
+        sp_url = (
+            f"{self.charm.public_endpoint}/OS-FEDERATION/"
+            f"identity_providers/{provider_name}/protocols/"
+            "saml2/auth/mellon"
+        )
+        return sp_url
+
+    def _ensure_provider_metadata_files(
+        self, provider: Mapping[str, str], sp_k_c: Mapping[str, str]
+    ) -> Mapping[str, Mapping[str, str]]:
+        metadata = provider.get("metadata", "")
+        if not metadata:
+            return {}
+        sp_url = self._get_sp_url(provider)
+        provider_name = provider["name"]
+        urn = f"urn:saml2:{provider_name}"
+        sp_meta = f"saml_{provider_name}_keystone_metadata.xml"
+        idp_meta = f"saml_{provider_name}_idp_metadata.xml"
+        sp_file_path = f"{manager.SAML_PROVIDER_FOLDER}/{sp_meta}"
+        idp_file_path = f"{manager.SAML_PROVIDER_FOLDER}/{idp_meta}"
+        match = re.match(
+            pattern="(-----BEGIN CERTIFICATE-----)(.*?)(-----END CERTIFICATE-----)",
+            string=sp_k_c["cert"],
+            flags=re.DOTALL,
+        )
+        if not match:
+            return {}
+
+        groups = match.groups()
+        if len(groups) != 3:
+            return {}
+        cert = groups[1].strip()
+        return {
+            "idp_metadata_file": {
+                "data": provider["metadata"],
+                "name": idp_meta,
+                "path": idp_file_path,
+            },
+            "sp_metadata_file": {
+                "data": _MELLON_SP_TEMPLATE
+                % {
+                    "entity_id": urn,
+                    "sp_cert": cert,
+                    "base_url": sp_url,
+                },
+                "name": sp_meta,
+                "path": sp_file_path,
+            },
+        }
+
+    def context(self):
+        """Configuration context."""
+        ctx = {}
+        sp_key_and_cert = self.charm.ensure_saml_cert_and_key()
+        if not sp_key_and_cert:
+            return {}
+
+        ctx["saml2_sp_cert_file"] = manager.SAML_CERT_PATH
+        ctx["saml2_sp_key_file"] = manager.SAML_KEY_PATH
+
+        providers = self.interface.get_providers()
+        if not providers:
+            return {}
+
+        ctx["saml_providers"] = []
+        files_to_write = {}
+        for provider in providers:
+            meta_files = self._ensure_provider_metadata_files(
+                provider, sp_key_and_cert
+            )
+            if not meta_files:
+                # Something went wrong. At this point we should have
+                # The needed metadata to generate the sp_metadata_file and
+                # the idp_metadata_file
+                # Note(gabriel-samfira): Should we block?
+                return {}
+
+            idp_meta = meta_files["idp_metadata_file"]
+            sp_meta = meta_files["sp_metadata_file"]
+            files_to_write[idp_meta["name"]] = idp_meta["data"]
+            files_to_write[sp_meta["name"]] = sp_meta["data"]
+            provider_info = {
+                "sp_metadata_file": sp_meta["path"],
+                "idp_metadata_file": idp_meta["path"],
+                "name": provider["name"],
+                "protocol": "saml2",
+            }
+            ctx["saml_providers"].append(provider_info)
+        if files_to_write:
+            self.charm.keystone_manager.write_saml_metadata(files_to_write)
+        return ctx
+
+    def ready(self):
+        """Check if handler is ready."""
+        return bool(self.context())
 
 
 class ExternalIDPRequiresHandler(_BaseIDPHandler):
@@ -637,8 +828,8 @@ class ExternalIDPRequiresHandler(_BaseIDPHandler):
         return {
             "oidc_providers": providers,
             "oidc_crypto_passphrase": oidc_secret,
-            "redirect_uri": self.oidc_redirect_uri,
-            "redirect_uri_path": urlparse(self.oidc_redirect_uri).path,
+            "oidc_redirect_uri": self.oidc_redirect_uri,
+            "oidc_redirect_uri_path": urlparse(self.oidc_redirect_uri).path,
             "public_url_path": urlparse(self.charm.public_endpoint).path,
         }
 
@@ -740,6 +931,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     RECEIVE_CA_CERT_RELATION_NAME = "receive-ca-cert"
     TRUSTED_DASHBOARD = "trusted-dashboard"
     EXTERNAL_IDP = "external-idp"
+    KEYSTONE_SAML = "keystone-saml"
 
     def __init__(self, framework):
         super().__init__(framework)
@@ -793,8 +985,11 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Create a merged context from oauth and external_idp."""
         oidc_ctx = self.oauth.context()
         external_idp_ctx = self.external_idp.context()
+        saml_ctx = self.keystone_saml.context()
+
         ctx = {
             "oidc_providers": [],
+            "saml_providers": [],
         }
         if oidc_ctx:
             ctx.update(oidc_ctx)
@@ -803,6 +998,11 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             if providers:
                 ctx["oidc_providers"].extend(providers)
             ctx.update(external_idp_ctx)
+        if saml_ctx:
+            ctx.update(saml_ctx)
+
+        ctx["public_url_path"] = urlparse(self.public_endpoint).path
+        ctx["public_endpoint"] = self.public_endpoint
         return ctx
 
     def _handle_trusted_dashboard_changed(self, event: RelationChangedEvent):
@@ -818,7 +1018,8 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             return
         oauth_providers = self.oauth.get_oidc_providers()
         external_providers = self.external_idp.get_oidc_providers()
-        if not oauth_providers and not external_providers:
+        saml_providers = self.keystone_saml.get_saml_providers()
+        if not any([oauth_providers, external_providers, saml_providers]):
             logger.debug("No OAuth relations found, skipping update")
             return
         data = {"federated-providers": []}
@@ -830,13 +1031,18 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             data["federated-providers"].extend(
                 external_providers.get("federated-providers", [])
             )
+        if saml_providers:
+            data["federated-providers"].extend(
+                saml_providers.get("federated-providers", [])
+            )
         if not data["federated-providers"]:
             return
         self.trusted_dashboard.set_requirer_info(data)
 
-    def _handle_oauth_info_changed(self, event: RelationChangedEvent):
-        """Handle OAuth info changed event."""
+    def _handle_fid_providers_changed(self, event: RelationChangedEvent):
+        """Handle federated providers info changed event."""
         self._handle_update_trusted_dashboard(event)
+        self.keystone_saml.set_requirer_info(event)
         self.configure_charm(event)
 
     def _retrieve_or_set_secret(
@@ -920,16 +1126,27 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
         return "\n".join(combined)
 
-    def get_ca_bundles_from_oauth_relations(self) -> List[str]:
+    def get_ca_bundles_from_fid_relations(self) -> List[str]:
         """Get CA bundles from oauth relations."""
         ca_certs = []
-        all_provider_info = self.oauth.get_all_provider_info()
-        for provider in all_provider_info:
-            provider_info = provider.get("info", None)
-            if not provider_info:
+        oauth_provider_info = self.oauth.get_all_provider_info()
+        external_idp_info = self.external_idp.get_all_provider_info()
+        saml_provider_info = self.keystone_saml.interface.get_providers()
+        for provider in oauth_provider_info:
+            ca_chain = provider.get("ca_chain", [])
+            if not ca_chain:
                 continue
-            if provider_info.ca_chain:
-                ca_certs.extend(provider_info.ca_chain)
+            ca_certs.extend(ca_chain)
+        for provider in external_idp_info:
+            ca_chain = provider.get("ca_chain", [])
+            if not ca_chain:
+                continue
+            ca_certs.extend(ca_chain)
+        for provider in saml_provider_info:
+            ca_chain = provider.get("ca_chain", [])
+            if not ca_chain:
+                continue
+            ca_certs.extend(ca_chain)
         return ca_certs
 
     def sync_oidc_providers(self):
@@ -944,6 +1161,45 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         logger.info("Writing oidc metadata files")
         self.keystone_manager.setup_oidc_metadata_folder()
         self.keystone_manager.write_oidc_metadata(files)
+
+    def ensure_saml_cert_and_key(self) -> Mapping[str, str]:
+        """Ensure the SAM2 SP cert and key state match the config.
+
+        If the saml-x509-keypair charm option is set, we need to ensure that
+        the secret holding the certificare and key are read, that the cert
+        matches the key and that we write it to disk. If the config is not set
+        we need to make sure we remove the cert and key.
+        """
+        self.keystone_manager.setup_saml2_metadata_folder()
+        cert_secret_id = self.model.config.get("saml-x509-keypair")
+        if not cert_secret_id:
+            self.keystone_manager.remove_saml_key_and_cert()
+            return {}
+        try:
+            cert_secret = self.model.get_secret(id=cert_secret_id)
+        except SecretNotFoundError:
+            raise sunbeam_guard.BlockedExceptionError(
+                f"Could not find saml2 secret with id {cert_secret_id}"
+            )
+        cert_data = cert_secret.get_content(refresh=True)
+        key = cert_data.get("key", None)
+        cert = cert_data.get("certificate", None)
+        key_and_cert = (cert, key)
+        if any(key_and_cert) and not all(key_and_cert):
+            raise sunbeam_guard.BlockedExceptionError(
+                "Both key and certificate keys are required for "
+                "saml-x509-keypair secret."
+            )
+        if not certs.cert_and_key_match(cert.encode(), key.encode()):
+            raise sunbeam_guard.BlockedExceptionError(
+                "The supplied x509 certificate in the saml-x509-keypair secret "
+                "is not derived from the supplied key."
+            )
+        self.keystone_manager.ensure_saml_cert_and_key_state(cert, key)
+        return {
+            "cert": cert,
+            "key": key,
+        }
 
     def get_oidc_secret(self):
         """Get the OIDC secret from the peers relation."""
@@ -1486,14 +1742,22 @@ export OS_AUTH_VERSION=3
             self.oauth = OAuthRequiresHandler(
                 self,
                 OAUTH,
-                self._handle_oauth_info_changed,
+                self._handle_fid_providers_changed,
             )
             handlers.append(self.oauth)
         if self.can_add_handler(self.EXTERNAL_IDP, handlers):
             self.external_idp = ExternalIDPRequiresHandler(
                 self,
                 self.EXTERNAL_IDP,
-                self._handle_oauth_info_changed,
+                self._handle_fid_providers_changed,
+            )
+            handlers.append(self.external_idp)
+
+        if self.can_add_handler(self.KEYSTONE_SAML, handlers):
+            self.keystone_saml = KeystoneSAML2RequiresHandler(
+                self,
+                self.KEYSTONE_SAML,
+                self._handle_fid_providers_changed,
             )
             handlers.append(self.external_idp)
 
@@ -2060,6 +2324,25 @@ export OS_AUTH_VERSION=3
         return self.internal_endpoint
 
     @property
+    def server_name(self):
+        """Server name directive for keystone virtual host.
+
+        When behind a reverse proxy, apache2 may not be able to properly determine
+        the public facing protocol, hostname and port. The mod-auth-mellon plugin
+        unlike the mod-auth-openid plugin, does not implement handling for the X-Forwarded
+        header. It uses apache primitives to determine the URL it should serve, and those
+        values are taken directly from the virtual host.
+
+        To get a working setup with mellon (probably shib as well), we need to "virtualize"
+        the server name in the virtual host. In the ServerName directive we need to include
+        both the scheme and the port (if non standard).
+        """
+        if not self.ingress_public or not self.ingress_public.url:
+            return ""
+        parsed = urlparse(self.ingress_public.url)
+        return f"{parsed.scheme}://{parsed.netloc}"
+
+    @property
     def healthcheck_http_url(self) -> str:
         """Healthcheck HTTP URL for the service."""
         return f"http://localhost:{self.default_public_ingress_port}/{self.ingress_healthcheck_path}"
@@ -2243,6 +2526,7 @@ export OS_AUTH_VERSION=3
         pre_update_fernet_ready = self.unit_fernet_bootstrapped()
         self.update_fernet_keys_from_peer()
         self.keystone_manager.write_combined_ca()
+        self.keystone_saml.set_requirer_info(event)
         # If the wsgi service was running with no tokens it will be in a
         # wedged state so restart it.
         if self.unit_fernet_bootstrapped() and not pre_update_fernet_ready:

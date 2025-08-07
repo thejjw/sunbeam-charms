@@ -8,9 +8,9 @@
     OIDCSessionType client-cookie:persistent
     OIDCCryptoPassphrase {{ fid.oidc_crypto_passphrase }}
     OIDCMetadataDir /etc/apache2/oidc-metadata
-    OIDCRedirectURI {{ fid.redirect_uri }}
+    OIDCRedirectURI {{ fid.oidc_redirect_uri }}
 
-    <Location {{ fid.redirect_uri_path }}>
+    <Location {{ fid.oidc_redirect_uri_path }}>
         AuthType auth-openidc
         Require valid-user
     </Location>
@@ -34,7 +34,7 @@
             Require claim iss:{{provider.issuer_url}}
         </RequireAll>
 
-        OIDCDiscoverURL {{ fid.redirect_uri }}?iss={{provider.encoded_issuer_url}}
+        OIDCDiscoverURL {{ fid.oidc_redirect_uri }}?iss={{provider.encoded_issuer_url}}
         OIDCUnAuthAction auth true
         OIDCUnAutzAction auth true
     </Location>
