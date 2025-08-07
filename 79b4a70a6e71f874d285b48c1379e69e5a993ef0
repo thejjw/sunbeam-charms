@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a864f5a_c570f214",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-07T06:51:22Z",
+      "side": 1,
+      "message": "Can you update the following files as well to check for any issues in charm build and charm deployment\n\nhttps://opendev.org/openstack/sunbeam-charms/src/branch/main/tests/all-k8s/tests.yaml\nhttps://opendev.org/openstack/sunbeam-charms/src/branch/main/zuul.d/jobs.yaml (except for publish job)\n\nOnce CI is happy I can merge this PR and manually publish the charm",
+      "revId": "79b4a70a6e71f874d285b48c1379e69e5a993ef0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
