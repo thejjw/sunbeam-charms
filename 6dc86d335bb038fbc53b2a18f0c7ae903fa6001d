@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "543dae0f_340f649e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-07T09:13:35Z",
+      "side": 1,
+      "message": "Can you add in the bundle as well https://opendev.org/openstack/sunbeam-charms/src/branch/main/tests/all-k8s/smoke.yaml.j2 so that manila charm will be deployed as part of func-test-all-k8s",
+      "revId": "6dc86d335bb038fbc53b2a18f0c7ae903fa6001d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
