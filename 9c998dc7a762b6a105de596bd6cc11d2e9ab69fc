@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0940aa5_898371bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-07T23:14:05Z",
+      "side": 1,
+      "message": "Need to wait for manila-k8s charm to be published before retriggering CI",
+      "revId": "9c998dc7a762b6a105de596bd6cc11d2e9ab69fc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
