@@ -51,6 +51,28 @@ config:
       type: boolean
       default: false
       description: Enable notifications to send to telemetry.
+    saml-x509-keypair:
+      type: secret
+      default: !!null ""
+      description: |
+        The SAML2 x509 certificates. This certificate is used by SAML2 for two purposes:
+          * Sign messages between the SP and the IDP
+          * Encrypt messages. This is rarely used as in the majority of cases, SAML2 traffic is
+          sent over https.
+        This certificate will be part of the SAML2 metadata.
+        The secret is expected to have two keys:
+
+          {
+            "certificate": "contents of the certificate",
+            "key": "contents of the key"
+          }
+
+        You can upload the secrets by running:
+
+          juju add-secret saml-secret \
+            certificate#file=/path/to/cert.pem \
+            key#file=/path/to/corresponding/key
+          juju grant-secret saml-secret keystone
 
 actions:
   get-admin-password:
@@ -170,6 +192,9 @@ requires:
     optional: true
   external-idp:
     interface: external_provider
+    optional: true
+  keystone-saml:
+    interface: keystone_saml
     optional: true
 
 provides:
