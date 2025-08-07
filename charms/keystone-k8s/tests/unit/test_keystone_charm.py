@@ -92,6 +92,26 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         )
         return rel_id
 
+    def add_keystone_saml_relation(self) -> int:
+        """Add keystone-saml relation."""
+        rel_id = self.harness.add_relation(
+            "keystone-saml", "keystone-saml-entra"
+        )
+        self.harness.add_relation_unit(rel_id, "keystone-saml-entra/0")
+        self.harness.update_relation_data(
+            rel_id, "keystone-saml-entra/0", {"ingress-address": "10.0.0.99"}
+        )
+        self.harness.update_relation_data(
+            rel_id,
+            "keystone-saml-entra",
+            {
+                "name": "entra",
+                "label": "Log in with Entra SAML2",
+                "metadata": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4=",
+            },
+        )
+        return rel_id
+
     def add_id_relation(self) -> int:
         """Add amqp relation."""
         rel_id = self.harness.add_relation("identity-service", "cinder")
@@ -311,6 +331,43 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "scope": "openid profile email phone",
                 "token_endpoint": f"{issuer_url}/oauth2/token",
                 "userinfo_endpoint": f"{issuer_url}/userinfo",
+            },
+        )
+
+    def test_keystone_saml2_relation(self):
+        """Test responding to a teystone saml2 relation."""
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        self.harness.container_pebble_ready("keystone")
+        test_utils.add_db_relation_credentials(
+            self.harness, test_utils.add_base_db_relation(self.harness)
+        )
+        ks_saml_rel_id = self.add_keystone_saml_relation()
+        rel_data = self.harness.get_relation_data(
+            ks_saml_rel_id, self.harness.charm.unit.app.name
+        )
+        rel_data_saml = self.harness.get_relation_data(
+            ks_saml_rel_id, "keystone-saml-entra"
+        )
+        self.maxDiff = None
+        acs_url = "http://public-url/v3/OS-FEDERATION/identity_providers/entra/protocols/saml2/auth/mellon/postResponse"
+        logout_url = "http://public-url/v3/OS-FEDERATION/identity_providers/entra/protocols/saml2/auth/mellon/logout"
+        metadata_url = "http://public-url/v3/OS-FEDERATION/identity_providers/entra/protocols/saml2/auth/mellon/metadata"
+        self.assertEqual(
+            rel_data,
+            {
+                "acs-url": acs_url,
+                "logout-url": logout_url,
+                "metadata-url": metadata_url,
+            },
+        )
+
+        self.assertEqual(
+            rel_data_saml,
+            {
+                "name": "entra",
+                "label": "Log in with Entra SAML2",
+                "metadata": "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4=",
             },
         )
 

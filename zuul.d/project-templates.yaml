@@ -90,6 +90,8 @@
             nodeset: ubuntu-jammy
         - charm-build-keystone-ldap-k8s:
             nodeset: ubuntu-jammy
+        - charm-build-keystone-saml-k8s:
+            nodeset: ubuntu-jammy
         - charm-build-openstack-exporter-k8s:
             nodeset: ubuntu-jammy
         - charm-build-openstack-hypervisor:
@@ -159,6 +161,8 @@
             nodeset: ubuntu-jammy
         - charm-build-keystone-ldap-k8s:
             nodeset: ubuntu-jammy
+        - charm-build-keystone-saml-k8s:
+            nodeset: ubuntu-jammy
         - charm-build-openstack-exporter-k8s:
             nodeset: ubuntu-jammy
         - charm-build-openstack-hypervisor:
@@ -227,6 +231,8 @@
             - publish-charm-designate-bind-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-keystone-ldap-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-keystone-saml-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-openstack-exporter-k8s:
                 nodeset: ubuntu-jammy

@@ -45,6 +45,7 @@
         magnum-k8s: 2025.1/edge
         masakari-k8s: 2025.1/edge
         keystone-ldap-k8s: 2025.1/edge
+        keystone-saml-k8s: 2025.1/edge
         openstack-exporter-k8s: 2025.1/edge
         openstack-hypervisor: 2025.1/edge
         openstack-images-sync-k8s: 2025.1/edge
