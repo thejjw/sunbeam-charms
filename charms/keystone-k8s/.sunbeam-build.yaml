@@ -10,6 +10,7 @@ external-libraries:
   - charms.kratos_external_idp_integrator.v0.kratos_external_provider
 internal-libraries:
   - charms.horizon_k8s.v0.trusted_dashboard
+  - charms.keystone_saml_k8s.v1.keystone_saml
 templates:
   - parts/section-database
   - parts/database-connection

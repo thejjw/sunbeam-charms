@@ -1,0 +1,27 @@
+{% if fid and fid.saml_providers -%}
+{% for provider in fid.saml_providers -%}
+    {% set mellon -%}
+        MellonEnable "info"
+        MellonSPPrivateKeyFile {{ fid.saml2_sp_key_file }}
+        MellonSPCertFile {{ fid.saml2_sp_cert_file }}
+        MellonSPMetadataFile {{ provider.sp_metadata_file }}
+        MellonIdPMetadataFile {{ provider.idp_metadata_file }}
+        MellonEndpointPath {{fid.public_url_path}}/OS-FEDERATION/identity_providers/{{ provider.name }}/protocols/{{ provider.protocol }}/auth/mellon
+        MellonIdP "IDP"
+        MellonMergeEnvVars On ";"
+        MellonSecureCookie On
+        MellonCookieSameSite None
+
+        Require valid-user
+        AuthType Mellon
+        MellonEnable auth
+    {% endset -%}
+    <Location {{fid.public_url_path}}/OS-FEDERATION/identity_providers/{{ provider.name }}/protocols/{{ provider.protocol }}/auth>
+        {{ mellon | safe }}
+    </Location>
+
+    <Location {{fid.public_url_path}}/auth/OS-FEDERATION/identity_providers/{{ provider.name }}/protocols/{{ provider.protocol }}/websso>
+        {{ mellon | safe }}
+    </Location>
+{% endfor -%}
+{% endif -%}
