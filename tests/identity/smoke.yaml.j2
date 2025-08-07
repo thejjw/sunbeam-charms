@@ -40,6 +40,22 @@ applications:
       credential-keys: 5M
     resources:
       keystone-image: ghcr.io/canonical/keystone:2025.1
+  keystone-saml:
+    {% if keystone_saml_k8s is defined and keystone_saml_k8s is sameas true -%}
+    charm: ../../../keystone-saml-k8s.charm
+    {% else -%}
+    charm: ch:keystone-saml-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    options:
+      name: "test-idp"
+      label: "Log in with test IDP"
+      # This will fail. We need an actual IDP to test with, but we need to deploy this
+      # charm as part of the tests.
+      metadata-url: "https://idp.example.com/metadata.xml"
   horizon:
     {% if horizon_k8s is defined and horizon_k8s is sameas true -%}
     charm: ../../../horizon-k8s.charm
@@ -75,4 +91,6 @@ relations:
   - horizon:ingress-internal
 - - keystone:send-ca-cert
   - horizon:receive-ca-cert
+- - keystone:keystone-saml
+  - keystone-saml:keystone-saml
 
