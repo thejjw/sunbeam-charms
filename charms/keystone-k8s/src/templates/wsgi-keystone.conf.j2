@@ -1,6 +1,9 @@
 Listen 0.0.0.0:{{ ks_config.public_port }}
 
 <VirtualHost *:{{ ks_config.public_port }}>
+    {% if ks_config.server_name %}
+    ServerName {{ks_config.server_name}}
+    {% endif %}
     WSGIDaemonProcess keystone-public processes=4 threads=1 user=keystone group=keystone display-name=%{GROUP} python-path=/usr/lib/python3/site-packages
     WSGIProcessGroup keystone-public
     {% if ingress_internal and ingress_internal.ingress_path -%}
@@ -26,4 +29,5 @@ Listen 0.0.0.0:{{ ks_config.public_port }}
         </IfVersion>
     </Directory>
     {% include "apache2-oidc-params" %}
+    {% include "apache2-saml-params" %}
 </VirtualHost>

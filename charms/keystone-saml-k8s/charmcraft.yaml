@@ -1,0 +1,73 @@
+type: charm
+name: keystone-saml-k8s
+title: Keystone SAML
+summary: Integrator charm to enable saml2 providers in Keystone
+description: |
+  Integrator charm to enable saml2 providers in Keystone.
+
+platforms:
+  ubuntu@24.04:amd64:
+
+parts:
+  charm:
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - requests
+    charm-requirements: [requirements.txt]
+
+config:
+  options:
+    name:
+      description: |
+        The name of the IDP.
+
+        This name will be used as a provider ID in keystone to identify the provider.
+      type: string
+      default: !!null ""
+    label:
+      description: |
+        The label of the IDP.
+
+        The label will be used as a display name for this IDP. Typically, you would
+        set this to something like "Log in with Okta". This label will appear in Horizon,
+        in the provider drop down.
+      type: string
+      default: !!null ""
+    metadata-url:
+      description: |
+        The SAML2 metadata URL.
+
+        The SAML2 metadata URL contains the URLs and signing keys we need to configure
+        the IDP. There are some well known patters for SAML2 urls when it comes to public
+        providers:
+
+          * Okta: https://{yourOktaOrg}/app/{appId}/sso/saml/metadata
+          * Google: https://accounts.google.com/o/saml2/idp?idpid={idp-id}
+          * Entra ID: https://login.microsoftonline.com/{tenant}/federationmetadata/2007-06/federationmetadata.xml?appid={app_id}
+
+        Other providers may have different URLs, but as long as they are reachable and
+        include a valid saml2 metadata response, they should work.
+      default: !!null ""
+      type: string
+    ca-chain:
+      description: |
+        The CA chain used to validate the IDP.
+
+        If the IDP uses a certificate issued by a custom CA, set this option. The value must
+        be a base64 encoded version of the CA chain.
+      type: string
+      default: !!null ""
+
+provides:
+  keystone-saml:
+    interface: keystone_saml
+    limit: 1
+
+actions:
+  get-keystone-sp-urls:
+    description: Get the keystone service provider URLs for this relation
