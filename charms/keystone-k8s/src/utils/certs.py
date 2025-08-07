@@ -29,8 +29,26 @@ from cryptography import (
 from cryptography.exceptions import (
     InvalidSignature,
 )
+from cryptography.hazmat.backends import (
+    default_backend,
+)
+from cryptography.hazmat.primitives import (
+    serialization,
+)
 
 logger = logging.getLogger(__name__)
+
+
+def cert_and_key_match(certificate: bytes, key: bytes) -> bool:
+    """Checks if the supplied cert is derived from the supplied key."""
+    crt = x509.load_pem_x509_certificate(certificate, default_backend())
+    cert_pub_key = crt.public_key()
+
+    private_key = serialization.load_pem_private_key(
+        key, password=None, backend=default_backend()
+    )
+    private_public_key = private_key.public_key()
+    return cert_pub_key.public_numbers() == private_public_key.public_numbers()
 
 
 def certificate_is_valid(certificate: bytes) -> bool:

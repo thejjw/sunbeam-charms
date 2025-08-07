@@ -311,6 +311,18 @@
     vars:
       charm: keystone-ldap-k8s
 - job:
+    name: charm-build-keystone-saml-k8s
+    description: Build sunbeam keystone-saml-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/keystone-saml-k8s/
+      - rebuild
+    vars:
+      charm: keystone-saml-k8s
+- job:
     name: charm-build-openstack-exporter-k8s
     description: Build sunbeam openstack-exporter-k8s charm
     run: playbooks/charm/build.yaml
@@ -622,6 +634,8 @@
         soft: true
       - name: charm-build-keystone-ldap-k8s
         soft: true
+      - name: charm-build-keystone-saml-k8s
+        soft: true
       - name: charm-build-openstack-exporter-k8s
         soft: true
       - name: charm-build-horizon-k8s
@@ -634,6 +648,7 @@
       - charms/designate-k8s/
       - charms/designate-bind-k8s/
       - charms/keystone-ldap-k8s/
+      - charms/keystone-saml-k8s/
       - charms/openstack-exporter-k8s/
       - charms/horizon-k8s/
       - charms/masakari-k8s/
@@ -644,6 +659,7 @@
         - charm-build-designate-k8s
         - charm-build-designate-bind-k8s
         - charm-build-keystone-ldap-k8s
+        - charm-build-keystone-saml-k8s
         - charm-build-openstack-exporter-k8s
         - charm-build-keystone-k8s
         - charm-build-horizon-k8s
@@ -882,6 +898,19 @@
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-ldap-k8s/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-keystone-saml-k8s
+    description: |
+      Publish keystone-saml-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/keystone-saml-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -1137,6 +1166,8 @@
         soft: true
       - name: charm-build-keystone-ldap-k8s
         soft: true
+      - name: charm-build-keystone-saml-k8s
+        soft: true
       - name: charm-build-openstack-exporter-k8s
         soft: true
       - name: charm-build-horizon-k8s
@@ -1168,6 +1199,7 @@
       - charms/designate-k8s/
       - charms/designate-bind-k8s/
       - charms/keystone-ldap-k8s/
+      - charms/keystone-saml-k8s/
       - charms/openstack-exporter-k8s/
       - charms/horizon-k8s/
       - charms/masakari-k8s/
@@ -1199,6 +1231,7 @@
         - charm-build-designate-k8s
         - charm-build-designate-bind-k8s
         - charm-build-keystone-ldap-k8s
+        - charm-build-keystone-saml-k8s
         - charm-build-openstack-exporter-k8s
         - charm-build-horizon-k8s
         - charm-build-masakari-k8s
