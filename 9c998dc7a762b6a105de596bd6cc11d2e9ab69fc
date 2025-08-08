@@ -16,6 +16,23 @@
       "message": "Need to wait for manila-k8s charm to be published before retriggering CI",
       "revId": "9c998dc7a762b6a105de596bd6cc11d2e9ab69fc",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6435f2c_741cfccd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-08T00:09:35Z",
+      "side": 1,
+      "message": "recheck manila-k8s charm is published to 2025.1/edge",
+      "revId": "9c998dc7a762b6a105de596bd6cc11d2e9ab69fc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
