@@ -68,6 +68,24 @@
       "parentUuid": "c75590bf_bbbc1af2",
       "revId": "9c998dc7a762b6a105de596bd6cc11d2e9ab69fc",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "141094b1_f7fa0df1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-08T10:02:38Z",
+      "side": 1,
+      "message": "I\u0027ve added the `ceph-nfs` required relation, which would leave the charm in a Blocked state.",
+      "parentUuid": "2233106a_072b9301",
+      "revId": "9c998dc7a762b6a105de596bd6cc11d2e9ab69fc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
