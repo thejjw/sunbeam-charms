@@ -359,7 +359,7 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
             "dhcp_default_lease_time": "43200",
             "ovn_dhcp4_global_options": "",
             "ovn_dhcp6_global_options": "",
-            "vhost_sock_dir": "/run/libvirt-vhost-user",
+            "vhost_sock_dir": "/var/snap/openstack-hypervisor/common/run/libvirt",
             "ovn_key": "/etc/neutron/plugins/ml2/key_host",
             "ovn_cert": "/etc/neutron/plugins/ml2/cert_host",
             "ovn_ca_cert": "/etc/neutron/plugins/ml2/neutron-ovn.crt",
