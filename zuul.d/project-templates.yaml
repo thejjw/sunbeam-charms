@@ -246,5 +246,9 @@
                 nodeset: ubuntu-jammy
             - publish-charm-watcher-k8s:
                 nodeset: ubuntu-jammy
+            - publish-charm-manila-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-manila-cephfs-k8s:
+                nodeset: ubuntu-jammy
             - publish-charm-keystone-saml-k8s:
                 nodeset: ubuntu-jammy

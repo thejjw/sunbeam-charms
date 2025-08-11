@@ -43,6 +43,8 @@
         designate-k8s: 2024.1/edge
         designate-bind-k8s: 9/edge
         magnum-k8s: 2024.1/edge
+        manila-k8s: 2024.1/edge
+        manila-cephfs-k8s: 2024.1/edge
         masakari-k8s: 2024.1/edge
         keystone-ldap-k8s: 2024.1/edge
         keystone-saml-k8s: 2024.1/edge
