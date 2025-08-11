@@ -34,6 +34,24 @@
       "parentUuid": "6ed68ae4_bf9bf352",
       "revId": "148f03751aa23bea4ad2593ae1ff8ac78b92a95d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da5227bd_7176c19c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-08-11T13:28:35Z",
+      "side": 1,
+      "message": "I meant just adding another compute node not powered by openstack-hypervisor, not sure why someone would want to do it, but it was allowed before, and with this change, it won\u0027t be anymore.",
+      "parentUuid": "237c75e4_4b25f635",
+      "revId": "148f03751aa23bea4ad2593ae1ff8ac78b92a95d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
