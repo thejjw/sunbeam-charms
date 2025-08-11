@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ed68ae4_bf9bf352",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-08-11T12:57:43Z",
+      "side": 1,
+      "message": "It\u0027s a bit sad that we lose any compatibility to external compute just from this option.\n\nI wonder if there\u0027s a way with snap layouts, in the openstack hypervisor to bind mount the `/run/...` folder?\n\nBut from https://documentation.ubuntu.com/snapcraft/stable/reference/layouts/, it looks like it\u0027s not possible...",
+      "revId": "148f03751aa23bea4ad2593ae1ff8ac78b92a95d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
