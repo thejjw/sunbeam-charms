@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72635398_ef7b02b1",
+        "filename": "zuul.d/zuul.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-08-11T13:33:29Z",
+      "side": 1,
+      "message": "```suggestion\n        manila-cephfs-k8s: 2025.1/edge\n```",
+      "range": {
+        "startLine": 47,
+        "startChar": 8,
+        "endLine": 47,
+        "endChar": 14
+      },
+      "revId": "874f07e7a15c7e09d76a4761b02aed24fdaa1c91",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
