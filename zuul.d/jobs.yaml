@@ -930,6 +930,32 @@
     timeout: 3600
 
 - job:
+    name: publish-charm-manila-k8s
+    description: |
+      Publish manila-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/manila-k8s/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-manila-cephfs-k8s
+    description: |
+      Publish manila-cephfs-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/manila-cephfs-k8s/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
     name: publish-charm-neutron-k8s
     description: |
       Publish neutron-k8s built in gate pipeline.
