@@ -16,6 +16,24 @@
       "message": "Are you supporting both CEPHFS and NFS protocols?",
       "revId": "d1117a15e3570bd23c83087022849da78e0bfc2a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f4b130d_6fc93bbb",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-13T15:56:34Z",
+      "side": 1,
+      "message": "We could add both. We can already create cephfs shares.",
+      "parentUuid": "10ae1de7_fa2b8687",
+      "revId": "d1117a15e3570bd23c83087022849da78e0bfc2a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
