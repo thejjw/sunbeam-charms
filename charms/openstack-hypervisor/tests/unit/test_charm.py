@@ -15,13 +15,20 @@
 """Tests for Openstack hypervisor charm."""
 
 import base64
+import contextlib
 import json
+import os
+import tempfile
+from unittest import (
+    mock,
+)
 from unittest.mock import (
     MagicMock,
 )
 
 import charm
 import charms.operator_libs_linux.v2.snap as snap
+import jsonschema
 import ops
 import ops.testing
 import ops_sunbeam.test_utils as test_utils
@@ -56,7 +63,6 @@ class TestCharm(test_utils.CharmTestCase):
         "socket",
         "snap",
         "get_local_ip_by_default_route",
-        "os",
         "subprocess",
         "ConsulNotifyRequirer",
         "service_running",
@@ -65,6 +71,7 @@ class TestCharm(test_utils.CharmTestCase):
     def setUp(self):
         """Setup OpenStack Hypervisor tests."""
         super().setUp(charm, self.PATCHES)
+        self.patch_obj(os, "system")
         self.service_running.return_value = False
 
         self.snap.SnapError = Exception
@@ -193,6 +200,7 @@ class TestCharm(test_utils.CharmTestCase):
             "network.ovn-key": private_key,
             "network.ovn-sb-connection": "ssl:10.15.24.37:6642",
             "network.physnet-name": "physnet1",
+            "network.ovs-dpdk-enabled": False,
             "node.fqdn": "test.local",
             "node.ip-address": "10.0.0.10",
             "rabbitmq.url": "rabbit://hypervisor:rabbit.pass@rabbithost1.local:5672/openstack",
@@ -315,6 +323,7 @@ class TestCharm(test_utils.CharmTestCase):
             "network.ovn-key": private_key,
             "network.ovn-sb-connection": "ssl:10.15.24.37:6642",
             "network.physnet-name": "physnet1",
+            "network.ovs-dpdk-enabled": False,
             "node.fqdn": "test.local",
             "node.ip-address": "10.0.0.10",
             "rabbitmq.url": "rabbit://hypervisor:rabbit.pass@rabbithost1.local:5672/openstack",
@@ -480,3 +489,81 @@ class TestCharm(test_utils.CharmTestCase):
         self.harness.begin()
         # Should not raise
         self.harness.charm.check_system_services()
+
+    @contextlib.contextmanager
+    def _mock_dpdk_settings_file(self, dpdk_yaml):
+        with tempfile.NamedTemporaryFile(mode="w") as f:
+            f.write(dpdk_yaml)
+            f.flush()
+            with mock.patch.object(charm, "DPDK_CONFIG_OVERRIDE_PATH", f.name):
+                yield
+
+    def test_get_dpdk_settings_override(self):
+        """Ensure DPDK settings override."""
+        dpdk_yaml = """
+dpdk:
+    dpdk-enabled: true
+    dpdk-memory: 2048
+    dpdk-datapath-cores: 4
+    dpdk-controlplane-cores: 4
+"""
+        exp_result = {
+            "dpdk-enabled": True,
+            "dpdk-memory": 2048,
+            "dpdk-datapath-cores": 4,
+            "dpdk-controlplane-cores": 4,
+        }
+        with self._mock_dpdk_settings_file(dpdk_yaml):
+            self.harness.begin()
+            result = self.harness.charm._get_dpdk_settings_override()
+
+            self.assertEqual(exp_result, result)
+
+    def test_get_dpdk_settings_override_invalid(self):
+        """Ensure that invalid dpdk.yaml files are rejected."""
+        dpdk_yaml = """
+network:
+    dpdk-enabled: true
+    ovs-memory: 1
+"""
+        with self._mock_dpdk_settings_file(dpdk_yaml):
+            self.harness.begin()
+            self.assertRaises(
+                jsonschema.exceptions.ValidationError,
+                self.harness.charm._get_dpdk_settings_override,
+            )
+
+    def test_core_list_to_bitmask(self):
+        """Test converting cpu core lists to bit masks."""
+        self.harness.begin()
+
+        self.assertEqual("0x1", self.harness.charm._core_list_to_bitmask([0]))
+        self.assertEqual(
+            "0xf0", self.harness.charm._core_list_to_bitmask([4, 5, 6, 7])
+        )
+        self.assertEqual(
+            "0x1010101",
+            self.harness.charm._core_list_to_bitmask([16, 24, 0, 8]),
+        )
+
+        self.assertRaises(
+            ValueError, self.harness.charm._core_list_to_bitmask, [0, -1]
+        )
+        self.assertRaises(
+            ValueError, self.harness.charm._core_list_to_bitmask, [2, 2049]
+        )
+
+    def test_bitmask_to_core_list(self):
+        """Test converting cpu bit masks to core lists."""
+        self.harness.begin()
+
+        self.assertEqual([], self.harness.charm._bitmask_to_core_list(0))
+        self.assertEqual([0], self.harness.charm._bitmask_to_core_list(1))
+        self.assertEqual(
+            [4, 5, 6, 7],
+            self.harness.charm._bitmask_to_core_list(0xF0),
+        )
+        self.assertEqual(
+            [0, 8, 16, 24],
+            self.harness.charm._bitmask_to_core_list(0x1010101),
+        )
