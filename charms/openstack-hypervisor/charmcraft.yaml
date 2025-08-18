@@ -78,6 +78,39 @@ config:
               {"domain": ".*", "bus": "1b", "slot": "10", "function": "[0-4]"}}]
         * vendor and product id:
           [{"physical_network": "physnet1", "vendor_id": "8086", "product_id": "1563"}]
+    dpdk-enabled:
+      default: false
+      type: boolean
+      description: |
+        Enable OVS DPDK data path, handling packets in userspace. This provides
+        improved performance compared to the standard OVS kernel data path.
+        DPDK capable network interfaces are required.
+    dpdk-datapath-cores:
+      default: 0
+      type: int
+      description: |
+        The number of cores allocated to OVS datapath processing. A dedicated
+        list of cores will be obtained from the EPA service and passed to OVS
+        through "other_config:pmd-cpu-mask".
+    dpdk-control-plane-cores:
+      default: 0
+      type: int
+      description: |
+        The number of cores allocated to OVS control plane processing. A dedicated
+        list of cores will be obtained from the EPA service and passed to OVS
+        through "other_config:dpdk-lcore-mask.
+    dpdk-memory:
+      default: 0
+      type: int
+      description: |
+        The total amount of memory in MB to allocate from hugepages for OVS DPDK.
+        The charm will distribute this memory across NUMA nodes based on the
+        bridged network interfaces and then pass it to OVS using
+        "other_config:dpdk-socket-mem".
+    dpdk-driver:
+      default: vfio-pci
+      type: string
+      description: The driver used for DPDK physical ports.
 
 actions:
   set-hypervisor-local-settings:
