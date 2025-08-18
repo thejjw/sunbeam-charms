@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e35b6c60_7552f97c",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1783,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-08-18T11:43:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0de798e_e1f476d9",
+      "revId": "503d2453db14ed569437beca03b9d3405fa59bd9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c3016ee4_2d0d6d69",
@@ -52,6 +70,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "953f6313_f407a17f",
+        "filename": "charms/keystone-saml-k8s/.gitignore",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-08-18T11:43:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c3016ee4_2d0d6d69",
+      "revId": "503d2453db14ed569437beca03b9d3405fa59bd9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b50c70e8_e4822a81",
@@ -65,6 +101,24 @@
       "writtenOn": "2025-08-18T01:04:16Z",
       "side": 1,
       "message": "Can you remove this file and reuse tox.ini in sunbeam-charms folder",
+      "revId": "503d2453db14ed569437beca03b9d3405fa59bd9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5efa233e_41cee67a",
+        "filename": "charms/keystone-saml-k8s/tox.ini",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-08-18T11:43:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b50c70e8_e4822a81",
       "revId": "503d2453db14ed569437beca03b9d3405fa59bd9",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }

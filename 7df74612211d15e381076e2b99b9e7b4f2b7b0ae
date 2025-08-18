@@ -67,6 +67,24 @@
       "message": "whitespace",
       "revId": "7df74612211d15e381076e2b99b9e7b4f2b7b0ae",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fcdf67ac_88162a8b",
+        "filename": "charms/keystone-saml-k8s/lib/charms/keystone_saml_k8s/v1/keystone_saml.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-08-18T11:43:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b06ba7e_f67b2cf9",
+      "revId": "7df74612211d15e381076e2b99b9e7b4f2b7b0ae",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
