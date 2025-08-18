@@ -82,6 +82,8 @@
             nodeset: ubuntu-jammy
         - charm-build-manila-cephfs-k8s:
             nodeset: ubuntu-jammy
+        - charm-build-manila-data:
+            nodeset: ubuntu-jammy
         - charm-build-masakari-k8s:
             nodeset: ubuntu-jammy
         - charm-build-designate-k8s:
@@ -152,6 +154,8 @@
         - charm-build-manila-k8s:
             nodeset: ubuntu-jammy
         - charm-build-manila-cephfs-k8s:
+            nodeset: ubuntu-jammy
+        - charm-build-manila-data:
             nodeset: ubuntu-jammy
         - charm-build-masakari-k8s:
             nodeset: ubuntu-jammy
@@ -249,6 +253,8 @@
             - publish-charm-manila-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-manila-cephfs-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-manila-data:
                 nodeset: ubuntu-jammy
             - publish-charm-keystone-saml-k8s:
                 nodeset: ubuntu-jammy
