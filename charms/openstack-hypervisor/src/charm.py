@@ -22,6 +22,7 @@ This charm provide hypervisor services as part of an OpenStack deployment
 
 import base64
 import functools
+import io
 import logging
 import os
 import secrets
@@ -35,6 +36,8 @@ from typing import (
 )
 
 import charms.operator_libs_linux.v2.snap as snap
+import epa_client
+import jsonschema
 import ops
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
@@ -43,6 +46,9 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+import schemas
+import utils
+import yaml
 from charms.ceilometer_k8s.v0.ceilometer_service import (
     CeilometerConfigChangedEvent,
     CeilometerServiceGoneAwayEvent,
@@ -74,6 +80,15 @@ DATA_BINDING = "data"
 MTLS_USAGES = {x509.OID_SERVER_AUTH, x509.OID_CLIENT_AUTH}
 EPA_INFO_PLUG = "epa-info"
 EPA_INFO_SLOT = "epa-orchestrator:epa-info"
+
+# Allows overriding DPDK settings.
+DPDK_CONFIG_OVERRIDE_PATH = "/etc/sunbeam/dpdk.yaml"
+
+# We'll use separate reservation names for control plane cores and
+# datapath cores so that EPA won't override the reservations.
+EPA_ALLOCATION_OVS_DPDK_HUGEPAGES = "ovs-dpdk-hugepages"
+EPA_ALLOCATION_OVS_DPDK_CONTROL_PLANE = "ovs-dpdk-control-plane"
+EPA_ALLOCATION_OVS_DPDK_DATAPATH = "ovs-dpdk-datapath"
 
 
 class SnapInstallationError(Exception):
@@ -220,6 +235,8 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 {"path": "/metrics", "port": 12345},  # node exporter
             ],
         )
+
+        self._epa_client = epa_client.EPAClient()
 
     def _on_install(self, _: ops.InstallEvent):
         """Run install on this unit."""
@@ -653,6 +670,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         snap_data.update(self._handle_nova_service(contexts))
         snap_data.update(self._handle_receive_ca_cert(contexts))
         snap_data.update(self._handle_masakari_service(contexts))
+        snap_data.update(self._handle_ovs_dpdk())
 
         self.set_snap_data(snap_data)
         self.ensure_services_running()
@@ -731,6 +749,253 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             }
 
         return {"ca.bundle": None}
+
+    def _get_dpdk_settings_override(self) -> dict:
+        # Allow overriding DPDK settings through /etc/sunbeam/dpdk.yaml.
+        # The field names should match the charm settings.
+        #
+        # Example:
+        #   dpdk:
+        #     dpdk-enabled: true
+        #     dpdk-memory: 2048
+        #     dpdk-datapath-cores: 4
+        #     dpdk-controlplane-cores: 4
+        if not os.path.exists(DPDK_CONFIG_OVERRIDE_PATH):
+            return {}
+
+        with open(DPDK_CONFIG_OVERRIDE_PATH, "r") as f:
+            dpdk_config = yaml.safe_load(f)
+
+        schema = yaml.safe_load(
+            io.StringIO(schemas.DPDK_CONFIG_OVERRIDE_SCHEMA)
+        )
+        try:
+            jsonschema.validate(dpdk_config, schema)
+        except Exception:
+            logger.exception("Invalid DPDK configuration.")
+            raise
+
+        return dpdk_config["dpdk"]
+
+    def _core_list_to_bitmask(self, core_list: list) -> str:
+        """Convert a list of cpu core ids to a bitmask understood by OVS/DPDK."""
+        bitmask = 0
+        for core in core_list:
+            core = int(core)
+            # Perform some sanity checks.
+            if core < 0 or core > 2048:
+                raise ValueError("Invalid core id: %s", core)
+            bitmask += 1 << core
+        return hex(bitmask)
+
+    def _bitmask_to_core_list(self, core_bitmask: int) -> list[int]:
+        """Convert a cpu id bitmask to a list of cpu ids.
+
+        The reverse of _core_list_to_bitmask.
+        """
+        idx = 0
+        cores = []
+        while core_bitmask:
+            if core_bitmask % 2:
+                cores.append(idx)
+            idx += 1
+            core_bitmask >>= 1
+        return cores
+
+    def _get_dpdk_nics_pci_ids(self) -> list[str]:
+        """Obtain the PCI addresses of the nics used with DPDK."""
+        # TODO: get the list of DPDK ports through charm actions.
+        return []
+
+    def _get_dpdk_numa_nodes(self) -> list[int]:
+        """Get the list of NUMA nodes that will be used with DPDK.
+
+        We'll use the list of bridged physical ports to determine
+        NUMA placement.
+        """
+        dpdk_iface_pci_ids = self._get_dpdk_nics_pci_ids()
+
+        numa_nodes = []
+        for pci_id in dpdk_iface_pci_ids:
+            numa_node = utils.get_pci_numa_node(pci_id)
+            if numa_node:
+                numa_nodes.append(numa_nodes)
+
+        if not numa_nodes:
+            logging.info(
+                "Couldn't detect NUMA nodes based on the network interfaces. "
+                "Using NUMA node 0 for DPDK."
+            )
+            # We could either:
+            # * use NUMA node 0 by default
+            # * let EPA provide cores and memory from any NUMA node
+            #   * we could end up with cores and memory from different NUMA nodes,
+            #     impacting performance
+            # * spread the allocation across NUMA nodes
+            #   * what if the user requested 2GB of memory and we have 4 numa nodes?
+            #   * it's easier/safer to just use NUMA node 0 by default.
+            numa_nodes = [0]
+        return numa_nodes
+
+    def _allocate_dpdk_cores(
+        self, allocation_name: str, core_count: int, dpdk_numa_nodes: list[int]
+    ) -> list[int]:
+        logger.info(
+            "Allocating %s cores, name: %s, numa nodes: %s",
+            core_count,
+            allocation_name,
+            dpdk_numa_nodes,
+        )
+
+        dpdk_numa_node_count = len(dpdk_numa_nodes)
+        if core_count % dpdk_numa_node_count:
+            raise Exception(
+                f"Core count ({core_count}) not divisible "
+                f"by the number of dpdk numa nodes: {dpdk_numa_node_count}."
+            )
+        cores: list[int] = []
+
+        numa_architecture = utils.get_cpu_numa_architecture()
+        numa_nodes = len(numa_architecture)
+        for numa_node in range(numa_nodes):
+            if numa_node in dpdk_numa_nodes:
+                cores += self._epa_client.allocate_cores(
+                    allocation_name,
+                    core_count // dpdk_numa_node_count,
+                    numa_node,
+                )
+            else:
+                # Clear allocations from other NUMA nodes.
+                self._epa_client.allocate_cores(
+                    allocation_name,
+                    -1,
+                    numa_node,
+                )
+        return cores
+
+    def _clear_dpdk_allocations(self):
+        logger.info("Clearing DPDK EPA allocations.")
+        numa_architecture = utils.get_cpu_numa_architecture()
+        numa_nodes = len(numa_architecture)
+        for numa_node in range(numa_nodes):
+            self._epa_client.allocate_hugepages(
+                EPA_ALLOCATION_OVS_DPDK_HUGEPAGES,
+                -1,
+                1024 * 1024,
+                numa_node,
+            )
+            self._epa_client.allocate_cores(
+                EPA_ALLOCATION_OVS_DPDK_CONTROL_PLANE,
+                -1,
+                numa_node,
+            )
+            self._epa_client.allocate_cores(
+                EPA_ALLOCATION_OVS_DPDK_DATAPATH,
+                -1,
+                numa_node,
+            )
+
+    def _handle_ovs_dpdk(self) -> dict:
+        dpdk_settings_override = self._get_dpdk_settings_override() or {}
+        if dpdk_settings_override:
+            logger.info(
+                "%s provided, overriding DPDK settings: %s",
+                DPDK_CONFIG_OVERRIDE_PATH,
+                dpdk_settings_override,
+            )
+
+        dpdk_config = lambda key: dpdk_settings_override.get(  # noqa: E731
+            key, self.model.config.get(key)
+        )
+
+        dpdk_enabled = dpdk_config("dpdk-enabled")
+        updates = {"network.ovs-dpdk-enabled": dpdk_enabled}
+        if not dpdk_enabled:
+            logger.info("DPDK disabled.")
+            self._clear_dpdk_allocations()
+            return updates
+
+        datapath_num_cores = dpdk_config("dpdk-datapath-cores")
+        cp_num_cores = dpdk_config("dpdk-control-plane-cores")
+        total_memory_mb = dpdk_config("dpdk-memory")
+
+        logger.info(
+            "DPDK configuration: "
+            "control plane cores: %s, datapath cores: %s, dpdk memory (MB): %s",
+            cp_num_cores,
+            datapath_num_cores,
+            total_memory_mb,
+        )
+
+        dpdk_numa_nodes = self._get_dpdk_numa_nodes()
+        numa_architecture = utils.get_cpu_numa_architecture()
+        all_numa_nodes = list(range(len(numa_architecture)))
+
+        if total_memory_mb:
+            memory_mb_per_numa_node = int(total_memory_mb) // len(
+                dpdk_numa_nodes
+            )
+            hugepage_size_kb = 1024 * 1024  # 1GB pages
+            hugepages_requested = memory_mb_per_numa_node // 1024
+
+            dpdk_numa_memory = []
+            for numa_node in all_numa_nodes:
+                if numa_node in dpdk_numa_nodes:
+                    self._epa_client.allocate_hugepages(
+                        EPA_ALLOCATION_OVS_DPDK_HUGEPAGES,
+                        hugepages_requested,
+                        hugepage_size_kb,
+                        numa_node,
+                    )
+                    dpdk_numa_memory.append(str(memory_mb_per_numa_node))
+                else:
+                    # Clear allocation.
+                    self._epa_client.allocate_hugepages(
+                        EPA_ALLOCATION_OVS_DPDK_HUGEPAGES,
+                        -1,
+                        1024 * 1024,
+                        numa_node,
+                    )
+                    dpdk_numa_memory.append("0")
+            updates["network.ovs-memory"] = ",".join(dpdk_numa_memory)
+
+        if cp_num_cores:
+            cp_cores = self._allocate_dpdk_cores(
+                EPA_ALLOCATION_OVS_DPDK_CONTROL_PLANE,
+                cp_num_cores,
+                dpdk_numa_nodes,
+            )
+            updates["network.ovs-lcore-mask"] = self._core_list_to_bitmask(
+                cp_cores
+            )
+        else:
+            for numa_node in all_numa_nodes:
+                # Clear allocation.
+                self._epa_client.allocate_cores(
+                    EPA_ALLOCATION_OVS_DPDK_CONTROL_PLANE,
+                    -1,
+                    numa_node,
+                )
+
+        if datapath_num_cores:
+            datapath_cores = self._allocate_dpdk_cores(
+                EPA_ALLOCATION_OVS_DPDK_DATAPATH,
+                datapath_num_cores,
+                dpdk_numa_nodes,
+            )
+            updates["network.ovs-pmd-cpu-mask"] = self._core_list_to_bitmask(
+                datapath_cores
+            )
+        else:
+            for numa_node in all_numa_nodes:
+                self._epa_client.allocate_cores(
+                    EPA_ALLOCATION_OVS_DPDK_DATAPATH,
+                    -1,
+                    numa_node,
+                )
+
+        logger.debug("DPDK snap settings: %s", updates)
+        return updates
 
     def handle_ceilometer_events(self, event: ops.framework.EventBase) -> None:
         """Handle ceilometer events."""
