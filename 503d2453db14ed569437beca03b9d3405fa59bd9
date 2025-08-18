@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a7005c2_e21b81b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-18T01:04:16Z",
+      "side": 1,
+      "message": "Overall looks good except one place where the handler is not proper.",
+      "revId": "503d2453db14ed569437beca03b9d3405fa59bd9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e0de798e_e1f476d9",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1783,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-18T01:04:16Z",
+      "side": 1,
+      "message": "This should be handlers.append(self.keystone_saml)",
+      "revId": "503d2453db14ed569437beca03b9d3405fa59bd9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c3016ee4_2d0d6d69",
+        "filename": "charms/keystone-saml-k8s/.gitignore",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-18T01:04:16Z",
+      "side": 1,
+      "message": "Can we move this to sunbeam-charms/.gitignore since there is nothing specific to keystone-saml-k8s",
+      "revId": "503d2453db14ed569437beca03b9d3405fa59bd9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b50c70e8_e4822a81",
+        "filename": "charms/keystone-saml-k8s/tox.ini",
+        "patchSetId": 4
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-18T01:04:16Z",
+      "side": 1,
+      "message": "Can you remove this file and reuse tox.ini in sunbeam-charms folder",
+      "revId": "503d2453db14ed569437beca03b9d3405fa59bd9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
