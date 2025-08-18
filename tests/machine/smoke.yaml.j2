@@ -49,6 +49,18 @@ applications:
     {% endif -%}
     base: ubuntu@24.04
     constraints: *constraints
+  manila-data:
+    {% if manila_data is defined and manila_data is sameas true -%}
+    charm: ../../../manila-data.charm
+    {% else -%}
+    charm: ch:manila-data
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    constraints: *constraints
+    scale: 1
+    to:
+     - '0'
 
 relations:
 - - tls-operator:certificates

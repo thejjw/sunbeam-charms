@@ -275,6 +275,18 @@
     vars:
       charm: manila-cephfs-k8s
 - job:
+    name: charm-build-manila-data
+    description: Build sunbeam manila-data charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/manila-data/
+      - rebuild
+    vars:
+      charm: manila-data
+- job:
     name: charm-build-designate-k8s
     description: Build sunbeam designate-k8s charm
     run: playbooks/charm/build.yaml
@@ -956,6 +968,19 @@
     timeout: 3600
 
 - job:
+    name: publish-charm-manila-data
+    description: |
+      Publish manila-data built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/manila-data/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
     name: publish-charm-neutron-k8s
     description: |
       Publish neutron-k8s built in gate pipeline.
@@ -1186,6 +1211,8 @@
         soft: true
       - name: charm-build-manila-cephfs-k8s
         soft: true
+      - name: charm-build-manila-data
+        soft: true
       - name: charm-build-designate-k8s
         soft: true
       - name: charm-build-designate-bind-k8s
@@ -1220,6 +1247,7 @@
       - charms/magnum-k8s/
       - charms/manila-k8s/
       - charms/manila-cephfs-k8s/
+      - charms/manila-data/
       - charms/designate-k8s/
       - charms/designate-bind-k8s/
       - charms/keystone-ldap-k8s/
@@ -1251,6 +1279,7 @@
         - charm-build-magnum-k8s
         - charm-build-manila-k8s
         - charm-build-manila-cephfs-k8s
+        - charm-build-manila-data
         - charm-build-designate-k8s
         - charm-build-designate-bind-k8s
         - charm-build-keystone-ldap-k8s
