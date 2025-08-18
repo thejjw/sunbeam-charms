@@ -17,7 +17,10 @@
 """Utility helper functions."""
 
 
+import collections
 import logging
+import os
+import subprocess
 from typing import (
     Optional,
 )
@@ -107,3 +110,55 @@ def get_ifaddresses_by_default_route() -> dict:
 def get_local_ip_by_default_route() -> str:
     """Get IP address of host associated with default gateway."""
     return get_ifaddresses_by_default_route()["addr"]
+
+
+def get_interface_pci_address(ifname: str) -> str:
+    """Determine the interface PCI address.
+
+    :param: ifname: interface name
+    :type: str
+    :returns: the PCI address of the device.
+    :rtype: str
+    """
+    net_dev_path = f"/sys/class/net/{ifname}/device"
+    if not (os.path.exists(net_dev_path) and os.path.islink(net_dev_path)):
+        # Not a PCI device.
+        return ""
+    resolved_path = os.path.realpath(net_dev_path)
+    parts = resolved_path.split("/")
+    if "virtio" in parts[-1]:
+        return parts[-2]
+    return parts[-1]
+
+
+def get_pci_numa_node(pci_address: str) -> int | None:
+    """Determine the NUMA node of a given PCI device."""
+    device_path = f"/sys/bus/pci/devices/{pci_address}"
+    numa_node_path = os.path.join(device_path, "numa_node")
+
+    if not os.path.exists(device_path):
+        raise ValueError("PCI device not found: %s" % pci_address)
+
+    if not os.path.exists(numa_node_path):
+        # No associated NUMA node.
+        return None
+
+    with open(numa_node_path, "r") as f:
+        return int(f.read().strip())
+
+
+def get_cpu_numa_architecture() -> dict:
+    """Returns a mapping containing the list of cpu cores for each numa node."""
+    result = subprocess.run(
+        ["lscpu", "-p=cpu,node"], capture_output=True, check=True, text=True
+    )
+
+    numa_nodes = collections.defaultdict(list)
+    for line in result.stdout.split("\n"):
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        core_id, numa_node_id = line.split(",")
+        numa_nodes[int(numa_node_id)].append(int(core_id))
+
+    return dict(numa_nodes)
