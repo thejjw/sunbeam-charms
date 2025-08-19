@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "f05da916c323be728dd6866bbd25e04ade4d26e1",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b75f2e5_5550449a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-19T04:58:52Z",
+      "side": 1,
+      "message": "Can you add keystone-saml-k8s to functional tests (func-test-identity) and corresponding zuul changes except for publishing job. It is to ensure minimal test of deploying charm and relation even though there is no SAML provider.\n(I should have given this review in my previous one, my bad)",
+      "revId": "f05da916c323be728dd6866bbd25e04ade4d26e1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
