@@ -18,6 +18,9 @@ This charm provide Magnum services as part of an OpenStack deployment
 """
 
 import logging
+from functools import (
+    cached_property,
+)
 from typing import (
     TYPE_CHECKING,
     List,
@@ -28,10 +31,16 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_config_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+import yaml
 from ops.framework import (
     StoredState,
+)
+from ops.model import (
+    ModelError,
+    SecretNotFoundError,
 )
 
 logger = logging.getLogger(__name__)
@@ -51,7 +60,7 @@ class MagnumConfigurationContext(sunbeam_config_contexts.ConfigContext):
     @property
     def ready(self) -> bool:
         """Whether the context has all the data is needs."""
-        return self.charm.user_id_ops.ready
+        return self.charm.user_id_ops.ready and bool(self.charm.kubeconfig)
 
     def context(self) -> dict:
         """Magnum configuration context."""
@@ -63,6 +72,7 @@ class MagnumConfigurationContext(sunbeam_config_contexts.ConfigContext):
             "domain_name": self.charm.domain_name,
             "domain_admin_user": username,
             "domain_admin_password": password,
+            "kubeconfig": self.charm.kubeconfig or "",
         }
 
 
@@ -120,6 +130,11 @@ class MagnumConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "root",
                 "magnum",
                 0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/etc/magnum/kubeconfig",
+                "magnum",
+                "magnum",
             ),
         ]
 
@@ -271,6 +286,20 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         )
         return pebble_handlers
 
+    def configure_containers(self) -> None:
+        """Configure containers on this unit."""
+        if not self.config.get("kubeconfig"):
+            raise sunbeam_guard.BlockedExceptionError(
+                "Configuration parameter kubeconfig not set"
+            )
+
+        if self.kubeconfig is None:
+            raise sunbeam_guard.BlockedExceptionError(
+                "Error in retrieving kubeconfig"
+            )
+
+        super().configure_containers()
+
     @property
     def domain_name(self) -> str:
         """Domain name to create."""
@@ -280,6 +309,21 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def domain_admin_user(self) -> str:
         """User to manage users and projects in domain_name."""
         return "magnum_domain_admin"
+
+    @cached_property
+    def kubeconfig(self) -> str | None:
+        """Kubeconfig content to connect to k8s management cluster."""
+        try:
+            kubeconfig_secret = self.model.get_secret(
+                id=self.config.get("kubeconfig")
+            )
+            kubeconfig_secret_content = kubeconfig_secret.get_content()
+            kubeconfig_string = kubeconfig_secret_content.get("kubeconfig")
+            kubeconfig = yaml.safe_load(kubeconfig_string)
+            return yaml.dump(kubeconfig)
+        except (SecretNotFoundError, ModelError, yaml.YAMLError) as e:
+            logger.info(f"Error in retrieving kubeconfig secret: {e}")
+            return None
 
     def _get_create_role_ops(self) -> list:
         """Generate ops request for create role."""
