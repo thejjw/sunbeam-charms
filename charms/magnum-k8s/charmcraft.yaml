@@ -32,6 +32,11 @@ config:
       default: RegionOne
       description: Name of the OpenStack region
       type: string
+    kubeconfig:
+      type: secret
+      description: |
+        Kubeconfig to connect to Cluster API management cluster.
+        The value should be juju secret.
 
 containers:
   magnum-api:

@@ -23,6 +23,7 @@ from unittest.mock import (
 
 import charm
 import ops_sunbeam.test_utils as test_utils
+import yaml
 from ops.testing import (
     Harness,
 )
@@ -79,6 +80,13 @@ class TestMagnumOperatorCharm(test_utils.CharmTestCase):
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
+        # Create a secret for kubeconfig and update the charm config
+        secret_id = self.harness.add_model_secret(
+            self.harness.charm.app.name,
+            {"kubeconfig": yaml.dump({"cluster": "testcluster"})},
+        )
+        self.harness.update_config({"kubeconfig": secret_id})
+
     def add_complete_identity_resource_relation(self, harness: Harness) -> int:
         """Add complete Identity resource relation."""
         rel_id = harness.add_relation("identity-ops", "keystone")
@@ -103,9 +111,11 @@ class TestMagnumOperatorCharm(test_utils.CharmTestCase):
 
     def test_pebble_ready_handler(self):
         """Test pebble ready handler."""
-        self.assertEqual(self.harness.charm.seen_events, [])
+        self.assertEqual(
+            self.harness.charm.seen_events, ["ConfigChangedEvent"]
+        )
         test_utils.set_all_pebbles_ready(self.harness)
-        self.assertEqual(len(self.harness.charm.seen_events), 2)
+        self.assertEqual(len(self.harness.charm.seen_events), 3)
 
     def test_all_relations(self):
         """Test all integrations for operator."""

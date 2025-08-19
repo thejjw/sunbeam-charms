@@ -34,6 +34,27 @@ Actions allow specific operations to be performed on a per-unit basis. To
 display action descriptions run `juju actions magnum`. If the charm is not
 deployed then see file `actions.yaml`.
 
+### Further information on testing
+
+magnum-k8s support magnum-capi-helm driver and needs external kubernetes management
+cluster.
+
+Kubernetes management cluster should already have the Cluster API deployed.
+Cluster API can be deployed by running following steps
+
+    curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/v1.9.6/clusterctl-linux-amd64 -o clusterctl
+    sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl
+    KUBECONFIG=<kubeconfig file path> clusterctl init --core cluster-api:v1.9.6 --bootstrap canonical-kubernetes --control-plane canonical-kubernetes --infrastructure openstack:v0.11.3 --addon helm
+
+
+Also Kubernetes cluster credentials should be passed as a juju secret to the
+magnum charm via config option `kubeconfig`
+Steps to create juju secret and update config
+
+    juju add-secret secret-kubeconfig kubeconfig#file=<kubeconfig file path>
+    juju grant-secret secret-kubeconfig magnum
+    juju config magnum kubeconfig=<secret-kubeconfig URI>
+
 ## Relations
 
 magnum-k8s requires the following relations:
