@@ -33,6 +33,24 @@
       "message": "Can this check moved to ensure_saml_cert_and_key where the config secret is read and block the charm if it is not valid certificate",
       "revId": "fd7a2448926c2c048e1974b8cc1e050fc3fc2784",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "67bef1f7_4e5f15ba",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 618,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-08-20T06:13:22Z",
+      "side": 1,
+      "message": "it\u0027s not a check. It strips the header and footer (if it exists) from the certificate. But yes, I will add a check in ensure_saml_cert_and_key to make sure we don\u0027t end up with a chain.",
+      "parentUuid": "46642c49_fa41a7b3",
+      "revId": "fd7a2448926c2c048e1974b8cc1e050fc3fc2784",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
