@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3889adf_e8c3564d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-08-20T08:24:39Z",
+      "side": 1,
+      "message": "Does the charm exist on charmhub?\nDo we have the guardrail and tracks available?",
+      "revId": "2cad3f5939367f4f0224485baf7e8c3ef7d7ec6c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
