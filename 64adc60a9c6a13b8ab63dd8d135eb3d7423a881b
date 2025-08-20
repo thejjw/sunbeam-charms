@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca18a029_5b5f46b5",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-20T12:52:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "947565f2_65a849f8",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "65b3bd73_0e37603a",
@@ -48,6 +66,24 @@
       "writtenOn": "2025-08-20T02:28:38Z",
       "side": 1,
       "message": "This should be based on existence of ceph-nfs relation since the charm cannot provide this service if ceph-nfs relation is not yet established",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d235bbcb_5b3e29b6",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-20T12:52:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65b3bd73_0e37603a",
       "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -69,6 +105,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a6c070b_2aa4072c",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-20T12:52:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24dbd4e2_525d9511",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "657f61c6_6b8ae6e9",
@@ -82,6 +136,24 @@
       "writtenOn": "2025-08-20T02:28:38Z",
       "side": 1,
       "message": "Use CEPH_NFS_RELATION_NAME instead of \"ceph-nfs\"",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba3b61f0_18abff6e",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-20T12:52:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "657f61c6_6b8ae6e9",
       "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -103,6 +175,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ba8e94c_746e576a",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-20T12:52:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "247bceb6_bce1c777",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "59ff305e_f8242784",
@@ -116,6 +206,24 @@
       "writtenOn": "2025-08-20T02:28:38Z",
       "side": 1,
       "message": "As per README we need atleast one manila backend. So this is not an optional relation",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4de47e80_74cf3f81",
+        "filename": "charms/manila-k8s/charmcraft.yaml",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-20T12:52:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "59ff305e_f8242784",
       "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -137,6 +245,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5b22fcb_da6d026b",
+        "filename": "charms/manila-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-20T12:52:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ac72e11d_39cc5a35",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cf588ec5_840b47bc",
@@ -150,6 +276,24 @@
       "writtenOn": "2025-08-20T02:28:38Z",
       "side": 1,
       "message": "This should not be ready until share_protocol is received from the relation",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1548a94b_480d428f",
+        "filename": "charms/manila-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-20T12:52:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cf588ec5_840b47bc",
       "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
