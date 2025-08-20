@@ -880,6 +880,19 @@
     timeout: 3600
 
 - job:
+    name: publish-charm-keystone-saml-k8s
+    description: |
+      Publish keystone-saml-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/keystone-saml-k8s/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
     name: publish-charm-magnum-k8s
     description: |
       Publish magnum-k8s built in gate pipeline.
