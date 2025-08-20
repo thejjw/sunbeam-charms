@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a019f2f_ce9cc63f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-20T02:28:38Z",
+      "side": 1,
+      "message": "Thanks for the contribution!\n\nThe library and handlers need to be changed a little and follow the pattern sunbeam-charms are using. I left some examples. Once those changes are done, I will take another look.",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "947565f2_65a849f8",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-20T02:28:38Z",
+      "side": 1,
+      "message": "What is the value add in having shared protocol here. Anyhow the library wont have any logic based on the protcol.",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65b3bd73_0e37603a",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-20T02:28:38Z",
+      "side": 1,
+      "message": "This should be based on existence of ceph-nfs relation since the charm cannot provide this service if ceph-nfs relation is not yet established",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "24dbd4e2_525d9511",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-20T02:28:38Z",
+      "side": 1,
+      "message": "Instead of using relations in this function, try to introduce functions in library and call the library functions self.manila_handler.interface.\u003c\u003e\n\nExamples\nhttps://opendev.org/openstack/sunbeam-charms/src/branch/main/ops-sunbeam/ops_sunbeam/relation_handlers.py#L587\nhttps://opendev.org/openstack/sunbeam-charms/src/branch/main/charms/keystone-k8s/src/charm.py#L1867",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "657f61c6_6b8ae6e9",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-20T02:28:38Z",
+      "side": 1,
+      "message": "Use CEPH_NFS_RELATION_NAME instead of \"ceph-nfs\"",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "247bceb6_bce1c777",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-20T02:28:38Z",
+      "side": 1,
+      "message": "Can you add a new function in manila library Provider to set relation data\n(This approach is followed for all libraries introduced in sunbeam-charms)\n\nExample: https://opendev.org/openstack/sunbeam-charms/src/branch/main/charms/keystone-k8s/lib/charms/keystone_k8s/v1/identity_service.py#L483",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "59ff305e_f8242784",
+        "filename": "charms/manila-k8s/charmcraft.yaml",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-20T02:28:38Z",
+      "side": 1,
+      "message": "As per README we need atleast one manila backend. So this is not an optional relation",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac72e11d_39cc5a35",
+        "filename": "charms/manila-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-20T02:28:38Z",
+      "side": 1,
+      "message": "We do not support CIFS",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf588ec5_840b47bc",
+        "filename": "charms/manila-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-20T02:28:38Z",
+      "side": 1,
+      "message": "This should not be ready until share_protocol is received from the relation",
+      "revId": "64adc60a9c6a13b8ab63dd8d135eb3d7423a881b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
