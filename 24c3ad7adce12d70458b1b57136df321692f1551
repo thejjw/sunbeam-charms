@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "037fb319_8565417d",
+        "filename": "charms/cloudkitty-k8s/.sunbeam-build.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-08-21T07:44:17Z",
+      "side": 1,
+      "message": "Can you ensure every element is needed?\n\nExternal libraries, are the files in \u003croot\u003e/libs/external/lib/charms/ that will be needed for the relations to work (most of the time).\n\nTemplates are the jinja bits reused in the configuration.\n\nBasically, the build process is copying these files into the right place inside `cloudkitty-k8s`.",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 20
+      },
+      "revId": "24c3ad7adce12d70458b1b57136df321692f1551",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14ce53e7_cb8fd8d5",
+        "filename": "charms/cloudkitty-k8s/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-08-21T07:44:17Z",
+      "side": 1,
+      "message": "As philosophy, we don\u0027t want to handle backends or db configuration via config options. This should always be determined by relations.",
+      "range": {
+        "startLine": 31,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 18
+      },
+      "revId": "24c3ad7adce12d70458b1b57136df321692f1551",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
