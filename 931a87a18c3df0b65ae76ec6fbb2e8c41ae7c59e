@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f92df6b_d5640a07",
+        "filename": "libs/external/lib/charms/ceph_nfs_client/v0/ceph_nfs_client.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-21T02:15:07Z",
+      "side": 1,
+      "message": "As commented in https://review.opendev.org/c/openstack/sunbeam-charms/+/956371, we would like to have writing app data and reading app data from realations in the library as much as possible and having functions/variables to expose the data to the charms. Try to avoid as much as possible to read relation app data directly in the charm.py",
+      "revId": "931a87a18c3df0b65ae76ec6fbb2e8c41ae7c59e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
