@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f372fd03_37ae802f",
+        "filename": "charms/magnum-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-08-21T06:55:26Z",
+      "side": 1,
+      "message": "There was discussion from the charm tech team about not caching secret anymore. Seeing this property called multiple time seems costly. Can we cache in a private attribute of the class the result? (just for the runtime of the hook basically)",
+      "revId": "f5b539acfe09cf27fbda86e25b1e448361318fcc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
