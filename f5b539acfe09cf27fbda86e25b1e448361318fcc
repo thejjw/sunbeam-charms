@@ -16,6 +16,24 @@
       "message": "There was discussion from the charm tech team about not caching secret anymore. Seeing this property called multiple time seems costly. Can we cache in a private attribute of the class the result? (just for the runtime of the hook basically)",
       "revId": "f5b539acfe09cf27fbda86e25b1e448361318fcc",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c358f0ce_e321fe2e",
+        "filename": "charms/magnum-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-21T08:02:01Z",
+      "side": 1,
+      "message": "Used @cached_property instead of private attribute",
+      "parentUuid": "f372fd03_37ae802f",
+      "revId": "f5b539acfe09cf27fbda86e25b1e448361318fcc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
