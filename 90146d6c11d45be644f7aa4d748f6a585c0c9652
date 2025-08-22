@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9e39489a_a3741a42",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-22T14:25:10Z",
+      "side": 1,
+      "message": "Yes. In the next commit, the manila relation data is written after the ceph-nfs relation has been established.",
+      "parentUuid": "3ef1fa4e_463d9d19",
+      "revId": "90146d6c11d45be644f7aa4d748f6a585c0c9652",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "ec6b6a5b_ce6a3175",
         "filename": "charms/manila-cephfs-k8s/src/templates/ceph.conf",
         "patchSetId": 12
@@ -48,6 +66,24 @@
       "writtenOn": "2025-08-22T04:30:43Z",
       "side": 1,
       "message": "Can this be global setting? since this is used in manila.keyring",
+      "revId": "90146d6c11d45be644f7aa4d748f6a585c0c9652",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e0f13a8_90be1ebb",
+        "filename": "charms/manila-cephfs-k8s/src/templates/ceph.conf",
+        "patchSetId": 12
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-22T14:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ec6b6a5b_ce6a3175",
       "revId": "90146d6c11d45be644f7aa4d748f6a585c0c9652",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -69,6 +105,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "428d58b6_29bd835b",
+        "filename": "charms/manila-cephfs-k8s/src/templates/ceph.conf",
+        "patchSetId": 12
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-22T14:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c7cd0e2d_a4a72108",
+      "revId": "90146d6c11d45be644f7aa4d748f6a585c0c9652",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "36fc9c04_9eb26a65",
@@ -82,6 +136,24 @@
       "writtenOn": "2025-08-22T04:30:43Z",
       "side": 1,
       "message": "Is this required? /opt/stack seems reference from devstack setup",
+      "revId": "90146d6c11d45be644f7aa4d748f6a585c0c9652",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ccf445f2_8a09b5f2",
+        "filename": "charms/manila-cephfs-k8s/src/templates/ceph.conf",
+        "patchSetId": 12
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-22T14:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36fc9c04_9eb26a65",
       "revId": "90146d6c11d45be644f7aa4d748f6a585c0c9652",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
