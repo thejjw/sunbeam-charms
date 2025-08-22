@@ -1,0 +1,42 @@
+###############################################################################
+# [ WARNING ]
+# cloudkitty configuration file maintained by Juju
+# local changes may be overwritten.
+###############################################################################
+[DEFAULT]
+debug = {{ options.debug }}
+transport_url = {{ amqp.transport_url }}
+auth_strategy = keystone
+
+{% include "parts/section-database" %}
+
+{% include "parts/section-identity" %}
+
+{% include "parts/section-service-user" %}
+
+[oslo_concurrency]
+lock_path = /var/lib/cloudkitty/tmp
+
+{% include "parts/section-oslo-messaging-rabbit" %}
+
+[audit_middleware_notifications]
+driver = log
+
+[storage]
+version = 1
+backend = sqlalchemy
+
+[fetcher]
+backend = gnocchi
+
+[fetcher_gnocchi]
+gnocchi_auth_type = keystone
+auth_section = keystone_authtoken
+region_name = {{ options.region }}
+
+[collect]
+collector = gnocchi
+
+[collector_gnocchi]
+auth_section = keystone_authtoken
+region_name = {{ options.region }}
