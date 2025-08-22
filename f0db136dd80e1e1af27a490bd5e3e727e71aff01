@@ -16,6 +16,24 @@
       "message": "It will be great if the library/interface can be more specific like\n\n@property\ndef share_protocol() -\u003e str | None:\n    return self.get_remote_app_data(key)\n\nAnd in charm, we use the property directly.\n\nInfact the newer charms maintains app data as dataclass so that they are validated with respect to types etc.\n\n(In other words all the relation app data/unit data calls reside in library and library provides application specific properties/functions to charm)",
       "revId": "f0db136dd80e1e1af27a490bd5e3e727e71aff01",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0cd37ca2_6fd7e33a",
+        "filename": "charms/manila-k8s/lib/charms/manila_k8s/v0/manila.py",
+        "patchSetId": 13
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-22T14:26:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "defd3b45_bbe982bc",
+      "revId": "f0db136dd80e1e1af27a490bd5e3e727e71aff01",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
