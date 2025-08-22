@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7877edef_1d17ebd0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-22T04:30:43Z",
+      "side": 1,
+      "message": "Couple of minor comments, otherwise good",
+      "revId": "90146d6c11d45be644f7aa4d748f6a585c0c9652",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3ef1fa4e_463d9d19",
+        "filename": "charms/manila-cephfs-k8s/src/charm.py",
+        "patchSetId": 12
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-22T04:30:43Z",
+      "side": 1,
+      "message": "Do you foresee any changes that might require in addition to configure_charm? Otherwise we can use self.configure_charm(event) as callback directly",
+      "revId": "90146d6c11d45be644f7aa4d748f6a585c0c9652",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ec6b6a5b_ce6a3175",
+        "filename": "charms/manila-cephfs-k8s/src/templates/ceph.conf",
+        "patchSetId": 12
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-22T04:30:43Z",
+      "side": 1,
+      "message": "Can this be global setting? since this is used in manila.keyring",
+      "revId": "90146d6c11d45be644f7aa4d748f6a585c0c9652",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7cd0e2d_a4a72108",
+        "filename": "charms/manila-cephfs-k8s/src/templates/ceph.conf",
+        "patchSetId": 12
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-22T04:30:43Z",
+      "side": 1,
+      "message": "always log to syslog so that the logs available via pod logs.\n\nreference: https://github.com/canonical/snap-cinder-volume/blob/main/cinder_volume/templates/ceph.conf.j2",
+      "revId": "90146d6c11d45be644f7aa4d748f6a585c0c9652",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36fc9c04_9eb26a65",
+        "filename": "charms/manila-cephfs-k8s/src/templates/ceph.conf",
+        "patchSetId": 12
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-22T04:30:43Z",
+      "side": 1,
+      "message": "Is this required? /opt/stack seems reference from devstack setup",
+      "revId": "90146d6c11d45be644f7aa4d748f6a585c0c9652",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
