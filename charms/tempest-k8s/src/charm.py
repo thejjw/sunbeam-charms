@@ -73,6 +73,7 @@ from utils.constants import (
 )
 from utils.overrides import (
     get_compute_overrides,
+    get_manila_overrides,
     get_role_based_overrides,
     get_swift_overrides,
 )
@@ -251,6 +252,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             (
                 get_swift_overrides(),
                 get_compute_overrides(),
+                get_manila_overrides(),
                 get_role_based_overrides(self.config["roles"]),
             )
         ).strip()
