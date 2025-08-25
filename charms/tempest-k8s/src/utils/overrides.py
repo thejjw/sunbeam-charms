@@ -48,6 +48,17 @@ def get_compute_overrides() -> str:
     )
 
 
+def get_manila_overrides() -> str:
+    """Return manila configuration override."""
+    return " ".join(
+        (
+            "share.catalog_type sharev2",
+            "share.endpoint_type public",
+            "share.capability_storage_protocol NFS",
+        )
+    )
+
+
 def get_role_based_overrides(config_roles: str) -> str:
     """Generate tempest.conf overrides based on the configured roles.
 
