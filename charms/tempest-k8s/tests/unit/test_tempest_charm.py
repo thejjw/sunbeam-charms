@@ -72,7 +72,11 @@ TEST_TEMPEST_ENV = {
     "TEMPEST_WORKSPACE": "tempest",
     "TEMPEST_WORKSPACE_PATH": "/var/lib/tempest/workspace",
     "TEMPEST_CONFIG_OVERRIDES": " ".join(
-        (overrides.get_swift_overrides(), overrides.get_compute_overrides())
+        (
+            overrides.get_swift_overrides(),
+            overrides.get_compute_overrides(),
+            overrides.get_manila_overrides(),
+        ),
     ),
 }
 
