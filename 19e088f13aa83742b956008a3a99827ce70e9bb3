@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "792e3eb7_b806d837",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-08-26T10:03:59Z",
+      "side": 1,
+      "message": "Can we extract schema into a separate file, please",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "baae3c1f_a63043bb",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-08-26T10:03:59Z",
+      "side": 1,
+      "message": "what if user wants to remove allocation using -1. Can such usecase exist?",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d5508da_1ed2b9b8",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-08-26T10:03:59Z",
+      "side": 1,
+      "message": "I don\u0027t think there is a need to have such discussion here. We are not following that random cores allocation path from different nodes so no need to mention here I believe",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc93a661_f2793336",
+        "filename": "charms/openstack-hypervisor/src/epa_client.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-08-26T10:03:59Z",
+      "side": 1,
+      "message": "what is that TODO ? we already have a unified api",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dd159f89_3670e2a2",
+        "filename": "charms/openstack-hypervisor/tests/unit/test_charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-08-26T10:03:59Z",
+      "side": 1,
+      "message": "can we extend unit tests to test epa allocations and deallocations reflecting in the dpdk configuration. Also covering the service restarts i.e. calling allocation twice etc",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
