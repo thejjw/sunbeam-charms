@@ -208,7 +208,7 @@ class MergedFederatedIdentityConfigContext(sunbeam_contexts.ConfigContext):
     def context(self):
         """Configuration context."""
         ctx = self.charm.merged_fid_contexts()
-        if not ctx or not ctx.get("oidc_providers", []):
+        if not ctx:
             return {}
         return ctx
 
