@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "1b18e762_e3e0d01f",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-08-26T11:00:22Z",
+      "side": 1,
+      "message": "It\u0027s a really small schema but sure, I can move it to a separate file.",
+      "parentUuid": "792e3eb7_b806d837",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "baae3c1f_a63043bb",
         "filename": "charms/openstack-hypervisor/src/charm.py",
         "patchSetId": 7
@@ -31,6 +49,24 @@
       "writtenOn": "2025-08-26T10:03:59Z",
       "side": 1,
       "message": "what if user wants to remove allocation using -1. Can such usecase exist?",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "af322765_c32d3f75",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-08-26T11:00:22Z",
+      "side": 1,
+      "message": "The user cannot set the number of cores to -1 directly.\n\nInstead, the allocations are removed when:\n\n* disabling dpdk\n* changing the number of cores to 0\n* changing the dpdk interface, which may reside on a different NUMA node so the current allocations will be removed.\n\nThat being considered, the core list received by this function should never contain negative core ids. Removing core allocations is handled separately.",
+      "parentUuid": "baae3c1f_a63043bb",
       "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -54,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ab601654_5c5aacf3",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-08-26T11:00:22Z",
+      "side": 1,
+      "message": "I actually think it\u0027s a good idea to have an inline comment with the possible actions that the charm could take if the NUMA node cannot be automatically detected based on the network interfaces.\n\nAt a later time, we may as well decide to change the default behaviour and spread the memory allocation evenly across NUMA nodes. This comment describes the pros and cons of doing so.",
+      "parentUuid": "4d5508da_1ed2b9b8",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "fc93a661_f2793336",
         "filename": "charms/openstack-hypervisor/src/epa_client.py",
         "patchSetId": 7
@@ -71,6 +125,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "aac1e2f4_0461ef04",
+        "filename": "charms/openstack-hypervisor/src/epa_client.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-08-26T11:00:22Z",
+      "side": 1,
+      "message": "It\u0027s not really unified since there are two separate actions: \"allocate_cores\" and \"allocate_numa_cores\".\n\nStrangely, \"allocate_cores\" does accept a \"numa_node\" parameter however we\u0027re not allowed to pass it but instead we\u0027re supposed to use the separate \"allocate_numa_cores\" action:\n\n```\nclass AllocateCoresRequest(BaseModel):\n    \"\"\"Request model for allocating cores (non-NUMA).\"\"\"\n\n    version: Literal[\"1.0\"] \u003d Field(default\u003dAPI_VERSION)\n    action: Literal[ActionType.ALLOCATE_CORES]\n    service_name: str \u003d Field(description\u003d\"Name of the requesting service\")\n    num_of_cores: int \u003d Field(\n        default\u003d0,\n        description\u003d(\"Number of dedicated cores requested. 0 keeps default policy.\"),\n    )\n    numa_node: Optional[int] \u003d Field(\n        default\u003dNone, ge\u003d0, description\u003d\"NUMA node (must be omitted for allocate_cores)\"\n    )\n```",
+      "parentUuid": "fc93a661_f2793336",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "dd159f89_3670e2a2",
         "filename": "charms/openstack-hypervisor/tests/unit/test_charm.py",
         "patchSetId": 7
@@ -82,6 +154,24 @@
       "writtenOn": "2025-08-26T10:03:59Z",
       "side": 1,
       "message": "can we extend unit tests to test epa allocations and deallocations reflecting in the dpdk configuration. Also covering the service restarts i.e. calling allocation twice etc",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d2994572_7deb7107",
+        "filename": "charms/openstack-hypervisor/tests/unit/test_charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-08-26T11:00:22Z",
+      "side": 1,
+      "message": "If the EPA service is mocked, then calling the allocation twice won\u0027t really matter. Besides, that kind of testing should be performed as part of the EPA project.\n\nI can add some unit tests for the DPDK specific allocations though.",
+      "parentUuid": "dd159f89_3670e2a2",
       "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
