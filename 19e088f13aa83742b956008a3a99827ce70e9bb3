@@ -36,6 +36,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbf091a9_dd74c1f0",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-08-26T14:09:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1b18e762_e3e0d01f",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "baae3c1f_a63043bb",
@@ -172,6 +190,24 @@
       "side": 1,
       "message": "If the EPA service is mocked, then calling the allocation twice won\u0027t really matter. Besides, that kind of testing should be performed as part of the EPA project.\n\nI can add some unit tests for the DPDK specific allocations though.",
       "parentUuid": "dd159f89_3670e2a2",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2961f62_e9a8eece",
+        "filename": "charms/openstack-hypervisor/tests/unit/test_charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-08-26T14:09:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d2994572_7deb7107",
       "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
