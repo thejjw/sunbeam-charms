@@ -89,6 +89,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d28638f8_fd34727a",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 827,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-08-27T09:37:41Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "af322765_c32d3f75",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4d5508da_1ed2b9b8",
@@ -124,6 +142,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9111cc1d_bbb3b63b",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 879,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-08-27T09:37:41Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "ab601654_5c5aacf3",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fc93a661_f2793336",
@@ -155,6 +191,24 @@
       "side": 1,
       "message": "It\u0027s not really unified since there are two separate actions: \"allocate_cores\" and \"allocate_numa_cores\".\n\nStrangely, \"allocate_cores\" does accept a \"numa_node\" parameter however we\u0027re not allowed to pass it but instead we\u0027re supposed to use the separate \"allocate_numa_cores\" action:\n\n```\nclass AllocateCoresRequest(BaseModel):\n    \"\"\"Request model for allocating cores (non-NUMA).\"\"\"\n\n    version: Literal[\"1.0\"] \u003d Field(default\u003dAPI_VERSION)\n    action: Literal[ActionType.ALLOCATE_CORES]\n    service_name: str \u003d Field(description\u003d\"Name of the requesting service\")\n    num_of_cores: int \u003d Field(\n        default\u003d0,\n        description\u003d(\"Number of dedicated cores requested. 0 keeps default policy.\"),\n    )\n    numa_node: Optional[int] \u003d Field(\n        default\u003dNone, ge\u003d0, description\u003d\"NUMA node (must be omitted for allocate_cores)\"\n    )\n```",
       "parentUuid": "fc93a661_f2793336",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9195a41_a0d3a48c",
+        "filename": "charms/openstack-hypervisor/src/epa_client.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-08-27T09:37:41Z",
+      "side": 1,
+      "message": "Unification means there is a common schema. They payloads can differ. The reason to have a separate action to avoid taking decision on the presence of numa_node id property. It is a good design practice to have different implementation flows based on type or action. That is why we have a) unified schema b) different action for numa vs non_numa allocations",
+      "parentUuid": "aac1e2f4_0461ef04",
       "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
