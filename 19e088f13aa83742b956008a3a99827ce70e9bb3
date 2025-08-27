@@ -213,6 +213,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d38128e_1081958f",
+        "filename": "charms/openstack-hypervisor/src/epa_client.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-08-27T09:47:45Z",
+      "side": 1,
+      "message": "I\u0027ll drop the inline TODO, it\u0027s a minor detail anyway.",
+      "parentUuid": "d9195a41_a0d3a48c",
+      "revId": "19e088f13aa83742b956008a3a99827ce70e9bb3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "dd159f89_3670e2a2",
