@@ -2,7 +2,6 @@ external-libraries:
   - charms.data_platform_libs.v0.data_interfaces
   - charms.grafana_agent.v0.cos_agent
   - charms.operator_libs_linux.v2.snap
-  - charms.operator_libs_linux.v1.systemd
   - charms.rabbitmq_k8s.v0.rabbitmq
   - charms.traefik_k8s.v2.ingress
   - charms.tls_certificates_interface.v3.tls_certificates

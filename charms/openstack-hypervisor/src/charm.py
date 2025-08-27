@@ -26,6 +26,7 @@ import io
 import logging
 import os
 import secrets
+import shutil
 import socket
 import string
 import subprocess
@@ -59,9 +60,6 @@ from charms.grafana_agent.v0.cos_agent import (
 from charms.nova_k8s.v0.nova_service import (
     NovaConfigChangedEvent,
     NovaServiceGoneAwayEvent,
-)
-from charms.operator_libs_linux.v1.systemd import (
-    service_running,
 )
 from cryptography import (
     x509,
@@ -519,9 +517,85 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         else:
             logger.debug("Snap settings do not need updating")
 
+    def _clear_system_ovs_datapaths(self):
+        logger.info("Clearing system OVS datapaths.")
+
+        if not shutil.which("ovs-dpctl"):
+            logger.info(
+                "ovs-dpctl not found, skipped clearing system OVS datapaths."
+            )
+            return
+
+        result = subprocess.run(
+            ["ovs-dpctl", "dump-dps"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        datapaths = result.stdout.strip().split("\n")
+        for datapath in datapaths:
+            logger.info("Removing OVS datapath: %s", datapath)
+            subprocess.run(["ovs-dpctl", "del-dp", datapath], check=True)
+
+    def _disable_system_ovs(self) -> bool:
+        """Disable deb installed OVS.
+
+        OVS crashes if there are multiple conflicting installations, as such
+        we are going to mask system OVS services and use the snap based
+        installation from "openstack-hypervisor" instead.
+
+        OVS bridges and bonds defined in MAAS will be included in the Netplan
+        configuration. We expect Netplan to contain the following in
+        order to work with snap based installations:
+            https://github.com/canonical/netplan/pull/549
+
+        Note that any configuration defined in the system OVS db that's
+        not set in Netplan will be lost.
+
+        Returns a boolean, stating if any changes were made.
+        """
+        ovs_services = [
+            "openvswitch-switch.service",
+            "ovs-vswitchd.service",
+            "ovsdb-server.service",
+            "ovs-record-hostname.service",
+        ]
+
+        changes_made = False
+
+        for service_name in ovs_services:
+            unit_info = utils.get_systemd_unit_status(service_name)
+            if not unit_info:
+                logger.debug("%s unit not found.", service_name)
+                continue
+
+            if unit_info["active_state"] != "inactive":
+                logging.info("Stopping unit: %s", service_name)
+                subprocess.run(["systemctl", "stop", service_name], check=True)
+                changes_made = True
+            else:
+                logger.debug("%s unit already stopped.", service_name)
+
+            if unit_info["load_state"] != "masked":
+                logging.info("Masking unit: %s", service_name)
+                subprocess.run(["systemctl", "mask", service_name], check=True)
+                changes_made = True
+            else:
+                logger.debug("%s unit already masked.", service_name)
+
+        if changes_made:
+            self._clear_system_ovs_datapaths()
+
+        return changes_made
+
     def ensure_snap_present(self):
         """Install snap if it is not already present."""
         config = self.model.config.get
+
+        # If we've just disabled the system OVS services, reapply
+        # the netplan configuration to the snap based installation.
+        netplan_apply_needed = self._disable_system_ovs()
+
         try:
             cache = self.get_snap_cache()
             hypervisor = cache["openstack-hypervisor"]
@@ -531,6 +605,14 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                     snap.SnapState.Latest, channel=config("snap-channel")
                 )
                 self._connect_to_epa_orchestrator()
+
+                # Netplan expects the "ovs-vsctl" alias in order to pick up the
+                # snap installation. The other aliases are there for consistency
+                # and convenience.
+                hypervisor.alias("ovs-vsctl", "ovs-vsctl")
+                hypervisor.alias("ovs-appctl", "ovs-appctl")
+                hypervisor.alias("ovs-dpctl", "ovs-dpctl")
+                hypervisor.alias("ovs-ofctl", "ovs-ofctl")
         except (snap.SnapError, snap.SnapNotFoundError) as e:
             logger.error(
                 "An exception occurred when installing openstack-hypervisor. Reason: %s",
@@ -539,6 +621,14 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
             raise SnapInstallationError(
                 "openstack-hypervisor installation failed"
+            )
+
+        if netplan_apply_needed:
+            logger.info("System OVS services masked, reapplying netplan.")
+            subprocess.run(["netplan", "apply"], check=True)
+        else:
+            logger.debug(
+                "No OVS changes made, skipping netplan configuration."
             )
 
     def _connect_to_epa_orchestrator(self):
@@ -573,21 +663,8 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Return snap cache."""
         return snap.SnapCache()
 
-    def check_system_services(self) -> None:
-        """Check if system services are in desired state."""
-        if service_running("openvswitch-switch.service"):
-            logger.error(
-                "OpenVSwitch service is running, please stop it before proceeding. "
-                "OpenVSwitch is managed by the openstack-hypervisor snap and will "
-                "conflict with the snap's operation."
-            )
-            raise sunbeam_guard.BlockedExceptionError(
-                "Breaking: OpenVSwitch service is running on the host."
-            )
-
     def configure_unit(self, event) -> None:
         """Run configuration on this unit."""
-        self.check_system_services()
         self.check_leader_ready()
         self.check_relation_handlers_ready(event)
         config = self.model.config.get
