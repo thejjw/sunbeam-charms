@@ -45,3 +45,14 @@ tempest.api.object_storage.test_container_acl.ObjectTestACLs.test_write_object_w
 # too much.
 # Reference: https://bugs.launchpad.net/charm-ceph-radosgw/+bug/1967567
 tempest.api.object_storage.test_container_quotas.ContainerQuotasTest.test_upload_too_many_objects
+
+# The manila-k8s charm only registers the v2 manila endpoints, and these tests tests v1.
+manila_tempest_tests.tests.api.test_microversions.MicroversionsTest.test_microversions_v1_no_version
+manila_tempest_tests.tests.api.test_microversions.MicroversionsTest.test_microversions_v1_with_version
+
+# CephFS share group snapshot not supported anymore since W release. These tests will try
+# to create a share group snapshot in the resource setup step.
+manila_tempest_tests.tests.api.test_share_group_actions.ShareGroupActionsTest
+manila_tempest_tests.tests.api.test_share_groups_negative.ShareGroupsNegativeTest
+manila_tempest_tests.tests.api.test_share_groups.ShareGroupsTest.test_create_delete_empty_share_group_snapshot_min
+manila_tempest_tests.tests.api.test_share_groups.ShareGroupsTest.test_create_share_group_from_empty_share_group_snapshot_min
