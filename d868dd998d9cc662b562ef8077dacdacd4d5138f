@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb5af77f_d3478a7f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-28T10:07:37Z",
+      "side": 1,
+      "message": "Can you remove charms.operator_libs_linux.v1.systemd in sunbeam-build.yaml\n\nAnd remove the library libs/external/lib/charms/operator_libs_linux/v1/systemd.py",
+      "revId": "d868dd998d9cc662b562ef8077dacdacd4d5138f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
