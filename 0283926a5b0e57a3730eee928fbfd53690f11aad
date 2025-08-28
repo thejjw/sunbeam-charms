@@ -67,6 +67,23 @@
       "message": "Failed due to \"[Errno 1] Operation not permitted\" when attempting to connect to keystone. This seems like apparmor/SELinux related.\n\nrecheck",
       "revId": "0283926a5b0e57a3730eee928fbfd53690f11aad",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "db3a6c08_917f7c88",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9426
+      },
+      "writtenOn": "2025-08-28T09:30:50Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "0283926a5b0e57a3730eee928fbfd53690f11aad",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
