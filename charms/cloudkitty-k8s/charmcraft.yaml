@@ -1,0 +1,101 @@
+type: charm
+title: Cloudkitty
+name: cloudkitty-k8s
+summary: Openstack Rating service
+description: |
+  Cloudkitty is the OpenStack Rating service.
+  It provides a framework for metering and rating cloud resources.
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source:
+    - https://opendev.org/openstack/charm-cloudkitty-k8s
+  issues:
+    - https://bugs.launchpad.net/charm-cloudkitty-k8s
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+    region:
+      default: RegionOne
+      description: Name of the OpenStack region
+      type: string
+
+containers:
+  cloudkitty:
+    resource: cloudkitty-image
+
+resources:
+  cloudkitty-image:
+    type: oci-image
+    description: OCI image for OpenStack Cloudkitty
+    upstream-source: ghcr.io/canonical/cloudkitty-consolidated:2025.1
+
+requires:
+  ingress-internal:
+    interface: ingress
+    limit: 1
+  ingress-public:
+    interface: ingress
+    optional: true
+    limit: 1
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-service:
+    interface: keystone
+    limit: 1
+  gnocchi-db:
+    interface: gnocchi
+  amqp:
+    interface: rabbitmq
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+  logging:
+    interface: loki_push_api
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+peers:
+  peers:
+    interface: cloudkitty-peer
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - rustc-1.80
+      - cargo-1.80
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
