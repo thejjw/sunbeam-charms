@@ -33,6 +33,24 @@
       "message": "If for some reason code hits L#152 then there wont be SHARE_PROTOCOL in app_data.\nThis will result in KeyError here",
       "revId": "ca98d33d9c42430a8a9463473ba346e531c0ebda",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa1db2a8_e458895c",
+        "filename": "charms/manila-k8s/lib/charms/manila_k8s/v0/manila.py",
+        "patchSetId": 19
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-08-28T07:30:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e59b649c_ffa87eb0",
+      "revId": "ca98d33d9c42430a8a9463473ba346e531c0ebda",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
