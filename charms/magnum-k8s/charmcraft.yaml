@@ -37,6 +37,39 @@ config:
       description: |
         Kubeconfig to connect to Cluster API management cluster.
         The value should be juju secret.
+    helm_chart_repo:
+      default: "''"
+      type: string
+      description: |
+        The helm chart repository path that hosts the capi helm chart.
+
+        In case of OCI registry, set the repo path to "''".
+        Setting the option to "" will leave the magnum-capi-helm
+        driver option empty and uses defaults from the driver.
+
+    helm_chart_name:
+      default: oci://ghcr.io/canonical/charts/openstack-ck8s-cluster
+      type: string
+      description: |
+        Name of the helm chart to use from the repo specified.
+
+        In case of OCI registry, set the registry path as helm_chart_name
+    capi_api_resources:
+      default: '{"K8sControlPlane": {"api_version": "controlplane.cluster.x-k8s.io/v1beta2", "plural_name": "ck8scontrolplanes"}, "OpenstackCluster": {"api_version": "infrastructure.cluster.x-k8s.io/v1beta1"}}'
+      type: string
+      description: |
+        Override api resources provided by magnum-capi-helm driver.
+        Value should be a dictionary in string format
+
+        Defaults to settings required to support canonical k8s
+    allowed_network_drivers:
+      default: cilium
+      type: string
+      description: |
+        Comma separated list of allowed CNI that can be deployed on
+        Workload clusters.
+        Supported drivers for canonical k8s are cilium
+
 
 containers:
   magnum-api:

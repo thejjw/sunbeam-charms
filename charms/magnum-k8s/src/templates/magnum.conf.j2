@@ -69,13 +69,12 @@ ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
 driver = log
 
 [cluster_template]
-kubernetes_allowed_network_drivers = cilium
+kubernetes_allowed_network_drivers = {{ options.allowed_network_drivers }}
 
 [capi_helm]
 kubeconfig_file = /etc/magnum/kubeconfig
-# Empty repo so that helm chart can be downloaded from OCI registry
-helm_chart_repo = ""
-helm_chart_name = oci://ghcr.io/canonical/charts/openstack-ck8s-cluster
+helm_chart_repo = {{ options.helm_chart_repo }}
+helm_chart_name = {{ options.helm_chart_name }}
 default_helm_chart_version = 0.1.0
-api_resources = {"K8sControlPlane": {"api_version": "controlplane.cluster.x-k8s.io/v1beta2", "plural_name": "ck8scontrolplanes"}, "OpenstackCluster": {"api_version": "infrastructure.cluster.x-k8s.io/v1beta1"}}
+api_resources = {{ options.capi_api_resources }}
 k8s_control_plane_resource_conditions = MachinesReady,Ready,ControlPlaneComponentsHealthy
