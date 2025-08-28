@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "508db925f97636a7fa958e71a3752528211511fa",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c554420e_21ef16eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-08-28T08:00:05Z",
+      "side": 1,
+      "message": "recheck LXD user not added",
+      "revId": "508db925f97636a7fa958e71a3752528211511fa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
