@@ -66,6 +66,8 @@
             nodeset: ubuntu-jammy
         - charm-build-heat-k8s:
             nodeset: ubuntu-jammy
+        - charm-build-ironic-k8s:
+            nodeset: ubuntu-jammy
         - charm-build-octavia-k8s:
             nodeset: ubuntu-jammy
         - charm-build-aodh-k8s:
@@ -136,6 +138,8 @@
         - charm-build-horizon-k8s:
             nodeset: ubuntu-jammy
         - charm-build-heat-k8s:
+            nodeset: ubuntu-jammy
+        - charm-build-ironic-k8s:
             nodeset: ubuntu-jammy
         - charm-build-octavia-k8s:
             nodeset: ubuntu-jammy
@@ -211,6 +215,8 @@
             - publish-charm-horizon-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-heat-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-ironic-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-octavia-k8s:
                 nodeset: ubuntu-jammy

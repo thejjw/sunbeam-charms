@@ -1,0 +1,28 @@
+##############################################
+# [ WARNING ]
+# ironic configuration file maintained by Juju
+# local changes may be overwritten.
+##############################################
+
+[DEFAULT]
+debug = {{ options.debug }}
+transport_url = {{ amqp.transport_url }}
+auth_strategy = keystone
+
+{% include "parts/section-database" %}
+
+{% include "parts/section-identity" %}
+
+{% include "parts/section-service-user" %}
+
+{% include "parts/section-oslo-messaging-rabbit" %}
+
+[oslo_concurrency]
+lock_path = /var/lib/ironic/tmp
+
+[audit]
+enabled = true
+audit_map_file = /etc/ironic/api_audit_map.conf
+
+[healthcheck]
+enabled = true
