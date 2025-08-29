@@ -18,6 +18,7 @@
 
 
 import collections
+import json
 import logging
 import os
 import subprocess
@@ -162,3 +163,34 @@ def get_cpu_numa_architecture() -> dict:
         numa_nodes[int(numa_node_id)].append(int(core_id))
 
     return dict(numa_nodes)
+
+
+def get_systemd_unit_status(unit_name: str) -> dict[str, str] | None:
+    """Get Systemd unit status information."""
+    result = subprocess.run(
+        [
+            "systemctl",
+            "list-units",
+            "--all",
+            "-o",
+            "json",
+            "--no-pager",
+            unit_name,
+        ],
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    units = json.loads(result.stdout)
+
+    for unit_info in units:
+        name = unit_info["unit"]
+        if name != unit_name:
+            continue
+        return {
+            "name": name,
+            "description": unit_info["description"],
+            "load_state": unit_info["load"],
+            "active_state": unit_info["active"],
+            "substate": unit_info["sub"],
+        }
