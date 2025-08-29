@@ -16,6 +16,24 @@
       "message": "There\u0027s one other thing that we\u0027ll need to do in order for netplan to pick up our ovs installation, define snap aliases:\n\n```\nsudo snap alias openstack-hypervisor.ovs-vsctl ovs-vsctl\n```\n\nNeed to double check if other aliases are required as well (e.g. ovs-dpctl, ovs-appctl, etc).",
       "revId": "77da689c98d1c878e18c4d171452f7f290134b51",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d4b48bd_4e9f8f0c",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 632,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-08-29T06:24:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ec2c402_8a32e62f",
+      "revId": "77da689c98d1c878e18c4d171452f7f290134b51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
