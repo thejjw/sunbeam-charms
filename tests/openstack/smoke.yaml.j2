@@ -241,6 +241,20 @@ applications:
     resources:
       heat-api-image: ghcr.io/canonical/heat-consolidated:2024.1
       heat-engine-image:  ghcr.io/canonical/heat-consolidated:2024.1
+  # Bare metal feature
+  ironic:
+    {% if ironic_k8s is defined and ironic_k8s is sameas true -%}
+    charm: ../../../ironic-k8s.charm
+    {% else -%}
+    charm: ch:ironic-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      ironic-api-image: ghcr.io/canonical/ironic-consolidated:2024.1
+      ironic-novncproxy-image: ghcr.io/canonical/ironic-consolidated:2024.1
   # Load Balancer feature
   octavia:
     {% if octavia_k8s is defined and octavia_k8s is sameas true -%}
@@ -516,6 +530,19 @@ relations:
   - heat:amqp
 - - keystone:send-ca-cert
   - heat:receive-ca-cert
+
+- - mysql:database
+  - ironic:database
+- - keystone:identity-service
+  - ironic:identity-service
+- - traefik:ingress
+  - ironic:ingress-internal
+- - traefik:traefik-route
+  - ironic:traefik-route-internal
+- - rabbitmq:amqp
+  - ironic:amqp
+- - keystone:send-ca-cert
+  - ironic:receive-ca-cert
 
 - - mysql:database
   - octavia:database
