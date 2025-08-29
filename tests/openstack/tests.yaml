@@ -96,6 +96,9 @@ target_deploy_status:
   heat:
     workload-status: active
     workload-status-message-regex: '^.*$'
+  ironic:
+    workload-status: active
+    workload-status-message-regex: '^.*$'
   octavia:
     workload-status: active
     workload-status-message-regex: '^$'
