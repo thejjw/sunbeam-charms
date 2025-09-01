@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f0988788_47082754",
+        "filename": "charms/magnum-k8s/charmcraft.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-01T07:56:12Z",
+      "side": 1,
+      "message": "Asked offline, this is to allow any k8s for users. This is a poweruser type move.",
+      "parentUuid": "94596e29_d217c63d",
+      "range": {
+        "startLine": 57,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 22
+      },
+      "revId": "9dd4633164eaf87b2c5cb5af14a10e25a2c7f54c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8aad13d3_f1a1aff6",
         "filename": "charms/magnum-k8s/src/templates/magnum.conf.j2",
         "patchSetId": 2
