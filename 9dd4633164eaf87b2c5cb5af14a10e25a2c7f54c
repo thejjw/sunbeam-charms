@@ -22,6 +22,29 @@
       },
       "revId": "9dd4633164eaf87b2c5cb5af14a10e25a2c7f54c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8aad13d3_f1a1aff6",
+        "filename": "charms/magnum-k8s/src/templates/magnum.conf.j2",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-01T07:55:36Z",
+      "side": 1,
+      "message": "allowed_network_drivers should be referenced from config then.",
+      "range": {
+        "startLine": 72,
+        "startChar": 37,
+        "endLine": 72,
+        "endChar": 43
+      },
+      "revId": "9dd4633164eaf87b2c5cb5af14a10e25a2c7f54c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
