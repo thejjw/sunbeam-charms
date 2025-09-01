@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94596e29_d217c63d",
+        "filename": "charms/magnum-k8s/charmcraft.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-01T07:52:59Z",
+      "side": 1,
+      "message": "Is there any reason to expose this as a config option?",
+      "range": {
+        "startLine": 57,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 22
+      },
+      "revId": "9dd4633164eaf87b2c5cb5af14a10e25a2c7f54c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
