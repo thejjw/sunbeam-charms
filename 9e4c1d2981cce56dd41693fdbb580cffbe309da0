@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc22aaef_d1835161",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-01T08:54:09Z",
+      "side": 1,
+      "message": "This is a good initial charm for cloudkitty-k8s.\n\nI would like to see the gnocchi relation materialized, because without it, we can\u0027t expect from looking at the charm that gnocchi is actually needed.",
+      "revId": "9e4c1d2981cce56dd41693fdbb580cffbe309da0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65a75de2_79f001d9",
+        "filename": "charms/cloudkitty-k8s/build-requirements.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-01T08:54:09Z",
+      "side": 1,
+      "message": "This file is not needed.",
+      "revId": "9e4c1d2981cce56dd41693fdbb580cffbe309da0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
