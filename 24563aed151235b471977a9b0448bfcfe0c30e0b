@@ -33,6 +33,23 @@
       "message": "It seems there\u0027s some issue with barbican, which is why the test fails. Manila becomes \"Available\".",
       "revId": "24563aed151235b471977a9b0448bfcfe0c30e0b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4102997d_a65b77f5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-09-01T16:01:05Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "24563aed151235b471977a9b0448bfcfe0c30e0b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
