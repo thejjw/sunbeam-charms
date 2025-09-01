@@ -35,7 +35,7 @@
         POD_NAME=$(echo $UNIT_NAME | sed -e 's!/!-!')
         CONTAINERS=$(sudo k8s kubectl get pods -n $MODEL_NAME $POD_NAME -o jsonpath='{.spec.containers[*].name}' | sed -e 's/charm //')
         for CONTAINER in $CONTAINERS; do
-            juju ssh --container $CONTAINER -m $MODEL_NAME $UNIT_NAME "tar zcf /tmp/logs.tgz /var/log/"
+            juju ssh --container $CONTAINER -m $MODEL_NAME $UNIT_NAME "tar zcf /tmp/logs.tgz /var/log/ /etc/"
             juju scp --container $CONTAINER -m $MODEL_NAME $UNIT_NAME:/tmp/logs.tgz {{ zuul.project.src_dir }}/log/$POD_NAME-$CONTAINER.tgz
         done
     done
