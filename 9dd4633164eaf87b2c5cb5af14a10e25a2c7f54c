@@ -48,6 +48,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "84f499e4_6c560608",
+        "filename": "charms/magnum-k8s/charmcraft.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-01T08:00:03Z",
+      "side": 1,
+      "message": "yes",
+      "parentUuid": "f0988788_47082754",
+      "range": {
+        "startLine": 57,
+        "startChar": 4,
+        "endLine": 57,
+        "endChar": 22
+      },
+      "revId": "9dd4633164eaf87b2c5cb5af14a10e25a2c7f54c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8aad13d3_f1a1aff6",
@@ -61,6 +85,30 @@
       "writtenOn": "2025-09-01T07:55:36Z",
       "side": 1,
       "message": "allowed_network_drivers should be referenced from config then.",
+      "range": {
+        "startLine": 72,
+        "startChar": 37,
+        "endLine": 72,
+        "endChar": 43
+      },
+      "revId": "9dd4633164eaf87b2c5cb5af14a10e25a2c7f54c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "59a63055_7f035eb2",
+        "filename": "charms/magnum-k8s/src/templates/magnum.conf.j2",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-01T08:00:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8aad13d3_f1a1aff6",
       "range": {
         "startLine": 72,
         "startChar": 37,
