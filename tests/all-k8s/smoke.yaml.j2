@@ -239,6 +239,18 @@ applications:
     resources:
       ironic-api-image: ghcr.io/canonical/ironic-consolidated:2025.1
       ironic-novncproxy-image: ghcr.io/canonical/ironic-consolidated:2025.1
+  ironic-conductor:
+    {% if ironic_conductor_k8s is defined and ironic_conductor_k8s is sameas true -%}
+    charm: ../../../ironic-conductor-k8s.charm
+    {% else -%}
+    charm: ch:ironic-conductor-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      ironic-conductor-image: ghcr.io/canonical/ironic-conductor:2025.1
   # Load Balancer feature
   octavia:
     {% if octavia_k8s is defined and octavia_k8s is sameas true -%}
