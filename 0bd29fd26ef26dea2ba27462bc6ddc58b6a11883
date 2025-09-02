@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8aa4ff67_1d181599",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-02T10:43:55Z",
+      "side": 1,
+      "message": "recheck openstack-images-sync image issue fixed and published",
+      "revId": "0bd29fd26ef26dea2ba27462bc6ddc58b6a11883",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
