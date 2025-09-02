@@ -1,0 +1,94 @@
+type: charm
+title: OpenStack Ironic Conductor service
+name: ironic-conductor-k8s
+summary: OpenStack bare metal provisioning conductor service
+description: |
+  ironic-conductor-k8s is a charm for the OpenStack Ironic service, a bare
+  metal provisioning service. The charm provides the ironic-conductor service.
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source: https://opendev.org/openstack/sunbeam-charms
+  issues: https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      description: Enable debug logging.
+      type: boolean
+    verbose:
+      default: False
+      description: Enable verbose logging.
+      type: boolean
+    conductor_group:
+      description: |
+        Key to limit the set of baremetal nodes managed by this ironic
+        conductor.
+      type: string
+
+containers:
+  ironic-conductor:
+    resource: ironic-conductor-image
+
+resources:
+  ironic-conductor-image:
+    type: oci-image
+    description: OCI image for OpenStack Ironic Conductor
+    upstream-source: ghcr.io/canonical/ironic-conductor:2025.1
+
+requires:
+  amqp:
+    interface: rabbitmq
+    limit: 1
+  database:
+    interface: mysql_client
+    limit: 1
+  identity-credentials:
+    interface: keystone-credentials
+    limit: 1
+  logging:
+    interface: loki_push_api
+    optional: true
+    limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - rustc-1.80
+      - cargo-1.80
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
