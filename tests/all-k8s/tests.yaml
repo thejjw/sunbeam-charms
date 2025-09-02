@@ -106,6 +106,9 @@ target_deploy_status:
   manila:
     workload-status: active
     workload-status-message-regex: '^$'
+  manila-cephfs:
+    workload-status: waiting
+    workload-status-message-regex: '^.*Not all relations are ready$'
   cinder:
     workload-status: active
     workload-status-message-regex: '^$'
