@@ -53,6 +53,7 @@ The following relations are optional:
 
 - `ingress-public`: To expose service on public network.
 - `logging`: To send logs to Loki.
+- `manila`: To connect Manila with a storage backend. At least one is required.
 - `receive-ca-cert`: To enable TLS on the service endpoints.
 - `tracing`: To connect to a tracing backend.
 

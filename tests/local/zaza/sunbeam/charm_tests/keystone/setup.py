@@ -27,6 +27,10 @@ SERVICE_CODES = {
     "gnocchi": [requests.codes.bad_gateway, requests.codes.service_unavailable],
     "heat-cfn": [requests.codes.bad_request],
     "heat": [requests.codes.bad_request],
+    "manilav2": [
+        requests.codes.bad_gateway,
+        requests.codes.service_unavailable,
+    ],
 }
 
 

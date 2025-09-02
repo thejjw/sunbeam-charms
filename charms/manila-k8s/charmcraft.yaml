@@ -64,6 +64,8 @@ requires:
     interface: loki_push_api
     optional: true
     limit: 1
+  manila:
+    interface: manila-backend
   receive-ca-cert:
     interface: certificate_transfer
     optional: true
