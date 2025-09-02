@@ -1,4 +1,5 @@
 external-libraries:
+  - charms.ceph_nfs_client.v0.ceph_nfs_client
   - charms.data_platform_libs.v0.data_interfaces
   - charms.rabbitmq_k8s.v0.rabbitmq
   - charms.loki_k8s.v1.loki_push_api

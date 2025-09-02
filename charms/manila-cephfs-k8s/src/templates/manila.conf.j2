@@ -11,6 +11,10 @@ debug = {{ options.debug }}
 transport_url = {{ amqp.transport_url }}
 auth_strategy = keystone
 
+{%- if cephfs_config.share_backend_name %}
+enabled_share_backends = {{ cephfs_config.share_backend_name | lower }}
+{%- endif %}
+
 {% include "parts/section-database" %}
 
 [keystone_authtoken]
@@ -22,3 +26,17 @@ auth_strategy = keystone
 
 [oslo_concurrency]
 lock_path = /var/lib/manila/tmp
+
+{% if cephfs_config.share_backend_name -%}
+[{{ cephfs_config.share_backend_name | lower }}]
+driver_handles_share_servers = False
+share_driver = manila.share.drivers.cephfs.driver.CephFSDriver
+cephfs_conf_path = /etc/ceph/ceph.conf
+cephfs_protocol_helper_type = NFS
+
+share_backend_name = {{ cephfs_config.share_backend_name }}
+cephfs_auth_id = {{ cephfs_config.cephfs_auth_id }}
+cephfs_cluster_name = {{ cephfs_config.cephfs_cluster_name }}
+cephfs_nfs_cluster_id = {{ cephfs_config.cephfs_cluster_name }}
+cephfs_filesystem_name = {{ cephfs_config.cephfs_filesystem_name }}
+{% endif -%}
