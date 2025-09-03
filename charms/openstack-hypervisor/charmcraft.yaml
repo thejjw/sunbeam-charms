@@ -147,6 +147,18 @@ actions:
               ]
 
           A device spec that doesn't contain any excluded devices will not be modified.
+      ovs-dpdk-ports:
+        type: string
+        description: |
+          Comma separated list of interface names that will be used with DPDK.
+
+          The interfaces will be bound to the DPDK-compatible driver (vfio-pci by default) and
+          corresponding DPDK ports will be created in OVS. Any bridges and bonds that use
+          those interfaces will be updated with the resulting DPDK ports, based on the
+          MAAS/Netplan configuration.
+
+          The NUMA nodes of those interfaces will be used to determine pinned CPUs
+          and huge pages used by OVS.
     additionalProperties: false
   list-nics:
     description: |

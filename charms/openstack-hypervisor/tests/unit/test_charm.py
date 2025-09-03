@@ -552,6 +552,73 @@ network:
             self.harness.charm._bitmask_to_core_list(0x1010101),
         )
 
+    @mock.patch("utils.get_pci_numa_node")
+    def test_get_dpdk_numa_nodes(self, mock_get_pci_numa_node):
+        """Test retrieving numa nodes based on DPDK ports."""
+        self.harness.begin()
+
+        dpdk_port_mappings = {
+            "ports": {
+                "eno3": {
+                    "pci_address": "0000:1a:00.0",
+                    "mtu": 1500,
+                    "bridge": None,
+                    "bond": "bond0",
+                    "dpdk_port_name": "dpdk-eno3",
+                },
+                "eno4": {
+                    "pci_address": "0000:1a:00.1",
+                    "mtu": 1500,
+                    "bridge": None,
+                    "bond": "bond0",
+                    "dpdk_port_name": "dpdk-eno4",
+                },
+            },
+            "bonds": {
+                "bond0": {
+                    "ports": ["eno3", "eno4"],
+                    "bridge": "br-dpdk",
+                    "bond_mode": "balance-tcp",
+                    "lacp_mode": "active",
+                    "lacp_time": "slow",
+                    "mtu": 1500,
+                }
+            },
+        }
+
+        hypervisor_snap_mock = mock.Mock()
+        hypervisor_snap_mock.present = True
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+        }
+        hypervisor_snap_mock.get.return_value = dpdk_port_mappings
+        mock_get_pci_numa_node.side_effect = (
+            lambda address: "numa-%s" % address
+        )
+
+        numa_nodes = self.harness.charm._get_dpdk_numa_nodes()
+        expected_numa_nodes = ["numa-0000:1a:00.0", "numa-0000:1a:00.1"]
+        self.assertEqual(expected_numa_nodes, numa_nodes)
+
+    @mock.patch("utils.get_pci_numa_node")
+    def test_get_dpdk_numa_nodes_no_interfaces(self, mock_get_pci_numa_node):
+        """Test retrieving numa nodes, no DPDK ports."""
+        self.harness.begin()
+
+        hypervisor_snap_mock = mock.Mock()
+        hypervisor_snap_mock.present = True
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+        }
+        hypervisor_snap_mock.get.return_value = None
+        mock_get_pci_numa_node.side_effect = (
+            lambda address: "numa-%s" % address
+        )
+
+        numa_nodes = self.harness.charm._get_dpdk_numa_nodes()
+        expected_numa_nodes = [0]
+        self.assertEqual(expected_numa_nodes, numa_nodes)
+
     @mock.patch("charm.HypervisorOperatorCharm._get_dpdk_settings_override")
     @mock.patch("charm.HypervisorOperatorCharm._get_dpdk_numa_nodes")
     @mock.patch("utils.get_cpu_numa_architecture")
@@ -655,6 +722,7 @@ network:
             "network.ovs-memory": "2048,0",
             "network.ovs-lcore-mask": "0x5",
             "network.ovs-pmd-cpu-mask": "0x50",
+            "network.dpdk-driver": "vfio-pci",
         }
         self._check_handle_ovs_dpdk_mocks(
             expected_snap_settings=expected_snap_settings
@@ -707,6 +775,7 @@ network:
                 "dpdk-datapath-cores": 2,
                 "dpdk-control-plane-cores": 2,
                 "dpdk-memory": 2048,
+                "dpdk-driver": "test-driver",
             }
         )
         expected_snap_settings = {
@@ -714,6 +783,7 @@ network:
             "network.ovs-memory": "2048",
             "network.ovs-lcore-mask": "0x5",
             "network.ovs-pmd-cpu-mask": "0x50",
+            "network.dpdk-driver": "test-driver",
         }
         self._check_handle_ovs_dpdk_mocks(
             expected_snap_settings=expected_snap_settings, numa_available=False
@@ -735,12 +805,12 @@ network:
             charm.EPA_ALLOCATION_OVS_DPDK_HUGEPAGES, 2, 1024 * 1024, 0
         )
 
-    @mock.patch("shutil.which")
-    def test_clear_system_ovs_datapaths(self, mock_which):
+    @mock.patch("os.path.exists")
+    def test_clear_system_ovs_datapaths(self, mock_path_exists):
         """Test clearing system ovs datapaths."""
         self.harness.begin()
 
-        mock_which.return_value = "/usr/bin/ovs-dpctl"
+        mock_path_exists.return_value = True
         self.subprocess.run.side_effect = [
             mock.Mock(stdout="dp1\ndp2"),
             mock.Mock(stdout=None),
@@ -752,22 +822,24 @@ network:
         self.subprocess.run.assert_has_calls(
             [
                 mock.call(
-                    ["ovs-dpctl", "dump-dps"],
+                    ["/usr/bin/ovs-dpctl", "dump-dps"],
                     capture_output=True,
                     text=True,
                     check=True,
                 ),
-                mock.call(["ovs-dpctl", "del-dp", "dp1"], check=True),
-                mock.call(["ovs-dpctl", "del-dp", "dp2"], check=True),
+                mock.call(["/usr/bin/ovs-dpctl", "del-dp", "dp1"], check=True),
+                mock.call(["/usr/bin/ovs-dpctl", "del-dp", "dp2"], check=True),
             ]
         )
 
-    @mock.patch("shutil.which")
-    def test_clear_system_ovs_datapaths_missing_ovs_dpctl(self, mock_which):
+    @mock.patch("os.path.exists")
+    def test_clear_system_ovs_datapaths_missing_ovs_dpctl(
+        self, mock_path_exists
+    ):
         """Test clearing system ovs datapaths, no ovs-dpctl found."""
         self.harness.begin()
 
-        mock_which.return_value = None
+        mock_path_exists.return_value = False
         self.harness.charm._clear_system_ovs_datapaths()
         self.subprocess.run.assert_not_called()
 

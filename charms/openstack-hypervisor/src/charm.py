@@ -23,10 +23,10 @@ This charm provide hypervisor services as part of an OpenStack deployment
 import base64
 import functools
 import io
+import json
 import logging
 import os
 import secrets
-import shutil
 import socket
 import string
 import subprocess
@@ -387,10 +387,11 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def _set_hypervisor_local_settings_action(self, event: ActionEvent):
         """Run set_hypervisor_local_settings action."""
         local_settings = [
-            "network.external-nic",
             "compute.spice-proxy-address",
-            "network.ip-address",
             "compute.pci-excluded-devices",
+            "network.external-nic",
+            "network.ip-address",
+            "network.ovs-dpdk-ports",
         ]
         new_snap_settings = {}
         for setting in local_settings:
@@ -399,6 +400,13 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 new_snap_settings[setting] = event.params.get(action_param)
         if new_snap_settings:
             self.set_snap_data(new_snap_settings)
+
+        # The OVS pinned cpus and memory need to be reconfigured based on
+        # the list of DPDK ports.
+        configure_required = "network.ovs-dpdk-ports" in new_snap_settings
+        if configure_required:
+            logger.info("The OVS DPDK ports changed, reconfiguring charm.")
+            self.configure_charm(event)
 
     def _hypervisor_cli_cmd(self, cmd: str):
         """Helper to run cli commands on the snap."""
@@ -545,22 +553,26 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def _clear_system_ovs_datapaths(self):
         logger.info("Clearing system OVS datapaths.")
 
-        if not shutil.which("ovs-dpctl"):
+        system_ovs_dpctl = "/usr/bin/ovs-dpctl"
+        if not os.path.exists(system_ovs_dpctl):
             logger.info(
-                "ovs-dpctl not found, skipped clearing system OVS datapaths."
+                "System ovs-dpctl not found, skipped clearing system OVS datapaths."
             )
             return
 
         result = subprocess.run(
-            ["ovs-dpctl", "dump-dps"],
+            [system_ovs_dpctl, "dump-dps"],
             capture_output=True,
             text=True,
             check=True,
         )
         datapaths = result.stdout.strip().split("\n")
         for datapath in datapaths:
+            datapath = datapath.strip()
+            if not datapath:
+                continue
             logger.info("Removing OVS datapath: %s", datapath)
-            subprocess.run(["ovs-dpctl", "del-dp", datapath], check=True)
+            subprocess.run([system_ovs_dpctl, "del-dp", datapath], check=True)
 
     def _disable_system_ovs(self) -> bool:
         """Disable deb installed OVS.
@@ -904,10 +916,36 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             core_bitmask >>= 1
         return cores
 
-    def _get_dpdk_nics_pci_ids(self) -> list[str]:
+    def _get_dpdk_nics_pci_addresses(self) -> list[str]:
         """Obtain the PCI addresses of the nics used with DPDK."""
-        # TODO: get the list of DPDK ports through charm actions.
-        return []
+        cache = self.get_snap_cache()
+        hypervisor = cache["openstack-hypervisor"]
+        try:
+            dpdk_port_mappings = (
+                hypervisor.get("internal.dpdk-port-mappings", typed=True) or {}
+            )
+        except snap.SnapError as e:
+            logger.info("Unable to retrieve dpdk port mappings, error: %s", e)
+            return []
+
+        if isinstance(dpdk_port_mappings, str):
+            dpdk_port_mappings = json.loads(dpdk_port_mappings)
+
+        dpdk_ports = dpdk_port_mappings.get("ports")
+        if not dpdk_ports:
+            logger.info("No DPDK ports available.")
+            return []
+
+        pci_addresses = []
+        for interface_name, port_info in dpdk_ports.items():
+            logger.info(
+                "Found DPDK port: %s -> %s",
+                interface_name,
+                port_info["pci_address"],
+            )
+            pci_addresses.append(port_info["pci_address"])
+
+        return pci_addresses
 
     def _get_dpdk_numa_nodes(self) -> list[int]:
         """Get the list of NUMA nodes that will be used with DPDK.
@@ -915,13 +953,18 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         We'll use the list of bridged physical ports to determine
         NUMA placement.
         """
-        dpdk_iface_pci_ids = self._get_dpdk_nics_pci_ids()
+        dpdk_iface_pci_addresses = self._get_dpdk_nics_pci_addresses()
 
         numa_nodes = []
-        for pci_id in dpdk_iface_pci_ids:
-            numa_node = utils.get_pci_numa_node(pci_id)
-            if numa_node:
-                numa_nodes.append(numa_nodes)
+        for pci_address in dpdk_iface_pci_addresses:
+            numa_node = utils.get_pci_numa_node(pci_address)
+            if numa_node is not None:
+                logger.info(
+                    "Detected DPDK port NUMA node: %s -> %s",
+                    pci_address,
+                    numa_node,
+                )
+                numa_nodes.append(numa_node)
 
         if not numa_nodes:
             logging.info(
@@ -1016,6 +1059,8 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             logger.info("DPDK disabled.")
             self._clear_dpdk_allocations()
             return updates
+
+        updates["network.dpdk-driver"] = dpdk_config("dpdk-driver")
 
         datapath_num_cores = dpdk_config("dpdk-datapath-cores")
         cp_num_cores = dpdk_config("dpdk-control-plane-cores")
