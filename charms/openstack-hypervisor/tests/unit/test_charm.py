@@ -454,6 +454,9 @@ class TestCharm(test_utils.CharmTestCase):
         hypervisor_snap_mock.connect.assert_called_once_with(
             charm.EPA_INFO_PLUG, slot=charm.EPA_INFO_SLOT
         )
+        hypervisor_snap_mock.set.assert_called_once()
+        args, kwargs = hypervisor_snap_mock.set.call_args
+        self.assertIn("configure-trigger", args[0])
 
     def test_snap_connect_failure_snaperror(self):
         """Test snap connect failure with SnapError."""
