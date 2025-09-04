@@ -30,6 +30,10 @@ import secrets
 import socket
 import string
 import subprocess
+from datetime import (
+    datetime,
+    timezone,
+)
 from typing import (
     List,
     Optional,
@@ -662,9 +666,21 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             return
 
         try:
+            # Temporary manual connection and hook trigger until ownership is transferred
+            # to Canonical.
             hypervisor.connect(EPA_INFO_PLUG, slot=EPA_INFO_SLOT)
             logger.info(
                 "Successfully connected openstack-hypervisor to epa-orchestrator"
+            )
+            hypervisor.set(
+                {
+                    "configure-trigger": int(
+                        datetime.now(timezone.utc).timestamp()
+                    )
+                }
+            )
+            logger.info(
+                "Triggered configure hook via snap set on openstack-hypervisor"
             )
         except snap.SnapError as e:
             logger.error(f"Failed to connect to epa-orchestrator: {e.message}")
