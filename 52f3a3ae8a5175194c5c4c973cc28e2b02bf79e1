@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7981a3c1_0b1fa8eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-05T05:20:43Z",
+      "side": 1,
+      "message": "Just curious if it is possible to achieve this using interface hook https://snapcraft.io/docs/supported-snap-hooks",
+      "revId": "52f3a3ae8a5175194c5c4c973cc28e2b02bf79e1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
