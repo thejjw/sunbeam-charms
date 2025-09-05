@@ -1272,7 +1272,7 @@ class TlsCertificatesHandler(RelationHandler):
             )
             return
 
-        if self.ready:
+        if not renew and self.ready:
             logger.debug("Certificate request already complete.")
             return
 
