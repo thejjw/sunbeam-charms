@@ -68,6 +68,11 @@ ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
 [audit_middleware_notifications]
 driver = log
 
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+[drivers]
+openstack_ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}
+
 [cluster_template]
 kubernetes_allowed_network_drivers = {{ options.allowed_network_drivers }}
 
