@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8de69c76_60b2d848",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-05T09:04:48Z",
+      "side": 1,
+      "message": "recheck\n\ncontroller failed to bootstrap",
+      "revId": "df1d4924833278dea807de2bd42e94359b707216",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
