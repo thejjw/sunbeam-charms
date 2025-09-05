@@ -557,6 +557,11 @@ network:
         """Test retrieving numa nodes based on DPDK ports."""
         self.harness.begin()
 
+        dpdk_numa_nodes = {
+            "0000:1a:00.0": 0,
+            "0000:1a:00.1": 0,
+            "0000:ff:00.1": 1,
+        }
         dpdk_port_mappings = {
             "ports": {
                 "eno3": {
@@ -572,6 +577,12 @@ network:
                     "bridge": None,
                     "bond": "bond0",
                     "dpdk_port_name": "dpdk-eno4",
+                },
+                "eno5": {
+                    "pci_address": "0000:ff:00.1",
+                    "mtu": 1500,
+                    "bridge": "br1",
+                    "dpdk_port_name": "dpdk-eno5",
                 },
             },
             "bonds": {
@@ -592,12 +603,12 @@ network:
             "openstack-hypervisor": hypervisor_snap_mock,
         }
         hypervisor_snap_mock.get.return_value = dpdk_port_mappings
-        mock_get_pci_numa_node.side_effect = (
-            lambda address: "numa-%s" % address
-        )
+        mock_get_pci_numa_node.side_effect = lambda address: dpdk_numa_nodes[
+            address
+        ]
 
         numa_nodes = self.harness.charm._get_dpdk_numa_nodes()
-        expected_numa_nodes = ["numa-0000:1a:00.0", "numa-0000:1a:00.1"]
+        expected_numa_nodes = [0, 1]
         self.assertEqual(expected_numa_nodes, numa_nodes)
 
     @mock.patch("utils.get_pci_numa_node")
