@@ -54,6 +54,9 @@ from charms.nova_k8s.v0.nova_service import (
     NovaConfigChangedEvent,
     NovaServiceGoneAwayEvent,
 )
+from charms.operator_libs_linux.v1.systemd import (
+    service_running,
+)
 from cryptography import (
     x509,
 )
@@ -553,8 +556,21 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Return snap cache."""
         return snap.SnapCache()
 
+    def check_system_services(self) -> None:
+        """Check if system services are in desired state."""
+        if service_running("openvswitch-switch.service"):
+            logger.error(
+                "OpenVSwitch service is running, please stop it before proceeding. "
+                "OpenVSwitch is managed by the openstack-hypervisor snap and will "
+                "conflict with the snap's operation."
+            )
+            raise sunbeam_guard.BlockedExceptionError(
+                "Breaking: OpenVSwitch service is running on the host."
+            )
+
     def configure_unit(self, event) -> None:
         """Run configuration on this unit."""
+        self.check_system_services()
         self.check_leader_ready()
         self.check_relation_handlers_ready(event)
         config = self.model.config.get

@@ -25,6 +25,7 @@ import charms.operator_libs_linux.v2.snap as snap
 import ops
 import ops.testing
 import ops_sunbeam.test_utils as test_utils
+from ops_sunbeam import guard as sunbeam_guard
 
 
 class _HypervisorOperatorCharm(charm.HypervisorOperatorCharm):
@@ -45,11 +46,13 @@ class TestCharm(test_utils.CharmTestCase):
         "get_local_ip_by_default_route",
         "os",
         "subprocess",
+        "service_running",
     ]
 
     def setUp(self):
         """Setup OpenStack Hypervisor tests."""
         super().setUp(charm, self.PATCHES)
+        self.service_running.return_value = False
 
         self.snap.SnapError = Exception
         self.harness = test_utils.get_harness(
@@ -421,3 +424,17 @@ class TestCharm(test_utils.CharmTestCase):
 
         with self.assertRaises(snap.SnapError):
             self.harness.charm._connect_to_epa_orchestrator()
+
+    def test_check_system_services_raises_when_ovs_running(self):
+        """Test check_system_services raises BlockedExceptionError if OVS is running."""
+        self.service_running.return_value = True
+        self.harness.begin()
+        with self.assertRaises(sunbeam_guard.BlockedExceptionError):
+            self.harness.charm.check_system_services()
+
+    def test_check_system_services_passes_when_ovs_not_running(self):
+        """Test check_system_services does nothing if OVS is not running."""
+        self.service_running.return_value = False
+        self.harness.begin()
+        # Should not raise
+        self.harness.charm.check_system_services()
