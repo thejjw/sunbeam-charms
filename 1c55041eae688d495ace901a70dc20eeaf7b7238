@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b3219ce_48567096",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-09-08T14:23:07Z",
+      "side": 1,
+      "message": "The other thing that strikes me that is missing is certificates. I think those should potentially be secrets as well for rotation, since the Hitachi devices can present their own certificates for TLS connections if I\u0027m not mistaken.",
+      "revId": "1c55041eae688d495ace901a70dc20eeaf7b7238",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}

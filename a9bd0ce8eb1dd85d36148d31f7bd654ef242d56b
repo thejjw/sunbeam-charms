@@ -16,6 +16,40 @@
       "message": "Hey Billy!, thanks for taking the time and valuable review. i have addressed your observations and modified all the sensitive credentials to be managed via juju secrets.\n\nalso removed the options that where obsolete deprectated as requested.",
       "revId": "a9bd0ce8eb1dd85d36148d31f7bd654ef242d56b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8979ee1e_a0eaafc1",
+        "filename": "charms/cinder-volume-hitachi/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-09-08T14:23:07Z",
+      "side": 1,
+      "message": "This feels to me like it could be a common method since there will be multiple storage charms that use iSCSI.",
+      "revId": "a9bd0ce8eb1dd85d36148d31f7bd654ef242d56b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a64ddd32_9ca06488",
+        "filename": "charms/cinder-volume-hitachi/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-09-08T14:23:07Z",
+      "side": 1,
+      "message": "This should be only necessary in the short term or for debug purposes. I expect that this is used for being able to deploy and connect new and missing interfaces ?",
+      "revId": "a9bd0ce8eb1dd85d36148d31f7bd654ef242d56b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
