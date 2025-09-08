@@ -933,7 +933,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         numa_nodes = []
         for pci_address in dpdk_iface_pci_addresses:
             numa_node = utils.get_pci_numa_node(pci_address)
-            if numa_node is not None:
+            if numa_node is not None and numa_node not in numa_nodes:
                 logger.info(
                     "Detected DPDK port NUMA node: %s -> %s",
                     pci_address,
@@ -1041,17 +1041,20 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         cp_num_cores = dpdk_config("dpdk-control-plane-cores")
         total_memory_mb = dpdk_config("dpdk-memory")
 
-        logger.info(
-            "DPDK configuration: "
-            "control plane cores: %s, datapath cores: %s, dpdk memory (MB): %s",
-            cp_num_cores,
-            datapath_num_cores,
-            total_memory_mb,
-        )
-
         dpdk_numa_nodes = self._get_dpdk_numa_nodes()
         numa_architecture = utils.get_cpu_numa_architecture()
         all_numa_nodes = list(range(len(numa_architecture)))
+
+        logger.info(
+            "DPDK configuration: "
+            "control plane cores: %s, datapath cores: %s, dpdk memory (MB): %s, "
+            "DPDK numa nodes: %s, total numa nodes: %s",
+            cp_num_cores,
+            datapath_num_cores,
+            total_memory_mb,
+            dpdk_numa_nodes,
+            len(all_numa_nodes),
+        )
 
         if total_memory_mb:
             memory_mb_per_numa_node = int(total_memory_mb) // len(
