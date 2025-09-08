@@ -16,6 +16,24 @@
       "message": "Just curious if it is possible to achieve this using interface hook https://snapcraft.io/docs/supported-snap-hooks",
       "revId": "52f3a3ae8a5175194c5c4c973cc28e2b02bf79e1",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3f551946_1308e392",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-09-08T10:09:16Z",
+      "side": 1,
+      "message": "Interface-based reconfigure is possible but it requires that the snap implements the EPA interface hooks. This quick solution is temporary anyway and I will remove this connection once the ownership of the snap is transferred to Canonical which will then auto-connect these both snaps.",
+      "parentUuid": "7981a3c1_0b1fa8eb",
+      "revId": "52f3a3ae8a5175194c5c4c973cc28e2b02bf79e1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
