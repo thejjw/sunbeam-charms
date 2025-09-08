@@ -32,7 +32,6 @@ import jsonschema
 import ops
 import ops.testing
 import ops_sunbeam.test_utils as test_utils
-from ops_sunbeam import guard as sunbeam_guard
 
 
 class _HypervisorOperatorCharm(charm.HypervisorOperatorCharm):
@@ -52,7 +51,6 @@ class TestCharm(test_utils.CharmTestCase):
         "snap",
         "get_local_ip_by_default_route",
         "subprocess",
-        "service_running",
         "epa_client",
     ]
 
@@ -60,7 +58,6 @@ class TestCharm(test_utils.CharmTestCase):
         """Setup OpenStack Hypervisor tests."""
         super().setUp(charm, self.PATCHES)
         self.patch_obj(os, "system")
-        self.service_running.return_value = False
 
         self.snap.SnapError = Exception
         self.harness = test_utils.get_harness(
@@ -435,20 +432,6 @@ class TestCharm(test_utils.CharmTestCase):
         with self.assertRaises(snap.SnapError):
             self.harness.charm._connect_to_epa_orchestrator()
 
-    def test_check_system_services_raises_when_ovs_running(self):
-        """Test check_system_services raises BlockedExceptionError if OVS is running."""
-        self.service_running.return_value = True
-        self.harness.begin()
-        with self.assertRaises(sunbeam_guard.BlockedExceptionError):
-            self.harness.charm.check_system_services()
-
-    def test_check_system_services_passes_when_ovs_not_running(self):
-        """Test check_system_services does nothing if OVS is not running."""
-        self.service_running.return_value = False
-        self.harness.begin()
-        # Should not raise
-        self.harness.charm.check_system_services()
-
     @contextlib.contextmanager
     def _mock_dpdk_settings_file(self, dpdk_yaml):
         with tempfile.NamedTemporaryFile(mode="w") as f:
@@ -709,3 +692,105 @@ network:
         self.harness.charm._epa_client.allocate_hugepages.assert_called_once_with(
             charm.EPA_ALLOCATION_OVS_DPDK_HUGEPAGES, 2, 1024 * 1024, 0
         )
+
+    @mock.patch("shutil.which")
+    def test_clear_system_ovs_datapaths(self, mock_which):
+        """Test clearing system ovs datapaths."""
+        self.harness.begin()
+
+        mock_which.return_value = "/usr/bin/ovs-dpctl"
+        self.subprocess.run.side_effect = [
+            mock.Mock(stdout="dp1\ndp2"),
+            mock.Mock(stdout=None),
+            mock.Mock(stdout=None),
+        ]
+
+        self.harness.charm._clear_system_ovs_datapaths()
+
+        self.subprocess.run.assert_has_calls(
+            [
+                mock.call(
+                    ["ovs-dpctl", "dump-dps"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                ),
+                mock.call(["ovs-dpctl", "del-dp", "dp1"], check=True),
+                mock.call(["ovs-dpctl", "del-dp", "dp2"], check=True),
+            ]
+        )
+
+    @mock.patch("shutil.which")
+    def test_clear_system_ovs_datapaths_missing_ovs_dpctl(self, mock_which):
+        """Test clearing system ovs datapaths, no ovs-dpctl found."""
+        self.harness.begin()
+
+        mock_which.return_value = None
+        self.harness.charm._clear_system_ovs_datapaths()
+        self.subprocess.run.assert_not_called()
+
+    @mock.patch("utils.get_systemd_unit_status")
+    @mock.patch.object(
+        charm.HypervisorOperatorCharm, "_clear_system_ovs_datapaths"
+    )
+    def test_disable_system_ovs(self, mock_clear_datapaths, mock_get_status):
+        """Test disabling system ovs services."""
+        self.harness.begin()
+
+        mock_get_status.side_effect = [
+            {
+                "name": "openvswitch-switch.service",
+                "load_state": "masked",
+                "active_state": "active",
+                "substate": "running",
+            },
+            {
+                "name": "ovs-vswitchd.service",
+                "load_state": "loaded",
+                "active_state": "inactive",
+                "substate": "dead",
+            },
+            {
+                "name": "ovsdb-server.service",
+                "load_state": "loaded",
+                "active_state": "active",
+                "substate": "running",
+            },
+            None,
+        ]
+
+        ret_val = self.harness.charm._disable_system_ovs()
+        self.assertTrue(ret_val)
+
+        self.subprocess.run.assert_has_calls(
+            [
+                mock.call(
+                    ["systemctl", "stop", "openvswitch-switch.service"],
+                    check=True,
+                ),
+                mock.call(
+                    ["systemctl", "mask", "ovs-vswitchd.service"], check=True
+                ),
+                mock.call(
+                    ["systemctl", "stop", "ovsdb-server.service"], check=True
+                ),
+                mock.call(
+                    ["systemctl", "mask", "ovsdb-server.service"], check=True
+                ),
+            ]
+        )
+        mock_clear_datapaths.assert_called_once_with()
+
+    @mock.patch("utils.get_systemd_unit_status")
+    @mock.patch.object(
+        charm.HypervisorOperatorCharm, "_clear_system_ovs_datapaths"
+    )
+    def test_disable_system_ovs_missing(
+        self, mock_clear_datapaths, mock_get_status
+    ):
+        """Test disabling system ovs, no services found."""
+        self.harness.begin()
+        mock_get_status.return_value = None
+
+        ret_val = self.harness.charm._disable_system_ovs()
+        self.assertFalse(ret_val)
