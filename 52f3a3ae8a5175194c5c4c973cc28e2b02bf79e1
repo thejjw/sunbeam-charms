@@ -34,6 +34,24 @@
       "parentUuid": "7981a3c1_0b1fa8eb",
       "revId": "52f3a3ae8a5175194c5c4c973cc28e2b02bf79e1",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7cba0f3_011f4a1c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-08T10:14:58Z",
+      "side": 1,
+      "message": "ack, can you add a comment in the code as well as in commit message mentioning the same so that the logic can be deleted once the connection is automatic.",
+      "parentUuid": "3f551946_1308e392",
+      "revId": "52f3a3ae8a5175194c5c4c973cc28e2b02bf79e1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
