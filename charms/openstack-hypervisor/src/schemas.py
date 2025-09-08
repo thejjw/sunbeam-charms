@@ -32,4 +32,6 @@ properties:
                 type: integer
             dpdk-controlplane-cores:
                 type: integer
+            dpdk-driver:
+                type: string
 """
