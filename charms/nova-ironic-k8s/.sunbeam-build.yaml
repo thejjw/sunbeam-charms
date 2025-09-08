@@ -1,0 +1,19 @@
+external-libraries:
+  - charms.data_platform_libs.v0.data_interfaces
+  - charms.rabbitmq_k8s.v0.rabbitmq
+  - charms.traefik_route_k8s.v0.traefik_route
+  - charms.certificate_transfer_interface.v0.certificate_transfer
+  - charms.loki_k8s.v1.loki_push_api
+  - charms.tempo_k8s.v2.tracing
+  - charms.tempo_k8s.v1.charm_tracing
+internal-libraries:
+  - charms.keystone_k8s.v0.identity_credentials
+  - charms.sunbeam_libs.v0.service_readiness
+templates:
+  - parts/section-database
+  - parts/database-connection
+  - parts/database-connection-settings
+  - parts/identity-data-id-creds
+  - parts/section-oslo-messaging-rabbit
+  - parts/section-service-credentials-from-identity-service
+  - ca-bundle.pem.j2
