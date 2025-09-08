@@ -33,6 +33,24 @@
       "message": "@ahmad.hassan@canonical.com did you manage to solve the secrets being recreated issue?",
       "revId": "1f0ed47524a35d7a4c55e4b83d6fad09001ed7f3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f99dc1d8_74613d3b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2025-09-08T09:48:40Z",
+      "side": 1,
+      "message": "@gboutry Yes, when the dangling secret expires, it gets removed in existing on_secrets_expired flow https://github.com/canonical/tls-certificates-interface/blob/main/lib/charms/tls_certificates_interface/v3/tls_certificates.py#L2065\n\nso we don\u0027t need an additional logic for it.\n\nWhen the first secret expired, it will generate new set of certificates and two secrets holding each of those certificates.",
+      "parentUuid": "a804cdda_c8646437",
+      "revId": "1f0ed47524a35d7a4c55e4b83d6fad09001ed7f3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
