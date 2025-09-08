@@ -1,0 +1,46 @@
+############################################
+# [ WARNING ]
+# nova configuration file maintained by Juju
+# local changes may be overwritten.
+############################################
+
+[DEFAULT]
+debug = {{ options.debug }}
+verbose = {{ options.verbose }}
+transport_url = {{ amqp.transport_url }}
+auth_strategy = keystone
+
+# Always ironic
+compute_driver = ironic.IronicDriver
+
+# It is impossible to reserve any memory on bare metal nodes, so set this to zero.
+reserved_host_memory_mb = 0
+
+[filter_scheduler]
+# Enables querying of individual hosts for instance information.
+# Not possible for bare metal nodes, so set it to False.
+track_instance_changes = False
+
+[scheduler]
+discover_hosts_in_cells_interval = 120
+
+{% include "parts/section-database" %}
+
+[keystone_authtoken]
+{% include "parts/identity-data-id-creds" %}
+
+{% include "parts/section-service-credentials-from-identity-service" %}
+
+[placement]
+{% include "parts/identity-data-id-creds" %}
+
+[ironic]
+{% include "parts/identity-data-id-creds" %}
+
+{% include "parts/section-oslo-messaging-rabbit" %}
+
+[vnc]
+enabled = true
+
+[oslo_concurrency]
+lock_path = /var/lib/nova/tmp
