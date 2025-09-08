@@ -1,0 +1,64 @@
+type: charm
+name: openstack-network-agents
+title: OpenStack Network Agents (subordinate)
+summary: Subordinate charm to drive the openstack-network-agents snap
+description: |
+  Installs and configures the 'openstack-network-agents' snap, sets up the
+  provider bridge/physnet mapping, and runs neutron-ovn-metadata-agent.
+  Attach this charm to MicroOVN units to provide north/south traffic.
+
+base: ubuntu@24.04
+subordinate: true
+
+platforms:
+  amd64:
+
+requires:
+  juju-info:
+    interface: juju-info
+    scope: container
+
+config:
+  options:
+    snap-name:
+      type: string
+      default: openstack-network-agents
+      description: Name of the snap to install.
+    snap-channel:
+      type: string
+      default: latest/edge
+      description: Snap channel to track.
+
+    external-interface:
+      type: string
+      description: Physical NIC to enslave (e.g. enp6s0).
+    bridge-name:
+      type: string
+      description: Provider bridge name.
+    physnet-name:
+      type: string
+      description: OVN physnet label.
+    enable-chassis-as-gw:
+      type: boolean
+      default: true
+      description: |
+        If true, set ovn-cms-options=enable-chassis-as-gw so L3 gateway roles
+        prefer scheduling here.
+    debug:
+      type: boolean
+      default: false
+
+parts:
+  charm:
+    plugin: charm
+    source: .
+    charm-entrypoint: src/charm.py
+    charm-requirements: [requirements.txt]
+    build-packages:
+      - build-essential
+      - python3-dev
+      - libssl-dev
+      - pkg-config
+      - libffi-dev
+      - rustc
+      - cargo

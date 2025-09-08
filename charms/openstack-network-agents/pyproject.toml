@@ -1,0 +1,18 @@
+# Project configuration
+[project]
+name = "openstack-network-agents"
+version = "2025.1"
+requires-python = "~=3.12.0"
+
+dependencies = [
+    "cryptography",
+    "jinja2",
+    "pydantic",
+    "lightkube",
+    "lightkube-models",
+    "requests",
+    "ops",
+    "interface_tls_certificates@git+https://opendev.org/openstack/charm-ops-interface-tls-certificates",
+    "tenacity", # From ops_sunbeam
+    "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
+]
