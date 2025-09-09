@@ -30,3 +30,6 @@ target_deploy_status:
   epa-orchestrator:
     workload-status: active
     workload-status-message-regex: '^$'
+  manila-data:
+    workload-status: blocked
+    workload-status-message-regex: '^.*integration missing$'
