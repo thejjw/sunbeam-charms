@@ -33,6 +33,42 @@
       "message": "This file is not needed.",
       "revId": "9e4c1d2981cce56dd41693fdbb580cffbe309da0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "79c706be_72e6a63e",
+        "filename": "charms/cloudkitty-k8s/build-requirements.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2025-09-09T19:11:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65a75de2_79f001d9",
+      "revId": "9e4c1d2981cce56dd41693fdbb580cffbe309da0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "53951231_5eab9540",
+        "filename": "charms/cloudkitty-k8s/build-requirements.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2025-09-09T19:11:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "65a75de2_79f001d9",
+      "revId": "9e4c1d2981cce56dd41693fdbb580cffbe309da0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }

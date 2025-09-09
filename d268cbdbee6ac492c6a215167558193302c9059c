@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9586aa58_cc4645ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2025-09-09T19:11:24Z",
+      "side": 1,
+      "message": "THanks for the review comments, I think we\u0027re in a better shape now.",
+      "revId": "d268cbdbee6ac492c6a215167558193302c9059c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
