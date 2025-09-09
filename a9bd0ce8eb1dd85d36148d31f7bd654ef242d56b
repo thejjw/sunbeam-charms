@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "40a7b137_9269b55e",
+        "filename": "charms/cinder-volume-hitachi/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-09-09T22:50:38Z",
+      "side": 1,
+      "message": "actually this method is unecesary. as the cinder-volume snap, allready provide read access to the file:\n\nplugs:\n  etc-iscsi:\n    interface: system-files\n    read:\n      - /etc/iscsi/initiatorname.iscsi\n\nso this code is redundant. will remove it",
+      "parentUuid": "8979ee1e_a0eaafc1",
+      "revId": "a9bd0ce8eb1dd85d36148d31f7bd654ef242d56b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a64ddd32_9ca06488",
@@ -48,6 +66,24 @@
       "writtenOn": "2025-09-08T14:23:07Z",
       "side": 1,
       "message": "This should be only necessary in the short term or for debug purposes. I expect that this is used for being able to deploy and connect new and missing interfaces ?",
+      "revId": "a9bd0ce8eb1dd85d36148d31f7bd654ef242d56b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0afee93_3437ef2e",
+        "filename": "charms/cinder-volume-hitachi/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-09-09T22:50:38Z",
+      "side": 1,
+      "message": "Hi Billy, yes. once the charm auto connects the interfaces. this are no longer needed. will remove this methods",
+      "parentUuid": "a64ddd32_9ca06488",
       "revId": "a9bd0ce8eb1dd85d36148d31f7bd654ef242d56b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }

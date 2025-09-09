@@ -16,6 +16,24 @@
       "message": "The other thing that strikes me that is missing is certificates. I think those should potentially be secrets as well for rotation, since the Hitachi devices can present their own certificates for TLS connections if I\u0027m not mistaken.",
       "revId": "1c55041eae688d495ace901a70dc20eeaf7b7238",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "503f3530_b19c687f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38113
+      },
+      "writtenOn": "2025-09-09T22:50:38Z",
+      "side": 1,
+      "message": "From the 2025.1 Hitachi block storage driver: https://docs.openstack.org/cinder/2025.1/configuration/block-storage/drivers/hitachi-vsp-driver.html\n\nthe only cert options, i see available are:\n\nhitachi_mirror_ssl_cert_path: (String) Can be used to specify a non default path to a CA_BUNDLE file or directory with certificates of trusted CAs, which will be used to validate the backend\n\nhitachi_mirror_ssl_cert_verify \u003d False: (Boolean) If set to True the http client will validate the SSL certificate of the backend endpoint.\n\nNo other option in the driver to specify ceriticates. so no need to manage them secrectly.",
+      "parentUuid": "9b3219ce_48567096",
+      "revId": "1c55041eae688d495ace901a70dc20eeaf7b7238",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
