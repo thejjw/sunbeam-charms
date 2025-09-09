@@ -16,6 +16,24 @@
       "message": "Overall LGTM, Can you add tests in https://opendev.org/openstack/sunbeam-charms/src/branch/main/tests/machine/smoke.yaml.j2\n\nAnd currently this is not tested in CI pipeline, so appreciate if you can test this locally using tox -e func-smoke -- tests/machine",
       "revId": "e1df9ed06cba556254926626b0140ff5701728e3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7644efe3_6e0380c1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-09-09T09:07:24Z",
+      "side": 1,
+      "message": "Ran the tests: https://paste.ubuntu.com/p/PZQbSBT3vb/\n\nThe manila-data charm deployed as expected, it installed the snap. It seems that there\u0027s some issue with the test, erroring out with `KeyError: \u0027epa-orchestrator/0\u0027`.\n\nLocal changes for the tests: https://paste.ubuntu.com/p/XzqNhbXFDv/",
+      "parentUuid": "0a31c32b_fec465e2",
+      "revId": "e1df9ed06cba556254926626b0140ff5701728e3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
