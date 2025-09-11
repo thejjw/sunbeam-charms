@@ -34,6 +34,24 @@
       "parentUuid": "9b3219ce_48567096",
       "revId": "1c55041eae688d495ace901a70dc20eeaf7b7238",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d5807e10_29a2015a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-09-11T23:55:06Z",
+      "side": 1,
+      "message": "I think in this case, what I\u0027m referring to is that certificates are likely needed to be provided inside the cinder-volume snap to allow for the storage drivers to talk tot he storage array, as these certificates are likely owned by the organization managing the cloud.\n\nThe *_cert_path options should actually be chosen by the snap or charm and the certificates should simply be provided. The certificates should be provided via a Juju secret, which allows for rotation as necessary.",
+      "parentUuid": "503f3530_b19c687f",
+      "revId": "1c55041eae688d495ace901a70dc20eeaf7b7238",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }

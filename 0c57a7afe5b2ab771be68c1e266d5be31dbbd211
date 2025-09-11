@@ -16,6 +16,23 @@
       "message": "Hi Billy, i have adressed yuor comments",
       "revId": "0c57a7afe5b2ab771be68c1e266d5be31dbbd211",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "83e461d2_3a7ccc40",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2025-09-11T23:55:06Z",
+      "side": 1,
+      "message": "Clarifying one of my comments in-line. We\u0027ve discussed out of band of this review, but the salient point is that the file path options should not be chosen by the user as it is too easy for the user to provide a reference to a file which cannot be accessed by the strictly confined cinder-volume snap. File paths should be chosen by the snap/charm - but the user should be able to provide the things that are reference (when it makes sense). In this example, it is certificates for the TLS API endpoints that will be used. As such, the user should provide the certificates, the certificates should be stored in a Juju secret, and then the service should be configured to use that secret.",
+      "revId": "0c57a7afe5b2ab771be68c1e266d5be31dbbd211",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
