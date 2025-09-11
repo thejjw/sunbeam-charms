@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62861644_fd25d375",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-11T07:56:54Z",
+      "side": 1,
+      "message": "Looks like the charm dependencies are not complete.\n\nCan you take a look at how cinder-volume charm works and reproduce the same pattern?",
+      "revId": "1a7dda39cd36696ee9a02b5a11e1a3b31abd4b5b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2fa0b2b6_d0098f66",
+        "filename": "charms/openstack-network-agents/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-11T07:56:54Z",
+      "side": 1,
+      "message": "Have you taken a look at `OSBaseOperatorCharmSnap` base class? It\u0027s supposed to handle some of the easier bits of handling a snap based charm.",
+      "range": {
+        "startLine": 40,
+        "startChar": 34,
+        "endLine": 40,
+        "endChar": 43
+      },
+      "revId": "1a7dda39cd36696ee9a02b5a11e1a3b31abd4b5b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cd7f6fa4_61a9684d",
+        "filename": "charms/openstack-network-agents/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-11T07:56:54Z",
+      "side": 1,
+      "message": "We\u0027re using a snap based charm library to install snaps, we shouldn\u0027t subprocess except if we have to",
+      "revId": "1a7dda39cd36696ee9a02b5a11e1a3b31abd4b5b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63522699_d2653ebc",
+        "filename": "charms/openstack-network-agents/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-11T07:56:54Z",
+      "side": 1,
+      "message": "Please look into other snap based charms (such as cinder-volume, one for the most recent) to look how we manage config options.",
+      "revId": "1a7dda39cd36696ee9a02b5a11e1a3b31abd4b5b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
