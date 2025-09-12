@@ -1,0 +1,107 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "104f43db_c75e869f",
+        "filename": "charms/openstack-network-agents/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-12T10:07:22Z",
+      "side": 1,
+      "message": "Is there a reason `snap-name` should be configurable?",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 26,
+        "endChar": 47
+      },
+      "revId": "39cb4c50481079fc9a0bbe3a6bada9da15625e4b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "df1e4147_2dc67bdd",
+        "filename": "charms/openstack-network-agents/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-12T10:07:22Z",
+      "side": 1,
+      "message": "useless constructor",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 76,
+        "endChar": 1
+      },
+      "revId": "39cb4c50481079fc9a0bbe3a6bada9da15625e4b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c57b3a8e_99cd9d87",
+        "filename": "charms/openstack-network-agents/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-12T10:07:22Z",
+      "side": 1,
+      "message": "self.get_snap() should give you an already instantiaed Snap instance.\n\n(plus, we should use `self.snap_name` if we wanted to refer to the name of the snap)",
+      "range": {
+        "startLine": 115,
+        "startChar": 8,
+        "endLine": 115,
+        "endChar": 72
+      },
+      "revId": "39cb4c50481079fc9a0bbe3a6bada9da15625e4b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c44d0473_49f1bf70",
+        "filename": "charms/openstack-network-agents/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-12T10:07:22Z",
+      "side": 1,
+      "message": "Should we look that much before leaping?\n\nI think we can straight connect the snap, and error out if connecting does not work.",
+      "revId": "39cb4c50481079fc9a0bbe3a6bada9da15625e4b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1e0e604_20c1605c",
+        "filename": "charms/openstack-network-agents/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-12T10:07:22Z",
+      "side": 1,
+      "message": "This can get removed from previous comment.",
+      "revId": "39cb4c50481079fc9a0bbe3a6bada9da15625e4b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
