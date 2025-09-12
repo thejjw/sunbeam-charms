@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7ca8f427_14bc9707",
+        "filename": "charms/openstack-network-agents/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 37393
+      },
+      "writtenOn": "2025-09-12T11:11:23Z",
+      "side": 1,
+      "message": "It is defined in the other charms as well, can remove it, but wanted to keep same format\nhttps://opendev.org/openstack/sunbeam-charms/src/commit/d8094c2a11af24f02240bd50590798295d721b6a/charms/cinder-volume/charmcraft.yaml#L25",
+      "parentUuid": "104f43db_c75e869f",
+      "range": {
+        "startLine": 23,
+        "startChar": 4,
+        "endLine": 26,
+        "endChar": 47
+      },
+      "revId": "39cb4c50481079fc9a0bbe3a6bada9da15625e4b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "df1e4147_2dc67bdd",
         "filename": "charms/openstack-network-agents/src/charm.py",
         "patchSetId": 5
@@ -37,6 +61,30 @@
       "writtenOn": "2025-09-12T10:07:22Z",
       "side": 1,
       "message": "useless constructor",
+      "range": {
+        "startLine": 74,
+        "startChar": 4,
+        "endLine": 76,
+        "endChar": 1
+      },
+      "revId": "39cb4c50481079fc9a0bbe3a6bada9da15625e4b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b531dc8d_fb0a4a30",
+        "filename": "charms/openstack-network-agents/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 37393
+      },
+      "writtenOn": "2025-09-12T11:11:23Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "df1e4147_2dc67bdd",
       "range": {
         "startLine": 74,
         "startChar": 4,
@@ -70,6 +118,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "127e47e6_b8ce31fe",
+        "filename": "charms/openstack-network-agents/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 37393
+      },
+      "writtenOn": "2025-09-12T11:11:23Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "c57b3a8e_99cd9d87",
+      "range": {
+        "startLine": 115,
+        "startChar": 8,
+        "endLine": 115,
+        "endChar": 72
+      },
+      "revId": "39cb4c50481079fc9a0bbe3a6bada9da15625e4b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c44d0473_49f1bf70",
@@ -87,6 +159,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "94437bf9_340fed0e",
+        "filename": "charms/openstack-network-agents/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 37393
+      },
+      "writtenOn": "2025-09-12T11:11:23Z",
+      "side": 1,
+      "message": "Agreed. Removed that part and error out if it cannot connect",
+      "parentUuid": "c44d0473_49f1bf70",
+      "revId": "39cb4c50481079fc9a0bbe3a6bada9da15625e4b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b1e0e604_20c1605c",
@@ -100,6 +190,24 @@
       "writtenOn": "2025-09-12T10:07:22Z",
       "side": 1,
       "message": "This can get removed from previous comment.",
+      "revId": "39cb4c50481079fc9a0bbe3a6bada9da15625e4b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70a9d4dd_342c23db",
+        "filename": "charms/openstack-network-agents/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 37393
+      },
+      "writtenOn": "2025-09-12T11:11:23Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "b1e0e604_20c1605c",
       "revId": "39cb4c50481079fc9a0bbe3a6bada9da15625e4b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
