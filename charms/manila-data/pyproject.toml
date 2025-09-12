@@ -2,7 +2,7 @@
 # See LICENSE file for licensing details.
 
 [project]
-name = "cinder-volume"
+name = "manila-data"
 version = "2025.1"
 requires-python = "~=3.12.0"
 
