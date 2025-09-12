@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "af9a9372_c2f8289b",
+        "filename": "charms/openstack-network-agents/charmcraft.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-12T15:27:25Z",
+      "side": 1,
+      "message": "These should not be config options, but rather, a local action like the hypervisor set settings action\n\ni\u0027m talking about external-interface,bridge-name,physnet-name and enable-chassis-as-gw",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 31
+      },
+      "revId": "12477a5c18375b357f7ba29aedcb100cae66e896",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
