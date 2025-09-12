@@ -17,6 +17,7 @@
 """Unit tests for the Manila Share (Cephfs) K8s Operator charm."""
 
 import charm
+import charms.ceph_nfs_client.v0.ceph_nfs_client as ceph_nfs_client
 import charms.manila_k8s.v0.manila as manila_k8s
 import ops_sunbeam.test_utils as test_utils
 from ops import (
@@ -84,10 +85,10 @@ class TestManilaCephfsCharm(test_utils.CharmTestCase):
         """Add the ceph-nfs relation and unit data."""
         app_data = {
             "client": "client.foo",
-            "cluster-id": "lish",
+            ceph_nfs_client.CLUSTER_ID: "lish",
             "fsid": "fake-fsid",
             "keyring": "keys-do-not-ring",
-            "mon-hosts": '["mony"]',
+            ceph_nfs_client.MON_HOSTS: '["mony"]',
             "volume": "voly",
         }
         return self.harness.add_relation(
