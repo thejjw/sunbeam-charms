@@ -46,6 +46,30 @@
       },
       "revId": "12477a5c18375b357f7ba29aedcb100cae66e896",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "196291e3_7f4c426a",
+        "filename": "charms/openstack-network-agents/charmcraft.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 37393
+      },
+      "writtenOn": "2025-09-15T09:07:42Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "3167e70a_f0d1956b",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 46,
+        "endChar": 31
+      },
+      "revId": "12477a5c18375b357f7ba29aedcb100cae66e896",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
