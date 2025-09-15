@@ -33,6 +33,24 @@
       "message": "```suggestion\n        description: Physical NIC to add as a bridge port (e.g. enp6s0).\n```",
       "revId": "f749247c594a10a64f54ce0a3b03fdf93f2bd70f",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73bbf8ea_cb106833",
+        "filename": "charms/openstack-network-agents/charmcraft.yaml",
+        "patchSetId": 9
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 37393
+      },
+      "writtenOn": "2025-09-15T11:24:16Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "01b7fdb9_1554f864",
+      "revId": "f749247c594a10a64f54ce0a3b03fdf93f2bd70f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
