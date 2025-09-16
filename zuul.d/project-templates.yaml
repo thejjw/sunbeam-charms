@@ -118,6 +118,8 @@
             nodeset: ubuntu-noble
         - charm-build-watcher-k8s:
             nodeset: ubuntu-noble
+        - charm-build-openstack-network-agents:
+            nodeset: ubuntu-noble
     gate:
       fail-fast: true
       jobs:
@@ -190,6 +192,8 @@
         - charm-build-tempest-k8s:
             nodeset: ubuntu-noble
         - charm-build-watcher-k8s:
+            nodeset: ubuntu-noble
+        - charm-build-openstack-network-agents:
             nodeset: ubuntu-noble
 
 - project-template:
@@ -267,4 +271,6 @@
             - publish-charm-manila-data:
                 nodeset: ubuntu-noble
             - publish-charm-keystone-saml-k8s:
+                nodeset: ubuntu-noble
+            - publish-charm-openstack-network-agents:
                 nodeset: ubuntu-noble

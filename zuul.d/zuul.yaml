@@ -58,3 +58,4 @@
         tempest-k8s: 2024.1/edge
         watcher-k8s: 2024.1/edge
         epa-orchestrator: 2024.1/edge
+        openstack-network-agents: 2024.1/edge
