@@ -29,6 +29,10 @@ import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops.model import (
+    ActiveStatus,
+    BlockedStatus,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +62,10 @@ class EpaOrchestratorCharm(sunbeam_charm.OSBaseOperatorCharmSnap):
 
     service_name = "epa-orchestrator"
 
+    def __init__(self, framework: ops.framework.Framework) -> None:
+        super().__init__(framework)
+        self.framework.observe(self.on.update_status, self._on_update_status)
+
     @property
     def snap_name(self) -> str:
         """Returns the snap name."""
@@ -85,6 +93,31 @@ class EpaOrchestratorCharm(sunbeam_charm.OSBaseOperatorCharmSnap):
     def relation_ready(self, event) -> None:
         """Noop callback for sunbeam-machine relation."""
         pass
+
+    def _on_update_status(self, event: ops.framework.EventBase) -> None:
+        """Assess EPA health by checking the daemon service.
+
+        The service crashes when the data store json gets corrupted
+        and the charm will detect this and set the status to blocked.
+        """
+        try:
+            cache = snap.SnapCache()
+            epa = cache[self.snap_name]
+        except snap.SnapError:
+            self.status.set(
+                BlockedStatus("epa-orchestrator snap not installed")
+            )
+            return
+
+        services = getattr(epa, "services", {}) or {}
+        if services and (daemon_service := services.get("daemon")):
+            if daemon_service.get("active"):
+                self.status.set(ActiveStatus(""))
+            else:
+                self.status.set(BlockedStatus("epa-orchestrator service down"))
+            return
+
+        self.status.set(ActiveStatus(""))
 
     def get_relation_handlers(
         self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
