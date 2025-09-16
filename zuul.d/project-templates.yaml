@@ -108,6 +108,10 @@
             nodeset: ubuntu-jammy
         - charm-build-watcher-k8s:
             nodeset: ubuntu-jammy
+        - charm-build-cloudkitty-k8s:
+            nodeset: ubuntu-jammy
+        - charm-build-openstack-network-agents:
+            nodeset: ubuntu-jammy
     gate:
       fail-fast: true
       jobs:
@@ -180,6 +184,10 @@
         - charm-build-tempest-k8s:
             nodeset: ubuntu-jammy
         - charm-build-watcher-k8s:
+            nodeset: ubuntu-jammy
+        - charm-build-cloudkitty-k8s:
+            nodeset: ubuntu-jammy
+        - charm-build-openstack-network-agents:
             nodeset: ubuntu-jammy
 
 - project-template:
@@ -257,4 +265,8 @@
             - publish-charm-manila-data:
                 nodeset: ubuntu-jammy
             - publish-charm-keystone-saml-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-cloudkitty-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-openstack-network-agents:
                 nodeset: ubuntu-jammy

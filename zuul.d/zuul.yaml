@@ -57,3 +57,5 @@
         tempest-k8s: 2025.1/edge
         watcher-k8s: 2025.1/edge
         epa-orchestrator: 2025.1/edge
+        cloudkitty-k8s: 2025.1/edge
+        openstack-network-agents: 2025.1/edge
