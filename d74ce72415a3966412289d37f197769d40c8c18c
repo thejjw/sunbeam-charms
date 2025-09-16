@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "272b0652_5fb5f9f4",
+        "filename": "charms/epa-orchestrator/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-16T13:27:27Z",
+      "side": 1,
+      "message": "Can this be simplified L#114-L#118\n\nif not daemon_service.get(\"active\"):\n    self.status.set(BlockedStatus(\"epa-orchestrator service down\"))\n    return",
+      "revId": "d74ce72415a3966412289d37f197769d40c8c18c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
