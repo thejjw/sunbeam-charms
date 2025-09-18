@@ -202,3 +202,11 @@ class OctaviaAPIAuditTest(AuditMiddlewareTest):
         client = openstack_utils.get_octavia_session_client(
             self.keystone_session)
         client.amphora_list()
+
+class CloudkittyAPIAuditTest(AuditMiddlewareTest):
+    application_name = "cloudkitty"
+
+    def _trigger_audit_event(self):
+        client = openstack_utils.get_cloudkitty_session_client(
+            self.keystone_session)
+        client.module_list()
