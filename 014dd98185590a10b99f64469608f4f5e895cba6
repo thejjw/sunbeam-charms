@@ -16,6 +16,23 @@
       "message": "Thanks for quick changes, Can you update with this feedback as well\n\n\"Can you add cloudkitty in dependencies / files /vars in https://opendev.org/openstack/sunbeam-charms/src/branch/main/zuul.d/jobs.yaml#L1218\"",
       "revId": "014dd98185590a10b99f64469608f4f5e895cba6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36f2a0a9_4c03da8f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-18T11:42:34Z",
+      "side": 1,
+      "message": "Also if u can update uuid in https://opendev.org/openstack/sunbeam-charms/src/branch/main/charms/cloudkitty-k8s/rebuild .. we can see the CI picks the build and tests of cloudkitty-k8s",
+      "revId": "014dd98185590a10b99f64469608f4f5e895cba6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
