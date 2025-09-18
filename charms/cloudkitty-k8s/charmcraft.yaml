@@ -53,9 +53,6 @@ requires:
   identity-service:
     interface: keystone
     limit: 1
-  identity-credentials:
-    interface: keystone-credentials
-    limit: 1
   gnocchi-db:
     interface: gnocchi
   amqp:
