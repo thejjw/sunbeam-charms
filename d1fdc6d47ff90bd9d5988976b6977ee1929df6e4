@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b82a6184_2c532102",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-18T09:50:28Z",
+      "side": 1,
+      "message": "Ok, I see now zuul job is not added to trigger functional tests for cloudkitty-k8s\n\nCan you revert back to PS1 and I am going to merge.\n\nCan you also submit a new PR that modifies tests/all-k8s/smoke.yaml.j2, tests/all-k8s/tests.yaml, and update zuul jobs.\nYou can also add audit tests if audit is enabled in cloudkitty.\n\n(See https://opendev.org/openstack/sunbeam-charms/commit/2c33e70211974a9a458d0916b8cf2844ddf5df16#diff-cdd72dcbcbc8bd08ff90edc20c38b0e9d847a865 for reference on how the changes will look on tests and zuul side)",
+      "revId": "d1fdc6d47ff90bd9d5988976b6977ee1929df6e4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
