@@ -402,6 +402,19 @@ applications:
     trust: true
     resources:
       consul-image: ghcr.io/canonical/consul:1.19.2
+  # Rating feature
+  cloudkitty:
+    {% if cloudkitty_k8s is defined and cloudkitty_k8s is sameas true -%}
+    charm: ../../../cloudkitty_k8s.charm
+    {% else -%}
+    charm: ch:cloudkitty-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      cloudkitty-image: ghcr.io/canonical/cloudkitty-consolidated:2025.1
 
 relations:
 - - tls-operator:certificates
