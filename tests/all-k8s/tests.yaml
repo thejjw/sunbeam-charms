@@ -24,6 +24,7 @@ tests:
   - zaza.sunbeam.charm_tests.api_audit.tests.NovaAPIAuditTest
   - zaza.sunbeam.charm_tests.api_audit.tests.OctaviaAPIAuditTest
   - zaza.sunbeam.charm_tests.api_audit.tests.KeystoneAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.CloudkittyAPIAuditTest
 tests_options:
   trust:
     - smoke
@@ -149,5 +150,8 @@ target_deploy_status:
     workload-status: active
     workload-status-message-regex: '^$'
   consul:
+    workload-status: active
+    workload-status-message-regex: '^$'
+  cloudkitty:
     workload-status: active
     workload-status-message-regex: '^$'
