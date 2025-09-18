@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ec67e4d_db9ced4e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-18T11:19:28Z",
+      "side": 1,
+      "message": "Can you add cloudkitty in dependencies / files /vars in https://opendev.org/openstack/sunbeam-charms/src/branch/main/zuul.d/jobs.yaml#L1218",
+      "revId": "31a492876745b41402072516b2bfaa0531e263e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "422a3eae_57fd0e63",
+        "filename": "tests/all-k8s/smoke.yaml.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-18T11:19:28Z",
+      "side": 1,
+      "message": "Can you add the relations as well",
+      "revId": "31a492876745b41402072516b2bfaa0531e263e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e47d3815_1e4437bf",
+        "filename": "tests/all-k8s/tests.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-18T11:19:28Z",
+      "side": 1,
+      "message": "Need to add Audit test in https://opendev.org/openstack/sunbeam-charms/src/branch/main/tests/local/zaza/sunbeam/charm_tests/api_audit/tests.py",
+      "revId": "31a492876745b41402072516b2bfaa0531e263e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b165f1c_feebd050",
+        "filename": "tests/all-k8s/tests.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-18T11:19:28Z",
+      "side": 1,
+      "message": "In the CI tests, there is no storage, so the workload may not come to active status because of relation with gnocchi. Need to change values of workload-status and workload-status-message-regex accordingly",
+      "revId": "31a492876745b41402072516b2bfaa0531e263e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
