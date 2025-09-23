@@ -65,7 +65,7 @@ class TestEpaOrchestratorCharm(test_utils.CharmTestCase):
         """Test snap_channel property returns default value."""
         self.harness.begin()
 
-        self.assertEqual(self.harness.charm.snap_channel, "latest/edge")
+        self.assertEqual(self.harness.charm.snap_channel, "2025.1/edge")
 
     def test_ensure_services_running_no_op(self):
         """Test ensure_services_running is a no-op and doesn't raise errors."""
