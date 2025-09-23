@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3820180d_8331a703",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-23T13:50:06Z",
+      "side": 1,
+      "message": "Not  clean cherry pick, but needed because it should deploy 2024.1 on this branch",
+      "revId": "86e8598b0cd595fa5bda88259465af07eafc7a6e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
