@@ -17,7 +17,7 @@ config:
       type: string
       description: The name of the snap to install.
     snap-channel:
-      default: latest/edge
+      default: 2025.1/edge
       type: string
       description: The channel of the snap to install.
 requires:
