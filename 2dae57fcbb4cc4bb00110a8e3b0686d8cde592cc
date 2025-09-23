@@ -16,6 +16,23 @@
       "message": "recheck NODEFAILURE",
       "revId": "2dae57fcbb4cc4bb00110a8e3b0686d8cde592cc",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23b104ab_4a3a1a6e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-23T13:29:02Z",
+      "side": 1,
+      "message": "recheck Magnum DBSync Failure",
+      "revId": "2dae57fcbb4cc4bb00110a8e3b0686d8cde592cc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
