@@ -72,6 +72,8 @@
             nodeset: ubuntu-jammy
         - charm-build-ceilometer-k8s:
             nodeset: ubuntu-jammy
+        - charm-build-cloudkitty-k8s:
+            nodeset: ubuntu-jammy
         - charm-build-gnocchi-k8s:
             nodeset: ubuntu-jammy
         - charm-build-barbican-k8s:
@@ -148,6 +150,8 @@
         - charm-build-aodh-k8s:
             nodeset: ubuntu-jammy
         - charm-build-ceilometer-k8s:
+            nodeset: ubuntu-jammy
+        - charm-build-cloudkitty-k8s:
             nodeset: ubuntu-jammy
         - charm-build-gnocchi-k8s:
             nodeset: ubuntu-jammy
@@ -229,6 +233,8 @@
             - publish-charm-aodh-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-ceilometer-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-cloudkitty-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-gnocchi-k8s:
                 nodeset: ubuntu-jammy

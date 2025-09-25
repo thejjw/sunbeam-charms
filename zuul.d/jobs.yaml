@@ -1277,6 +1277,8 @@
         soft: true
       - name: charm-build-masakari-k8s
         soft: true
+      - name: charm-build-cloudkitty-k8s
+        soft: true
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-k8s/
@@ -1306,6 +1308,7 @@
       - charms/openstack-exporter-k8s/
       - charms/horizon-k8s/
       - charms/masakari-k8s/
+      - charms/cloudkitty-k8s/
       - rebuild
       - zuul.d/zuul.yaml
     vars:
@@ -1338,5 +1341,6 @@
         - charm-build-openstack-exporter-k8s
         - charm-build-horizon-k8s
         - charm-build-masakari-k8s
+        - charm-build-cloudkitty-k8s
       # test_dir relative to project src dir
       test_dir: tests/all-k8s
