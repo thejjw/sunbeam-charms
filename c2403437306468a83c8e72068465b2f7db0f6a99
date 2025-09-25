@@ -16,6 +16,24 @@
       "message": "Can you add `requests.codes.service_unavailable` for cloudkitty in SERVICE_CODES here https://opendev.org/openstack/sunbeam-charms/src/branch/main/tests/local/zaza/sunbeam/charm_tests/keystone/setup.py#L25",
       "revId": "c2403437306468a83c8e72068465b2f7db0f6a99",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8dd3570a_ca239378",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2025-09-25T10:52:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "554b894e_45ab64cb",
+      "revId": "c2403437306468a83c8e72068465b2f7db0f6a99",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }

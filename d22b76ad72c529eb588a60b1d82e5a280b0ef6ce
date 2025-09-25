@@ -24,6 +24,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f600465_edb2699d",
+        "filename": "tests/all-k8s/smoke.yaml.j2",
+        "patchSetId": 4
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2025-09-25T10:52:43Z",
+      "side": 1,
+      "message": "Fix applied.",
+      "parentUuid": "afc63a2b_fa8d1055",
+      "range": {
+        "startLine": 408,
+        "startChar": 20,
+        "endLine": 408,
+        "endChar": 34
+      },
+      "revId": "d22b76ad72c529eb588a60b1d82e5a280b0ef6ce",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a48533f8_6722e59f",
@@ -37,6 +61,30 @@
       "writtenOn": "2025-09-22T18:24:58Z",
       "side": 1,
       "message": "Can you remove these whitespaces?",
+      "range": {
+        "startLine": 418,
+        "startChar": 0,
+        "endLine": 418,
+        "endChar": 6
+      },
+      "revId": "d22b76ad72c529eb588a60b1d82e5a280b0ef6ce",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "10f6d8c9_0618e60a",
+        "filename": "tests/all-k8s/smoke.yaml.j2",
+        "patchSetId": 4
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2025-09-25T10:52:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a48533f8_6722e59f",
       "range": {
         "startLine": 418,
         "startChar": 0,

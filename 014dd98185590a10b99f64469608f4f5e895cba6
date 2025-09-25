@@ -33,6 +33,42 @@
       "message": "Also if u can update uuid in https://opendev.org/openstack/sunbeam-charms/src/branch/main/charms/cloudkitty-k8s/rebuild .. we can see the CI picks the build and tests of cloudkitty-k8s",
       "revId": "014dd98185590a10b99f64469608f4f5e895cba6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2a6be9a_abb66331",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2025-09-25T10:52:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c23f0bb7_edba3aaf",
+      "revId": "014dd98185590a10b99f64469608f4f5e895cba6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3d499b3_db81d3c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2025-09-25T10:52:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "36f2a0a9_4c03da8f",
+      "revId": "014dd98185590a10b99f64469608f4f5e895cba6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
