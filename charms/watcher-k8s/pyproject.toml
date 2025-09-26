@@ -8,7 +8,7 @@ requires-python = "~=3.12.0"
 
 dependencies = [
     "jinja2",
-    "pydantic<2.0",
+    "pydantic",
     "lightkube",
     "ops",
     "tenacity", # From ops_sunbeam

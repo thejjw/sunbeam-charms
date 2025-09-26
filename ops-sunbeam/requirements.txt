@@ -7,4 +7,4 @@ git+https://opendev.org/openstack/charm-ops-interface-ceph-client#egg=interface_
 lightkube
 lightkube-models
 tenacity
-pydantic<2.0
+pydantic
