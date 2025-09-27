@@ -402,7 +402,19 @@ applications:
     trust: true
     resources:
       consul-image: ghcr.io/canonical/consul:1.19.2
-
+  # Rating feature
+  cloudkitty:
+    {% if cloudkitty_k8s is defined and cloudkitty_k8s is sameas true -%}
+    charm: ../../../cloudkitty-k8s.charm
+    {% else -%}
+    charm: ch:cloudkitty-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      cloudkitty-image: ghcr.io/canonical/cloudkitty-consolidated:2025.1  
 relations:
 - - tls-operator:certificates
   - ovn-central:certificates
@@ -655,3 +667,17 @@ relations:
 
 - - masakari:consul-management
   - consul:consul-cluster
+
+# Cloudkitty
+- - mysql:database
+  - cloudkitty:database
+- - keystone:identity-service
+  - cloudkitty:identity-service
+- - keystone:send-ca-cert
+  - cloudkitty:receive-ca-cert
+- - traefik:ingress
+  - cloudkitty:ingress-internal
+- - rabbitmq:amqp
+  - cloudkitty:amqp
+- - gnocchi:gnocchi-service
+  - cloudkitty:gnocchi-db
