@@ -16,6 +16,23 @@
       "message": "As per Element discussion, dropped the api audit tests for now, to be revisited later when the storage v2 element has been developed further.",
       "revId": "21bca8de3064bf4d9917ee851cd330e693a70e64",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e5b2475_631dd449",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-27T06:42:26Z",
+      "side": 1,
+      "message": "You need the below snippet in tests/all-k8s/test.yaml.. this block will let zaza know what status to look for after the bundle is deployed.\n\n  cloudkitty:\n    workload-status: waiting\n    workload-status-message-regex: \u0027^.*Not all relations are ready$\u0027",
+      "revId": "21bca8de3064bf4d9917ee851cd330e693a70e64",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
