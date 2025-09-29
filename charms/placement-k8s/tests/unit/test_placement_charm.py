@@ -123,9 +123,9 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         interface = internal
         www_authenticate_uri = http://keystone.internal:5000
         auth_type = password
-        project_domain_name = None
-        user_domain_name = None
-        project_name = None
+        project_domain_name = svc-domain
+        user_domain_name = svc-domain
+        project_name = svc-project
         username = svcuser1
         password = svcpass1
         service_token_roles = None
@@ -139,7 +139,7 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         auth_type = password
         project_domain_id = svcdomid
         user_domain_id = svcdomid
-        project_name = None
+        project_name = svc-project
         username = svcuser1
         password = svcpass1
         region_name = region12
