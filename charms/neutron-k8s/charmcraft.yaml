@@ -152,6 +152,9 @@ requires:
   external-dns:
     interface: designate
     optional: true
+  baremetal-switch-config:
+    interface: switch-config
+    optional: true
   ironic-api:
     interface: baremetal
     optional: true

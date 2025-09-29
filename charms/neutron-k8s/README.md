@@ -44,10 +44,16 @@ neutron-k8s requires the following relations:
 `amqp`: To connect to RabbitMQ
 `identity-service`: To register endpoints in Keystone
 `ovsdb-cms`: To connect to OVN
-`certificates`: To retrieve generated certificates from Vault
 `ingress-internal`: To expose service on underlying internal network
-`ingress-public`: To expose service on public network
-`ironic-api`: To receive the service readiness signal from the `ironic-k8s` charm.
+
+The following relations are optional:
+
+- `certificates`: To retrieve generated certificates from Vault
+- `ingress-public`: To expose service on public network
+- `ironic-api`: To receive the service readiness signal from the `ironic-k8s`
+  charm
+- `baremetal-switch-config`: To receive baremetal switch configuration for the
+  `ml2_conf_networking_baremetal.ini` file
 
 ## OCI Images
 
