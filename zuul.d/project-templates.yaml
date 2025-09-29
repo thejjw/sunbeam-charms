@@ -14,10 +14,12 @@
             branches:
               - stable/2023.1
               - stable/2023.2
-              - main
         - openstack-tox-py312:
             branches:
               - main
+              - stable/2024.1
+        - openstack-tox-cover:
+            nodeset: ubuntu-noble
     gate:
       jobs:
         - openstack-tox-linters
@@ -26,10 +28,12 @@
             branches:
               - stable/2023.1
               - stable/2023.2
-              - main
         - openstack-tox-py312:
             branches:
               - main
+              - stable/2024.1
+        - openstack-tox-cover:
+            nodeset: ubuntu-noble
 
 - project-template:
     name: openstack-sunbeam-charm-build-jobs
