@@ -27,6 +27,7 @@ from typing import (
 
 import charms.designate_k8s.v0.designate_service as designate_svc
 import ops
+import ops.pebble as pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
@@ -44,6 +45,21 @@ from ops.model import (
 )
 
 logger = logging.getLogger(__name__)
+
+IRONIC_API_RELATION = "ironic-api"
+IRONIC_AGENT_CONF = "/etc/neutron/plugins/ml2/ironic_neutron_agent.ini"
+IRONIC_AGENT = "ironic-neutron-agent"
+
+
+@sunbeam_tracing.trace_type
+class ML2Context(sunbeam_ctxts.ConfigContext):
+    """ML2 configuration."""
+
+    def context(self) -> dict:
+        """Configuration context."""
+        return {
+            "mechanism_drivers": ",".join(self.charm.mechanism_drivers),
+        }
 
 
 @sunbeam_tracing.trace_type
@@ -102,6 +118,14 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         :returns: pebble service layer configuration for neutron server service
         :rtype: dict
         """
+        ironic_startup = "disabled"
+
+        # If the charm is related to the ironic-k8s charm, then we will need
+        # to start the neutron-ironic-agent.
+        ironic_rel = self.model.relations[IRONIC_API_RELATION]
+        if ironic_rel:
+            ironic_startup = "enabled"
+
         return {
             "summary": "neutron server layer",
             "description": "pebble configuration for neutron server",
@@ -112,7 +136,15 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "command": "neutron-server",
                     "user": "neutron",
                     "group": "neutron",
-                }
+                },
+                IRONIC_AGENT: {
+                    "override": "replace",
+                    "summary": "Neutron Ironic Agent",
+                    "command": f"ironic-neutron-agent --config-dir /etc/neutron --config-file {IRONIC_AGENT_CONF}",
+                    "startup": ironic_startup,
+                    "user": "neutron",
+                    "group": "neutron",
+                },
             },
         }
 
@@ -151,7 +183,45 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "neutron",
                 0o640,
             ),
+            sunbeam_core.ContainerConfigFile(
+                IRONIC_AGENT_CONF,
+                "root",
+                "neutron",
+            ),
         ]
+
+    def start_service(self, restart: bool = True) -> None:
+        """Check and start services in container.
+
+        :param restart: Whether to stop services before starting them.
+        """
+        container = self.charm.unit.get_container(self.container_name)
+        if not container:
+            logger.debug(
+                f"{self.container_name} container is not ready. "
+                "Cannot start service."
+            )
+            return
+
+        add_layer = False
+        services = list(container.get_services().keys())
+        if self.service_name not in services or IRONIC_AGENT not in services:
+            add_layer = True
+        else:
+            # start / stop ironic-neutron-agent, depending on the ironic-api relation.
+            ironic_rel = self.model.relations[IRONIC_API_RELATION]
+            svc = container.get_service(IRONIC_AGENT)
+            enabled = svc.startup == pebble.ServiceStartup.ENABLED
+
+            if (ironic_rel and not enabled) or (not ironic_rel and enabled):
+                add_layer = True
+
+        if add_layer:
+            container.add_layer(
+                self.service_name, self.get_layer(), combine=True
+            )
+
+        self.start_all(restart=restart)
 
 
 class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
@@ -271,8 +341,21 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             )
             handlers.append(self.external_dns)
 
+        if self.can_add_handler(IRONIC_API_RELATION, handlers):
+            self.ironic_svc = sunbeam_rhandlers.ServiceReadinessRequiresHandler(
+                self,
+                IRONIC_API_RELATION,
+                self.handle_ironic_readiness,
+                IRONIC_API_RELATION in self.mandatory_relations,
+            )
+            handlers.append(self.ironic_svc)
+
         handlers = super().get_relation_handlers(handlers)
         return handlers
+
+    def handle_ironic_readiness(self, event: ops.EventBase):
+        """Handle ironic-api service readiness callback."""
+        self.configure_charm(event)
 
     def get_pebble_handlers(self) -> list[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""
@@ -326,6 +409,23 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Service default configuration file."""
         return "/etc/neutron/neutron.conf"
 
+    @property
+    def config_contexts(self) -> list[sunbeam_ctxts.ConfigContext]:
+        """Configuration contexts for the operator."""
+        contexts = super().config_contexts
+        contexts.append(ML2Context(self, "ml2"))
+        return contexts
+
+    @property
+    def mechanism_drivers(self) -> List[str]:
+        """Returns the list of ML2 mechanism drivers used."""
+        ironic_rel = self.model.relations[IRONIC_API_RELATION]
+        if ironic_rel:
+            return ["baremetal"]
+
+        return []
+
+
 
 # Neutron OVN Specific Code
 
@@ -340,7 +440,6 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
             "extension_drivers": "port_security,qos,dns_domain_ports,port_forwarding,uplink_status_propagation",
             "type_drivers": "geneve,vlan,flat",
             "tenant_network_types": "geneve,vlan,flat",
-            "mechanism_drivers": "sriovnicswitch,ovn",
             # Limiting defaults to 2**16 -1 even though geneve vni max is 2**24-1
             # ml2_geneve_allocations will be populated with each vni range
             # which will result in db timeouts if range is 1 - 2**24-1
@@ -405,6 +504,11 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
                 "root",
                 "neutron",
                 0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                IRONIC_AGENT_CONF,
+                "root",
+                "neutron",
             ),
         ]
 
@@ -471,6 +575,13 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
         if not self.bootstrapped:
             raise sunbeam_guard.WaitingExceptionError("Leader not ready")
         self._post_db_sync_restart()
+
+    @property
+    def mechanism_drivers(self) -> List[str]:
+        """Returns the list of ML2 mechanism drivers used."""
+        drivers = super().mechanism_drivers
+        drivers.extend(["sriovnicswitch", "ovn"])
+        return drivers
 
 
 if __name__ == "__main__":  # pragma: nocover

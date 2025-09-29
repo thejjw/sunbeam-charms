@@ -47,6 +47,7 @@ neutron-k8s requires the following relations:
 `certificates`: To retrieve generated certificates from Vault
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network
+`ironic-api`: To receive the service readiness signal from the `ironic-k8s` charm.
 
 ## OCI Images
 
