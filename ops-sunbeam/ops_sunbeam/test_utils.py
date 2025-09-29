@@ -56,9 +56,16 @@ from ops._private.harness import (
     _TestingModelBackend,
     _TestingPebbleClient,
 )
-from ops.jujucontext import (
-    _JujuContext,
-)
+try:
+    from ops.jujucontext import (
+        JujuContext,
+    )
+    context_factory = JujuContext._from_dict
+except ImportError:
+    from ops.jujucontext import (
+        _JujuContext
+    )
+    context_factory = _JujuContext.from_dict
 from ops.testing import (
     Harness,
 )
@@ -820,7 +827,7 @@ def get_harness(  # noqa: C901
         harness._unit_name,
         harness._meta,
         harness._get_config(charm_config),
-        _JujuContext.from_dict(os.environ),
+        context_factory(os.environ),
     )
     harness._model = model.Model(harness._meta, harness._backend)  # type: ignore
     harness._framework = framework.Framework(
