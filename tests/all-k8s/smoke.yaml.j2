@@ -134,6 +134,18 @@ applications:
       debug: true
     resources:
       neutron-server-image: ghcr.io/canonical/neutron-server:2025.1
+  neutron-baremetal-config:
+    {% if neutron_baremetal_switch_config_k8s is defined and neutron_baremetal_switch_config_k8s is sameas true -%}
+    charm: ../../../neutron-baremetal-switch-config-k8s.charm
+    {% else -%}
+    charm: ch:neutron-baremetal-switch-config-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    options:
+      debug: true
   cinder:
     {% if cinder_k8s is defined and cinder_k8s is sameas true -%}
     charm: ../../../cinder-k8s.charm
