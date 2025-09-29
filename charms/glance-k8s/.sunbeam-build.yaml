@@ -8,6 +8,7 @@ external-libraries:
   - charms.tempo_k8s.v1.charm_tracing
 internal-libraries:
   - charms.keystone_k8s.v1.identity_service
+  - charms.sunbeam_libs.v0.service_readiness
 templates:
   - parts/section-database
   - parts/database-connection
