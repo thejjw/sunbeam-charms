@@ -17,6 +17,7 @@
 """Tests for neutron charm."""
 
 import charm
+import ops.pebble as pebble
 import ops_sunbeam.test_utils as test_utils
 
 
@@ -75,6 +76,23 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
+    def add_ironic_api_relation(self) -> None:
+        """Add ironic-api relation."""
+        return self.harness.add_relation(
+            "ironic-api",
+            "ironic",
+            app_data={"ready": "true"},
+        )
+
+    def _check_file_contents(self, container, path, strings):
+        client = self.harness.charm.unit.get_container(container)._pebble  # type: ignore
+
+        with client.pull(path) as infile:
+            received_data = infile.read()
+
+        for string in strings:
+            self.assertIn(string, received_data)
+
     def test_pebble_ready_handler(self):
         """Test Pebble ready event is captured."""
         self.assertEqual(self.harness.charm.seen_events, [])
@@ -112,7 +130,56 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
             "/etc/neutron/plugins/ml2/key_host",
             "/etc/neutron/plugins/ml2/ml2_conf.ini",
             "/etc/neutron/plugins/ml2/neutron-ovn.crt",
+            charm.IRONIC_AGENT_CONF,
         ]
 
         for f in config_files:
             self.check_file("neutron-server", f)
+
+        self.assertTrue(
+            all([h.service_ready for h in self.harness.charm.pebble_handlers])
+        )
+
+        container = self.harness.charm.unit.get_container("neutron-server")
+
+        # ironic-api relation is not added yet, the ironic-neutron-agent should
+        # not be running.
+        svc = container.get_service(charm.IRONIC_AGENT)
+        self.assertFalse(svc.is_running())
+        self._check_file_contents(
+            "neutron-server",
+            "/etc/neutron/plugins/ml2/ml2_conf.ini",
+            ["mechanism_drivers = sriovnicswitch,ovn"],
+        )
+
+        # Add the ironic-api relation, the pebble plan should have the
+        # ironic-neutron-agent service should be running.
+        rel_id = self.add_ironic_api_relation()
+
+        self.assertTrue(
+            all([h.service_ready for h in self.harness.charm.pebble_handlers])
+        )
+
+        svc = container.get_service(charm.IRONIC_AGENT)
+        self.assertTrue(svc.is_running())
+        self._check_file_contents(
+            "neutron-server",
+            "/etc/neutron/plugins/ml2/ml2_conf.ini",
+            ["mechanism_drivers = baremetal,sriovnicswitch,ovn"],
+        )
+
+        # Remove ironic-api relation, check that the ironic-neutron-agent service
+        # startup is set to disabled.
+        self.harness.remove_relation(rel_id)
+
+        self.assertTrue(
+            all([h.service_ready for h in self.harness.charm.pebble_handlers])
+        )
+
+        svc = container.get_service(charm.IRONIC_AGENT)
+        self.assertFalse(svc.is_running())
+        self._check_file_contents(
+            "neutron-server",
+            "/etc/neutron/plugins/ml2/ml2_conf.ini",
+            ["mechanism_drivers = sriovnicswitch,ovn"],
+        )
