@@ -48,3 +48,10 @@ dhcp_default_lease_time = {{ ovn.dhcp_default_lease_time }}
 ovn_dhcp4_global_options = {{ ovn.ovn_dhcp4_global_options }}
 ovn_dhcp6_global_options = {{ ovn.ovn_dhcp6_global_options }}
 vhost_sock_dir = {{ ovn.vhost_sock_dir }}
+
+[networking_baremetal]
+enabled_devices = {{ baremetal.enabled_devices }}
+
+{% for config in baremetal.configs %}
+{{ config }}
+{% endfor %}
