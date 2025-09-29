@@ -558,6 +558,8 @@ relations:
   - ovn-central:ovsdb-cms
 - - keystone:send-ca-cert
   - neutron:receive-ca-cert
+- - neutron-baremetal-config:switch-config
+  - neutron:baremetal-switch-config
 
 - - keystone:identity-service
   - openstack-images-sync:identity-service
