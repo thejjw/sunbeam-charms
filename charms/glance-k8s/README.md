@@ -44,6 +44,7 @@ glance-k8s requires the following relations:
 `ceph`: To connect to Ceph for image storage (optional)
 `ingress-internal`: To expose service on underlying internal network
 `ingress-public`: To expose service on public network
+`ceph-rgw`: To receive the RGW service readiness signal from the `microceph` charm
 
 ## OCI Images
 

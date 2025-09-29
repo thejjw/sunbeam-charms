@@ -78,6 +78,23 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
         self.addCleanup(self.harness.cleanup)
         test_utils.add_complete_ingress_relation(self.harness)
 
+    def add_ceph_rgw_relation(self):
+        """Add ceph-rgw relation."""
+        return self.harness.add_relation(
+            charm.CEPH_RGW_RELATION,
+            "microceph",
+            app_data={"ready": "true"},
+        )
+
+    def _check_file_contents(self, container, path, strings):
+        client = self.harness.charm.unit.get_container(container)._pebble  # type: ignore
+
+        with client.pull(path) as infile:
+            received_data = infile.read()
+
+        for string in strings:
+            self.assertIn(string, received_data)
+
     def test_pebble_ready_handler(self):
         """Test Pebble ready event is captured."""
         self.harness.begin()
@@ -131,3 +148,58 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
             "/etc/ceph/ceph.conf",
         ]:
             self.check_file("glance-api", f)
+
+    def test_enabled_backends(self):
+        """Test the enabled backends in glance."""
+        self.harness.begin_with_initial_hooks()
+        test_utils.add_api_relations(self.harness)
+        self.harness.set_leader()
+        test_utils.set_all_pebbles_ready(self.harness)
+
+        ceph_rel_id = self.harness.add_relation("ceph", "ceph-mon")
+        self.harness.add_relation_unit(ceph_rel_id, "ceph-mon/0")
+        self.harness.update_relation_data(
+            ceph_rel_id, "ceph-mon/0", {"ingress-address": "10.0.0.33"}
+        )
+        test_utils.add_ceph_relation_credentials(self.harness, ceph_rel_id)
+
+        # ceph relation added.
+        config_lines = [
+            "enabled_backends = filestore:file,ceph:rbd",
+            "[ceph]",
+            "rbd_store_chunk_size = 8",
+            "rbd_store_pool = glance",
+            "rbd_store_user = glance",
+            "rados_connect_timeout = 0",
+            "rbd_store_ceph_conf = /etc/ceph/ceph.conf",
+        ]
+        self._check_file_contents(
+            "glance-api",
+            "/etc/glance/glance-api.conf",
+            config_lines,
+        )
+
+        self.add_ceph_rgw_relation()
+
+        # ceph-rgw relation added.
+        config_lines = [
+            "enabled_backends = filestore:file,ceph:rbd,swift:swift",
+            "[ceph]",
+            "rbd_store_chunk_size = 8",
+            "rbd_store_pool = glance",
+            "rbd_store_user = glance",
+            "rados_connect_timeout = 0",
+            "rbd_store_ceph_conf = /etc/ceph/ceph.conf",
+            "[swift]",
+            "auth_address = http://keystone.internal:5000",
+            "user = service:svcuser1",
+            "key = svcpass1",
+            "swift_store_region = RegionOne",
+            "swift_store_container = glance",
+            "swift_store_create_container_on_put = True",
+        ]
+        self._check_file_contents(
+            "glance-api",
+            "/etc/glance/glance-api.conf",
+            config_lines,
+        )
