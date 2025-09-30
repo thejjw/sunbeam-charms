@@ -55,6 +55,8 @@ import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.storage as sunbeam_storage
+import pydantic
 import tenacity
 from ops.charm import (
     SecretChangedEvent,
@@ -706,8 +708,7 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
                 ph.init_service(self.contexts())
             else:
                 logging.debug(
-                    f"Not running init for {ph.service_name},"
-                    " container not ready"
+                    f"Not running init for {ph.service_name}, container not ready"
                 )
                 raise sunbeam_guard.WaitingExceptionError(
                     "Payload container not ready"
@@ -990,14 +991,13 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
                 ingress_addresses = load_balancer_status.ingress
                 if ingress_addresses:
                     logger.debug(
-                        "Found ingress addresses on loadbalancer " "status"
+                        "Found ingress addresses on loadbalancer status"
                     )
                     ingress_address = ingress_addresses[0]
                     addr = ingress_address.hostname or ingress_address.ip
                     if addr:
                         logger.debug(
-                            "Using ingress address from loadbalancer "
-                            f"as {addr}"
+                            f"Using ingress address from loadbalancer as {addr}"
                         )
                         public_address = (
                             ingress_address.hostname or ingress_address.ip
@@ -1361,6 +1361,11 @@ class OSCinderVolumeDriverOperatorCharm(OSBaseOperatorCharmSnap):
         """Key for backend configuration."""
         raise NotImplementedError
 
+    @property
+    def configuration_class(self) -> type[pydantic.BaseModel]:
+        """Configuration class for the backend."""
+        raise NotImplementedError
+
     def ensure_snap_present(self):
         """No-op."""
 
@@ -1411,5 +1416,18 @@ class OSCinderVolumeDriverOperatorCharm(OSBaseOperatorCharmSnap):
         self.cinder_volume.interface.set_ready()
 
     def get_backend_configuration(self) -> Mapping:
-        """Get backend configuration."""
-        raise NotImplementedError
+        """Return the backend configuration."""
+        try:
+            contexts = self.contexts()
+            return contexts.backend.context()  # type: ignore[attr-defined]
+        except AttributeError as e:
+            raise sunbeam_guard.WaitingExceptionError(
+                "Data missing: {}".format(e.name)
+            )
+
+    @property
+    def config_contexts(self) -> list[sunbeam_config_contexts.ConfigContext]:
+        """Configuration contexts for the operator."""
+        return [
+            sunbeam_storage.CinderVolumeConfigurationContext(self, "backend")
+        ]
