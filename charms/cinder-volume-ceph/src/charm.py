@@ -20,6 +20,7 @@
 This charm provide Cinder <-> Ceph integration as part
 of an OpenStack deployment
 """
+
 import logging
 import uuid
 from typing import (
@@ -184,9 +185,7 @@ class CinderVolumeCephOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
     @property
     def config_contexts(self) -> list[config_contexts.ConfigContext]:
         """Configuration contexts for the operator."""
-        contexts = super().config_contexts
-        contexts.append(CinderCephConfigurationContext(self, "cinder_ceph"))
-        return contexts
+        return [CinderCephConfigurationContext(self, "cinder_ceph")]
 
     def _set_or_update_rbd_secret(
         self,
@@ -257,8 +256,7 @@ class CinderVolumeCephOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
             return True
         else:
             logger.debug(
-                "Cannot service client requests. "
-                "Bootstrapped: {} Leader {}".format(
+                "Cannot service client requests. Bootstrapped: {} Leader {}".format(
                     self.bootstrapped(), self.unit.is_leader()
                 )
             )
