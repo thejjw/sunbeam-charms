@@ -18,6 +18,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "75dc6877_1bf53a81",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-09-30T10:07:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d30a9bc_43c5e247",
+      "revId": "96f74145b7f4f692c6d72fba4269a306c17924a5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7b33597b_e58df68c",
@@ -31,6 +49,24 @@
       "writtenOn": "2025-09-30T02:54:56Z",
       "side": 1,
       "message": "Option not required\nhttps://opendev.org/openstack/ironic/src/branch/stable/2024.1/releasenotes/notes/remove-verbose-option-261f1b9e24212ee2.yaml",
+      "revId": "96f74145b7f4f692c6d72fba4269a306c17924a5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa8f7fe3_9a4f8864",
+        "filename": "charms/ironic-k8s/charmcraft.yaml",
+        "patchSetId": 9
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-09-30T10:07:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b33597b_e58df68c",
       "revId": "96f74145b7f4f692c6d72fba4269a306c17924a5",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -65,6 +101,24 @@
       "writtenOn": "2025-09-30T02:54:56Z",
       "side": 1,
       "message": "We may not require this option https://opendev.org/openstack/ironic/src/branch/stable/2024.1/releasenotes/notes/remove-verbose-option-261f1b9e24212ee2.yaml",
+      "revId": "96f74145b7f4f692c6d72fba4269a306c17924a5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89a8ddc1_3953fdf0",
+        "filename": "charms/ironic-k8s/src/templates/ironic.conf.j2",
+        "patchSetId": 9
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-09-30T10:07:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d4b0e68e_99e56d1d",
       "revId": "96f74145b7f4f692c6d72fba4269a306c17924a5",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
