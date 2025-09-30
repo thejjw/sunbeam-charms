@@ -1,0 +1,211 @@
+type: charm
+name: cinder-volume-purestorage
+summary: OpenStack volume service - purestorage backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with purestorage storage
+  backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.  If unset the Juju
+        application name is used.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    driver-ssl-cert:
+      default: null
+      description: |
+        PEM-encoded SSL certificate to use for HTTPS connections to the
+        storage array. If unset, SSL verification is not performed.
+      type: string
+    protocol:
+      default: iscsi
+      description: |
+        Pure Storage protocl selector, determines driver class to use:
+        iscsi - cinder.volume.drivers.pure.PureISCSIDriver (iSCSI)
+        fc - cinder.volume.drivers.pure.PureFCDriver (Fibre Channel)
+        nvme - cinder.volume.drivers.pure.PureNVMEDriver (NVMe)
+      type: string
+    use-multipath-for-image-xfer:
+      default: true
+      description: |
+        Enable multipathing for image transfer operations to improve
+        performance and reliability.
+      type: boolean
+    san-ip:
+      description: |
+        Pure Storage FlashArray management IP address or hostname.
+        This is the primary array management interface.
+      type: string
+    pure-api-token:
+      description: |
+        REST API authorization token from the Pure Storage FlashArray.
+        Required for all driver operations. Obtain from Purity system
+        using: pureadmin create --api-token <username>
+      type: secret
+    pure-automatic-max-oversubscription-ratio:
+      default: true
+      description: |
+        Automatically determine an oversubscription ratio based on the
+        current total data reduction values. If enabled, this calculated
+        value will override the max_over_subscription_ratio config option.
+      type: boolean
+    pure-eradicate-on-delete:
+      default: false
+      description: |
+        When enabled, all Pure volumes, snapshots, and protection groups
+        will be eradicated at the time of deletion in Cinder. Data will
+        NOT be recoverable after a delete with this set to True!
+        When disabled, volumes and snapshots will go into pending
+        eradication state and can be recovered for 24 hours.
+      type: boolean
+    pure-host-personality:
+      default: null
+      description: |
+        Determines how the Purity system tunes the protocol used between
+        the array and the initiator. Options: aix, esxi, hitachi-vsp,
+        hpux, oracle-vm-server, solaris, vms, or null for auto-detection.
+      type: string
+    pure-iscsi-cidr:
+      default: 0.0.0.0/0
+      description: |
+        CIDR of FlashArray iSCSI targets hosts are allowed to connect to.
+        Default allows connection to any IPv4 address. Supports IPv6 subnets.
+        Ignored when pure-iscsi-cidr-list is set.
+      type: string
+    pure-iscsi-cidr-list:
+      default: null
+      description: |
+        Comma-separated list of CIDR of FlashArray iSCSI targets hosts
+        are allowed to connect to. Supports IPv4 and IPv6 subnets.
+        This parameter supersedes pure-iscsi-cidr.
+      type: string
+    pure-nvme-cidr:
+      default: 0.0.0.0/0
+      description: |
+        CIDR of FlashArray NVMe targets hosts are allowed to connect to.
+        Default allows connection to any IPv4 address. Supports IPv6 subnets.
+        Ignored when pure-nvme-cidr-list is set.
+      type: string
+    pure-nvme-cidr-list:
+      default: null
+      description: |
+        Comma-separated list of CIDR of FlashArray NVMe targets hosts
+        are allowed to connect to. Supports IPv4 and IPv6 subnets.
+        This parameter supersedes pure-nvme-cidr.
+      type: string
+    pure-nvme-transport:
+      default: tcp
+      description: |
+        NVMe transport layer to be used by the NVMe driver.
+        Options: roce, tcp
+        Note: TCP transport requires Purity 6.4.2 or higher.
+      type: string
+    pure-replica-interval-default:
+      default: 3600
+      description: |
+        Snapshot replication interval in seconds. Default is 1 hour (3600).
+      type: int
+    pure-replica-retention-long-term-default:
+      default: 7
+      description: |
+        Retain snapshots per day on target for this time (in days).
+        Default is 7 days.
+      type: int
+    pure-replica-retention-long-term-per-day-default:
+      default: 3
+      description: |
+        Retain how many snapshots for each day. Default is 3 snapshots per day.
+      type: int
+    pure-replica-retention-short-term-default:
+      default: 14400
+      description: |
+        Retain all snapshots on target for this time (in seconds).
+        Default is 4 hours (14400).
+      type: int
+    pure-replication-pg-name:
+      default: cinder-group
+      description: |
+        Pure Protection Group name to use for async replication.
+        Will be created if it does not exist.
+        WARNING: Do not change after volumes have been created.
+      type: string
+    pure-replication-pod-name:
+      default: cinder-pod
+      description: |
+        Pure Pod name to use for sync replication.
+        Will be created if it does not exist.
+        WARNING: Do not change after volumes have been created.
+      type: string
+    pure-trisync-enabled:
+      default: false
+      description: |
+        When enabled and two replication devices are provided (one each
+        of types sync and async), this enables the ability to create a
+        volume that is sync replicated to one array and async replicated
+        to a separate array (3-site replication).
+      type: boolean
+    pure-trisync-pg-name:
+      default: cinder-trisync
+      description: |
+        Pure Protection Group name to use for trisync replication leg
+        inside the sync replication pod. Will be created if it does not exist.
+      type: string
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
