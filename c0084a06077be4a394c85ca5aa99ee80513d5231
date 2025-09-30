@@ -16,6 +16,24 @@
       "message": "In the Sunbeam ecosystem, do we try to take the same approach with the Charmed OpenStack? I mean exposing each driver option as each charm config and we require a charm change for anyone we need to expose one new option? \n\nOr do we focus on \"core\" config to be exposed via charm options and we allow anything else as \"config-flags\"?",
       "revId": "c0084a06077be4a394c85ca5aa99ee80513d5231",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "56e58569_021edc8f",
+        "filename": "charms/cinder-volume-purestorage/charmcraft.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-09-30T06:55:30Z",
+      "side": 1,
+      "message": "Well that is the goal.\n\nI see the value of having a free-form kind of config option, but I also see anyone using these actually just using the config flag, and not contributing it to the well-known defined config options.\n\nThis is the balance to find.",
+      "parentUuid": "ec7298fe_11032cfa",
+      "revId": "c0084a06077be4a394c85ca5aa99ee80513d5231",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
