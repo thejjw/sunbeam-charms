@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d30a9bc_43c5e247",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-30T02:54:56Z",
+      "side": 1,
+      "message": "Can you add publish_channel as well\nhttps://opendev.org/openstack/sunbeam-charms/src/branch/main/zuul.d/zuul.yaml",
+      "revId": "96f74145b7f4f692c6d72fba4269a306c17924a5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7b33597b_e58df68c",
+        "filename": "charms/ironic-k8s/charmcraft.yaml",
+        "patchSetId": 9
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-30T02:54:56Z",
+      "side": 1,
+      "message": "Option not required\nhttps://opendev.org/openstack/ironic/src/branch/stable/2024.1/releasenotes/notes/remove-verbose-option-261f1b9e24212ee2.yaml",
+      "revId": "96f74145b7f4f692c6d72fba4269a306c17924a5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "57d96d29_9f7ebb96",
+        "filename": "charms/ironic-k8s/src/charm.py",
+        "patchSetId": 9
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-30T02:54:56Z",
+      "side": 1,
+      "message": "This handler is already in super() but that should be ok.\nWhen we backport this change, we can just remove ironicvncproxyhandler which seems good when someone looks at differernce between 2025.1 and 2024.1",
+      "revId": "96f74145b7f4f692c6d72fba4269a306c17924a5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4b0e68e_99e56d1d",
+        "filename": "charms/ironic-k8s/src/templates/ironic.conf.j2",
+        "patchSetId": 9
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-09-30T02:54:56Z",
+      "side": 1,
+      "message": "We may not require this option https://opendev.org/openstack/ironic/src/branch/stable/2024.1/releasenotes/notes/remove-verbose-option-261f1b9e24212ee2.yaml",
+      "revId": "96f74145b7f4f692c6d72fba4269a306c17924a5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
