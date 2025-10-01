@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "88ee6340_8d5a4d00",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-10-01T06:45:11Z",
+      "side": 1,
+      "message": "@claudiu.belu@canonical.com\n\nDo you have a specific need as to why you want to enable ceph-rgw as a backend (while there\u0027s already cinder-volume backed by ceph as a backend)?\n\nS3 type backend is notoriously slow, especially if the S3 backend is not swift itself. I would rather not enable this backend if we don\u0027t have a strong opinion as to why it should be enabled.",
+      "revId": "ca7e30466e53c958ddb383b01559e4643af5cc26",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
