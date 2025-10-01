@@ -31,13 +31,148 @@ from typing import (
 import api_utils
 import ops
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops.charm import (
+    RelationChangedEvent,
+)
 
 logger = logging.getLogger(__name__)
 
 IRONIC_CONDUCTOR_CONTAINER = "ironic-conductor"
+VALID_NETWORK_INTERFACES = ["neutron", "flat", "noop"]
+VALID_DEPLOY_INTERFACES = ["direct"]
+
+# The IPMI HW type requires only ipmitool to function. This HW type
+# remains pretty much unchanged across OpenStack releases and *should*
+# work
+_NOOP_INTERFACES = {
+    "enabled_bios_interfaces": "no-bios",
+    "enabled_console_interfaces": "no-console",
+    "enabled_inspect_interfaces": "no-inspect",
+    "enabled_management_interfaces": "noop",
+    "enabled_raid_interfaces": "no-raid",
+    "enabled_vendor_interfaces": "no-vendor",
+}
+
+_FAKE_HARDWARE_TYPE = {
+    "config_options": {
+        "enabled_bios_interfaces": ["fake"],
+        "enabled_boot_interfaces": ["fake"],
+        "enabled_console_interfaces": ["fake"],
+        "enabled_deploy_interfaces": ["fake"],
+        "enabled_hardware_types": ["fake-hardware"],
+        "enabled_inspect_interfaces": ["fake"],
+        "enabled_management_interfaces": ["fake"],
+        "enabled_power_interfaces": ["fake"],
+        "enabled_raid_interfaces": ["fake"],
+        "enabled_vendor_interfaces": ["fake"],
+    },
+}
+
+_IPMI_HARDWARE_TYPE = {
+    "config_options": {
+        "enabled_bios_interfaces": [],
+        "enabled_boot_interfaces": ["pxe"],
+        "enabled_console_interfaces": [
+            "ipmitool-socat",
+            "ipmitool-shellinabox",
+        ],
+        "enabled_deploy_interfaces": ["direct"],
+        "enabled_hardware_types": ["ipmi", "intel-ipmi"],
+        "enabled_inspect_interfaces": [],
+        "enabled_management_interfaces": ["ipmitool", "intel-ipmitool"],
+        "enabled_power_interfaces": ["ipmitool"],
+        "enabled_raid_interfaces": [],
+        "enabled_vendor_interfaces": ["ipmitool"],
+    },
+}
+
+_REDFISH_HARDWARE_TYPE = {
+    "config_options": {
+        "enabled_boot_interfaces": ["pxe", "redfish-virtual-media"],
+        "enabled_bios_interfaces": [],
+        "enabled_console_interfaces": [],
+        "enabled_deploy_interfaces": ["direct"],
+        "enabled_hardware_types": ["redfish"],
+        "enabled_inspect_interfaces": ["redfish"],
+        "enabled_management_interfaces": ["redfish"],
+        "enabled_power_interfaces": ["redfish"],
+        "enabled_raid_interfaces": [],
+        "enabled_vendor_interfaces": [],
+    },
+}
+
+_IDRAC_HARDWARE_TYPE = {
+    "config_options": {
+        "enabled_bios_interfaces": ["idrac-wsman"],
+        "enabled_boot_interfaces": ["pxe"],
+        "enabled_console_interfaces": [],
+        "enabled_deploy_interfaces": ["direct"],
+        "enabled_hardware_types": ["idrac"],
+        "enabled_inspect_interfaces": ["idrac-redfish"],
+        "enabled_management_interfaces": ["idrac-redfish"],
+        "enabled_power_interfaces": ["idrac-redfish"],
+        "enabled_raid_interfaces": ["idrac-wsman"],
+        "enabled_vendor_interfaces": ["idrac-wsman"],
+    },
+}
+
+_HW_TYPES_MAP = {
+    "fake": _FAKE_HARDWARE_TYPE,
+    "ipmi": _IPMI_HARDWARE_TYPE,
+    "idrac": _IDRAC_HARDWARE_TYPE,
+    "redfish": _REDFISH_HARDWARE_TYPE,
+}
+
+
+@sunbeam_tracing.trace_type
+class IronicConductorConfigurationContext(sunbeam_ctxts.ConfigContext):
+    """Configuration context to set ironic parameters."""
+
+    def context(self) -> dict:
+        """Generate configuration information for ironic_config."""
+        ctxt = {
+            "hardware_type_cfg": self._get_hardware_types_config(),
+            "temp_url_secret": self.charm.leader_get("temp_url_secret"),
+        }
+
+        return ctxt
+
+    def _get_hardware_types_config(self):
+        configs = {}
+        for hw_type in self.charm.enabled_hw_types:
+            details = _HW_TYPES_MAP.get(hw_type, None)
+            if details is None:
+                # Not a valid hardware type. No need to raise here,
+                # we will let the operator know when we validate the
+                # config in custom_assess_status_check()
+                continue
+            driver_cfg = details["config_options"]
+            for cfg_opt in driver_cfg.items():
+                opt_list = configs.get(cfg_opt[0], [])
+                opt_list.extend(cfg_opt[1])
+                opt_list = list(set(opt_list))
+                opt_list.sort()
+                configs[cfg_opt[0]] = opt_list
+
+        if self.charm.config.get("use-ipxe", None):
+            configs["enabled_boot_interfaces"].append("ipxe")
+
+        # append the noop interfaces at the end
+        for noop in _NOOP_INTERFACES:
+            if configs.get(noop, None) is not None:
+                configs[noop].append(_NOOP_INTERFACES[noop])
+
+        for opt in configs:
+            if len(configs[opt]) > 0:
+                configs[opt] = ", ".join(configs[opt])
+            else:
+                configs[opt] = ""
+        return configs
 
 
 @sunbeam_tracing.trace_type
@@ -94,6 +229,9 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             self.on.set_temp_url_secret_action,
             self._on_set_temp_url_secret_action,
         )
+        self.framework.observe(
+            self.on.peers_relation_changed, self._on_peer_relation_changed
+        )
 
     @property
     def service_user(self) -> str:
@@ -127,6 +265,15 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         return pebble_handlers
 
     @property
+    def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
+        """Configuration contexts for the operator."""
+        contexts = super().config_contexts
+        contexts.append(
+            IronicConductorConfigurationContext(self, "ironic_config")
+        )
+        return contexts
+
+    @property
     def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:
         """Container configuration files for the service."""
         _cconfigs = [
@@ -156,6 +303,79 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             ),
         ]
         return _cconfigs
+
+    def configure_charm(self, event: ops.framework.EventBase) -> None:
+        """Catchall handler to configure charm services."""
+        validated = False
+        with sunbeam_guard.guard(self, "Validating configuration"):
+            self._validate_default_net_interface()
+            self._validate_network_interfaces()
+            self._validate_enabled_hw_type()
+            self._validate_temp_url_secret()
+            validated = True
+
+        if not validated:
+            return
+
+        super().configure_charm(event)
+
+    def _validate_default_net_interface(self):
+        net_iface = self.config["default-network-interface"]
+        if net_iface not in self.enabled_network_interfaces:
+            raise sunbeam_guard.BlockedExceptionError(
+                "default-network-interface (%s) is not enabled "
+                "in enabled-network-interfaces: %s"
+                % (net_iface, ", ".join(self.enabled_network_interfaces))
+            )
+
+    def _validate_network_interfaces(self):
+        for interface in self.enabled_network_interfaces:
+            if interface not in VALID_NETWORK_INTERFACES:
+                raise sunbeam_guard.BlockedExceptionError(
+                    "Network interface %s is not valid. Valid "
+                    "interfaces are: %s"
+                    % (interface, ", ".join(VALID_NETWORK_INTERFACES))
+                )
+
+    def _validate_enabled_hw_type(self):
+        hw_types = _HW_TYPES_MAP
+        unsupported = []
+        for hw_type in self.enabled_hw_types:
+            if hw_types.get(hw_type, None) is None:
+                unsupported.append(hw_type)
+
+        if len(unsupported) > 0:
+            raise sunbeam_guard.BlockedExceptionError(
+                "hardware type(s) %s not supported at "
+                "this time" % ", ".join(unsupported)
+            )
+
+    def _validate_temp_url_secret(self):
+        temp_url_secret = self.leader_get("temp_url_secret")
+        if not temp_url_secret:
+            raise sunbeam_guard.BlockedExceptionError(
+                "run set-temp-url-secret action on leader to "
+                "enable direct deploy method"
+            )
+
+    @property
+    def enabled_network_interfaces(self) -> List[str]:
+        """Returns list of onfigured enabled-network-interfaces."""
+        network_interfaces = self.config.get(
+            "enabled-network-interfaces", ""
+        ).replace(" ", "")
+        return network_interfaces.split(",")
+
+    @property
+    def enabled_hw_types(self) -> List[str]:
+        """Returns list of onfigured enabled-hw-types."""
+        hw_types = self.config.get("enabled-hw-types", "ipmi").replace(" ", "")
+        return hw_types.split(",")
+
+    def _on_peer_relation_changed(self, event: RelationChangedEvent):
+        """Process peer relation data changed."""
+        logger.debug("Processing _on_peer_relation_changed")
+        self.configure_charm(event)
 
     def _on_set_temp_url_secret_action(
         self, event: ops.charm.ActionEvent
@@ -213,6 +433,10 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         secret = hashlib.sha1(str(uuid.uuid4()).encode()).hexdigest()
         os_cli.set_object_account_property("temp-url-key", secret)
         self.leader_set({"temp_url_secret": secret})
+
+        # Manually trigger configure_charm, as peers_relation_changed won't be
+        # triggered on the leader unit.
+        self.configure_charm(event)
 
         event.set_results({"output": "Temp URL secret set."})
 
