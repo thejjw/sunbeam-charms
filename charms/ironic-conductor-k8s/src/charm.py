@@ -36,6 +36,7 @@ import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
+import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 from ops.charm import (
     RelationChangedEvent,
@@ -46,6 +47,7 @@ from ops_sunbeam.k8s_resource_handlers import (
 
 logger = logging.getLogger(__name__)
 
+CEPH_RGW_RELATION = "ceph-rgw-ready"
 IRONIC_CONDUCTOR_CONTAINER = "ironic-conductor"
 IRONIC_CONDUCTOR_HTTP_PORT = 80
 IRONIC_CONDUCTOR_TFTP_PORT = 69
@@ -325,6 +327,23 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         ]
         return pebble_handlers
 
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
+        """Relation handlers for the operator."""
+        handlers = super().get_relation_handlers(handlers or [])
+
+        if self.can_add_handler(CEPH_RGW_RELATION, handlers):
+            self.ceph_rgw = sunbeam_rhandlers.ServiceReadinessRequiresHandler(
+                self,
+                CEPH_RGW_RELATION,
+                self.configure_charm,
+                CEPH_RGW_RELATION in self.mandatory_relations,
+            )
+            handlers.append(self.ceph_rgw)
+
+        return handlers
+
     @property
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
         """Configuration contexts for the operator."""
@@ -489,7 +508,7 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         if "swift" not in os_cli.glance_stores:
             event.fail(
                 "Glance does not support Swift storage backend. "
-                "Please add relation between glance and microceph-ceph-rgw/swift"
+                "Please add relation between glance and microceph-ceph-rgw-ready/swift"
             )
             return
 
