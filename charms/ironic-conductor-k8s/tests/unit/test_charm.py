@@ -22,6 +22,9 @@ import api_utils
 import charm
 import ops_sunbeam.test_utils as test_utils
 from keystoneauth1 import exceptions as ks_exc
+from ops import (
+    model,
+)
 from ops.testing import (
     ActionFailed,
     Harness,
@@ -83,6 +86,15 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
+    def _check_file_contents(self, container, path, strings):
+        client = self.harness.charm.unit.get_container(container)._pebble  # type: ignore
+
+        with client.pull(path) as infile:
+            received_data = infile.read()
+
+        for string in strings:
+            self.assertIn(string, received_data)
+
     def add_db_relation(self, harness: Harness, name: str) -> str:
         """Add db relation."""
         rel_id = harness.add_relation(name, "mysql")
@@ -98,13 +110,26 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
         self.harness.container_pebble_ready("ironic-conductor")
         self.assertEqual(self.harness.charm.seen_events, ["PebbleReadyEvent"])
 
-    def test_all_relations(self):
+    @mock.patch("api_utils.OSClients")
+    @mock.patch("api_utils.create_keystone_session")
+    def test_all_relations(self, mock_create_ks_session, mock_osclients):
         """Test all integrations for operator."""
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
 
         # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
+
+        # This action needs to be run, otherwise the charm is Blocked.
+        os_cli = mock_osclients.return_value
+        os_cli.glance_stores = ["swift"]
+        action_event = self.harness.run_action("set-temp-url-secret")
+        self.assertEqual(
+            "Temp URL secret set.", action_event.results.get("output")
+        )
+
+        charm_status = self.harness.charm.status
+        self.assertIsInstance(charm_status.status, model.ActiveStatus)
 
         config_files = [
             "/etc/ironic/ironic.conf",
@@ -114,6 +139,129 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
         ]
         for f in config_files:
             self.check_file("ironic-conductor", f)
+
+    @mock.patch("api_utils.OSClients")
+    @mock.patch("api_utils.create_keystone_session")
+    def test_charm_invalid_config(
+        self, mock_create_ks_session, mock_osclients
+    ):
+        """Test the charm configuration validation."""
+        self.harness.set_leader()
+        test_utils.set_all_pebbles_ready(self.harness)
+
+        # this adds all the default/common relations
+        test_utils.add_all_relations(self.harness)
+
+        os_cli = mock_osclients.return_value
+        os_cli.glance_stores = ["swift"]
+        action_event = self.harness.run_action("set-temp-url-secret")
+
+        self.assertEqual(
+            "Temp URL secret set.", action_event.results.get("output")
+        )
+        charm_status = self.harness.charm.status
+        self.assertIsInstance(charm_status.status, model.ActiveStatus)
+
+        # invalid default-network-interface.
+        cfg = {"default-network-interface": "foo"}
+        self.harness.update_config(cfg)
+
+        self.assertIsInstance(charm_status.status, model.BlockedStatus)
+
+        # invalid enabled-network-interfaces.
+        cfg = {
+            "default-network-interface": "flat",
+            "enabled-network-interfaces": "foo",
+        }
+        self.harness.update_config(cfg)
+
+        self.assertIsInstance(charm_status.status, model.BlockedStatus)
+
+        # invalid enabled-hw-types.
+        cfg = {"enabled-network-interfaces": "flat", "enabled-hw-types": "foo"}
+        self.harness.update_config(cfg)
+
+        self.assertIsInstance(charm_status.status, model.BlockedStatus)
+
+        # valid configuration.
+        cfg = {"enabled-hw-types": "ipmi"}
+        self.harness.update_config(cfg)
+
+        self.assertIsInstance(charm_status.status, model.ActiveStatus)
+
+    @mock.patch("api_utils.OSClients")
+    @mock.patch("api_utils.create_keystone_session")
+    def test_charm_configuration(self, mock_create_ks_session, mock_osclients):
+        """Test the charm configuration."""
+        self.harness.set_leader()
+        test_utils.set_all_pebbles_ready(self.harness)
+
+        # this adds all the default/common relations
+        test_utils.add_all_relations(self.harness)
+
+        os_cli = mock_osclients.return_value
+        os_cli.glance_stores = ["swift"]
+        action_event = self.harness.run_action("set-temp-url-secret")
+
+        self.assertEqual(
+            "Temp URL secret set.", action_event.results.get("output")
+        )
+        charm_status = self.harness.charm.status
+        self.assertIsInstance(charm_status.status, model.ActiveStatus)
+
+        # check ironic_config context with default configuration.
+        lines = [
+            "default_deploy_interface = direct",
+            "interfaces = internal",
+            "enabled_bios_interfaces = no-bios",
+            "enabled_boot_interfaces = pxe",
+            "enabled_console_interfaces = ipmitool-shellinabox, ipmitool-socat, no-console",
+            "enabled_deploy_interfaces = direct",
+            "enabled_hardware_types = intel-ipmi, ipmi",
+            "enabled_inspect_interfaces = no-inspect",
+            "enabled_management_interfaces = intel-ipmitool, ipmitool, noop",
+            "enabled_power_interfaces = ipmitool",
+            "enabled_raid_interfaces = no-raid",
+            "enabled_vendor_interfaces = ipmitool, no-vendor",
+        ]
+        self._check_file_contents(
+            "ironic-conductor", "/etc/ironic/ironic.conf", lines
+        )
+
+        cfg = {"enabled-hw-types": "fake,ipmi,redfish,idrac"}
+        self.harness.update_config(cfg)
+
+        lines = [
+            "default_deploy_interface = direct",
+            "enabled_bios_interfaces = fake, idrac-wsman, no-bios",
+            "enabled_boot_interfaces = fake, pxe, redfish-virtual-media",
+            "enabled_console_interfaces = fake, ipmitool-shellinabox, ipmitool-socat, no-console",
+            "enabled_deploy_interfaces = direct, fake",
+            "enabled_hardware_types = fake-hardware, idrac, intel-ipmi, ipmi, redfish",
+            "enabled_inspect_interfaces = fake, idrac-redfish, redfish, no-inspect",
+            "enabled_management_interfaces = fake, idrac-redfish, intel-ipmitool, ipmitool, redfish, noop",
+            "enabled_power_interfaces = fake, idrac-redfish, ipmitool, redfish",
+            "enabled_raid_interfaces = fake, idrac-wsman, no-raid",
+            "enabled_vendor_interfaces = fake, idrac-wsman, ipmitool, no-vendor",
+        ]
+        self._check_file_contents(
+            "ironic-conductor", "/etc/ironic/ironic.conf", lines
+        )
+
+        # check other configurations.
+        cfg = {"cleaning-network": "foo", "provisioning-network": "lish"}
+        self.harness.update_config(cfg)
+
+        secret = self.harness.charm.leader_get("temp_url_secret")
+        lines = [
+            "cleaning_network = foo",
+            "provisioning_network = lish",
+            f"swift_temp_url_key = {secret}",
+            "swift_temp_url_duration = 1200",
+        ]
+        self._check_file_contents(
+            "ironic-conductor", "/etc/ironic/ironic.conf", lines
+        )
 
     @mock.patch("keystoneclient.v3.Client")
     @mock.patch("swiftclient.Connection")

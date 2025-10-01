@@ -100,8 +100,8 @@ target_deploy_status:
     workload-status: active
     workload-status-message-regex: '^.*$'
   ironic-conductor:
-    workload-status: active
-    workload-status-message-regex: '^.*$'
+    workload-status: blocked
+    workload-status-message-regex: '^.*run set-temp-url-secret action on leader to enable direct deploy method.*$'
   nova-ironic:
     workload-status: active
     workload-status-message-regex: '^.*$'
