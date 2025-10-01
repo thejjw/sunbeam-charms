@@ -9,6 +9,26 @@ debug = {{ options.debug }}
 transport_url = {{ amqp.transport_url }}
 auth_strategy = keystone
 
+enabled_deploy_interfaces = direct
+default_deploy_interface = direct
+
+enabled_hardware_types = {{ ironic_config.hardware_type_cfg.enabled_hardware_types }}
+enabled_boot_interfaces = {{ ironic_config.hardware_type_cfg.enabled_boot_interfaces }}
+
+enabled_management_interfaces = {{ ironic_config.hardware_type_cfg.enabled_management_interfaces }}
+enabled_inspect_interfaces = {{ ironic_config.hardware_type_cfg.enabled_inspect_interfaces }}
+
+enabled_network_interfaces = {{ options.enabled_network_interfaces }}
+default_network_interface = {{ options.default_network_interface }}
+
+enabled_power_interfaces = {{ ironic_config.hardware_type_cfg.enabled_power_interfaces }}
+enabled_storage_interfaces = cinder,noop
+
+enabled_console_interfaces = {{ ironic_config.hardware_type_cfg.enabled_console_interfaces }}
+enabled_raid_interfaces = {{ ironic_config.hardware_type_cfg.enabled_raid_interfaces }}
+enabled_vendor_interfaces = {{ ironic_config.hardware_type_cfg.enabled_vendor_interfaces }}
+enabled_bios_interfaces = {{ ironic_config.hardware_type_cfg.enabled_bios_interfaces }}
+
 {% include "parts/section-database" %}
 
 [keystone_authtoken]
@@ -17,6 +37,50 @@ auth_strategy = keystone
 {% include "parts/section-service-credentials-from-identity-service" %}
 
 {% include "parts/section-oslo-messaging-rabbit" %}
+
+[nova]
+{% include "parts/identity-data-id-creds" %}
+
+[neutron]
+{% include "parts/identity-data-id-creds" %}
+{% if options.cleaning_network %}
+cleaning_network = {{ options.cleaning_network }}
+{% endif %}
+{% if options.provisioning_network %}
+provisioning_network = {{ options.provisioning_network }}
+{% endif %}
+
+[glance]
+{% include "parts/identity-data-id-creds" %}
+swift_container = glance
+{% if ironic_config.temp_url_secret -%}
+swift_temp_url_key = {{ ironic_config.temp_url_secret }}
+{% endif %}
+{%- if options.swift_temp_url_duration and options.swift_temp_url_duration > 0 %}
+swift_temp_url_duration = {{ options.swift_temp_url_duration }}
+{%- endif %}
+
+[swift]
+{% include "parts/identity-data-id-creds" %}
+
+[cinder]
+{% include "parts/identity-data-id-creds" %}
+
+[service_catalog]
+{% include "parts/identity-data-id-creds" %}
+
+{% include "parts/section-pxe" %}
+
+{% include "parts/section-deploy" %}
+
+{% include "parts/section-agent" %}
+
+[conductor]
+automated_clean = {{ options.automated_cleaning }}
+conductor_group {{ options.conductor_group }}
+
+[ipmi]
+use_ipmitool_retries = {{ options.use_ipmitool_retries }}
 
 [oslo_concurrency]
 lock_path = /var/lib/ironic/tmp
