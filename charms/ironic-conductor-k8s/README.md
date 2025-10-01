@@ -22,6 +22,7 @@ and keystone identity:
     juju relate ironic-mysql-router:database ironic-conductor:database
     juju relate rabbitmq:amqp ironic-conductor:amqp
     juju relate keystone:identity-credentials ironic-conductor:identity-credentials
+    juju relate microceph-ceph-rgw ironic-conductor:ceph-rgw
 
 ### Configuration
 
@@ -44,6 +45,7 @@ ironic-conductor-k8s requires the following relations:
 - `amqp`: To connect to RabbitMQ.
 - `database`: To connect to MySQL.
 - `identity-credentials`: To connect to Keystone.
+- `ceph-rgw`: To receive the RGW service readiness signal from the `microceph` charm.
 
 The following relations are optional:
 
