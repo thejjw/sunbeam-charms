@@ -117,6 +117,14 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
         )
         return rel_id
 
+    def add_ceph_rgw_relation(self):
+        """Add ceph-rgw-ready relation."""
+        return self.harness.add_relation(
+            charm.CEPH_RGW_RELATION,
+            "microceph",
+            app_data={"ready": "true"},
+        )
+
     def test_pebble_ready_handler(self):
         """Test pebble ready event handling."""
         self.assertEqual(self.harness.charm.seen_events, [])
@@ -132,6 +140,7 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
 
         # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
+        self.add_ceph_rgw_relation()
 
         # This action needs to be run, otherwise the charm is Blocked.
         os_cli = mock_osclients.return_value
@@ -197,6 +206,7 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
 
         # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
+        self.add_ceph_rgw_relation()
 
         os_cli = mock_osclients.return_value
         os_cli.glance_stores = ["swift"]
@@ -244,6 +254,7 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
 
         # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
+        self.add_ceph_rgw_relation()
 
         os_cli = mock_osclients.return_value
         os_cli.glance_stores = ["swift"]
@@ -356,6 +367,7 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
         # Test the keystone session creation case.
         mock_session.side_effect = Exception("to be expected.")
         test_utils.add_all_relations(self.harness)
+        self.add_ceph_rgw_relation()
 
         with self.assertRaises(ActionFailed) as ctx:
             self.harness.run_action("set-temp-url-secret")
@@ -438,6 +450,7 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         self.harness.set_leader()
         test_utils.add_all_relations(self.harness)
+        self.add_ceph_rgw_relation()
 
         mock_glance_client.return_value.images.get_stores_info.return_value = {
             "stores": [

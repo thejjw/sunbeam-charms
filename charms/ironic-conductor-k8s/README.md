@@ -22,6 +22,7 @@ and keystone identity:
     juju relate ironic-mysql-router:database ironic-conductor:database
     juju relate rabbitmq:amqp ironic-conductor:amqp
     juju relate keystone:identity-credentials ironic-conductor:identity-credentials
+    juju relate microceph-ceph-rgw-ready ironic-conductor:ceph-rgw-ready
 
 After the charm has been deployed, run the set-temp-url-secret on the `ironic-conductor`
 leader unit:
@@ -49,6 +50,7 @@ ironic-conductor-k8s requires the following relations:
 - `amqp`: To connect to RabbitMQ.
 - `database`: To connect to MySQL.
 - `identity-credentials`: To connect to Keystone.
+- `ceph-rgw-ready`: To receive the RGW service readiness signal from the `microceph` charm.
 
 The following relations are optional:
 
