@@ -11,7 +11,6 @@ templates:
   - parts/section-database
   - parts/database-connection
   - parts/database-connection-settings
-  - parts/identity-data-id-creds
   - parts/section-oslo-messaging-rabbit
   - parts/section-service-credentials-from-identity-service
   - ca-bundle.pem.j2
