@@ -224,6 +224,8 @@ requires:
   identity-credentials:
     interface: keystone-credentials
     limit: 1
+  ceph-rgw:
+    interface: ceph-rgw-client
   logging:
     interface: loki_push_api
     optional: true
