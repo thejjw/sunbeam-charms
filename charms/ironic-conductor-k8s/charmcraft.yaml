@@ -20,8 +20,176 @@ config:
   options:
     debug:
       default: false
-      description: Enable debug logging.
       type: boolean
+      description: Enable debug logging.
+    region:
+      default: RegionOne
+      type: string
+      description: OpenStack Region
+    conductor_group:
+      default: ""
+      type: string
+      description: |
+        Key to limit the set of baremetal nodes managed by this ironic
+        conductor.
+    use-ipxe:
+      default: true
+      type: boolean
+      description: |
+        Use iPXE instead of PXE. This option will start an additional
+        HTTP server with a root in /httpboot.
+    ipxe-http-port:
+      default: "8080"
+      type: string
+      description: |
+        The port used for the HTTP server used to serve iPXE resources.
+    max-tftp-block-size:
+      default: 0
+      type: int
+      description: |
+        Force TFTP server maximum block size. Setting this option to anything
+        other than 0, will force the block size sent over TFTP to the value
+        specified here. Valid range is 512-65535. By default, clients will
+        negotiate the block size.
+
+        Use this option if you're running ironic in a network with lower
+        MTU. The value of this option should be 32 bits less than the MTU.
+        If your MTU is 1450, the value for this option should be 1418.
+    disable-secure-erase:
+      default: false
+      type: boolean
+      description: |
+        This will disable secure erase in Ironic, when releasing a node. An ATA
+        Secure Erase will be attempted. If it's not supported, the disks will be
+        shreaded by writting random data to them once, then overwriting that data
+        with zeros.
+
+        Enabling this option will preserve the data on disk after release (not
+        recommended for production).
+    hardware-enablement-options:
+      default:
+      type: string
+      description: |
+        Options passed to the managed service to set configuration keys that
+        enable the use of specific hardware.
+    provisioning-network:
+      default: !!null ""
+      type: string
+      description: |
+        The name or ID of the provisioning network. This network is used to deploy
+        bare metal nodes. This option is mandatory to allow Neutron network interfaces.
+    cleaning-network:
+      default: !!null ""
+      type: string
+      description: |
+        The name or ID of the cleaning network. This network is used to clean
+        bare metal nodes after they have been releases. This option is mandatory
+        to allow Neutron network interfaces. The same network may be used for both
+        cleaning and provisioning.
+    enabled-network-interfaces:
+      type: string
+      default: "flat, neutron, noop"
+      description: |
+        Comma separated list of network interfaces to be enabled in the Ironic config.
+        Valid options are:
+          * flat
+          * neutron
+          * noop
+
+        Note: When enabling "neutron", you will also have to set the provisioning-network
+        and the cleaning-network options. The settings for these networks can be overwritten
+        per node, but they need to be set globally for ironic to start. The "neutron" network
+        interface is needed if you require additional enablement from a ml2 driver you may
+        have enabled in your deployment, such as switch configuration.
+    default-network-interface:
+      type: string
+      default: "flat"
+      description: |
+        The default network interface to use for nodes that do not explicitly set a network
+        interface type. The default network interface specified here, must also exist in the
+        list of enabled-network-interfaces.
+    pxe-append-params:
+      # kernel_append_params
+      default: "nofb nomodeset vga=normal console=tty0 console=ttyS0,115200n8"
+      type: string
+      description: |
+        Kernel command line parameters to pass to the deployment kernel.
+        Options must be space delimited and will be passed as is to the deployment image.
+        Aside from regular linux kernel command line parameters, you can also configure
+        the ironic python agent (IPA) from within the deployment image. See the IPA
+        documentation for a list of command line parameters which can be passed via
+        pxe_append_params.
+    automated-cleaning:
+      # automated_clean
+      default: true
+      type: boolean
+      description: |
+        Globally enables automated cleaning of nodes. This is run when setting a node to available
+        state, or when deleting an instance. Cleaning will bring the node in a baseline
+        state. You can safely disable this feature if all tenants of your OpenStack deployment
+        are trusted, or if you have a single tenant.
+
+        Note: Automated cleaning can be toggled on a per node basis, via node properties.
+        Note: node cleaning may take a long time, especially if secure erase is enabled.
+    enabled-hw-types:
+      # enabled_hardware_types
+      default: "ipmi"
+      type: string
+      description: |
+        Comma separated list of hardware types to enable.
+        Valid options are:
+          * ipmi
+          * redfish
+          * idrac
+          * fake (for testing purposes)
+    use-ipmitool-retries:
+      type: boolean
+      default: false
+      description: |
+        Use ipmitool to do the retries by passing relevant parameters. By default the option
+        is set to false and in this case Ironic will do the retries by re-running ipmi commands.
+    deploy-logs-collect:
+      default: "on_failure"
+      type: string
+      description: |
+        Defines the deployment-log collection behaviour.
+        Valid options are:
+          * on_failure (default): Retrieve deployment logs on deployment failure.
+          * always: Always collect logs even if deployment seccedded.
+          * never: Disable log collection
+    deploy-logs-storage-backend:
+      default: "local"
+      type: string
+      description: |
+        Defines the location to store logs.
+        Valid options are:
+          * local (default): Store logs on local filesystem.
+          * swift: Store logs on swift container.
+    deploy-logs-local-path:
+      default: "/var/log/ironic/deploy"
+      type: string
+      description: |
+        Location of the directory to store logs on local filesystem.
+        Used when deploy-logs-storage-backend is configured to "local".
+    deploy-logs-swift-container:
+      default: "ironic_deploy_logs_container"
+      type: string
+      description: |
+        The name of the swift container to store logs.
+        Used when deploy-logs-storage-backend is configured to "swift".
+    deploy-logs-swift-days-to-expire:
+      default: 30
+      type: int
+      description: |
+        Number of days before a log object expires in swift.
+    swift-temp-url-duration:
+      default: 1200
+      type: int
+      description: |
+        The length of time (in seconds) that the temporary URL will be valid
+        for. Defaults to 20 minutes. If some deploys get a 401 response code
+        when trying to download from the temporary URL, try raising this
+        duration.
 
 actions:
   set-temp-url-secret:
@@ -56,6 +224,8 @@ requires:
   identity-credentials:
     interface: keystone-credentials
     limit: 1
+  ceph-rgw:
+    interface: ceph-rgw-client
   logging:
     interface: loki_push_api
     optional: true
