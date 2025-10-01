@@ -23,6 +23,11 @@ and keystone identity:
     juju relate rabbitmq:amqp ironic-conductor:amqp
     juju relate keystone:identity-credentials ironic-conductor:identity-credentials
 
+After the charm has been deployed, run the set-temp-url-secret on the `ironic-conductor`
+leader unit:
+
+    juju run ironic-conductor/leader set-temp-url-secret
+
 ### Configuration
 
 This section covers common and/or important configuration options. See file
