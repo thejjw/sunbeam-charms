@@ -1,0 +1,34 @@
+[pxe]
+# Ironic compute node's tftp root path. (string value)
+tftp_root=/tftpboot
+
+# IP address of Ironic compute node's tftp server. (string
+# value)
+tftp_server = {{ ironic_config.loadbalancer_ip }}
+
+kernel_append_params = nofb nomodeset vga=normal console=tty0 console=ttyS0,115200n8
+
+{% if options.use_ipxe -%}
+# Enable iPXE boot. (boolean value)
+ipxe_enabled = True
+
+# Neutron bootfile DHCP parameter. (string value)
+pxe_bootfile_name = undionly.kpxe
+
+# Bootfile DHCP parameter for UEFI boot mode. (string value)
+uefi_pxe_bootfile_name = ipxe.efi
+
+# Template file for PXE configuration. (string value)
+pxe_config_template=$pybasedir/drivers/modules/ipxe_config.template
+
+# Template file for PXE configuration for UEFI boot loader.
+# (string value)
+uefi_pxe_config_template=$pybasedir/drivers/modules/ipxe_config.template
+
+# Download deploy images directly from swift using temporary
+# URLs. If set to false (default), images are downloaded to
+# the ironic-conductor node and served over its local HTTP
+# server. Applicable only when 'ipxe_enabled' option is set to
+# true. (boolean value)
+ipxe_use_swift = true
+{% endif -%}

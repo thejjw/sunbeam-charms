@@ -1,0 +1,26 @@
+{% if identity_credentials.admin_auth_url -%}
+auth_url = {{ identity_credentials.admin_auth_url }}
+interfaces = admin
+{% elif identity_credentials.internal_auth_url -%}
+auth_url = {{ identity_credentials.internal_auth_url }}
+interfaces = internal
+{% elif identity_credentials.internal_host -%}
+auth_url = {{ identity_credentials.internal_protocol }}://{{ identity_credentials.internal_host }}:{{ identity_credentials.internal_port }}
+interfaces = internal
+{% endif -%}
+{% if identity_credentials.public_auth_url -%}
+www_authenticate_uri = {{ identity_credentials.public_auth_url }}
+{% elif identity_credentials.internal_host -%}
+www_authenticate_uri = {{ identity_credentials.internal_protocol }}://{{ identity_credentials.internal_host }}:{{ identity_credentials.internal_port }}
+{% endif -%}
+auth_type = password
+project_domain_name = {{ identity_credentials.project_domain_name }}
+user_domain_name = {{ identity_credentials.user_domain_name }}
+project_name = {{ identity_credentials.project_name }}
+username = {{ identity_credentials.username }}
+password = {{ identity_credentials.password }}
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+cafile = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}
+service_token_roles = {{ identity_credentials.admin_role }}
+service_token_roles_required = True
