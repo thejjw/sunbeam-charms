@@ -23,6 +23,19 @@ config:
       description: Enable debug logging.
       type: boolean
 
+actions:
+  set-temp-url-secret:
+    description: |
+      Set Temp-Url-Key in the service object storage account. This enables Ironic
+      to use the "direct" deploy method. In order for this to work, both Glance
+      and Ironic must use the same tenant in their respective configs.
+
+      This action must be performed on the ironic-conductor leader, after the
+      deployment is complete. Glance must either use Swift/RadosGW as a storage
+      backend, or multi-backend must be enabled in Glance with Swift as one of
+      the supported stores.
+    additionalProperties: false
+
 containers:
   ironic-conductor:
     resource: ironic-conductor-image
@@ -55,6 +68,10 @@ requires:
     interface: tracing
     optional: true
     limit: 1
+
+peers:
+  peers:
+    interface: ironic-conductor-peer
 
 parts:
   update-certificates:
