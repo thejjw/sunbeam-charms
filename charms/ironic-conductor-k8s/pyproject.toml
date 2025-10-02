@@ -10,6 +10,9 @@ dependencies = [
     "jinja2",
     "jsonschema",
     "pydantic",
+    "python-keystoneclient",
+    "python-glanceclient",
+    "python-swiftclient",
     "ops",
     "interface_tls_certificates@git+https://opendev.org/openstack/charm-ops-interface-tls-certificates",
     "tenacity", # From ops_sunbeam
