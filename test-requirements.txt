@@ -6,6 +6,8 @@ ops[testing]>=2.17.0,<3       # all charms, private paths have moved
 lightkube                  # almost all charms
 pwgen                      # keystone-k8s
 python-keystoneclient      # keystone-k8s
+python-glanceclient        # ironic-conductor-k8s
+python-swiftclient         # ironic-conductor-k8s
 cryptography               # neutron-k8s
 jsonschema                 # neutron-k8s
 pytest-interface-tester    # barbican-k8s
