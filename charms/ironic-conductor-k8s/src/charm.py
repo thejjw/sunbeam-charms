@@ -20,12 +20,15 @@ This charm provides Ironic Conductor service as part of an OpenStack
 deployment.
 """
 
+import hashlib
 import logging
+import uuid
 from typing import (
     List,
     Mapping,
 )
 
+import api_utils
 import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
@@ -83,6 +86,14 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 
     service_name = "ironic-conductor"
+
+    def __init__(self, framework: ops.framework.Framework) -> None:
+        """Run the constructor."""
+        super().__init__(framework)
+        self.framework.observe(
+            self.on.set_temp_url_secret_action,
+            self._on_set_temp_url_secret_action,
+        )
 
     @property
     def service_user(self) -> str:
@@ -145,6 +156,65 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             ),
         ]
         return _cconfigs
+
+    def _on_set_temp_url_secret_action(
+        self, event: ops.charm.ActionEvent
+    ) -> None:
+        """Run set-temp-url-secret action."""
+        if not self.model.unit.is_leader():
+            event.fail("action must be run on the leader unit.")
+            return
+
+        if self.get_mandatory_relations_not_ready(event):
+            event.fail(
+                "required relations are not yet available, please defer action until "
+                "deployment is complete."
+            )
+            return
+
+        try:
+            keystone_session = api_utils.create_keystone_session(
+                self.ccreds.interface
+            )
+        except Exception as e:
+            event.fail("failed to create keystone session ('{e}')")
+            return
+
+        os_cli = api_utils.OSClients(keystone_session)
+        if not os_cli.has_swift():
+            event.fail(
+                "Swift not yet available. Please wait for deployment to finish"
+            )
+            return
+
+        if not os_cli.has_glance():
+            event.fail(
+                "Glance not yet available. Please wait for deployment to finish"
+            )
+            return
+
+        if "swift" not in os_cli.glance_stores:
+            event.fail(
+                "Glance does not support Swift storage backend. "
+                "Please add relation between glance and microceph-ceph-rgw/swift"
+            )
+            return
+
+        current_secret = self.leader_get("temp_url_secret")
+        current_swift_secret = os_cli.get_object_account_properties().get(
+            "temp-url-key", None
+        )
+        if current_secret and current_swift_secret == current_secret:
+            # Already stored.
+            event.set_results({"output": "Temp URL secret set."})
+            return
+
+        # Generate a secret and store it.
+        secret = hashlib.sha1(str(uuid.uuid4()).encode()).hexdigest()
+        os_cli.set_object_account_property("temp-url-key", secret)
+        self.leader_set({"temp_url_secret": secret})
+
+        event.set_results({"output": "Temp URL secret set."})
 
 
 if __name__ == "__main__":  # pragma: nocover
