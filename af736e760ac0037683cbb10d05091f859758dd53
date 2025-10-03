@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "af736e760ac0037683cbb10d05091f859758dd53",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "862de74f_f02523f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-03T16:14:02Z",
+      "side": 1,
+      "message": "recheck octavia unit know blocked state",
+      "revId": "af736e760ac0037683cbb10d05091f859758dd53",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
