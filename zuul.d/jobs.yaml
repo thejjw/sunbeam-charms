@@ -179,6 +179,18 @@
     vars:
       charm: heat-k8s
 - job:
+    name: charm-build-ironic-k8s
+    description: Build sunbeam ironic-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/ironic-k8s/
+      - rebuild
+    vars:
+      charm: ironic-k8s
+- job:
     name: charm-build-octavia-k8s
     description: Build sunbeam octavia-k8s charm
     run: playbooks/charm/build.yaml
@@ -903,6 +915,19 @@
     timeout: 3600
 
 - job:
+    name: publish-charm-ironic-k8s
+    description: |
+      Publish ironic-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/ironic-k8s/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
     name: publish-charm-horizon-k8s
     description: |
       Publish horizon-k8s built in gate pipeline.
@@ -1253,6 +1278,8 @@
         soft: true
       - name: charm-build-heat-k8s
         soft: true
+      - name: charm-build-ironic-k8s
+        soft: true
       - name: charm-build-octavia-k8s
         soft: true
       - name: charm-build-barbican-k8s
@@ -1296,6 +1323,7 @@
       - charms/aodh-k8s/
       - charms/watcher-k8s/
       - charms/heat-k8s/
+      - charms/ironic-k8s/
       - charms/octavia-k8s/
       - charms/barbican-k8s/
       - charms/magnum-k8s/
@@ -1329,6 +1357,7 @@
         - charm-build-aodh-k8s
         - charm-build-watcher-k8s
         - charm-build-heat-k8s
+        - charm-build-ironic-k8s
         - charm-build-octavia-k8s
         - charm-build-barbican-k8s
         - charm-build-magnum-k8s
