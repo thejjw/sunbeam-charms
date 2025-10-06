@@ -16,6 +16,23 @@
       "message": "recheck NODE_FAILURE",
       "revId": "8ada0c19d91cc714827af340e5c1e925fde48b27",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b68feebe_c4485a42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-06T01:56:39Z",
+      "side": 1,
+      "message": "recheck k8s restart",
+      "revId": "8ada0c19d91cc714827af340e5c1e925fde48b27",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
