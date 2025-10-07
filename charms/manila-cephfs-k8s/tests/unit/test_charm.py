@@ -209,3 +209,23 @@ class TestManilaCephfsCharm(test_utils.CharmTestCase):
         # Because the ceph-nfs relation has been removed, the manila relation
         # data should be cleared.
         self.assertEqual({}, manila_rel_data)
+
+    def test_remove_relations(self):
+        """Test removing the manila and ceph-nfs relations."""
+        self.harness.set_leader()
+        test_utils.set_all_pebbles_ready(self.harness)
+
+        # this adds all the default/common relations
+        test_utils.add_all_relations(self.harness)
+
+        manila_rel_id = self.harness.add_relation("manila", "manila")
+        ceph_rel_id = self.add_ceph_nfs_client_relation()
+
+        self.harness.remove_relation(manila_rel_id)
+        self.harness.remove_relation(ceph_rel_id)
+
+        manila_rel_id = self.harness.add_relation("manila", "manila")
+        ceph_rel_id = self.add_ceph_nfs_client_relation()
+
+        self.harness.remove_relation(ceph_rel_id)
+        self.harness.remove_relation(manila_rel_id)

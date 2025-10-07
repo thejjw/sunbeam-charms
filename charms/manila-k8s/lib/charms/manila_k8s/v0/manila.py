@@ -144,6 +144,8 @@ class ManilaProvides(Object):
 
     def update_share_protocol(self, share_protocol: str | None):
         """Updates the share protocol in the manila relation."""
+        if not self._manila_rel:
+            return
 
         data = self._manila_rel.data[self.model.app]
         if share_protocol:
