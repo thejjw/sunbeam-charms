@@ -34,6 +34,24 @@
       "parentUuid": "ec7298fe_11032cfa",
       "revId": "c0084a06077be4a394c85ca5aa99ee80513d5231",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0e8d1ba4_da34bf0a",
+        "filename": "charms/cinder-volume-purestorage/charmcraft.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2025-10-07T07:28:47Z",
+      "side": 1,
+      "message": "Yup, discouraging the use of config-flags for well-known component such as Nova, Keystone is fine so we can get requests through bug reports and we can make the best judgement how to model those config appropriately. However, when it comes to configs of storage backend, we are not necessarily an expert of each storage and how those storage backends behave. So it\u0027s either exposing every single config option or focusing on the \"core\" config to make it work as a bare minimum and allowing the freedom to tweak \"advanced\" config through config-flags for a particular backend. Otherwise, it takes unnecessary amount of time just to add oneline in cinder.conf if we need an additional config for the backend.\n\nChallenges with the former approach (exposing everything) is that the number of configs are huge and unmanageable. In addition to the vendor-prefixed configs (e.g. ^pure_), there are generic cinder options for the backend section like the following. In any case, this is a generic discussion for storage backend for Sunbeam, I will raise it at somewhere else instead of this particular purestorage review.\n\n```\nbackend-name.backend_availability_zone\nbackend-name.backend_host\nbackend-name.backend_native_threads_pool_size\nbackend-name.backup_use_temp_snapshot\nbackend-name.chap_password\nbackend-name.chap_username\nbackend-name.driver_client_cert\nbackend-name.driver_client_cert_key\nbackend-name.driver_data_namespace\nbackend-name.driver_ssl_cert_path\nbackend-name.driver_ssl_cert_verify\nbackend-name.driver_use_ssl\nbackend-name.enable_deferred_deletion\nbackend-name.enforce_multipath_for_image_xfer\nbackend-name.extra_capabilities\nbackend-name.filter_function\nbackend-name.goodness_function\nbackend-name.image_upload_use_cinder_backend\nbackend-name.image_upload_use_internal_tenant\nbackend-name.image_volume_cache_enabled\nbackend-name.image_volume_cache_max_count\nbackend-name.image_volume_cache_max_size_gb\nbackend-name.iscsi_secondary_ip_addresses\nbackend-name.iser_helper\nbackend-name.iser_ip_address\nbackend-name.iser_port\nbackend-name.iser_target_prefix\nbackend-name.max_over_subscription_ratio\nbackend-name.num_iser_scan_tries\nbackend-name.num_shell_tries\nbackend-name.num_volume_device_scan_tries\nbackend-name.replication_connect_timeout\nbackend-name.replication_device\nbackend-name.report_discard_supported\nbackend-name.report_dynamic_total_capacity\nbackend-name.reserved_percentage\nbackend-name.storage_protocol\nbackend-name.suppress_requests_ssl_warnings\nbackend-name.trace_flags\nbackend-name.unique_fqdn_network\nbackend-name.use_chap_auth\nbackend-name.use_multipath_for_image_xfer\nbackend-name.volume_backend_name\nbackend-name.volume_copy_blkio_cgroup_name\nbackend-name.volume_copy_bps_limit\nbackend-name.volume_dd_blocksize\nbackend-name.volume_driver\nbackend-name.volumes_dir\n```",
+      "parentUuid": "56e58569_021edc8f",
+      "revId": "c0084a06077be4a394c85ca5aa99ee80513d5231",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
