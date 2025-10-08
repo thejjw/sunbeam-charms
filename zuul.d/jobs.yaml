@@ -420,56 +420,6 @@
     vars:
       charm: masakari-k8s
 
-- job:
-    name: func-test-core
-    description: |
-      Zaza smoke test for all the core sunbeam charms.
-    timeout: 3600
-    pre-run: playbooks/pre-run-func-test.yaml
-    run: playbooks/zaza-func-test.yaml
-    post-run: playbooks/collect-run-data.yaml
-    dependencies:
-      - name: charm-build-keystone-k8s
-        soft: true
-      - name: charm-build-glance-k8s
-        soft: true
-      - name: charm-build-nova-k8s
-        soft: true
-      - name: charm-build-placement-k8s
-        soft: true
-      - name: charm-build-neutron-k8s
-        soft: true
-      - name: charm-build-openstack-images-sync-k8s
-        soft: true
-      - name: charm-build-ovn-central-k8s
-        soft: true
-      - name: charm-build-ovn-relay-k8s
-        soft: true
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/keystone-k8s/
-      - charms/glance-k8s/
-      - charms/nova-k8s/
-      - charms/neutron-k8s/
-      - charms/placement-k8s/
-      - charms/openstack-images-sync-k8s/
-      - charms/ovn-central-k8s/
-      - charms/ovn-relay-k8s/
-      - rebuild
-      - zuul.d/zuul.yaml
-    vars:
-      # Artifacts will be downloaded from below charm jobs
-      charm_jobs:
-        - charm-build-keystone-k8s
-        - charm-build-glance-k8s
-        - charm-build-nova-k8s
-        - charm-build-placement-k8s
-        - charm-build-neutron-k8s
-        - charm-build-openstack-images-sync-k8s
-        - charm-build-ovn-central-k8s
-        - charm-build-ovn-relay-k8s
-      # test_dir relative to project src dir
-      test_dir: tests/core
 # This test set may be unstable, and more tests need to be added for the tempest-k8s charm,
 # so it is only trigger by changes in the tempest-k8s charm and associated tests for now.
 # It has been copied from the tests/core charm bundle.
@@ -518,92 +468,6 @@
       # test_dir relative to project src dir
       test_dir: tests/tempest
 - job:
-    name: func-test-ceph
-    description: |
-      Zaza smoke test for all the sunbeam charms that
-      requires storage/ceph.
-    timeout: 3600
-    pre-run: playbooks/pre-run-func-test.yaml
-    run: playbooks/zaza-func-test.yaml
-    post-run: playbooks/collect-run-data.yaml
-    dependencies:
-      - name: charm-build-cinder-k8s
-        soft: true
-      - name: charm-build-cinder-ceph-k8s
-        soft: true
-      - name: charm-build-gnocchi-k8s
-        soft: true
-      - name: charm-build-ceilometer-k8s
-        soft: true
-      - name: charm-build-aodh-k8s
-        soft: true
-      - name: charm-build-watcher-k8s
-        soft: true
-      - name: charm-build-keystone-k8s
-        soft: true
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/cinder-k8s/
-      - charms/cinder-ceph-k8s/
-      - charms/gnocchi-k8s/
-      - charms/ceilometer-k8s/
-      - charms/aodh-k8s/
-      - charms/watcher-k8s/
-      - rebuild
-      - zuul.d/zuul.yaml
-    vars:
-      charm_jobs:
-        - charm-build-cinder-k8s
-        - charm-build-cinder-ceph-k8s
-        - charm-build-gnocchi-k8s
-        - charm-build-ceilometer-k8s
-        - charm-build-aodh-k8s
-        - charm-build-watcher-k8s
-        - charm-build-keystone-k8s
-      test_dir: tests/ceph
-- job:
-    name: func-test-caas
-    description: |
-      Zaza smoke test for magnum and dependent charms
-      like heat, octavia, barbican.
-    timeout: 3600
-    pre-run: playbooks/pre-run-func-test.yaml
-    run: playbooks/zaza-func-test.yaml
-    post-run: playbooks/collect-run-data.yaml
-    dependencies:
-      - name: charm-build-heat-k8s
-        soft: true
-      - name: charm-build-octavia-k8s
-        soft: true
-      - name: charm-build-barbican-k8s
-        soft: true
-      - name: charm-build-magnum-k8s
-        soft: true
-      - name: charm-build-keystone-k8s
-        soft: true
-      - name: charm-build-glance-k8s
-        soft: true
-      - name: charm-build-ovn-central-k8s
-        soft: true
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/heat-k8s/
-      - charms/octavia-k8s/
-      - charms/barbican-k8s/
-      - charms/magnum-k8s/
-      - rebuild
-      - zuul.d/zuul.yaml
-    vars:
-      charm_jobs:
-        - charm-build-heat-k8s
-        - charm-build-octavia-k8s
-        - charm-build-barbican-k8s
-        - charm-build-magnum-k8s
-        - charm-build-keystone-k8s
-        - charm-build-glance-k8s
-        - charm-build-ovn-central-k8s
-      test_dir: tests/caas
-- job:
     name: func-test-identity
     description: |
       Zaza smoke test for the identity feature, which
@@ -632,51 +496,6 @@
         - charm-build-keystone-k8s
         - charm-build-horizon-k8s
       test_dir: tests/identity
-- job:
-    name: func-test-misc
-    description: |
-      Zaza smoke test for designate, desginate-bind,
-      keystone-ldap, openstack-exporter charms.
-    timeout: 3600
-    pre-run: playbooks/pre-run-func-test.yaml
-    run: playbooks/zaza-func-test.yaml
-    post-run: playbooks/collect-run-data.yaml
-    dependencies:
-      - name: charm-build-designate-k8s
-        soft: true
-      - name: charm-build-designate-bind-k8s
-        soft: true
-      - name: charm-build-keystone-k8s
-        soft: true
-      - name: charm-build-keystone-ldap-k8s
-        soft: true
-      - name: charm-build-openstack-exporter-k8s
-        soft: true
-      - name: charm-build-horizon-k8s
-        soft: true
-      - name: charm-build-masakari-k8s
-        soft: true
-
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/designate-k8s/
-      - charms/designate-bind-k8s/
-      - charms/keystone-ldap-k8s/
-      - charms/openstack-exporter-k8s/
-      - charms/horizon-k8s/
-      - charms/masakari-k8s/
-      - rebuild
-      - zuul.d/zuul.yaml
-    vars:
-      charm_jobs:
-        - charm-build-designate-k8s
-        - charm-build-designate-bind-k8s
-        - charm-build-keystone-ldap-k8s
-        - charm-build-openstack-exporter-k8s
-        - charm-build-keystone-k8s
-        - charm-build-horizon-k8s
-        - charm-build-masakari-k8s
-      test_dir: tests/misc
 - job:
     name: func-test-machine
     description: |
@@ -1163,10 +982,39 @@
     timeout: 3600
 
 - job:
+<<<<<<< HEAD
     name: func-test-all-k8s
+=======
+    name: publish-charm-cloudkitty-k8s
+    description: |
+      Publish cloudkitty-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/cloudkitty-k8s/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-openstack-network-agents
+    description: |
+      Publish openstack-network-agents built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/openstack-network-agents/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: func-test-openstack
     description: |
       Zaza smoke test for all the k8s sunbeam charms.
-    timeout: 3600
+    timeout: 5400
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml
     post-run: playbooks/collect-run-data.yaml
@@ -1225,6 +1073,12 @@
         soft: true
       - name: charm-build-masakari-k8s
         soft: true
+      - name: charm-build-openstack-hypervisor
+        soft: true
+      - name: charm-build-cinder-volume
+        soft: true
+      - name: charm-build-cinder-volume-ceph
+        soft: true
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-k8s/
@@ -1254,6 +1108,9 @@
       - charms/openstack-exporter-k8s/
       - charms/horizon-k8s/
       - charms/masakari-k8s/
+      - charms/openstack-hyperivsor/
+      - charms/cinder-volume/
+      - charms/cinder-volume-ceph/
       - rebuild
       - zuul.d/zuul.yaml
     vars:
@@ -1286,5 +1143,8 @@
         - charm-build-openstack-exporter-k8s
         - charm-build-horizon-k8s
         - charm-build-masakari-k8s
+        - charm-build-openstack-hypervisor
+        - charm-build-cinder-volume
+        - charm-build-cinder-volume-ceph
       # test_dir relative to project src dir
-      test_dir: tests/all-k8s
+      test_dir: tests/openstack

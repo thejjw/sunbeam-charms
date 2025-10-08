@@ -6,7 +6,7 @@
       - charm-publish-jobs
     check:
       jobs:
-        - func-test-all-k8s:
+        - func-test-openstack:
             nodeset: charms-ubuntu-noble-32GB
         - func-test-tempest:
             nodeset: ubuntu-noble
