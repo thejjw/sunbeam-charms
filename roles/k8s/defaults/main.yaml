@@ -3,3 +3,4 @@ k8s_classic_mode: false
 k8s_load_balancer_cidr: 172.28.28.136/29
 k8s_pod_cidr: 10.1.0.0/16
 k8s_host_ip: "{{ ansible_default_ipv4.address }}"
+insert_nft_rules: true

@@ -23,8 +23,6 @@ from zaza.openstack.charm_tests.keystone.setup import (
 )
 
 SERVICE_CODES = {
-    # gnocchi is not started because no ceph relation
-    "gnocchi": [requests.codes.bad_gateway, requests.codes.service_unavailable],
     "heat-cfn": [requests.codes.bad_request],
     "heat": [requests.codes.bad_request],
     "manilav2": [
