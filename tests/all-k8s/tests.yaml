@@ -5,10 +5,15 @@ smoke_bundles:
 configure:
   - zaza.sunbeam.charm_tests.k8s.setup.add_loadbalancer_annotations
   - zaza.sunbeam.charm_tests.magnum.setup.configure
+  - zaza.sunbeam.charm_tests.machine.setup.deploy_machine_applications
   - zaza.sunbeam.charm_tests.keystone.setup.wait_for_all_endpoints
   - zaza.openstack.charm_tests.keystone.setup.add_tempest_roles
   - zaza.openstack.charm_tests.nova.setup.create_flavors
   - zaza.openstack.charm_tests.nova.setup.manage_ssh_key
+  - zaza.openstack.charm_tests.glance.setup.add_lts_image
+  - zaza.openstack.charm_tests.glance.setup.add_cirros_image
+  - zaza.openstack.charm_tests.glance.setup.add_cirros_alt_image
+  - zaza.sunbeam.charm_tests.neutron.setup.basic_overcloud_network
 tests:
   - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneMinimalNewRBAC
   - zaza.sunbeam.charm_tests.openstack_images_sync_k8s.tests.OpenStackImagesSyncK8sTest
@@ -33,26 +38,23 @@ tests_options:
   tempest:
     default:
       smoke: True
-      exclude-regex:
-        - "tempest\\.api\\.volume\\..*"
       exclude-list:
-        - "tempest.api.image.v2.test_images.BasicOperationsImagesTest.test_register_upload_get_image_file"
-        - "tempest.api.compute.security_groups.test_security_group_rules.SecurityGroupRulesTestJSON.test_security_group_rules_create"
-        - "tempest.api.compute.security_groups.test_security_group_rules.SecurityGroupRulesTestJSON.test_security_group_rules_list"
-        - "tempest.api.compute.security_groups.test_security_groups.SecurityGroupsTestJSON.test_security_groups_create_list_delete"
-        - "tempest.api.compute.servers.test_server_actions.ServerActionsTestJSON"
-        - "tempest.api.compute.servers.test_create_server.ServersTestManualDisk"
-        - "tempest.api.compute.servers.test_server_addresses.ServerAddressesTestJSON"
-        - "tempest.api.compute.servers.test_create_server.ServersTestJSON"
-        - "tempest.scenario.test_server_multinode.TestServerMultinode.test_schedule_to_all_nodes"
-        - "tempest.scenario.test_server_basic_ops.TestServerBasicOps.test_server_basic_ops"
-        - "tempest.api.compute.servers.test_attach_interfaces.AttachInterfacesUnderV243Test.test_add_remove_fixed_ip"
-        - "tempest.api.compute.servers.test_create_server.ServersTestBootFromVolume"
+        # Needs ssh into VM
+        - tempest.api.compute.servers.test_server_actions.ServerActionsTestJSON
+        - tempest.api.compute.servers.test_attach_interfaces.AttachInterfacesUnderV243Test.test_add_remove_fixed_ip
+        - tempest.scenario.test_server_basic_ops.TestServerBasicOps.test_server_basic_ops
+        # Needs public network connectivity
+        - tempest.scenario.test_network_basic_ops.TestNetworkBasicOps.test_network_basic_ops
+        # TODO: Analyze this failure
+        - tempest.api.object_storage.test_account_quotas.AccountQuotasTest.test_overlimit_upload
       include-list:
         - "tempest.api.identity.v3.test_application_credentials.ApplicationCredentialsV3Test.test_create_application_credential"
 
 target_deploy_status:
   traefik:
+    workload-status: active
+    workload-status-message-regex: '^Serving at.*$'
+  traefik-rgw:
     workload-status: active
     workload-status-message-regex: '^Serving at.*$'
   mysql:
@@ -117,13 +119,16 @@ target_deploy_status:
     workload-status-message-regex: '^.*Not all relations are ready$'
   manila-cephfs:
     workload-status: blocked
-    workload-status-message-regex: '^.*(ceph-nfs) integration missing$'
-  cinder:
+    workload-status-message-regex: '^.*ceph-nfs.*$'
+  cinder-router:
     workload-status: active
     workload-status-message-regex: '^$'
-  cinder-ceph:
+  cinder:
     workload-status: blocked
-    workload-status-message-regex: '^.*ceph.*$'
+    workload-status-message-regex: '^.*storage-backend.*$'
+#  cinder-ceph:
+#    workload-status: blocked
+#    workload-status-message-regex: '^.*ceph.*$'
   ceilometer:
     workload-status: waiting
     workload-status-message-regex: '^.*Not all relations are ready$'

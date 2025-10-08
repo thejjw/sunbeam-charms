@@ -1293,7 +1293,7 @@
     name: func-test-all-k8s
     description: |
       Zaza smoke test for all the k8s sunbeam charms.
-    timeout: 3600
+    timeout: 5400
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml
     post-run: playbooks/collect-run-data.yaml
@@ -1360,6 +1360,12 @@
         soft: true
       - name: charm-build-cloudkitty-k8s
         soft: true
+      - name: charm-build-openstack-hypervisor
+        soft: true
+      - name: charm-build-cinder-volume
+        soft: true
+      - name: charm-build-cinder-volume-ceph
+        soft: true
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-k8s/
@@ -1393,6 +1399,9 @@
       - charms/horizon-k8s/
       - charms/masakari-k8s/
       - charms/cloudkitty-k8s/
+      - charms/openstack-hyperivsor/
+      - charms/cinder-volume/
+      - charms/cinder-volume-ceph/
       - rebuild
       - zuul.d/zuul.yaml
     vars:
@@ -1429,5 +1438,8 @@
         - charm-build-horizon-k8s
         - charm-build-masakari-k8s
         - charm-build-cloudkitty-k8s
+        - charm-build-openstack-hypervisor
+        - charm-build-cinder-volume
+        - charm-build-cinder-volume-ceph
       # test_dir relative to project src dir
       test_dir: tests/all-k8s
