@@ -27,6 +27,7 @@
   when:
     - ansible_distribution_release in ('jammy', 'noble')
     - nftables_enabled | default(true) | bool
+    - insert_nft_rules | bool
 
 - name: Allow packets to pod cir
   ansible.builtin.command: nft insert rule filter openstack-INPUT ip daddr {{ k8s_pod_cidr }} accept
@@ -35,6 +36,7 @@
   when:
     - ansible_distribution_release in ('jammy', 'noble')
     - nftables_enabled | default(true) | bool
+    - insert_nft_rules | bool
 
 - name: Allow packets to metallb cir
   ansible.builtin.command: nft insert rule filter openstack-INPUT ip daddr {{ k8s_load_balancer_cidr }} accept
@@ -43,6 +45,7 @@
   when:
     - ansible_distribution_release in ('jammy', 'noble')
     - nftables_enabled | default(true) | bool
+    - insert_nft_rules | bool
 
 - name: Ensure k8s is installed
   community.general.snap:
