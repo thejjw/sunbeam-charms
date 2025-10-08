@@ -1,0 +1,149 @@
+machines:
+  "0":
+    base: ubuntu@24.04
+    arch: amd64
+
+applications:
+  microceph:
+    charm: ch:microceph
+    channel: squid/stable
+    base: ubuntu@24.04
+    arch: amd64
+    to:
+      - "0"
+    scale: 1
+    options:
+      snap-channel: squid/stable
+      default-pool-size: 1
+      enable-rgw: "*"
+    storage:
+      osd-standalone: loop,3,2G
+  cinder-volume:
+    {% if cinder_volume is defined and cinder_volume is sameas true -%}
+    charm: ../../../cinder-volume.charm
+    {% else -%}
+    charm: ch:cinder-volume
+    channel: 2025.1/edge
+    {% endif -%}
+    scale: 1
+    to:
+      - "0"
+    options:
+      snap-channel: 2025.1/edge
+  cinder-microceph:
+    {% if cinder_volume_ceph is defined and cinder_volume_ceph is sameas true -%}
+    charm: ../../../cinder-volume-ceph.charm
+    {% else -%}
+    charm: ch:cinder-volume-ceph
+    channel: 2025.1/edge
+    {% endif -%}
+    options:
+      ceph-osd-replication-count: 1
+  hypervisor:
+    {% if openstack_hypervisor is defined and openstack_hypervisor is sameas true -%}
+    charm: ../../../openstack-hypervisor.charm
+    {% else -%}
+    charm: ch:openstack-hypervisor
+    channel: 2025.1/edge
+    {% endif -%}
+    scale: 1
+    to:
+      - "0"
+    arch: amd64
+    options:
+      snap-channel: 2025.1/edge
+      external-bridge-address: 0.0.0.0/0
+
+saas:
+# Same offer is used for multiple applications due to bug
+# https://github.com/juju/juju/issues/20818
+#  amqp-cinder:
+#    url: admin/control-plane.amqp
+#  amqp-hypervisor:
+#    url: admin/control-plane.amqp
+#  identity-credentials-cinder:
+#    url: admin/control-plane.identity-credentials
+#  identity-credentials-hypervisor:
+#    url: admin/control-plane.identity-credentials
+  amqp:
+    url: admin/K8S_MODEL.amqp
+  identity-credentials:
+    url: admin/K8S_MODEL.identity-credentials
+  database:
+    url: admin/K8S_MODEL.database
+#  send-ca-cert-hypervisor:
+#    url: admin/control-plane.send-ca-cert
+#  send-ca-cert-microceph:
+#    url: admin/control-plane.send-ca-cert
+  send-ca-cert:
+    url: admin/K8S_MODEL.send-ca-cert
+  ovsdb-cms:
+    url: admin/K8S_MODEL.ovsdb-cms
+  certificates:
+    url: admin/K8S_MODEL.certificates
+  nova-service:
+    url: admin/K8S_MODEL.nova-service
+  traefik-route-rgw:
+    url: admin/K8S_MODEL.traefik-route-rgw
+  identity-service:
+    url: admin/K8S_MODEL.identity-service
+
+relations:
+#  - - cinder-volume:amqp
+#    - amqp-cinder:amqp
+  - - cinder-volume:amqp
+    - amqp:amqp
+#  - - cinder-volume:identity-credentials
+#    - identity-credentials-cinder:identity-credentials
+  - - cinder-volume:identity-credentials
+    - identity-credentials:identity-credentials
+  - - cinder-volume:database
+    - database
+
+  - - microceph:ceph
+    - cinder-microceph:ceph
+  - - cinder-volume:cinder-volume
+    - cinder-microceph:cinder-volume
+
+#  - - microceph:receive-ca-cert
+#    - send-ca-cert-microceph:send-ca-cert
+  - - microceph:receive-ca-cert
+    - send-ca-cert:send-ca-cert
+  - - microceph:traefik-route-rgw
+    - traefik-route-rgw:traefik-route
+  - - microceph:identity-service
+    - identity-service:identity-service
+
+#  - - amqp-hypervisor:amqp
+#    - hypervisor:amqp
+#  - - identity-credentials-hypervisor:identity-credentials
+#    - hypervisor:identity-credentials
+#  - - send-ca-cert-hypervisor:send-ca-cert
+#    - hypervisor:receive-ca-cert
+  - - amqp:amqp
+    - hypervisor:amqp
+  - - identity-credentials:identity-credentials
+    - hypervisor:identity-credentials
+  - - send-ca-cert:send-ca-cert
+    - hypervisor:receive-ca-cert
+  - - ovsdb-cms
+    - hypervisor:ovsdb-cms
+  - - certificates
+    - hypervisor:certificates
+  - - nova-service
+    - hypervisor:nova-service
+  - - hypervisor:ceph-access
+    - cinder-microceph:ceph-access
+
+---
+applications:
+  cinder-volume:
+    offers:
+      storage-backend:
+        endpoints:
+          - storage-backend
+  microceph:
+    offers:
+      ceph:
+        endpoints:
+          - ceph

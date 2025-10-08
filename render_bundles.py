@@ -52,5 +52,3 @@ for test_dir in test_directories:
         with bundle_file.open("w", encoding="utf-8") as content:
             content.write(bundle_template.render(context))
             print(f"Rendered bundle: {bundle_file}")
-        with bundle_file.open("r", encoding="utf-8") as content:
-            print(content.read())
