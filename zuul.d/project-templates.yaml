@@ -68,6 +68,8 @@
             nodeset: ubuntu-jammy
         - charm-build-ironic-k8s:
             nodeset: ubuntu-jammy
+        - charm-build-ironic-conductor-k8s:
+            nodeset: ubuntu-jammy
         - charm-build-nova-ironic-k8s:
             nodeset: ubuntu-jammy
         - charm-build-octavia-k8s:
@@ -150,6 +152,8 @@
         - charm-build-heat-k8s:
             nodeset: ubuntu-jammy
         - charm-build-ironic-k8s:
+            nodeset: ubuntu-jammy
+        - charm-build-ironic-conductor-k8s:
             nodeset: ubuntu-jammy
         - charm-build-nova-ironic-k8s:
             nodeset: ubuntu-jammy
@@ -237,6 +241,8 @@
             - publish-charm-heat-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-ironic-k8s:
+                nodeset: ubuntu-jammy
+            - publish-charm-ironic-conductor-k8s:
                 nodeset: ubuntu-jammy
             - publish-charm-nova-ironic-k8s:
                 nodeset: ubuntu-jammy
