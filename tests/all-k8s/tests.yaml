@@ -5,6 +5,7 @@ smoke_bundles:
 configure:
   - zaza.sunbeam.charm_tests.k8s.setup.add_loadbalancer_annotations
   - zaza.sunbeam.charm_tests.magnum.setup.configure
+  - zaza.sunbeam.charm_tests.machine.setup.deploy_machine_applications
   - zaza.sunbeam.charm_tests.keystone.setup.wait_for_all_endpoints
   - zaza.openstack.charm_tests.keystone.setup.add_tempest_roles
   - zaza.openstack.charm_tests.nova.setup.create_flavors
@@ -116,11 +117,11 @@ target_deploy_status:
     workload-status: waiting
     workload-status-message-regex: '^.*Not all relations are ready$'
   cinder:
-    workload-status: active
-    workload-status-message-regex: '^$'
-  cinder-ceph:
     workload-status: blocked
-    workload-status-message-regex: '^.*ceph.*$'
+    workload-status-message-regex: '^.*storage-backend.*$'
+#  cinder-ceph:
+#    workload-status: blocked
+#    workload-status-message-regex: '^.*ceph.*$'
   ceilometer:
     workload-status: waiting
     workload-status-message-regex: '^.*Not all relations are ready$'
