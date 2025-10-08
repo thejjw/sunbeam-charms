@@ -134,6 +134,14 @@ applications:
       debug: true
     resources:
       neutron-server-image: ghcr.io/canonical/neutron-server:2025.1
+  cinder-router:
+    charm: ch:mysql-router-k8s
+    channel: 8.0/edge
+    base: ubuntu@22.04
+    scale: 1
+    trust: true
+    options:
+      expose-external: loadbalancer
   cinder:
     {% if cinder_k8s is defined and cinder_k8s is sameas true -%}
     charm: ../../../cinder-k8s.charm
@@ -147,18 +155,18 @@ applications:
     resources:
       cinder-api-image: ghcr.io/canonical/cinder-consolidated:2025.1
       cinder-scheduler-image: ghcr.io/canonical/cinder-consolidated:2025.1
-  cinder-ceph:
-    {% if cinder_ceph_k8s is defined and cinder_ceph_k8s is sameas true -%}
-    charm: ../../../cinder-ceph-k8s.charm
-    {% else -%}
-    charm: ch:cinder-ceph-k8s
-    channel: 2025.1/edge
-    {% endif -%}
-    base: ubuntu@24.04
-    scale: 1
-    trust: true
-    resources:
-      cinder-volume-image: ghcr.io/canonical/cinder-consolidated:2025.1
+#  cinder-ceph:
+#    {% if cinder_ceph_k8s is defined and cinder_ceph_k8s is sameas true -%}
+#    charm: ../../../cinder-ceph-k8s.charm
+#    {% else -%}
+#    charm: ch:cinder-ceph-k8s
+#    channel: 2025.1/edge
+#    {% endif -%}
+#    base: ubuntu@24.04
+#    scale: 1
+#    trust: true
+#    resources:
+#      cinder-volume-image: ghcr.io/canonical/cinder-consolidated:2025.1
   horizon:
     {% if horizon_k8s is defined and horizon_k8s is sameas true -%}
     charm: ../../../horizon-k8s.charm
@@ -638,7 +646,9 @@ relations:
   - manila-cephfs:manila
 
 - - mysql:database
-  - cinder:database
+  - cinder-router:backend-database
+- - cinder:database
+  - cinder-router:database
 - - cinder:amqp
   - rabbitmq:amqp
 - - keystone:identity-service
@@ -647,15 +657,17 @@ relations:
   - cinder:ingress-internal
 - - keystone:send-ca-cert
   - cinder:receive-ca-cert
+- - glance:image-service
+  - cinder:image-service
 
-- - cinder-ceph:database
-  - mysql:database
-- - cinder-ceph:amqp
-  - rabbitmq:amqp
-- - cinder:storage-backend
-  - cinder-ceph:storage-backend
-- - keystone:identity-credentials
-  - cinder-ceph:identity-credentials
+#- - cinder-ceph:database
+#  - mysql:database
+#- - cinder-ceph:amqp
+#  - rabbitmq:amqp
+#- - cinder:storage-backend
+#  - cinder-ceph:storage-backend
+#- - keystone:identity-credentials
+#  - cinder-ceph:identity-credentials
 
 - - mysql:database
   - gnocchi:database
@@ -752,3 +764,47 @@ relations:
   - cloudkitty:amqp
 - - gnocchi:gnocchi-service
   - cloudkitty:gnocchi-db
+
+---
+applications:
+  tls-operator:
+    offers:
+      certificates:
+        endpoints:
+          - certificates
+  rabbitmq:
+    offers:
+      amqp:
+        endpoints:
+          - amqp
+  ovn-relay:
+    offers:
+      ovsdb-cms:
+        endpoints:
+          - ovsdb-cms-relay
+  keystone:
+    offers:
+      identity-service:
+        endpoints:
+          - identity-service
+      identity-credentials:
+        endpoints:
+          - identity-credentials
+      send-ca-cert:
+        endpoints:
+          - send-ca-cert
+  nova:
+    offers:
+      nova-service:
+        endpoints:
+          - nova-service
+  cinder-router:
+    offers:
+      database:
+        endpoints:
+          - database
+  traefik:
+    offers:
+      traefik-route:
+        endpoints:
+          - traefik-route
