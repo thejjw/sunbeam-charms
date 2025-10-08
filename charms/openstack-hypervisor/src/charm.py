@@ -207,6 +207,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self._list_nics_action,
         )
         self.framework.observe(
+            self.on.list_gpus_action,
+            self._list_gpus_action,
+        )
+        self.framework.observe(
             self.on.enable_action,
             self._enable_action,
         )
@@ -449,6 +453,17 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             return
 
         # cli returns a json dict with keys "nics" and "candidate"
+        event.set_results({"result": stdout})
+
+    def _list_gpus_action(self, event: ActionEvent):
+        """Run list_gpus action."""
+        try:
+            stdout = self._hypervisor_cli_cmd("list-gpus --format json")
+        except HypervisorError as e:
+            event.fail(str(e))
+            return
+
+        # cli returns a json dict with keys "gpus"
         event.set_results({"result": stdout})
 
     def _enable_action(self, event: ActionEvent):

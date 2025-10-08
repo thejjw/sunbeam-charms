@@ -353,6 +353,8 @@ class TestCharm(test_utils.CharmTestCase):
         }
         with self.assertRaises(ops.testing.ActionFailed):
             self.harness.run_action("list-nics")
+        with self.assertRaises(ops.testing.ActionFailed):
+            self.harness.run_action("list-gpus")
 
     def test_list_nics(self):
         """Check action returns nics."""
@@ -398,6 +400,61 @@ class TestCharm(test_utils.CharmTestCase):
         self.subprocess.run = subprocess_run_mock
         with self.assertRaises(ops.testing.ActionFailed):
             self.harness.run_action("list-nics")
+
+    def test_list_gpus(self):
+        """Check action returns gpus."""
+        self.harness.begin()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = True
+        epa_orchestrator_snap_mock = MagicMock()
+        epa_orchestrator_snap_mock.present = False
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": epa_orchestrator_snap_mock,
+        }
+        subprocess_run_mock = MagicMock()
+        subprocess_run_mock.return_value = MagicMock(
+            stdout=bytes(
+                json.dumps(
+                    {
+                        "gpus": [
+                            {
+                                "pci_address": "0000:09:00.0",
+                                "product_id": "0x0534",
+                                "vendor_id": "0x102b",
+                            }
+                        ]
+                    }
+                ),
+                "utf-8",
+            ),
+            stderr=b"yes things went well",
+            returncode=0,
+        )
+        self.subprocess.run = subprocess_run_mock
+        action_output = self.harness.run_action("list-gpus")
+        assert "gpus" in action_output.results["result"]
+
+    def test_list_gpus_error(self):
+        """Check action raises ActionFailed if subprocess returns non-zero."""
+        self.harness.begin()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = True
+        epa_orchestrator_snap_mock = MagicMock()
+        epa_orchestrator_snap_mock.present = False
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": epa_orchestrator_snap_mock,
+        }
+        subprocess_run_mock = MagicMock()
+        subprocess_run_mock.return_value = MagicMock(
+            stdout=b"",
+            stderr=b"things did not go well",
+            returncode=1,
+        )
+        self.subprocess.run = subprocess_run_mock
+        with self.assertRaises(ops.testing.ActionFailed):
+            self.harness.run_action("list-gpus")
 
     def test_list_flavors(self):
         """Check action return flavors."""

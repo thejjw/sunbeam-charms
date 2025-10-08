@@ -164,6 +164,10 @@ actions:
     description: |
       List host NICS, and which one are candidates for use as external NIC.
     additionalProperties: false
+  list-gpus:
+    description: |
+      List host GPUs
+    additionalProperties: false
   disable:
     description: |
       Prevent new instances from being created.
