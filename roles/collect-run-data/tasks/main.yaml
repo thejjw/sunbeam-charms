@@ -20,13 +20,15 @@
     MODEL="$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')"
     juju switch $MODEL
     juju debug-log --replay > {{ zuul.project.src_dir }}/log/debug-hooks.txt
+    juju switch controller
+    juju debug-log --replay > {{ zuul.project.src_dir }}/log/debug-hooks-controller.txt
     exit 0
 - name: juju status
   args:
     executable: /bin/bash
   shell: |
     set -o pipefail
-    for model in $(juju models | grep zaza- | awk '{gsub(/\*?/,""); print $1}'); do
+    for model in controller $(juju models | grep zaza- | awk '{gsub(/\*?/,""); print $1}'); do
       juju status -m $model > {{ zuul.project.src_dir }}/log/juju-status.$model.txt
       juju status -m $model --format=yaml > {{ zuul.project.src_dir }}/log/juju-status.$model.yaml
     done
@@ -39,6 +41,13 @@
     LOG_FOLDER={{ zuul.project.src_dir }}/log/unit-info/
     MODEL_NAME=$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')
     mkdir -p $LOG_FOLDER
+    for unit in $(juju status --format json | jq -r '[.applications[].units | keys[0]] | join("\n")');
+    do
+      echo Collecting unit info: $unit
+      unit_name=$(echo $unit | tr / -)
+      juju show-unit --output="$LOG_FOLDER/$unit_name.yaml" $unit
+    done
+    juju switch controller
     for unit in $(juju status --format json | jq -r '[.applications[].units | keys[0]] | join("\n")');
     do
       echo Collecting unit info: $unit
