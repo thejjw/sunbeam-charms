@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b362ef6_093fdffe",
+        "filename": "roles/collect-run-data/tasks/main.yaml",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-09T08:30:06Z",
+      "side": 1,
+      "message": "Need to check if the model exists before collecting logs from controller model",
+      "revId": "61d1c9619a3021478703105f51f0a1f77566f48e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
