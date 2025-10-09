@@ -50,6 +50,24 @@
       "message": "Can we place upper constraints on the versions\n\nhttps://opendev.org/openstack/requirements/src/branch/stable/2025.1/upper-constraints.txt\n\nFor snap-openstack, we did something like this\nhttps://github.com/canonical/snap-openstack/blob/main/sunbeam-python/pyproject.toml#L135",
       "revId": "535291d23fccc9afd39f875898d36387896d49f0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6397bf7b_f3f16d20",
+        "filename": "charms/ironic-conductor-k8s/pyproject.toml",
+        "patchSetId": 8
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-10-09T07:12:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3d7e4331_d2df2084",
+      "revId": "535291d23fccc9afd39f875898d36387896d49f0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
