@@ -1,0 +1,64 @@
+type: charm
+title: Neutron Generic Switch Config
+name: neutron-generic-switch-config-k8s
+summary: OpenStack Neutron Generic Switch Config Charm
+description: |
+  neutron-generic-switch-config-k8s is a config charm for the OpenStack
+  neutron-k8s charm, providing it with necessary details for its
+  ml2_conf_genericswitch.ini config file.
+assumes:
+  - k8s-api
+  - juju >= 3.1
+links:
+  source: https://opendev.org/openstack/sunbeam-charms
+  issues: https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+config:
+  options:
+    debug:
+      default: false
+      type: boolean
+      description: Enable debug logging.
+    conf-secrets:
+      default: ""
+      type: string
+      description: Juju secrets containing generic switch config.
+
+requires:
+  logging:
+    interface: loki_push_api
+    optional: true
+    limit: 1
+
+provides:
+  switch-config:
+    interface: switch-config
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
