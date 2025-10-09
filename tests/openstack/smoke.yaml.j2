@@ -154,6 +154,18 @@ applications:
     trust: true
     options:
       debug: true
+  neutron-generic-config:
+    {% if neutron_generic_switch_config_k8s is defined and neutron_generic_switch_config_k8s is sameas true -%}
+    charm: ../../../neutron-generic-switch-config-k8s.charm
+    {% else -%}
+    charm: ch:neutron-generic-switch-config-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    options:
+      debug: true
   cinder-router:
     charm: ch:mysql-router-k8s
     channel: 8.0/edge

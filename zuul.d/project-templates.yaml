@@ -60,6 +60,8 @@
             nodeset: ubuntu-noble
         - charm-build-neutron-baremetal-switch-config-k8s:
             nodeset: ubuntu-noble
+        - charm-build-neutron-generic-switch-config-k8s:
+            nodeset: ubuntu-noble
         - charm-build-ovn-central-k8s:
             nodeset: ubuntu-noble
         - charm-build-ovn-relay-k8s:
@@ -138,6 +140,8 @@
         - charm-build-neutron-k8s:
             nodeset: ubuntu-noble
         - charm-build-neutron-baremetal-switch-config-k8s:
+            nodeset: ubuntu-noble
+        - charm-build-neutron-generic-switch-config-k8s:
             nodeset: ubuntu-noble
         - charm-build-ovn-central-k8s:
             nodeset: ubuntu-noble
@@ -221,6 +225,8 @@
             - publish-charm-neutron-k8s:
                 nodeset: ubuntu-noble
             - publish-charm-neutron-baremetal-switch-config-k8s:
+                nodeset: ubuntu-noble
+            - publish-charm-neutron-generic-switch-config-k8s:
                 nodeset: ubuntu-noble
             - publish-charm-ovn-central-k8s:
                 nodeset: ubuntu-noble
