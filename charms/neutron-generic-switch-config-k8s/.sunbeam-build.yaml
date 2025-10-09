@@ -1,0 +1,4 @@
+external-libraries:
+  - charms.loki_k8s.v1.loki_push_api
+internal-libraries:
+  - charms.neutron_k8s.v0.switch_config
