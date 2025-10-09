@@ -88,6 +88,9 @@ target_deploy_status:
   neutron-baremetal-config:
     workload-status: blocked
     workload-status-message-regex: '^$Config option conf-secrets needs to be set.'
+  neutron-generic-config:
+    workload-status: blocked
+    workload-status-message-regex: '^$Config option conf-secrets needs to be set.'
   openstack-images-sync:
     workload-status: active
     workload-status-message-regex: '^$'
