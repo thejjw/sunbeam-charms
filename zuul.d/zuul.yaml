@@ -29,6 +29,7 @@
         placement-k8s: 2025.1/edge
         neutron-k8s: 2025.1/edge
         neutron-baremetal-switch-config-k8s: 2025.1/edge
+        neutron-generic-switch-config-k8s: 2025.1/edge
         ovn-central-k8s: 25.03/edge
         ovn-relay-k8s: 25.03/edge
         cinder-k8s: 2025.1/edge

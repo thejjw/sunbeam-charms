@@ -83,6 +83,18 @@
     vars:
       charm: neutron-baremetal-switch-config-k8s
 - job:
+    name: charm-build-neutron-generic-switch-config-k8s
+    description: Build sunbeam neutron-generic-switch-config-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/neutron-generic-switch-config-k8s/
+      - rebuild
+    vars:
+      charm: neutron-generic-switch-config-k8s
+- job:
     name: charm-build-ovn-central-k8s
     description: Build sunbeam ovn-central-k8s charm
     run: playbooks/charm/build.yaml
@@ -938,6 +950,19 @@
     timeout: 3600
 
 - job:
+    name: publish-charm-neutron-generic-switch-config-k8s
+    description: |
+      Publish neutron-generic-switch-config-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/neutron-generic-switch-config-k8s/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
     name: publish-charm-nova-k8s
     description: |
       Publish nova-k8s built in gate pipeline.
@@ -1153,6 +1178,8 @@
         soft: true
       - name: charm-build-neutron-baremetal-switch-config-k8s
         soft: true
+      - name: charm-build-neutron-generic-switch-config-k8s
+        soft: true
       - name: charm-build-openstack-images-sync-k8s
         soft: true
       - name: charm-build-ovn-central-k8s
@@ -1216,6 +1243,7 @@
       - charms/nova-k8s/
       - charms/neutron-k8s/
       - charms/neutron-baremetal-switch-config-k8s/
+      - charms/neutron-generic-switch-config-k8s/
       - charms/placement-k8s/
       - charms/openstack-images-sync-k8s/
       - charms/ovn-central-k8s/
@@ -1255,6 +1283,7 @@
         - charm-build-placement-k8s
         - charm-build-neutron-k8s
         - charm-build-neutron-baremetal-switch-config-k8s
+        - charm-build-neutron-generic-switch-config-k8s
         - charm-build-openstack-images-sync-k8s
         - charm-build-ovn-central-k8s
         - charm-build-ovn-relay-k8s
