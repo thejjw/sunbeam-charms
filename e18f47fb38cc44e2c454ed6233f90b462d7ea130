@@ -16,6 +16,23 @@
       "message": "recheck VAULT_BLOCKED",
       "revId": "e18f47fb38cc44e2c454ed6233f90b462d7ea130",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab53f02b_b220143f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-09T14:31:48Z",
+      "side": 1,
+      "message": "recheck NODE_FAILURE",
+      "revId": "e18f47fb38cc44e2c454ed6233f90b462d7ea130",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
