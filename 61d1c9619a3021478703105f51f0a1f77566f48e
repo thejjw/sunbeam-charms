@@ -16,6 +16,24 @@
       "message": "Need to check if the model exists before collecting logs from controller model",
       "revId": "61d1c9619a3021478703105f51f0a1f77566f48e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a55ee3a1_ab04b2d8",
+        "filename": "roles/collect-run-data/tasks/main.yaml",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-09T09:37:46Z",
+      "side": 1,
+      "message": "Updated in PS10",
+      "parentUuid": "8b362ef6_093fdffe",
+      "revId": "61d1c9619a3021478703105f51f0a1f77566f48e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
