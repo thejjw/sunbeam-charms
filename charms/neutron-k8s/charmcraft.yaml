@@ -149,6 +149,9 @@ requires:
   baremetal-switch-config:
     interface: switch-config
     optional: true
+  generic-switch-config:
+    interface: switch-config
+    optional: true
   ironic-api:
     interface: baremetal
     optional: true
