@@ -24,8 +24,17 @@
     channel: latest/stable
   become: true
 
+- name: Template lxd preseed configuration
+  ansible.builtin.template:
+    src: lxd-config.yaml.j2
+    dest: lxd-config.yaml
+    mode: '0644'
+  become: true
+
 - name: lxd is initialised
-  command: lxd init --auto
+  command:
+    cmd: lxd init --preseed
+    stdin: "{{ lookup('file', 'lxd-config.yaml') }}"
   become: true
 
 - name: allow packets from lxd bridge
