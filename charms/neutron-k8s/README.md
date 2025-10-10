@@ -54,6 +54,8 @@ The following relations are optional:
   charm
 - `baremetal-switch-config`: To receive baremetal switch configuration for the
   `ml2_conf_networking_baremetal.ini` file
+- `generic-switch-config`: To receive generic switch configuration for the
+  `ml2_conf_genericswitch.ini` file
 
 ## OCI Images
 
