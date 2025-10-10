@@ -16,7 +16,7 @@ Three events are also available to respond to:
 A basic example showing the usage of this relation follows:
 
 ```
-from charms.cinder_ceph_k8s.v0.ceph_access import CephAccessRequires
+from charms.cinder_volume_ceph.v0.ceph_access import CephAccessRequires
 
 class CephAccessClientCharm(CharmBase):
     def __init__(self, *args):
@@ -55,14 +55,14 @@ class CephAccessClientCharm(CharmBase):
 """
 
 # The unique Charmhub library identifier, never change it
-LIBID = "7fa8d4f8407c4f31ab1deb51c0c046f1"
+LIBID = "89bf7a44286348bca5eb70e096487bda"
 
 # Increment this major API version when introducing breaking changes
 LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 3
+LIBPATCH = 1
 
 import logging
 from typing import Optional

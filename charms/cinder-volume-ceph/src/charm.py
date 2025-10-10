@@ -27,7 +27,7 @@ from typing import (
     Mapping,
 )
 
-import charms.cinder_ceph_k8s.v0.ceph_access as sunbeam_ceph_access  # noqa
+import charms.cinder_volume_ceph.v0.ceph_access as sunbeam_ceph_access  # noqa
 import ops
 import ops.charm
 import ops_sunbeam.charm as charm
