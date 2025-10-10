@@ -64,8 +64,6 @@
             nodeset: ubuntu-noble
         - charm-build-cinder-k8s:
             nodeset: ubuntu-noble
-        - charm-build-cinder-ceph-k8s:
-            nodeset: ubuntu-noble
         - charm-build-cinder-volume:
             nodeset: ubuntu-noble
         - charm-build-cinder-volume-ceph:
@@ -138,8 +136,6 @@
         - charm-build-ovn-relay-k8s:
             nodeset: ubuntu-noble
         - charm-build-cinder-k8s:
-            nodeset: ubuntu-noble
-        - charm-build-cinder-ceph-k8s:
             nodeset: ubuntu-noble
         - charm-build-cinder-volume:
             nodeset: ubuntu-noble
@@ -217,8 +213,6 @@
             - publish-charm-ovn-relay-k8s:
                 nodeset: ubuntu-noble
             - publish-charm-cinder-k8s:
-                nodeset: ubuntu-noble
-            - publish-charm-cinder-ceph-k8s:
                 nodeset: ubuntu-noble
             - publish-charm-cinder-volume:
                 nodeset: ubuntu-noble

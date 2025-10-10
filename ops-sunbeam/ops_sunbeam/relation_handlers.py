@@ -54,8 +54,8 @@ from ops_sunbeam.core import (
 if typing.TYPE_CHECKING:
     import charms.ceilometer_k8s.v0.ceilometer_service as ceilometer_service
     import charms.certificate_transfer_interface.v0.certificate_transfer as certificate_transfer
-    import charms.cinder_ceph_k8s.v0.ceph_access as ceph_access
     import charms.cinder_volume.v0.cinder_volume as sunbeam_cinder_volume
+    import charms.cinder_volume_ceph.v0.ceph_access as ceph_access
     import charms.data_platform_libs.v0.data_interfaces as data_interfaces
     import charms.gnocchi_k8s.v0.gnocchi_service as gnocchi_service
     import charms.horizon_k8s.v0.trusted_dashboard as trusted_dashboard
@@ -1549,7 +1549,7 @@ class CephAccessRequiresHandler(RelationHandler):
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for ceph-access relation."""
-        import charms.cinder_ceph_k8s.v0.ceph_access as ceph_access
+        import charms.cinder_volume_ceph.v0.ceph_access as ceph_access
 
         logger.debug("Setting up the ceph-access event handler")
         ceph_access_requires = sunbeam_tracing.trace_type(
