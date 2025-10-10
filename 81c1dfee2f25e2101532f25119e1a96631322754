@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7e847b3_3668950b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-10T02:00:21Z",
+      "side": 1,
+      "message": "This is taken care in https://review.opendev.org/c/openstack/sunbeam-charms/+/963361",
+      "revId": "81c1dfee2f25e2101532f25119e1a96631322754",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
