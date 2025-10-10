@@ -33,6 +33,86 @@
       "message": "recheck NODE_FAILURE",
       "revId": "e18f47fb38cc44e2c454ed6233f90b462d7ea130",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f3bf074b_11674eec",
+        "filename": "tests/all-k8s/machines.yaml.j2",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-10-10T06:51:19Z",
+      "side": 1,
+      "message": "should this still be `all-k8s`, then?\n\nSince it is now testing both machine and k8s charm?",
+      "revId": "e18f47fb38cc44e2c454ed6233f90b462d7ea130",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d39e967b_4439783b",
+        "filename": "tests/all-k8s/smoke.yaml.j2",
+        "patchSetId": 11
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-10-10T06:51:19Z",
+      "side": 1,
+      "message": "Do we really need a second traefik? Let\u0027s keep resources low when testing if possible",
+      "range": {
+        "startLine": 12,
+        "startChar": 2,
+        "endLine": 19,
+        "endChar": 77
+      },
+      "revId": "e18f47fb38cc44e2c454ed6233f90b462d7ea130",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84e9ed2c_30e1640b",
+        "filename": "tests/all-k8s/smoke.yaml.j2",
+        "patchSetId": 11
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-10-10T06:51:19Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we remove cinder-ceph-k8s? instead of commenting?",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 177,
+        "endChar": 72
+      },
+      "revId": "e18f47fb38cc44e2c454ed6233f90b462d7ea130",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d83cc5a8_0b5311d6",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/machine/setup.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-10-10T06:51:19Z",
+      "side": 1,
+      "message": "Can we ensure this is possible to also deploy from a dev POV, so that we can run the tests suite before submitting a patch?\n\nWith how this is designed, this will need to deploy apps in the controller model.\nWhich is ok for a CI run, but not for a dev env?\nSome way to override, maybe by supplying the machine env as an env var?\n\n\nOR\n\nIs the goal for people to just run the ansible playbook on a host?",
+      "revId": "e18f47fb38cc44e2c454ed6233f90b462d7ea130",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
