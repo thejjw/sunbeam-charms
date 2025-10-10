@@ -126,9 +126,6 @@ target_deploy_status:
   cinder:
     workload-status: blocked
     workload-status-message-regex: '^.*storage-backend.*$'
-#  cinder-ceph:
-#    workload-status: blocked
-#    workload-status-message-regex: '^.*ceph.*$'
   ceilometer:
     workload-status: waiting
     workload-status-message-regex: '^.*Not all relations are ready$'
