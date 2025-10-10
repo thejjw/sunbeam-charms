@@ -1,0 +1,26 @@
+config: {}
+networks:
+  - name: lxdbr0
+    config:
+      ipv4.address: {{ lxd_network }}
+      ipv4.nat: "true"
+      ipv6.address: none
+    type: bridge
+storage_pools:
+  - name: default
+    config:
+      source: ""
+    driver: dir
+profiles:
+  - name: default
+    description: Default LXD profile
+    devices:
+      eth0:
+        name: eth0
+        network: lxdbr0
+        type: nic
+      root:
+        path: /
+        pool: default
+        type: disk
+    config: {}
