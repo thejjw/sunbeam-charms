@@ -24,8 +24,17 @@
     channel: latest/stable
   become: true
 
+- name: Check if LXD is already initialized
+  command: lxc network show lxdbr0
+  register: lxc_network_show_result
+  ignore_errors: true
+  changed_when: false
+
 - name: lxd is initialised
-  command: lxd init --auto
+  when: lxc_network_show_result.rc != 0
+  command:
+    cmd: lxd init --preseed
+    stdin: "{{ lookup('template', 'lxd-config.yaml.j2') }}"
   become: true
 
 - name: allow packets from lxd bridge

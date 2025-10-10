@@ -145,7 +145,7 @@ then
 
     python3 repository.py -v prepare --clean $charm || exit 1
     pushd charms/$charm || exit 1
-    charmcraft -v pack || exit 1
+    charmcraft --verbosity trace pack || exit 1
     if [[ -e "${charm}.charm" ]];
     then
         echo "Removing bad downloaded charm maybe?"
