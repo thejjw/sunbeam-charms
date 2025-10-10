@@ -7,7 +7,6 @@ publish_channels:
   ovn-central-k8s: latest/edge
   ovn-relay-k8s: latest/edge
   cinder-k8s: latest/edge
-  cinder-ceph-k8s: latest/edge
   horizon-k8s: latest/edge
   heat-k8s: latest/edge
   octavia-k8s: latest/edge

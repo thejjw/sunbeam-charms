@@ -523,7 +523,7 @@ class OSBaseOperatorCharm(
                     if isinstance(event, GnocchiServiceGoneAwayEvent):
                         _is_broken = True
                 case "ceph-access":
-                    from charms.cinder_ceph_k8s.v0.ceph_access import (
+                    from charms.cinder_volume_ceph.v0.ceph_access import (
                         CephAccessGoneAwayEvent,
                     )
 
