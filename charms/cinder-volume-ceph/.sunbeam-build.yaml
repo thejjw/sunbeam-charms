@@ -7,4 +7,3 @@ external-libraries:
 internal-libraries:
   - charms.keystone_k8s.v0.identity_credentials
   - charms.cinder_volume.v0.cinder_volume
-  - charms.cinder_ceph_k8s.v0.ceph_access

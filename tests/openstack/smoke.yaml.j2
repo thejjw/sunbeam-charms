@@ -163,18 +163,6 @@ applications:
     resources:
       cinder-api-image: ghcr.io/canonical/cinder-consolidated:2025.1
       cinder-scheduler-image: ghcr.io/canonical/cinder-consolidated:2025.1
-#  cinder-ceph:
-#    {% if cinder_ceph_k8s is defined and cinder_ceph_k8s is sameas true -%}
-#    charm: ../../../cinder-ceph-k8s.charm
-#    {% else -%}
-#    charm: ch:cinder-ceph-k8s
-#    channel: 2025.1/edge
-#    {% endif -%}
-#    base: ubuntu@24.04
-#    scale: 1
-#    trust: true
-#    resources:
-#      cinder-volume-image: ghcr.io/canonical/cinder-consolidated:2025.1
   horizon:
     {% if horizon_k8s is defined and horizon_k8s is sameas true -%}
     charm: ../../../horizon-k8s.charm
@@ -677,15 +665,6 @@ relations:
   - cinder:receive-ca-cert
 - - glance:image-service
   - cinder:image-service
-
-#- - cinder-ceph:database
-#  - mysql:database
-#- - cinder-ceph:amqp
-#  - rabbitmq:amqp
-#- - cinder:storage-backend
-#  - cinder-ceph:storage-backend
-#- - keystone:identity-credentials
-#  - cinder-ceph:identity-credentials
 
 - - mysql:database
   - gnocchi:database

@@ -83,11 +83,6 @@ applications:
     channel: edge
     scale: 1
     trust: true
-  cinder-ceph:
-    charm: ch:cinder-ceph-k8s
-    channel: edge
-    scale: 1
-    trust: true
 
 relations:
 - - mysql:database
@@ -179,10 +174,3 @@ relations:
 
 - - vault:insecure-certificates
   - ovn-relay:certificates
-
-- - mysql:database
-  - cinder-ceph:database
-- - rabbitmq:amqp
-  - cinder-ceph:amqp
-# cinder-ceph must also be related to ceph-mon, but this is a cross-model relation, and untested.
-# This will most likely involve https://github.com/canonical/microceph in the future.

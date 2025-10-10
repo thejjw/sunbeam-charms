@@ -12,7 +12,7 @@ external-libraries:
 internal-libraries:
   - charms.keystone_k8s.v0.identity_credentials
   - charms.ovn_central_k8s.v0.ovsdb
-  - charms.cinder_ceph_k8s.v0.ceph_access
+  - charms.cinder_volume_ceph.v0.ceph_access
   - charms.ceilometer_k8s.v0.ceilometer_service
   - charms.nova_k8s.v0.nova_service
   - charms.sunbeam_libs.v0.service_readiness
