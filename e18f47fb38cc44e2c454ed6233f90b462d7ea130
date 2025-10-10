@@ -52,6 +52,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3f565d1_9bea8ea2",
+        "filename": "tests/all-k8s/machines.yaml.j2",
+        "patchSetId": 11
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-10T08:08:47Z",
+      "side": 1,
+      "message": "Renamed to openstack and removed core, ceph, caas, misc.\nWill remove tenpest in subsequent PR",
+      "parentUuid": "f3bf074b_11674eec",
+      "revId": "e18f47fb38cc44e2c454ed6233f90b462d7ea130",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d39e967b_4439783b",
@@ -65,6 +83,30 @@
       "writtenOn": "2025-10-10T06:51:19Z",
       "side": 1,
       "message": "Do we really need a second traefik? Let\u0027s keep resources low when testing if possible",
+      "range": {
+        "startLine": 12,
+        "startChar": 2,
+        "endLine": 19,
+        "endChar": 77
+      },
+      "revId": "e18f47fb38cc44e2c454ed6233f90b462d7ea130",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce370d2d_01889478",
+        "filename": "tests/all-k8s/smoke.yaml.j2",
+        "patchSetId": 11
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-10T08:08:47Z",
+      "side": 1,
+      "message": "It is required as s3 is exposed on \u0027/\u0027",
+      "parentUuid": "d39e967b_4439783b",
       "range": {
         "startLine": 12,
         "startChar": 2,
@@ -98,6 +140,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "809d9f02_d3df7342",
+        "filename": "tests/all-k8s/smoke.yaml.j2",
+        "patchSetId": 11
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-10T08:08:47Z",
+      "side": 1,
+      "message": "Will remove complete cinder-ceph-k8s in separate PR",
+      "parentUuid": "84e9ed2c_30e1640b",
+      "range": {
+        "startLine": 166,
+        "startChar": 0,
+        "endLine": 177,
+        "endChar": 72
+      },
+      "revId": "e18f47fb38cc44e2c454ed6233f90b462d7ea130",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d83cc5a8_0b5311d6",
@@ -111,6 +177,24 @@
       "writtenOn": "2025-10-10T06:51:19Z",
       "side": 1,
       "message": "Can we ensure this is possible to also deploy from a dev POV, so that we can run the tests suite before submitting a patch?\n\nWith how this is designed, this will need to deploy apps in the controller model.\nWhich is ok for a CI run, but not for a dev env?\nSome way to override, maybe by supplying the machine env as an env var?\n\n\nOR\n\nIs the goal for people to just run the ansible playbook on a host?",
+      "revId": "e18f47fb38cc44e2c454ed6233f90b462d7ea130",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ae1f6514_57429391",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/machine/setup.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-10T08:08:47Z",
+      "side": 1,
+      "message": "Will try moving towards LXD cloud instead of manual cloud in a separate PR. That should give the path to resolve this easily.",
+      "parentUuid": "d83cc5a8_0b5311d6",
       "revId": "e18f47fb38cc44e2c454ed6233f90b462d7ea130",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
