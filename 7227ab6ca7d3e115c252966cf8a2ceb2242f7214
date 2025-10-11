@@ -33,6 +33,23 @@
       "message": "recheck RETRY_LIMIT Host unreachable",
       "revId": "7227ab6ca7d3e115c252966cf8a2ceb2242f7214",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb456c85_71a682fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-11T08:50:41Z",
+      "side": 1,
+      "message": "recheck RETRY_LIMIT",
+      "revId": "7227ab6ca7d3e115c252966cf8a2ceb2242f7214",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
