@@ -4,3 +4,4 @@
     - role: charm-build
       vars:
         charm_build_name: "{{ charm }}"
+        is_storage: "{{ storage | default(false) }}"
