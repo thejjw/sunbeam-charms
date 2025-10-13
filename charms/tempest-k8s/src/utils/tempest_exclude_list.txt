@@ -56,3 +56,7 @@ manila_tempest_tests.tests.api.test_share_group_actions.ShareGroupActionsTest
 manila_tempest_tests.tests.api.test_share_groups_negative.ShareGroupsNegativeTest
 manila_tempest_tests.tests.api.test_share_groups.ShareGroupsTest.test_create_delete_empty_share_group_snapshot_min
 manila_tempest_tests.tests.api.test_share_groups.ShareGroupsTest.test_create_share_group_from_empty_share_group_snapshot_min
+
+# This test is expected to fail on CephFS.
+# ref: https://bugs.launchpad.net/manila/+bug/2075981
+manila_tempest_tests.tests.scenario.test_share_extend.TestShareExtendNFS.test_create_extend_and_write
