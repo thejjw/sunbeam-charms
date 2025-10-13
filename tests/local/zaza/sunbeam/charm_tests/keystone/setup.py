@@ -25,10 +25,6 @@ from zaza.openstack.charm_tests.keystone.setup import (
 SERVICE_CODES = {
     "heat-cfn": [requests.codes.bad_request],
     "heat": [requests.codes.bad_request],
-    "manilav2": [
-        requests.codes.bad_gateway,
-        requests.codes.service_unavailable,
-    ],
 }
 
 
