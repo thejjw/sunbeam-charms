@@ -1217,13 +1217,66 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
 
     def ensure_snap_present(self):
         """Install snap if it is not already present."""
+        want_devmode = bool(
+            self.model.config.get("experimental-devmode", False)
+        )
+        snap_client = self.snap_module.SnapClient()
+        installed_snaps = snap_client.get_installed_snaps()
+        is_devmode = False
+        for s in installed_snaps:
+            if s["name"] == self.snap_name:
+                is_devmode = bool(s.get("devmode"))
+                break
+        # Channel change management
         try:
             snap_svc = self.get_snap()
-
-            if not snap_svc.present:
+            if (
+                snap_svc.present
+                and snap_svc.channel == self.snap_channel
+                and want_devmode == is_devmode
+            ):
+                logger.debug(
+                    "%s snap already installed and in correct confinement",
+                    self.snap_name,
+                )
+                return
+            # If snap needs confinement change and is already latest,
+            # must uninstall/reinstall at same revision.
+            # If there was a channel change, then we just install latest
+            complex_refresh = want_devmode != is_devmode and snap_svc.latest
+            if complex_refresh:
+                prev_status = self.unit.status
+                self.unit.status = MaintenanceStatus("Reinstalling snap")
+                if snap_svc.channel != self.snap_channel:
+                    logger.info(
+                        "Changing channel of %s from %s to %s",
+                        self.snap_name,
+                        snap_svc.channel,
+                        self.snap_channel,
+                    )
+                    revision = None
+                    state = self.snap_module.SnapState.Latest
+                else:
+                    revision = snap_svc.revision
+                    state = self.snap_module.SnapState.Present
+                old_config = snap_svc.get(None, typed=True)
+                snap_svc.ensure(self.snap_module.SnapState.Absent)
+                snap_svc.ensure(
+                    state,
+                    channel=self.snap_channel,
+                    revision=revision,
+                    devmode=want_devmode,
+                )
+                # Reapply old config
+                snap_svc.set(old_config, typed=True)
+                self.unit.status = prev_status
+            else:
+                # Either not present, or present but not latest
+                # In both cases, ensure Latest will work
                 snap_svc.ensure(
                     self.snap_module.SnapState.Latest,
                     channel=self.snap_channel,
+                    devmode=want_devmode,
                 )
         except self.snap_module.SnapError as e:
             logger.error(
