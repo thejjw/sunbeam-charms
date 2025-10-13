@@ -2,16 +2,20 @@
 
 set -o xtrace
 
+all_charms() {
+    find charms -name "charmcraft.yaml" | sed 's|charms/\(.*\)/charmcraft.yaml|\1|'
+}
+
 # print checks to test based on the first arg
 get_charms_to_test() {
     local charm=$1
     if [[ -z "$charm" ]]; then
-        ls charms
-        elif [[ "$charm" = "ops-sunbeam" ]]; then
+        all_charms
+    elif [[ "$charm" = "ops-sunbeam" ]]; then
         # ops-sunbeam is treated differently, so don't process it here
         false
     else
-        local charms=($(ls charms))
+        local charms=($(all_charms))
         if [[ ! ${charms[@]} =~ $charm ]];
         then
             echo "Argument should be one of ${charms[@]}" >&2
@@ -136,7 +140,7 @@ then
     fi
 
     charm=$2
-    charms=($(ls charms))
+    charms=($(all_charms))
     if [[ ! ${charms[@]} =~ $charm ]];
     then
         echo "Argument should be one of ${charms[@]}";
@@ -168,7 +172,7 @@ then
     fi
 
     charm=$2
-    charms=($(ls charms))
+    charms=($(all_charms))
     if [[ ! ${charms[@]} =~ $charm ]];
     then
         echo "Argument should be one of ${charms[@]}";
