@@ -62,6 +62,12 @@ config:
       default: null
       description: |
         Default volume type to use when creating volumes.
+    experimental-devmode:
+      type: boolean
+      default: false
+      description: |
+        Temporary flag to enable devmode snap install. This is needed
+        until cinder-volume interfaces are all stable.
 
 requires:
   amqp:

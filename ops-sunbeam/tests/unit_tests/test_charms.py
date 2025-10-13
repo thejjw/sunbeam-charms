@@ -49,6 +49,10 @@ options:
     default: RegionOne
     description: Region
     type: string
+  experimental-devmode:
+    default: False
+    description: Enable experimental devmode for snap installation.
+    type: boolean
 """
 
 INITIAL_CHARM_CONFIG = {"debug": "true", "region": "RegionOne"}
@@ -377,6 +381,21 @@ class MySnapCharm(sunbeam_charm.OSBaseOperatorCharmSnap):
         """Run constructor."""
         self.seen_events = []
         self.mock_snap = Mock()
+        # Setup snap_module mock
+        self.snap_module = Mock()
+
+        # Create a custom SnapError exception
+        class SnapError(Exception):
+            def __init__(self, message):
+                super().__init__(message)
+                self.message = message
+
+        self.snap_module.SnapError = SnapError
+        self.snap_module.SnapState = Mock()
+        self.snap_module.SnapState.Latest = "Latest"
+        self.snap_module.SnapState.Present = "Present"
+        self.snap_module.SnapState.Absent = "Absent"
+        self.snap_module.SnapClient = Mock()
         super().__init__(framework)
 
     def _log_event(self, event: "ops.framework.EventBase") -> None:
@@ -396,6 +415,10 @@ class MySnapCharm(sunbeam_charm.OSBaseOperatorCharmSnap):
     def get_snap(self):
         """Return mocked snap."""
         return self.mock_snap
+
+    def _import_snap(self):
+        """Return mocked snap module."""
+        return self.snap_module
 
     @property
     def snap_name(self) -> str:

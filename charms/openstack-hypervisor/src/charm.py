@@ -652,23 +652,77 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         # the netplan configuration to the snap based installation.
         netplan_apply_needed = self._disable_system_ovs()
 
+        want_devmode = bool(
+            self.model.config.get("experimental-devmode", False)
+        )
+        snap_client = snap.SnapClient()
+        installed_snaps = snap_client.get_installed_snaps()
+        is_devmode = False
+        for s in installed_snaps:
+            if s["name"] == HYPERVISOR_SNAP_NAME:
+                is_devmode = bool(s.get("devmode"))
+                break
+        channel: str | None = config("snap-channel")  # type: ignore
         try:
             cache = self.get_snap_cache()
-            hypervisor = cache["openstack-hypervisor"]
+            hypervisor = cache[HYPERVISOR_SNAP_NAME]
 
-            if not hypervisor.present:
-                hypervisor.ensure(
-                    snap.SnapState.Latest, channel=config("snap-channel")
+            if (
+                hypervisor.present
+                and hypervisor.channel == channel
+                and is_devmode == want_devmode
+            ):
+                logger.debug(
+                    "%s snap already installed and in correct confinement",
+                    HYPERVISOR_SNAP_NAME,
                 )
-                self._connect_to_epa_orchestrator()
+                return
+            # If snap needs confinement change and is already latest,
+            # must uninstall/reinstall at same revision
+            complex_refresh = want_devmode != is_devmode and hypervisor.latest
+            if complex_refresh:
+                prev_status = self.unit.status
+                self.unit.status = ops.MaintenanceStatus("Reinstalling snap")
+                if hypervisor.channel != channel:
+                    logger.info(
+                        "Changing channel of %s from %s to %s",
+                        HYPERVISOR_SNAP_NAME,
+                        hypervisor.channel,
+                        channel,
+                    )
+                    revision = None
+                    state = snap.SnapState.Latest
+                else:
+                    revision = hypervisor.revision
+                    state = snap.SnapState.Present
+                old_config = hypervisor.get(None, typed=True)
+                hypervisor.ensure(snap.SnapState.Absent)
+                hypervisor.ensure(
+                    state,
+                    channel=channel,
+                    revision=revision,
+                    devmode=want_devmode,
+                )
+                # Reapply old config
+                hypervisor.set(old_config, typed=True)
+                self.unit.status = prev_status
+            else:
+                # Either not present, or present but not latest
+                # In both cases, ensure Latest will work
+                hypervisor.ensure(
+                    snap.SnapState.Latest,
+                    channel=channel,
+                    devmode=want_devmode,
+                )
+            self._connect_to_epa_orchestrator()
 
-                # Netplan expects the "ovs-vsctl" alias in order to pick up the
-                # snap installation. The other aliases are there for consistency
-                # and convenience.
-                hypervisor.alias("ovs-vsctl", "ovs-vsctl")
-                hypervisor.alias("ovs-appctl", "ovs-appctl")
-                hypervisor.alias("ovs-dpctl", "ovs-dpctl")
-                hypervisor.alias("ovs-ofctl", "ovs-ofctl")
+            # Netplan expects the "ovs-vsctl" alias in order to pick up the
+            # snap installation. The other aliases are there for consistency
+            # and convenience.
+            hypervisor.alias("ovs-vsctl", "ovs-vsctl")
+            hypervisor.alias("ovs-appctl", "ovs-appctl")
+            hypervisor.alias("ovs-dpctl", "ovs-dpctl")
+            hypervisor.alias("ovs-ofctl", "ovs-ofctl")
         except (snap.SnapError, snap.SnapNotFoundError) as e:
             logger.error(
                 "An exception occurred when installing openstack-hypervisor. Reason: %s",
@@ -678,14 +732,14 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             raise SnapInstallationError(
                 "openstack-hypervisor installation failed"
             )
-
-        if netplan_apply_needed:
-            logger.info("System OVS services masked, reapplying netplan.")
-            subprocess.run(["netplan", "apply"], check=True)
-        else:
-            logger.debug(
-                "No OVS changes made, skipping netplan configuration."
-            )
+        finally:
+            if netplan_apply_needed:
+                logger.info("System OVS services masked, reapplying netplan.")
+                subprocess.run(["netplan", "apply"], check=True)
+            else:
+                logger.debug(
+                    "No OVS changes made, skipping netplan configuration."
+                )
 
     def _connect_to_epa_orchestrator(self):
         """Connect openstack-hypervisor snap plug to epa-orchestrator snap slot."""
