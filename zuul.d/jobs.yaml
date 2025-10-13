@@ -126,10 +126,11 @@
     match-on-config-updates: false
     files:
       - ops-sunbeam/ops_sunbeam/
-      - charms/cinder-volume-ceph/
+      - charms/storage/cinder-volume-ceph/
       - rebuild
     vars:
       charm: cinder-volume-ceph
+      storage: true
 - job:
     name: charm-build-cinder-ceph-k8s
     description: Build sunbeam cinder-ceph-k8s charm
@@ -611,7 +612,7 @@
     run: playbooks/charm/publish.yaml
     files:
       - ops-sunbeam/ops_sunbeam/
-      - charms/cinder-volume-ceph/
+      - charms/storage/cinder-volume-ceph/
       - rebuild
     secrets:
       - charmhub_token
@@ -1081,7 +1082,7 @@
       - charms/masakari-k8s/
       - charms/openstack-hyperivsor/
       - charms/cinder-volume/
-      - charms/cinder-volume-ceph/
+      - charms/storage/cinder-volume-ceph/
       - rebuild
       - zuul.d/zuul.yaml
     vars:
