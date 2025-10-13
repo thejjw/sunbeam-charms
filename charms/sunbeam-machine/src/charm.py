@@ -22,6 +22,7 @@ subordinates that configure machine services.
 """
 
 import logging
+import platform
 import socket
 import textwrap
 from pathlib import (
@@ -44,7 +45,10 @@ ETC_ENVIRONMENT = "/etc/environment"
 ISCSI_INITIATORNAME_FILE = "/etc/iscsi/initiatorname.iscsi"
 logger = logging.getLogger(__name__)
 
-PACKAGES = ["open-iscsi"]
+PACKAGES = [
+    "open-iscsi",
+    "linux-modules-extra-{kernel}",  # Provides nvme-tcp module
+]
 
 
 @sunbeam_tracing.trace_sunbeam_charm
@@ -143,6 +147,8 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Ensure packages are installed on the local machine."""
         apt_updated = False
         for package in PACKAGES:
+            if "{kernel}" in package:
+                package = package.format(kernel=platform.release())
             pkg = apt.DebianPackage.from_system(package)
             if not pkg.present:
                 if not apt_updated:
