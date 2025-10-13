@@ -21,6 +21,7 @@ Deploy machine applications and integrations using jubilant.
 """
 
 import logging
+import subprocess
 from pathlib import (
     Path,
 )
@@ -29,6 +30,7 @@ import jubilant
 import zaza.model
 
 MACHINE_MODEL = "controller"
+MACHINE_MODEL_WITH_OWNER = f"admin/{MACHINE_MODEL}"
 MACHINE_BUNDLE_FILE = "./tests/openstack/bundles/machines.yaml"
 
 
@@ -69,6 +71,7 @@ def deploy_machine_applications():
             "hypervisor",
             "sunbeam-machine",
             "epa-orchestrator",
+            "manila-data",
         ),
         timeout=1200,
     )
@@ -80,7 +83,7 @@ def deploy_machine_applications():
             "--model",
             k8s_model,
             "cinder:storage-backend",
-            "admin/controller.storage-backend",
+            f"{MACHINE_MODEL_WITH_OWNER}.storage-backend",
             include_model=False,
         )
     except jubilant.CLIError as e:
@@ -93,26 +96,25 @@ def deploy_machine_applications():
             "--model",
             k8s_model,
             "gnocchi:ceph",
-            "admin/controller.ceph",
+            f"{MACHINE_MODEL_WITH_OWNER}.ceph",
             include_model=False,
         )
     except jubilant.CLIError as e:
         if "already exists" not in e.stderr:
             raise e
 
-    # Include manila integration once microceph changes are published in squid/stable
-    # try:
-    #     juju.cli(
-    #         "integrate",
-    #         "--model",
-    #         k8s_model,
-    #         "manila-cephfs:ceph-nfs",
-    #         "admin/controller.ceph",
-    #         include_model=False
-    #     )
-    # except jubilant.CLIError as e:
-    #     if "already exists" not in e.stderr:
-    #         raise e
+    try:
+        juju.cli(
+            "integrate",
+            "--model",
+            k8s_model,
+            "manila-cephfs:ceph-nfs",
+            f"{MACHINE_MODEL_WITH_OWNER}.ceph-nfs",
+            include_model=False,
+        )
+    except jubilant.CLIError as e:
+        if "already exists" not in e.stderr:
+            raise e
 
     juju.wait(
         lambda status: jubilant.all_active(status, "cinder-volume"),
@@ -122,7 +124,28 @@ def deploy_machine_applications():
     juju_k8s = jubilant.Juju(model=k8s_model)
     juju_k8s.wait(
         lambda status: jubilant.all_active(
-            status, "cinder", "ceilometer", "gnocchi"
+            status,
+            "cinder",
+            "ceilometer",
+            "gnocchi",
+            "manila",
+            "manila-cephfs",
         ),
         timeout=1200,
     )
+
+    # Workaround to enable Orchestrator module until
+    # https://github.com/canonical/microceph/pull/611
+    # is merged and published in squid/stable.
+    try:
+        subprocess.run(
+            ["sudo", "microceph.ceph", "mgr", "module", "enable", "microceph"],
+            check=True,
+        )
+        subprocess.run(
+            ["sudo", "microcpeh.ceph", "orch", "set", "backend", "microceph"],
+            check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        logging.error(f"Command failed with error: {e}")
+        raise e
