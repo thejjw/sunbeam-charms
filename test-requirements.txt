@@ -27,3 +27,4 @@ types-PyYAML # types stub for mypy
 croniter==5.0.1            # tempest-k8s
 
 lightkube-extensions @ git+https://github.com/canonical/lightkube-extensions.git@main        # ovn-relay-k8s,designate-bind-k8s
+charmlibs-apt  # sunbeam-machine

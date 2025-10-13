@@ -15,6 +15,7 @@
 """Tests for Sunbeam Machine charm."""
 
 from unittest.mock import (
+    MagicMock,
     mock_open,
     patch,
 )
@@ -35,7 +36,7 @@ class _SunbeamMachineCharm(charm.SunbeamMachineCharm):
 class TestCharm(test_utils.CharmTestCase):
     """Classes for testing Sunbeam Machine charm."""
 
-    PATCHES = ["sysctl"]
+    PATCHES = ["sysctl", "apt"]
 
     def setUp(self):
         """Setup Sunbeam machine tests."""
@@ -153,3 +154,74 @@ class TestCharm(test_utils.CharmTestCase):
                 ) as mock_file:
                     self.harness.update_config(d[1])
                     mock_file().write.assert_called_with(expected_content)
+
+    def test_ensure_package_installed_when_present(self):
+        """Test package installation when packages are already installed."""
+        mock_pkg = MagicMock()
+        mock_pkg.present = True
+
+        with patch(
+            "charm.apt.DebianPackage.from_system", return_value=mock_pkg
+        ):
+            with patch("builtins.open", new_callable=mock_open, read_data=""):
+                self.harness.begin_with_initial_hooks()
+
+            # Package is present, so apt.update and ensure should not be called
+            self.apt.update.assert_not_called()
+            mock_pkg.ensure.assert_not_called()
+
+    def test_ensure_package_installed_when_not_present(self):
+        """Test package installation when packages need to be installed."""
+        mock_pkg = MagicMock()
+        mock_pkg.present = False
+
+        with patch(
+            "charm.apt.DebianPackage.from_system", return_value=mock_pkg
+        ):
+            with patch("charm.apt.PackageState") as mock_package_state:
+                mock_package_state.Present = "Present"
+                with patch(
+                    "builtins.open", new_callable=mock_open, read_data=""
+                ):
+                    self.harness.begin_with_initial_hooks()
+
+                # Package is not present, so apt.update should be called once
+                # and ensure should be called to install the package
+                self.apt.update.assert_called_once()
+                mock_pkg.ensure.assert_called_once_with("Present")
+
+    def test_ensure_package_installed_multiple_packages(self):
+        """Test package installation with multiple packages in different states."""
+        # Mock first package as present, second as not present
+        mock_pkg1 = MagicMock()
+        mock_pkg1.present = True
+        mock_pkg2 = MagicMock()
+        mock_pkg2.present = False
+
+        def from_system_side_effect(package_name):
+            if package_name == "open-iscsi":
+                return mock_pkg2
+            return mock_pkg1
+
+        with patch(
+            "charm.apt.DebianPackage.from_system",
+            side_effect=from_system_side_effect,
+        ):
+            with patch("charm.apt.PackageState") as mock_package_state:
+                mock_package_state.Present = "Present"
+                # Temporarily override PACKAGES for this test
+                original_packages = charm.PACKAGES
+                try:
+                    charm.PACKAGES = ["some-installed-pkg", "open-iscsi"]
+                    with patch(
+                        "builtins.open", new_callable=mock_open, read_data=""
+                    ):
+                        self.harness.begin_with_initial_hooks()
+
+                    # apt.update should only be called once (not once per missing package)
+                    self.apt.update.assert_called_once()
+                    # Only the second package should be installed
+                    mock_pkg1.ensure.assert_not_called()
+                    mock_pkg2.ensure.assert_called_once_with("Present")
+                finally:
+                    charm.PACKAGES = original_packages

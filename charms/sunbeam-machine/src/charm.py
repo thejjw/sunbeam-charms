@@ -28,12 +28,17 @@ import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.tracing as sunbeam_tracing
+from charmlibs import (
+    apt,
+)
 from charms.operator_libs_linux.v0 import (
     sysctl,
 )
 
 ETC_ENVIRONMENT = "/etc/environment"
 logger = logging.getLogger(__name__)
+
+PACKAGES = ["open-iscsi"]
 
 
 @sunbeam_tracing.trace_sunbeam_charm
@@ -53,6 +58,7 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Run configuration on this unit."""
         super().configure_unit(event)
         self._sysctl_configure()
+        self._ensure_package_installed()
 
     def _sysctl_configure(self):
         """Run sysctl configuration on the local machine."""
@@ -96,6 +102,17 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def _on_remove(self, event: ops.RemoveEvent):
         self.sysctl.remove()
+
+    def _ensure_package_installed(self) -> None:
+        """Ensure packages are installed on the local machine."""
+        apt_updated = False
+        for package in PACKAGES:
+            pkg = apt.DebianPackage.from_system(package)
+            if not pkg.present:
+                if not apt_updated:
+                    apt.update()
+                    apt_updated = True
+                pkg.ensure(apt.PackageState.Present)
 
 
 if __name__ == "__main__":  # pragma: nocover
