@@ -43,6 +43,9 @@ requires:
   identity-credentials:
     interface: keystone-credentials
     limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
   logging:
     interface: loki_push_api
     optional: true
