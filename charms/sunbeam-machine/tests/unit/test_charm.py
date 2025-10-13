@@ -201,9 +201,12 @@ class TestCharm(test_utils.CharmTestCase):
                     self.harness.begin_with_initial_hooks()
 
                 # Package is not present, so apt.update should be called once
-                # and ensure should be called to install the package
+                # and ensure should be called to install each package in PACKAGES
                 self.apt.update.assert_called_once()
-                mock_pkg.ensure.assert_called_once_with("Present")
+                # With the current PACKAGES list, ensure should be called twice
+                # (once for open-iscsi and once for linux-modules-extra-{kernel})
+                assert mock_pkg.ensure.call_count == len(charm.PACKAGES)
+                mock_pkg.ensure.assert_called_with("Present")
 
     def test_ensure_package_installed_multiple_packages(self):
         """Test package installation with multiple packages in different states."""
@@ -240,3 +243,77 @@ class TestCharm(test_utils.CharmTestCase):
                     mock_pkg2.ensure.assert_called_once_with("Present")
                 finally:
                     charm.PACKAGES = original_packages
+
+    def test_ensure_package_installed_with_kernel_placeholder(self):
+        """Test package installation with kernel version placeholder."""
+        mock_pkg = MagicMock()
+        mock_pkg.present = False
+
+        installed_packages = []
+
+        def from_system_side_effect(package_name):
+            installed_packages.append(package_name)
+            return mock_pkg
+
+        with patch(
+            "charm.apt.DebianPackage.from_system",
+            side_effect=from_system_side_effect,
+        ):
+            with patch("charm.apt.PackageState") as mock_package_state:
+                mock_package_state.Present = "Present"
+                with patch("charm.platform.release", return_value="5.15.0-generic"):
+                    # Temporarily override PACKAGES for this test
+                    original_packages = charm.PACKAGES
+                    try:
+                        charm.PACKAGES = ["linux-modules-extra-{kernel}"]
+                        with patch(
+                            "builtins.open", new_callable=mock_open, read_data=""
+                        ):
+                            self.harness.begin_with_initial_hooks()
+
+                        # Verify the kernel placeholder was replaced
+                        self.assertIn("linux-modules-extra-5.15.0-generic", installed_packages)
+                        # apt.update should be called once
+                        self.apt.update.assert_called_once()
+                        # Package should be installed
+                        mock_pkg.ensure.assert_called_with("Present")
+                    finally:
+                        charm.PACKAGES = original_packages
+
+    def test_ensure_package_installed_mixed_kernel_and_regular_packages(self):
+        """Test package installation with both kernel and regular packages."""
+        mock_pkg_present = MagicMock()
+        mock_pkg_present.present = True
+        mock_pkg_not_present = MagicMock()
+        mock_pkg_not_present.present = False
+
+        installed_packages = []
+
+        def from_system_side_effect(package_name):
+            installed_packages.append(package_name)
+            if package_name == "open-iscsi":
+                return mock_pkg_not_present
+            elif package_name.startswith("linux-modules-extra-"):
+                return mock_pkg_not_present
+            return mock_pkg_present
+
+        with patch(
+            "charm.apt.DebianPackage.from_system",
+            side_effect=from_system_side_effect,
+        ):
+            with patch("charm.apt.PackageState") as mock_package_state:
+                mock_package_state.Present = "Present"
+                with patch("charm.platform.release", return_value="6.2.0-39-generic"):
+                    # Use actual PACKAGES list
+                    with patch(
+                        "builtins.open", new_callable=mock_open, read_data=""
+                    ):
+                        self.harness.begin_with_initial_hooks()
+
+                    # Verify packages were requested correctly
+                    self.assertIn("open-iscsi", installed_packages)
+                    self.assertIn("linux-modules-extra-6.2.0-39-generic", installed_packages)
+                    # Verify kernel placeholder was not passed through
+                    self.assertNotIn("linux-modules-extra-{kernel}", installed_packages)
+                    # apt.update should be called once
+                    self.apt.update.assert_called_once()
