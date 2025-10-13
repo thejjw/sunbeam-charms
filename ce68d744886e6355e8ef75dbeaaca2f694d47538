@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4fb6480e_a68e063d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-13T04:55:25Z",
+      "side": 1,
+      "message": "recheck RETRY_LIMIT network connectivity issues",
+      "revId": "ce68d744886e6355e8ef75dbeaaca2f694d47538",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
