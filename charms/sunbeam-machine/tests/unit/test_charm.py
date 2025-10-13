@@ -36,11 +36,26 @@ class _SunbeamMachineCharm(charm.SunbeamMachineCharm):
 class TestCharm(test_utils.CharmTestCase):
     """Classes for testing Sunbeam Machine charm."""
 
-    PATCHES = ["sysctl", "apt"]
+    PATCHES = ["sysctl", "apt", "Path"]
 
     def setUp(self):
         """Setup Sunbeam machine tests."""
         super().setUp(charm, self.PATCHES)
+        # Mock Path for iSCSI initiator configuration
+        mock_path_instance = MagicMock()
+        mock_path_instance.exists.return_value = False
+        mock_path_instance.parent.mkdir = MagicMock()
+        mock_path_instance.touch = MagicMock()
+        mock_path_instance.chmod = MagicMock()
+        mock_path_instance.open = MagicMock(
+            return_value=mock_open(read_data="")()
+        )
+        mock_path_instance.__enter__ = MagicMock(
+            return_value=mock_path_instance
+        )
+        mock_path_instance.__exit__ = MagicMock(return_value=False)
+        self.Path.return_value = mock_path_instance
+
         self.harness = test_utils.get_harness(
             _SunbeamMachineCharm,
             container_calls=self.container_calls,
