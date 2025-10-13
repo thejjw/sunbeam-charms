@@ -16,6 +16,24 @@
       "message": "Can we use configs specified in below link to handle creation of snapshots?\n https://opendev.org/openstack/manila-tempest-plugin/src/tag/2.7.0/manila_tempest_tests/tests/api/test_share_group_actions.py#L51",
       "revId": "42616daff4b549992bb84ac6caa9a1268ad2651e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ac5beead_77aabed2",
+        "filename": "charms/tempest-k8s/src/utils/tempest_exclude_list.txt",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-10-13T09:37:57Z",
+      "side": 1,
+      "message": "I\u0027d avoid setting that config option, as it would disable quite a few other passing tests, which we should still run. Snapshots are still supported, just not group snapshots, which we skip here.",
+      "parentUuid": "7d21ae38_755a2a20",
+      "revId": "42616daff4b549992bb84ac6caa9a1268ad2651e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
