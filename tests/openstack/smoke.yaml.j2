@@ -309,6 +309,14 @@ applications:
       magnum-api-image: ghcr.io/canonical/magnum-consolidated:2025.1
       magnum-conductor-image: ghcr.io/canonical/magnum-consolidated:2025.1
   # Shared filesystems feature
+  manila-router:
+    charm: ch:mysql-router-k8s
+    channel: 8.0/edge
+    base: ubuntu@22.04
+    scale: 1
+    trust: true
+    options:
+      expose-external: loadbalancer
   manila:
     {% if manila_k8s is defined and manila_k8s is sameas true -%}
     charm: ../../../manila-k8s.charm
@@ -636,7 +644,9 @@ relations:
   - magnum:receive-ca-cert
 
 - - mysql:database
-  - manila:database
+  - manila-router: backend-database
+- - manila:database
+  - manila-router:database
 - - rabbitmq:amqp
   - manila:amqp
 - - keystone:identity-service
@@ -644,8 +654,8 @@ relations:
 - - traefik:ingress
   - manila:ingress-internal
 
-- - mysql:database
-  - manila-cephfs:database
+- - manila-cephfs:database
+  - manila-router:database
 - - rabbitmq:amqp
   - manila-cephfs:amqp
 - - keystone:identity-credentials
@@ -810,9 +820,14 @@ applications:
     offers:
       database:
         endpoints:
-          - database
+          - cinder-database
   traefik-rgw:
     offers:
       traefik-route-rgw:
         endpoints:
           - traefik-route
+  manila-router:
+    offers:
+      database:
+        endpoints:
+          - manila-database
