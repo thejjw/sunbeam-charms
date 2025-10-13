@@ -41,7 +41,11 @@ class TestCharm(test_utils.CharmTestCase):
     def setUp(self):
         """Setup OpenStack Hypervisor tests."""
         super().setUp(charm, self.PATCHES)
-        self.snap = Mock()
+        self.snap = Mock(
+            SnapClient=Mock(
+                return_value=Mock(get_installed_snaps=Mock(return_value=[]))
+            )
+        )
         snap_patch = patch.object(
             _CinderVolumeOperatorCharm,
             "_import_snap",
@@ -114,7 +118,7 @@ class TestCharm(test_utils.CharmTestCase):
             },
         )
         cinder_volume_snap_mock.ensure.assert_any_call(
-            "latest", channel="essex/stable"
+            "latest", channel="essex/stable", devmode=False
         )
         expect_settings = {
             "rabbitmq.url": "rabbit://cinder-volume:rabbit.pass@rabbithost1.local:5672/openstack",

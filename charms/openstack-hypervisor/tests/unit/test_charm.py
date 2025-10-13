@@ -145,7 +145,7 @@ class TestCharm(test_utils.CharmTestCase):
         )
 
         hypervisor_snap_mock.ensure.assert_any_call(
-            "latest", channel="essex/stable"
+            "latest", channel="essex/stable", devmode=False
         )
         metadata = self.harness.charm.metadata_secret()
         cacert = test_utils.TEST_CA
@@ -268,7 +268,7 @@ class TestCharm(test_utils.CharmTestCase):
         test_utils.add_complete_amqp_relation(self.harness)
         test_utils.add_complete_identity_credentials_relation(self.harness)
         hypervisor_snap_mock.ensure.assert_any_call(
-            "latest", channel="essex/stable"
+            "latest", channel="essex/stable", devmode=False
         )
         metadata = self.harness.charm.metadata_secret()
         cacert = test_utils.TEST_CA
