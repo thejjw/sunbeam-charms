@@ -17,6 +17,7 @@ UTILITY_FILES = [
     ROOT_DIR / ".stestr.conf",
     ROOT_DIR / ".jujuignore",
 ]
+STORAGE_DIR = "storage"
 
 
 logger = logging.getLogger(__name__)
@@ -118,7 +119,11 @@ def load_templates() -> dict[str, pathlib.Path]:
 
 def list_charms() -> list[str]:
     """List the available charms."""
-    return [p.name for p in (ROOT_DIR / "charms").iterdir() if p.is_dir()]
+    return [
+        p.name
+        for p in (ROOT_DIR / "charms").iterdir()
+        if p.is_dir() and p.name != STORAGE_DIR
+    ] + [p.name for p in (ROOT_DIR / "charms" / STORAGE_DIR).iterdir() if p.is_dir()]
 
 
 def load_charm(charm: str) -> SunbeamBuild:
