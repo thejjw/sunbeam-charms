@@ -632,3 +632,227 @@ class TestOSBaseOperatorCharmSnap(test_utils.CharmTestCase):
         snap.set.assert_called_once_with(
             {namespace: {"key": "abc"}}, typed=True
         )
+
+    def test_ensure_snap_present_already_installed(self) -> None:
+        """Test ensure_snap_present when snap is already correctly installed."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        # Setup: snap is already present with correct channel and confinement
+        snap.present = True
+        snap.channel = "latest/stable"
+        snap.latest = False
+
+        # Mock SnapClient to return snap as installed without devmode
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap", "devmode": False}
+        ]
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        # No devmode requested (update config without triggering ensure_snap_present)
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": False})
+
+        snap.reset_mock()
+        charm.ensure_snap_present()
+
+        # Snap should not be modified
+        snap.ensure.assert_not_called()
+
+    def test_ensure_snap_present_not_installed(self) -> None:
+        """Test ensure_snap_present when snap is not installed."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        # Setup: snap is not present
+        snap.present = False
+        snap.channel = "latest/stable"
+
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = []
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": False})
+
+        snap.reset_mock()
+        charm.ensure_snap_present()
+
+        # Snap should be installed with Latest state
+        snap.ensure.assert_called_once_with(
+            charm.snap_module.SnapState.Latest,
+            channel="latest/stable",
+            devmode=False,
+        )
+
+    def test_ensure_snap_present_channel_change(self) -> None:
+        """Test ensure_snap_present when channel needs to change."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        # Setup: snap is present but on different channel
+        snap.present = True
+        snap.channel = "2024.1/stable"
+        snap.latest = False
+
+        # Mock SnapClient
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap", "devmode": False}
+        ]
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": False})
+
+        snap.reset_mock()
+        charm.ensure_snap_present()
+
+        # Snap should be updated to new channel
+        snap.ensure.assert_called_once_with(
+            charm.snap_module.SnapState.Latest,
+            channel="latest/stable",
+            devmode=False,
+        )
+
+    def test_ensure_snap_present_confinement_change_not_latest(self) -> None:
+        """Test ensure_snap_present when confinement changes and snap is not latest."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        # Setup: snap is present, not latest, devmode needs to change
+        snap.present = True
+        snap.channel = "latest/stable"
+        snap.latest = False
+        snap.revision = "123"
+
+        # Mock SnapClient - snap installed in strict mode
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap", "devmode": False}
+        ]
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        # Request devmode
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": True})
+
+        snap.reset_mock()
+        charm.ensure_snap_present()
+
+        # Snap should be updated to Latest with devmode
+        snap.ensure.assert_called_once_with(
+            charm.snap_module.SnapState.Latest,
+            channel="latest/stable",
+            devmode=True,
+        )
+
+    def test_ensure_snap_present_confinement_change_is_latest(self) -> None:
+        """Test ensure_snap_present when confinement changes and snap is already latest."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        # Setup: snap is present, is latest, devmode needs to change
+        snap.present = True
+        snap.channel = "latest/stable"
+        snap.latest = True
+        snap.revision = "456"
+        snap.get.return_value = {"settings.foo": "bar"}
+
+        # Mock SnapClient - snap installed in strict mode
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap", "devmode": False}
+        ]
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        # Request devmode
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": True})
+
+        snap.reset_mock()
+        charm.ensure_snap_present()
+
+        # Snap should be reinstalled: Absent, then Present at same revision
+        calls = snap.ensure.call_args_list
+        self.assertEqual(len(calls), 2)
+
+        # First call: ensure Absent
+        self.assertEqual(calls[0], ((charm.snap_module.SnapState.Absent,), {}))
+
+        # Second call: ensure Present with same revision and devmode
+        self.assertEqual(
+            calls[1],
+            (
+                (charm.snap_module.SnapState.Present,),
+                {
+                    "channel": "latest/stable",
+                    "revision": "456",
+                    "devmode": True,
+                },
+            ),
+        )
+
+        # Config should be preserved
+        snap.get.assert_called_once_with(None, typed=True)
+        snap.set.assert_called_once_with({"settings.foo": "bar"}, typed=True)
+
+    def test_ensure_snap_present_confinement_and_channel_change_is_latest(
+        self,
+    ) -> None:
+        """Test ensure_snap_present when both confinement and channel change, snap is latest."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        # Setup: snap is present, is latest, both channel and devmode need to change
+        snap.present = True
+        snap.channel = "2024.1/stable"
+        snap.latest = True
+        snap.revision = "789"
+        snap.get.return_value = {"settings.debug": True}
+
+        # Mock SnapClient - snap installed in strict mode
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap", "devmode": False}
+        ]
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        # Request devmode
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": True})
+
+        snap.reset_mock()
+        charm.ensure_snap_present()
+
+        # Snap should be reinstalled: Absent, then Latest (not Present)
+        # because channel is changing
+        calls = snap.ensure.call_args_list
+        self.assertEqual(len(calls), 2)
+
+        # First call: ensure Absent
+        self.assertEqual(calls[0], ((charm.snap_module.SnapState.Absent,), {}))
+
+        # Second call: ensure Latest with new channel and devmode
+        self.assertEqual(
+            calls[1],
+            (
+                (charm.snap_module.SnapState.Latest,),
+                {
+                    "channel": "latest/stable",
+                    "revision": None,
+                    "devmode": True,
+                },
+            ),
+        )
+
+        # Config should be preserved
+        snap.get.assert_called_once_with(None, typed=True)
+        snap.set.assert_called_once_with({"settings.debug": True}, typed=True)

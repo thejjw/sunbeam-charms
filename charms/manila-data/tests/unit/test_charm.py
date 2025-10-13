@@ -46,7 +46,11 @@ class TestCharm(test_utils.CharmTestCase):
     def setUp(self):
         """Setup OpenStack Manila Data Operator tests."""
         super().setUp(charm, self.PATCHES)
-        self.snap = Mock()
+        self.snap = Mock(
+            SnapClient=Mock(
+                return_value=Mock(get_installed_snaps=Mock(return_value=[]))
+            )
+        )
         snap_patch = patch.object(
             _ManilaDataOperatorCharm,
             "_import_snap",
