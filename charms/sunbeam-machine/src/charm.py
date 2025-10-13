@@ -22,6 +22,11 @@ subordinates that configure machine services.
 """
 
 import logging
+import socket
+import textwrap
+from pathlib import (
+    Path,
+)
 
 import ops
 import ops.framework
@@ -36,6 +41,7 @@ from charms.operator_libs_linux.v0 import (
 )
 
 ETC_ENVIRONMENT = "/etc/environment"
+ISCSI_INITIATORNAME_FILE = "/etc/iscsi/initiatorname.iscsi"
 logger = logging.getLogger(__name__)
 
 PACKAGES = ["open-iscsi"]
@@ -59,6 +65,7 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
         super().configure_unit(event)
         self._sysctl_configure()
         self._ensure_package_installed()
+        self._configure_iscsi_initiator()
 
     def _sysctl_configure(self):
         """Run sysctl configuration on the local machine."""
@@ -71,6 +78,35 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
         except sysctl.CommandError:
             logger.error("Error executing sysctl", exc_info=True)
             raise sunbeam_guard.BlockedExceptionError("Sysctl command failed")
+
+    def _configure_iscsi_initiator(self):
+        """Configure the iSCSI initiator with a valid IQN."""
+        fqdn = socket.getfqdn()
+        iqn = f"iqn.2024-04.com.ubuntu.sunbeam:{fqdn}"
+        content = textwrap.dedent(
+            f"""\
+            ## DO NOT EDIT OR REMOVE THIS FILE!
+            ## This file is Juju managed.
+            ## If you remove this file, the iSCSI daemon will not start.
+            ## If you change the InitiatorName, existing access control lists
+            ## may reject this initiator.  The InitiatorName must be unique
+            ## for each iSCSI initiator.  Do NOT duplicate iSCSI InitiatorNames.
+            InitiatorName={iqn}
+            """
+        )
+        path = Path(ISCSI_INITIATORNAME_FILE)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if not path.exists():
+            path.touch(mode=0o600)
+        else:
+            path.chmod(0o600)
+        with path.open(mode="r+", encoding="utf-8") as file:
+            data = file.read()
+            if data == content:
+                return
+            file.seek(0)
+            file.write(content)
+            file.truncate()
 
     def _on_config_changed(self, event: ops.ConfigChangedEvent):
         self.configure_charm(event)
