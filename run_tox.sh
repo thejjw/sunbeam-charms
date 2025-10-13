@@ -2,16 +2,20 @@
 
 set -o xtrace
 
+all_charms() {
+    find charms -name "charmcraft.yaml" | sed 's|charms/\(.*\)/charmcraft.yaml|\1|'
+}
+
 # print checks to test based on the first arg
 get_charms_to_test() {
     local charm=$1
     if [[ -z "$charm" ]]; then
-        ls charms
-        elif [[ "$charm" = "ops-sunbeam" ]]; then
+        all_charms
+    elif [[ "$charm" = "ops-sunbeam" ]]; then
         # ops-sunbeam is treated differently, so don't process it here
         false
     else
-        local charms=($(ls charms))
+        local charms=($(all_charms))
         if [[ ! ${charms[@]} =~ $charm ]];
         then
             echo "Argument should be one of ${charms[@]}" >&2
@@ -136,7 +140,7 @@ then
     fi
 
     charm=$2
-    charms=($(ls charms))
+    charms=($(all_charms))
     if [[ ! ${charms[@]} =~ $charm ]];
     then
         echo "Argument should be one of ${charms[@]}";
@@ -151,12 +155,12 @@ then
         echo "Removing bad downloaded charm maybe?"
         rm "${charm}.charm"
     fi
-    echo "Renaming charm ${charm}_*.charm to ${charm}.charm"
-
-    mv ${charm}_*.charm ${charm}.charm
+    echo "Renaming charm ${charm}_*.charm to ${pathed_charm}.charm"
+    unpathed_charm=$(basename $charm)
+    mv ${unpathed_charm}_*.charm ${unpathed_charm}.charm
 
     popd || exit 1
-    cp charms/$charm/${charm}.charm . || exit 1
+    cp charms/$charm/${unpathed_charm}.charm . || exit 1
     python3 repository.py -v clean $charm || exit 1
 
 elif [[ $1 == "uv" ]];
@@ -168,7 +172,7 @@ then
     fi
 
     charm=$2
-    charms=($(ls charms))
+    charms=($(all_charms))
     if [[ ! ${charms[@]} =~ $charm ]];
     then
         echo "Argument should be one of ${charms[@]}";
