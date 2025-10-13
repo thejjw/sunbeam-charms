@@ -111,6 +111,12 @@ config:
       default: vfio-pci
       type: string
       description: The driver used for DPDK physical ports.
+    experimental-devmode:
+      type: boolean
+      default: false
+      description: |
+        Temporary flag to enable devmode snap install. This is needed
+        until openstack-hypervisor interfaces are all stable.
 
 actions:
   set-hypervisor-local-settings:
