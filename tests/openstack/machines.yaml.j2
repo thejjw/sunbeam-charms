@@ -71,6 +71,19 @@ applications:
     options:
       snap-channel: 2025.1/edge
       external-bridge-address: 0.0.0.0/0
+  manila-data:
+    {% if manila_data is defined and manila_data is sameas true -%}
+    charm: ../../../manila-data.charm
+    {% else -%}
+    charm: ch:manila-data
+    channel: 2025.1/edge
+    {% endif -%}
+    scale: 1
+    to:
+      - "0"
+    arch: amd64
+    options:
+      snap-channel: 2025.1/edge
 
 saas:
 # Same offer is used for multiple applications due to bug
@@ -87,8 +100,10 @@ saas:
     url: admin/K8S_MODEL.amqp
   identity-credentials:
     url: admin/K8S_MODEL.identity-credentials
-  database:
-    url: admin/K8S_MODEL.database
+  cinder-database:
+    url: admin/K8S_MODEL.cinder-database
+  manila-database:
+    url: admin/K8S_MODEL.manila-database
 #  send-ca-cert-hypervisor:
 #    url: admin/control-plane.send-ca-cert
 #  send-ca-cert-microceph:
@@ -119,7 +134,7 @@ relations:
   - - cinder-volume:identity-credentials
     - identity-credentials:identity-credentials
   - - cinder-volume:database
-    - database
+    - cinder-database
 
   - - microceph:ceph
     - cinder-microceph:ceph
@@ -156,6 +171,13 @@ relations:
   - - hypervisor:ceph-access
     - cinder-microceph:ceph-access
 
+  - - amqp:amqp
+    - manila-data:amqp
+  - - identity-credentials:identity-credentials
+    - manila-data:identity-credentials
+  - - manila-data:database
+    - manila-database
+
 ---
 applications:
   cinder-volume:
@@ -168,3 +190,6 @@ applications:
       ceph:
         endpoints:
           - ceph
+      ceph-nfs:
+        endpoints:
+          - ceph-nfs
