@@ -1218,7 +1218,7 @@
       - charms/horizon-k8s/
       - charms/masakari-k8s/
       - charms/cloudkitty-k8s/
-      - charms/openstack-hyperivsor/
+      - charms/openstack-hypervisor/
       - charms/cinder-volume/
       - charms/cinder-volume-ceph/
       - rebuild
