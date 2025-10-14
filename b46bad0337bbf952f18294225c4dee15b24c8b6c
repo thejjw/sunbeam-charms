@@ -33,6 +33,24 @@
       "message": "@hemanth.nakkina@canonical.com Is that really needed? I had a talk with @utkarsh.bhatt@canonical.com, and he said this should be enabled by the charm automatically?",
       "revId": "b46bad0337bbf952f18294225c4dee15b24c8b6c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f1ee5ec2_8874adad",
+        "filename": "tests/local/zaza/sunbeam/charm_tests/machine/setup.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-14T07:21:35Z",
+      "side": 1,
+      "message": "Yes these commands are needed for now until charm-microceph is updated and released to squid/stable",
+      "parentUuid": "90aba1ba_4c20ce6c",
+      "revId": "b46bad0337bbf952f18294225c4dee15b24c8b6c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
