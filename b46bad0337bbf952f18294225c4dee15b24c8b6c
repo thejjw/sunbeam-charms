@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8de38936_e5abc1c5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-14T07:13:46Z",
+      "side": 1,
+      "message": "fnuc-test-openstack is tested with manila as part of PS3",
+      "revId": "b46bad0337bbf952f18294225c4dee15b24c8b6c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
