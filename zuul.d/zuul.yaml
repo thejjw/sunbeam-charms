@@ -12,7 +12,12 @@
             nodeset: ubuntu-noble
             voting: false
         - func-test-identity:
+<<<<<<< HEAD   (bed553 tempest: Skip failing test for CephFS)
             nodeset: ubuntu-noble
+=======
+            nodeset: charms-ubuntu-noble-32GB
+            voting: false
+>>>>>>> CHANGE (ea4d52 [ci] make identity job non-voting)
     vars:
       juju_channel: 3.6/stable
       juju_classic_mode: false
