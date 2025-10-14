@@ -70,6 +70,8 @@
             nodeset: ubuntu-noble
         - charm-build-cinder-volume-ceph:
             nodeset: ubuntu-noble
+        - charm-build-cinder-volume-purestorage:
+            nodeset: ubuntu-noble
         - charm-build-epa-orchestrator:
             nodeset: ubuntu-noble
         - charm-build-horizon-k8s:
@@ -142,6 +144,8 @@
         - charm-build-cinder-volume:
             nodeset: ubuntu-noble
         - charm-build-cinder-volume-ceph:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-purestorage:
             nodeset: ubuntu-noble
         - charm-build-epa-orchestrator:
             nodeset: ubuntu-noble
@@ -219,6 +223,8 @@
             - publish-charm-cinder-volume:
                 nodeset: ubuntu-noble
             - publish-charm-cinder-volume-ceph:
+                nodeset: ubuntu-noble
+            - publish-charm-cinder-volume-purestorage:
                 nodeset: ubuntu-noble
             - publish-charm-epa-orchestrator:
                 nodeset: ubuntu-noble

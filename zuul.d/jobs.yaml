@@ -132,6 +132,19 @@
       charm: cinder-volume-ceph
       storage: true
 - job:
+    name: charm-build-cinder-volume-purestorage
+    description: Build sunbeam cinder-volume-purestorage charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-purestorage/
+      - rebuild
+    vars:
+      charm: cinder-volume-purestorage
+      storage: true
+- job:
     name: charm-build-cinder-ceph-k8s
     description: Build sunbeam cinder-ceph-k8s charm
     run: playbooks/charm/build.yaml
@@ -610,6 +623,19 @@
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-ceph/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-cinder-volume-purestorage
+    description: |
+      Publish cinder-volume-purestorage built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-purestorage/
       - rebuild
     secrets:
       - charmhub_token
