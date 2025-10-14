@@ -13,6 +13,7 @@
             voting: false
         - func-test-identity:
             nodeset: charms-ubuntu-noble-32GB
+            voting: false
     vars:
       juju_channel: 3.6/stable
       juju_classic_mode: false
