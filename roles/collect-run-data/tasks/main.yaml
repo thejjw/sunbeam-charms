@@ -68,6 +68,11 @@
 - name: Include k8s tasks
   include_tasks: k8s.yaml
   when: env_type == 'k8s'
+- name: Collect sos report
+  args:
+    executable: /bin/bash
+  shell: |
+    sudo sos report --batch --tmp-dir {{ zuul.project.src_dir }}/log/
 - name: fetch juju logs
   synchronize:
     dest: "{{ zuul.executor.log_root }}"
