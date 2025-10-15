@@ -163,10 +163,15 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
         The auxiliary files are:
         * the cleanup script
+        * the create_system_admins.py script
         * the exclude list for tempest
+
+        The create_system_admins.py script is for creating the system admin
+        accounts for the Ironic tempest tests.
         """
         aux_files = [
             "src/utils/cleanup.py",
+            "src/utils/create_system_admins.py",
             "src/utils/tempest_exclude_list.txt",
         ]
         for filename in aux_files:

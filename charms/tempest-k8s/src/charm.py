@@ -73,6 +73,7 @@ from utils.constants import (
 )
 from utils.overrides import (
     get_compute_overrides,
+    get_ironic_overrides,
     get_manila_overrides,
     get_role_based_overrides,
     get_swift_overrides,
