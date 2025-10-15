@@ -48,6 +48,11 @@ def get_compute_overrides() -> str:
     )
 
 
+def get_ironic_overrides() -> str:
+    """Return ironic configuration override."""
+    return " ".join(("baremetal.endpoint_type public",))
+
+
 def get_manila_overrides() -> str:
     """Return manila configuration override."""
     return " ".join(
