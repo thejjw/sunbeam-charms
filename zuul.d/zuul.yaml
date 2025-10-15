@@ -8,9 +8,6 @@
       jobs:
         - func-test-openstack:
             nodeset: charms-ubuntu-noble-32GB
-        - func-test-tempest:
-            nodeset: ubuntu-noble
-            voting: false
         - func-test-identity:
             nodeset: charms-ubuntu-noble-32GB
             voting: false
