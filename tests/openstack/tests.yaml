@@ -17,6 +17,7 @@ configure:
 tests:
   - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneMinimalNewRBAC
   - zaza.sunbeam.charm_tests.openstack_images_sync_k8s.tests.OpenStackImagesSyncK8sTest
+  - zaza.sunbeam.charm_tests.tempest_k8s.tests.TempestK8sTest
   - zaza.sunbeam.charm_tests.api_audit.tests.AodhAPIAuditTest
   - zaza.sunbeam.charm_tests.api_audit.tests.BarbicanAPIAuditTest
   - zaza.sunbeam.charm_tests.api_audit.tests.CinderAPIAuditTest
@@ -174,3 +175,6 @@ target_deploy_status:
   cloudkitty:
     workload-status: waiting
     workload-status-message-regex: '^.*Not all relations are ready$'
+  tempest:
+    workload-status: blocked
+    workload-status-message-regex: '^.*tempest init failed.*$'
