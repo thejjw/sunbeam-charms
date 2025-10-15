@@ -75,6 +75,7 @@ TEST_TEMPEST_ENV = {
         (
             overrides.get_swift_overrides(),
             overrides.get_compute_overrides(),
+            overrides.get_ironic_overrides(),
             overrides.get_manila_overrides(),
         ),
     ),
