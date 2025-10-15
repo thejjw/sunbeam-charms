@@ -487,7 +487,19 @@ applications:
     scale: 1
     trust: true
     resources:
-      cloudkitty-image: ghcr.io/canonical/cloudkitty-consolidated:2025.1  
+      cloudkitty-image: ghcr.io/canonical/cloudkitty-consolidated:2025.1
+  tempest:
+    {% if tempest_k8s is defined and tempest_k8s is sameas true -%}
+    charm: ../../../tempest-k8s.charm
+    {% else -%}
+    charm: ch:tempest-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      tempest-image: ghcr.io/canonical/tempest:2025.1
 relations:
 - - tls-operator:certificates
   - ovn-central:certificates
@@ -787,6 +799,10 @@ relations:
 - - gnocchi:gnocchi-service
   - cloudkitty:gnocchi-db
 
+- - tempest:identity-ops
+  - keystone:identity-ops
+- - tempest:receive-ca-cert
+  - keystone:send-ca-cert
 ---
 applications:
   tls-operator:
