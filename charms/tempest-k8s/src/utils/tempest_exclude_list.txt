@@ -60,3 +60,9 @@ manila_tempest_tests.tests.api.test_share_groups.ShareGroupsTest.test_create_sha
 # This test is expected to fail on CephFS.
 # ref: https://bugs.launchpad.net/manila/+bug/2075981
 manila_tempest_tests.tests.scenario.test_share_extend.TestShareExtendNFS.test_create_extend_and_write
+
+# Creates same CUSTOM_TEMPLATE_456 deploy template, never cleans it up, and fails on next run.
+ironic_tempest_plugin.tests.api.admin.test_microversion_enforcement.TestDeployTemplateMicroversions.test_show_deploy_template
+
+# Creates same CUSTOM_TEST_2 runbook, never cleans it up, and fails on the next run
+ironic_tempest_plugin.tests.api.admin.test_microversion_enforcement.TestRunbookMicroversions.test_show_runbook

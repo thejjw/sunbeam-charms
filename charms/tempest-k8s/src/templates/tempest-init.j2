@@ -18,4 +18,7 @@ discover-tempest-config --out "$TEMPEST_CONF" --create ${TEMPEST_CONFIG_OVERRIDE
 
 tempest account-generator -r "$TEMPEST_ACCOUNTS_COUNT" -c "$TEMPEST_CONF" "$TEMPEST_TEST_ACCOUNTS"
 
+# append system admin accounts for ironic
+python3 "$TEMPEST_HOME/create_system_accounts.py"
+
 ) 9>/var/lock/tempest
