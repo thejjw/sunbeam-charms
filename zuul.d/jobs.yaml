@@ -496,52 +496,6 @@
     vars:
       charm: openstack-network-agents
 
-# This test set may be unstable, and more tests need to be added for the tempest-k8s charm,
-# so it is only trigger by changes in the tempest-k8s charm and associated tests for now.
-# It has been copied from the tests/core charm bundle.
-- job:
-    name: func-test-tempest
-    description: |
-      Zaza tests for the tempest-k8s charm.
-    timeout: 3600
-    pre-run: playbooks/pre-run-func-test.yaml
-    run: playbooks/zaza-func-test.yaml
-    post-run: playbooks/collect-run-data.yaml
-    dependencies:
-      - name: charm-build-keystone-k8s
-        soft: true
-      - name: charm-build-glance-k8s
-        soft: true
-      - name: charm-build-nova-k8s
-        soft: true
-      - name: charm-build-placement-k8s
-        soft: true
-      - name: charm-build-neutron-k8s
-        soft: true
-      - name: charm-build-ovn-central-k8s
-        soft: true
-      - name: charm-build-ovn-relay-k8s
-        soft: true
-      - name: charm-build-tempest-k8s
-        soft: true
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/tempest-k8s/
-      - tests/local/zaza/sunbeam/charm_tests/tempest_k8s/
-      - rebuild
-    vars:
-      # Artifacts will be downloaded from below charm jobs
-      charm_jobs:
-        - charm-build-keystone-k8s
-        - charm-build-glance-k8s
-        - charm-build-nova-k8s
-        - charm-build-placement-k8s
-        - charm-build-neutron-k8s
-        - charm-build-ovn-central-k8s
-        - charm-build-ovn-relay-k8s
-        - charm-build-tempest-k8s
-      # test_dir relative to project src dir
-      test_dir: tests/tempest
 - job:
     name: func-test-identity
     description: |
@@ -1209,6 +1163,8 @@
         soft: true
       - name: charm-build-cinder-volume-ceph
         soft: true
+      - name: charm-build-tempest-k8s
+        soft: true
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-k8s/
@@ -1245,6 +1201,7 @@
       - charms/openstack-hypervisor/
       - charms/cinder-volume/
       - charms/storage/cinder-volume-ceph/
+      - charms/tempest-k8s/
       - rebuild
     vars:
       # Artifacts will be downloaded from below charm jobs
@@ -1283,5 +1240,6 @@
         - charm-build-openstack-hypervisor
         - charm-build-cinder-volume
         - charm-build-cinder-volume-ceph
+        - charm-build-tempest-k8s
       # test_dir relative to project src dir
       test_dir: tests/openstack
