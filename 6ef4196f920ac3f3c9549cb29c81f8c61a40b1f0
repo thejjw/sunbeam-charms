@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "32c69d1d_05d6276c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-10-15T00:10:49Z",
+      "side": 1,
+      "message": "recheck TIMEOUT on Machine charms",
+      "revId": "6ef4196f920ac3f3c9549cb29c81f8c61a40b1f0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
