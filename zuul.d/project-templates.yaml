@@ -39,176 +39,176 @@
       fail-fast: true
       jobs:
         - charm-build-keystone-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-glance-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-nova-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-placement-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-neutron-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-neutron-baremetal-switch-config-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-ovn-central-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-ovn-relay-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-cinder-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-cinder-ceph-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-cinder-volume:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-cinder-volume-ceph:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-epa-orchestrator:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-horizon-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-heat-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-ironic-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-ironic-conductor-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-nova-ironic-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-octavia-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-aodh-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-ceilometer-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-cloudkitty-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-gnocchi-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-barbican-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-magnum-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-manila-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-manila-cephfs-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-manila-data:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-masakari-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-designate-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-designate-bind-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-keystone-ldap-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-keystone-saml-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-openstack-exporter-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-openstack-hypervisor:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-openstack-images-sync-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-sunbeam-machine:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-sunbeam-clusterd:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-tempest-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-watcher-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-cloudkitty-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-openstack-network-agents:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
     gate:
       fail-fast: true
       jobs:
         - charm-build-keystone-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-glance-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-nova-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-placement-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-neutron-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-neutron-baremetal-switch-config-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-ovn-central-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-ovn-relay-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-cinder-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-cinder-ceph-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-cinder-volume:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-cinder-volume-ceph:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-epa-orchestrator:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-horizon-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-heat-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-ironic-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-ironic-conductor-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-nova-ironic-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-octavia-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-aodh-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-ceilometer-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-cloudkitty-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-gnocchi-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-barbican-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-magnum-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-manila-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-manila-cephfs-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-manila-data:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-masakari-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-designate-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-designate-bind-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-keystone-ldap-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-keystone-saml-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-openstack-exporter-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-openstack-hypervisor:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-openstack-images-sync-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-sunbeam-machine:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-sunbeam-clusterd:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-tempest-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-watcher-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-cloudkitty-k8s:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
         - charm-build-openstack-network-agents:
-            nodeset: ubuntu-jammy
+            nodeset: ubuntu-noble
 
 - project-template:
     name: charm-publish-jobs
@@ -217,86 +217,86 @@
     promote:
         jobs:
             - publish-charm-keystone-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-glance-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-nova-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-placement-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-neutron-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-neutron-baremetal-switch-config-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-ovn-central-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-ovn-relay-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-cinder-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-cinder-ceph-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-cinder-volume:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-cinder-volume-ceph:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-epa-orchestrator:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-horizon-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-heat-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-ironic-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-ironic-conductor-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-nova-ironic-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-octavia-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-aodh-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-ceilometer-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-cloudkitty-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-gnocchi-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-barbican-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-magnum-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-masakari-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-designate-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-designate-bind-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-keystone-ldap-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-openstack-exporter-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-openstack-hypervisor:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-openstack-images-sync-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-sunbeam-machine:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-sunbeam-clusterd:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-tempest-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-watcher-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-manila-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-manila-cephfs-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-manila-data:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-keystone-saml-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-cloudkitty-k8s:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
             - publish-charm-openstack-network-agents:
-                nodeset: ubuntu-jammy
+                nodeset: ubuntu-noble
