@@ -79,6 +79,8 @@
     executable: /bin/bash
   shell: |
     sudo sosreport.sos report --batch --tmp-dir {{ zuul.project.src_dir }}/log/
+    sudo chmod 0755 {{ zuul.project.src_dir }}/log/sosreport/*.tar.xz
+    sudo chmod 0755 {{ zuul.project.src_dir }}/log/sosreport/*.tar.xz.sha256
 - name: fetch juju logs
   synchronize:
     dest: "{{ zuul.executor.log_root }}"
