@@ -1,0 +1,8 @@
+Workflow+1: Guillaume Boutry <guillaume.boutry@canonical.com>
+Verified+2: Zuul
+Code-Review+2: Guillaume Boutry <guillaume.boutry@canonical.com>
+Submitted-by: Zuul
+Submitted-at: Thu, 16 Oct 2025 13:11:42 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/964217
+Project: openstack/sunbeam-charms
+Branch: refs/heads/main
