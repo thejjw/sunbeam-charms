@@ -98,6 +98,8 @@ def load_external_libraries() -> dict[str, pathlib.Path]:
 def load_internal_libraries() -> dict[str, pathlib.Path]:
     """Load the internal libraries."""
     charms = list((ROOT_DIR / "charms").iterdir())
+    storage_charms = list((ROOT_DIR / "charms" / "storage").iterdir())
+    charms.extend(storage_charms)
     libraries = {}
     for charm in charms:
         path = charm / "lib"

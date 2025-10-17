@@ -157,18 +157,6 @@
       charm: cinder-volume-purestorage
       storage: true
 - job:
-    name: charm-build-cinder-ceph-k8s
-    description: Build sunbeam cinder-ceph-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/cinder-ceph-k8s/
-      - rebuild
-    vars:
-      charm: cinder-ceph-k8s
-- job:
     name: charm-build-epa-orchestrator
     description: Build sunbeam epa-orchestrator charm
     run: playbooks/charm/build.yaml
@@ -645,19 +633,6 @@
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/ceilometer-k8s/
-      - rebuild
-    secrets:
-      - charmhub_token
-    timeout: 3600
-
-- job:
-    name: publish-charm-cinder-ceph-k8s
-    description: |
-      Publish cinder-ceph-k8s built in gate pipeline.
-    run: playbooks/charm/publish.yaml
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/cinder-ceph-k8s/
       - rebuild
     secrets:
       - charmhub_token
@@ -1186,8 +1161,6 @@
         soft: true
       - name: charm-build-cinder-k8s
         soft: true
-      - name: charm-build-cinder-ceph-k8s
-        soft: true
       - name: charm-build-gnocchi-k8s
         soft: true
       - name: charm-build-ceilometer-k8s
@@ -1248,7 +1221,6 @@
       - charms/ovn-central-k8s/
       - charms/ovn-relay-k8s/
       - charms/cinder-k8s/
-      - charms/cinder-ceph-k8s/
       - charms/gnocchi-k8s/
       - charms/ceilometer-k8s/
       - charms/aodh-k8s/
@@ -1287,7 +1259,6 @@
         - charm-build-ovn-central-k8s
         - charm-build-ovn-relay-k8s
         - charm-build-cinder-k8s
-        - charm-build-cinder-ceph-k8s
         - charm-build-gnocchi-k8s
         - charm-build-ceilometer-k8s
         - charm-build-aodh-k8s
