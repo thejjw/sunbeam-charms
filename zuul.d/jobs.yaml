@@ -453,7 +453,6 @@
       - charms/tempest-k8s/
       - tests/local/zaza/sunbeam/charm_tests/tempest_k8s/
       - rebuild
-      - zuul.d/zuul.yaml
     vars:
       # Artifacts will be downloaded from below charm jobs
       charm_jobs:
@@ -489,7 +488,6 @@
       - charms/keystone-k8s/
       - charms/keystone-saml-k8s/
       - rebuild
-      - zuul.d/zuul.yaml
     vars:
       charm_jobs:
         - charm-build-keystone-saml-k8s
@@ -517,7 +515,6 @@
       - charms/sunbeam-clusterd/
       - charms/epa-orchestrator/
       - rebuild
-      - zuul.d/zuul.yaml
     vars:
       env_type: lxd
       charm_jobs:
@@ -1083,7 +1080,6 @@
       - charms/cinder-volume/
       - charms/cinder-volume-ceph/
       - rebuild
-      - zuul.d/zuul.yaml
     vars:
       # Artifacts will be downloaded from below charm jobs
       charm_jobs:
