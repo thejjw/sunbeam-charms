@@ -19,3 +19,34 @@ dependencies = [
     "tenacity", # From ops_sunbeam
     "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
 ]
+
+[project.optional-dependencies]
+dev = [
+    "stestr",
+    "coverage",
+    "tenacity",                   # ops-sunbeam
+    "ops[testing]>=2.17.0",       # all charms, private paths have moved
+    "lightkube",                  # almost all charms
+    "pwgen",                      # keystone-k8s
+    "python-keystoneclient",      # keystone-k8s
+    "python-glanceclient",        # ironic-conductor-k8s
+    "python-swiftclient",         # ironic-conductor-k8s
+    "cryptography",               # neutron-k8s
+    "jsonschema",                 # neutron-k8s
+    "pytest-interface-tester",    # barbican-k8s
+    "pydantic",                   # traefik-k8s ingress lib
+    "netifaces",                  # cinder-volume-ceph
+    "cosl",                       # openstack-exporter
+    "requests-unixsocket",        # sunbeam-clusterd
+    "openstacksdk",               # tempest-k8s
+    "types-PyYAML",               # types stub for mypy
+    "charmlibs-apt",              # sunbeam-machine
+    # due to https://github.com/corpusops/croniter/issues/144
+    # we might need to find an alternative for croniter project
+    # TODO: Remove pinning once we have releases from https://github.com/pallets-eco/croniter/releases
+    "croniter==5.0.1",            # tempest-k8s
+    "lightkube-extensions@git+https://github.com/canonical/lightkube-extensions",               # ovn-relay-k8s,designate-bind-k8s
+    "charmhelpers@git+https://github.com/juju/charm-helpers",                                   # glance-k8s,gnocchi-k8s
+    "interface_ceph_client@git+https://opendev.org/openstack/charm-ops-interface-ceph-client",  # cinder-volume-ceph
+]
+
