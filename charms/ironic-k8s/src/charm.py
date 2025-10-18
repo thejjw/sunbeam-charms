@@ -29,6 +29,7 @@ from typing import (
 
 import ops
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
@@ -42,6 +43,18 @@ logger = logging.getLogger(__name__)
 IRONIC_API_PORT = 6385
 IRONIC_API_CONTAINER = "ironic-api"
 IRONIC_API_PROVIDES = "ironic-api"
+
+
+@sunbeam_tracing.trace_type
+class IronicConfigurationContext(sunbeam_ctxts.ConfigContext):
+    """Configuration context to set ironic parameters."""
+
+    def context(self) -> dict:
+        """Generate configuration information for ironic config."""
+        ctxt = {
+            "public_url": self.charm.public_url,
+        }
+        return ctxt
 
 
 @sunbeam_tracing.trace_sunbeam_charm
@@ -174,6 +187,13 @@ class IronicOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ),
         ]
         return _cconfigs
+
+    @property
+    def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
+        """Configuration contexts for the operator."""
+        contexts = super().config_contexts
+        contexts.append(IronicConfigurationContext(self, "ironic"))
+        return contexts
 
     @property
     def db_sync_container_name(self) -> str:
