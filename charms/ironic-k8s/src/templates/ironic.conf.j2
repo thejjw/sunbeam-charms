@@ -20,6 +20,9 @@ auth_strategy = keystone
 [oslo_concurrency]
 lock_path = /var/lib/ironic/tmp
 
+[api]
+public_endpoint = {{ ironic.public_url }}
+
 [audit]
 enabled = true
 audit_map_file = /etc/ironic/api_audit_map.conf

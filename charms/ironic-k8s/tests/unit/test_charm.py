@@ -82,6 +82,15 @@ class TestIronicOperatorCharm(test_utils.CharmTestCase):
         self.addCleanup(self.harness.cleanup)
         self.harness.begin()
 
+    def _check_file_contents(self, container, path, strings):
+        client = self.harness.charm.unit.get_container(container)._pebble  # type: ignore
+
+        with client.pull(path) as infile:
+            received_data = infile.read()
+
+        for string in strings:
+            self.assertIn(string, received_data)
+
     def add_ironic_api_relation(self):
         """Add ironic-api relation."""
         return self.harness.add_relation(charm.IRONIC_API_PROVIDES, "consumer")
@@ -143,6 +152,12 @@ class TestIronicOperatorCharm(test_utils.CharmTestCase):
         ]
         for f in config_files:
             self.check_file("ironic-api", f)
+
+        self._check_file_contents(
+            "ironic-api",
+            "/etc/ironic/ironic.conf",
+            ["public_endpoint = http://public-url:80"],
+        )
 
         config_files = [
             "/etc/ironic/ironic.conf",
