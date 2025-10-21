@@ -408,19 +408,18 @@ applications:
     scale: 1
     resources:
       openstack-exporter-image: ghcr.io/canonical/openstack-exporter:1.7.0-3be9ddb
-  # Resource Optimization feature
-  # watcher:
-  #   {% if watcher_k8s is defined and watcher_k8s is sameas true -%}
-  #   charm: ../../../watcher-k8s.charm
-  #   {% else -%}
-  #   charm: ch:watcher-k8s
-  #   channel: 2025.1/edge
-  #   {% endif -%}
-  #   base: ubuntu@24.04
-  #   scale: 1
-  #   trust: true
-  #   resources:
-  #     watcher-image: ghcr.io/canonical/watcher-consolidated:2025.1
+  watcher:
+    {% if watcher_k8s is defined and watcher_k8s is sameas true -%}
+    charm: ../../../watcher-k8s.charm
+    {% else -%}
+    charm: ch:watcher-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      watcher-image: ghcr.io/canonical/watcher-consolidated:2025.1
   # DNS feature
   designate-bind:
     {% if designate_bind_k8s is defined and designate_bind_k8s is sameas true -%}
@@ -719,18 +718,18 @@ relations:
 - - keystone:send-ca-cert
   - aodh:receive-ca-cert
 
-# - - mysql:database
-#   - watcher:database
-# - - watcher:amqp
-#   - rabbitmq:amqp
-# - - keystone:identity-service
-#   - watcher:identity-service
-# - - traefik:ingress
-#   - watcher:ingress-internal
-# - - keystone:send-ca-cert
-#   - watcher:receive-ca-cert
-# - - gnocchi:gnocchi-service
-#   - watcher:gnocchi-db
+- - mysql:database
+  - watcher:database
+- - watcher:amqp
+  - rabbitmq:amqp
+- - keystone:identity-service
+  - watcher:identity-service
+- - traefik:ingress
+  - watcher:ingress-internal
+- - keystone:send-ca-cert
+  - watcher:receive-ca-cert
+- - gnocchi:gnocchi-service
+  - watcher:gnocchi-db
 
 - - mysql:database
   - designate:database
