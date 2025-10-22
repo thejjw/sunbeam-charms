@@ -227,14 +227,6 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         if self.charm.baremetal_config.ready:
             neutron_command.extend(["--config-file", ML2_BAREMETAL_CONF])
 
-        ironic_startup = "disabled"
-
-        # If the charm is related to the ironic-k8s charm, then we will need
-        # to start the neutron-ironic-agent.
-        ironic_rel = self.model.relations[IRONIC_API_RELATION]
-        if ironic_rel:
-            ironic_startup = "enabled"
-
         return {
             "summary": "neutron server layer",
             "description": "pebble configuration for neutron server",
@@ -250,7 +242,6 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "summary": "Neutron Ironic Agent",
                     "command": f"ironic-neutron-agent --config-dir /etc/neutron --config-file {IRONIC_AGENT_CONF}",
-                    "startup": ironic_startup,
                     "user": "neutron",
                     "group": "neutron",
                 },
@@ -367,6 +358,67 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             container.add_layer(self.service_name, layer, combine=True)
 
         self.start_all(restart=restart)
+
+    def start_all(
+        self,
+        restart: bool = True,
+    ) -> None:
+        """Start services in container.
+
+        :param restart: Whether to stop services before starting them.
+        """
+        # NOTE(claudiub): Despite the name, we only start the
+        # ironic-neutron-agent only if the ironic relation is set, otherwise
+        # we stop it.
+        container = self.charm.unit.get_container(self.container_name)
+        if not container.can_connect():
+            logger.debug(
+                f"Container {self.container_name} not ready, deferring restart"
+            )
+            return
+
+        services = container.get_services()
+        service_names = list(services.keys())
+
+        ironic_rel = self.model.relations[IRONIC_API_RELATION]
+        if not ironic_rel and IRONIC_AGENT in service_names:
+            service_names.remove(IRONIC_AGENT)
+            container.stop(IRONIC_AGENT)
+
+        for service_name in service_names:
+            service = services.get(service_name)
+            if not service.is_running():
+                logger.debug(
+                    f"Starting {service_name} in {self.container_name}"
+                )
+                container.start(service_name)
+                self._reset_files_changed()
+                continue
+
+            if restart:
+                logger.debug(
+                    f"Restarting {service_name} in {self.container_name}"
+                )
+                self._restart_methods.get(service_name, self._restart_service)(
+                    container, service_name
+                )
+                self._reset_files_changed()
+
+    @property
+    def service_ready(self) -> bool:
+        """Determine whether the service the container provides is running."""
+        if not self.pebble_ready:
+            return False
+
+        container = self.charm.unit.get_container(self.container_name)
+        services = container.get_services()
+        service_names = list(services.keys())
+
+        ironic_rel = self.model.relations[IRONIC_API_RELATION]
+        if not ironic_rel and IRONIC_AGENT in service_names:
+            service_names.remove(IRONIC_AGENT)
+
+        return all(services.get(name).is_running() for name in service_names)
 
 
 class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
