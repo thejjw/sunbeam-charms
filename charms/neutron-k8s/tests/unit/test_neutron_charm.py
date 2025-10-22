@@ -18,7 +18,6 @@
 
 import charm
 import charms.neutron_k8s.v0.switch_config as switch_config
-import ops.pebble as pebble
 import ops_sunbeam.test_utils as test_utils
 
 _BAREMETAL_SAMPLE_CONFIG = """["%(name)s.example.net"]
@@ -188,6 +187,10 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         for f in config_files:
             self.check_file("neutron-server", f)
 
+        self.assertTrue(
+            all([h.service_ready for h in self.harness.charm.pebble_handlers])
+        )
+
         container = self.harness.charm.unit.get_container("neutron-server")
         plan = container.get_plan()
         svc = plan.services["neutron-server"]
@@ -202,8 +205,10 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         ]
         self.assertEqual(svc.command, " ".join(expected_cmd))
 
+        # ironic-api relation is not added yet, the ironic-neutron-agent should
+        # not be running.
         svc = container.get_service(charm.IRONIC_AGENT)
-        self.assertEqual(svc.startup, pebble.ServiceStartup.DISABLED)
+        self.assertFalse(svc.is_running())
         self._check_file_contents(
             "neutron-server",
             "/etc/neutron/plugins/ml2/ml2_conf.ini",
@@ -211,11 +216,15 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         )
 
         # Add the ironic-api relation, the pebble plan should have the
-        # ironic-neutron-agent service startup enabled.
+        # ironic-neutron-agent service should be running.
         rel_id = self.add_ironic_api_relation()
 
+        self.assertTrue(
+            all([h.service_ready for h in self.harness.charm.pebble_handlers])
+        )
+
         svc = container.get_service(charm.IRONIC_AGENT)
-        self.assertEqual(svc.startup, pebble.ServiceStartup.ENABLED)
+        self.assertTrue(svc.is_running())
         self._check_file_contents(
             "neutron-server",
             "/etc/neutron/plugins/ml2/ml2_conf.ini",
@@ -226,8 +235,12 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         # startup is set to disabled.
         self.harness.remove_relation(rel_id)
 
+        self.assertTrue(
+            all([h.service_ready for h in self.harness.charm.pebble_handlers])
+        )
+
         svc = container.get_service(charm.IRONIC_AGENT)
-        self.assertEqual(svc.startup, pebble.ServiceStartup.DISABLED)
+        self.assertFalse(svc.is_running())
         self._check_file_contents(
             "neutron-server",
             "/etc/neutron/plugins/ml2/ml2_conf.ini",
