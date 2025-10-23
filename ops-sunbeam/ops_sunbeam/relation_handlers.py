@@ -68,8 +68,8 @@ if typing.TYPE_CHECKING:
     import charms.sunbeam_libs.v0.service_readiness as service_readiness
     import charms.tempo_k8s.v2.tracing as tracing
     import charms.tls_certificates_interface.v3.tls_certificates as tls_certificates
+    import charms.traefik_k8s.v0.traefik_route as traefik_route
     import charms.traefik_k8s.v2.ingress as ingress
-    import charms.traefik_route_k8s.v0.traefik_route as traefik_route
     import interface_ceph_client.ceph_client as ceph_client  # type: ignore [import-untyped]
     from ops_sunbeam.charm import (
         OSBaseOperatorCharm,
@@ -2119,7 +2119,7 @@ class TraefikRouteHandler(RelationHandler):
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Ingress relation."""
         logger.debug("Setting up ingress event handler")
-        from charms.traefik_route_k8s.v0.traefik_route import (
+        from charms.traefik_k8s.v0.traefik_route import (
             TraefikRouteRequirer,
         )
 
@@ -2127,6 +2127,8 @@ class TraefikRouteHandler(RelationHandler):
             self.charm,
             self.model.get_relation(self.relation_name),  # type: ignore # TraefikRouteRequirer has safeguards against None
             self.relation_name,
+            # note(gboutry): raw=True until we rework the TLS in requirer charms
+            raw=True,
         )
 
         self.framework.observe(interface.on.ready, self._on_ingress_ready)

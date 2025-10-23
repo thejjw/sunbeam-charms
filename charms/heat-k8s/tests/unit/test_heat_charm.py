@@ -150,8 +150,10 @@ class TestHeatOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         # this adds all the default/common relations
         test_utils.add_all_relations(self.harness)
-        self.add_complete_ingress_relation(self.harness)
         self.add_complete_identity_resource_relation(self.harness)
+
+        # add the traefik-route-internal relation last.
+        self.add_complete_ingress_relation(self.harness)
 
         setup_cmds = [["heat-manage", "db_sync"]]
         for cmd in setup_cmds:
