@@ -1120,7 +1120,7 @@ class TlsCertificatesHandler(RelationHandler):
         """
         # Lazy import to ensure this lib is only required if the charm
         # has this relation.
-        from charms.tls_certificates_interface.v3.tls_certificates import (
+        from charms.tls_certificates_interface.v4.tls_certificates import (
             generate_csr,
         )
 
