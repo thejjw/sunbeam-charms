@@ -180,13 +180,13 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         """
         return {}
 
-    def get_sans_ips(self) -> list[str]:
+    def get_sans_ips(self) -> frozenset[str]:
         """Return list of SANs for the certificate."""
-        sans_ips = super().get_sans_ips()
+        sans_ips = list(super().get_sans_ips())
         lb_address = self.lb_handler.get_loadbalancer_ip()
         if lb_address and lb_address not in sans_ips:
             sans_ips.append(lb_address)
-        return sans_ips
+        return frozenset(sans_ips)
 
 
 if __name__ == "__main__":  # pragma: nocover

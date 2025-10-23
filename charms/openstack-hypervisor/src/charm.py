@@ -106,80 +106,6 @@ class HypervisorError(Exception):
     """Custom exception for Hypervisor errors."""
 
 
-@sunbeam_tracing.trace_type
-class MTlsCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
-    """Handler for certificates interface."""
-
-    def csrs(self) -> dict[str, bytes]:
-        """Return a dict of generated csrs for self.key_names().
-
-        The method calling this method will ensure that all keys have a matching
-        csr.
-        """
-        # Lazy import to ensure this lib is only required if the charm
-        # has this relation.
-        from charms.tls_certificates_interface.v3.tls_certificates import (
-            generate_csr,
-        )
-
-        main_key = self._private_keys.get("main")
-        if not main_key:
-            return {}
-
-        return {
-            "main": generate_csr(
-                private_key=main_key.encode(),
-                subject=socket.getfqdn(),
-                sans_dns=self.sans_dns,
-                sans_ip=self.sans_ips,
-                additional_critical_extensions=[
-                    x509.KeyUsage(
-                        digital_signature=True,
-                        content_commitment=False,
-                        key_encipherment=True,
-                        data_encipherment=False,
-                        key_agreement=True,
-                        key_cert_sign=False,
-                        crl_sign=False,
-                        encipher_only=False,
-                        decipher_only=False,
-                    ),
-                    x509.ExtendedKeyUsage(MTLS_USAGES),
-                ],
-            )
-        }
-
-    def context(self) -> dict:
-        """Certificates context."""
-        certs = self.interface.get_assigned_certificates()
-        if len(certs) != len(self.key_names()):
-            return {}
-        # openstack-hypervisor only has a main key
-        csr = self.store.get_csr("main")
-        if csr is None:
-            return {}
-
-        main_key = self._private_keys.get("main")
-        if main_key is None:
-            # this can happen when the relation is removed
-            # or unit is departing
-            logger.debug("No main key found")
-            return {}
-        for cert in certs:
-            if cert.csr == csr:
-                return {
-                    "key": main_key,
-                    "cert": cert.certificate,
-                    "ca_cert": cert.ca,
-                    "ca_with_intermediates": cert.ca
-                    + "\n"
-                    + "\n".join(cert.chain),
-                }
-        else:
-            logger.warning("No certificate found for CSR main")
-        return {}
-
-
 @sunbeam_tracing.trace_sunbeam_charm(extra_types=(snap.SnapCache, snap.Snap))
 class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     """Charm the service."""
@@ -335,6 +261,35 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             sans.append(socket.getfqdn(self.migration_address))
         return sans
 
+    def get_tls_certificate_requests(self) -> list:
+        """Get TLS certificate requests for the service."""
+        from charms.tls_certificates_interface.v4.tls_certificates import (
+            CertificateRequestAttributes,
+        )
+
+        certificate_requests = [
+            CertificateRequestAttributes(  # type: ignore[arg-type]
+                common_name=socket.getfqdn(),
+                sans_dns=self.get_sans_dns(),
+                sans_ip=self.get_sans_ips(),
+                additional_critical_extensions=[
+                    x509.KeyUsage(
+                        digital_signature=True,
+                        content_commitment=False,
+                        key_encipherment=True,
+                        data_encipherment=False,
+                        key_agreement=True,
+                        key_cert_sign=False,
+                        crl_sign=False,
+                        encipher_only=False,
+                        decipher_only=False,
+                    ),
+                    x509.ExtendedKeyUsage(MTLS_USAGES),
+                ],
+            )
+        ]
+        return certificate_requests
+
     def get_relation_handlers(
         self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
@@ -370,12 +325,13 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             )
             handlers.append(self.ceilometer)
         if self.can_add_handler("certificates", handlers):
-            self.certs = MTlsCertificatesHandler(
+            self.certs = sunbeam_rhandlers.TlsCertificatesHandler(
                 self,
                 "certificates",
                 self.configure_charm,
                 sans_dns=self.get_sans_dns(),
                 sans_ips=self.get_sans_ips(),
+                certificate_requests=self.get_tls_certificate_requests(),
                 mandatory="certificates" in self.mandatory_relations,
             )
             handlers.append(self.certs)
@@ -847,7 +803,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                     contexts.certificates.cert.encode()
                 ).decode(),
                 "network.ovn-cacert": base64.b64encode(
-                    contexts.certificates.ca_with_intermediates.encode()
+                    contexts.certificates.ca_with_chain.encode()
                 ).decode(),
                 "network.ovn-sb-connection": sb_connection_strs[0],
                 "network.physnet-name": config("physnet-name"),
