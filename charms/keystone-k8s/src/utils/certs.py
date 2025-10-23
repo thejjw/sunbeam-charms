@@ -105,19 +105,23 @@ def ca_chain_is_valid(ca_chain: List[str]) -> bool:
     Returns:
         whether the ca chain is valid.
     """
-    if len(ca_chain) < 2:
-        logger.warning(
-            "Invalid CA chain: It must contain at least 2 certificates."
-        )
-        return False
-    for ca_cert, cert in zip(ca_chain, ca_chain[1:]):
-        try:
-            ca_cert_object = x509.load_pem_x509_certificate(
-                ca_cert.encode("utf-8")
+    try:
+        if len(ca_chain) < 2:
+            # Just validate individual certs
+            for cert in ca_chain:
+                x509.load_pem_x509_certificate(cert.encode())
+
+            return True
+
+        # Check if the chain is in correct order
+        for i in range(len(ca_chain) - 1):
+            cert = x509.load_pem_x509_certificate(ca_chain[i].encode("utf-8"))
+            issuer = x509.load_pem_x509_certificate(
+                ca_chain[i + 1].encode("utf-8")
             )
-            cert_object = x509.load_pem_x509_certificate(cert.encode("utf-8"))
-            cert_object.verify_directly_issued_by(ca_cert_object)
-        except (ValueError, TypeError, InvalidSignature) as e:
-            logger.warning("Invalid CA chain: %s", e)
-            return False
+            cert.verify_directly_issued_by(issuer)
+    except (ValueError, TypeError, InvalidSignature) as e:
+        logger.warning("Invalid CA chain: %s", e)
+        return False
+
     return True
