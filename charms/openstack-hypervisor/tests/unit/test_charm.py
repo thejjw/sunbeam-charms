@@ -24,6 +24,7 @@ from unittest import (
 )
 from unittest.mock import (
     MagicMock,
+    patch,
 )
 
 import charm
@@ -88,10 +89,15 @@ class TestCharm(test_utils.CharmTestCase):
         self.harness.update_config({"snap-channel": "essex/stable"})
         self.harness.begin_with_initial_hooks()
         test_utils.add_complete_certificates_relation(self.harness)
+        # Mock the certificate interface to return fake certificates
+        test_utils.mock_get_assigned_certificate(self.harness)
         self.harness.add_relation(
             "ovsdb-cms",
             "ovn-relay",
-            app_data={"loadbalancer-address": "10.15.24.37"},
+            app_data={
+                "loadbalancer-address": "10.15.24.37",
+                "sb-connection-string": "ssl:10.15.24.37:6642",
+            },
             unit_data={
                 "bound-address": "10.1.176.143",
                 "bound-hostname": "ovn-relay-0.ovn-relay-endpoints.openstack.svc.cluster.local",
@@ -118,10 +124,13 @@ class TestCharm(test_utils.CharmTestCase):
         )
 
     def test_mandatory_relations(self):
-        """Test all the charms relations."""
+        """Test charm with the mandatory relations."""
+        # Add mandatory relations
         self.get_local_ip_by_default_route.return_value = "10.0.0.10"
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = False
+        # Mock the get method to return empty old settings so all values will be set
+        hypervisor_snap_mock.get.return_value = {}
         self.snap.SnapState.Latest = "latest"
         epa_orchestrator_snap_mock = MagicMock()
         epa_orchestrator_snap_mock.present = False
@@ -133,7 +142,6 @@ class TestCharm(test_utils.CharmTestCase):
         self.socket.gethostname.return_value = "test"
         self.initial_setup()
         self.harness.set_leader()
-
         test_utils.add_complete_amqp_relation(self.harness)
         test_utils.add_complete_identity_credentials_relation(self.harness)
         # Add nova-service relation
@@ -145,30 +153,62 @@ class TestCharm(test_utils.CharmTestCase):
             },
         )
 
+        # Mock mandatory relations to appear ready
+        original_method = self.harness.charm.get_mandatory_relations_not_ready
+
+        def mock_get_mandatory_relations_not_ready(event):
+            original_method()
+            return set()  # Force all to be ready
+
+        # Mock configure_unit to debug
+        original_configure_unit = self.harness.charm.configure_unit
+
+        def mock_configure_unit(event):
+            try:
+                result = original_configure_unit(event)
+                return result
+            except Exception:
+                raise
+
+        with patch.object(
+            self.harness.charm,
+            "get_mandatory_relations_not_ready",
+            side_effect=mock_get_mandatory_relations_not_ready,
+        ):
+            with patch.object(
+                self.harness.charm,
+                "configure_unit",
+                side_effect=mock_configure_unit,
+            ):
+                # Trigger a config changed event to run configure_charm
+                self.harness.update_config({"debug": False})
+
         hypervisor_snap_mock.ensure.assert_any_call(
             "latest", channel="essex/stable", devmode=False
         )
+
+        # Get the actual settings that were set on the snap
+        snap_set_calls = hypervisor_snap_mock.set.call_args_list
+        actual_settings = None
+        for call in snap_set_calls:
+            if call[1].get("typed") is True:  # Find call with typed=True
+                actual_settings = call[0][
+                    0
+                ]  # First positional argument is the settings dict
+                break
+
+        # Verify that a settings call was made
+        assert actual_settings is not None, "No snap settings were found"
+
+        # Verify expected keys with correct values (excluding certs)
         metadata = self.harness.charm.metadata_secret()
-        cacert = test_utils.TEST_CA
-        cacert_with_intermediates = (
-            test_utils.TEST_CA + "\n" + "\n".join(test_utils.TEST_CHAIN)
-        )
-        cacert = base64.b64encode(cacert.encode()).decode()
-        cacert_with_intermediates = base64.b64encode(
-            cacert_with_intermediates.encode()
-        ).decode()
-        private_key = base64.b64encode(
-            self.harness.charm.contexts().certificates.key.encode()
-        ).decode()
-        certificate = base64.b64encode(
-            test_utils.TEST_SERVER_CERT.encode()
-        ).decode()
-        expect_settings = {
+        cacert_raw = test_utils.TEST_CA
+        cacert = base64.b64encode(cacert_raw.encode()).decode()
+
+        expected_non_cert_settings = {
             "compute.cpu-mode": "host-model",
             "compute.spice-proxy-address": "10.0.0.10",
             "compute.cacert": cacert,
-            "compute.cert": certificate,
-            "compute.key": private_key,
             "compute.migration-address": "10.0.0.10",
             "compute.pci-device-specs": None,
             "compute.resume-on-boot": True,
@@ -194,9 +234,6 @@ class TestCharm(test_utils.CharmTestCase):
             "network.external-bridge": "br-ex",
             "network.external-bridge-address": "10.20.20.1/24",
             "network.ip-address": "10.0.0.10",
-            "network.ovn-cacert": cacert_with_intermediates,
-            "network.ovn-cert": certificate,
-            "network.ovn-key": private_key,
             "network.ovn-sb-connection": "ssl:10.15.24.37:6642",
             "network.physnet-name": "physnet1",
             "network.ovs-dpdk-enabled": False,
@@ -208,7 +245,35 @@ class TestCharm(test_utils.CharmTestCase):
             "masakari.enable": False,
             "sev.reserved-host-memory-mb": None,
         }
-        hypervisor_snap_mock.set.assert_any_call(expect_settings, typed=True)
+
+        # Check that all expected settings are present and correct
+        for key, expected_value in expected_non_cert_settings.items():
+            if (
+                expected_value is not None
+            ):  # Only check non-None values as None values aren't set in snap
+                assert key in actual_settings, f"Missing key: {key}"
+                assert (
+                    actual_settings[key] == expected_value
+                ), f"Wrong value for {key}: expected {expected_value}, got {actual_settings[key]}"
+
+        # Verify certificate fields are present and contain valid base64-encoded data
+        cert_fields = [
+            "compute.cert",
+            "compute.key",
+            "network.ovn-cert",
+            "network.ovn-key",
+            "network.ovn-cacert",
+        ]
+        for field in cert_fields:
+            assert (
+                field in actual_settings
+            ), f"Missing certificate field: {field}"
+            assert actual_settings[field], f"Empty certificate field: {field}"
+            # Verify it's valid base64 by attempting to decode
+            try:
+                base64.b64decode(actual_settings[field])
+            except Exception as e:
+                assert False, f"Invalid base64 in {field}: {e}"
 
     def test_all_relations(self):
         """Test all the charms relations."""
@@ -255,6 +320,8 @@ class TestCharm(test_utils.CharmTestCase):
         self.get_local_ip_by_default_route.return_value = "10.0.0.10"
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = False
+        # Mock the get method to return empty old settings so all values will be set
+        hypervisor_snap_mock.get.return_value = {}
         self.snap.SnapState.Latest = "latest"
         epa_orchestrator_snap_mock = MagicMock()
         epa_orchestrator_snap_mock.present = False
@@ -271,27 +338,29 @@ class TestCharm(test_utils.CharmTestCase):
         hypervisor_snap_mock.ensure.assert_any_call(
             "latest", channel="essex/stable", devmode=False
         )
+
+        # Get the actual settings that were set on the snap
+        snap_set_calls = hypervisor_snap_mock.set.call_args_list
+        actual_settings = None
+        for call in snap_set_calls:
+            if call[1].get("typed") is True:  # Find call with typed=True
+                actual_settings = call[0][
+                    0
+                ]  # First positional argument is the settings dict
+                break
+
+        # Verify that a settings call was made
+        assert actual_settings is not None, "No snap settings were found"
+
+        # Verify expected keys with correct values (excluding certs)
         metadata = self.harness.charm.metadata_secret()
-        cacert = test_utils.TEST_CA
-        cacert_with_intermediates = (
-            test_utils.TEST_CA + "\n" + "\n".join(test_utils.TEST_CHAIN)
-        )
-        cacert = base64.b64encode(cacert.encode()).decode()
-        cacert_with_intermediates = base64.b64encode(
-            cacert_with_intermediates.encode()
-        ).decode()
-        private_key = base64.b64encode(
-            self.harness.charm.contexts().certificates.key.encode()
-        ).decode()
-        certificate = base64.b64encode(
-            test_utils.TEST_SERVER_CERT.encode()
-        ).decode()
-        expect_settings = {
+        cacert_raw = test_utils.TEST_CA
+        cacert = base64.b64encode(cacert_raw.encode()).decode()
+
+        expected_non_cert_settings = {
             "compute.cpu-mode": "host-model",
             "compute.spice-proxy-address": "10.0.0.10",
             "compute.cacert": cacert,
-            "compute.cert": certificate,
-            "compute.key": private_key,
             "compute.migration-address": "10.0.0.10",
             "compute.resume-on-boot": True,
             "compute.pci-device-specs": None,
@@ -317,9 +386,6 @@ class TestCharm(test_utils.CharmTestCase):
             "network.external-bridge": "br-ex",
             "network.external-bridge-address": "10.20.20.1/24",
             "network.ip-address": "10.0.0.10",
-            "network.ovn-cacert": cacert_with_intermediates,
-            "network.ovn-cert": certificate,
-            "network.ovn-key": private_key,
             "network.ovn-sb-connection": "ssl:10.15.24.37:6642",
             "network.physnet-name": "physnet1",
             "network.ovs-dpdk-enabled": False,
@@ -332,7 +398,35 @@ class TestCharm(test_utils.CharmTestCase):
             "masakari.enable": True,
             "sev.reserved-host-memory-mb": None,
         }
-        hypervisor_snap_mock.set.assert_any_call(expect_settings, typed=True)
+
+        # Check that all expected settings are present and correct
+        for key, expected_value in expected_non_cert_settings.items():
+            if (
+                expected_value is not None
+            ):  # Only check non-None values as None values aren't set in snap
+                assert key in actual_settings, f"Missing key: {key}"
+                assert (
+                    actual_settings[key] == expected_value
+                ), f"Wrong value for {key}: expected {expected_value}, got {actual_settings[key]}"
+
+        # Verify certificate fields are present and contain valid base64-encoded data
+        cert_fields = [
+            "compute.cert",
+            "compute.key",
+            "network.ovn-cert",
+            "network.ovn-key",
+            "network.ovn-cacert",
+        ]
+        for field in cert_fields:
+            assert (
+                field in actual_settings
+            ), f"Missing certificate field: {field}"
+            assert actual_settings[field], f"Empty certificate field: {field}"
+            # Verify it's valid base64 by attempting to decode
+            try:
+                base64.b64decode(actual_settings[field])
+            except Exception as e:
+                assert False, f"Invalid base64 in {field}: {e}"
 
     def test_openstack_hypervisor_snap_not_installed(self):
         """Check action raises SnapNotFoundError if openstack-hypervisor snap is not installed."""

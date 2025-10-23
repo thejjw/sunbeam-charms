@@ -36,6 +36,7 @@ import urllib
 import urllib.parse
 from typing import (
     TYPE_CHECKING,
+    FrozenSet,
     List,
     Mapping,
     Optional,
@@ -245,14 +246,14 @@ class OSBaseOperatorCharm(
             return self.tracing.tracing_endpoint()
         return None
 
-    def get_sans_ips(self) -> List[str]:
+    def get_sans_ips(self) -> FrozenSet[str]:
         """Return Subject Alternate Names to use in cert for service."""
         str_ips_sans = [str(s) for s in self._ip_sans()]
-        return list(set(str_ips_sans))
+        return frozenset(str_ips_sans)
 
-    def get_sans_dns(self) -> List[str]:
+    def get_sans_dns(self) -> FrozenSet[str]:
         """Return Subject Alternate Names to use in cert for service."""
-        return list(set(self.get_domain_name_sans()))
+        return frozenset(self.get_domain_name_sans())
 
     def _get_all_relation_addresses(self) -> list[ipaddress.IPv4Address]:
         """Return all bind/ingress addresses from all relations."""
@@ -486,13 +487,6 @@ class OSBaseOperatorCharm(
                     )
 
                     if isinstance(event, RabbitMQGoneAwayEvent):
-                        _is_broken = True
-                case "certificates":
-                    from charms.tls_certificates_interface.v3.tls_certificates import (
-                        AllCertificatesInvalidatedEvent,
-                    )
-
-                    if isinstance(event, AllCertificatesInvalidatedEvent):
                         _is_broken = True
                 case "ovsdb-cms":
                     from charms.ovn_central_k8s.v0.ovsdb import (

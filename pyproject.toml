@@ -31,7 +31,7 @@ select = ["E", "W", "F", "C", "N", "R", "D", "H"]
 # Ignore W503, E501 because using black creates errors with this
 # Ignore D107 Missing docstring in __init__
 ignore = ["W503", "E501", "D107", "E402"]
-per-file-ignores = []
+per-file-ignores = ["charms/openstack-hypervisor/tests/unit/test_charm.py:C901"]
 docstring-convention = "google"
 # Check for properly formatted copyright header in each file
 copyright-check = "True"

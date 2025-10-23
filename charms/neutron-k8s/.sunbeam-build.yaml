@@ -2,7 +2,7 @@ external-libraries:
   - charms.data_platform_libs.v0.data_interfaces
   - charms.rabbitmq_k8s.v0.rabbitmq
   - charms.traefik_k8s.v2.ingress
-  - charms.tls_certificates_interface.v3.tls_certificates
+  - charms.tls_certificates_interface.v4.tls_certificates
   - charms.certificate_transfer_interface.v0.certificate_transfer
   - charms.loki_k8s.v1.loki_push_api
   - charms.tempo_k8s.v2.tracing
