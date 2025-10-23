@@ -25,6 +25,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    FrozenSet,
 )
 from urllib.parse import (
     urlparse,
@@ -41,7 +42,6 @@ from ops import (
 from ops.model import (
     ActiveStatus,
     BlockedStatus,
-    SecretNotFoundError,
     Unit,
     UnknownStatus,
     WaitingStatus,
@@ -67,7 +67,7 @@ if typing.TYPE_CHECKING:
     import charms.rabbitmq_k8s.v0.rabbitmq as rabbitmq
     import charms.sunbeam_libs.v0.service_readiness as service_readiness
     import charms.tempo_k8s.v2.tracing as tracing
-    import charms.tls_certificates_interface.v3.tls_certificates as tls_certificates
+    import charms.tls_certificates_interface.v4.tls_certificates as tls_certificates
     import charms.traefik_k8s.v0.traefik_route as traefik_route
     import charms.traefik_k8s.v2.ingress as ingress
     import interface_ceph_client.ceph_client as ceph_client  # type: ignore [import-untyped]
@@ -1001,72 +1001,17 @@ class _Store(abc.ABC):
 class TlsCertificatesHandler(RelationHandler):
     """Handler for certificates interface."""
 
-    interface: "tls_certificates.TLSCertificatesRequiresV3"
-    store: _Store
-
-    class PeerStore(_Store):
-        """Store private key secret id in peer storage relation."""
-
-        STORE_KEY: str = "tls-store"
-
-        def __init__(
-            self, relation: ops.Relation, entity: ops.Unit | ops.Application
-        ):
-            self.relation = relation
-            self.entity = entity
-
-        def ready(self) -> bool:
-            """Check if store is ready."""
-            return bool(self.relation) and self.relation.active
-
-        def get_entries(self) -> dict[str, _StoreEntry]:
-            """Get store dict from relation data."""
-            if not self.ready():
-                return {}
-            return json.loads(
-                self.relation.data[self.entity].get(self.STORE_KEY, "{}")
-            )
-
-        def save_entries(self, entries: dict[str, _StoreEntry]):
-            """Save store dict to relation data."""
-            if self.ready():
-                self.relation.data[self.entity][self.STORE_KEY] = json.dumps(
-                    entries
-                )
-
-    class LocalDBStore(_Store):
-        """Store private key sercret id in local unit db.
-
-        This is a fallback for when the peer relation is not
-        present.
-        """
-
-        def __init__(self, state_db):
-            self.state_db = state_db
-            try:
-                self.state_db.tls_store
-            except AttributeError:
-                self.state_db.tls_store = "{}"
-
-        def ready(self) -> bool:
-            """Check if store is ready."""
-            return True
-
-        def get_entries(self) -> dict[str, _StoreEntry]:
-            """Get store dict from relation data."""
-            return json.loads(self.state_db.tls_store)
-
-        def save_entries(self, entries: dict[str, _StoreEntry]):
-            """Save store dict to relation data."""
-            self.state_db.tls_store = json.dumps(entries)
+    interface: "tls_certificates.TLSCertificatesRequiresV4"
 
     def __init__(
         self,
         charm: "OSBaseOperatorCharm",
         relation_name: str,
         callback_f: Callable,
-        sans_dns: list[str] | None = None,
-        sans_ips: list[str] | None = None,
+        sans_dns: FrozenSet[str] | None = None,
+        sans_ips: FrozenSet[str] | None = None,
+        certificate_requests: list | None = None,
+        app_managed_certificates: bool = False,
         mandatory: bool = False,
     ) -> None:
         """Run constructor."""
@@ -1074,318 +1019,173 @@ class TlsCertificatesHandler(RelationHandler):
         self._private_keys: dict[str, str] = {}
         self.sans_dns = sans_dns
         self.sans_ips = sans_ips
-        try:
-            peer_relation = self.model.get_relation("peers")
-            # TODO(gboutry): fix type ignore
-            self.store = self.PeerStore(peer_relation, self.get_entity())  # type: ignore[arg-type]
-        except KeyError:
-            if self.app_managed_certificates():
-                raise RuntimeError(
-                    "Application managed certificates require a peer relation"
-                )
-            self.store = self.LocalDBStore(charm._state)
-        self.setup_private_keys()
+        self.app_managed_certificates = app_managed_certificates
+        if certificate_requests is not None:
+            self.certificate_requests = certificate_requests
+        else:
+            self.certificate_requests = self.default_certificate_requests()
 
     def get_entity(self) -> ops.Unit | ops.Application:
         """Return the entity for the key store.
 
         Defaults to the unit.
         """
+        if self.app_managed_certificates:
+            return self.charm.model.app
+
         return self.charm.model.unit
 
-    def i_am_allowed(self) -> bool:
-        """Whether this unit is allowed to modify the store."""
-        i_need_to_be_leader = self.app_managed_certificates()
-        if i_need_to_be_leader:
-            return self.charm.unit.is_leader()
-
-        return True
-
-    def app_managed_certificates(self) -> bool:
-        """Whether the application manages its own certificates."""
-        return isinstance(self.get_entity(), ops.Application)
-
-    def key_names(self) -> list[str]:
-        """Return the key names managed by this relation.
-
-        First key is considered as default key.
-        """
-        return ["main"]
-
-    def csrs(self) -> dict[str, bytes]:
-        """Return a dict of generated csrs for self.key_names().
-
-        The method calling this method will ensure that all keys have a matching
-        csr.
-        """
-        # Lazy import to ensure this lib is only required if the charm
-        # has this relation.
-        from charms.tls_certificates_interface.v3.tls_certificates import (
-            generate_csr,
+    def default_certificate_requests(self) -> list:
+        """Return default certificate requests."""
+        from charms.tls_certificates_interface.v4.tls_certificates import (
+            CertificateRequestAttributes,
         )
 
-        main_key = self._private_keys.get("main")
-        if not main_key:
-            return {}
-        return {
-            "main": generate_csr(
-                private_key=main_key.encode(),
-                subject=self.get_entity().name.replace("/", "-"),
+        return [
+            CertificateRequestAttributes(
+                common_name=self.get_entity().name.replace("/", "-"),
                 sans_dns=self.sans_dns,
                 sans_ip=self.sans_ips,
             )
-        }
+        ]
 
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for tls relation."""
         logger.debug("Setting up certificates event handler")
         # Lazy import to ensure this lib is only required if the charm
         # has this relation.
-        from charms.tls_certificates_interface.v3.tls_certificates import (
-            TLSCertificatesRequiresV3,
+        from charms.tls_certificates_interface.v4.tls_certificates import (
+            Mode,
+            TLSCertificatesRequiresV4,
         )
 
+        mode: Mode = Mode.APP if self.app_managed_certificates else Mode.UNIT
         self.certificates = sunbeam_tracing.trace_type(
-            TLSCertificatesRequiresV3
-        )(self.charm, "certificates")
+            TLSCertificatesRequiresV4
+        )(self.charm, "certificates", self.certificate_requests, mode)
 
-        self.framework.observe(
-            self.charm.on.certificates_relation_joined,
-            self._on_certificates_relation_joined,
-        )
-        self.framework.observe(
-            self.charm.on.certificates_relation_broken,
-            self._on_certificates_relation_broken,
-        )
         self.framework.observe(
             self.certificates.on.certificate_available,
             self._on_certificate_available,
         )
-        self.framework.observe(
-            self.certificates.on.certificate_expiring,
-            self._on_certificate_expiring,
-        )
-        self.framework.observe(
-            self.certificates.on.certificate_invalidated,
-            self._on_certificate_invalidated,
-        )
-        self.framework.observe(
-            self.certificates.on.all_certificates_invalidated,
-            self._on_all_certificate_invalidated,
-        )
+
         return self.certificates
 
-    def _setup_private_key(self, key: str):
-        """Create and store private key if needed."""
-        # Lazy import to ensure this lib is only required if the charm
-        # has this relation.
-        from charms.tls_certificates_interface.v3.tls_certificates import (
-            generate_private_key,
-        )
-
-        if private_key_secret_id := self.store.get_private_key(key):
-            logger.debug("Private key already present")
-            try:
-                private_key_secret = self.model.get_secret(
-                    id=private_key_secret_id
-                )
-            except SecretNotFoundError:
-                # When a unit is departing its secrets are removed by Juju.
-                # So trying to access the secret will result in
-                # SecretNotFoundError. Given this secret is set by this
-                # unit and only consumed by this unit it is unlikely there
-                # is any other reason for the secret to be missing.
-                logger.debug(
-                    "SecretNotFoundError not found, likely due to departing "
-                    "unit."
-                )
-                # There's an entry, but the secret is missing
-                # in the juju controller. Remove entry from
-                # the store.
-                self.store.delete_entry(key)
-                return
-            private_key_secret = self.model.get_secret(
-                id=private_key_secret_id
-            )
-            self._private_keys[key] = private_key_secret.get_content(
-                refresh=True
-            )["private-key"]
-            return
-
-        self._private_keys[key] = generate_private_key().decode()
-        private_key_secret = self.get_entity().add_secret(
-            {"private-key": self._private_keys[key]},
-            label=f"{self.get_entity().name}-{key}-private-key",
-        )
-
-        self.store.set_private_key(
-            key, typing.cast(str, private_key_secret.id)
-        )
-
-    def setup_private_keys(self) -> None:
-        """Create and store private key if needed."""
-        if not self.i_am_allowed():
-            logger.debug(
-                "Unit is not allow to handle private keys, skipping setup"
-            )
-            return
-
-        if not self.store.ready():
-            logger.debug("Store not ready, cannot generate key")
-            return
-
-        keys = self.key_names()
-        if not keys:
-            raise RuntimeError("No keys to generate, this is always a bug.")
-
-        for key in keys:
-            self._setup_private_key(key)
-
-    @property
-    def private_key(self) -> str | None:
-        """Private key for certificates.
-
-        Return the first key from key_names.
-        """
-        if private_key := self._private_keys.get(self.key_names()[0]):
-            return private_key
-        return None
-
-    def update_relation_data(self):
-        """Request certificates outside of relation context."""
-        if list(self.model.relations[self.relation_name]):
-            self._request_certificates()
-        else:
-            logger.debug(
-                "Not updating certificate request data, no relation found"
-            )
-
-    def _on_certificates_relation_joined(self, event: ops.EventBase) -> None:
-        """Request certificates in response to relation join event."""
-        self._request_certificates()
-
-    def _request_certificates(self, renew=False):
-        """Request certificates from remote provider."""
-        if not self.i_am_allowed():
-            logger.debug(
-                "Unit is not allow to handle private keys, skipping setup"
-            )
-            return
-
-        if not renew and self.ready:
-            logger.debug("Certificate request already complete.")
-            return
-
-        keys = self.key_names()
-        if set(keys) != set(self._private_keys.keys()):
-            logger.debug("Not all private keys are setup, skipping request.")
-            return
-
-        csrs = self.csrs()
-
-        if set(keys) != set(csrs.keys()):
-            raise RuntimeError(
-                "Mismatch between keys and csrs, this is always a bug."
-            )
-
-        for name, csr in csrs.items():
-            previous_csr = self.store.get_csr(name)
-            csr = csr.strip()
-            if renew and previous_csr:
-                self.certificates.request_certificate_renewal(
-                    old_certificate_signing_request=previous_csr.encode(),
-                    new_certificate_signing_request=csr,
-                )
-                self.store.set_csr(name, csr)
-            elif previous_csr:
-                logger.debug(
-                    "CSR already exists for %s, skipping request.", name
-                )
-            else:
-                self.certificates.request_certificate_creation(
-                    certificate_signing_request=csr
-                )
-                self.store.set_csr(name, csr)
-
-    def _on_certificates_relation_broken(self, event: ops.EventBase) -> None:
-        if self.mandatory:
-            self.status.set(BlockedStatus("integration missing"))
-
     def _on_certificate_available(self, event: ops.EventBase) -> None:
-        self.callback_f(event)
-
-    def _on_certificate_expiring(self, event: ops.EventBase) -> None:
-        self.status.set(ActiveStatus("Certificates are getting expired soon"))
-        logger.warning("Certificate getting expired, requesting new ones.")
-        self._request_certificates(renew=True)
-        self.callback_f(event)
-
-    def _on_certificate_invalidated(self, event: ops.EventBase) -> None:
-        logger.warning("Certificate invalidated, requesting new ones.")
-        if (
-            self.i_am_allowed()
-            and (relation := self.model.get_relation(self.relation_name))
-            and relation.active
-        ):
-            self._request_certificates(renew=True)
-        self.callback_f(event)
-
-    def _on_all_certificate_invalidated(self, event: ops.EventBase) -> None:
-        logger.warning(
-            "Certificates invalidated, most likely a relation broken."
-        )
-        self.status.set(BlockedStatus("Certificates invalidated"))
-        if self.i_am_allowed():
-            for name in self.key_names():
-                self.store.delete_csr(name)
         self.callback_f(event)
 
     def get_certs(self) -> list:
         """Return certificates."""
         # If certificates are managed at the app level
         # return all the certificates
-        if self.app_managed_certificates():
-            return self.interface.get_provider_certificates()
-        # If the certificates are managed at the unit level
-        # return the certificates for the unit
-        return self.interface.get_assigned_certificates()
+        assigned_certificates = []
+        for certificate_request in self.certificate_requests:
+            certificate, _ = self.interface.get_assigned_certificate(
+                certificate_request
+            )
+            assigned_certificates.append(
+                (certificate_request.common_name, certificate)
+            )
+
+        return assigned_certificates
+
+    def get_private_key(self) -> str:
+        """Return private key."""
+        return str(self.interface.private_key)
 
     @property
     def ready(self) -> bool:
         """Whether handler ready for use."""
         certs = self.get_certs()
 
-        if len(certs) != len(self.key_names()):
+        if len(certs) == 0:
             return False
-        return True
+
+        # Check if any certificates are actually available (not None)
+        for common_name, certificate in certs:
+            if certificate is not None:
+                return True
+
+        return False
+
+    def get_certificate_context(self, common_name: str) -> dict:
+        """Return certificate bundle for a given common name."""
+        certificates = self.get_certs()
+        for cn, certificate in certificates:
+            if cn == common_name:
+                # Skip if certificate is not yet available
+                if certificate is None:
+                    continue
+
+                private_key = self.get_private_key()
+
+                # Build certificate chain with CA
+                ca_cert = str(certificate.ca)
+                chain_certs = [
+                    str(chain_cert) for chain_cert in certificate.chain
+                ]
+                ca_with_chain = "\n".join([ca_cert] + chain_certs)
+
+                return {
+                    "key": private_key,
+                    "ca_cert": ca_cert,
+                    "ca_with_chain": ca_with_chain,
+                    "cert": str(certificate.certificate),
+                }
+
+        return {}
 
     def context(self) -> dict:
-        """Certificates context."""
-        certs = self.get_certs()
-        if len(certs) != len(self.key_names()):
+        """Certificates context.
+
+        Returns a dictionary with the following keys for each certificate:
+        - key
+        - ca_cert
+        - ca_with_chain
+        - cert
+        For multiple certificates, the keys are suffixed with the common name.
+        However the first certificate uses the default key names without suffix.
+        """
+        certificates = self.get_certs()
+        if not certificates:
             return {}
-        ctxt = {}
-        for name, entry in self.store.get_entries().items():
-            csr = entry.get("csr")
-            key = self._private_keys.get(name)
-            if csr is None or key is None:
-                logger.warning("Tls Store Entry %s is incomplete", name)
+
+        private_key = self.get_private_key()
+        context = {}
+
+        for index, certificate_info in enumerate(certificates):
+            common_name, certificate = certificate_info
+
+            # Skip if certificate is not yet available
+            if certificate is None:
                 continue
-            for cert in certs:
-                if cert.csr == csr:
-                    ctxt.update(
-                        {
-                            "key_" + name: key,
-                            "ca_cert_"
-                            + name: cert.ca
-                            + "\n"
-                            + "\n".join(cert.chain),
-                            "cert_" + name: cert.certificate,
-                        }
-                    )
+
+            # Build certificate chain with CA
+            ca_cert = str(certificate.ca)
+            chain_certs = [str(chain_cert) for chain_cert in certificate.chain]
+            ca_with_chain = "\n".join([ca_cert] + chain_certs)
+
+            # Create certificate context
+            cert_context = {
+                "key": private_key,
+                "ca_cert": ca_cert,
+                "ca_with_chain": ca_with_chain,
+                "cert": str(certificate.certificate),
+            }
+
+            # Add to main context with appropriate keys
+            if index == 0:
+                # First certificate uses default key names
+                context.update(cert_context)
             else:
-                logger.debug("No certificate found for CSR %s", name)
-        return ctxt
+                # Additional certificates use common_name suffix
+                suffixed_context = {
+                    f"{key}_{common_name}": value
+                    for key, value in cert_context.items()
+                }
+                context.update(suffixed_context)
+
+        return context
 
 
 @sunbeam_tracing.trace_type
