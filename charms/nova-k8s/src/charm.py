@@ -545,7 +545,8 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self.traefik_route_internal = sunbeam_rhandlers.TraefikRouteHandler(
             self,
             "traefik-route-internal",
-            self.handle_traefik_ready,
+            # NOTE: self.configure_charm will call self.handle_traefik_ready.
+            self.configure_charm,
             "traefik-route-internal" in self.mandatory_relations,
             [NOVA_API_INGRESS_NAME, NOVA_SPICEPROXY_INGRESS_NAME],
         )
