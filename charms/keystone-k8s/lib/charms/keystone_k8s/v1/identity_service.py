@@ -358,6 +358,15 @@ class IdentityServiceRequires(Object):
         """Return the admin_role."""
         return self.get_remote_app_data("admin-role")
 
+    @property
+    def region_name(self) -> str:
+        """Return the identity region name.
+
+        In multi-region environments, this may be different than
+        the region of the requester.
+        """
+        return self.get_remote_app_data("region")
+
     def register_services(
         self, service_endpoints: list[dict], region: str
     ) -> None:
@@ -505,6 +514,7 @@ class IdentityServiceProvides(Object):
         public_auth_url: str,
         service_credentials: str,
         admin_role: str,
+        region: str,
     ):
         logging.debug("Setting identity_service connection information.")
         _identity_service_rel = None
@@ -541,3 +551,4 @@ class IdentityServiceProvides(Object):
         app_data["public-auth-url"] = public_auth_url
         app_data["service-credentials"] = service_credentials
         app_data["admin-role"] = admin_role
+        app_data["region"] = region
