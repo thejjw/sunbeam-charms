@@ -21,6 +21,7 @@ necessary details for its ml2_conf_networking_baremetal.ini config file.
 """
 
 import logging
+import os
 import tomllib
 from typing import (
     List,
@@ -56,6 +57,8 @@ _NETCONF_CONFIG_OPTIONS = {
     "allow_agent",
     "look_for_keys",
 }
+
+_NEUTRON_SSHKEYS_PATH = "/etc/neutron/sshkeys"
 
 
 class NeutronBaremetalSwitchConfigCharm(ops.CharmBase):
@@ -168,10 +171,16 @@ class NeutronBaremetalSwitchConfigCharm(ops.CharmBase):
                 if not key_filename:
                     continue
 
-                key_filename = key_filename.split("/")[-1].replace("_", "-")
-                if key_filename not in content:
+                path, filename = os.path.split(key_filename)
+                if path != _NEUTRON_SSHKEYS_PATH:
                     raise sunbeam_guard.BlockedExceptionError(
-                        f"Missing '{key_filename}' additional file from secret '{secret.id}'"
+                        "Expected key_filename config option from secret "
+                        f"'{secret.id}' to have the base path {_NEUTRON_SSHKEYS_PATH}."
+                    )
+
+                if filename not in content:
+                    raise sunbeam_guard.BlockedExceptionError(
+                        f"Missing '{filename}' additional file from secret '{secret.id}'"
                     )
 
             all_configs.update(config)
