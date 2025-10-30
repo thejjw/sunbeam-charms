@@ -34,7 +34,7 @@ username = "admin"
 def _get_sample_config(name: str, device_type: str, with_key=True) -> str:
     config = _SAMPLE_CONFIG % {"name": name, "device_type": device_type}
     if with_key:
-        config = config + '\nkey_file = "/opt/data/%s_key"' % name
+        config = config + '\nkey_file = "/etc/neutron/sshkeys/%s-key"' % name
 
     return config
 
@@ -166,6 +166,23 @@ class TestNeutronGenericSwitchConfigCharm(test_utils.CharmTestCase):
         secret = self.harness.add_model_secret(
             self.harness.charm.app.name,
             secret_data,
+        )
+
+        config = {"conf-secrets": secret}
+        self.harness.update_config(config)
+
+        self.assertIsInstance(unit.status, model.BlockedStatus)
+
+        # invalid key_file.
+        data = "\n".join(
+            [
+                _get_sample_config("arista", "netmiko_arista_eos", False),
+                'key_file = "/foo/arista-key"',
+            ]
+        )
+        secret = self.harness.add_model_secret(
+            self.harness.charm.app.name,
+            {"conf": data, "arista-key": "foo"},
         )
 
         config = {"conf-secrets": secret}
