@@ -32,7 +32,7 @@ username = "user"
 """
 
 _NEXUS_SAMPLE_CONFIG = '["nexus.example.net"]\n' + _SAMPLE_CONFIG
-_KEY_LINE = 'key_filename = "/etc/neutron/ssh_keys/nexus_sshkey"'
+_KEY_LINE = 'key_filename = "/etc/neutron/sshkeys/nexus-sshkey"'
 
 
 class _NeutronBaremetalSwitchConfigCharm(
@@ -140,6 +140,20 @@ class TestNeutronBaremetalSwitchConfigCharm(test_utils.CharmTestCase):
         secret = self.harness.add_model_secret(
             self.harness.charm.app.name,
             {"conf": "\n".join([_NEXUS_SAMPLE_CONFIG, "foo = 10"])},
+        )
+
+        config = {"conf-secrets": secret}
+        self.harness.update_config(config)
+
+        self.assertIsInstance(unit.status, model.BlockedStatus)
+
+        # invalid key_filename.
+        data = "\n".join(
+            [_NEXUS_SAMPLE_CONFIG, 'key_filename = "/foo/nexus-sshkey"']
+        )
+        secret = self.harness.add_model_secret(
+            self.harness.charm.app.name,
+            {"conf": data, "nexus-sshkey": "foo"},
         )
 
         config = {"conf-secrets": secret}
