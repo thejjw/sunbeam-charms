@@ -18,6 +18,9 @@ enabled_share_backends = {{ cephfs_config.share_backend_name | lower }}
 {% include "parts/section-database" %}
 
 [keystone_authtoken]
+{% if identity_credentials.region -%}
+region_name = {{ identity_credentials.region }}
+{%- endif %}
 {% include "parts/identity-data-id-creds" %}
 
 {% include "parts/section-service-credentials-from-identity-service" %}
