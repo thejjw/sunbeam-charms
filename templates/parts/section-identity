@@ -1,2 +1,5 @@
 [keystone_authtoken]
 {% include "parts/identity-data" %}
+{% if identity_service.region_name -%}
+region_name = {{ identity_service.region_name }}
+{% endif -%}
