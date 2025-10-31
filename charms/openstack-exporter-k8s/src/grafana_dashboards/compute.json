@@ -359,7 +359,7 @@
             "mode": "percentage",
             "steps": [
               {
-                "color": "rgb(251, 252, 250)",
+                "color": "rgb(229, 231, 235)",
                 "value": null
               }
             ]
@@ -473,7 +473,7 @@
             "mode": "percentage",
             "steps": [
               {
-                "color": "rgb(251, 252, 250)",
+                "color": "rgb(229, 231, 235)",
                 "value": null
               }
             ]
@@ -587,7 +587,7 @@
             "mode": "percentage",
             "steps": [
               {
-                "color": "rgb(251, 252, 250)",
+                "color": "rgb(229, 231, 235)",
                 "value": null
               }
             ]
