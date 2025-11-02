@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eff7f4c3_77d71e52",
+        "filename": "charms/keystone-k8s/lib/charms/keystone_k8s/v0/identity_service.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-02T14:11:10Z",
+      "side": 1,
+      "message": "These changes are not required. Need to deprecate and remove this version",
+      "revId": "07bbcd2fd2272958cec5b9c67ff182a7d04493c4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "14bb38c2_729cba97",
+        "filename": "charms/keystone-k8s/lib/charms/keystone_k8s/v1/identity_service.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-02T14:11:10Z",
+      "side": 1,
+      "message": "Increase LIBPATCH version for any changes in charm libraries.",
+      "revId": "07bbcd2fd2272958cec5b9c67ff182a7d04493c4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
