@@ -50,9 +50,13 @@
     classic: true
   become: true
 
+- name: Set Build Name
+  set_fact:
+    charm_pathed: '{{ "storage/" + charm_build_name if is_storage else charm_build_name }}'
+
 - name: charm is packed
   command:
-    cmd: "{{ tox_executable }} -e build -- {{ charm_build_name }}"
+    cmd: "{{ tox_executable }} -e build -- {{ charm_pathed }}"
     chdir: "{{ zuul.project.src_dir }}"
   register: res
   retries: 3
@@ -63,7 +67,7 @@
 
 - name: built charm is available in the zuul log root for auto artifact upload
   fetch:
-    src: "{{ zuul.project.src_dir }}/charms/{{ charm_build_name }}/{{ charm_build_name }}.charm"
+    src: "{{ zuul.project.src_dir }}/charms/{{ charm_pathed }}/{{ charm_build_name }}.charm"
     dest: "{{ zuul.executor.log_root }}/"
     flat: true
   become: true
