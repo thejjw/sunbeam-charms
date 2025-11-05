@@ -130,6 +130,8 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         password = svcpass1
         service_token_roles = None
         service_token_roles_required = True
+        region_name = region12
+
 
         [service_user]
         auth_url = http://keystone.internal:5000
@@ -140,6 +142,7 @@ class TestPlacementOperatorCharm(test_utils.CharmTestCase):
         project_name = None
         username = svcuser1
         password = svcpass1
+        region_name = region12
 
 
         [placement]

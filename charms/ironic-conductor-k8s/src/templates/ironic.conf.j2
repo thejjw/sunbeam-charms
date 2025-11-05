@@ -32,6 +32,9 @@ enabled_bios_interfaces = {{ ironic_config.hardware_type_cfg.enabled_bios_interf
 {% include "parts/section-database" %}
 
 [keystone_authtoken]
+{% if identity_credentials.region -%}
+region_name = {{ identity_credentials.region }}
+{%- endif %}
 {% include "parts/ironic-identity-data-id-creds" %}
 
 {% include "parts/section-service-credentials-from-identity-service" %}
