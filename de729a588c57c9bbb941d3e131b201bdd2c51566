@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "de729a588c57c9bbb941d3e131b201bdd2c51566",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d5365a03_5f64fe20",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-05T02:18:07Z",
+      "side": 1,
+      "message": "LGTM\n\nRequires changes in snap-openstack-hypervisor as well",
+      "revId": "de729a588c57c9bbb941d3e131b201bdd2c51566",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
