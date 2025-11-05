@@ -21,7 +21,11 @@ fi
 
 opt_charm=""
 
-for charm in $(cat charms/*/{metadata,charmcraft}.yaml | grep -e "^name: " | awk '{print $2}'); do
+for charm in $(cat charms/*/charmcraft.yaml | grep -e "^name: " | awk '{print $2}'); do
+    opt_charm="$opt_charm --charm=$charm"
+done
+
+for charm in $(cat charms/storage/*/charmcraft.yaml | grep -e "^name: " | awk '{print $2}'); do
     opt_charm="$opt_charm --charm=$charm"
 done
 
