@@ -847,6 +847,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             relation=event.relation,
             nova_spiceproxy_url=self.nova_spiceproxy_public_url,
             pci_aliases=self.model.config.get("pci-aliases") or "[]",
+            region=self.model.config.get("region") or "RegionOne",
         )
 
     def set_config_on_update(self) -> None:
@@ -855,6 +856,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             relation=None,
             nova_spiceproxy_url=self.nova_spiceproxy_public_url,
             pci_aliases=self.model.config.get("pci-aliases") or "[]",
+            region=self.model.config.get("region") or "RegionOne",
         )
 
 

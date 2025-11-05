@@ -920,6 +920,16 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 config["compute.pci-aliases"] = (
                     contexts.nova_service.pci_aliases
                 )
+            if getattr(contexts.nova_service, "region", None):
+                # Keystone will run in a separate region in multi-region environments.
+                # We'll fetch the Nova region from the Nova relation data
+                # (also used for non-Keystone API services) and the Keystone region
+                # from the identity relation.
+                config["identity.region-name"] = contexts.nova_service.region
+                config["identity.keystone-region-name"] = (
+                    contexts.identity_credentials.region
+                    or contexts.nova_service.region
+                )
         except AttributeError as e:
             logger.debug(f"Nova service relation not integrated: {str(e)}")
 
