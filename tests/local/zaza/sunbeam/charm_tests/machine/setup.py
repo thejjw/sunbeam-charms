@@ -130,6 +130,7 @@ def deploy_machine_applications():
             "gnocchi",
             "manila",
             "manila-cephfs",
+            "watcher",
         ),
         timeout=1200,
     )
