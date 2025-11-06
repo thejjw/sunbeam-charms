@@ -19,6 +19,7 @@
 import json
 from unittest.mock import (
     MagicMock,
+    Mock,
 )
 
 import charm
@@ -106,10 +107,50 @@ class TestHorizonOperatorCharm(test_utils.CharmTestCase):
         )
         return rel_id
 
+    def add_identity_ops_relation(self, harness):
+        """Add identity resource relation."""
+        self.harness.charm.set_tempest_ready = Mock()
+        rel_id = harness.add_relation("identity-ops", "keystone")
+        harness.add_relation_unit(rel_id, "keystone/0")
+        harness.charm.id_ops.callback_f = Mock()
+        harness.charm.id_ops.list_regions = Mock(
+            return_value=["RegionOne", "SecondRegion"],
+        )
+        # Only show the list_endpoint ops for simplicity
+        harness.update_relation_data(
+            rel_id,
+            "keystone",
+            {
+                "response": json.dumps(
+                    {
+                        "id": "test-request-id",
+                        "tag": "horizon_list_regions",
+                        "ops": [
+                            {
+                                "name": "some_other_ops",
+                                "return-code": 0,
+                                "value": "",
+                            },
+                            {
+                                "name": "list_regions",
+                                "return-code": 0,
+                                "value": [
+                                    "RegionOne",
+                                    "SecondRegion",
+                                ],
+                            },
+                        ],
+                    }
+                )
+            },
+        )
+        return rel_id
+
     def test_all_relations(self):
         """Test all integrations for Operator."""
         self.harness.set_leader()
         test_utils.set_all_pebbles_ready(self.harness)
+        self.add_identity_ops_relation(self.harness)
         test_utils.add_all_relations(self.harness)
         test_utils.add_complete_ingress_relation(self.harness)
 

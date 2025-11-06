@@ -193,6 +193,8 @@ config:
 actions:
   get-dashboard-url:
     description: URL for access to the Horizon OpenStack Dashboard.
+  refresh-regions:
+    description: Obtain the list of regions from Keystone and update the configuration.
 
 containers:
   horizon:
@@ -218,6 +220,10 @@ requires:
   identity-credentials:
     interface: keystone-credentials
     limit: 1
+  identity-ops:
+    # Used for retrieving the list of regions.
+    interface: keystone-resources
+    optional: true
   receive-ca-cert:
     interface: certificate_transfer
     optional: true

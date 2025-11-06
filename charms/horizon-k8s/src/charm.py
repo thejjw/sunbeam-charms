@@ -21,6 +21,7 @@ deployment
 
 import json
 import logging
+import uuid
 from typing import (
     List,
     Mapping,
@@ -29,6 +30,7 @@ from urllib import (
     parse,
 )
 
+import charms.keystone_k8s.v0.identity_resource as identity_resource
 import ops
 import ops.framework
 import ops.model
@@ -40,6 +42,9 @@ import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops.charm import (
+    RelationChangedEvent,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -124,10 +129,14 @@ class AdditionalConfigAdapter(sunbeam_contexts.ConfigContext):
         parsed_int_url = parse.urlparse(
             _remove_redundant_port(self.charm.internal_url)
         )
+
+        regions = json.loads(self.charm.peers.get_app_data("regions") or "[]")
+
         return {
             "public_endpoint": f"{parsed_pub_url.scheme}://{parsed_pub_url.netloc}",
             "internal_endpoint": f"{parsed_int_url.scheme}://{parsed_int_url.netloc}",
             "ssl_enabled": parsed_pub_url.scheme == "https",
+            "regions": (regions or []),
         }
 
 
@@ -189,15 +198,34 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def __init__(self, framework):
         super().__init__(framework)
-        self._state.set_default(plugins=[])
+        self._state.set_default(plugins=[], identity_ops_ready=False)
         self.framework.observe(
             self.on.get_dashboard_url_action,
             self._get_dashboard_url_action,
+        )
+        self.framework.observe(
+            self.on.refresh_regions_action,
+            self._refresh_regions_action,
+        )
+        self.framework.observe(
+            self.on.peers_relation_changed, self._on_peer_data_changed
         )
 
     def _get_dashboard_url_action(self, event):
         """Retrieve the URL for the Horizon OpenStack Dashboard."""
         event.set_results({"url": self.public_url})
+
+    def _refresh_regions_action(self, event):
+        """Retrieve the list of regions and update the configuration."""
+        self._send_list_regions_request()
+
+    def _on_peer_data_changed(self, event: RelationChangedEvent):
+        """Update regions."""
+        if not self.get_mandatory_relations_not_ready(event):
+            # "configure_unit" throws an exception if the mandatory relations
+            # are not ready yet. In this case, we'll just skip the call,
+            # expecting it to be invoked again once the relations are ready.
+            self.configure_unit(event)
 
     @property
     def _websso_url(self) -> str:
@@ -357,7 +385,71 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 )
             )
             handlers.append(self.trusted_dashboard)
+        if self.can_add_handler("identity-ops", handlers):
+            self.id_ops = sunbeam_rhandlers.IdentityResourceRequiresHandler(
+                self,
+                "identity-ops",
+                self.handle_keystone_ops,
+                mandatory="identity-ops" in self.mandatory_relations,
+            )
+            handlers.append(self.id_ops)
+
         return super().get_relation_handlers(handlers)
+
+    def _send_list_regions_request(self):
+        if not self._state.identity_ops_ready:
+            raise sunbeam_guard.WaitingExceptionError(
+                "identity-ops relation not ready."
+            )
+
+        ops = [{"name": "list_regions"}]
+        request = {
+            "id": str(uuid.uuid4()),
+            "tag": "horizon_list_regions",
+            "ops": ops,
+        }
+        logger.debug("Sending ops request: %r", request)
+        self.id_ops.interface.request_ops(request)
+
+    def _handle_regions_list_event(self, event: ops.EventBase):
+        region_list = []
+        for op in self.id_ops.interface.response.get("ops", []):
+            if op.get("name") != "list_regions":
+                continue
+            if op.get("return-code") != 0:
+                logger.error(
+                    "Unable to retrieve the list of regions, operation: %s", op
+                )
+                continue
+            for region in op.get("value", []):
+                region_list.append(region["id"])
+
+        logger.info("Retrieved regions: %s", region_list)
+        self.peers.set_app_data({"regions": json.dumps(region_list)})
+        self.configure_unit(event)
+
+    def handle_keystone_ops(self, event: ops.EventBase) -> None:
+        """Event handler for identity ops."""
+        if isinstance(event, identity_resource.IdentityOpsProviderReadyEvent):
+            self._state.identity_ops_ready = True
+
+            if not self.unit.is_leader():
+                return
+
+            self._send_list_regions_request()
+        elif isinstance(
+            event,
+            identity_resource.IdentityOpsProviderGoneAwayEvent,
+        ):
+            self._state.identity_ops_ready = False
+        elif isinstance(event, identity_resource.IdentityOpsResponseEvent):
+            if not self.unit.is_leader():
+                return
+            response = self.id_ops.interface.response
+            logger.debug("Got response from keystone: %r", response)
+            request_tag = response.get("tag")
+            if request_tag == "horizon_list_regions":
+                self._handle_regions_list_event(event)
 
     @property
     def healthcheck_period(self) -> str:

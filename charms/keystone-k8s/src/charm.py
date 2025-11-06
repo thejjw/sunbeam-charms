@@ -2666,7 +2666,7 @@ export OS_AUTH_VERSION=3
                 response["ops"][idx]["value"] = result
             except Exception as e:
                 response["ops"][idx]["return-code"] = -1
-                response["ops"][idx]["value"] = str(e)
+                response["ops"][idx]["value"] = repr(e)
             context[func_name].append(response["ops"][idx]["value"])
 
         logger.debug(f"handle_op_request: Sending response {response}")
