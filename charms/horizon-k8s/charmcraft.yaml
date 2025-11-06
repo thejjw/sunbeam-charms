@@ -218,6 +218,10 @@ requires:
   identity-credentials:
     interface: keystone-credentials
     limit: 1
+  identity-endpoints:
+    # Used for retrieving the list of regions.
+    interface: keystone-endpoints
+    optional: true
   receive-ca-cert:
     interface: certificate_transfer
     optional: true

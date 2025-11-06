@@ -60,6 +60,7 @@ if typing.TYPE_CHECKING:
     import charms.gnocchi_k8s.v0.gnocchi_service as gnocchi_service
     import charms.horizon_k8s.v0.trusted_dashboard as trusted_dashboard
     import charms.keystone_k8s.v0.identity_credentials as identity_credentials
+    import charms.keystone_k8s.v0.identity_endpoints as identity_endpoints
     import charms.keystone_k8s.v0.identity_resource as identity_resource
     import charms.keystone_k8s.v1.identity_service as identity_service
     import charms.loki_k8s.v1.loki_push_api as loki_push_api
@@ -1489,6 +1490,64 @@ class IdentityResourceRequiresHandler(RelationHandler):
     def ready(self) -> bool:
         """Whether handler is ready for use."""
         return self.interface.ready()
+
+
+@sunbeam_tracing.trace_type
+class IdentityEndpointsRequiresHandler(RelationHandler):
+    """Handles the identity endpoints relation on the requires side."""
+
+    interface: "identity_endpoints.IdentityEndpointsRequires"
+
+    def setup_event_handler(self):
+        """Configure event handlers for an Identity endpoints relation."""
+        import charms.keystone_k8s.v0.identity_endpoints as identity_endpoints
+
+        logger.debug("Setting up Identity Resource event handler")
+        id_endpoints = sunbeam_tracing.trace_type(
+            identity_endpoints.IdentityEndpointsRequires
+        )(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            id_endpoints.on.connected,
+            self._on_connected,
+        )
+        self.framework.observe(
+            id_endpoints.on.changed,
+            self._on_changed,
+        )
+        self.framework.observe(
+            id_endpoints.on.goneaway,
+            self._on_goneaway,
+        )
+        return id_endpoints
+
+    def _on_connected(self, event) -> None:
+        """Handles 'connected' event."""
+        logger.debug("Identity endpoints relation connected.")
+
+    def _on_changed(self, event) -> None:
+        """Handles 'changed' event."""
+        logger.debug("Identity endpoints relation changed.")
+        self.callback_f(event)
+
+    def _on_goneaway(self, event) -> None:
+        """Handles 'goneaway' event."""
+        logger.info("Identity endpoints relation broken.")
+        self.callback_f(event)
+        if self.mandatory:
+            self.status.set(
+                BlockedStatus("integration missing: identity-endpoints")
+            )
+
+    @property
+    def ready(self) -> bool:
+        """Whether the handler is ready for use."""
+        try:
+            return bool(self.interface.endpoints)
+        except (AttributeError, KeyError, ModelError):
+            return False
 
 
 @sunbeam_tracing.trace_type
