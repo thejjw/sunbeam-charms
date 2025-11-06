@@ -310,7 +310,7 @@ class OSBaseOperatorCharm(
         """Check all relation handlers are ready."""
         not_ready_relations = self.get_mandatory_relations_not_ready(event)
         if not_ready_relations:
-            logger.info(f"Relations {not_ready_relations} incomplete")
+            logger.warning(f"Relations {not_ready_relations} incomplete")
             self.stop_services(not_ready_relations)
             raise sunbeam_guard.WaitingExceptionError(
                 "Not all relations are ready"
