@@ -206,6 +206,8 @@ provides:
     interface: keystone-resources
   send-ca-cert:
     interface: certificate_transfer
+  identity-endpoints:
+    interface: keystone-endpoints
 
 peers:
   peers:

@@ -29,6 +29,7 @@ from urllib import (
     parse,
 )
 
+import charms.keystone_k8s.v0.identity_endpoints as identity_endpoints
 import ops
 import ops.framework
 import ops.model
@@ -124,10 +125,19 @@ class AdditionalConfigAdapter(sunbeam_contexts.ConfigContext):
         parsed_int_url = parse.urlparse(
             _remove_redundant_port(self.charm.internal_url)
         )
+
+        regions = set()
+        endpoints = self.charm.id_endpoints.interface.endpoints
+        for endpoint in endpoints:
+            region = endpoint.get("region")
+            if region:
+                regions.add(region)
+
         return {
             "public_endpoint": f"{parsed_pub_url.scheme}://{parsed_pub_url.netloc}",
             "internal_endpoint": f"{parsed_int_url.scheme}://{parsed_int_url.netloc}",
             "ssl_enabled": parsed_pub_url.scheme == "https",
+            "regions": list(regions),
         }
 
 
@@ -357,7 +367,28 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 )
             )
             handlers.append(self.trusted_dashboard)
+
+        if self.can_add_handler("identity-endpoints", handlers):
+            self.id_endpoints = (
+                sunbeam_rhandlers.IdentityEndpointsRequiresHandler(
+                    self,
+                    "identity-endpoints",
+                    self.handle_keystone_endpoints,
+                    mandatory="identity-endpoints" in self.mandatory_relations,
+                )
+            )
+            handlers.append(self.id_endpoints)
+
         return super().get_relation_handlers(handlers)
+
+    def handle_keystone_endpoints(self, event: ops.EventBase) -> None:
+        """Event handler for identity ops."""
+        if isinstance(
+            event, identity_endpoints.IdentityEndpointsChangedEvent
+        ) or isinstance(
+            event, identity_endpoints.IdentityEndpointsGoneAwayEvent
+        ):
+            self.configure_charm(event)
 
     @property
     def healthcheck_period(self) -> str:
