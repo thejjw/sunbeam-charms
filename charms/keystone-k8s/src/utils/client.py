@@ -32,6 +32,9 @@ from keystoneclient.v3.endpoints import (
 from keystoneclient.v3.projects import (
     Project,
 )
+from keystoneclient.v3.regions import (
+    Region,
+)
 from keystoneclient.v3.roles import (
     Role,
 )
@@ -73,6 +76,13 @@ class KeystoneClient:
             "name": domain.name,
             "description": domain.description,
             "enabled": domain.enabled,
+        }
+
+    def _convert_region_to_dict(self, region: Region) -> dict:
+        return {
+            "id": region.id,
+            "description": region.description,
+            "parent_region_id": region.parent_region_id,
         }
 
     def _convert_project_to_dict(self, project: Project) -> dict:
@@ -446,6 +456,29 @@ class KeystoneClient:
 
         logger.debug(f"Domain list: {domains_list}")
         return domains_list
+
+    def list_regions(self) -> list:
+        """List domains.
+
+        Returns all the regions.
+        [
+            {
+                "id": <>,
+                "description": <>,
+                "parent_region_id": <>,
+            },
+            ...
+        ]
+
+        :rtype: list
+        """
+        regions = self.api.regions.list()
+        region_list = [
+            self._convert_region_to_dict(region) for region in regions
+        ]
+
+        logger.debug(f"Region list: {region_list}")
+        return region_list
 
     def show_domain(self, name: str) -> dict:
         """Show domain information.
