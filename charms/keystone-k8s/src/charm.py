@@ -51,6 +51,7 @@ from urllib.parse import (
 
 import charms.keystone_k8s.v0.domain_config as sunbeam_dc_svc
 import charms.keystone_k8s.v0.identity_credentials as sunbeam_cc_svc
+import charms.keystone_k8s.v0.identity_endpoints as sunbeam_endpoints_svc
 import charms.keystone_k8s.v0.identity_resource as sunbeam_ops_svc
 import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
 import charms.kratos_external_idp_integrator.v0.kratos_external_provider as external_idp
@@ -330,6 +331,33 @@ class IdentityResourceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     @property
     def ready(self) -> bool:
         """Check if handler is ready."""
+        return True
+
+
+@sunbeam_tracing.trace_type
+class IdentityEndpointsProvidesHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for identity credentials relation."""
+
+    def setup_event_handler(self):
+        """Configure event handlers for a Identity Credentials relation."""
+        logger.debug("Setting up Identity Endpoints event handler")
+        id_svc = sunbeam_endpoints_svc.IdentityEndpointsProvides(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            id_svc.on.ready_identity_endpoints_clients,
+            self._on_ready_identity_endpoints_clients,
+        )
+        return id_svc
+
+    def _on_ready_identity_endpoints_clients(self, event) -> None:
+        """Handles identity credentials change events."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Whether the handler is ready for use."""
         return True
 
 
@@ -921,6 +949,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     IDSVC_RELATION_NAME = "identity-service"
     IDCREDS_RELATION_NAME = "identity-credentials"
     IDOPS_RELATION_NAME = "identity-ops"
+    IDENDP_RELATION_NAME = "identity-endpoints"
     SEND_CA_CERT_RELATION_NAME = "send-ca-cert"
     RECEIVE_CA_CERT_RELATION_NAME = "receive-ca-cert"
     TRUSTED_DASHBOARD = "trusted-dashboard"
@@ -1765,6 +1794,14 @@ export OS_AUTH_VERSION=3
             )
             handlers.append(self.ops_svc)
 
+        if self.can_add_handler(self.IDENDP_RELATION_NAME, handlers):
+            self.endp_svc = IdentityEndpointsProvidesHandler(
+                self,
+                self.IDENDP_RELATION_NAME,
+                self.retrieve_endpoints_from_event,
+            )
+            handlers.append(self.endp_svc)
+
         if self.can_add_handler("domain-config", handlers):
             self.dc = DomainConfigHandler(
                 self,
@@ -2062,6 +2099,31 @@ export OS_AUTH_VERSION=3
                 )
                 self.handle_op_request(relation.id, relation.name, request)
 
+    def check_outstanding_identity_endpoints_requests(self, force=False):
+        """Check requests from identity endpoints relation.
+
+        If force flag is True, process identity services on all
+        the connected relations even if its already processed.
+        """
+        for relation in self.framework.model.relations[
+            self.IDENDP_RELATION_NAME
+        ]:
+            if not force and relation.data[self.app].get("endpoints"):
+                logger.debug(
+                    "Identity endpoints request already processed for "
+                    f"{relation.app.name} {relation.name}/{relation.id}"
+                )
+            else:
+                logger.debug(
+                    "Processing endpoints retrieve request for "
+                    f"{relation.app.name} {relation.name}/{relation.id}"
+                )
+                self.retrieve_endpoints(
+                    relation.id,
+                    relation.name,
+                    relation.app.name,
+                )
+
     def check_outstanding_requests(self) -> bool:
         """Process any outstanding client requests."""
         logger.debug("Checking for outstanding client requests")
@@ -2071,6 +2133,42 @@ export OS_AUTH_VERSION=3
         self.check_outstanding_identity_service_requests()
         self.check_outstanding_identity_credentials_requests()
         self.check_outstanding_identity_ops_requests()
+        self.check_outstanding_identity_endpoints_requests()
+
+    def retrieve_endpoints_from_event(self, event):
+        """Process service request event.
+
+        NOTE: The event will not be deferred. If it cannot be processed now
+              then it will be picked up by `check_outstanding_requests`
+        """
+        if self.can_service_requests():
+            self.retrieve_endpoints(
+                event.relation_id,
+                event.relation_name,
+                event.client_app_name,
+            )
+
+    def retrieve_endpoints(
+        self,
+        relation_id: str,
+        relation_name: str,
+        client_app_name: str,
+    ):
+        """Retrieve Keystone endpoints."""
+        endpoints = self.keystone_manager.ksclient.list_endpoint()
+        self.endp_svc.interface.set_identity_endpoints(
+            relation_name,
+            relation_id,
+            endpoints,
+        )
+
+    def notify_identity_endpoint_relations(self):
+        """Update all the identity endpoint relations after endpoint changes."""
+        endpoints = self.keystone_manager.ksclient.list_endpoint()
+        self.endp_svc.interface.set_identity_endpoints_all_relations(
+            self.IDENDP_RELATION_NAME,
+            endpoints,
+        )
 
     def register_service_from_event(self, event):
         """Process service request event.
@@ -2197,6 +2295,8 @@ export OS_AUTH_VERSION=3
                 self.admin_role,
                 self.model.config["region"],
             )
+
+        self.notify_identity_endpoint_relations()
 
     def add_credentials_from_event(self, event):
         """Process service request event.
@@ -2666,7 +2766,7 @@ export OS_AUTH_VERSION=3
                 response["ops"][idx]["value"] = result
             except Exception as e:
                 response["ops"][idx]["return-code"] = -1
-                response["ops"][idx]["value"] = str(e)
+                response["ops"][idx]["value"] = repr(e)
             context[func_name].append(response["ops"][idx]["value"])
 
         logger.debug(f"handle_op_request: Sending response {response}")

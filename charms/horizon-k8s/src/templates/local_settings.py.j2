@@ -186,11 +186,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 #EMAIL_HOST_USER = 'djangomail'
 #EMAIL_HOST_PASSWORD = 'top-secret!'
 
-# For multiple regions uncomment this configuration, and add (endpoint, title).
-#AVAILABLE_REGIONS = [
-#    ('http://cluster1.example.com:5000/v2.0', 'cluster1'),
-#    ('http://cluster2.example.com:5000/v2.0', 'cluster2'),
-#]
+
+AVAILABLE_REGIONS = [
+    {% for region in extra_config.regions -%}
+    ('{{ identity_credentials.public_endpoint }}', '{{ region }}'),
+    {% endfor -%}
+]
 
 OPENSTACK_HOST = "{{ identity_credentials.internal_host }}"
 OPENSTACK_KEYSTONE_DEFAULT_ROLE = "{{ options.default_role }}"
