@@ -10,7 +10,6 @@ transport_url = {{ amqp.transport_url }}
 auth_strategy = keystone
 
 enabled_deploy_interfaces = {{ ironic_config.hardware_type_cfg.enabled_deploy_interfaces }}
-default_deploy_interface = {{ ironic_config.hardware_type_cfg.default_deploy_interface }}
 
 enabled_hardware_types = {{ ironic_config.hardware_type_cfg.enabled_hardware_types }}
 enabled_boot_interfaces = {{ ironic_config.hardware_type_cfg.enabled_boot_interfaces }}
@@ -28,6 +27,29 @@ enabled_console_interfaces = {{ ironic_config.hardware_type_cfg.enabled_console_
 enabled_raid_interfaces = {{ ironic_config.hardware_type_cfg.enabled_raid_interfaces }}
 enabled_vendor_interfaces = {{ ironic_config.hardware_type_cfg.enabled_vendor_interfaces }}
 enabled_bios_interfaces = {{ ironic_config.hardware_type_cfg.enabled_bios_interfaces }}
+
+{% if "fake" in ironic_config.hardware_type_cfg.enabled_hardware_types -%}
+[hardware_type:fake-hardware]
+default_deploy_interface = fake
+{% endif %}
+
+{% if "idrac" in ironic_config.hardware_type_cfg.enabled_hardware_types -%}
+[hardware_type:idrac]
+default_deploy_interface = direct
+{% endif %}
+
+{% if "ipmi" in ironic_config.hardware_type_cfg.enabled_hardware_types -%}
+[hardware_type:intel-ipmi]
+default_deploy_interface = direct
+
+[hardware_type:ipmi]
+default_deploy_interface = direct
+{% endif %}
+
+{% if "redfish" in ironic_config.hardware_type_cfg.enabled_hardware_types -%}
+[hardware_type:redfish]
+default_deploy_interface = direct
+{% endif %}
 
 {% include "parts/section-database" %}
 
