@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "18cf3d3d_04728ceb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-11-07T09:15:08Z",
+      "side": 1,
+      "message": "I don\u0027t believe this is a great way to manage that.\n\nThis is going against relations as a whole.\n\nI\u0027d rather extend an existing relation or create a new. Like that, if any new region is added, it is propagated and does not rely on a \u003c\u003ccorrect\u003e\u003e sequence of action from the sunbeam cli.\n\nThe main goal of charms is to simplify operations. The sunbeam cli is an \u003c\u003corchestrator\u003e\u003e, but we should minimize actions / ad hoc operations as much as we can.",
+      "revId": "66e12cce2cbf8d4f531ab36be8e27b5dd498849f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
