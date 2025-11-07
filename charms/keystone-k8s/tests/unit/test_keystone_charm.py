@@ -442,7 +442,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(
             rel_data,
             {
-                "admin-auth-url": "http://10.0.0.10:5000/v3",
+                "admin-auth-url": "http://internal-url/v3",
                 "admin-domain-id": "adomain_id",
                 "admin-domain-name": "adomain_name",
                 "admin-project-id": "aproject_id",

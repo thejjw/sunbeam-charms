@@ -2343,10 +2343,7 @@ export OS_AUTH_VERSION=3
     @property
     def admin_endpoint(self):
         """Admin endpoint for keystone api."""
-        admin_hostname = self.model.get_binding(
-            self.IDSVC_RELATION_NAME
-        ).network.ingress_address
-        return f"http://{admin_hostname}:{self.service_port}/v3"
+        return self.internal_endpoint
 
     @property
     def internal_endpoint(self):
