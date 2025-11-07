@@ -16,6 +16,40 @@
       "message": "recheck",
       "revId": "07f7717d7d9f1444578d6e7f52a6136e6cc56f45",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "88309ed5_a7e87864",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-07T09:06:16Z",
+      "side": 1,
+      "message": "Minor change required to update LIBPATCH version whenever library is modified, otherwise good",
+      "revId": "07f7717d7d9f1444578d6e7f52a6136e6cc56f45",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "89ccb22b_310a096e",
+        "filename": "charms/nova-k8s/lib/charms/nova_k8s/v0/nova_service.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-07T09:06:16Z",
+      "side": 1,
+      "message": "Can you update LIBPATCH version to 3",
+      "revId": "07f7717d7d9f1444578d6e7f52a6136e6cc56f45",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
