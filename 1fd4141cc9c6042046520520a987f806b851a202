@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "424aff28_54a0b411",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-11-10T14:19:40Z",
+      "side": 1,
+      "message": "@Nobuto thanks for feedback. Each region is expected to have its own separate Juju controller, however the Keystone service is shared across regions (and so is Horizon).\n\nSee the following PRs for more details about the proposed architecture:\n\n* https://github.com/canonical/canonical-openstack-docs/pull/124\n* https://github.com/canonical/snap-openstack/pull/612\n\nThe secondary regions will use cross-controller Juju relations to access Keystone. Horizon then leverages the new \"identity-endpoints\" relation to retrieve the list of endpoints (and regions).\n\nSince the regions are automatically retrieved through Juju relations, we shouldn\u0027t need a config option.\n\n@Hemanth @gboutry I\u0027ve updated the PR to retrieve the endpoints using a Keystone relation, dropping the refresh action.",
+      "revId": "1fd4141cc9c6042046520520a987f806b851a202",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
