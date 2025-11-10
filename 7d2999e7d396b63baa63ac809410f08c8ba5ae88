@@ -16,6 +16,23 @@
       "message": "I had a discussion with Hemanth, I\u0027ll add a new relation called \"identity-endpoints\" that will provide endpoint information, including the region name.\n\nFrom what I\u0027ve been told, rgw will also benefit from this.",
       "revId": "7d2999e7d396b63baa63ac809410f08c8ba5ae88",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3d08e09_a1ca8092",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2025-11-10T08:09:54Z",
+      "side": 1,
+      "message": "Can we consider having a config option equivalent to Charmed OpenStack? https://opendev.org/openstack/charm-openstack-dashboard/src/commit/e2265c371e2d26d1413d3e4d71662f8b777b35ba/config.yaml#L523-L537\n\nThe separate region may not be managed by the same Juju domain or controller so having a config option is easier to associate multiple regions even if those two are managed by completely separate Juju controller which doesn\u0027t have connectivity each other. It doesn\u0027t have to be in this review though.",
+      "revId": "7d2999e7d396b63baa63ac809410f08c8ba5ae88",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
