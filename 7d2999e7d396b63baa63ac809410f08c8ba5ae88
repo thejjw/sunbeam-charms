@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2cc0cc7_900359c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-11-10T07:38:02Z",
+      "side": 1,
+      "message": "I had a discussion with Hemanth, I\u0027ll add a new relation called \"identity-endpoints\" that will provide endpoint information, including the region name.\n\nFrom what I\u0027ve been told, rgw will also benefit from this.",
+      "revId": "7d2999e7d396b63baa63ac809410f08c8ba5ae88",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
