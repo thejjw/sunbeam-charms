@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4393699e_9224c750",
+        "filename": "charms/keystone-k8s/lib/charms/keystone_k8s/v0/identity_endpoints.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-11-12T07:11:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5205ec8d_d0e485a7",
+      "revId": "40bd57a63782a3bd5c5fd43ceba34d9f247e3f06",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4f60aec2_dfce09dc",
@@ -48,6 +66,24 @@
       "writtenOn": "2025-11-12T02:59:01Z",
       "side": 1,
       "message": "Return True when there is some endpoint information. If keystone is ready to serve then it should have atleast the self endpoints registered and so should have relation data.",
+      "revId": "40bd57a63782a3bd5c5fd43ceba34d9f247e3f06",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e466d3cd_ea975f41",
+        "filename": "ops-sunbeam/ops_sunbeam/relation_handlers.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1547,
+      "author": {
+        "id": 8543
+      },
+      "writtenOn": "2025-11-12T07:11:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4f60aec2_dfce09dc",
       "revId": "40bd57a63782a3bd5c5fd43ceba34d9f247e3f06",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
