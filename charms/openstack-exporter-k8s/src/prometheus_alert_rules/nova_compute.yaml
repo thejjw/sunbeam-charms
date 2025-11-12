@@ -1,6 +1,15 @@
 groups:
 - name: NovaCompute
   rules:
+    - alert: NoveMetricsMissing
+      expr: absent_over_time({__name__=~"openstack_nova_(.+)"}[5m])
+      labels:
+        severity: critical
+      annotations:
+        summary: Nova Metrics Missing
+        description: |
+          No Nova metrics have been received in the last 5 minutes.
+
     - alert: NovaComputeDown
       expr: |
         openstack_nova_agent_state{adminState="enabled"} == 0

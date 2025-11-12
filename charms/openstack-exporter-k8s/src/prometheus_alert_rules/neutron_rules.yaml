@@ -1,6 +1,16 @@
 groups:
 - name: Neutron
   rules:
+    - alert: NeutronMetricsMissing
+      expr: absent_over_time({__name__=~"openstack_neutron_(.+)"}[5m])
+      for: 10m
+      labels:
+        severity: critical
+      annotations:
+        summary: Neutron Metrics Missing
+        description: |
+          No Neutron metrics have been received in the last 5 minutes.
+
     - alert: NeutronStateCritical
       expr: openstack_neutron_agent_state{adminState="up"} == 0
       for: 5m

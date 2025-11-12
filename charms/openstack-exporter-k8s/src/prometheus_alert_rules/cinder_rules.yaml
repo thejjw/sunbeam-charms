@@ -1,6 +1,15 @@
 groups:
 - name: Cinder
   rules:
+    - alert: CinderMetricsMissing
+      expr: absent_over_time({__name__=~"openstack_cinder_(.+)"}[5m])
+      labels:
+        severity: critical
+      annotations:
+        summary: Cinder Metrics Missing
+        description: |
+          No Cinder metrics have been received in the last 5 minutes.
+
     - alert: CinderStateWarning
       expr: count without (uuid) (openstack_cinder_agent_state{adminState="disabled"}) > 0
       for: 5m
