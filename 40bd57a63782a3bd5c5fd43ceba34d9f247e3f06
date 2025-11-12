@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e90d5057_f08c1046",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-12T02:59:01Z",
+      "side": 1,
+      "message": "Can you update tests/openstack/smoke.yaml.j2 with the new integration",
+      "revId": "40bd57a63782a3bd5c5fd43ceba34d9f247e3f06",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5205ec8d_d0e485a7",
+        "filename": "charms/keystone-k8s/lib/charms/keystone_k8s/v0/identity_endpoints.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-12T02:59:01Z",
+      "side": 1,
+      "message": "Replace the LIBID value with `7aa13c86b2c249b8aea0eae948dde8d9`",
+      "revId": "40bd57a63782a3bd5c5fd43ceba34d9f247e3f06",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4f60aec2_dfce09dc",
+        "filename": "ops-sunbeam/ops_sunbeam/relation_handlers.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1547,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-12T02:59:01Z",
+      "side": 1,
+      "message": "Return True when there is some endpoint information. If keystone is ready to serve then it should have atleast the self endpoints registered and so should have relation data.",
+      "revId": "40bd57a63782a3bd5c5fd43ceba34d9f247e3f06",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
