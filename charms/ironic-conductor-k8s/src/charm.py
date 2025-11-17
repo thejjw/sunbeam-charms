@@ -162,11 +162,6 @@ class IronicConductorConfigurationContext(sunbeam_ctxts.ConfigContext):
         if self.charm.config.get("use-ipxe", None):
             configs["enabled_boot_interfaces"].append("ipxe")
 
-        default_deploy_interface = ""
-        deploy_interfaces = configs.get("enabled_deploy_interfaces")
-        if deploy_interfaces:
-            default_deploy_interface = deploy_interfaces[0]
-
         # append the noop interfaces at the end
         for noop in _NOOP_INTERFACES:
             if configs.get(noop, None) is not None:
@@ -177,8 +172,6 @@ class IronicConductorConfigurationContext(sunbeam_ctxts.ConfigContext):
                 configs[opt] = ", ".join(configs[opt])
             else:
                 configs[opt] = ""
-
-        configs["default_deploy_interface"] = default_deploy_interface
 
         return configs
 

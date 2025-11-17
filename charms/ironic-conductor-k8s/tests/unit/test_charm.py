@@ -211,7 +211,6 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
 
         # check ironic_config context with default configuration.
         lines = [
-            "default_deploy_interface = direct",
             "interfaces = internal",
             "enabled_bios_interfaces = no-bios",
             "enabled_boot_interfaces = pxe",
@@ -223,6 +222,9 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
             "enabled_power_interfaces = ipmitool",
             "enabled_raid_interfaces = no-raid",
             "enabled_vendor_interfaces = ipmitool, no-vendor",
+            "[hardware_type:intel-ipmi]",
+            "[hardware_type:ipmi]",
+            "default_deploy_interface = direct",
         ]
         self._check_file_contents(
             "ironic-conductor", "/etc/ironic/ironic.conf", lines
@@ -232,7 +234,6 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
         self.harness.update_config(cfg)
 
         lines = [
-            "default_deploy_interface = direct",
             "enabled_bios_interfaces = fake, idrac-wsman, no-bios",
             "enabled_boot_interfaces = fake, pxe, redfish-virtual-media",
             "enabled_console_interfaces = fake, ipmitool-shellinabox, ipmitool-socat, no-console",
@@ -243,6 +244,13 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
             "enabled_power_interfaces = fake, idrac-redfish, ipmitool, redfish",
             "enabled_raid_interfaces = fake, idrac-wsman, no-raid",
             "enabled_vendor_interfaces = fake, idrac-wsman, ipmitool, no-vendor",
+            "[hardware_type:fake-hardware]",
+            "default_deploy_interface = fake",
+            "[hardware_type:idrac]",
+            "[hardware_type:intel-ipmi]",
+            "[hardware_type:ipmi]",
+            "[hardware_type:redfish]",
+            "default_deploy_interface = direct",
         ]
         self._check_file_contents(
             "ironic-conductor", "/etc/ironic/ironic.conf", lines
