@@ -1,7 +1,7 @@
 groups:
 - name: NovaCompute
   rules:
-    - alert: NoveMetricsMissing
+    - alert: NovaMetricsMissing
       expr: absent_over_time({__name__=~"openstack_nova_(.+)"}[5m])
       labels:
         severity: critical
