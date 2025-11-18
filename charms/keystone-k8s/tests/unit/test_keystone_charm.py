@@ -459,6 +459,7 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
                 "internal-port": "80",
                 "internal-protocol": "http",
                 "public-auth-url": "http://public-url/v3",
+                "region": "RegionOne",
                 "service-domain-id": "sdomain_id",
                 "service-domain-name": "sdomain_name",
                 "service-host": "10.0.0.10",

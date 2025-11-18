@@ -2293,6 +2293,7 @@ export OS_AUTH_VERSION=3
                 self.public_endpoint,
                 service_credentials,
                 self.admin_role,
+                self.model.config["region"],
             )
 
         self.notify_identity_endpoint_relations()
@@ -2362,7 +2363,7 @@ export OS_AUTH_VERSION=3
             user_domain_id=service_domain.get("id"),
             project_domain_name=service_domain.get("name"),
             project_domain_id=service_domain.get("id"),
-            region=self.model.config["region"],  # XXX(wolsen) region matters?
+            region=self.model.config["region"],
             admin_role=self.admin_role,
         )
 

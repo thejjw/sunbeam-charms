@@ -418,6 +418,7 @@ def add_identity_service_relation_response(
             "service-project": "svcproj1",
             "service-project-id": "svcprojid1",
             "service-credentials": credentials_id,
+            "region": "region12",
         },
     )
 
