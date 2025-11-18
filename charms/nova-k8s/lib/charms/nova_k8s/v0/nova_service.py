@@ -79,7 +79,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 2
+LIBPATCH = 3
 
 
 class NovaConfigRequestEvent(RelationEvent):
@@ -114,7 +114,11 @@ class NovaServiceProvides(Object):
         self.on.config_request.emit(event.relation)
 
     def set_config(
-        self, relation: Relation | None, nova_spiceproxy_url: str, pci_aliases: str,
+        self,
+        relation: Relation | None,
+        nova_spiceproxy_url: str,
+        pci_aliases: str,
+        region: str,
     ) -> None:
         """Set nova configuration on the relation."""
         if not self.charm.unit.is_leader():
@@ -128,6 +132,7 @@ class NovaServiceProvides(Object):
         relation_data_updates = {
             "spice-proxy-url": nova_spiceproxy_url or "",
             "pci-aliases": pci_aliases or "",
+            "region": region or "",
         }
         if relation is None:
             logging.debug(
@@ -213,3 +218,8 @@ class NovaServiceRequires(Object):
     def pci_aliases(self) -> str | None:
         """Return pci aliases."""
         return self.get_remote_app_data("pci-aliases")
+
+    @property
+    def region(self) -> str | None:
+        """Return the region of the Nova API service."""
+        return self.get_remote_app_data("region")
