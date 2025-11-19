@@ -109,6 +109,12 @@ config:
         .
         NOTE: Use only when "reverse-dns-lookup" option is set to "True".
       type: int
+    enable-distributed-floating-ip:
+      default: false
+      description: |
+        Enable or disable distributed floating IP functionality in OVN.
+        When enabled, floating IPs are managed by distributed routers.
+      type: boolean
 
 containers:
   neutron-server:
