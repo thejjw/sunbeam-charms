@@ -727,7 +727,9 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
             "max_header_size": "38",
             "ovn_l3_scheduler": "leastloaded",
             "ovn_metadata_enabled": "True",
-            "enable_distributed_floating_ip": "False",
+            "enable_distributed_floating_ip": str(
+            self.charm.config.get["enable-distributed-floating-ip"]
+        ).lower(),
             "dns_servers": "",
             "dhcp_default_lease_time": "43200",
             "ovn_dhcp4_global_options": "",
