@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5e547d8_a049c7e3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2025-11-20T00:06:52Z",
+      "side": 1,
+      "message": "Thanks for this change, Hemanth.",
+      "revId": "60807a8eacf9ffe6a451a8219325e5a1a0116405",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
