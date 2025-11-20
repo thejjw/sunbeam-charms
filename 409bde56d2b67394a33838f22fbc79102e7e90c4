@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "08e796e1_33c2e6c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-20T04:26:19Z",
+      "side": 1,
+      "message": "recheck UnrelatedError: cinder-volume waiting for database relation",
+      "revId": "409bde56d2b67394a33838f22fbc79102e7e90c4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
