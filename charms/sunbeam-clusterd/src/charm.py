@@ -40,9 +40,6 @@ import tenacity
 from charms.operator_libs_linux.v2 import (
     snap,
 )
-from charms.tls_certificates_interface.v3.tls_certificates import (
-    generate_csr,
-)
 from cryptography import (
     x509,
 )
@@ -65,88 +62,6 @@ def _identity(x: bool) -> bool:
 
 class SnapInstallationError(Exception):
     """Custom exception for snap installation failure errors."""
-
-
-@sunbeam_tracing.trace_type
-class ClusterCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
-    """Handler for certificates interface."""
-
-    def get_entity(self) -> ops.Unit | ops.Application:
-        """Return the entity for the key store."""
-        return self.charm.model.app
-
-    def key_names(self) -> list[str]:
-        """Return the key names managed by this relation.
-
-        First key is considered as default key.
-        """
-        return ["main", "client"]
-
-    def csrs(self) -> dict[str, bytes]:
-        """Return a dict of generated csrs for self.key_names().
-
-        The method calling this method will ensure that all keys have a matching
-        csr.
-        """
-        main_key = self._private_keys.get("main")
-        client_key = self._private_keys.get("client")
-        if not main_key or not client_key:
-            return {}
-        return {
-            "main": generate_csr(
-                private_key=main_key.encode(),
-                subject=self.charm.app.name,
-                sans_ip=self.sans_ips,
-                sans_dns=self.sans_dns,
-                additional_critical_extensions=[
-                    x509.KeyUsage(
-                        digital_signature=True,
-                        content_commitment=False,
-                        key_encipherment=True,
-                        data_encipherment=False,
-                        key_agreement=False,
-                        key_cert_sign=False,
-                        crl_sign=False,
-                        encipher_only=False,
-                        decipher_only=False,
-                    ),
-                    x509.ExtendedKeyUsage({x509.OID_SERVER_AUTH}),
-                ],
-            ),
-            "client": generate_csr(
-                private_key=client_key.encode(),
-                subject=self.charm.app.name + "-client",
-                additional_critical_extensions=[
-                    x509.KeyUsage(
-                        digital_signature=True,
-                        content_commitment=False,
-                        key_encipherment=True,
-                        data_encipherment=False,
-                        key_agreement=False,
-                        key_cert_sign=False,
-                        crl_sign=False,
-                        encipher_only=False,
-                        decipher_only=False,
-                    ),
-                    x509.ExtendedKeyUsage({x509.OID_CLIENT_AUTH}),
-                ],
-            ),
-        }
-
-    def get_client_keypair(self) -> dict[str, str]:
-        """Return client keypair with the CA."""
-        client_key = self.store.get_private_key("client")
-        client_csr = self.store.get_csr("client")
-        if client_key is None or client_csr is None:
-            return {}
-        for cert in self.get_certs():
-            if cert.csr == client_csr:
-                return {
-                    "certificate-authority": cert.ca,
-                    "certificate": cert.certificate,
-                    "private-key-secret": client_key,
-                }
-        return {}
 
 
 @sunbeam_tracing.trace_sunbeam_charm
@@ -186,16 +101,66 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             )
             handlers.append(self.peers)
         if self.can_add_handler("certificates", handlers):
-            self.certs = ClusterCertificatesHandler(
+            self.certs = sunbeam_rhandlers.TlsCertificatesHandler(
                 self,
                 "certificates",
                 self.configure_charm,
-                self.get_domain_name_sans(),
-                self.get_sans_ips(),
+                sans_dns=self.get_sans_dns(),
+                sans_ips=frozenset(self.get_sans_ips()),
+                certificate_requests=self.get_tls_certificate_requests(),
+                app_managed_certificates=True,
                 mandatory="certificates" in self.mandatory_relations,
             )
             handlers.append(self.certs)
         return super().get_relation_handlers(handlers)
+
+    def get_tls_certificate_requests(self) -> list:
+        """Get TLS certificate requests for the service."""
+        from charms.tls_certificates_interface.v4.tls_certificates import (
+            CertificateRequestAttributes,
+        )
+
+        certificate_requests = [
+            CertificateRequestAttributes(  # type: ignore[arg-type]
+                common_name=self.app.name,
+                sans_dns=self.get_domain_name_sans(),
+                sans_ip=self.get_sans_ips(),
+                additional_critical_extensions=[
+                    x509.KeyUsage(
+                        digital_signature=True,
+                        content_commitment=False,
+                        key_encipherment=True,
+                        data_encipherment=False,
+                        key_agreement=False,
+                        key_cert_sign=False,
+                        crl_sign=False,
+                        encipher_only=False,
+                        decipher_only=False,
+                    ),
+                    x509.ExtendedKeyUsage({x509.OID_SERVER_AUTH}),
+                ],
+            ),
+            CertificateRequestAttributes(  # type: ignore[arg-type]
+                common_name=f"{self.app.name}-client",
+                sans_dns=self.get_domain_name_sans(),
+                sans_ip=self.get_sans_ips(),
+                additional_critical_extensions=[
+                    x509.KeyUsage(
+                        digital_signature=True,
+                        content_commitment=False,
+                        key_encipherment=True,
+                        data_encipherment=False,
+                        key_agreement=False,
+                        key_cert_sign=False,
+                        crl_sign=False,
+                        encipher_only=False,
+                        decipher_only=False,
+                    ),
+                    x509.ExtendedKeyUsage({x509.OID_CLIENT_AUTH}),
+                ],
+            ),
+        ]
+        return certificate_requests
 
     def get_domain_name_sans(self) -> list[str]:
         """Return domain name sans."""
@@ -236,7 +201,16 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         credentials = {}
         if relation := self.model.get_relation(self.certs.relation_name):
             if relation.active:
-                credentials = self.certs.get_client_keypair()
+                certificate_context = self.certs.get_certificate_context(
+                    f"{self.app.name}-client"
+                )
+                credentials = {
+                    "certificate-authority": certificate_context.get(
+                        "ca_cert", ""
+                    ),
+                    "certificate": certificate_context.get("cert", ""),
+                    "private-key-secret": certificate_context.get("key", ""),
+                }
             if not credentials:
                 event.fail("No credentials found yet")
                 return
@@ -342,9 +316,9 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             logger.debug("Certificates have not changed.")
             return
         self._clusterd.set_certs(
-            ca=certs["ca_cert_main"],
-            key=certs["key_main"],
-            cert=certs["cert_main"],
+            ca=certs["ca_cert"],
+            key=certs["key"],
+            cert=certs["cert"],
         )
         self._state.certs_hash = certs_hash
 

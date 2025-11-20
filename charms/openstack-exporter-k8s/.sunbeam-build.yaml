@@ -1,7 +1,7 @@
 external-libraries:
   - charms.grafana_k8s.v0.grafana_dashboard
   - charms.prometheus_k8s.v0.prometheus_scrape
-  - charms.tls_certificates_interface.v3.tls_certificates
+  - charms.tls_certificates_interface.v4.tls_certificates
   - charms.certificate_transfer_interface.v0.certificate_transfer
   - charms.loki_k8s.v1.loki_push_api
   - charms.tempo_k8s.v2.tracing
