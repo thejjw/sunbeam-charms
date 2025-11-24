@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d95f7592_698c44df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2025-11-24T17:12:53Z",
+      "side": 1,
+      "message": "How will this behave when upgrading the charm in an already deployed environment?",
+      "revId": "63f2b73fb767f4584f3cba3e79a8c39165a9d90c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
