@@ -169,8 +169,8 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
             }
             self.assertEqual(context, expected)
 
-    def test_context_multiple_certificates_bug(self) -> None:
-        """Test context method with multiple certificates shows the overwrite bug."""
+    def test_context_multiple_certificates(self) -> None:
+        """Test context method with multiple certificates."""
         mock_cert1 = MagicMock()
         mock_cert1.ca = "ca_cert_1"
         mock_cert1.chain = ["chain_1_1"]
@@ -244,6 +244,138 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
         ):
             self.assertFalse(self.handler.ready)
 
+    def test_ready_with_mixed_certificates(self) -> None:
+        """Test ready property with mix of None and valid certificates."""
+        mock_cert = MagicMock()
+        with patch.object(
+            self.handler,
+            "get_certs",
+            return_value=[("cert1", None), ("cert2", mock_cert)],
+        ):
+            # Should return True because at least one certificate is not None
+            self.assertTrue(self.handler.ready)
+
+    def test_ready_app_managed_non_leader(self) -> None:
+        """Test ready property for app-managed certs on non-leader unit."""
+        with patch.object(
+            sunbeam_rhandlers.TlsCertificatesHandler,
+            "setup_event_handler",
+            return_value=MagicMock(),
+        ), patch.object(
+            sunbeam_rhandlers.TlsCertificatesHandler,
+            "__post_init__",
+            return_value=None,
+        ):
+            handler = sunbeam_rhandlers.TlsCertificatesHandler(
+                charm=self.mock_charm,
+                relation_name="certificates",
+                callback_f=MagicMock(),
+                app_managed_certificates=True,
+                mandatory=True,
+            )
+            handler.interface = MagicMock()
+            handler.interface.get_assigned_certificates.return_value = ([], [])
+            handler.interface.get_provider_certificates.return_value = []
+            handler.interface.private_key = "mock_private_key"
+
+        # Mock non-leader unit
+        handler.model.unit.is_leader.return_value = False
+
+        with patch.object(
+            handler,
+            "get_certs",
+            return_value=[("cert1", None)],
+        ):
+            # Should return True for non-leader unit with app-managed certs
+            # even though certificates are None
+            self.assertTrue(handler.ready)
+
+    def test_ready_app_managed_leader_with_none(self) -> None:
+        """Test ready property for app-managed certs on leader unit with None."""
+        with patch.object(
+            sunbeam_rhandlers.TlsCertificatesHandler,
+            "setup_event_handler",
+            return_value=MagicMock(),
+        ), patch.object(
+            sunbeam_rhandlers.TlsCertificatesHandler,
+            "__post_init__",
+            return_value=None,
+        ):
+            handler = sunbeam_rhandlers.TlsCertificatesHandler(
+                charm=self.mock_charm,
+                relation_name="certificates",
+                callback_f=MagicMock(),
+                app_managed_certificates=True,
+                mandatory=True,
+            )
+            handler.interface = MagicMock()
+            handler.interface.get_assigned_certificates.return_value = ([], [])
+            handler.interface.get_provider_certificates.return_value = []
+            handler.interface.private_key = "mock_private_key"
+
+        # Mock leader unit
+        handler.model.unit.is_leader.return_value = True
+
+        with patch.object(
+            handler,
+            "get_certs",
+            return_value=[("cert1", None)],
+        ):
+            # Should return False for leader unit even with app-managed certs
+            # because certificate is None
+            self.assertFalse(handler.ready)
+
+    def test_ready_app_managed_leader_with_valid_cert(self) -> None:
+        """Test ready property for app-managed certs on leader unit with valid cert."""
+        with patch.object(
+            sunbeam_rhandlers.TlsCertificatesHandler,
+            "setup_event_handler",
+            return_value=MagicMock(),
+        ), patch.object(
+            sunbeam_rhandlers.TlsCertificatesHandler,
+            "__post_init__",
+            return_value=None,
+        ):
+            handler = sunbeam_rhandlers.TlsCertificatesHandler(
+                charm=self.mock_charm,
+                relation_name="certificates",
+                callback_f=MagicMock(),
+                app_managed_certificates=True,
+                mandatory=True,
+            )
+            handler.interface = MagicMock()
+            handler.interface.get_assigned_certificates.return_value = ([], [])
+            handler.interface.get_provider_certificates.return_value = []
+            handler.interface.private_key = "mock_private_key"
+
+        # Mock leader unit
+        handler.model.unit.is_leader.return_value = True
+
+        mock_cert = MagicMock()
+        with patch.object(
+            handler,
+            "get_certs",
+            return_value=[("cert1", mock_cert)],
+        ):
+            # Should return True for leader unit with valid certificate
+            self.assertTrue(handler.ready)
+
+    def test_ready_unit_managed_with_multiple_certs(self) -> None:
+        """Test ready property for unit-managed certs with multiple certificates."""
+        mock_cert1 = MagicMock()
+        mock_cert2 = MagicMock()
+
+        with patch.object(
+            self.handler,
+            "get_certs",
+            return_value=[
+                ("cert1", mock_cert1),
+                ("cert2", mock_cert2),
+            ],
+        ):
+            # Should return True when at least one certificate is valid
+            self.assertTrue(self.handler.ready)
+
     def test_get_certificate_context_found(self) -> None:
         """Test get_certificate_context method when certificate is found."""
         mock_cert = MagicMock()
@@ -256,13 +388,13 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
             "get_certs",
             return_value=[("test-service", mock_cert)],
         ), patch.object(
-            self.handler, "get_private_key", return_value="private_key"
+            self.handler, "get_private_key_secret", return_value="secret:12345"
         ):
 
             result = self.handler.get_certificate_context("test-service")
 
             expected = {
-                "key": "private_key",
+                "key": "secret:12345",
                 "ca_cert": "ca_cert_content",
                 "ca_with_chain": "ca_cert_content\nchain_cert_1\nchain_cert_2",
                 "cert": "cert_content",
@@ -305,14 +437,14 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
                 ("service-2", mock_cert2),
             ],
         ), patch.object(
-            self.handler, "get_private_key", return_value="private_key"
+            self.handler, "get_private_key_secret", return_value="secret:12345"
         ):
 
             # Test finding the second certificate
             result = self.handler.get_certificate_context("service-2")
 
             expected = {
-                "key": "private_key",
+                "key": "secret:12345",
                 "ca_cert": "ca_cert_2",
                 "ca_with_chain": "ca_cert_2\nchain_2_1\nchain_2_2",
                 "cert": "cert_2",
@@ -331,13 +463,13 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
             "get_certs",
             return_value=[("test-service", mock_cert)],
         ), patch.object(
-            self.handler, "get_private_key", return_value="private_key"
+            self.handler, "get_private_key_secret", return_value="secret:12345"
         ):
 
             result = self.handler.get_certificate_context("test-service")
 
             expected = {
-                "key": "private_key",
+                "key": "secret:12345",
                 "ca_cert": "ca_cert_content",
                 "ca_with_chain": "ca_cert_content",  # Only CA cert, no chain
                 "cert": "cert_content",
