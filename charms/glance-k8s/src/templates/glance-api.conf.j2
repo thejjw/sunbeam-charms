@@ -12,11 +12,7 @@ bind_port = 9282
 workers = 4
 image_size_cap = {{ glance_config.image_size_cap }}
 
-{% if ceph.auth %}
-enabled_backends = filestore:file, ceph:rbd
-{% else %}
-enabled_backends = filestore:file
-{% endif %}
+enabled_backends = {{ glance_config.enabled_backends }}
 
 {% include "parts/section-database" %}
 
@@ -43,6 +39,24 @@ rbd_store_pool = glance
 rbd_store_user = glance
 rados_connect_timeout = 0
 rbd_store_ceph_conf = /etc/ceph/ceph.conf
+{% endif %}
+
+{% if 'swift:swift' in glance_config.enabled_backends %}
+[swift]
+{% if identity_service.admin_auth_url -%}
+auth_address = {{ identity_service.admin_auth_url }}
+{% elif identity_service.internal_auth_url -%}
+auth_address = {{ identity_service.internal_auth_url }}
+{% elif identity_service.internal_host -%}
+auth_address = {{ identity_service.internal_protocol }}://{{ identity_service.internal_host }}:{{ identity_service.internal_port }}
+{% endif -%}
+
+auth_version = 3
+user = service:{{ identity_service.service_user_name }}
+key = {{ identity_service.service_password }}
+swift_store_region = {{ options.region }}
+swift_store_container = glance
+swift_store_create_container_on_put = True
 {% endif %}
 
 [paste_deploy]
