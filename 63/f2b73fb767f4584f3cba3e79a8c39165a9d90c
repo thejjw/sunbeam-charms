@@ -1,0 +1,9 @@
+Code-Review+2: Felipe Reyes <felipe.reyes@canonical.com>
+Workflow+1: Felipe Reyes <felipe.reyes@canonical.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Mon, 24 Nov 2025 19:18:51 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/968195
+Comments-Total: 3
+Project: openstack/sunbeam-charms
+Branch: refs/heads/stable/2024.1
