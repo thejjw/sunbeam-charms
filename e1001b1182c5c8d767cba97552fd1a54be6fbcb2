@@ -22,6 +22,30 @@
       },
       "revId": "e1001b1182c5c8d767cba97552fd1a54be6fbcb2",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3a376555_628bf245",
+        "filename": "ops-sunbeam/ops_sunbeam/relation_handlers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-24T09:49:36Z",
+      "side": 1,
+      "message": "you are right, I will update the PR",
+      "parentUuid": "335c9126_716ff125",
+      "range": {
+        "startLine": 1113,
+        "startChar": 0,
+        "endLine": 1118,
+        "endChar": 27
+      },
+      "revId": "e1001b1182c5c8d767cba97552fd1a54be6fbcb2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
