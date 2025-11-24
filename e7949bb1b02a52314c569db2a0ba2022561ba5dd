@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "e7949bb1b02a52314c569db2a0ba2022561ba5dd",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aaf62e14_0a4d96d7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-24T10:09:48Z",
+      "side": 1,
+      "message": "LGTM, I would like to get this new relation added in tests/openstack/smoke.yaml.j2 once microceph change is released in squid/stable",
+      "revId": "e7949bb1b02a52314c569db2a0ba2022561ba5dd",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
