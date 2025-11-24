@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "335c9126_716ff125",
+        "filename": "ops-sunbeam/ops_sunbeam/relation_handlers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-11-24T09:48:07Z",
+      "side": 1,
+      "message": "Isn\u0027t that valid only when the certificates are app managed? When they are unit managed, each unit should be able to say if it\u0027s ready or not, no?",
+      "range": {
+        "startLine": 1113,
+        "startChar": 0,
+        "endLine": 1118,
+        "endChar": 27
+      },
+      "revId": "e1001b1182c5c8d767cba97552fd1a54be6fbcb2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
