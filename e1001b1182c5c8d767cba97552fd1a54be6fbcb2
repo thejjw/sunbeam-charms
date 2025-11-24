@@ -46,6 +46,30 @@
       },
       "revId": "e1001b1182c5c8d767cba97552fd1a54be6fbcb2",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e42fb66_6b05e861",
+        "filename": "ops-sunbeam/ops_sunbeam/relation_handlers.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1118,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-24T10:02:32Z",
+      "side": 1,
+      "message": "Fixed in PS2",
+      "parentUuid": "3a376555_628bf245",
+      "range": {
+        "startLine": 1113,
+        "startChar": 0,
+        "endLine": 1118,
+        "endChar": 27
+      },
+      "revId": "e1001b1182c5c8d767cba97552fd1a54be6fbcb2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
