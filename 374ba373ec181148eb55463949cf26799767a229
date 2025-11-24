@@ -16,6 +16,40 @@
       "message": "If I\u0027m not mistaken, distributed floating ip relies on `ovn-chassis-mac-mappings` to be confiured to be able to work properly, which is not the case yet.\n\nWe should pause this review while we get this done.\n\nI\u0027m currently working on a feature that also needs `ovn-chassis-mac-mappings` configured, and this should be available shortly.",
       "revId": "374ba373ec181148eb55463949cf26799767a229",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1ca1b298_e1d79dd1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-24T10:55:46Z",
+      "side": 1,
+      "message": "enable-distributed-floating-ip defaults to false should be ok since if setting it true has pre-requisite that all compute nodes should have physical_network_map [1]\n\n[1] https://docs.openstack.org/neutron/latest/configuration/ml2-conf.html#ovn.enable_distributed_floating_ip",
+      "revId": "374ba373ec181148eb55463949cf26799767a229",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c456915_052a9f20",
+        "filename": "charms/neutron-k8s/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 730,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-24T10:55:46Z",
+      "side": 1,
+      "message": "can we pass directly in ml2_conf.ini.j2 {{ options.enable_distributed_floating_ip }} and remove enable_distributed_floating_ip from this context.",
+      "revId": "374ba373ec181148eb55463949cf26799767a229",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
