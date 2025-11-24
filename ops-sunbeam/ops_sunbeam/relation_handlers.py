@@ -1094,6 +1094,14 @@ class TlsCertificatesHandler(RelationHandler):
         """Return private key."""
         return str(self.interface.private_key)
 
+    def get_private_key_secret(self) -> str:
+        """Return private key secret."""
+        secret = self.charm.model.get_secret(
+            label=self.interface._get_private_key_secret_label()
+        )
+        secret_info = secret.get_info()
+        return secret_info.id
+
     @property
     def ready(self) -> bool:
         """Whether handler ready for use."""
@@ -1103,6 +1111,12 @@ class TlsCertificatesHandler(RelationHandler):
             return False
 
         # Check if any certificates are actually available (not None)
+        # In case of app managed certificates, non-leader units will have certs as
+        # (common_name, None) however the certificates can be read from relation
+        # app data. So return true without any None check.
+        if self.app_managed_certificates and not self.model.unit.is_leader():
+            return True
+
         for common_name, certificate in certs:
             if certificate is not None:
                 return True
@@ -1118,7 +1132,7 @@ class TlsCertificatesHandler(RelationHandler):
                 if certificate is None:
                     continue
 
-                private_key = self.get_private_key()
+                private_key_secret = self.get_private_key_secret()
 
                 # Build certificate chain with CA
                 ca_cert = str(certificate.ca)
@@ -1128,7 +1142,7 @@ class TlsCertificatesHandler(RelationHandler):
                 ca_with_chain = "\n".join([ca_cert] + chain_certs)
 
                 return {
-                    "key": private_key,
+                    "key": private_key_secret,
                     "ca_cert": ca_cert,
                     "ca_with_chain": ca_with_chain,
                     "cert": str(certificate.certificate),
