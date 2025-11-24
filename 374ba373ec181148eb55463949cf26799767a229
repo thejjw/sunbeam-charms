@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "099e9ba5_eedcd148",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-11-24T09:56:18Z",
+      "side": 1,
+      "message": "If I\u0027m not mistaken, distributed floating ip relies on `ovn-chassis-mac-mappings` to be confiured to be able to work properly, which is not the case yet.\n\nWe should pause this review while we get this done.\n\nI\u0027m currently working on a feature that also needs `ovn-chassis-mac-mappings` configured, and this should be available shortly.",
+      "revId": "374ba373ec181148eb55463949cf26799767a229",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
