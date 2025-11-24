@@ -1094,6 +1094,14 @@ class TlsCertificatesHandler(RelationHandler):
         """Return private key."""
         return str(self.interface.private_key)
 
+    def get_private_key_secret(self) -> str:
+        """Return private key secret."""
+        secret = self.charm.model.get_secret(
+            label=self.interface._get_private_key_secret_label()
+        )
+        secret_info = secret.get_info()
+        return secret_info.id
+
     @property
     def ready(self) -> bool:
         """Whether handler ready for use."""
@@ -1102,10 +1110,16 @@ class TlsCertificatesHandler(RelationHandler):
         if len(certs) == 0:
             return False
 
-        # Check if any certificates are actually available (not None)
-        for common_name, certificate in certs:
-            if certificate is not None:
-                return True
+        # Check if any certificates are actually available for leader unit (not None)
+        # If the unit is not leader, just return True since configure_charm checks
+        # relation handlers ready only after leader is ready, that means the certificates
+        # are already populated in app data by leader unit
+        if self.model.unit.is_leader():
+            for common_name, certificate in certs:
+                if certificate is not None:
+                    return True
+        else:
+            return True
 
         return False
 
@@ -1118,7 +1132,7 @@ class TlsCertificatesHandler(RelationHandler):
                 if certificate is None:
                     continue
 
-                private_key = self.get_private_key()
+                private_key_secret = self.get_private_key_secret()
 
                 # Build certificate chain with CA
                 ca_cert = str(certificate.ca)
@@ -1128,7 +1142,7 @@ class TlsCertificatesHandler(RelationHandler):
                 ca_with_chain = "\n".join([ca_cert] + chain_certs)
 
                 return {
-                    "key": private_key,
+                    "key": private_key_secret,
                     "ca_cert": ca_cert,
                     "ca_with_chain": ca_with_chain,
                     "cert": str(certificate.certificate),

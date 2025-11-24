@@ -169,8 +169,8 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
             }
             self.assertEqual(context, expected)
 
-    def test_context_multiple_certificates_bug(self) -> None:
-        """Test context method with multiple certificates shows the overwrite bug."""
+    def test_context_multiple_certificates(self) -> None:
+        """Test context method with multiple certificates."""
         mock_cert1 = MagicMock()
         mock_cert1.ca = "ca_cert_1"
         mock_cert1.chain = ["chain_1_1"]
@@ -256,13 +256,13 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
             "get_certs",
             return_value=[("test-service", mock_cert)],
         ), patch.object(
-            self.handler, "get_private_key", return_value="private_key"
+            self.handler, "get_private_key_secret", return_value="secret:12345"
         ):
 
             result = self.handler.get_certificate_context("test-service")
 
             expected = {
-                "key": "private_key",
+                "key": "secret:12345",
                 "ca_cert": "ca_cert_content",
                 "ca_with_chain": "ca_cert_content\nchain_cert_1\nchain_cert_2",
                 "cert": "cert_content",
@@ -305,14 +305,14 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
                 ("service-2", mock_cert2),
             ],
         ), patch.object(
-            self.handler, "get_private_key", return_value="private_key"
+            self.handler, "get_private_key_secret", return_value="secret:12345"
         ):
 
             # Test finding the second certificate
             result = self.handler.get_certificate_context("service-2")
 
             expected = {
-                "key": "private_key",
+                "key": "secret:12345",
                 "ca_cert": "ca_cert_2",
                 "ca_with_chain": "ca_cert_2\nchain_2_1\nchain_2_2",
                 "cert": "cert_2",
@@ -331,13 +331,13 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
             "get_certs",
             return_value=[("test-service", mock_cert)],
         ), patch.object(
-            self.handler, "get_private_key", return_value="private_key"
+            self.handler, "get_private_key_secret", return_value="secret:12345"
         ):
 
             result = self.handler.get_certificate_context("test-service")
 
             expected = {
-                "key": "private_key",
+                "key": "secret:12345",
                 "ca_cert": "ca_cert_content",
                 "ca_with_chain": "ca_cert_content",  # Only CA cert, no chain
                 "cert": "cert_content",
