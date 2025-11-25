@@ -126,6 +126,10 @@ actions:
       external-nic:
         type: string
         description: NIC that hypervisor will configure for North/South traffic
+      bridge-mapping:
+        type: string
+        description: |
+          Space separated list of bridge:physnet:iface mappings. (br-ex:physnet1:ens3 ...)
       spice-proxy-address:
         type: string
         description: IP address to use for configuration of SPICE consoles in instances.

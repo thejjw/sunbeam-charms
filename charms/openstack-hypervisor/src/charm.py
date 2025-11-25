@@ -352,9 +352,11 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         local_settings = [
             "compute.spice-proxy-address",
             "compute.pci-excluded-devices",
+            # note(gboutry): Deprecated in favor of bridge-mapping
             "network.external-nic",
             "network.ip-address",
             "network.ovs-dpdk-ports",
+            "network.bridge-mapping",
         ]
         new_snap_settings = {}
         for setting in local_settings:

@@ -21,7 +21,6 @@ from unittest.mock import (
 
 import charm
 import ops
-import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.test_utils as test_utils
 
 
@@ -47,8 +46,8 @@ class TestOpenstackNetworkAgentsCharm(test_utils.CharmTestCase):
         )
         self.addCleanup(self.harness.cleanup)
 
-    def test_validated_network_config_ok(self):
-        """Test validated network config with all required fields."""
+    def test_set_network_agents_local_settings_action(self):
+        """Test set_network_agents_local_settings_action."""
         self.harness.begin()
         evt = MagicMock(spec=ops.ActionEvent)
         evt.params = {
@@ -57,23 +56,43 @@ class TestOpenstackNetworkAgentsCharm(test_utils.CharmTestCase):
             "physnet-name": "physnet1",
             "enable-chassis-as-gw": True,
         }
-        self.harness.charm._set_network_agents_local_settings_action(evt)
-        iface, bridge, physnet, enable_gw = (
-            self.harness.charm._validated_network_config()
-        )
-        assert iface == "ens10"
-        assert bridge == "br-ex"
-        assert physnet == "physnet1"
-        assert enable_gw is True
 
-    def test_validated_network_config_missing(self):
-        """Test validated network config with missing fields."""
+        with patch.object(
+            self.harness.charm, "set_snap_data"
+        ) as mock_set_snap_data:
+            self.harness.charm._set_network_agents_local_settings_action(evt)
+
+            mock_set_snap_data.assert_called_once_with(
+                {
+                    "network.external-interface": "ens10",
+                    "network.bridge-name": "br-ex",
+                    "network.physnet-name": "physnet1",
+                    "network.enable-chassis-as-gw": True,
+                }
+            )
+
+    def test_set_network_agents_local_settings_action_with_bridge_mapping(
+        self,
+    ):
+        """Test set_network_agents_local_settings_action with bridge mapping."""
         self.harness.begin()
-        with self.assertRaises(sunbeam_guard.BlockedExceptionError) as ctx:
-            self.harness.charm._validated_network_config()
-        msg = str(ctx.exception)
-        assert "physnet-name" in msg
-        assert "enable-chassis-as-gw" in msg
+        evt = MagicMock(spec=ops.ActionEvent)
+        evt.params = {
+            "bridge-mapping": "physnet1:br-ex",
+            "enable-chassis-as-gw": True,
+        }
+
+        with patch.object(
+            self.harness.charm, "set_snap_data"
+        ) as mock_set_snap_data:
+            self.harness.charm._set_network_agents_local_settings_action(evt)
+
+            mock_set_snap_data.assert_called_once_with(
+                {
+                    "network.bridge-mapping": "physnet1:br-ex",
+                    "network.enable-chassis-as-gw": True,
+                }
+            )
 
     def test_connect_ovn_chassis_success(self):
         """Test _connect_ovn_chassis when microovn is present."""
@@ -102,14 +121,6 @@ class TestOpenstackNetworkAgentsCharm(test_utils.CharmTestCase):
     def test_configure_snap_sets_snap_data_and_connects(self):
         """configure_snap connects ovn-chassis and pushes snap data."""
         self.harness.begin()
-        evt = MagicMock(spec=ops.ActionEvent)
-        evt.params = {
-            "external-interface": "ens10",
-            "bridge-name": "br-ex",
-            "physnet-name": "physnet1",
-            "enable-chassis-as-gw": True,
-        }
-        self.harness.charm._set_network_agents_local_settings_action(evt)
         self.harness.update_config({"debug": True})
 
         mock_snap = MagicMock(name="openstack-network-agents")
@@ -127,9 +138,5 @@ class TestOpenstackNetworkAgentsCharm(test_utils.CharmTestCase):
         set_snap_data_mock.assert_called_once()
         (kwargs,), _ = set_snap_data_mock.call_args
         assert kwargs == {
-            "network.interface": "ens10",
-            "network.bridge": "br-ex",
-            "network.physnet": "physnet1",
-            "network.enable-chassis-as-gw": True,
             "settings.debug": True,
         }

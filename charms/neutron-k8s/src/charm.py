@@ -347,7 +347,7 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
             # https://opendev.org/openstack/neutron/src/commit/ac1472c8cffe64d32a012c73227595f2f7806de9/neutron/plugins/ml2/drivers/type_tunnel.py#L219-L223
             # This means compute nodes can scale upto 65536
             "vni_ranges": "1:65535",
-            "flat_networks": "physnet1",
+            "flat_networks": "*",
             "enable_tunneling": "True",
             "local_ip": "127.0.0.1",
             "enable_security_group": "True",

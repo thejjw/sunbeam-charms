@@ -20,17 +20,16 @@ This charm deploys the `openstack-network-agents` snap and configures
 OVS bridge mapping + optional chassis-as-gw on the network role node.
 """
 
-
 from __future__ import (
     annotations,
 )
 
 import logging
+import subprocess
 
 import charms.operator_libs_linux.v2.snap as snap
 import ops
 import ops_sunbeam.charm as sunbeam_charm
-import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 
@@ -38,6 +37,10 @@ logger = logging.getLogger(__name__)
 
 OVN_CHASSIS_PLUG = "ovn-chassis"
 OVN_CHASSIS_SLOT = "microovn:ovn-chassis"
+
+
+class AgentError(Exception):
+    """Custom exception for Agent errors."""
 
 
 @sunbeam_tracing.trace_type
@@ -69,19 +72,16 @@ class OpenstackNetworkAgentsOperatorCharm(
     """Snap-based subordinate for OVN provider bridge configuration (no daemons)."""
 
     service_name = "openstack-network-agents"
-    _state = ops.framework.StoredState()
 
     def __init__(self, framework: ops.framework.Framework) -> None:
         super().__init__(framework)
-        self._state.set_default(
-            external_interface=None,
-            bridge_name=None,
-            physnet_name=None,
-            enable_chassis_as_gw=None,
-        )
         self.framework.observe(
             self.on.set_network_agents_local_settings_action,
             self._set_network_agents_local_settings_action,
+        )
+        self.framework.observe(
+            self.on.list_nics_action,
+            self._list_nics_action,
         )
 
     @property
@@ -134,92 +134,69 @@ class OpenstackNetworkAgentsOperatorCharm(
             )
             raise
 
-    def _validated_network_config(self) -> tuple[str, str, str, bool]:
-        """Validate and normalize network-related charm config.
-
-        Returns: (iface, bridge, physnet, enable_gw)
-        """
-        iface = self._state.external_interface
-        bridge = self._state.bridge_name
-        physnet = self._state.physnet_name
-        enable_gw = self._state.enable_chassis_as_gw
-        enable_gw_bool = True if enable_gw is None else bool(enable_gw)
-
-        missing = []
-        if not iface:
-            missing.append("external-interface")
-        if not bridge:
-            missing.append("bridge-name")
-        if not physnet:
-            missing.append("physnet-name")
-        if enable_gw is None:
-            missing.append("enable-chassis-as-gw")
-
-        if missing:
-            raise sunbeam_guard.BlockedExceptionError(
-                f"missing: {', '.join(missing)}"
-            )
-        return str(iface), str(bridge), str(physnet), enable_gw_bool
-
     def _set_network_agents_local_settings_action(
         self, event: ops.ActionEvent
     ) -> None:
         """Action to set per-unit local settings for provider networking."""
-        params = event.params or {}
-        iface = params.get("external-interface")
-        bridge = params.get("bridge-name")
-        physnet = params.get("physnet-name")
-        enable_gw = params.get("enable-chassis-as-gw")
-
-        missing = [
-            name
-            for name, val in (
-                ("external-interface", iface),
-                ("bridge-name", bridge),
-                ("physnet-name", physnet),
-                ("enable-chassis-as-gw", enable_gw),
-            )
-            if val is None or val == ""
+        local_settings = [
+            "network.external-interface",
+            "network.bridge-name",
+            "network.physnet-name",
+            "network.bridge-mapping",
+            "network.enable-chassis-as-gw",
         ]
-        if missing:
-            event.fail(f"Missing required params: {', '.join(missing)}")
-            return
 
-        self._state.external_interface = str(iface)
-        self._state.bridge_name = str(bridge)
-        self._state.physnet_name = str(physnet)
-        self._state.enable_chassis_as_gw = bool(enable_gw)
-
-        try:
-            self.configure_charm(event)
-        except Exception as exc:
-            event.fail(str(exc))
-            return
-        event.set_results(
-            {
-                "external-interface": self._state.external_interface,
-                "bridge-name": self._state.bridge_name,
-                "physnet-name": self._state.physnet_name,
-                "enable-chassis-as-gw": self._state.enable_chassis_as_gw,
-            }
-        )
+        new_snap_settings = {}
+        for setting in local_settings:
+            action_param = setting.split(".")[1]
+            if event.params.get(action_param):
+                new_snap_settings[setting] = event.params.get(action_param)
+        if new_snap_settings:
+            self.set_snap_data(new_snap_settings)
 
     def configure_snap(self, event: ops.EventBase) -> None:
         """Push configuration into the snap (no subprocess)."""
         self._connect_ovn_chassis()
-        iface, bridge, physnet, enable_gw = self._validated_network_config()
         self.set_snap_data(
             {
-                # consumed by the snap’s configure/bridge-setup helper
-                "network.interface": iface,
-                "network.bridge": bridge,
-                "network.physnet": physnet,
-                "network.enable-chassis-as-gw": enable_gw,
                 "settings.debug": bool(
                     self.model.config.get("debug") or False
                 ),
             }
         )
+
+    def _agent_cli_cmd(self, cmd: str):
+        """Helper to run cli commands on the snap."""
+        process = subprocess.run(
+            [
+                "snap",
+                "run",
+                self.snap_name,
+                "--verbose",
+            ]
+            + cmd.split(),
+            capture_output=True,
+        )
+
+        stderr = process.stderr.decode("utf-8")
+        logger.debug("logs: %s", stderr)
+        stdout = process.stdout.decode("utf-8")
+        logger.debug("stdout: %s", stdout)
+        if process.returncode != 0:
+            raise AgentError(stderr)
+
+        return stdout
+
+    def _list_nics_action(self, event: ops.ActionEvent):
+        """Run list_nics action."""
+        try:
+            stdout = self._agent_cli_cmd("list-nics --format json")
+        except AgentError as e:
+            event.fail(str(e))
+            return
+
+        # cli returns a json dict with keys "nics" and "candidate"
+        event.set_results({"result": stdout})
 
 
 if __name__ == "__main__":  # pragma: nocover
