@@ -8,6 +8,8 @@
 debug = {{ options.debug }}
 transport_url = {{ amqp.transport_url }}
 auth_strategy = keystone
+rbac_service_role_elevated_access = True
+rbac_service_project_name = {{ identity_service.service_project_name }}
 
 {% include "parts/section-database" %}
 
@@ -19,6 +21,9 @@ auth_strategy = keystone
 
 [oslo_concurrency]
 lock_path = /var/lib/ironic/tmp
+
+[oslo_policy]
+enforce_new_defaults = false
 
 [api]
 public_endpoint = {{ ironic.public_url }}
