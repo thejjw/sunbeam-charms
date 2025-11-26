@@ -20,6 +20,9 @@ auth_strategy = keystone
 [oslo_concurrency]
 lock_path = /var/lib/ironic/tmp
 
+[oslo_policy]
+enforce_new_defaults = false
+
 [api]
 public_endpoint = {{ ironic.public_url }}
 
