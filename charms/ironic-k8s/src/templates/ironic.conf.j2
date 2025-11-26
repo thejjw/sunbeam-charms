@@ -8,6 +8,8 @@
 debug = {{ options.debug }}
 transport_url = {{ amqp.transport_url }}
 auth_strategy = keystone
+rbac_service_role_elevated_access = True
+rbac_service_project_name = {{ identity_service.service_project_name }}
 
 {% include "parts/section-database" %}
 
