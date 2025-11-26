@@ -43,17 +43,7 @@ rbd_store_ceph_conf = /etc/ceph/ceph.conf
 
 {% if 'swift:swift' in glance_config.enabled_backends %}
 [swift]
-{% if identity_service.admin_auth_url -%}
-auth_address = {{ identity_service.admin_auth_url }}
-{% elif identity_service.internal_auth_url -%}
-auth_address = {{ identity_service.internal_auth_url }}
-{% elif identity_service.internal_host -%}
-auth_address = {{ identity_service.internal_protocol }}://{{ identity_service.internal_host }}:{{ identity_service.internal_port }}
-{% endif -%}
-
-auth_version = 3
-user = service:{{ identity_service.service_user_name }}
-key = {{ identity_service.service_password }}
+swift_store_config_file = /etc/glance/glance-api.d/01-swift.conf
 swift_store_region = {{ options.region }}
 swift_store_container = glance
 swift_store_create_container_on_put = True
