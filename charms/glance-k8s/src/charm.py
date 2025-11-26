@@ -348,6 +348,12 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
+                "/etc/glance/glance-api.d/01-swift.conf",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
                 "/etc/apache2/sites-enabled/glance-forwarding.conf",
                 self.service_user,
                 self.service_group,

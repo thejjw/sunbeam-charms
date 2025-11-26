@@ -191,9 +191,7 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
             "rados_connect_timeout = 0",
             "rbd_store_ceph_conf = /etc/ceph/ceph.conf",
             "[swift]",
-            "auth_address = http://keystone.internal:5000",
-            "user = service:svcuser1",
-            "key = svcpass1",
+            "swift_store_config_file = /etc/glance/glance-api.d/01-swift.conf",
             "swift_store_region = RegionOne",
             "swift_store_container = glance",
             "swift_store_create_container_on_put = True",
@@ -201,5 +199,18 @@ class TestGlanceOperatorCharm(test_utils.CharmTestCase):
         self._check_file_contents(
             "glance-api",
             "/etc/glance/glance-api.conf",
+            config_lines,
+        )
+
+        config_lines = [
+            "[ref1]",
+            "auth_address = http://keystone.internal:5000",
+            "auth_version = 3",
+            "user = service:svcuser1",
+            "key = svcpass1",
+        ]
+        self._check_file_contents(
+            "glance-api",
+            "/etc/glance/glance-api.d/01-swift.conf",
             config_lines,
         )
