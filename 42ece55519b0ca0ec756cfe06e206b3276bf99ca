@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "42ece55519b0ca0ec756cfe06e206b3276bf99ca",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0abff84e_979d576d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-11-27T09:22:43Z",
+      "side": 1,
+      "message": "The default value is True [1]. How is this working in devstack?\n\nIf the problem is \n`the service users created through the keystone juju\nrelation does not add a system-scoped role binding to the user`\n\nthen can we extend identity_service relation?\n\nIs it ironic requires service user with keystone scoped token? or does it require 2 services users one with keystone scoped token and one without?\n\n[1] https://docs.openstack.org/ironic/2025.1/configuration/config.html#oslo_policy.enforce_new_defaults",
+      "revId": "42ece55519b0ca0ec756cfe06e206b3276bf99ca",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
