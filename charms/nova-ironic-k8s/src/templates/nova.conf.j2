@@ -36,6 +36,9 @@ region_name = {{ identity_credentials.region }}
 [placement]
 {% include "parts/identity-data-id-creds" %}
 
+[neutron]
+{% include "parts/identity-data-id-creds" %}
+
 [ironic]
 {% include "parts/identity-data-id-creds" %}
 
