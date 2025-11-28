@@ -40,31 +40,47 @@ actions:
     params:
       external-interface:
         type: string
-        description: Physical NIC to add as a bridge port (e.g. enp6s0).
+        description: |
+          (Deprecated) Physical NIC to add as a bridge port (e.g. enp6s0).
       bridge-name:
         type: string
-        description: Provider bridge name.
+        description: |
+          (Deprecated) Provider bridge name.
       physnet-name:
         type: string
-        description: OVN physnet label.
+        description: |
+          (Deprecated) OVN physnet label.
       enable-chassis-as-gw:
         type: boolean
         description: |
           If true, set ovn-cms-options=enable-chassis-as-gw so L3 gateway roles
           prefer scheduling here.
+      bridge-mapping:
+        type: string
+        description: |
+          Space separated list of bridge:physnet:iface mappings. (br-ex:physnet1:ens3 ...)
+    additionalProperties: false
+  list-nics:
+    description: |
+      List host NICS, and which one are candidates for use as external NIC.
     additionalProperties: false
 
 parts:
   charm:
-    plugin: charm
-    source: .
-    charm-entrypoint: src/charm.py
-    charm-requirements: [requirements.txt]
     build-packages:
-      - build-essential
-      - python3-dev
+      - git
+      - libffi-dev
       - libssl-dev
       - pkg-config
-      - libffi-dev
-      - rustc
-      - cargo
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
