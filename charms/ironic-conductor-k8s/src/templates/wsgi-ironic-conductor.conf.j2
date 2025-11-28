@@ -1,0 +1,17 @@
+Listen 80
+LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\" %D(us)" ironic_combined
+
+<VirtualHost *:80>
+    <IfVersion >= 2.4>
+      ErrorLogFormat "%{cu}t %M"
+    </IfVersion>
+
+    ErrorLog /dev/stdout
+    CustomLog /dev/stdout combined
+
+    DocumentRoot /httpboot
+    <Directory /httpboot>
+        AllowOverride None
+        Require all granted
+    </Directory>
+</VirtualHost>

@@ -29,6 +29,9 @@ from ops.testing import (
     ActionFailed,
     Harness,
 )
+from ops_sunbeam import (
+    k8s_resource_handlers,
+)
 
 
 class _IronicConductorOperatorCharm(charm.IronicConductorOperatorCharm):
@@ -62,6 +65,16 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
     def setUp(self):
         """Setup test fixtures for test."""
         super().setUp(charm, self.PATCHES)
+
+        patcher = mock.patch.object(k8s_resource_handlers, "Client")
+        mock_client = patcher.start()
+        self.addCleanup(patcher.stop)
+
+        client = mock_client.return_value
+        svc = client.get.return_value
+        self.load_balancer = svc.status.loadBalancer
+        self.load_balancer.ingress = [mock.Mock(ip="foo.lish")]
+
         self.harness = test_utils.get_harness(
             _IronicConductorOperatorCharm, container_calls=self.container_calls
         )
@@ -140,7 +153,16 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
         charm_status = self.harness.charm.status
         self.assertIsInstance(charm_status.status, model.ActiveStatus)
 
+        setup_cmds = [
+            ["a2ensite", "wsgi-ironic-conductor"],
+        ]
+        for cmd in setup_cmds:
+            self.assertIn(
+                cmd, self.container_calls.execute["ironic-conductor"]
+            )
+
         config_files = [
+            "/etc/apache2/sites-available/wsgi-ironic-conductor.conf",
             "/etc/ironic/ironic.conf",
             "/etc/ironic/rootwrap.conf",
             "/tftpboot/map-file",
@@ -148,6 +170,30 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
         ]
         for f in config_files:
             self.check_file("ironic-conductor", f)
+
+    @mock.patch("api_utils.OSClients")
+    @mock.patch("api_utils.create_keystone_session")
+    def test_loadbalancer_ip(self, mock_create_ks_session, mock_osclients):
+        """Test that the charm is blocked if it does not have a loadbalancer IP."""
+        self.load_balancer.ingress = []
+        self.harness.set_leader()
+        test_utils.set_all_pebbles_ready(self.harness)
+
+        # this adds all the default/common relations
+        test_utils.add_all_relations(self.harness)
+        self.add_ceph_rgw_relation()
+
+        # This action needs to be run, otherwise the charm is Blocked.
+        os_cli = mock_osclients.return_value
+        os_cli.glance_stores = ["swift"]
+        action_event = self.harness.run_action("set-temp-url-secret")
+        self.assertEqual(
+            "Temp URL secret set.", action_event.results.get("output")
+        )
+
+        # Should be blocked because it doesn't have a LoadBalancer IP.
+        charm_status = self.harness.charm.status
+        self.assertIsInstance(charm_status.status, model.BlockedStatus)
 
     @mock.patch("api_utils.OSClients")
     @mock.patch("api_utils.create_keystone_session")
@@ -236,6 +282,8 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
             "[hardware_type:intel-ipmi]",
             "[hardware_type:ipmi]",
             "default_deploy_interface = direct",
+            "http_url=http://foo.lish:80",
+            "tftp_server = foo.lish",
         ]
         self._check_file_contents(
             "ironic-conductor", "/etc/ironic/ironic.conf", lines
