@@ -38,11 +38,6 @@ config:
       description: |
         Use iPXE instead of PXE. This option will start an additional
         HTTP server with a root in /httpboot.
-    ipxe-http-port:
-      default: "8080"
-      type: string
-      description: |
-        The port used for the HTTP server used to serve iPXE resources.
     max-tftp-block-size:
       default: 0
       type: int

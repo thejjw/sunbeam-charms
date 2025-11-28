@@ -29,6 +29,9 @@ from ops.testing import (
     ActionFailed,
     Harness,
 )
+from ops_sunbeam import (
+    k8s_resource_handlers,
+)
 
 
 class _IronicConductorOperatorCharm(charm.IronicConductorOperatorCharm):
@@ -62,6 +65,15 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
     def setUp(self):
         """Setup test fixtures for test."""
         super().setUp(charm, self.PATCHES)
+
+        patcher = mock.patch.object(k8s_resource_handlers, "Client")
+        mock_Client = patcher.start()
+        self.addCleanup(patcher.stop)
+
+        client = mock_Client.return_value
+        svc = client.get.return_value
+        svc.status.loadBalancer.ingress = [mock.Mock(ip="foo.lish")]
+
         self.harness = test_utils.get_harness(
             _IronicConductorOperatorCharm, container_calls=self.container_calls
         )
@@ -140,7 +152,15 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
         charm_status = self.harness.charm.status
         self.assertIsInstance(charm_status.status, model.ActiveStatus)
 
+        setup_cmds = [
+            ["a2ensite", "wsgi-ironic-conductor"],
+        ]
+        for cmd in setup_cmds:
+            self.assertIn(cmd, self.container_calls.execute["ironic-conductor"])
+
+
         config_files = [
+            "/etc/apache2/sites-available/wsgi-ironic-conductor.conf",
             "/etc/ironic/ironic.conf",
             "/etc/ironic/rootwrap.conf",
             "/tftpboot/map-file",
@@ -236,6 +256,8 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
             "[hardware_type:intel-ipmi]",
             "[hardware_type:ipmi]",
             "default_deploy_interface = direct",
+            "http_url=http://foo.lish:80",
+            "tftp_server = foo.lish",
         ]
         self._check_file_contents(
             "ironic-conductor", "/etc/ironic/ironic.conf", lines
