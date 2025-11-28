@@ -29,6 +29,7 @@ from typing import (
 )
 
 import api_utils
+import lightkube.models.core_v1 as core_v1
 import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
@@ -40,11 +41,17 @@ import ops_sunbeam.tracing as sunbeam_tracing
 from ops.charm import (
     RelationChangedEvent,
 )
+from ops_sunbeam.k8s_resource_handlers import (
+    KubernetesLoadBalancerHandler,
+)
 
 logger = logging.getLogger(__name__)
 
 CEPH_RGW_RELATION = "ceph-rgw-ready"
 IRONIC_CONDUCTOR_CONTAINER = "ironic-conductor"
+IRONIC_CONDUCTOR_HTTP_PORT = 80
+IRONIC_CONDUCTOR_TFTP_PORT = 69
+
 VALID_NETWORK_INTERFACES = ["neutron", "flat", "noop"]
 VALID_DEPLOY_INTERFACES = ["direct"]
 
@@ -140,6 +147,7 @@ class IronicConductorConfigurationContext(sunbeam_ctxts.ConfigContext):
         ctxt = {
             "hardware_type_cfg": self._get_hardware_types_config(),
             "temp_url_secret": self.charm.leader_get("temp_url_secret"),
+            "loadbalancer_ip": self.charm.loadbalancer_ip,
         }
 
         return ctxt
@@ -179,7 +187,7 @@ class IronicConductorConfigurationContext(sunbeam_ctxts.ConfigContext):
 
 
 @sunbeam_tracing.trace_type
-class IronicConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+class IronicConductorPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Pebble handler for Ironic Conductor."""
 
     @property
@@ -196,6 +204,11 @@ class IronicConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 self.charm.service_user,
                 self.charm.service_group,
             ),
+            sunbeam_chandlers.ContainerDir(
+                "/var/run/apache2",
+                self.charm.service_user,
+                self.charm.service_group,
+            ),
         ]
 
     def get_layer(self) -> dict:
@@ -204,9 +217,11 @@ class IronicConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         :returns: pebble layer configuration for the ironic-conductor service
         :rtype: dict
         """
+        wsgi_layer = super().get_layer()
+        wsgi_service = wsgi_layer["services"][self.wsgi_service_name]
         return {
             "summary": "ironic conductor layer",
-            "description": "pebble configuration for ironic-conductor service",
+            "description": "pebble configuration for ironic-conductor services",
             "services": {
                 "ironic-conductor": {
                     "override": "replace",
@@ -214,7 +229,13 @@ class IronicConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "command": "ironic-conductor",
                     "user": "ironic",
                     "group": "ironic",
-                }
+                },
+                "tftp": {
+                    "override": "replace",
+                    "summary": "Ironic Conductor TFTP server",
+                    "command": "in.tftpd --foreground --user ironic --secure /tftpboot",
+                },
+                self.wsgi_service_name: wsgi_service,
             },
         }
 
@@ -236,6 +257,29 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             self.on.peers_relation_changed, self._on_peer_relation_changed
         )
 
+        service_ports = [
+            core_v1.ServicePort(
+                IRONIC_CONDUCTOR_HTTP_PORT,
+                appProtocol="http",
+                name="http",
+                protocol="TCP",
+            ),
+            core_v1.ServicePort(
+                IRONIC_CONDUCTOR_TFTP_PORT,
+                appProtocol="tftp",
+                name="tftp",
+                protocol="UDP",
+            ),
+        ]
+        self.lb_handler = KubernetesLoadBalancerHandler(
+            self,
+            service_ports,
+            refresh_event=[self.on.install, self.on.config_changed],
+        )
+        self.unit.set_ports(
+            IRONIC_CONDUCTOR_HTTP_PORT, IRONIC_CONDUCTOR_TFTP_PORT
+        )
+
     @property
     def service_user(self) -> str:
         """Service user file and directory ownership."""
@@ -251,6 +295,21 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Provide database name for ironic services."""
         return {"database": "ironic"}
 
+    @property
+    def healthcheck_period(self) -> str:
+        """Healthcheck period for the service."""
+        return "10s"  # Default value in pebble
+
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return f"http://localhost:{IRONIC_CONDUCTOR_HTTP_PORT}/grub/grub.cfg"
+
+    @property
+    def healthcheck_http_timeout(self) -> str:
+        """Healthcheck HTTP timeout for the service."""
+        return "3s"
+
     def get_pebble_handlers(
         self,
     ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
@@ -263,6 +322,7 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 self.container_configs,
                 self.template_dir,
                 self.configure_charm,
+                wsgi_service_name="wsgi-ironic-conductor",
             ),
         ]
         return pebble_handlers
@@ -313,13 +373,13 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 "/tftpboot/map-file",
                 self.service_user,
                 self.service_group,
-                0o640,
+                0o644,
             ),
             sunbeam_core.ContainerConfigFile(
                 "/tftpboot/grub/grub.cfg",
                 self.service_user,
                 self.service_group,
-                0o640,
+                0o644,
             ),
         ]
         return _cconfigs
@@ -338,6 +398,11 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             return
 
         super().configure_charm(event)
+
+    @property
+    def loadbalancer_ip(self) -> str:
+        """Kubernetes LoadBalancer IP for the ironic-conductor services."""
+        return self.lb_handler.get_loadbalancer_ip() or ""
 
     def _validate_default_net_interface(self):
         net_iface = self.config["default-network-interface"]
