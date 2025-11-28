@@ -35,6 +35,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4d1755a_46f5c32c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2025-11-28T01:16:36Z",
+      "side": 1,
+      "message": "Notes for myself.\n\nref:\nhttps://bugs.launchpad.net/charm-ovn-chassis/+bug/2084127\nhttps://github.com/openstack-charmers/charm-layer-ovn/pull/98",
+      "revId": "374ba373ec181148eb55463949cf26799767a229",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c456915_052a9f20",
