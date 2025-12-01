@@ -1057,7 +1057,7 @@
     timeout: 3600
 
 - job:
-    name: func-test-all-k8s
+    name: func-test-openstack
     description: |
       Zaza smoke test for all the k8s sunbeam charms.
     timeout: 7200
