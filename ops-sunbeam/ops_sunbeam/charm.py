@@ -259,20 +259,15 @@ class OSBaseOperatorCharm(
         """Return all bind/ingress addresses from all relations."""
         addresses = []
         for relation_name in self.meta.relations.keys():
-            for relation in self.framework.model.relations.get(
-                relation_name, []
+            binding = self.model.get_binding(relation_name)
+            if binding is None or binding.network is None:
+                continue
+            if isinstance(
+                binding.network.ingress_address, ipaddress.IPv4Address
             ):
-                binding = self.model.get_binding(relation)
-                if binding is None or binding.network is None:
-                    continue
-                if isinstance(
-                    binding.network.ingress_address, ipaddress.IPv4Address
-                ):
-                    addresses.append(binding.network.ingress_address)
-                if isinstance(
-                    binding.network.bind_address, ipaddress.IPv4Address
-                ):
-                    addresses.append(binding.network.bind_address)
+                addresses.append(binding.network.ingress_address)
+            if isinstance(binding.network.bind_address, ipaddress.IPv4Address):
+                addresses.append(binding.network.bind_address)
         return addresses
 
     def _ip_sans(self) -> list[ipaddress.IPv4Address]:
