@@ -52,6 +52,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "235c68ac_b39f8a03",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-12-01T08:14:14Z",
+      "side": 1,
+      "message": "Required feature has landed in the openstack hypervisor snap, @sikander.singh@canonical.com can you address @hemanth.nakkina@canonical.com comments?",
+      "revId": "374ba373ec181148eb55463949cf26799767a229",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c456915_052a9f20",
