@@ -15,7 +15,7 @@ network_scheduler_driver = neutron.scheduler.dhcp_agent_scheduler.AZAwareWeightS
 dhcp_load_type = networks
 router_scheduler_driver = neutron.scheduler.l3_agent_scheduler.AZLeastRoutersScheduler
 core_plugin = neutron.plugins.ml2.plugin.Ml2Plugin
-service_plugins = metering,segments,ovn-router,port_forwarding,trunk
+service_plugins = metering,segments,ovn-router,port_forwarding,trunk,network_segment_range
 allow_overlapping_ips = True
 dhcp_agents_per_network = 1
 
