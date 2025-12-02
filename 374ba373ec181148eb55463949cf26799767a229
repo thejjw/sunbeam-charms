@@ -84,6 +84,24 @@
       "message": "can we pass directly in ml2_conf.ini.j2 {{ options.enable_distributed_floating_ip }} and remove enable_distributed_floating_ip from this context.",
       "revId": "374ba373ec181148eb55463949cf26799767a229",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac1e73d9_a2cfe1bc",
+        "filename": "charms/neutron-k8s/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 730,
+      "author": {
+        "id": 38596
+      },
+      "writtenOn": "2025-12-02T05:38:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4c456915_052a9f20",
+      "revId": "374ba373ec181148eb55463949cf26799767a229",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
