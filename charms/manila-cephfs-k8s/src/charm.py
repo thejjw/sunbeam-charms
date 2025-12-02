@@ -228,6 +228,12 @@ class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
     def handle_manila(self, event: ops.framework.EventBase) -> None:
         """Handle the manila relation data."""
+        if not self.unit.is_leader():
+            logger.debug(
+                "Skipping updating share_protocol in relation data as unit is non-leader"
+            )
+            return
+
         if self.ceph_nfs.ready:
             self.manila_handler.interface.update_share_protocol(
                 SHARE_PROTOCOL_NFS
