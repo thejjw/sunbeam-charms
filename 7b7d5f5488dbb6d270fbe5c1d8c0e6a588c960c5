@@ -16,6 +16,23 @@
       "message": "changes has been done as suggested. Thanks for pointing it out.",
       "revId": "7b7d5f5488dbb6d270fbe5c1d8c0e6a588c960c5",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2c4df7f_3eb3f55f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-12-03T08:18:07Z",
+      "side": 1,
+      "message": "Thank you @sikander.singh@canonical.com",
+      "revId": "7b7d5f5488dbb6d270fbe5c1d8c0e6a588c960c5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
