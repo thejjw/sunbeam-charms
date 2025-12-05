@@ -88,8 +88,6 @@ class TestCharm(test_utils.CharmTestCase):
         self.harness.update_config({"snap-channel": "essex/stable"})
         self.harness.begin_with_initial_hooks()
         test_utils.add_complete_certificates_relation(self.harness)
-        # Mock the certificate interface to return fake certificates
-        test_utils.mock_get_assigned_certificate(self.harness)
         self.harness.add_relation(
             "ovsdb-cms",
             "ovn-relay",
