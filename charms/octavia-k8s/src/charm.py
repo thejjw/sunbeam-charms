@@ -128,6 +128,11 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ]
     ]
 
+    def __init__(self, framework: ops.framework.Framework) -> None:
+        """Run constructor."""
+        super().__init__(framework)
+        self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
+
     @property
     def service_conf(self) -> str:
         """Service default configuration file."""
@@ -292,6 +297,13 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             {"name": "create_role", "params": {"name": name}} for name in roles
         ]
         return ops
+
+    def _on_upgrade_charm(self, event: ops.framework.EventBase):
+        """Handle the upgrade charm event."""
+        logger.info("Handling upgrade-charm event")
+        self.certs.validate_and_regenerate_certificates_if_needed(
+            self.get_tls_certificate_requests()
+        )
 
 
 @sunbeam_tracing.trace_sunbeam_charm
