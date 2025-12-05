@@ -492,6 +492,296 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
             result = self.handler.get_certificate_context("test-service")
             self.assertEqual(result, {})
 
+    def test_validate_and_regenerate_no_csrs_with_expected_requests(
+        self,
+    ) -> None:
+        """Test validation when no CSRs exist but expected requests are provided."""
+        # Mock expected certificate request
+        mock_expected_request = MagicMock()
+        mock_expected_request.common_name = "test-service"
+        mock_expected_request.sans_dns = ["api.example.com"]
+        mock_expected_request.sans_ip = ["10.0.0.1"]
+
+        # Mock empty CSRs from relation
+        self.handler.interface.get_csrs_from_requirer_relation_data.return_value = (
+            []
+        )
+
+        # Call the validation function
+        self.handler.validate_and_regenerate_certificates_if_needed(
+            [mock_expected_request]
+        )
+
+        # Verify certificates were regenerated
+        self.assertEqual(
+            self.handler.interface.certificate_requests,
+            [mock_expected_request],
+        )
+        self.handler.interface.sync.assert_called_once()
+
+    def test_validate_and_regenerate_sans_match(self) -> None:
+        """Test validation when SANs match - no regeneration needed."""
+        # Mock expected certificate request
+        mock_expected_request = MagicMock()
+        mock_expected_request.common_name = "test-service"
+        mock_expected_request.sans_dns = ["api.example.com", "web.example.com"]
+        mock_expected_request.sans_ip = ["10.0.0.1"]
+
+        # Mock CSR with matching SANs
+        mock_csr = MagicMock()
+        mock_csr.common_name = "test-service"
+        mock_csr.sans_dns = {"api.example.com", "web.example.com"}
+        mock_csr.sans_ip = {"10.0.0.1"}
+
+        mock_requirer_cert = MagicMock()
+        mock_requirer_cert.certificate_signing_request = mock_csr
+
+        self.handler.interface.get_csrs_from_requirer_relation_data.return_value = [
+            mock_requirer_cert
+        ]
+
+        # Call the validation function
+        self.handler.validate_and_regenerate_certificates_if_needed(
+            [mock_expected_request]
+        )
+
+        # Verify no regeneration occurred (sync should not be called)
+        self.handler.interface.sync.assert_not_called()
+
+    def test_validate_and_regenerate_dns_sans_mismatch(self) -> None:
+        """Test validation when DNS SANs mismatch - triggers regeneration."""
+        # Mock expected certificate request
+        mock_expected_request = MagicMock()
+        mock_expected_request.common_name = "test-service"
+        mock_expected_request.sans_dns = ["api.example.com", "new.example.com"]
+        mock_expected_request.sans_ip = ["10.0.0.1"]
+
+        # Mock CSR with different DNS SANs
+        mock_csr = MagicMock()
+        mock_csr.common_name = "test-service"
+        mock_csr.sans_dns = {"api.example.com", "old.example.com"}
+        mock_csr.sans_ip = {"10.0.0.1"}
+
+        mock_requirer_cert = MagicMock()
+        mock_requirer_cert.certificate_signing_request = mock_csr
+
+        self.handler.interface.get_csrs_from_requirer_relation_data.return_value = [
+            mock_requirer_cert
+        ]
+
+        # Call the validation function
+        self.handler.validate_and_regenerate_certificates_if_needed(
+            [mock_expected_request]
+        )
+
+        # Verify certificates were regenerated
+        self.assertEqual(
+            self.handler.interface.certificate_requests,
+            [mock_expected_request],
+        )
+        self.handler.interface.sync.assert_called_once()
+
+    def test_validate_and_regenerate_ip_sans_mismatch(self) -> None:
+        """Test validation when IP SANs mismatch - triggers regeneration."""
+        # Mock expected certificate request
+        mock_expected_request = MagicMock()
+        mock_expected_request.common_name = "test-service"
+        mock_expected_request.sans_dns = ["api.example.com"]
+        mock_expected_request.sans_ip = ["10.0.0.1", "10.0.0.2"]
+
+        # Mock CSR with different IP SANs
+        mock_csr = MagicMock()
+        mock_csr.common_name = "test-service"
+        mock_csr.sans_dns = {"api.example.com"}
+        mock_csr.sans_ip = {"10.0.0.1"}
+
+        mock_requirer_cert = MagicMock()
+        mock_requirer_cert.certificate_signing_request = mock_csr
+
+        self.handler.interface.get_csrs_from_requirer_relation_data.return_value = [
+            mock_requirer_cert
+        ]
+
+        # Call the validation function
+        self.handler.validate_and_regenerate_certificates_if_needed(
+            [mock_expected_request]
+        )
+
+        # Verify certificates were regenerated
+        self.assertEqual(
+            self.handler.interface.certificate_requests,
+            [mock_expected_request],
+        )
+        self.handler.interface.sync.assert_called_once()
+
+    def test_validate_and_regenerate_missing_common_name(self) -> None:
+        """Test validation when expected common name not in relation CSRs."""
+        # Mock expected certificate request
+        mock_expected_request = MagicMock()
+        mock_expected_request.common_name = "new-service"
+        mock_expected_request.sans_dns = ["api.example.com"]
+        mock_expected_request.sans_ip = ["10.0.0.1"]
+
+        # Mock CSR with different common name
+        mock_csr = MagicMock()
+        mock_csr.common_name = "old-service"
+        mock_csr.sans_dns = {"api.example.com"}
+        mock_csr.sans_ip = {"10.0.0.1"}
+
+        mock_requirer_cert = MagicMock()
+        mock_requirer_cert.certificate_signing_request = mock_csr
+
+        self.handler.interface.get_csrs_from_requirer_relation_data.return_value = [
+            mock_requirer_cert
+        ]
+
+        # Call the validation function
+        self.handler.validate_and_regenerate_certificates_if_needed(
+            [mock_expected_request]
+        )
+
+        # Verify certificates were regenerated
+        self.assertEqual(
+            self.handler.interface.certificate_requests,
+            [mock_expected_request],
+        )
+        self.handler.interface.sync.assert_called_once()
+
+    def test_validate_and_regenerate_empty_sans(self) -> None:
+        """Test validation with empty SANs on both sides."""
+        # Mock expected certificate request with empty SANs
+        mock_expected_request = MagicMock()
+        mock_expected_request.common_name = "test-service"
+        mock_expected_request.sans_dns = []
+        mock_expected_request.sans_ip = []
+
+        # Mock CSR with empty SANs
+        mock_csr = MagicMock()
+        mock_csr.common_name = "test-service"
+        mock_csr.sans_dns = set()
+        mock_csr.sans_ip = set()
+
+        mock_requirer_cert = MagicMock()
+        mock_requirer_cert.certificate_signing_request = mock_csr
+
+        self.handler.interface.get_csrs_from_requirer_relation_data.return_value = [
+            mock_requirer_cert
+        ]
+
+        # Call the validation function
+        self.handler.validate_and_regenerate_certificates_if_needed(
+            [mock_expected_request]
+        )
+
+        # Verify no regeneration occurred (empty SANs match)
+        self.handler.interface.sync.assert_not_called()
+
+    def test_validate_and_regenerate_none_sans(self) -> None:
+        """Test validation with None SANs in expected requests."""
+        # Mock expected certificate request with None SANs
+        mock_expected_request = MagicMock()
+        mock_expected_request.common_name = "test-service"
+        mock_expected_request.sans_dns = None
+        mock_expected_request.sans_ip = None
+
+        # Mock CSR with empty SANs
+        mock_csr = MagicMock()
+        mock_csr.common_name = "test-service"
+        mock_csr.sans_dns = set()
+        mock_csr.sans_ip = set()
+
+        mock_requirer_cert = MagicMock()
+        mock_requirer_cert.certificate_signing_request = mock_csr
+
+        self.handler.interface.get_csrs_from_requirer_relation_data.return_value = [
+            mock_requirer_cert
+        ]
+
+        # Call the validation function
+        self.handler.validate_and_regenerate_certificates_if_needed(
+            [mock_expected_request]
+        )
+
+        # Verify no regeneration occurred (None converts to empty set)
+        self.handler.interface.sync.assert_not_called()
+
+    def test_validate_and_regenerate_multiple_certificates(self) -> None:
+        """Test validation with multiple certificate requests."""
+        # Mock expected certificate requests
+        mock_expected_request1 = MagicMock()
+        mock_expected_request1.common_name = "service1"
+        mock_expected_request1.sans_dns = ["api1.example.com"]
+        mock_expected_request1.sans_ip = ["10.0.0.1"]
+
+        mock_expected_request2 = MagicMock()
+        mock_expected_request2.common_name = "service2"
+        mock_expected_request2.sans_dns = ["api2.example.com"]
+        mock_expected_request2.sans_ip = ["10.0.0.2"]
+
+        # Mock CSRs - first matches, second doesn't
+        mock_csr1 = MagicMock()
+        mock_csr1.common_name = "service1"
+        mock_csr1.sans_dns = {"api1.example.com"}
+        mock_csr1.sans_ip = {"10.0.0.1"}
+
+        mock_csr2 = MagicMock()
+        mock_csr2.common_name = "service2"
+        mock_csr2.sans_dns = {"api2.example.com"}
+        mock_csr2.sans_ip = {"10.0.0.99"}  # Mismatch
+
+        mock_requirer_cert1 = MagicMock()
+        mock_requirer_cert1.certificate_signing_request = mock_csr1
+
+        mock_requirer_cert2 = MagicMock()
+        mock_requirer_cert2.certificate_signing_request = mock_csr2
+
+        self.handler.interface.get_csrs_from_requirer_relation_data.return_value = [
+            mock_requirer_cert1,
+            mock_requirer_cert2,
+        ]
+
+        # Call the validation function
+        self.handler.validate_and_regenerate_certificates_if_needed(
+            [mock_expected_request1, mock_expected_request2]
+        )
+
+        # Verify certificates were regenerated due to mismatch in second cert
+        self.assertEqual(
+            self.handler.interface.certificate_requests,
+            [mock_expected_request1, mock_expected_request2],
+        )
+        self.handler.interface.sync.assert_called_once()
+
+    def test_validate_and_regenerate_uses_default_requests(self) -> None:
+        """Test that default_certificate_requests is used when expected_cert_requests is None."""
+        mock_default_request = MagicMock()
+        mock_default_request.common_name = "default-service"
+        mock_default_request.sans_dns = ["default.example.com"]
+        mock_default_request.sans_ip = ["10.0.0.1"]
+
+        with patch.object(
+            self.handler,
+            "default_certificate_requests",
+            return_value=[mock_default_request],
+        ):
+            # Mock empty CSRs from relation
+            self.handler.interface.get_csrs_from_requirer_relation_data.return_value = (
+                []
+            )
+
+            # Call with None (should use default)
+            self.handler.validate_and_regenerate_certificates_if_needed(None)
+
+            # Verify default_certificate_requests was called
+            self.handler.default_certificate_requests.assert_called_once()
+
+            # Verify certificates were regenerated with default requests
+            self.assertEqual(
+                self.handler.interface.certificate_requests,
+                [mock_default_request],
+            )
+            self.handler.interface.sync.assert_called_once()
+
 
 if __name__ == "__main__":
     import unittest

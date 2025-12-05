@@ -35,6 +35,7 @@ from datetime import (
     timezone,
 )
 from typing import (
+    FrozenSet,
     List,
     Optional,
     Set,
@@ -181,6 +182,8 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
         self._epa_client = epa_client.EPAClient()
 
+        self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
+
     def _on_install(self, _: ops.InstallEvent):
         """Run install on this unit."""
         with sunbeam_guard.guard(
@@ -252,6 +255,13 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             unix_socket_filepath=unix_socket_filepath,
         )
 
+    def _on_upgrade_charm(self, event: ops.framework.EventBase):
+        """Handle the upgrade charm event."""
+        logger.info("Handling upgrade-charm event")
+        self.certs.validate_and_regenerate_certificates_if_needed(
+            self.get_tls_certificate_requests()
+        )
+
     def get_domain_name_sans(self) -> list[str]:
         """Get Domain names for service."""
         sans = super().get_domain_name_sans()
@@ -260,6 +270,16 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         if self.migration_address:
             sans.append(socket.getfqdn(self.migration_address))
         return sans
+
+    def get_sans_ips(self) -> FrozenSet[str]:
+        """Return Subject Alternate Names to use in cert for service."""
+        str_ips_sans = [str(s) for s in self._ip_sans()]
+        if (
+            self.migration_address
+            and self.migration_address not in str_ips_sans
+        ):
+            str_ips_sans.append(self.migration_address)
+        return frozenset(str_ips_sans)
 
     def get_tls_certificate_requests(self) -> list:
         """Get TLS certificate requests for the service."""

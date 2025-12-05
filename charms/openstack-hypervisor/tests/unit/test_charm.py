@@ -156,7 +156,7 @@ class TestCharm(test_utils.CharmTestCase):
         original_method = self.harness.charm.get_mandatory_relations_not_ready
 
         def mock_get_mandatory_relations_not_ready(event):
-            original_method()
+            original_method(event)
             return set()  # Force all to be ready
 
         # Mock configure_unit to debug
