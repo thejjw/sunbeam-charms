@@ -25,6 +25,8 @@ cafile = /usr/local/share/ca-certificates/ca-bundle.pem
 {% if consul_management or consul_tenant or consul_storage -%}
 monitoring_driver = consul
 {% endif -%}
+monitoring_interval = {{ options.monitoring_interval }}
+monitoring_samples = {{ options.monitoring_samples }}
 
 [consul]
 {% if consul_management and consul_management.internal_http_endpoint -%}
