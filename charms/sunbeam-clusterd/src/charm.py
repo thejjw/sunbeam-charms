@@ -83,6 +83,7 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         self.framework.observe(
             self.on.get_credentials_action, self._on_get_credentials_action
         )
+        self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
         self._clusterd = clusterd.ClusterdClient(
             Path("/var/snap/openstack/common/state/control.socket")
         )
@@ -191,6 +192,13 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         except clusterd.ClusterdUnavailableError:
             logger.debug("Clusterd not available, skipping shutdown.")
         snap.SnapCache()["openstack"].stop()
+
+    def _on_upgrade_charm(self, event: ops.framework.EventBase):
+        """Handle the upgrade charm event."""
+        logger.info("Handling upgrade-charm event")
+        self.certs.validate_and_regenerate_certificates_if_needed(
+            self.get_tls_certificate_requests()
+        )
 
     def _on_get_credentials_action(self, event: ops.ActionEvent) -> None:
         """Handle get-credentials action."""

@@ -1202,6 +1202,132 @@ class TlsCertificatesHandler(RelationHandler):
 
         return context
 
+    def validate_and_regenerate_certificates_if_needed(
+        self, expected_cert_requests: list | None = None
+    ) -> None:
+        """Validate certificate SANs and regenerate if they don't match expected values.
+
+        This function compares the certificate SANs currently stored in the relation
+        with the expected SANs based on the current configuration. If there's a mismatch,
+        it triggers certificate regeneration.
+
+        Args:
+            expected_cert_requests: List of certificate request objects with attributes:
+                common_name (str), sans_dns (list/set), sans_ip (list/set).
+        """
+        if expected_cert_requests is None:
+            expected_cert_requests = self.default_certificate_requests()
+
+        # Fetch current CSRs from relation data
+        relation_csrs = self.interface.get_csrs_from_requirer_relation_data()
+
+        # Build a dict of CSRs indexed by common name for easy lookup
+        relation_csrs_by_cn = {
+            csr.certificate_signing_request.common_name: csr.certificate_signing_request
+            for csr in relation_csrs
+        }
+
+        logger.debug(
+            "Validating certificate SANs. Relation CSRs: %s",
+            (
+                list(relation_csrs_by_cn.keys())
+                if relation_csrs_by_cn
+                else "empty"
+            ),
+        )
+
+        # If we have expected requests but no CSRs in relation, regenerate
+        if not relation_csrs_by_cn and expected_cert_requests:
+            logger.info(
+                "No CSRs found in relation data but have %d expected certificate request(s). "
+                "Will regenerate certificates.",
+                len(expected_cert_requests),
+            )
+            self.interface.certificate_requests = expected_cert_requests
+            self.interface.sync()
+            return
+
+        needs_regeneration = False
+        for expected_cert_request in expected_cert_requests:
+            common_name = expected_cert_request.common_name
+
+            # Check if CSR exists in relation
+            if common_name not in relation_csrs_by_cn:
+                logger.info(
+                    "CSR for '%s' not found in relation data. Will regenerate certificates.",
+                    common_name,
+                )
+                needs_regeneration = True
+                break
+
+            # Compare SANs (both are already sets, so convert expected to set for comparison)
+            relation_csr = relation_csrs_by_cn[common_name]
+            relation_sans_dns = relation_csr.sans_dns
+            relation_sans_ip = relation_csr.sans_ip
+
+            # Convert expected SANs to sets if they're lists
+            expected_sans_dns = (
+                set(expected_cert_request.sans_dns)
+                if expected_cert_request.sans_dns
+                else set()
+            )
+            expected_sans_ip = (
+                set(expected_cert_request.sans_ip)
+                if expected_cert_request.sans_ip
+                else set()
+            )
+
+            dns_match = relation_sans_dns == expected_sans_dns
+            ip_match = relation_sans_ip == expected_sans_ip
+
+            if dns_match and ip_match:
+                logger.debug("SANs for '%s' are correct.", common_name)
+                continue
+
+            # Log what changed
+            if not dns_match:
+                expected_dns_list = (
+                    sorted(expected_sans_dns)
+                    if expected_sans_dns
+                    else "(empty)"
+                )
+                relation_dns_list = (
+                    sorted(relation_sans_dns)
+                    if relation_sans_dns
+                    else "(empty)"
+                )
+                logger.info(
+                    "DNS SANs mismatch for '%s'. Expected: %s, Got: %s",
+                    common_name,
+                    expected_dns_list,
+                    relation_dns_list,
+                )
+            if not ip_match:
+                expected_ip_list = (
+                    sorted(expected_sans_ip) if expected_sans_ip else "(empty)"
+                )
+                relation_ip_list = (
+                    sorted(relation_sans_ip) if relation_sans_ip else "(empty)"
+                )
+                logger.info(
+                    "IP SANs mismatch for '%s'. Expected: %s, Got: %s",
+                    common_name,
+                    expected_ip_list,
+                    relation_ip_list,
+                )
+
+            needs_regeneration = True
+            break
+
+        if needs_regeneration:
+            logger.info(
+                "Certificate SANs validation failed. Regenerating certificates."
+            )
+            self.interface.certificate_requests = expected_cert_requests
+            self.interface.sync()
+        else:
+            logger.debug("All certificate SANs are valid.")
+
 
 @sunbeam_tracing.trace_type
 class IdentityCredentialsRequiresHandler(RelationHandler):

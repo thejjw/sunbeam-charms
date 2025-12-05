@@ -179,6 +179,18 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     ]
     db_sync_timeout = 480
 
+    def __init__(self, framework: ops.framework.Framework) -> None:
+        """Run constructor."""
+        super().__init__(framework)
+        self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
+
+    def _on_upgrade_charm(self, event: ops.framework.EventBase):
+        """Handle the upgrade charm event."""
+        logger.info("Handling upgrade-charm event")
+        self.certs.validate_and_regenerate_certificates_if_needed(
+            self.get_tls_certificate_requests()
+        )
+
     def check_configuration(self, event: ops.EventBase):
         """Check a configuration key is correct."""
         try:

@@ -107,6 +107,14 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
             self.on.get_southbound_db_url_action,
             self._get_southbound_db_url_action,
         )
+        self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
+
+    def _on_upgrade_charm(self, event: ops.framework.EventBase):
+        """Handle the upgrade charm event."""
+        logger.info("Handling upgrade-charm event")
+        self.certs.validate_and_regenerate_certificates_if_needed(
+            self.get_tls_certificate_requests()
+        )
 
     def get_relation_handlers(
         self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
