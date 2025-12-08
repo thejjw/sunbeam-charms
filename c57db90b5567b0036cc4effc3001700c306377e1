@@ -33,6 +33,24 @@
       "message": "This is true in upstream. So it is better to resolve the issue rather than going backwards to older defaults.",
       "revId": "c57db90b5567b0036cc4effc3001700c306377e1",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed52d0db_031fb400",
+        "filename": "charms/ironic-k8s/src/templates/ironic.conf.j2",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8213
+      },
+      "writtenOn": "2025-12-08T13:33:10Z",
+      "side": 1,
+      "message": "Indeed, forgot to remove these lines.",
+      "parentUuid": "9e2e3d67_a8589fe8",
+      "revId": "c57db90b5567b0036cc4effc3001700c306377e1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
