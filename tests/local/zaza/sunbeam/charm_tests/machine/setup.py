@@ -73,7 +73,7 @@ def deploy_machine_applications():
             "epa-orchestrator",
             "manila-data",
         ),
-        timeout=1200,
+        timeout=1800,
     )
 
     # cinder-volume is in blocked as it needs to integrate with cinder-k8s
