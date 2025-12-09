@@ -413,13 +413,17 @@ def add_identity_service_relation_response(
             "internal-protocol": "http",
             "service-domain": "servicedom",
             "service-domain_id": "svcdomid1",
+            "service-domain-name": "svc-domain",
             "service-host": "keystone.service",
             "service-port": "5000",
             "service-protocol": "http",
             "service-project": "svcproj1",
+            "service-project-name": "svc-project",
             "service-project-id": "svcprojid1",
             "service-credentials": credentials_id,
             "region": "region12",
+            "project-domain-name": "svc-domain",
+            "user-domain-name": "svc-domain",
         },
     )
 

@@ -64,6 +64,7 @@ from ops.model import (
 logger = logging.getLogger(__name__)
 IMAGES_DIR = "/var/lib/glance/images"
 STORAGE_NAME = "local-repository"
+CEPH_RGW_RELATION = "ceph-rgw-ready"
 
 # Use Apache to translate /<model-name> to /.  This should be possible
 # adding rules to the api-paste.ini but this does not seem to work
@@ -227,7 +228,14 @@ class GlanceConfigContext(sunbeam_ctxts.ConfigContext):
             else:
                 image_size_cap = "1G"
 
+        enabled_backends = ["filestore:file"]
+        if self.charm.ceph.context().get("auth"):
+            enabled_backends.append("ceph:rbd")
+        if self.charm.ceph_rgw.ready:
+            enabled_backends.append("swift:swift")
+
         return {
+            "enabled_backends": ",".join(enabled_backends),
             "image_size_cap": bytes_from_string(image_size_cap),
             "image_import_plugins": json.dumps(
                 ["image_conversion"]
@@ -340,6 +348,12 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
+                "/etc/glance/glance-api.d/01-swift.conf",
+                self.service_user,
+                self.service_group,
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
                 "/etc/apache2/sites-enabled/glance-forwarding.conf",
                 self.service_user,
                 self.service_group,
@@ -395,6 +409,15 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             juju_storage_name="local-repository",
         )
         handlers.append(self.ceph)
+
+        self.ceph_rgw = sunbeam_rhandlers.ServiceReadinessRequiresHandler(
+            self,
+            CEPH_RGW_RELATION,
+            self.configure_charm,
+            CEPH_RGW_RELATION in self.mandatory_relations,
+        )
+        handlers.append(self.ceph_rgw)
+
         return handlers
 
     @property
