@@ -254,6 +254,18 @@ applications:
     trust: true
     resources:
       ironic-api-image: ghcr.io/canonical/ironic-consolidated:2024.1
+  nova-ironic:
+    {% if nova_ironic_k8s is defined and nova_ironic_k8s is sameas true -%}
+    charm: ../../../nova-ironic-k8s.charm
+    {% else -%}
+    charm: ch:nova-ironic-k8s
+    channel: 2024.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      nova-ironic-image: ghcr.io/canonical/nova-ironic:2024.1
   # Load Balancer feature
   octavia:
     {% if octavia_k8s is defined and octavia_k8s is sameas true -%}
@@ -542,6 +554,17 @@ relations:
   - ironic:receive-ca-cert
 - - neutron:ironic-api
   - ironic:ironic-api
+
+- - mysql:database
+  - nova-ironic:database
+- - keystone:identity-credentials
+  - nova-ironic:identity-credentials
+- - rabbitmq:amqp
+  - nova-ironic:amqp
+- - traefik:traefik-route
+  - nova-ironic:traefik-route-internal
+- - ironic:ironic-api
+  - nova-ironic:ironic-api
 
 - - mysql:database
   - octavia:database

@@ -80,6 +80,8 @@
             nodeset: ubuntu-noble
         - charm-build-ironic-k8s:
             nodeset: ubuntu-noble
+        - charm-build-nova-ironic-k8s:
+            nodeset: ubuntu-noble
         - charm-build-octavia-k8s:
             nodeset: ubuntu-noble
         - charm-build-aodh-k8s:
@@ -158,6 +160,8 @@
         - charm-build-heat-k8s:
             nodeset: ubuntu-noble
         - charm-build-ironic-k8s:
+            nodeset: ubuntu-noble
+        - charm-build-nova-ironic-k8s:
             nodeset: ubuntu-noble
         - charm-build-octavia-k8s:
             nodeset: ubuntu-noble
@@ -241,6 +245,8 @@
             - publish-charm-heat-k8s:
                 nodeset: ubuntu-noble
             - publish-charm-ironic-k8s:
+                nodeset: ubuntu-noble
+            - publish-charm-nova-ironic-k8s:
                 nodeset: ubuntu-noble
             - publish-charm-octavia-k8s:
                 nodeset: ubuntu-noble
