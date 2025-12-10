@@ -301,9 +301,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def _on_upgrade_charm(self, event: ops.framework.EventBase):
         """Handle the upgrade charm event."""
         logger.info("Handling upgrade-charm event")
-        self.certs.validate_and_regenerate_certificates_if_needed(
-            self.get_tls_certificate_requests()
-        )
+        self.certs.validate_and_regenerate_certificates_if_needed()
 
 
 @sunbeam_tracing.trace_sunbeam_charm
