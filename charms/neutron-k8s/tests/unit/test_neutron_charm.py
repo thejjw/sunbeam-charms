@@ -17,7 +17,22 @@
 """Tests for neutron charm."""
 
 import charm
+import charms.neutron_k8s.v0.switch_config as switch_config
 import ops_sunbeam.test_utils as test_utils
+
+_BAREMETAL_SAMPLE_CONFIG = """["%(name)s.example.net"]
+driver = "netconf-openconfig"
+device_params = "name:%(name)s"
+switch_info = "%(name)s"
+switch_id = "00:53:00:0a:0a:0a"
+host = "%(name)s.example.net"
+username = "user"
+key_filename = "/etc/neutron/ssh_keys/%(name)s_sshkey"
+"""
+
+
+def _get_baremetal_sample_config(name: str) -> str:
+    return _BAREMETAL_SAMPLE_CONFIG % {"name": name}
 
 
 class _NeutronOVNOperatorCharm(charm.NeutronOVNOperatorCharm):
@@ -83,6 +98,42 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
             app_data={"ready": "true"},
         )
 
+    def add_baremetal_config_relation(self) -> None:
+        """Adds baremetal-switch-config relation."""
+        secrets = []
+        for name in ["nexus", "suxen"]:
+            secret_data = {
+                "conf": _get_baremetal_sample_config(name),
+                f"{name}-sshkey": "foo",
+            }
+            # neutron-baremetal-switch-config-k8s is meant to grant these secrets to the
+            # neutron-k8s charm. We'll closely emulate this here.
+            secret_id = self.harness.add_model_secret(
+                "neutron-baremetal-config",
+                secret_data,
+            )
+            secrets.append(secret_id)
+
+        app_data = {
+            switch_config.SWITCH_CONFIG: ",".join(secrets),
+        }
+        rel_id = self.harness.add_relation(
+            "baremetal-switch-config",
+            "neutron-baremetal-config",
+        )
+
+        # grant secrets to neutron-k8s charm.
+        for secret_id in secrets:
+            self.harness.grant_secret(secret_id, self.harness.charm.app.name)
+
+        self.harness.update_relation_data(
+            rel_id,
+            "neutron-baremetal-config",
+            app_data,
+        )
+
+        return rel_id
+
     def _check_file_contents(self, container, path, strings):
         client = self.harness.charm.unit.get_container(container)._pebble  # type: ignore
 
@@ -104,6 +155,7 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         test_utils.set_all_pebbles_ready(self.harness)
         test_utils.add_all_relations(self.harness)
         test_utils.add_complete_ingress_relation(self.harness)
+        self.add_baremetal_config_relation()
 
         setup_cmds = [
             [
@@ -140,6 +192,19 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         )
 
         container = self.harness.charm.unit.get_container("neutron-server")
+
+        plan = container.get_plan()
+        svc = plan.services["neutron-server"]
+        expected_cmd = [
+            "neutron-server",
+            "--config-dir",
+            "/etc/neutron",
+            "--config-file",
+            "/etc/neutron/plugins/ml2/ml2_conf.ini",
+            "--config-file",
+            charm.ML2_BAREMETAL_CONF,
+        ]
+        self.assertEqual(svc.command, " ".join(expected_cmd))
 
         # ironic-api relation is not added yet, the ironic-neutron-agent should
         # not be running.
@@ -182,3 +247,69 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
             "/etc/neutron/plugins/ml2/ml2_conf.ini",
             ["mechanism_drivers = sriovnicswitch,ovn"],
         )
+
+    def test_baremetal_switch_config_relation(self):
+        """Test the baremetal_switch_config relation."""
+        self.harness.set_leader()
+        test_utils.set_all_pebbles_ready(self.harness)
+        test_utils.add_all_relations(self.harness)
+        test_utils.add_complete_ingress_relation(self.harness)
+        rel_id = self.add_baremetal_config_relation()
+
+        container = self.harness.charm.unit.get_container("neutron-server")
+        plan = container.get_plan()
+        svc = plan.services["neutron-server"]
+        expected_cmd = [
+            "neutron-server",
+            "--config-dir",
+            "/etc/neutron",
+            "--config-file",
+            "/etc/neutron/plugins/ml2/ml2_conf.ini",
+            "--config-file",
+            charm.ML2_BAREMETAL_CONF,
+        ]
+        self.assertEqual(svc.command, " ".join(expected_cmd))
+
+        config_files = [
+            "/etc/neutron/ssh_keys/nexus_sshkey",
+            "/etc/neutron/ssh_keys/suxen_sshkey",
+        ]
+
+        for f in config_files:
+            self._check_file_contents("neutron-server", f, ["foo"])
+
+        contents = [
+            "[networking_baremetal]",
+            "enabled_devices = nexus.example.net,suxen.example.net",
+        ]
+
+        self._check_file_contents(
+            "neutron-server",
+            "/etc/neutron/plugins/ml2/ml2_conf.ini",
+            contents,
+        )
+
+        contents = [
+            _get_baremetal_sample_config("nexus"),
+            _get_baremetal_sample_config("suxen"),
+        ]
+
+        self._check_file_contents(
+            "neutron-server",
+            charm.ML2_BAREMETAL_CONF,
+            contents,
+        )
+
+        # Remove the relation.
+        self.harness.remove_relation(rel_id)
+
+        plan = container.get_plan()
+        svc = plan.services["neutron-server"]
+        expected_cmd = [
+            "neutron-server",
+            "--config-dir",
+            "/etc/neutron",
+            "--config-file",
+            "/etc/neutron/plugins/ml2/ml2_conf.ini",
+        ]
+        self.assertEqual(svc.command, " ".join(expected_cmd))

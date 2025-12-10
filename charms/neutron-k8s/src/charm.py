@@ -21,11 +21,13 @@ This charm provide Neutron services as part of an OpenStack deployment
 
 import logging
 import re
+import tomllib
 from typing import (
     List,
 )
 
 import charms.designate_k8s.v0.designate_service as designate_svc
+import charms.neutron_k8s.v0.switch_config as switch_config
 import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
@@ -35,6 +37,7 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
+import ops_sunbeam.templating as sunbeam_templating
 import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
@@ -44,6 +47,11 @@ from ops.model import (
 )
 
 logger = logging.getLogger(__name__)
+
+BAREMETAL_SWITCH_CONFIG_RELATION = "baremetal-switch-config"
+ML2_BAREMETAL_CONF = (
+    "/etc/neutron/plugins/ml2/ml2_conf_networking_baremetal.ini"
+)
 
 IRONIC_API_RELATION = "ironic-api"
 IRONIC_AGENT_CONF = "/etc/neutron/plugins/ml2/ironic_neutron_agent.ini"
@@ -59,6 +67,51 @@ class ML2Context(sunbeam_ctxts.ConfigContext):
         return {
             "mechanism_drivers": ",".join(self.charm.mechanism_drivers),
         }
+
+
+@sunbeam_tracing.trace_type
+class BaremetalConfigContext(sunbeam_ctxts.ConfigContext):
+    """Configuration context to set baremetal parameters."""
+
+    def context(self) -> dict:
+        """Generate configuration information for baremetal config."""
+        configs = []
+        enabled_devices = []
+        additional_files = {}
+        for config in self.charm.baremetal_config.interface.switch_configs:
+            conf = config.get("conf", "")
+            configs.append(conf)
+
+            try:
+                config_toml = tomllib.loads(conf)
+                enabled_devices.extend(config_toml.keys())
+            except tomllib.TOMLDecodeError as ex:
+                logger.error("Could not decode TOML. Error: %s", ex)
+                raise sunbeam_guard.BlockedExceptionError(
+                    "Invalid content in secret baremetal-switch-config secret. Check logs."
+                )
+
+            for name in config_toml.keys():
+                section = config_toml[name]
+                key_filename = section.get("key_filename")
+                if not key_filename:
+                    continue
+
+                dict_key = key_filename.split("/")[-1].replace("_", "-")
+                if dict_key not in config:
+                    raise sunbeam_guard.BlockedExceptionError(
+                        f"Missing '{dict_key}' additional file from baremetal-switch-config secret."
+                    )
+
+                additional_files[key_filename] = config[dict_key]
+
+        ctxt = {
+            "enabled_devices": ",".join(enabled_devices),
+            "configs": configs,
+            "additional_files": additional_files,
+        }
+
+        return ctxt
 
 
 @sunbeam_tracing.trace_type
@@ -108,6 +161,53 @@ class DesignateServiceRequiresHandler(sunbeam_rhandlers.RelationHandler):
 
 
 @sunbeam_tracing.trace_type
+class SwitchConfigRequiresHandler(sunbeam_rhandlers.RelationHandler):
+    """Handles the switch-config relation on the requires side."""
+
+    interface = "switch_config.SwitchConfigRequires"
+
+    def setup_event_handler(self):
+        """Configure event handlers for the switch-config relation."""
+        logger.debug(f"Setting up {self.relation_name} event handler")
+        handler = sunbeam_tracing.trace_type(
+            switch_config.SwitchConfigRequires
+        )(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            handler.on.switch_config_connected,
+            self._switch_config_connected,
+        )
+        self.framework.observe(
+            handler.on.switch_config_goneaway,
+            self._switch_config_goneaway,
+        )
+        return handler
+
+    def _switch_config_connected(self, event) -> None:
+        """Handles switch-config connected events."""
+        self.callback_f(event)
+
+    def _switch_config_goneaway(self, event) -> None:
+        """Handles switch-config goneaway events."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Interface ready for use."""
+        relations = self.model.relations[self.relation_name]
+        if not relations:
+            return False
+
+        relation = relations[0]
+        if not relation.data[relation.app].get(switch_config.SWITCH_CONFIG):
+            return False
+
+        return True
+
+
+@sunbeam_tracing.trace_type
 class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Handler for interacting with pebble data."""
 
@@ -117,6 +217,16 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         :returns: pebble service layer configuration for neutron server service
         :rtype: dict
         """
+        neutron_command = [
+            "neutron-server",
+            "--config-dir",
+            "/etc/neutron",
+            "--config-file",
+            "/etc/neutron/plugins/ml2/ml2_conf.ini",
+        ]
+        if self.charm.baremetal_config.ready:
+            neutron_command.extend(["--config-file", ML2_BAREMETAL_CONF])
+
         return {
             "summary": "neutron server layer",
             "description": "pebble configuration for neutron server",
@@ -124,7 +234,7 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "neutron-server": {
                     "override": "replace",
                     "summary": "Neutron Server",
-                    "command": "neutron-server",
+                    "command": " ".join(neutron_command),
                     "user": "neutron",
                     "group": "neutron",
                 },
@@ -174,11 +284,59 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
+                ML2_BAREMETAL_CONF,
+                "root",
+                "neutron",
+            ),
+            sunbeam_core.ContainerConfigFile(
                 IRONIC_AGENT_CONF,
                 "root",
                 "neutron",
             ),
         ]
+
+    def write_config(
+        self, context: sunbeam_core.OPSCharmContexts
+    ) -> list[str]:
+        """Write configuration files into the container.
+
+        Write self.container_configs into container if there contents
+        have changed.
+
+        Additionally, write the additional files from the baremetal-switch-config
+        relation, if any.
+
+        :return: List of files that were updated
+        :rtype: List
+        """
+        container = self.charm.unit.get_container(self.container_name)
+        if not container:
+            logger.debug("Container not ready")
+            return []
+
+        baremetal_context = context.baremetal.context()
+        additional_files = baremetal_context.get("additional_files", {})
+        updated_files = []
+        for filepath, contents in additional_files.items():
+            config_file = sunbeam_core.ContainerConfigFile(
+                filepath,
+                "root",
+                "neutron",
+                0o640,
+            )
+
+            updated = sunbeam_templating.sidecar_config_write(
+                container,
+                config_file,
+                contents,
+            )
+            if updated:
+                updated_files.append(filepath)
+
+        files = super().write_config(context)
+        updated_files.extend(files)
+
+        return updated_files
 
     def start_service(self, restart: bool = True) -> None:
         """Check and start services in container.
@@ -392,6 +550,15 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             )
             handlers.append(self.external_dns)
 
+        if self.can_add_handler(BAREMETAL_SWITCH_CONFIG_RELATION, handlers):
+            self.baremetal_config = SwitchConfigRequiresHandler(
+                self,
+                BAREMETAL_SWITCH_CONFIG_RELATION,
+                self.configure_charm,
+                BAREMETAL_SWITCH_CONFIG_RELATION in self.mandatory_relations,
+            )
+            handlers.append(self.baremetal_config)
+
         if self.can_add_handler(IRONIC_API_RELATION, handlers):
             self.ironic_svc = (
                 sunbeam_rhandlers.ServiceReadinessRequiresHandler(
@@ -467,6 +634,7 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Configuration contexts for the operator."""
         contexts = super().config_contexts
         contexts.append(ML2Context(self, "ml2"))
+        contexts.append(BaremetalConfigContext(self, "baremetal"))
         return contexts
 
     @property
@@ -555,6 +723,11 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
                 "root",
                 "neutron",
                 0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
+                ML2_BAREMETAL_CONF,
+                "root",
+                "neutron",
             ),
             sunbeam_core.ContainerConfigFile(
                 IRONIC_AGENT_CONF,
