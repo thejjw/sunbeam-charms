@@ -622,9 +622,14 @@ def mock_get_assigned_certificate(harness: Harness) -> None:
         harness.charm.certs.interface.get_assigned_certificate = (
             fake_get_assigned_certificate
         )
+        from charms.tls_certificates_interface.v4.tls_certificates import (
+            PrivateKey,
+        )
+
+        mocked_private_key_obj = PrivateKey.from_string(mock_private_key)
         # Mock the private_key property using PropertyMock
         type(harness.charm.certs.interface).private_key = PropertyMock(
-            return_value=mock_private_key
+            return_value=mocked_private_key_obj
         )
 
 

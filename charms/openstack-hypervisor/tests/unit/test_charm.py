@@ -24,7 +24,6 @@ from unittest import (
 )
 from unittest.mock import (
     MagicMock,
-    patch,
 )
 
 import charm
@@ -150,35 +149,7 @@ class TestCharm(test_utils.CharmTestCase):
             },
         )
 
-        # Mock mandatory relations to appear ready
-        original_method = self.harness.charm.get_mandatory_relations_not_ready
-
-        def mock_get_mandatory_relations_not_ready(event):
-            original_method(event)
-            return set()  # Force all to be ready
-
-        # Mock configure_unit to debug
-        original_configure_unit = self.harness.charm.configure_unit
-
-        def mock_configure_unit(event):
-            try:
-                result = original_configure_unit(event)
-                return result
-            except Exception:
-                raise
-
-        with patch.object(
-            self.harness.charm,
-            "get_mandatory_relations_not_ready",
-            side_effect=mock_get_mandatory_relations_not_ready,
-        ):
-            with patch.object(
-                self.harness.charm,
-                "configure_unit",
-                side_effect=mock_configure_unit,
-            ):
-                # Trigger a config changed event to run configure_charm
-                self.harness.update_config({"debug": False})
+        self.harness.update_config({"debug": False})
 
         hypervisor_snap_mock.ensure.assert_any_call(
             "latest", channel="essex/stable", devmode=False
