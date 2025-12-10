@@ -152,6 +152,9 @@ requires:
   external-dns:
     interface: designate
     optional: true
+  ironic-api:
+    interface: baremetal
+    optional: true
   logging:
     interface: loki_push_api
     optional: true
