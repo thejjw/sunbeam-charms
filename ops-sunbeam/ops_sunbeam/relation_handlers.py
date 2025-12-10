@@ -1072,6 +1072,10 @@ class TlsCertificatesHandler(RelationHandler):
 
         return self.certificates
 
+    def update_relation_data(self):
+        """Update relation outside of relation context."""
+        self.certificates.sync()
+
     def _on_certificate_available(self, event: ops.EventBase) -> None:
         self.callback_f(event)
 
