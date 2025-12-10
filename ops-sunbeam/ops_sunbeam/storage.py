@@ -22,11 +22,13 @@ storage backend certificates and other security-related configurations.
 
 import datetime
 import logging
+import typing
 from typing import (
     TYPE_CHECKING,
     Annotated,
 )
 
+import ops
 import ops_sunbeam.config_contexts as config_contexts
 import ops_sunbeam.tracing as sunbeam_tracing
 import pydantic
@@ -36,13 +38,15 @@ from cryptography import (
 )
 from pydantic import (
     BaseModel,
-    Field,
 )
 
 if TYPE_CHECKING:
     import ops_sunbeam.charm
 
 logger = logging.getLogger(__name__)
+
+
+Required = pydantic.Field(...)
 
 
 def to_kebab(value: str) -> str:
@@ -72,39 +76,78 @@ def certificate_validator(value: str | None) -> str | None:
     return certificate
 
 
-class CinderVolumeConfig(BaseModel):
-    """Pydantic model for generic Cinder volume configuration options."""
+def _to_pydantic_field(
+    name: str,
+    meta: ops.ConfigMeta,
+    override: dict[str, typing.Any],
+) -> tuple[typing.Any, pydantic.fields.FieldInfo]:
+    """Generate a Pydantic field type and FieldInfo from config metadata.
 
-    model_config = pydantic.ConfigDict(
-        alias_generator=pydantic.AliasGenerator(
-            serialization_alias=to_kebab,
+    This is a helper function for `to_pydantic_class`.
+    """
+    if name in override:
+        field_type = override[name]
+    else:
+        if meta.type == "boolean":
+            field_type = bool
+        elif meta.type == "int":
+            field_type = int
+        elif meta.type == "float":
+            field_type = float
+        else:
+            field_type = str
+
+        if meta.default is None:
+            field_type = field_type | None
+
+    default_value = meta.default
+    description = meta.description
+
+    if typing.get_origin(field_type) is Annotated:
+        for arg in typing.get_args(field_type):
+            if isinstance(arg, pydantic.fields.FieldInfo):
+                default_value = arg.default
+                if arg.description is not None:
+                    description = arg.description
+
+    return (
+        field_type,
+        pydantic.Field(default=default_value, description=description),  # type: ignore
+    )
+
+
+def to_pydantic_class(
+    config_definition: dict[str, ops.ConfigMeta],
+    override: dict[str, typing.Any],
+) -> type[pydantic.BaseModel]:
+    """Generate a Pydantic model class from config metadata.
+
+    Given a dictionary of config metadata, generate a Pydantic model class
+    with fields corresponding to the config options. The `override` parameter
+    allows specifying custom types or validators for specific fields.
+    """
+    unknown_overrides = set(override.keys()) - set(config_definition.keys())
+    if unknown_overrides:
+        raise ValueError(
+            f"Overrides defined for unknown config options: {unknown_overrides}"
+        )
+
+    fields = {
+        pydantic.alias_generators.to_snake(name): _to_pydantic_field(
+            name, meta, override
+        )
+        for name, meta in config_definition.items()
+    }
+
+    return pydantic.create_model(  # type: ignore
+        "ConfigModel",
+        __config__=pydantic.ConfigDict(
+            alias_generator=pydantic.AliasGenerator(
+                serialization_alias=to_kebab,
+            ),
+            arbitrary_types_allowed=True,
         ),
-        arbitrary_types_allowed=True,
-    )
-
-    volume_backend_name: str = Field(
-        description="Name that Cinder will report for this backend. If unset the Juju application name is used.",
-    )
-    backend_availability_zone: str | None = Field(
-        default=None,
-        description="Availability zone to associate with this backend.",
-    )
-    driver_ssl_cert: Annotated[
-        str | None, pydantic.BeforeValidator(certificate_validator)
-    ] = Field(
-        default=None,
-        description="SSL certificate to trust remote storage backend.",
-    )
-    protocol: str = Field(
-        default="iscsi",
-        description="Storage protocol selector, determines driver class to use: iscsi, fc, or nvme",
-    )
-    san_ip: str = Field(
-        description="Storage array management IP address or hostname."
-    )
-    use_multipath_for_image_xfer: bool = Field(
-        default=True,
-        description="Enable multipathing for image transfer operations to improve performance and reliability.",
+        **fields,  # type: ignore
     )
 
 
