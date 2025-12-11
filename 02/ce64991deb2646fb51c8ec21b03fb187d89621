@@ -1,0 +1,9 @@
+Verified+2: Zuul
+Code-Review+2: Hemanth N <hemanth.nakkina@canonical.com>
+Workflow+1: Hemanth N <hemanth.nakkina@canonical.com>
+Submitted-by: Zuul
+Submitted-at: Thu, 11 Dec 2025 09:10:44 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/965230
+Comments-Total: 5
+Project: openstack/sunbeam-charms
+Branch: refs/heads/stable/2024.1
