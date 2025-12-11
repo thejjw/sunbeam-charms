@@ -21,6 +21,7 @@ necessary details for its ml2_conf_genericswitch.ini config file.
 """
 
 import logging
+import os
 import tomllib
 from typing import (
     List,
@@ -48,6 +49,8 @@ _GENERIC_CONFIG_OPTIONS = {
     "ngs_allowed_ports",
     "ngs_port_default_vlan",
 }
+
+_NEUTRON_SSHKEYS_PATH = "/etc/neutron/sshkeys"
 
 
 class NeutronGenericSwitchConfigCharm(ops.CharmBase):
@@ -160,10 +163,16 @@ class NeutronGenericSwitchConfigCharm(ops.CharmBase):
                 if not key_file:
                     continue
 
-                key_file = key_file.split("/")[-1].replace("_", "-")
-                if key_file not in content:
+                path, filename = os.path.split(key_file)
+                if path != _NEUTRON_SSHKEYS_PATH:
                     raise sunbeam_guard.BlockedExceptionError(
-                        f"Missing '{key_file}' additional file from secret '{secret.id}'"
+                        f"Expected key_file config option from secret '{secret.id}' "
+                        f"to have the base path {_NEUTRON_SSHKEYS_PATH}."
+                    )
+
+                if filename not in content:
+                    raise sunbeam_guard.BlockedExceptionError(
+                        f"Missing '{filename}' additional file from secret '{secret.id}'"
                     )
 
             all_configs.update(config)
