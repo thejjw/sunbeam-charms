@@ -53,6 +53,9 @@ ML2_BAREMETAL_CONF = (
     "/etc/neutron/plugins/ml2/ml2_conf_networking_baremetal.ini"
 )
 
+GENERIC_SWITCH_CONFIG_RELATION = "generic-switch-config"
+ML2_GENERIC_CONF = "/etc/neutron/plugins/ml2/ml2_conf_genericswitch.ini"
+
 IRONIC_API_RELATION = "ironic-api"
 IRONIC_AGENT_CONF = "/etc/neutron/plugins/ml2/ironic_neutron_agent.ini"
 IRONIC_AGENT = "ironic-neutron-agent"
@@ -107,6 +110,48 @@ class BaremetalConfigContext(sunbeam_ctxts.ConfigContext):
 
         ctxt = {
             "enabled_devices": ",".join(enabled_devices),
+            "configs": configs,
+            "additional_files": additional_files,
+        }
+
+        return ctxt
+
+
+@sunbeam_tracing.trace_type
+class GenericConfigContext(sunbeam_ctxts.ConfigContext):
+    """Configuration context to set generic parameters."""
+
+    def context(self) -> dict:
+        """Generate configuration information for generic config."""
+        configs = []
+        additional_files = {}
+        for config in self.charm.generic_config.interface.switch_configs:
+            conf = config.get("conf", "")
+            configs.append(conf)
+
+            try:
+                config_toml = tomllib.loads(conf)
+            except tomllib.TOMLDecodeError as ex:
+                logger.error("Could not decode TOML. Error: %s", ex)
+                raise sunbeam_guard.BlockedExceptionError(
+                    "Invalid content in secret generic-switch-config secret. Check logs."
+                )
+
+            for name in config_toml.keys():
+                section = config_toml[name]
+                key_file = section.get("key_file")
+                if not key_file:
+                    continue
+
+                dict_key = key_file.split("/")[-1].replace("_", "-")
+                if dict_key not in config:
+                    raise sunbeam_guard.BlockedExceptionError(
+                        f"Missing '{dict_key}' additional file from generic-switch-config secret."
+                    )
+
+                additional_files[key_file] = config[dict_key]
+
+        ctxt = {
             "configs": configs,
             "additional_files": additional_files,
         }
@@ -226,6 +271,8 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         ]
         if self.charm.baremetal_config.ready:
             neutron_command.extend(["--config-file", ML2_BAREMETAL_CONF])
+        if self.charm.generic_config.ready:
+            neutron_command.extend(["--config-file", ML2_GENERIC_CONF])
 
         return {
             "summary": "neutron server layer",
@@ -289,6 +336,11 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "neutron",
             ),
             sunbeam_core.ContainerConfigFile(
+                ML2_GENERIC_CONF,
+                "root",
+                "neutron",
+            ),
+            sunbeam_core.ContainerConfigFile(
                 IRONIC_AGENT_CONF,
                 "root",
                 "neutron",
@@ -316,6 +368,10 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
         baremetal_context = context.baremetal.context()
         additional_files = baremetal_context.get("additional_files", {})
+
+        generic_context = context.generic.context()
+        additional_files.update(generic_context.get("additional_files", {}))
+
         updated_files = []
         for filepath, contents in additional_files.items():
             config_file = sunbeam_core.ContainerConfigFile(
@@ -557,6 +613,15 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             )
             handlers.append(self.baremetal_config)
 
+        if self.can_add_handler(GENERIC_SWITCH_CONFIG_RELATION, handlers):
+            self.generic_config = SwitchConfigRequiresHandler(
+                self,
+                GENERIC_SWITCH_CONFIG_RELATION,
+                self.configure_charm,
+                GENERIC_SWITCH_CONFIG_RELATION in self.mandatory_relations,
+            )
+            handlers.append(self.generic_config)
+
         if self.can_add_handler(IRONIC_API_RELATION, handlers):
             self.ironic_svc = (
                 sunbeam_rhandlers.ServiceReadinessRequiresHandler(
@@ -633,6 +698,7 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         contexts = super().config_contexts
         contexts.append(ML2Context(self, "ml2"))
         contexts.append(BaremetalConfigContext(self, "baremetal"))
+        contexts.append(GenericConfigContext(self, "generic"))
         return contexts
 
     @property
@@ -724,6 +790,11 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
             ),
             sunbeam_core.ContainerConfigFile(
                 ML2_BAREMETAL_CONF,
+                "root",
+                "neutron",
+            ),
+            sunbeam_core.ContainerConfigFile(
+                ML2_GENERIC_CONF,
                 "root",
                 "neutron",
             ),
