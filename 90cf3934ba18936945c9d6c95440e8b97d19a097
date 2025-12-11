@@ -16,6 +16,23 @@
       "message": "LGTM, Waiting for https://github.com/canonical/ubuntu-openstack-rocks/pull/117 to merge so that the publish job can build with right image.",
       "revId": "90cf3934ba18936945c9d6c95440e8b97d19a097",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "af016b08_d2d0adff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-12-11T11:02:55Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "90cf3934ba18936945c9d6c95440e8b97d19a097",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
