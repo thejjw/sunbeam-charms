@@ -169,6 +169,19 @@
       charm: cinder-volume-purestorage
       storage: true
 - job:
+    name: charm-build-cinder-volume-hitachi
+    description: Build sunbeam cinder-volume-hitachi charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-hitachi/
+      - rebuild
+    vars:
+      charm: cinder-volume-hitachi
+      storage: true
+- job:
     name: charm-build-epa-orchestrator
     description: Build sunbeam epa-orchestrator charm
     run: playbooks/charm/build.yaml
@@ -734,6 +747,19 @@
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-purestorage/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-cinder-volume-hitachi
+    description: |
+      Publish cinder-volume-hitachi built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-hitachi/
       - rebuild
     secrets:
       - charmhub_token

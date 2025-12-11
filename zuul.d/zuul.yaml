@@ -36,6 +36,7 @@
         cinder-volume: 2024.1/edge
         cinder-volume-ceph: 2024.1/edge
         cinder-volume-purestorage: 2024.1/edge
+        cinder-volume-hitachi: 2024.1/edge
         horizon-k8s: 2024.1/edge
         heat-k8s: 2024.1/edge
         ironic-k8s: 2024.1/edge
