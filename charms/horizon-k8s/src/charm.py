@@ -141,6 +141,20 @@ class AdditionalConfigAdapter(sunbeam_contexts.ConfigContext):
         }
 
 
+def update_horizon_assets(container: ops.Container):
+    """Regenerate django templates for horizon."""
+    logger.debug("Re-generating horizon assets")
+    manage = "/usr/share/openstack-dashboard/manage.py"
+    exec(
+        container,
+        manage + " collectstatic --no-input",
+    )
+    exec(
+        container,
+        manage + " compress --force",
+    )
+
+
 @sunbeam_tracing.trace_type
 class WSGIHorizonPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Horizon Pebble Handler."""
@@ -162,17 +176,9 @@ class WSGIHorizonPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             self.charm.service_conf in files
             and self.charm.ingress_internal.ready
         ):
-            logger.debug("local_settings.py changed, running django utilities")
+            logger.debug("Regenerating horizon assets due to config change")
             container = self.charm.unit.get_container(self.container_name)
-            manage = "/usr/share/openstack-dashboard/manage.py"
-            exec(
-                container,
-                manage + " collectstatic --no-input",
-            )
-            exec(
-                container,
-                manage + " compress --force",
-            )
+            update_horizon_assets(container)
 
 
 @sunbeam_tracing.trace_sunbeam_charm
@@ -347,6 +353,8 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             any_changes |= manage_plugins(container, plugins, True)
         self._state.plugins = plugins
         if any_changes:
+            logger.debug("Regenerating horizon assets due to plugin changes")
+            update_horizon_assets(container)
             container.restart("wsgi-" + self.service_name)
 
     def _on_trusted_dashboard(self, event):
