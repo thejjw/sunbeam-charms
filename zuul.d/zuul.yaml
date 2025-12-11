@@ -38,6 +38,7 @@
         horizon-k8s: 2024.1/edge
         heat-k8s: 2024.1/edge
         ironic-k8s: 2024.1/edge
+        ironic-conductor-k8s: 2024.1/edge
         nova-ironic-k8s: 2024.1/edge
         octavia-k8s: 2024.1/edge
         aodh-k8s: 2024.1/edge
