@@ -32,6 +32,7 @@ containers and managing the service running in the container.
 import functools
 import ipaddress
 import logging
+import typing
 import urllib
 import urllib.parse
 from typing import (
@@ -1350,10 +1351,37 @@ class OSCinderVolumeDriverOperatorCharm(OSBaseOperatorCharmSnap):
         """Key for backend configuration."""
         raise NotImplementedError
 
-    @property
+    @functools.cached_property
     def configuration_class(self) -> type[pydantic.BaseModel]:
         """Configuration class for the backend."""
-        raise NotImplementedError
+        return sunbeam_storage.to_pydantic_class(
+            self.meta.config,
+            override=self._configuration_type_overrides(),
+        )
+
+    def _configuration_type_overrides(self) -> dict[str, typing.Any]:
+        """Configuration type overrides for pydantic model generation.
+
+        This method should be overridden by subclasses to provide
+        specific type annotations for configuration options.
+
+        This contains the based attributes that are expected to be
+        present in any driver configuration.
+        """
+        return {
+            "driver-ssl-cert": typing.Annotated[
+                str | None,
+                pydantic.BeforeValidator(
+                    sunbeam_storage.certificate_validator
+                ),
+            ],
+            "san-ip": typing.Annotated[
+                pydantic.IPvAnyAddress | str, sunbeam_storage.Required
+            ],
+            "volume-backend-name": str,
+            "backend-availability-zone": str,
+            "protocol": str,
+        }
 
     def ensure_snap_present(self):
         """No-op."""
