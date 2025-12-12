@@ -16,6 +16,23 @@
       "message": "recheck NEUTRON_ROCK_REBUILT\n\nFailed due to newer version of neutron rock. The corresponding PR is reverted back and the new rock is built.",
       "revId": "cd23a734e95540237ba89b62d2ad245da3b2d46d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5349cca_b7e42144",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-12-12T02:56:23Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "cd23a734e95540237ba89b62d2ad245da3b2d46d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
