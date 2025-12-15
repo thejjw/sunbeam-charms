@@ -32,11 +32,13 @@ containers and managing the service running in the container.
 import functools
 import ipaddress
 import logging
+import re
 import typing
 import urllib
 import urllib.parse
 from typing import (
     TYPE_CHECKING,
+    Any,
     FrozenSet,
     List,
     Mapping,
@@ -75,10 +77,10 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+SNAP_INSTANCE_KEY_REGEX_PATTERN = r"^[a-z0-9]{1,10}$"
 
-class OSBaseOperatorCharm(
-    ops.charm.CharmBase, metaclass=sunbeam_core.PostInitMeta
-):
+
+class OSBaseOperatorCharm(ops.charm.CharmBase, metaclass=sunbeam_core.PostInitMeta):
     """Base charms for OpenStack operators."""
 
     _state = ops.framework.StoredState()
@@ -105,9 +107,7 @@ class OSBaseOperatorCharm(
             for name, metadata in self.meta.requires.items()
             if metadata.optional is False
         }
-        self.mandatory_relations = requires_relations.union(
-            self.mandatory_relations
-        )
+        self.mandatory_relations = requires_relations.union(self.mandatory_relations)
 
         # unit_bootstrapped is stored in the local unit storage which is lost
         # when the pod is replaced, so this will revert to False on charm
@@ -116,9 +116,7 @@ class OSBaseOperatorCharm(
         self.status = compound_status.Status("workload", priority=100)
         self.status_pool = compound_status.StatusPool(self)
         self.status_pool.add(self.status)
-        self.bootstrap_status = compound_status.Status(
-            "bootstrap", priority=90
-        )
+        self.bootstrap_status = compound_status.Status("bootstrap", priority=90)
         self.status_pool.add(self.bootstrap_status)
         self.framework.observe(self.on.config_changed, self._on_config_changed)
         self.framework.observe(self.on.secret_changed, self._on_secret_changed)
@@ -132,9 +130,7 @@ class OSBaseOperatorCharm(
         """Post init hook."""
         self.relation_handlers = self.get_relation_handlers()
         if not self.bootstrapped():
-            self.bootstrap_status.set(
-                MaintenanceStatus("Service not bootstrapped")
-            )
+            self.bootstrap_status.set(MaintenanceStatus("Service not bootstrapped"))
 
     def can_add_handler(
         self,
@@ -221,10 +217,8 @@ class OSBaseOperatorCharm(
             )
             handlers.append(self.ceph_access)
         if self.can_add_handler("receive-ca-cert", handlers):
-            self.receive_ca_cert = (
-                sunbeam_rhandlers.CertificateTransferRequiresHandler(
-                    self, "receive-ca-cert", self.configure_charm
-                )
+            self.receive_ca_cert = sunbeam_rhandlers.CertificateTransferRequiresHandler(
+                self, "receive-ca-cert", self.configure_charm
             )
             handlers.append(self.receive_ca_cert)
 
@@ -263,9 +257,7 @@ class OSBaseOperatorCharm(
             binding = self.model.get_binding(relation_name)
             if binding is None or binding.network is None:
                 continue
-            if isinstance(
-                binding.network.ingress_address, ipaddress.IPv4Address
-            ):
+            if isinstance(binding.network.ingress_address, ipaddress.IPv4Address):
                 addresses.append(binding.network.ingress_address)
             if isinstance(binding.network.bind_address, ipaddress.IPv4Address):
                 addresses.append(binding.network.bind_address)
@@ -280,13 +272,9 @@ class OSBaseOperatorCharm(
                 binding = self.model.get_binding(binding_name)
                 if binding is None or binding.network is None:
                     continue
-                if isinstance(
-                    binding.network.ingress_address, ipaddress.IPv4Address
-                ):
+                if isinstance(binding.network.ingress_address, ipaddress.IPv4Address):
                     ip_sans.append(binding.network.ingress_address)
-                if isinstance(
-                    binding.network.bind_address, ipaddress.IPv4Address
-                ):
+                if isinstance(binding.network.bind_address, ipaddress.IPv4Address):
                     ip_sans.append(binding.network.bind_address)
             except ops.model.ModelError:
                 logging.debug(f"No binding found for {binding_name}")
@@ -309,9 +297,7 @@ class OSBaseOperatorCharm(
         if not_ready_relations:
             logger.warning(f"Relations {not_ready_relations} incomplete")
             self.stop_services(not_ready_relations)
-            raise sunbeam_guard.WaitingExceptionError(
-                "Not all relations are ready"
-            )
+            raise sunbeam_guard.WaitingExceptionError("Not all relations are ready")
 
     def update_relations(self):
         """Update relation data."""
@@ -551,9 +537,7 @@ class OSBaseOperatorCharm(
         broken_relations = self.check_broken_relations(ready_relations, event)
         ready_relations = ready_relations.difference(broken_relations)
 
-        not_ready_relations = self.mandatory_relations.difference(
-            ready_relations
-        )
+        not_ready_relations = self.mandatory_relations.difference(ready_relations)
 
         return not_ready_relations
 
@@ -647,13 +631,11 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
     ) -> sunbeam_chandlers.PebbleHandler | None:
         """Get pebble handler matching container_name."""
         pebble_handlers = [
-            h
-            for h in self.pebble_handlers
-            if h.container_name == container_name
+            h for h in self.pebble_handlers if h.container_name == container_name
         ]
-        assert (
-            len(pebble_handlers) < 2
-        ), "Multiple pebble handlers with the same name found."
+        assert len(pebble_handlers) < 2, (
+            "Multiple pebble handlers with the same name found."
+        )
         if pebble_handlers:
             return pebble_handlers[0]
         else:
@@ -663,11 +645,7 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         self, container_names: Sequence[str]
     ) -> list[sunbeam_chandlers.PebbleHandler]:
         """Get pebble handlers matching container_names."""
-        return [
-            h
-            for h in self.pebble_handlers
-            if h.container_name in container_names
-        ]
+        return [h for h in self.pebble_handlers if h.container_name in container_names]
 
     @property
     def remote_external_access(self) -> bool:
@@ -683,12 +661,8 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
             if ph.pebble_ready:
                 ph.configure_container(self.contexts())
             else:
-                logging.debug(
-                    f"Not configuring {ph.service_name}, container not ready"
-                )
-                raise sunbeam_guard.WaitingExceptionError(
-                    "Payload container not ready"
-                )
+                logging.debug(f"Not configuring {ph.service_name}, container not ready")
+                raise sunbeam_guard.WaitingExceptionError("Payload container not ready")
 
     def init_container_services(self):
         """Run init on pebble handlers that are ready."""
@@ -700,28 +674,20 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
                 logging.debug(
                     f"Not running init for {ph.service_name}, container not ready"
                 )
-                raise sunbeam_guard.WaitingExceptionError(
-                    "Payload container not ready"
-                )
+                raise sunbeam_guard.WaitingExceptionError("Payload container not ready")
 
     def check_pebble_handlers_ready(self):
         """Check pebble handlers are ready."""
         for ph in self.pebble_handlers:
             if not ph.service_ready:
-                logging.debug(
-                    f"Aborting container {ph.service_name} service not ready"
-                )
-                raise sunbeam_guard.WaitingExceptionError(
-                    "Container service not ready"
-                )
+                logging.debug(f"Aborting container {ph.service_name} service not ready")
+                raise sunbeam_guard.WaitingExceptionError("Container service not ready")
 
     def stop_services(self, relation: set[str] | None = None) -> None:
         """Stop all running services."""
         for ph in self.pebble_handlers:
             if ph.pebble_ready:
-                logging.debug(
-                    f"Stopping all services in container {ph.container_name}"
-                )
+                logging.debug(f"Stopping all services in container {ph.container_name}")
                 ph.stop_all()
 
     def configure_unit(self, event: ops.EventBase) -> None:
@@ -833,13 +799,9 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
                     try:
                         self._retry_db_sync(cmd)
                     except tenacity.RetryError:
-                        raise sunbeam_guard.BlockedExceptionError(
-                            "DB sync failed"
-                        )
+                        raise sunbeam_guard.BlockedExceptionError("DB sync failed")
         else:
-            logger.warning(
-                "Not DB sync ran. Charm does not specify self.db_sync_cmds"
-            )
+            logger.warning("Not DB sync ran. Charm does not specify self.db_sync_cmds")
 
     def open_ports(self):
         """Register ports in underlying cloud."""
@@ -945,9 +907,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
         """
         logger.debug("Received an ingress_changed event")
         if hasattr(self, "id_svc"):
-            logger.debug(
-                "Updating service endpoints after ingress relation changed."
-            )
+            logger.debug("Updating service endpoints after ingress relation changed.")
             try:
                 self.id_svc.update_service_endpoints(self.service_endpoints)
             except (AttributeError, KeyError):
@@ -980,18 +940,14 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
             if load_balancer_status:
                 ingress_addresses = load_balancer_status.ingress
                 if ingress_addresses:
-                    logger.debug(
-                        "Found ingress addresses on loadbalancer status"
-                    )
+                    logger.debug("Found ingress addresses on loadbalancer status")
                     ingress_address = ingress_addresses[0]
                     addr = ingress_address.hostname or ingress_address.ip
                     if addr:
                         logger.debug(
                             f"Using ingress address from loadbalancer as {addr}"
                         )
-                        public_address = (
-                            ingress_address.hostname or ingress_address.ip
-                        )
+                        public_address = ingress_address.hostname or ingress_address.ip
 
         if not public_address:
             binding = self.model.get_binding("identity-service")
@@ -1102,11 +1058,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
         """Generate list of configuration adapters for the charm."""
         _cadapters = super().config_contexts
         _cadapters.extend(
-            [
-                sunbeam_config_contexts.WSGIWorkerConfigContext(
-                    self, "wsgi_config"
-                )
-            ]
+            [sunbeam_config_contexts.WSGIWorkerConfigContext(self, "wsgi_config")]
         )
         return _cadapters
 
@@ -1190,10 +1142,46 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         """Run install on this unit."""
         self.ensure_snap_present()
 
+    def _enable_parallel_snaps(self):
+        """Enable parallel snaps support in snapd."""
+        if "_" not in self.snap_name:
+            return
+        try:
+            self.snap_module._system_set("experimental.parallel-instances", "true")
+        except self.snap_module.SnapError as e:
+            raise sunbeam_guard.BlockedExceptionError(
+                "Failed to enable parallel snaps"
+            ) from e
+
     @functools.cache
     def get_snap(self) -> "snap.Snap":
         """Return snap object."""
-        return self.snap_module.SnapCache()[self.snap_name]
+        cache = self.snap_module.SnapCache()
+        if "_" not in self.snap_name:
+            return cache[self.snap_name]
+        name_key = self.snap_name.rsplit("_", 1)
+        if not (
+            len(name_key) == 2
+            and re.match(SNAP_INSTANCE_KEY_REGEX_PATTERN, name_key[1])
+        ):
+            raise sunbeam_guard.BlockedExceptionError(
+                f"Invalid snap name with instance key: {self.snap_name}"
+            )
+        info = cache._snap_client.get_snap_information(name_key[0])
+        cache._snap_map[self.snap_name] = self.snap_module.Snap(
+            name=self.snap_name,
+            state=self.snap_module.SnapState.Available,
+            channel=info["channel"],
+            revision=info["revision"],
+            confinement=info["confinement"],
+            apps=None,
+        )
+        # Setting snapd experimental parallel instances config to true
+        _s = cache._snap_map[self.snap_name]
+        if _s is None:
+            raise snap.SnapError("No snap exists in Snap cache") from None
+
+        return _s
 
     @property
     def snap_name(self) -> str:
@@ -1207,9 +1195,8 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
 
     def ensure_snap_present(self):
         """Install snap if it is not already present."""
-        want_devmode = bool(
-            self.model.config.get("experimental-devmode", False)
-        )
+        self._enable_parallel_snaps()
+        want_devmode = bool(self.model.config.get("experimental-devmode", False))
         snap_client = self.snap_module.SnapClient()
         installed_snaps = snap_client.get_installed_snaps()
         is_devmode = False
@@ -1285,6 +1272,32 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         snap_svc = self.get_snap()
         snap_svc.stop(disable=True)
 
+    def _get_old_snap_value(self, old_settings: dict[str, Any], key: str) -> Any:
+        """Extract old value from snap settings for a given key.
+
+        Handles both simple keys and dotted keys (e.g., 'group.subkey').
+        """
+        key_split = key.split(".")
+        if len(key_split) == 2:
+            group, subkey = key_split
+            group_settings = old_settings.get(group)
+            if isinstance(group_settings, dict):
+                return group_settings.get(subkey)
+            return None
+        return old_settings.get(key)
+
+    def _set_if_changed(
+        self, new_settings: dict, key: str, old_value: Any, new_value: Any
+    ) -> dict:
+        """Set new snap setting if it has changed from old value.
+
+        If the new settings would set a value to None that was already None,
+        do not include it in the new settings to avoid snap errors.
+        """
+        if old_value != new_value and not (new_value is None and old_value is None):
+            new_settings[key] = new_value
+        return new_settings
+
     def set_snap_data(self, snap_data: Mapping, namespace: str | None = None):
         """Set snap data on local snap.
 
@@ -1292,25 +1305,15 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         `namespace` offers the possibility to work as if it was supported.
         """
         snap_svc = self.get_snap()
-        new_settings = {}
+        new_settings: dict[str, "snap.JSONAble"] = {}
         try:
-            old_settings = snap_svc.get(namespace, typed=True)
+            old_settings = typing.cast(dict, snap_svc.get(namespace, typed=True))
         except self.snap_module.SnapError:
             old_settings = {}
 
         for key, new_value in snap_data.items():
-            key_split = key.split(".")
-            if len(key_split) == 2:
-                group, subkey = key_split
-                old_value = old_settings.get(group, {}).get(subkey)
-            else:
-                old_value = old_settings.get(key)
-            if old_value is not None and old_value != new_value:
-                new_settings[key] = new_value
-            # Setting a value to None will unset the value from the snap,
-            # which will fail if the value was never set.
-            elif new_value is not None:
-                new_settings[key] = new_value
+            old_value = self._get_old_snap_value(old_settings, key)
+            new_settings = self._set_if_changed(new_settings, key, old_value, new_value)
 
         if new_settings:
             if namespace is not None:
@@ -1371,9 +1374,7 @@ class OSCinderVolumeDriverOperatorCharm(OSBaseOperatorCharmSnap):
         return {
             "driver-ssl-cert": typing.Annotated[
                 str | None,
-                pydantic.BeforeValidator(
-                    sunbeam_storage.certificate_validator
-                ),
+                pydantic.BeforeValidator(sunbeam_storage.certificate_validator),
             ],
             "san-ip": typing.Annotated[
                 pydantic.IPvAnyAddress | str, sunbeam_storage.Required
@@ -1438,13 +1439,9 @@ class OSCinderVolumeDriverOperatorCharm(OSBaseOperatorCharmSnap):
             contexts = self.contexts()
             return contexts.backend.context()  # type: ignore[attr-defined]
         except AttributeError as e:
-            raise sunbeam_guard.WaitingExceptionError(
-                "Data missing: {}".format(e.name)
-            )
+            raise sunbeam_guard.WaitingExceptionError("Data missing: {}".format(e.name))
 
     @property
     def config_contexts(self) -> list[sunbeam_config_contexts.ConfigContext]:
         """Configuration contexts for the operator."""
-        return [
-            sunbeam_storage.CinderVolumeConfigurationContext(self, "backend")
-        ]
+        return [sunbeam_storage.CinderVolumeConfigurationContext(self, "backend")]

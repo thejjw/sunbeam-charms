@@ -128,7 +128,6 @@ class TestCharm(test_utils.CharmTestCase):
             "cinder.image-volume-cache-enabled": False,
             "cinder.image-volume-cache-max-size-gb": 0,
             "cinder.image-volume-cache-max-count": 0,
-            "cinder.default-volume-type": None,
             "cinder.cluster": "cinder-volume",
             "settings.debug": False,
             "settings.enable-telemetry-notifications": False,

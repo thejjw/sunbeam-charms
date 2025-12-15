@@ -60,9 +60,7 @@ class TestOSBaseOperatorCharm(test_utils.CharmTestCase):
     def test_relation_handlers_ready(self) -> None:
         """Test relation handlers are ready."""
         self.assertSetEqual(
-            self.harness.charm.get_mandatory_relations_not_ready(
-                self.mock_event
-            ),
+            self.harness.charm.get_mandatory_relations_not_ready(self.mock_event),
             set(),
         )
 
@@ -109,9 +107,7 @@ class TestOSBaseOperatorCharmK8S(test_utils.CharmTestCase):
     def test_relation_handlers_ready(self) -> None:
         """Test relation handlers are ready."""
         self.assertSetEqual(
-            self.harness.charm.get_mandatory_relations_not_ready(
-                self.mock_event
-            ),
+            self.harness.charm.get_mandatory_relations_not_ready(self.mock_event),
             set(),
         )
 
@@ -213,16 +209,12 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
         test_utils.add_api_relations(self.harness)
         test_utils.add_complete_identity_credentials_relation(self.harness)
         self.harness.set_can_connect("my-service", True)
-        self.assertNotEqual(
-            self.harness.charm.status.status, ops.model.ActiveStatus()
-        )
+        self.assertNotEqual(self.harness.charm.status.status, ops.model.ActiveStatus())
         self.set_pebble_ready()
         for ph in self.harness.charm.pebble_handlers:
             self.assertTrue(ph.service_ready)
 
-        self.assertEqual(
-            self.harness.charm.status.status, ops.model.ActiveStatus()
-        )
+        self.assertEqual(self.harness.charm.status.status, ops.model.ActiveStatus())
 
     def test_start_services(self) -> None:
         """Test service is started."""
@@ -260,9 +252,7 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
         db_rel_id = test_utils.add_base_db_relation(self.harness)
         test_utils.add_db_relation_credentials(self.harness, db_rel_id)
         contexts = self.harness.charm.contexts()
-        self.assertEqual(
-            contexts.wsgi_config.wsgi_admin_script, "/bin/wsgi_admin"
-        )
+        self.assertEqual(contexts.wsgi_config.wsgi_admin_script, "/bin/wsgi_admin")
         self.assertEqual(contexts.database.database_password, "hardpassword")
         self.assertEqual(contexts.options.debug, True)
 
@@ -275,9 +265,7 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
         self.harness.charm.leader_set({"foo": "bar"})
         self.harness.charm.leader_set(ginger="biscuit")
         rel_data = self.harness.get_relation_data(rel_id, "my-service")
-        self.assertEqual(
-            rel_data, {"ready": "true", "foo": "bar", "ginger": "biscuit"}
-        )
+        self.assertEqual(rel_data, {"ready": "true", "foo": "bar", "ginger": "biscuit"})
         self.assertEqual(self.harness.charm.leader_get("ready"), "true")
         self.assertEqual(self.harness.charm.leader_get("foo"), "bar")
         self.assertEqual(self.harness.charm.leader_get("ginger"), "biscuit")
@@ -286,9 +274,7 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
         """Test interacting with peer app db."""
         rel_id = self.harness.add_relation("peers", "my-service")
         self.harness.add_relation_unit(rel_id, "my-service/1")
-        self.harness.update_relation_data(
-            rel_id, "my-service/1", {"today": "monday"}
-        )
+        self.harness.update_relation_data(rel_id, "my-service/1", {"today": "monday"})
         self.assertEqual(
             self.harness.charm.peers.get_all_unit_values(
                 "today",
@@ -332,12 +318,8 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
         """Test public_url and internal_url properties."""
         # Add ingress relation
         test_utils.add_complete_ingress_relation(self.harness)
-        self.assertEqual(
-            self.harness.charm.internal_url, "http://internal-url:80/"
-        )
-        self.assertEqual(
-            self.harness.charm.public_url, "http://public-url:80/"
-        )
+        self.assertEqual(self.harness.charm.internal_url, "http://internal-url:80/")
+        self.assertEqual(self.harness.charm.public_url, "http://public-url:80/")
 
     @patch("lightkube.core.client.Client")
     def test_endpoint_urls_no_ingress(self, mock_client: patch) -> None:
@@ -351,9 +333,7 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
 
         mock_client.return_value = MagicMock()
         mock_client.return_value.get.return_value = MockService()
-        self.assertEqual(
-            self.harness.charm.internal_url, "http://10.0.0.10:789"
-        )
+        self.assertEqual(self.harness.charm.internal_url, "http://10.0.0.10:789")
         self.assertEqual(self.harness.charm.public_url, "http://10.0.0.10:789")
 
     def test_relation_handlers_ready(self) -> None:
@@ -362,66 +342,40 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
         db_rel_id = test_utils.add_base_db_relation(self.harness)
         test_utils.add_db_relation_credentials(self.harness, db_rel_id)
         self.assertSetEqual(
-            self.harness.charm.get_mandatory_relations_not_ready(
-                self.mock_event
-            ),
+            self.harness.charm.get_mandatory_relations_not_ready(self.mock_event),
             {"identity-service", "ingress-internal", "amqp"},
         )
 
         amqp_rel_id = test_utils.add_base_amqp_relation(self.harness)
         test_utils.add_amqp_relation_credentials(self.harness, amqp_rel_id)
         self.assertSetEqual(
-            self.harness.charm.get_mandatory_relations_not_ready(
-                self.mock_event
-            ),
+            self.harness.charm.get_mandatory_relations_not_ready(self.mock_event),
             {"ingress-internal", "identity-service"},
         )
 
-        identity_rel_id = test_utils.add_base_identity_service_relation(
-            self.harness
-        )
-        test_utils.add_identity_service_relation_response(
-            self.harness, identity_rel_id
-        )
+        identity_rel_id = test_utils.add_base_identity_service_relation(self.harness)
+        test_utils.add_identity_service_relation_response(self.harness, identity_rel_id)
         self.assertSetEqual(
-            self.harness.charm.get_mandatory_relations_not_ready(
-                self.mock_event
-            ),
+            self.harness.charm.get_mandatory_relations_not_ready(self.mock_event),
             {"ingress-internal"},
         )
 
-        ingress_rel_id = test_utils.add_ingress_relation(
-            self.harness, "internal"
-        )
-        test_utils.add_ingress_relation_data(
-            self.harness, ingress_rel_id, "internal"
-        )
+        ingress_rel_id = test_utils.add_ingress_relation(self.harness, "internal")
+        test_utils.add_ingress_relation_data(self.harness, ingress_rel_id, "internal")
 
-        ceph_access_rel_id = test_utils.add_base_ceph_access_relation(
-            self.harness
-        )
-        test_utils.add_ceph_access_relation_response(
-            self.harness, ceph_access_rel_id
-        )
+        ceph_access_rel_id = test_utils.add_base_ceph_access_relation(self.harness)
+        test_utils.add_ceph_access_relation_response(self.harness, ceph_access_rel_id)
         self.assertSetEqual(
-            self.harness.charm.get_mandatory_relations_not_ready(
-                self.mock_event
-            ),
+            self.harness.charm.get_mandatory_relations_not_ready(self.mock_event),
             set(),
         )
 
         # Add an optional relation and test if relation_handlers_ready
         # returns True
-        optional_rel_id = test_utils.add_ingress_relation(
-            self.harness, "public"
-        )
-        test_utils.add_ingress_relation_data(
-            self.harness, optional_rel_id, "public"
-        )
+        optional_rel_id = test_utils.add_ingress_relation(self.harness, "public")
+        test_utils.add_ingress_relation_data(self.harness, optional_rel_id, "public")
         self.assertSetEqual(
-            self.harness.charm.get_mandatory_relations_not_ready(
-                self.mock_event
-            ),
+            self.harness.charm.get_mandatory_relations_not_ready(self.mock_event),
             set(),
         )
 
@@ -429,23 +383,15 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
         # returns False
         self.harness.remove_relation(ingress_rel_id)
         self.assertSetEqual(
-            self.harness.charm.get_mandatory_relations_not_ready(
-                self.mock_event
-            ),
+            self.harness.charm.get_mandatory_relations_not_ready(self.mock_event),
             {"ingress-internal"},
         )
 
         # Add the mandatory relation back and retest relation_handlers_ready
-        ingress_rel_id = test_utils.add_ingress_relation(
-            self.harness, "internal"
-        )
-        test_utils.add_ingress_relation_data(
-            self.harness, ingress_rel_id, "internal"
-        )
+        ingress_rel_id = test_utils.add_ingress_relation(self.harness, "internal")
+        test_utils.add_ingress_relation_data(self.harness, ingress_rel_id, "internal")
         self.assertSetEqual(
-            self.harness.charm.get_mandatory_relations_not_ready(
-                self.mock_event
-            ),
+            self.harness.charm.get_mandatory_relations_not_ready(self.mock_event),
             set(),
         )
 
@@ -456,9 +402,7 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
             "http://test.org:80/something",
         )
         self.assertEqual(
-            self.harness.charm.add_explicit_port(
-                "http://test.org:80/something"
-            ),
+            self.harness.charm.add_explicit_port("http://test.org:80/something"),
             "http://test.org:80/something",
         )
         self.assertEqual(
@@ -466,21 +410,15 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
             "https://test.org:443/something",
         )
         self.assertEqual(
-            self.harness.charm.add_explicit_port(
-                "https://test.org:443/something"
-            ),
+            self.harness.charm.add_explicit_port("https://test.org:443/something"),
             "https://test.org:443/something",
         )
         self.assertEqual(
-            self.harness.charm.add_explicit_port(
-                "http://test.org:8080/something"
-            ),
+            self.harness.charm.add_explicit_port("http://test.org:8080/something"),
             "http://test.org:8080/something",
         )
         self.assertEqual(
-            self.harness.charm.add_explicit_port(
-                "https://test.org:8443/something"
-            ),
+            self.harness.charm.add_explicit_port("https://test.org:8443/something"),
             "https://test.org:8443/something",
         )
 
@@ -629,9 +567,7 @@ class TestOSBaseOperatorCharmSnap(test_utils.CharmTestCase):
         new_data = {"key": "abc", "value": None}
         charm.set_snap_data(new_data, namespace=namespace)
         snap.get.assert_called_once_with(namespace, typed=True)
-        snap.set.assert_called_once_with(
-            {namespace: {"key": "abc"}}, typed=True
-        )
+        snap.set.assert_called_once_with({namespace: {"key": "abc"}}, typed=True)
 
     def test_ensure_snap_present_already_installed(self) -> None:
         """Test ensure_snap_present when snap is already correctly installed."""
@@ -856,3 +792,10 @@ class TestOSBaseOperatorCharmSnap(test_utils.CharmTestCase):
         # Config should be preserved
         snap.get.assert_called_once_with(None, typed=True)
         snap.set.assert_called_once_with({"settings.debug": True}, typed=True)
+
+    def test__set_if_changed(self) -> None:
+        set_if_changed = self.harness.charm._set_if_changed
+        assert set_if_changed({}, "key", "value", "newvalue")["key"] == "newvalue"
+        assert set_if_changed({}, "key", None, "newvalue")["key"] == "newvalue"
+        assert set_if_changed({}, "key", "value", None)["key"] is None
+        assert "key" not in set_if_changed({}, "key", None, None)
