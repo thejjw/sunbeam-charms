@@ -32,11 +32,13 @@ containers and managing the service running in the container.
 import functools
 import ipaddress
 import logging
+import re
 import typing
 import urllib
 import urllib.parse
 from typing import (
     TYPE_CHECKING,
+    Any,
     FrozenSet,
     List,
     Mapping,
@@ -74,6 +76,8 @@ if TYPE_CHECKING:
     import charms.operator_libs_linux.v2.snap as snap
 
 logger = logging.getLogger(__name__)
+
+SNAP_INSTANCE_KEY_REGEX_PATTERN = r"^[a-z0-9]{1,10}$"
 
 
 class OSBaseOperatorCharm(
@@ -1190,10 +1194,48 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         """Run install on this unit."""
         self.ensure_snap_present()
 
+    def _enable_parallel_snaps(self):
+        """Enable parallel snaps support in snapd."""
+        if "_" not in self.snap_name:
+            return
+        try:
+            self.snap_module._system_set(
+                "experimental.parallel-instances", "true"
+            )
+        except self.snap_module.SnapError as e:
+            raise sunbeam_guard.BlockedExceptionError(
+                "Failed to enable parallel snaps"
+            ) from e
+
     @functools.cache
     def get_snap(self) -> "snap.Snap":
         """Return snap object."""
-        return self.snap_module.SnapCache()[self.snap_name]
+        cache = self.snap_module.SnapCache()
+        if "_" not in self.snap_name:
+            return cache[self.snap_name]
+        name_key = self.snap_name.rsplit("_", 1)
+        if not (
+            len(name_key) == 2
+            and re.match(SNAP_INSTANCE_KEY_REGEX_PATTERN, name_key[1])
+        ):
+            raise sunbeam_guard.BlockedExceptionError(
+                f"Invalid snap name with instance key: {self.snap_name}"
+            )
+        info = cache._snap_client.get_snap_information(name_key[0])
+        cache._snap_map[self.snap_name] = self.snap_module.Snap(
+            name=self.snap_name,
+            state=self.snap_module.SnapState.Available,
+            channel=info["channel"],
+            revision=info["revision"],
+            confinement=info["confinement"],
+            apps=None,
+        )
+        # Setting snapd experimental parallel instances config to true
+        _s = cache._snap_map[self.snap_name]
+        if _s is None:
+            raise snap.SnapError("No snap exists in Snap cache") from None
+
+        return _s
 
     @property
     def snap_name(self) -> str:
@@ -1207,6 +1249,7 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
 
     def ensure_snap_present(self):
         """Install snap if it is not already present."""
+        self._enable_parallel_snaps()
         want_devmode = bool(
             self.model.config.get("experimental-devmode", False)
         )
@@ -1285,6 +1328,36 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         snap_svc = self.get_snap()
         snap_svc.stop(disable=True)
 
+    def _get_old_snap_value(
+        self, old_settings: dict[str, Any], key: str
+    ) -> Any:
+        """Extract old value from snap settings for a given key.
+
+        Handles both simple keys and dotted keys (e.g., 'group.subkey').
+        """
+        key_split = key.split(".")
+        if len(key_split) == 2:
+            group, subkey = key_split
+            group_settings = old_settings.get(group)
+            if isinstance(group_settings, dict):
+                return group_settings.get(subkey)
+            return None
+        return old_settings.get(key)
+
+    def _set_if_changed(
+        self, new_settings: dict, key: str, old_value: Any, new_value: Any
+    ) -> dict:
+        """Set new snap setting if it has changed from old value.
+
+        If the new settings would set a value to None that was already None,
+        do not include it in the new settings to avoid snap errors.
+        """
+        if old_value != new_value and not (
+            new_value is None and old_value is None
+        ):
+            new_settings[key] = new_value
+        return new_settings
+
     def set_snap_data(self, snap_data: Mapping, namespace: str | None = None):
         """Set snap data on local snap.
 
@@ -1292,25 +1365,19 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         `namespace` offers the possibility to work as if it was supported.
         """
         snap_svc = self.get_snap()
-        new_settings = {}
+        new_settings: dict[str, "snap.JSONAble"] = {}
         try:
-            old_settings = snap_svc.get(namespace, typed=True)
+            old_settings = typing.cast(
+                dict, snap_svc.get(namespace, typed=True)
+            )
         except self.snap_module.SnapError:
             old_settings = {}
 
         for key, new_value in snap_data.items():
-            key_split = key.split(".")
-            if len(key_split) == 2:
-                group, subkey = key_split
-                old_value = old_settings.get(group, {}).get(subkey)
-            else:
-                old_value = old_settings.get(key)
-            if old_value is not None and old_value != new_value:
-                new_settings[key] = new_value
-            # Setting a value to None will unset the value from the snap,
-            # which will fail if the value was never set.
-            elif new_value is not None:
-                new_settings[key] = new_value
+            old_value = self._get_old_snap_value(old_settings, key)
+            new_settings = self._set_if_changed(
+                new_settings, key, old_value, new_value
+            )
 
         if new_settings:
             if namespace is not None:

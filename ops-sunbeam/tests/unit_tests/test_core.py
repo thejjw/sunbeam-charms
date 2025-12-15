@@ -856,3 +856,13 @@ class TestOSBaseOperatorCharmSnap(test_utils.CharmTestCase):
         # Config should be preserved
         snap.get.assert_called_once_with(None, typed=True)
         snap.set.assert_called_once_with({"settings.debug": True}, typed=True)
+
+    def test__set_if_changed(self) -> None:
+        """Test truth table of _set_if_changed."""
+        set_if_changed = self.harness.charm._set_if_changed
+        assert (
+            set_if_changed({}, "key", "value", "newvalue")["key"] == "newvalue"
+        )
+        assert set_if_changed({}, "key", None, "newvalue")["key"] == "newvalue"
+        assert set_if_changed({}, "key", "value", None)["key"] is None
+        assert "key" not in set_if_changed({}, "key", None, None)
