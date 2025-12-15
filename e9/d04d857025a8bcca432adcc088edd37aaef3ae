@@ -1,0 +1,9 @@
+Code-Review+2: Billy Olsen <billy.olsen@canonical.com>
+Verified+2: Zuul
+Workflow+1: Billy Olsen <billy.olsen@canonical.com>
+Submitted-by: Zuul
+Submitted-at: Mon, 15 Dec 2025 23:24:33 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/970794
+Comments-Total: 1
+Project: openstack/sunbeam-charms
+Branch: refs/heads/stable/2024.1
