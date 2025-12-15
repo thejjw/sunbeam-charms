@@ -1,0 +1,6 @@
+external-libraries:
+  - charms.tempo_k8s.v2.tracing
+  - charms.tempo_k8s.v1.charm_tracing
+  - charms.operator_libs_linux.v2.snap
+internal-libraries:
+  - charms.cinder_volume.v0.cinder_volume

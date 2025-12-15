@@ -64,6 +64,8 @@
             nodeset: ubuntu-noble
         - charm-build-cinder-volume-purestorage:
             nodeset: ubuntu-noble
+        - charm-build-cinder-volume-hitachi:
+            nodeset: ubuntu-noble
         - charm-build-epa-orchestrator:
             nodeset: ubuntu-noble
         - charm-build-horizon-k8s:
