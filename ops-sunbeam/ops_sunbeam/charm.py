@@ -32,11 +32,13 @@ containers and managing the service running in the container.
 import functools
 import ipaddress
 import logging
+import re
 import typing
 import urllib
 import urllib.parse
 from typing import (
     TYPE_CHECKING,
+    Any,
     FrozenSet,
     List,
     Mapping,
@@ -74,6 +76,8 @@ if TYPE_CHECKING:
     import charms.operator_libs_linux.v2.snap as snap
 
 logger = logging.getLogger(__name__)
+
+SNAP_INSTANCE_KEY_REGEX_PATTERN = r"^[a-z0-9]{1,10}$"
 
 
 class OSBaseOperatorCharm(
@@ -1190,10 +1194,48 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         """Run install on this unit."""
         self.ensure_snap_present()
 
+    def _enable_parallel_snaps(self):
+        """Enable parallel snaps support in snapd."""
+        if "_" not in self.snap_name:
+            return
+        try:
+            self.snap_module._system_set(
+                "experimental.parallel-instances", "true"
+            )
+        except self.snap_module.SnapError as e:
+            raise sunbeam_guard.BlockedExceptionError(
+                "Failed to enable parallel snaps"
+            ) from e
+
     @functools.cache
     def get_snap(self) -> "snap.Snap":
         """Return snap object."""
-        return self.snap_module.SnapCache()[self.snap_name]
+        cache = self.snap_module.SnapCache()
+        if "_" not in self.snap_name:
+            return cache[self.snap_name]
+        name_key = self.snap_name.rsplit("_", 1)
+        if not (
+            len(name_key) == 2
+            and re.match(SNAP_INSTANCE_KEY_REGEX_PATTERN, name_key[1])
+        ):
+            raise sunbeam_guard.BlockedExceptionError(
+                f"Invalid snap name with instance key: {self.snap_name}"
+            )
+        info = cache._snap_client.get_snap_information(name_key[0])
+        cache._snap_map[self.snap_name] = self.snap_module.Snap(
+            name=self.snap_name,
+            state=self.snap_module.SnapState.Available,
+            channel=info["channel"],
+            revision=info["revision"],
+            confinement=info["confinement"],
+            apps=None,
+        )
+        # Setting snapd experimental parallel instances config to true
+        _s = cache._snap_map[self.snap_name]
+        if _s is None:
+            raise snap.SnapError("No snap exists in Snap cache") from None
+
+        return _s
 
     @property
     def snap_name(self) -> str:
@@ -1207,6 +1249,7 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
 
     def ensure_snap_present(self):
         """Install snap if it is not already present."""
+        self._enable_parallel_snaps()
         want_devmode = bool(
             self.model.config.get("experimental-devmode", False)
         )
@@ -1292,9 +1335,11 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         `namespace` offers the possibility to work as if it was supported.
         """
         snap_svc = self.get_snap()
-        new_settings = {}
+        new_settings: dict[str, "snap.JSONAble"] = {}
         try:
-            old_settings = snap_svc.get(namespace, typed=True)
+            old_settings = typing.cast(
+                dict, snap_svc.get(namespace, typed=True)
+            )
         except self.snap_module.SnapError:
             old_settings = {}
 
