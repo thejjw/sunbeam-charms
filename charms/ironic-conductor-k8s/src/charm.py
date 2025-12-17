@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 
 CEPH_RGW_RELATION = "ceph-rgw-ready"
 IRONIC_CONDUCTOR_CONTAINER = "ironic-conductor"
-IRONIC_CONDUCTOR_HTTP_PORT = 80
+IRONIC_CONDUCTOR_HTTP_PORT = 8080
 IRONIC_CONDUCTOR_TFTP_PORT = 69
 
 VALID_NETWORK_INTERFACES = ["neutron", "flat", "noop"]

@@ -282,7 +282,7 @@ class TestIronicConductorOperatorCharm(test_utils.CharmTestCase):
             "[hardware_type:intel-ipmi]",
             "[hardware_type:ipmi]",
             "default_deploy_interface = direct",
-            "http_url=http://foo.lish:80",
+            "http_url=http://foo.lish:8080",
             "tftp_server = foo.lish",
         ]
         self._check_file_contents(
