@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "33a6285f6628d6358a9b72de6062d92f7e3db20f",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6fae61d_0c7a0b16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2025-12-17T09:16:09Z",
+      "side": 1,
+      "message": "recheck bad record mac\n\n\n(this is a juju 3.6.12 introduced issue)",
+      "revId": "33a6285f6628d6358a9b72de6062d92f7e3db20f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
