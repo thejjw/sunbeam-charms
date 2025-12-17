@@ -4,7 +4,7 @@
 http_root=/httpboot
 
 # Ironic compute node's HTTP server URL (string value)
-http_url=http://{{ ironic_config.loadbalancer_ip }}:80
+http_url=http://{{ ironic_config.loadbalancer_ip }}:8080
 {% endif -%}
 
 {% if options.disable_secure_erase %}
