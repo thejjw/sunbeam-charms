@@ -40,11 +40,11 @@ resources:
   barbican-api-image:
     type: oci-image
     description: OCI image for OpenStack Barbican API
-    upstream-source: ghcr.io/canonical/barbican-consolidated:2025.1
+    upstream-source: ghcr.io/canonical/barbican-consolidated:2025.1-24.04_edge
   barbican-worker-image:
     type: oci-image
     description: OCI image for OpenStack Barbican worker
-    upstream-source: ghcr.io/canonical/barbican-consolidated:2025.1
+    upstream-source: ghcr.io/canonical/barbican-consolidated:2025.1-24.04_edge
 
 requires:
   ingress-internal:

@@ -51,7 +51,7 @@ cloudkitty-k8s requires the following relations:
 
 The charm by default uses following images:
 
-    `ghcr.io/canonical/cloudkitty-consolidated:2025.1`
+    `ghcr.io/canonical/cloudkitty-consolidated:2025.1-24.04_edge`
 
 ## Contributing
 

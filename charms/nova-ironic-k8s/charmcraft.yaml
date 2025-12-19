@@ -34,7 +34,7 @@ resources:
   nova-ironic-image:
     type: oci-image
     description: OCI image for OpenStack nova-compute for Ironic.
-    upstream-source: ghcr.io/canonical/nova-ironic:2025.1
+    upstream-source: ghcr.io/canonical/nova-ironic:2025.1-24.04_edge
 
 requires:
   amqp:

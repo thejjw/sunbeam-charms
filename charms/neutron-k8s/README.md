@@ -59,7 +59,7 @@ The following relations are optional:
 
 ## OCI Images
 
-The charm by default uses `ghcr.io/canonical/neutron-server:2025.1` image.
+The charm by default uses `ghcr.io/canonical/neutron-server:2025.1-24.04_edge` image.
 
 ## Contributing
 

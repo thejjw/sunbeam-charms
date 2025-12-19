@@ -83,15 +83,15 @@ resources:
   ovn-sb-db-server-image:
     type: oci-image
     description: OCI image for OVN Southbound Database Server
-    upstream-source: ghcr.io/canonical/ovn-consolidated:25.03
+    upstream-source: ghcr.io/canonical/ovn-consolidated:25.03-24.04_edge
   ovn-nb-db-server-image:
     type: oci-image
     description: OCI image for OVN Northbound Database Server
-    upstream-source: ghcr.io/canonical/ovn-consolidated:25.03
+    upstream-source: ghcr.io/canonical/ovn-consolidated:25.03-24.04_edge
   ovn-northd-image:
     type: oci-image
     description: OCI image for OVN Northd
-    upstream-source: ghcr.io/canonical/ovn-consolidated:25.03
+    upstream-source: ghcr.io/canonical/ovn-consolidated:25.03-24.04_edge
 
 storage:
   databases:

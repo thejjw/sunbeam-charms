@@ -40,11 +40,11 @@ resources:
   ceilometer-central-image:
     type: oci-image
     description: OCI image for OpenStack ceilometer central
-    upstream-source: ghcr.io/canonical/ceilometer-consolidated:2025.1
+    upstream-source: ghcr.io/canonical/ceilometer-consolidated:2025.1-24.04_edge
   ceilometer-notification-image:
     type: oci-image
     description: OCI image for OpenStack ceilometer
-    upstream-source: ghcr.io/canonical/ceilometer-consolidated:2025.1
+    upstream-source: ghcr.io/canonical/ceilometer-consolidated:2025.1-24.04_edge
 
 requires:
   amqp:

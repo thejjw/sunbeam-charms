@@ -36,7 +36,7 @@ resources:
   manila-share-image:
     type: oci-image
     description: OCI image for OpenStack Manila share
-    upstream-source: ghcr.io/canonical/manila-share:2025.1
+    upstream-source: ghcr.io/canonical/manila-share:2025.1-24.04_edge
 
 requires:
   amqp:

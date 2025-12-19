@@ -50,7 +50,7 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./nova-k8s_ubuntu-20.04-amd64.charm --trust --resource nova-api-image=ghcr.io/canonical/nova-api:2025.1 --resource nova-scheduler-image=ghcr.io/canonical/nova-scheduler:2025.1 --resource nova-conductor-image=ghcr.io/canonical/nova-conductor:2025.1
+    juju deploy ./nova-k8s_ubuntu-20.04-amd64.charm --trust --resource nova-api-image=ghcr.io/canonical/nova-api:2025.1 --resource nova-scheduler-image=ghcr.io/canonical/nova-scheduler:2025.1 --resource nova-conductor-image=ghcr.io/canonical/nova-conductor:2025.1-24.04_edge
 
 <!-- LINKS -->
 

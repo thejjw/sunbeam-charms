@@ -117,7 +117,7 @@ resources:
   tempest-image:
     type: oci-image
     description: OCI image for tempest
-    upstream-source: ghcr.io/canonical/tempest:2025.1
+    upstream-source: ghcr.io/canonical/tempest:2025.1-24.04_edge
 
 requires:
   identity-ops:
