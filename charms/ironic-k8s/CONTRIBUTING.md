@@ -49,8 +49,8 @@ run:
 To deploy the local test instance:
 
     juju deploy ./ironic-k8s.charm ironic --trust \
-      --resource ironic-api-image=ghcr.io/canonical/ironic-api:2025.1 \
-      --resource ironic-novncproxy-image=ghcr.io/canonical/ironic-novncproxy:2025.1
+      --resource ironic-api-image=ghcr.io/canonical/ironic-api:2025.1-24.04_edge \
+      --resource ironic-novncproxy-image=ghcr.io/canonical/ironic-novncproxy:2025.1-24.04_edge
 
 To upgrade / refresh the ironic-k8s charm with a locally-built charm, use the
 following command:

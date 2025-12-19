@@ -48,7 +48,7 @@ glance-k8s requires the following relations:
 
 ## OCI Images
 
-The charm by default uses `ghcr.io/canonical/glance-api:2025.1` image.
+The charm by default uses `ghcr.io/canonical/glance-api:2025.1-24.04_edge` image.
 
 ## Contributing
 

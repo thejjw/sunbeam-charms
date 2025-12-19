@@ -47,7 +47,7 @@ run:
 To deploy the local test instance:
 
     juju deploy ./manila-cephfs-k8s.charm manila-cephfs --trust \
-      --resource manila-share-image=ghcr.io/canonical/manila-share:2025.1
+      --resource manila-share-image=ghcr.io/canonical/manila-share:2025.1-24.04_edge
 
 To upgrade / refresh the manila-cephfs-k8s charm with a locally-built charm,
 use the following command:

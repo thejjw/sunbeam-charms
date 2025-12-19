@@ -37,7 +37,7 @@ resources:
   cloudkitty-image:
     type: oci-image
     description: OCI image for OpenStack Cloudkitty
-    upstream-source: ghcr.io/canonical/cloudkitty-consolidated:2025.1
+    upstream-source: ghcr.io/canonical/cloudkitty-consolidated:2025.1-24.04_edge
 
 requires:
   ingress-internal:

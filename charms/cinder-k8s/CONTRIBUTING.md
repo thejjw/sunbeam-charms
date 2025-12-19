@@ -47,7 +47,7 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./cinder-k8s_ubuntu-20.04-amd64.charm --resource cinder-api-image=ghcr.io/canonical/cinder-api:2025.1 --resource cinder-scheduler-image=ghcr.io/canonical/cinder-scheduler:2025.1
+    juju deploy ./cinder-k8s_ubuntu-20.04-amd64.charm --resource cinder-api-image=ghcr.io/canonical/cinder-api:2025.1 --resource cinder-scheduler-image=ghcr.io/canonical/cinder-scheduler:2025.1-24.04_edge
 
 <!-- LINKS -->
 

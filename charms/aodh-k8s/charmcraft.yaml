@@ -58,23 +58,23 @@ resources:
   aodh-api-image:
     type: oci-image
     description: OCI image for OpenStack aodh api service
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2025.1
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2025.1-24.04_edge
   aodh-evaluator-image:
     type: oci-image
     description: OCI image for OpenStack aodh evaluator service
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2025.1
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2025.1-24.04_edge
   aodh-notifier-image:
     type: oci-image
     description: OCI image for OpenStack aodh notifier service
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2025.1
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2025.1-24.04_edge
   aodh-listener-image:
     type: oci-image
     description: OCI image for OpenStack aodh listener service
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2025.1
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2025.1-24.04_edge
   aodh-expirer-image:
     type: oci-image
     description: OCI image for OpenStack aodh expirer service
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2025.1
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2025.1-24.04_edge
 
 requires:
   database:

@@ -47,8 +47,8 @@ run:
 To deploy the local test instance:
 
     juju deploy ./manila-k8s.charm manila --trust \
-      --resource manila-api-image=ghcr.io/canonical/manila-api:2025.1 \
-      --resource manila-scheduler-image=ghcr.io/canonical/manila-scheduler:2025.1
+      --resource manila-api-image=ghcr.io/canonical/manila-api:2025.1-24.04_edge \
+      --resource manila-scheduler-image=ghcr.io/canonical/manila-scheduler:2025.1-24.04_edge
 
 To upgrade / refresh the manila-k8s charm with a locally-built charm, use the
 following command:

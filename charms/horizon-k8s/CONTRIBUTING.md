@@ -45,7 +45,7 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./horizon-k8s_ubuntu-20.04-amd64.charm --trust --resource horizon-image=ghcr.io/canonical/horizon:2025.1
+    juju deploy ./horizon-k8s_ubuntu-20.04-amd64.charm --trust --resource horizon-image=ghcr.io/canonical/horizon:2025.1-24.04_edge
 
 <!-- LINKS -->
 

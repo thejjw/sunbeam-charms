@@ -37,11 +37,11 @@ resources:
   manila-api-image:
     type: oci-image
     description: OCI image for OpenStack Manila API
-    upstream-source: ghcr.io/canonical/manila-api:2025.1
+    upstream-source: ghcr.io/canonical/manila-api:2025.1-24.04_edge
   manila-scheduler-image:
     type: oci-image
     description: OCI image for OpenStack Manila Scheduler
-    upstream-source: ghcr.io/canonical/manila-scheduler:2025.1
+    upstream-source: ghcr.io/canonical/manila-scheduler:2025.1-24.04_edge
 
 requires:
   amqp:

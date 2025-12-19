@@ -39,7 +39,7 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
     resources:
-      keystone-image: ghcr.io/canonical/keystone:2025.1
+      keystone-image: ghcr.io/canonical/keystone:2025.1-24.04_edge
   keystone-saml:
     {% if keystone_saml_k8s is defined and keystone_saml_k8s is sameas true -%}
     charm: ../../../keystone-saml-k8s.charm
@@ -67,7 +67,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      horizon-image: ghcr.io/canonical/horizon:2025.1
+      horizon-image: ghcr.io/canonical/horizon:2025.1-24.04_edge
 
 relations:
 - - mysql:database
