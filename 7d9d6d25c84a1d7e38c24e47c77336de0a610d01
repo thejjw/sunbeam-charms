@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1f240b1_50252d92",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2025-12-19T16:00:15Z",
+      "side": 1,
+      "message": "Nit: In the commit message there is an underscore between the \u003cversion\u003e and \u003cos-version\u003e but in the code it\u0027s a dash. Is the dash intended?",
+      "revId": "7d9d6d25c84a1d7e38c24e47c77336de0a610d01",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
