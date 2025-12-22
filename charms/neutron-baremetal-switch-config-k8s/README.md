@@ -28,14 +28,14 @@ Baremetal switch configurations can be passed through Juju secrets. As an exampl
 let's consider the following `baremetal.conf` sample configuration file:
 
 ```ini
-["nexus.example.net"]
-driver = "netconf-openconfig"
-device_params = "name:nexus"
-switch_info = "nexus"
-switch_id = "00:53:00:0a:0a:0a"
-host = "nexus.example.net"
-username = "user"
-key_filename = "/etc/neutron/ssh_keys/nexus_sshkey"
+[nexus.example.net]
+driver = netconf-openconfig
+device_params = name:nexus
+switch_info = nexus
+switch_id = 00:53:00:0a:0a:0a
+host = nexus.example.net
+username = user
+key_filename = /etc/neutron/ssh_keys/nexus_sshkey
 ```
 
 Note that the configuration file references a `key_filename`. This key will
