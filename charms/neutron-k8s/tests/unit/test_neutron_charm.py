@@ -264,7 +264,7 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         self._check_file_contents(
             "neutron-server",
             "/etc/neutron/plugins/ml2/ml2_conf.ini",
-            ["mechanism_drivers = baremetal,sriovnicswitch,ovn"],
+            ["mechanism_drivers = baremetal,genericswitch,sriovnicswitch,ovn"],
         )
 
         # Remove ironic-api relation, check that the ironic-neutron-agent service
