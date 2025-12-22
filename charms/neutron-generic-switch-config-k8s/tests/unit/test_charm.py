@@ -141,6 +141,23 @@ class TestNeutronGenericSwitchConfigCharm(test_utils.CharmTestCase):
 
         self.assertIsInstance(unit.status, model.BlockedStatus)
 
+        # section name does not start with 'genericswitch:'
+        conf = _get_sample_config("arista", "netmiko_arista_eos")
+        conf = conf.replace("genericswitch:arista", "arista")
+        secret_data = {
+            "conf": conf,
+            "arista-key": "foo",
+        }
+        secret = self.harness.add_model_secret(
+            self.harness.charm.app.name,
+            secret_data,
+        )
+
+        config = {"conf-secrets": secret}
+        self.harness.update_config(config)
+
+        self.assertIsInstance(unit.status, model.BlockedStatus)
+
         # unknown field in config section.
         conf = _get_sample_config("arista", "netmiko_arista_eos")
         secret_data = {
