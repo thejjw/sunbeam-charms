@@ -27,7 +27,7 @@ switch_info = %(name)s
 switch_id = 00:53:00:0a:0a:0a
 host = %(name)s.example.net
 username = user
-key_filename = /etc/neutron/ssh_keys/%(name)s_sshkey
+key_filename = /etc/neutron/sshkeys/%(name)s-sshkey
 """
 
 _GENERIC_SAMPLE_CONFIG = """[genericswitch:%(name)s-hostname]
@@ -35,7 +35,7 @@ device_type = netmiko_arista_eos
 ngs_mac_address = 00:53:00:0a:0a:0a
 ip = 10.20.30.40
 username = admin
-key_file = /opt/data/%(name)s_key
+key_file = /etc/neutron/sshkeys/%(name)s-key
 """
 
 
@@ -307,8 +307,8 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(svc.command, " ".join(expected_cmd))
 
         config_files = [
-            "/etc/neutron/ssh_keys/nexus_sshkey",
-            "/etc/neutron/ssh_keys/suxen_sshkey",
+            "/etc/neutron/sshkeys/nexus-sshkey",
+            "/etc/neutron/sshkeys/suxen-sshkey",
         ]
 
         for f in config_files:
@@ -373,8 +373,8 @@ class TestNeutronOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(svc.command, " ".join(expected_cmd))
 
         config_files = [
-            "/opt/data/arista_key",
-            "/opt/data/barista_key",
+            "/etc/neutron/sshkeys/arista-key",
+            "/etc/neutron/sshkeys/barista-key",
         ]
 
         for f in config_files:
