@@ -23,16 +23,16 @@ from ops import (
     model,
 )
 
-_SAMPLE_CONFIG = """driver = "netconf-openconfig"
-device_params = "name:nexus"
-switch_info = "nexus"
-switch_id = "00:53:00:0a:0a:0a"
-host = "nexus.example.net"
-username = "user"
+_SAMPLE_CONFIG = """driver = netconf-openconfig
+device_params = name:nexus
+switch_info = nexus
+switch_id = 00:53:00:0a:0a:0a
+host = nexus.example.net
+username = user
 """
 
-_NEXUS_SAMPLE_CONFIG = '["nexus.example.net"]\n' + _SAMPLE_CONFIG
-_KEY_LINE = 'key_filename = "/etc/neutron/sshkeys/nexus-sshkey"'
+_NEXUS_SAMPLE_CONFIG = '[nexus.example.net]\n' + _SAMPLE_CONFIG
+_KEY_LINE = 'key_filename = /etc/neutron/sshkeys/nexus-sshkey'
 
 
 class _NeutronBaremetalSwitchConfigCharm(

@@ -19,9 +19,9 @@
 This charm provide Neutron services as part of an OpenStack deployment
 """
 
+import configparser
 import logging
 import re
-import tomllib
 from typing import (
     List,
 )
@@ -86,16 +86,17 @@ class BaremetalConfigContext(sunbeam_ctxts.ConfigContext):
             configs.append(conf)
 
             try:
-                config_toml = tomllib.loads(conf)
-                enabled_devices.extend(config_toml.keys())
-            except tomllib.TOMLDecodeError as ex:
-                logger.error("Could not decode TOML. Error: %s", ex)
+                config_parser = configparser.ConfigParser()
+                config_parser.read_string(conf)
+                enabled_devices.extend(config_parser.sections())
+            except configparser.Error as ex:
+                logger.error("Could not decode config. Error: %s", ex)
                 raise sunbeam_guard.BlockedExceptionError(
                     "Invalid content in secret baremetal-switch-config secret. Check logs."
                 )
 
-            for name in config_toml.keys():
-                section = config_toml[name]
+            for name in config_parser.sections():
+                section = config_parser[name]
                 key_filename = section.get("key_filename")
                 if not key_filename:
                     continue
@@ -130,15 +131,16 @@ class GenericConfigContext(sunbeam_ctxts.ConfigContext):
             configs.append(conf)
 
             try:
-                config_toml = tomllib.loads(conf)
-            except tomllib.TOMLDecodeError as ex:
-                logger.error("Could not decode TOML. Error: %s", ex)
+                config_parser = configparser.ConfigParser()
+                config_parser.read_string(conf)
+            except configparser.Error as ex:
+                logger.error("Could not decode config. Error: %s", ex)
                 raise sunbeam_guard.BlockedExceptionError(
                     "Invalid content in secret generic-switch-config secret. Check logs."
                 )
 
-            for name in config_toml.keys():
-                section = config_toml[name]
+            for name in config_parser.sections():
+                section = config_parser[name]
                 key_file = section.get("key_file")
                 if not key_file:
                     continue
