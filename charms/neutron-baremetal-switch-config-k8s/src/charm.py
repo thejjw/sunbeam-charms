@@ -20,9 +20,9 @@ This is a config charm for the OpenStack neutron-k8s charm, providing it with
 necessary details for its ml2_conf_networking_baremetal.ini config file.
 """
 
+import configparser
 import logging
 import os
-import tomllib
 from typing import (
     List,
 )
@@ -141,10 +141,11 @@ class NeutronBaremetalSwitchConfigCharm(ops.CharmBase):
                         f"Expected {secret.id} to contain 'conf' key."
                     )
 
-                config = tomllib.loads(content["conf"])
-            except tomllib.TOMLDecodeError as ex:
+                config = configparser.ConfigParser()
+                config.read_string(content["conf"])
+            except configparser.Error as ex:
                 logger.error(
-                    "Could not decode TOML from secret %s. Error: %s",
+                    "Could not decode config from secret %s. Error: %s",
                     secret.id,
                     ex,
                 )
@@ -152,7 +153,7 @@ class NeutronBaremetalSwitchConfigCharm(ops.CharmBase):
                     f"Invalid content in secret {secret.id}. Check logs."
                 )
 
-            for name in config.keys():
+            for name in config.sections():
                 if name in all_configs:
                     # Duplicate config section, misconfiguration.
                     logger.error(

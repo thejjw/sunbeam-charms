@@ -28,12 +28,12 @@ Generic switch configurations can be passed through Juju secrets. As an example,
 let's consider the following `genericswitch.conf` sample configuration file:
 
 ```ini
-["genericswitch:arista-hostname"]
-device_type = "netmiko_arista_eos"
-ngs_mac_address = "<switch mac address>"
-ip = "<switch mgmt ip address>"
-username = "admin"
-key_file = "/opt/data/arista_key"
+[genericswitch:arista-hostname]
+device_type = netmiko_arista_eos
+ngs_mac_address = <switch mac address>
+ip = <switch mgmt ip address>
+username = admin
+key_file = /opt/data/arista_key
 ```
 
 Note that the configuration file references a `key_name`. This key will
