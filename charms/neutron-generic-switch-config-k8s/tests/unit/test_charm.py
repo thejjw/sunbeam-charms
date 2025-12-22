@@ -23,18 +23,18 @@ from ops import (
     model,
 )
 
-_SAMPLE_CONFIG = """["genericswitch:%(name)s-hostname"]
-device_type = "%(device_type)s"
-ngs_mac_address = "00:53:00:0a:0a:0a"
-ip = "10.20.30.40"
-username = "admin"
+_SAMPLE_CONFIG = """[genericswitch:%(name)s-hostname]
+device_type = %(device_type)s
+ngs_mac_address = 00:53:00:0a:0a:0a
+ip = 10.20.30.40
+username = admin
 """
 
 
 def _get_sample_config(name: str, device_type: str, with_key=True) -> str:
     config = _SAMPLE_CONFIG % {"name": name, "device_type": device_type}
     if with_key:
-        config = config + '\nkey_file = "/etc/neutron/sshkeys/%s-key"' % name
+        config = config + '\nkey_file = /etc/neutron/sshkeys/%s-key' % name
 
     return config
 

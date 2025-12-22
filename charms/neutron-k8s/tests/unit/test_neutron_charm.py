@@ -20,22 +20,22 @@ import charm
 import charms.neutron_k8s.v0.switch_config as switch_config
 import ops_sunbeam.test_utils as test_utils
 
-_BAREMETAL_SAMPLE_CONFIG = """["%(name)s.example.net"]
-driver = "netconf-openconfig"
-device_params = "name:%(name)s"
-switch_info = "%(name)s"
-switch_id = "00:53:00:0a:0a:0a"
-host = "%(name)s.example.net"
-username = "user"
-key_filename = "/etc/neutron/ssh_keys/%(name)s_sshkey"
+_BAREMETAL_SAMPLE_CONFIG = """[%(name)s.example.net]
+driver = netconf-openconfig
+device_params = name:%(name)s
+switch_info = %(name)s
+switch_id = 00:53:00:0a:0a:0a
+host = %(name)s.example.net
+username = user
+key_filename = /etc/neutron/ssh_keys/%(name)s_sshkey
 """
 
-_GENERIC_SAMPLE_CONFIG = """["genericswitch:%(name)s-hostname"]
-device_type = "netmiko_arista_eos"
-ngs_mac_address = "00:53:00:0a:0a:0a"
-ip = "10.20.30.40"
-username = "admin"
-key_file = "/opt/data/%(name)s_key"
+_GENERIC_SAMPLE_CONFIG = """[genericswitch:%(name)s-hostname]
+device_type = netmiko_arista_eos
+ngs_mac_address = 00:53:00:0a:0a:0a
+ip = 10.20.30.40
+username = admin
+key_file = /opt/data/%(name)s_key
 """
 
 
