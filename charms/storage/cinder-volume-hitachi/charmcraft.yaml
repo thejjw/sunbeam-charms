@@ -1,0 +1,406 @@
+type: charm
+name: cinder-volume-hitachi
+summary: OpenStack volume service - Hitachi VSP backend
+description: |
+  Cinder is the OpenStack project that provides block-storage management
+  for virtual machines and bare-metal hosts. This charm integrates the
+  `cinder-volume` snap with **Hitachi VSP** storage arrays (models E/F/G/N
+  350-1500, 5100-5600(H), 590-1090, etc.).  It renders a dedicated backend
+  stanza (`hitachi.<app-name>.*`) in *cinder.conf* and manages all driver
+  options via Juju config.
+
+assumes:
+  - juju >= 3.1
+
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      type: string
+      default: null
+      description: |
+        Name that Cinder will report for this backend.  If unset the Juju
+        application name is used.
+    backend-availability-zone:
+      type: string
+      default: null
+      description: |
+        Availability zone to associate with this backend (Pike+).
+    san-ip:
+      type: string
+      description: Hitachi VSP management IP or hostname.
+    san-username:
+      type: secret
+      description: |
+        Hitachi VSP REST API username.
+        Must contain the key `san-username`.
+    san-password:
+      type: secret
+      description: |
+        Hitachi VSP REST API password.
+        Must contain the key `san-password`.
+    hitachi-storage-id:
+      type: string
+      description: Storage system product number / serial (e.g. 450000).
+    hitachi-pools:
+      type: string
+      description: Comma-separated list of DP pool names/IDs where volumes are created.
+    protocol:
+      type: string
+      default: iscsi
+      enum: [fc, iscsi]
+      description: |
+        Front-end protocol to use.  `fc` selects *HBSDFCDriver*; `iscsi`
+        selects *HBSDISCSIDriver* on the snap-cinder-volume.
+    driver-ssl-cert:
+      default: null
+      description: |
+        PEM-encoded SSL certificate to use for HTTPS connections to the
+        storage array. If unset, SSL verification is not performed.
+      type: string
+    hitachi-target-ports:
+      type: string
+      default: null
+      description: |
+        Comma-separated front-end port labels to restrict mappings
+        (e.g. "CL1-A,CL2-A"). Leave unset to allow any port.
+    hitachi-zoning-request:
+      type: boolean
+      default: false
+      description: Request Fibre-Channel zone-manager to create zoning.
+    hitachi-copy-speed:
+      type: int
+      default: 3
+      description: Copy bandwidth throttle (1 = slow .. 15 = fast).
+    hitachi-copy-check-interval:
+      type: int
+      default: 3
+      description: Seconds between synchronous copy-status polls.
+    hitachi-async-copy-check-interval:
+      type: int
+      default: 10
+      description: Seconds between asynchronous copy-status polls.
+    chap-username:
+      type: secret
+      default: null
+      description: |
+        CHAP username for iSCSI authentication (optional).
+        Secret must contain the key `chap-username`.
+    chap-password:
+      type: secret
+      default: null
+      description: |
+        CHAP password for iSCSI authentication (optional).
+        Secret must contain the key `chap-password`.
+    hitachi-ldev-range:
+      type: string
+      default: null
+      description: LDEV range usable by the driver (e.g. "1000-1FFF").
+    hitachi-compute-target-ports:
+      type: string
+      default: null
+      description: |
+        Comma-separated list of storage port IDs used to attach volumes to
+        compute nodes (e.g. "CL1-A,CL2-A").
+    hitachi-discard-zero-page:
+      type: boolean
+      default: true
+      description: |
+        Enable zero-page reclamation in DP-VOLs.
+    hitachi-exec-retry-interval:
+      type: int
+      default: 5
+      description: |
+        Seconds to wait before retrying a REST API call.
+    hitachi-extend-timeout:
+      type: int
+      default: 600
+      description: |
+        Max seconds to wait for a volume extension to complete.
+    hitachi-group-create:
+      type: boolean
+      default: false
+      description: |
+        Automatically create host groups or iSCSI targets when needed.
+    hitachi-group-delete:
+      type: boolean
+      default: false
+      description: |
+        Automatically delete host groups or iSCSI targets when no longer used.
+    hitachi-group-name-format:
+      type: string
+      default: null
+      description: |
+        Python format string for naming host groups, iSCSI targets, and server objects.
+    hitachi-host-mode-options:
+      type: string
+      default: null
+      description: |
+        Comma-separated list of integers for host mode options on host groups or iSCSI targets.
+    hitachi-lock-timeout:
+      type: int
+      default: 7200
+      description: |
+        Max seconds to wait for array login or unlock operations.
+    hitachi-lun-retry-interval:
+      type: int
+      default: 1
+      description: |
+        Seconds to wait before retrying a LUN mapping REST API call.
+    hitachi-lun-timeout:
+      type: int
+      default: 50
+      description: |
+        Max seconds to wait for LUN mapping to complete.
+    hitachi-mirror-auth-username:
+      type: secret
+      default: null
+      description: |
+        CHAP username for iSCSI authentication (optional).
+        Secret must contain the key `hitachi-mirror-auth-username`.
+    hitachi-mirror-auth-password:
+      type: secret
+      default: null
+      description: |
+        CHAP password for iSCSI authentication (optional).
+        Secret must contain the key `hitachi-mirror-auth-password`.
+    hitachi-mirror-compute-target-ports:
+      type: string
+      default: null
+      description: |
+        Comma-separated compute-node port names for GAD host groups.
+    hitachi-mirror-ldev-range:
+      type: string
+      default: null
+      description: |
+        LDEV range for secondary storage system (e.g. "1000-1FFF").
+    hitachi-mirror-pair-target-number:
+      type: int
+      default: 0
+      description: |
+        Host group / iSCSI target number for GAD on secondary system.
+    hitachi-mirror-pool:
+      type: string
+      default: null
+      description: |
+        DP pool name/ID on secondary storage.
+    hitachi-mirror-rest-api-ip:
+      type: string
+      default: null
+      description: |
+        IP of the REST API server on secondary storage.
+    hitachi-mirror-rest-api-port:
+      type: int
+      default: 443
+      description: |
+        Port of the REST API server on secondary storage.
+    hitachi-mirror-rest-pair-target-ports:
+      type: string
+      default: null
+      description: |
+        Comma-separated pair-target port names for GAD on secondary system.
+    hitachi-mirror-rest-username:
+      type: secret
+      default: null
+      description: |
+        Username of secondary storage REST API (optional).
+        Secret must contain the key `hitachi-mirror-rest-username`.
+    hitachi-mirror-rest-password:
+      type: secret
+      default: null
+      description: |
+        Password of secondary storage REST API (optional).
+        Secret must contain the key `hitachi-mirror-rest-password`.
+    hitachi-mirror-snap-pool:
+      type: string
+      default: null
+      description: |
+        Snapshot pool (thin) on secondary storage.
+    hitachi-mirror-ssl-cert:
+      default: null
+      description: |
+        PEM-encoded SSL certificate to use for HTTPS connections to the
+        storage array. If unset, SSL verification is not performed.
+      type: string
+    hitachi-mirror-storage-id:
+      type: string
+      default: null
+      description: |
+        Product number of secondary storage system.
+    hitachi-mirror-target-ports:
+      type: string
+      default: null
+      description: |
+        Comma-separated controller node port IDs for GAD on secondary system.
+    hitachi-pair-target-number:
+      type: int
+      default: 0
+      description: |
+        Host group / iSCSI target number for primary replication.
+    hitachi-path-group-id:
+      type: int
+      default: 0
+      description: |
+        Path group ID for remote replication sessions.
+    hitachi-port-scheduler:
+      type: boolean
+      default: false
+      description: |
+        Enable round-robin WWN registration across configured ports.
+    hitachi-quorum-disk-id:
+      type: int
+      default: null
+      description: |
+        Quorum disk ID for Global-Active Device.
+    hitachi-replication-copy-speed:
+      type: int
+      default: 3
+      description: |
+        Copy speed for remote replication (1-15).
+    hitachi-replication-number:
+      type: int
+      default: 0
+      description: |
+        Instance number for REST API on replication.
+    hitachi-replication-status-check-long-interval:
+      type: int
+      default: 600
+      description: |
+        Poll interval (sec) after initial status check for replication.
+    hitachi-replication-status-check-short-interval:
+      type: int
+      default: 5
+      description: |
+        Initial poll interval (sec) for replication status.
+    hitachi-replication-status-check-timeout:
+      type: int
+      default: 86400
+      description: |
+        Max seconds to wait for replication status change.
+    hitachi-rest-another-ldev-mapped-retry-timeout:
+      type: int
+      default: 600
+      description: |
+        Retry seconds when LDEV allocation fails.
+    hitachi-rest-connect-timeout:
+      type: int
+      default: 30
+      description: |
+        Max seconds to establish REST API connection.
+    hitachi-rest-disable-io-wait:
+      type: boolean
+      default: true
+      description: |
+        Detach volumes immediately without waiting for I/O drain.
+    hitachi-rest-get-api-response-timeout:
+      type: int
+      default: 1800
+      description: |
+        Max seconds for synchronous REST GET responses.
+    hitachi-rest-job-api-response-timeout:
+      type: int
+      default: 1800
+      description: |
+        Max seconds for asynchronous REST PUT/DELETE responses.
+    hitachi-rest-keep-session-loop-interval:
+      type: int
+      default: 180
+      description: |
+        Seconds between keep-alive loops for REST session.
+    hitachi-rest-pair-target-ports:
+      type: string
+      default: null
+      description: |
+        Comma-separated pair-target port names for REST operations.
+    hitachi-rest-server-busy-timeout:
+      type: int
+      default: 7200
+      description: |
+        Max seconds when REST API returns busy.
+    hitachi-rest-tcp-keepalive:
+      type: boolean
+      default: true
+      description: |
+        Enable TCP keepalive for REST API connections.
+    hitachi-rest-tcp-keepcnt:
+      type: int
+      default: 4
+      description: |
+        Number of TCP keepalive probes.
+    hitachi-rest-tcp-keepidle:
+      type: int
+      default: 60
+      description: |
+        Seconds before sending first TCP keepalive.
+    hitachi-rest-tcp-keepintvl:
+      type: int
+      default: 15
+      description: |
+        Seconds between TCP keepalive probes.
+    hitachi-rest-timeout:
+      type: int
+      default: 30
+      description: |
+        Max seconds for each REST API call.
+    hitachi-restore-timeout:
+      type: int
+      default: 86400
+      description: |
+        Max seconds to wait for a restore operation.
+    hitachi-snap-pool:
+      type: string
+      default: null
+      description: |
+        Pool name/ID for snapshots.
+    hitachi-state-transition-timeout:
+      type: int
+      default: 900
+      description: |
+        Max seconds for a volume state transition.
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt-get update
+      apt-get install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
