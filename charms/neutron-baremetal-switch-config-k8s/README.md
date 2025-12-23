@@ -35,7 +35,7 @@ switch_info = nexus
 switch_id = 00:53:00:0a:0a:0a
 host = nexus.example.net
 username = user
-key_filename = /etc/neutron/ssh_keys/nexus_sshkey
+key_filename = /etc/neutron/sshkeys/nexus-sshkey
 ```
 
 Note that the configuration file references a `key_filename`. This key will
