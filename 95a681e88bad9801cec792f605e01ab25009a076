@@ -16,6 +16,23 @@
       "message": "LGTM",
       "revId": "95a681e88bad9801cec792f605e01ab25009a076",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6032a327_7ea22dd0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-12-23T07:20:53Z",
+      "side": 1,
+      "message": "recheck SSL error to reach github",
+      "revId": "95a681e88bad9801cec792f605e01ab25009a076",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
