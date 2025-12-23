@@ -196,6 +196,16 @@ class NeutronGenericSwitchConfigCharm(ops.CharmBase):
             all_configs.update(config)
 
     def _validate_section(self, secret_id, section_name, section):
+        # sections need to start with 'genericswitch:':
+        # https://github.com/openstack/networking-generic-switch/blob/55d0729c01df8eaab4ebeda466cd7fa3c2c758c4/networking_generic_switch/config.py#L72
+        if not section_name.startswith("genericswitch:"):
+            msg = (
+                f"The section '{section_name}' in secret '{secret_id}' does not "
+                "start with 'genericswitch:', as needed by the genericswitch "
+                "mechanism driver."
+            )
+            logger.error(msg)
+            raise sunbeam_guard.BlockedExceptionError(msg)
         if not section.get("device_type"):
             logger.error(
                 "Field 'device_type' missing from section '%s' in secret '%s'",
