@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9af892ab_5364b20a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2025-12-27T06:20:08Z",
+      "side": 1,
+      "message": "Need to resolve merge conflicts with https://review.opendev.org/c/openstack/sunbeam-charms/+/971704",
+      "revId": "7df283fdc3e7795493e1a40855bdd637691a90a8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
