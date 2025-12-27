@@ -708,7 +708,7 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Returns the list of ML2 mechanism drivers used."""
         ironic_rel = self.model.relations[IRONIC_API_RELATION]
         if ironic_rel:
-            return ["baremetal"]
+            return ["baremetal", "genericswitch"]
 
         return []
 
