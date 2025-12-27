@@ -37,7 +37,6 @@ SWITCH_CONFIG_RELATION_NAME = "switch-config"
 
 _GENERIC_CONFIG_OPTIONS = {
     "device_type",
-    "ngs_mac_address",
     "ip",
     "port",
     "username",
@@ -45,9 +44,25 @@ _GENERIC_CONFIG_OPTIONS = {
     "use_keys",
     "key_file",
     "secret",
-    "ngs_allowed_vlans",
-    "ngs_allowed_ports",
+    # NGS internal opts.
+    # https://github.com/openstack/networking-generic-switch/blob/unmaintained/2024.1/networking_generic_switch/devices/__init__.py#L28
+    "ngs_mac_address",
+    "ngs_trunk_ports",
     "ngs_port_default_vlan",
+    "ngs_physical_networks",
+    "ngs_ssh_disabled_algorithms",
+    "ngs_ssh_connect_timeout",
+    "ngs_ssh_connect_interval",
+    "ngs_max_connections",
+    "ngs_switchport_mode",
+    "ngs_disable_inactive_ports",
+    "ngs_network_name_format",
+    "ngs_manage_vlans",
+    "ngs_save_configuration",
+    "ngs_batch_requests",
+    "ngs_fake_sleep_min_s",
+    "ngs_fake_sleep_max_s",
+    "ngs_fake_failure_prob",
 }
 
 _NEUTRON_SSHKEYS_PATH = "/etc/neutron/sshkeys"
