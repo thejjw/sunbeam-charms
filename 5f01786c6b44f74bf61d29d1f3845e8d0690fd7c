@@ -16,6 +16,40 @@
       "message": "recheck",
       "revId": "5f01786c6b44f74bf61d29d1f3845e8d0690fd7c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d92e39dd_49b005df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-01-05T10:23:16Z",
+      "side": 1,
+      "message": "Can you add the relation in https://opendev.org/openstack/sunbeam-charms/src/branch/stable/2024.1/tests/openstack/smoke.yaml.j2 so that the relation is also used in CI testing",
+      "revId": "5f01786c6b44f74bf61d29d1f3845e8d0690fd7c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f2879e6_8e2087a9",
+        "filename": "charms/ironic-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-01-05T10:23:16Z",
+      "side": 1,
+      "message": "Can we make interface name as noop?",
+      "revId": "5f01786c6b44f74bf61d29d1f3845e8d0690fd7c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
