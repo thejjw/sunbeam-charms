@@ -26,6 +26,9 @@ discover_hosts_in_cells_interval = 120
 {% include "parts/section-database" %}
 
 [keystone_authtoken]
+{% if identity_credentials.region -%}
+region_name = {{ identity_credentials.region }}
+{%- endif %}
 {% include "parts/identity-data-id-creds" %}
 
 {% include "parts/section-service-credentials-from-identity-service" %}
