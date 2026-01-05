@@ -50,6 +50,24 @@
       "message": "Can we make interface name as noop?",
       "revId": "5f01786c6b44f74bf61d29d1f3845e8d0690fd7c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "19e1ec72_93950f8b",
+        "filename": "charms/ironic-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-01-05T10:51:03Z",
+      "side": 1,
+      "message": "The interface name should be same as the other side, so ignore my comment",
+      "parentUuid": "5f2879e6_8e2087a9",
+      "revId": "5f01786c6b44f74bf61d29d1f3845e8d0690fd7c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
