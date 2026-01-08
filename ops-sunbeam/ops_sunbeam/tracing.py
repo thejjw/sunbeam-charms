@@ -15,19 +15,23 @@
 
 """Utilities for tracing."""
 
+from pathlib import (
+    Path,
+)
 from typing import (
     Any,
     Callable,
     Optional,
     Sequence,
     TypeVar,
+    Union,
     overload,
 )
 
 _T = TypeVar("_T", bound=type)
 
 try:
-    from charms.tempo_k8s.v1.charm_tracing import (
+    from charms.tempo_coordinator_k8s.v0.charm_tracing import (
         trace_type,
     )
 except ImportError:
@@ -38,7 +42,7 @@ except ImportError:
 
 
 try:
-    from charms.tempo_k8s.v1.charm_tracing import (
+    from charms.tempo_coordinator_k8s.v0.charm_tracing import (
         trace_charm,
     )
 except ImportError:
@@ -48,6 +52,9 @@ except ImportError:
         server_cert: Optional[str] = None,
         service_name: Optional[str] = None,
         extra_types: Sequence[type] = (),
+        buffer_max_events: int = 100,
+        buffer_max_size_mib: int = 10,
+        buffer_path: Optional[Union[str, Path]] = None,
     ) -> Callable[[_T], _T]:
         """No-op decorator for tracing."""
 

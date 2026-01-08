@@ -13,7 +13,7 @@ dependencies = [
     "pydantic",
     "pyroute2",
     "netifaces",
-    "cosl==0.0.24",
+    "cosl",
     "lightkube",
     "lightkube-models",
     "ops",

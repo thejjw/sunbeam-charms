@@ -6,18 +6,16 @@ external-libraries:
   - charms.loki_k8s.v1.loki_push_api
   - charms.tempo_coordinator_k8s.v0.tracing
   - charms.tempo_coordinator_k8s.v0.charm_tracing
-  - charms.hydra.v0.oauth
-  - charms.kratos_external_idp_integrator.v0.kratos_external_provider
 internal-libraries:
-  - charms.horizon_k8s.v0.trusted_dashboard
-  - charms.keystone_saml_k8s.v1.keystone_saml
+  - charms.keystone_k8s.v1.identity_service
+  - charms.keystone_k8s.v0.identity_credentials
+  - charms.gnocchi_k8s.v0.gnocchi_service
 templates:
   - parts/section-database
   - parts/database-connection
   - parts/database-connection-settings
-  - parts/section-middleware
-  - parts/section-oslo-cache
+  - parts/section-identity
+  - parts/identity-data
   - parts/section-oslo-messaging-rabbit
-  - parts/section-oslo-middleware
-  - parts/section-oslo-notifications
-  - parts/section-signing
+  - parts/section-service-user
+  - ca-bundle.pem.j2
