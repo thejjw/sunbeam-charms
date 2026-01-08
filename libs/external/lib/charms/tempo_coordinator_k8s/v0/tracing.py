@@ -16,7 +16,7 @@ object only requires instantiating it, typically in the constructor of your char
  This relation must use the `tracing` interface.
  The `TracingEndpointRequirer` object may be instantiated as follows
 
-    from charms.tempo_k8s.v2.tracing import TracingEndpointRequirer
+    from charms.tempo_coordinator_k8s.v0.tracing import TracingEndpointRequirer
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -34,7 +34,7 @@ any point in time by calling the
 `TracingEndpointRequirer.request_protocols(*protocol:str, relation:Optional[Relation])` method.
 Using this method also allows you to use per-relation protocols.
 
-Units of provider charms obtain the tempo endpoint to which they will push their traces by calling
+Units of requirer charms obtain the tempo endpoint to which they will push their traces by calling
 `TracingEndpointRequirer.get_endpoint(protocol: str)`, where `protocol` is, for example:
 - `otlp_grpc`
 - `otlp_http`
@@ -44,7 +44,10 @@ Units of provider charms obtain the tempo endpoint to which they will push their
 If the `protocol` is not in the list of protocols that the charm requested at endpoint set-up time,
 the library will raise an error.
 
-## Requirer Library Usage
+We recommend that you scale up your tracing provider and relate it to an ingress so that your tracing requests
+go through the ingress and get load balanced across all units. Otherwise, if the provider's leader goes down, your tracing goes down.
+
+## Provider Library Usage
 
 The `TracingEndpointProvider` object may be used by charms to manage relations with their
 trace sources. For this purposes a Tempo-like charm needs to do two things
@@ -58,7 +61,7 @@ default value.
 For example a Tempo charm may instantiate the `TracingEndpointProvider` in its constructor as
 follows
 
-    from charms.tempo_k8s.v2.tracing import TracingEndpointProvider
+    from charms.tempo_coordinator_k8s.v0.tracing import TracingEndpointProvider
 
     def __init__(self, *args):
         super().__init__(*args)
@@ -69,6 +72,7 @@ follows
 
 
 """  # noqa: W505
+
 import enum
 import json
 import logging
@@ -97,17 +101,17 @@ from ops.charm import (
 )
 from ops.framework import EventSource, Object
 from ops.model import ModelError, Relation
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 # The unique Charmhub library identifier, never change it
-LIBID = "12977e9aa0b34367903d8afeb8c3d85d"
+LIBID = "d2f02b1f8d1244b5989fd55bc3a28943"
 
 # Increment this major API version when introducing breaking changes
-LIBAPI = 2
+LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 8
+LIBPATCH = 11
 
 PYDEPS = ["pydantic"]
 
@@ -126,9 +130,9 @@ ReceiverProtocol = Literal[
 ]
 
 RawReceiver = Tuple[ReceiverProtocol, str]
-"""Helper type. A raw receiver is defined as a tuple consisting of the protocol name, and the (external, if available),
-(secured, if available) resolvable server url.
-"""
+# Helper type. A raw receiver is defined as a tuple consisting of the protocol name, and the (external, if available),
+# (secured, if available) resolvable server url.
+
 
 BUILTIN_JUJU_KEYS = {"ingress-address", "private-address", "egress-subnets"}
 
@@ -140,15 +144,16 @@ class TransportProtocolType(str, enum.Enum):
     grpc = "grpc"
 
 
-receiver_protocol_to_transport_protocol: Dict[ReceiverProtocol, TransportProtocolType] = {
+receiver_protocol_to_transport_protocol: Dict[
+    ReceiverProtocol, TransportProtocolType
+] = {
     "zipkin": TransportProtocolType.http,
     "otlp_grpc": TransportProtocolType.grpc,
     "otlp_http": TransportProtocolType.http,
     "jaeger_thrift_http": TransportProtocolType.http,
     "jaeger_grpc": TransportProtocolType.grpc,
 }
-"""A mapping between telemetry protocols and their corresponding transport protocol.
-"""
+# A mapping between telemetry protocols and their corresponding transport protocol.
 
 
 class TracingError(Exception):
@@ -165,6 +170,10 @@ class ProtocolNotRequestedError(TracingError):
 
 class DataValidationError(TracingError):
     """Raised when data validation fails on IPU relation data."""
+
+
+class DataAccessPermissionError(TracingError):
+    """Raised when follower units attempt leader-only operations."""
 
 
 class AmbiguousRelationUsageError(TracingError):
@@ -338,7 +347,7 @@ else:
     class ProtocolType(BaseModel):
         """Protocol Type."""
 
-        model_config = ConfigDict(
+        model_config = ConfigDict(  # type: ignore
             # Allow serializing enum values.
             use_enum_values=True
         )
@@ -377,7 +386,7 @@ class Receiver(BaseModel):
     )
 
 
-class TracingProviderAppData(DatabagModel):  # noqa: D101
+class TracingProviderAppData(DatabagModel):  # noqa: D101 # type: ignore
     """Application databag model for the tracing provider."""
 
     receivers: List[Receiver] = Field(
@@ -386,7 +395,7 @@ class TracingProviderAppData(DatabagModel):  # noqa: D101
     )
 
 
-class TracingRequirerAppData(DatabagModel):  # noqa: D101
+class TracingRequirerAppData(DatabagModel):  # noqa: D101 # type: ignore
     """Application databag model for the tracing requirer."""
 
     receivers: List[ReceiverProtocol]
@@ -405,7 +414,9 @@ class _AutoSnapshotEvent(RelationEvent):
         super().__init__(handle, relation)
 
         if not len(self.__args__) == len(args):
-            raise TypeError("expected {} args, got {}".format(len(self.__args__), len(args)))
+            raise TypeError(
+                "expected {} args, got {}".format(len(self.__args__), len(args))
+            )
 
         for attr, obj in zip(self.__args__, args):
             setattr(self, attr, obj)
@@ -455,10 +466,8 @@ class RelationInterfaceMismatchError(Exception):
         self.relation_name = relation_name
         self.expected_relation_interface = expected_relation_interface
         self.actual_relation_interface = actual_relation_interface
-        self.message = (
-            "The '{}' relation has '{}' as interface rather than the expected '{}'".format(
-                relation_name, actual_relation_interface, expected_relation_interface
-            )
+        self.message = "The '{}' relation has '{}' as interface rather than the expected '{}'".format(
+            relation_name, actual_relation_interface, expected_relation_interface
         )
 
         super().__init__(self.message)
@@ -476,8 +485,10 @@ class RelationRoleMismatchError(Exception):
         self.relation_name = relation_name
         self.expected_relation_interface = expected_relation_role
         self.actual_relation_role = actual_relation_role
-        self.message = "The '{}' relation has role '{}' rather than the expected '{}'".format(
-            relation_name, repr(actual_relation_role), repr(expected_relation_role)
+        self.message = (
+            "The '{}' relation has role '{}' rather than the expected '{}'".format(
+                relation_name, repr(actual_relation_role), repr(expected_relation_role)
+            )
         )
 
         super().__init__(self.message)
@@ -538,7 +549,9 @@ def _validate_relation_by_interface_and_direction(
                 relation_name, RelationRole.requires, RelationRole.provides
             )
     else:
-        raise TypeError("Unexpected RelationDirection: {}".format(expected_relation_role))
+        raise TypeError(
+            "Unexpected RelationDirection: {}".format(expected_relation_role)
+        )
 
 
 class RequestEvent(RelationEvent):
@@ -614,7 +627,8 @@ class TracingEndpointProvider(Object):
             self._charm.on[relation_name].relation_changed, self._on_relation_event
         )
         self.framework.observe(
-            self._charm.on[relation_name].relation_broken, self._on_relation_broken_event
+            self._charm.on[relation_name].relation_broken,
+            self._on_relation_broken_event,
         )
 
     def _on_relation_broken_event(self, e: RelationBrokenEvent):
@@ -643,7 +657,7 @@ class TracingEndpointProvider(Object):
         try:
             databag = TracingRequirerAppData.load(relation.data[app])
         except (json.JSONDecodeError, pydantic.ValidationError, DataValidationError):
-            logger.info(f"relation {relation} is not ready to talk tracing")
+            logger.info("relation %s is not ready to talk tracing", relation)
             raise NotReadyError()
         return databag.receivers
 
@@ -691,8 +705,9 @@ class TracingEndpointProvider(Object):
                         b"ERROR cannot read relation application settings: permission denied"
                     ):
                         logger.error(
-                            f"encountered error {e} while attempting to update_relation_data."
-                            f"The relation must be gone."
+                            "encountered error %s while attempting to update_relation_data."
+                            "The relation must be gone.",
+                            e,
                         )
                         continue
                 raise
@@ -774,11 +789,23 @@ class TracingEndpointRequirer(Object):
         self._relation_name = relation_name
 
         events = self._charm.on[self._relation_name]
-        self.framework.observe(events.relation_changed, self._on_tracing_relation_changed)
+        self.framework.observe(
+            events.relation_changed, self._on_tracing_relation_changed
+        )
         self.framework.observe(events.relation_broken, self._on_tracing_relation_broken)
 
-        if protocols:
-            self.request_protocols(protocols)
+        if protocols and self._charm.unit.is_leader():
+            # we can't be sure that the current event context supports read/writing relation data for this relation,
+            # so we catch ModelErrors. This is because we're doing this in init.
+            try:
+                self.request_protocols(protocols)
+            except ModelError as e:
+                logger.error(
+                    "encountered error %s while attempting to request_protocols."
+                    "The relation must be gone.",
+                    e,
+                )
+                pass
 
     def request_protocols(
         self, protocols: Sequence[ReceiverProtocol], relation: Optional[Relation] = None
@@ -793,26 +820,13 @@ class TracingEndpointRequirer(Object):
                 "You need to pass a nonempty sequence of protocols to `request_protocols`."
             )
 
-        try:
-            if self._charm.unit.is_leader():
-                for relation in relations:
-                    TracingRequirerAppData(
-                        receivers=list(protocols),
-                    ).dump(relation.data[self._charm.app])
-
-        except ModelError as e:
-            # args are bytes
-            msg = e.args[0]
-            if isinstance(msg, bytes):
-                if msg.startswith(
-                    b"ERROR cannot read relation application settings: permission denied"
-                ):
-                    logger.error(
-                        f"encountered error {e} while attempting to request_protocols."
-                        f"The relation must be gone."
-                    )
-                    return
-            raise
+        if self._charm.unit.is_leader():
+            for relation in relations:
+                TracingRequirerAppData(
+                    receivers=list(protocols),
+                ).dump(relation.data[self._charm.app])
+        else:
+            raise DataAccessPermissionError("only leaders can request_protocols")
 
     @property
     def relations(self) -> List[Relation]:
@@ -837,20 +851,20 @@ class TracingEndpointRequirer(Object):
         """Is this endpoint ready?"""
         relation = relation or self._relation
         if not relation:
-            logger.debug(f"no relation on {self._relation_name !r}: tracing not ready")
+            logger.debug("no relation on %r: tracing not ready", self._relation_name)
             return False
         if relation.data is None:
-            logger.error(f"relation data is None for {relation}")
+            logger.error("relation data is None for %s", relation)
             return False
         if not relation.app:
-            logger.error(f"{relation} event received but there is no relation.app")
+            logger.error("%s event received but there is no relation.app", relation)
             return False
         try:
             databag = dict(relation.data[relation.app])
             TracingProviderAppData.load(databag)
 
         except (json.JSONDecodeError, pydantic.ValidationError, DataValidationError):
-            logger.info(f"failed validating relation data for {relation}")
+            logger.info("failed validating relation data for %s", relation)
             return False
         return True
 
@@ -888,13 +902,17 @@ class TracingEndpointRequirer(Object):
             filter(lambda i: i.protocol.name == protocol, app_data.receivers)
         )
         if not receivers:
-            logger.error(f"no receiver found with protocol={protocol!r}")
+            # it can happen if the charm requests tracing protocols, but the relay (such as grafana-agent) isn't yet
+            # connected to the tracing backend. In this case, it's not an error the charm author can do anything about
+            logger.warning("no receiver found with protocol=%r.", protocol)
             return
         if len(receivers) > 1:
-            logger.error(
-                f"too many receivers with protocol={protocol!r}; using first one. Found: {receivers}"
+            # if we have more than 1 receiver that matches, it shouldn't matter which receiver we'll be using.
+            logger.warning(
+                "too many receivers with protocol=%r; using first one. Found: %s",
+                protocol,
+                receivers,
             )
-            return
 
         receiver = receivers[0]
         return receiver.url
@@ -902,14 +920,25 @@ class TracingEndpointRequirer(Object):
     def get_endpoint(
         self, protocol: ReceiverProtocol, relation: Optional[Relation] = None
     ) -> Optional[str]:
-        """Receiver endpoint for the given protocol."""
+        """Receiver endpoint for the given protocol.
+
+        It could happen that this function gets called before the provider publishes the endpoints.
+        In such a scenario, if a non-leader unit calls this function, a permission denied exception will be raised due to
+        restricted access. To prevent this, this function needs to be guarded by the `is_ready` check.
+
+        Raises:
+        ProtocolNotRequestedError:
+            If the charm unit is the leader unit and attempts to obtain an endpoint for a protocol it did not request.
+        """
         endpoint = self._get_endpoint(relation or self._relation, protocol=protocol)
         if not endpoint:
             requested_protocols = set()
             relations = [relation] if relation else self.relations
             for relation in relations:
                 try:
-                    databag = TracingRequirerAppData.load(relation.data[self._charm.app])
+                    databag = TracingRequirerAppData.load(
+                        relation.data[self._charm.app]
+                    )
                 except DataValidationError:
                     continue
 
@@ -925,7 +954,7 @@ class TracingEndpointRequirer(Object):
 def charm_tracing_config(
     endpoint_requirer: TracingEndpointRequirer, cert_path: Optional[Union[Path, str]]
 ) -> Tuple[Optional[str], Optional[str]]:
-    """Utility function to determine the charm_tracing config you will likely want.
+    """Return the charm_tracing config you likely want.
 
     If no endpoint is provided:
      disable charm tracing.
@@ -937,9 +966,8 @@ def charm_tracing_config(
      proceed with charm tracing (with or without tls, as appropriate)
 
     Usage:
-      If you are using charm_tracing >= v1.9:
-    >>> from lib.charms.tempo_k8s.v1.charm_tracing import trace_charm
-    >>> from lib.charms.tempo_k8s.v2.tracing import charm_tracing_config
+    >>> from lib.charms.tempo_coordinator_k8s.v0.charm_tracing import trace_charm
+    >>> from lib.charms.tempo_coordinator_k8s.v0.tracing import charm_tracing_config
     >>> @trace_charm(tracing_endpoint="my_endpoint", cert_path="cert_path")
     >>> class MyCharm(...):
     >>>     _cert_path = "/path/to/cert/on/charm/container.crt"
@@ -947,40 +975,35 @@ def charm_tracing_config(
     >>>         self.tracing = TracingEndpointRequirer(...)
     >>>         self.my_endpoint, self.cert_path = charm_tracing_config(
     ...             self.tracing, self._cert_path)
-
-      If you are using charm_tracing < v1.9:
-    >>> from lib.charms.tempo_k8s.v1.charm_tracing import trace_charm
-    >>> from lib.charms.tempo_k8s.v2.tracing import charm_tracing_config
-    >>> @trace_charm(tracing_endpoint="my_endpoint", cert_path="cert_path")
-    >>> class MyCharm(...):
-    >>>     _cert_path = "/path/to/cert/on/charm/container.crt"
-    >>>     def __init__(self, ...):
-    >>>         self.tracing = TracingEndpointRequirer(...)
-    >>>         self._my_endpoint, self._cert_path = charm_tracing_config(
-    ...             self.tracing, self._cert_path)
-    >>>     @property
-    >>>     def my_endpoint(self):
-    >>>         return self._my_endpoint
-    >>>     @property
-    >>>     def cert_path(self):
-    >>>         return self._cert_path
-
     """
     if not endpoint_requirer.is_ready():
         return None, None
 
-    endpoint = endpoint_requirer.get_endpoint("otlp_http")
+    try:
+        endpoint = endpoint_requirer.get_endpoint("otlp_http")
+    except ModelError as e:
+        if e.args[0] == "ERROR permission denied\n":
+            # this can happen the app databag doesn't have data,
+            # or we're breaking the relation.
+            return None, None
+        raise
+
     if not endpoint:
         return None, None
 
     is_https = endpoint.startswith("https://")
 
     if is_https:
-        if cert_path is None:
-            raise TracingError("Cannot send traces to an https endpoint without a certificate.")
-        elif not Path(cert_path).exists():
-            # if endpoint is https BUT we don't have a server_cert yet:
-            # disable charm tracing until we do to prevent tls errors
+        if cert_path is None or not Path(cert_path).exists():
+            # disable charm tracing until we obtain a cert to prevent tls errors
+            logger.error(
+                "Tracing endpoint is https, but no server_cert has been passed."
+                "Please point @trace_charm to a `server_cert` attr. "
+                "This might also mean that the tracing provider is related to a "
+                "certificates provider, but this application is not (yet). "
+                "In that case, you might just have to wait a bit for the certificates "
+                "integration to settle. "
+            )
             return None, None
         return endpoint, str(cert_path)
     else:
