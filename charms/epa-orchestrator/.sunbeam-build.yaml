@@ -1,6 +1,6 @@
 external-libraries:
   - charms.operator_libs_linux.v2.snap
-  - charms.tempo_k8s.v2.tracing
-  - charms.tempo_k8s.v1.charm_tracing
+  - charms.tempo_coordinator_k8s.v0.tracing
+  - charms.tempo_coordinator_k8s.v0.charm_tracing
 internal-libraries: []
 templates: []

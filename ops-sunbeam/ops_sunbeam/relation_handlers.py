@@ -67,7 +67,7 @@ if typing.TYPE_CHECKING:
     import charms.nova_k8s.v0.nova_service as nova_service
     import charms.rabbitmq_k8s.v0.rabbitmq as rabbitmq
     import charms.sunbeam_libs.v0.service_readiness as service_readiness
-    import charms.tempo_k8s.v2.tracing as tracing
+    import charms.tempo_coordinator_k8s.v0.tracing as tracing
     import charms.tls_certificates_interface.v4.tls_certificates as tls_certificates
     import charms.traefik_k8s.v0.traefik_route as traefik_route
     import charms.traefik_k8s.v2.ingress as ingress
@@ -2303,7 +2303,7 @@ class TracingRequireHandler(RelationHandler):
 
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for tracing relation."""
-        import charms.tempo_k8s.v2.tracing as tracing
+        import charms.tempo_coordinator_k8s.v0.tracing as tracing
 
         tracing_interface = sunbeam_tracing.trace_type(
             tracing.TracingEndpointRequirer
