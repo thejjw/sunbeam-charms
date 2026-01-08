@@ -1,8 +1,8 @@
 external-libraries:
   - charms.traefik_k8s.v2.ingress
   - charms.loki_k8s.v1.loki_push_api
-  - charms.tempo_k8s.v2.tracing
-  - charms.tempo_k8s.v1.charm_tracing
+  - charms.tempo_coordinator_k8s.v0.tracing
+  - charms.tempo_coordinator_k8s.v0.charm_tracing
   - charms.certificate_transfer_interface.v0.certificate_transfer
 internal-libraries:
   - charms.keystone_k8s.v1.identity_service
