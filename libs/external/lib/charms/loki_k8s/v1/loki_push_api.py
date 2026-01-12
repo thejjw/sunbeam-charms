@@ -190,10 +190,7 @@ The `LokiPushApiConsumer` constructor requires two things:
   with its clients. If provided, this relation name must match a required
   relation in metadata.yaml with the `loki_push_api` interface.
 
-  This argument is not required if your metadata.yaml has precisely one
-  required relation in metadata.yaml with the `loki_push_api` interface, as the
-  lib will automatically resolve the relation name inspecting the using the
-  meta information of the charm
+  If not provided, the relation name defaults to `logging`.
 
 Any time the relation between a Loki provider charm and a Loki consumer charm is
 established, a `LokiPushApiEndpointJoined` event is fired. In the consumer side
@@ -480,8 +477,28 @@ Loki Push API and alert rules.
 
 Units of consumer charm send their alert rules over app relation data using the `alert_rules`
 key.
+
+## Charm logging
+The `charms.loki_k8s.v0.charm_logging` library can be used in conjunction with this one to configure python's
+logging module to forward all logs to Loki via the loki-push-api interface.
+
+```python
+from lib.charms.loki_k8s.v0.charm_logging import log_charm
+from lib.charms.loki_k8s.v1.loki_push_api import charm_logging_config, LokiPushApiConsumer
+
+@log_charm(logging_endpoint="my_endpoints", server_cert="cert_path")
+class MyCharm(...):
+    _cert_path = "/path/to/cert/on/charm/container.crt"
+    def __init__(self, ...):
+        self.logging = LokiPushApiConsumer(...)
+        self.my_endpoints, self.cert_path = charm_logging_config(
+            self.logging, self._cert_path)
+```
+
+Do this, and all charm logs will be forwarded to Loki as soon as a relation is formed.
 """
 
+import copy
 import json
 import logging
 import os
@@ -514,7 +531,7 @@ from ops.charm import (
     RelationRole,
     WorkloadEvent,
 )
-from ops.framework import EventBase, EventSource, Object, ObjectEvents
+from ops.framework import BoundEvent, EventBase, EventSource, Object, ObjectEvents
 from ops.jujuversion import JujuVersion
 from ops.model import Container, ModelError, Relation
 from ops.pebble import APIError, ChangeError, Layer, PathError, ProtocolError
@@ -527,7 +544,7 @@ LIBAPI = 1
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 11
+LIBPATCH = 21
 
 PYDEPS = ["cosl"]
 
@@ -577,7 +594,11 @@ HTTP_LISTEN_PORT_START = 9080  # even start port
 GRPC_LISTEN_PORT_START = 9095  # odd start port
 
 
-class RelationNotFoundError(ValueError):
+class LokiPushApiError(Exception):
+    """Base class for errors raised by this module."""
+
+
+class RelationNotFoundError(LokiPushApiError):
     """Raised if there is no relation with the given name."""
 
     def __init__(self, relation_name: str):
@@ -587,7 +608,7 @@ class RelationNotFoundError(ValueError):
         super().__init__(self.message)
 
 
-class RelationInterfaceMismatchError(Exception):
+class RelationInterfaceMismatchError(LokiPushApiError):
     """Raised if the relation with the given name has a different interface."""
 
     def __init__(
@@ -607,7 +628,7 @@ class RelationInterfaceMismatchError(Exception):
         super().__init__(self.message)
 
 
-class RelationRoleMismatchError(Exception):
+class RelationRoleMismatchError(LokiPushApiError):
     """Raised if the relation with the given name has a different direction."""
 
     def __init__(
@@ -1331,7 +1352,7 @@ class LokiPushApiProvider(Object):
 
         Return url to loki, including port number, but without the endpoint subpath.
         """
-        return "http://{}:{}".format(socket.getfqdn(), self.port)
+        return f"{self.scheme}://{socket.getfqdn()}:{self.port}"
 
     def _endpoint(self, url) -> dict:
         """Get Loki push API endpoint for a given url.
@@ -1520,10 +1541,15 @@ class ConsumerBase(Object):
         alert_rules_path: str = DEFAULT_ALERT_RULES_RELATIVE_PATH,
         recursive: bool = False,
         skip_alert_topology_labeling: bool = False,
+        *,
+        forward_alert_rules: bool = True,
+        extra_alert_labels: Dict = {},
     ):
         super().__init__(charm, relation_name)
         self._charm = charm
         self._relation_name = relation_name
+        self._forward_alert_rules = forward_alert_rules
+        self._extra_alert_labels = extra_alert_labels
         self.topology = JujuTopology.from_charm(charm)
 
         try:
@@ -1539,6 +1565,15 @@ class ConsumerBase(Object):
 
         self._recursive = recursive
 
+    @staticmethod
+    def _inject_extra_labels_to_alert_rules(rules: Dict, extra_alert_labels: Dict) -> Dict:
+        """Return a copy of the rules dict with extra labels injected."""
+        result = copy.deepcopy(rules)
+        for group in result.get("groups", []):
+            for rule in group.get("rules", []):
+                rule.setdefault("labels", {}).update(extra_alert_labels)
+        return result
+
     def _handle_alert_rules(self, relation):
         if not self._charm.unit.is_leader():
             return
@@ -1546,8 +1581,14 @@ class ConsumerBase(Object):
         alert_rules = (
             AlertRules(None) if self._skip_alert_topology_labeling else AlertRules(self.topology)
         )
-        alert_rules.add_path(self._alert_rules_path, recursive=self._recursive)
+        if self._forward_alert_rules:
+            alert_rules.add_path(self._alert_rules_path, recursive=self._recursive)
         alert_rules_as_dict = alert_rules.as_dict()
+
+        if self._extra_alert_labels:
+            alert_rules_as_dict = ConsumerBase._inject_extra_labels_to_alert_rules(
+                alert_rules_as_dict, self._extra_alert_labels
+            )
 
         relation.data[self._charm.app]["metadata"] = json.dumps(self.topology.as_dict())
         relation.data[self._charm.app]["alert_rules"] = json.dumps(
@@ -1560,26 +1601,44 @@ class ConsumerBase(Object):
         """Fetch Loki Push API endpoints sent from LokiPushApiProvider through relation data.
 
         Returns:
-            A list of dictionaries with Loki Push API endpoints, for instance:
+            A list of unique dictionaries with Loki Push API endpoints, for instance:
             [
                 {"url": "http://loki1:3100/loki/api/v1/push"},
                 {"url": "http://loki2:3100/loki/api/v1/push"},
             ]
         """
-        endpoints = []  # type: list
+        endpoints = []
+        seen_urls = set()
 
         for relation in self._charm.model.relations[self._relation_name]:
             for unit in relation.units:
                 if unit.app == self._charm.app:
-                    # This is a peer unit
                     continue
 
-                endpoint = relation.data[unit].get("endpoint")
-                if endpoint:
-                    deserialized_endpoint = json.loads(endpoint)
-                    endpoints.append(deserialized_endpoint)
+                if not (endpoint := relation.data[unit].get("endpoint")):
+                    continue
+
+                deserialized_endpoint = json.loads(endpoint)
+                url = deserialized_endpoint.get("url")
+
+                # Deduplicate by URL.
+                # With loki-k8s we have ingress-per-unit, so in that case
+                # we do want to collect the URLs of all the units.
+                # With loki-coordinator-k8s, even when the coordinator
+                # is scaled, we want to advertise only one URL.
+                # Without deduplication, we'd end up with the same
+                # tls config section in the promtail config file, in which
+                # case promtail immediately exits with the following error:
+                # [promtail] level=error ts=<timestamp> msg="error creating promtail" error="failed to create client manager: duplicate client configs are not allowed, found duplicate for name: "
+
+                if not url or url in seen_urls:
+                    continue
+
+                seen_urls.add(url)
+                endpoints.append(deserialized_endpoint)
 
         return endpoints
+
 
 
 class LokiPushApiConsumer(ConsumerBase):
@@ -1594,6 +1653,10 @@ class LokiPushApiConsumer(ConsumerBase):
         alert_rules_path: str = DEFAULT_ALERT_RULES_RELATIVE_PATH,
         recursive: bool = True,
         skip_alert_topology_labeling: bool = False,
+        *,
+        refresh_event: Optional[Union[BoundEvent, List[BoundEvent]]] = None,
+        forward_alert_rules: bool = True,
+        extra_alert_labels: Dict = {},
     ):
         """Construct a Loki charm client.
 
@@ -1619,6 +1682,10 @@ class LokiPushApiConsumer(ConsumerBase):
             alert_rules_path: a string indicating a path where alert rules can be found
             recursive: Whether to scan for rule files recursively.
             skip_alert_topology_labeling: whether to skip the alert topology labeling.
+            forward_alert_rules: a boolean flag to toggle forwarding of charmed alert rules.
+            extra_alert_labels: Dict of extra labels to inject alert rules with.
+            refresh_event: an optional bound event or list of bound events which
+                will be observed to re-set scrape job data (IP address and others)
 
         Raises:
             RelationNotFoundError: If there is no relation in the charm's metadata.yaml
@@ -1644,13 +1711,26 @@ class LokiPushApiConsumer(ConsumerBase):
             charm, relation_name, RELATION_INTERFACE_NAME, RelationRole.requires
         )
         super().__init__(
-            charm, relation_name, alert_rules_path, recursive, skip_alert_topology_labeling
+            charm,
+            relation_name,
+            alert_rules_path,
+            recursive,
+            skip_alert_topology_labeling,
+            forward_alert_rules=forward_alert_rules,
+            extra_alert_labels=extra_alert_labels,
         )
         events = self._charm.on[relation_name]
         self.framework.observe(self._charm.on.upgrade_charm, self._on_lifecycle_event)
+        self.framework.observe(self._charm.on.config_changed, self._on_lifecycle_event)
         self.framework.observe(events.relation_joined, self._on_logging_relation_joined)
         self.framework.observe(events.relation_changed, self._on_logging_relation_changed)
         self.framework.observe(events.relation_departed, self._on_logging_relation_departed)
+
+        if refresh_event:
+            if not isinstance(refresh_event, list):
+                refresh_event = [refresh_event]
+            for ev in refresh_event:
+                self.framework.observe(ev, self._on_lifecycle_event)
 
     def _on_lifecycle_event(self, _: HookEvent):
         """Update require relation data on charm upgrades and other lifecycle events.
@@ -1711,8 +1791,11 @@ class LokiPushApiConsumer(ConsumerBase):
 
         self.on.loki_push_api_endpoint_joined.emit()
 
-    def _reinitialize_alert_rules(self):
+    def reload_alerts(self) -> None:
         """Reloads alert rules and updates all relations."""
+        self._reinitialize_alert_rules()
+
+    def _reinitialize_alert_rules(self):
         for relation in self._charm.model.relations[self._relation_name]:
             self._handle_alert_rules(relation)
 
@@ -2527,10 +2610,17 @@ class LogForwarder(ConsumerBase):
         alert_rules_path: str = DEFAULT_ALERT_RULES_RELATIVE_PATH,
         recursive: bool = True,
         skip_alert_topology_labeling: bool = False,
+        refresh_event: Optional[Union[BoundEvent, List[BoundEvent]]] = None,
+        forward_alert_rules: bool = True,
     ):
         _PebbleLogClient.check_juju_version()
         super().__init__(
-            charm, relation_name, alert_rules_path, recursive, skip_alert_topology_labeling
+            charm,
+            relation_name,
+            alert_rules_path,
+            recursive,
+            skip_alert_topology_labeling,
+            forward_alert_rules=forward_alert_rules,
         )
         self._charm = charm
         self._relation_name = relation_name
@@ -2540,6 +2630,12 @@ class LogForwarder(ConsumerBase):
         self.framework.observe(on.relation_changed, self._update_logging)
         self.framework.observe(on.relation_departed, self._update_logging)
         self.framework.observe(on.relation_broken, self._update_logging)
+
+        if refresh_event:
+            if not isinstance(refresh_event, list):
+                refresh_event = [refresh_event]
+            for ev in refresh_event:
+                self.framework.observe(ev, self._update_logging)
 
         for container_name in self._charm.meta.containers.keys():
             snake_case_container_name = container_name.replace("-", "_")
@@ -2555,14 +2651,18 @@ class LogForwarder(ConsumerBase):
 
         self._update_endpoints(event.workload, loki_endpoints)
 
-    def _update_logging(self, _):
+    def _update_logging(self, event: RelationEvent):
         """Update the log forwarding to match the active Loki endpoints."""
         if not (loki_endpoints := self._retrieve_endpoints_from_relation()):
             logger.warning("No Loki endpoints available")
             return
 
         for container in self._charm.unit.containers.values():
-            self._update_endpoints(container, loki_endpoints)
+            if container.can_connect():
+                self._update_endpoints(container, loki_endpoints)
+            # else: `_update_endpoints` will be called on pebble-ready anyway.
+
+        self._handle_alert_rules(event.relation)
 
     def _retrieve_endpoints_from_relation(self) -> dict:
         loki_endpoints = {}
@@ -2748,3 +2848,49 @@ class CosTool:
         result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE)
         output = result.stdout.decode("utf-8").strip()
         return output
+
+
+def charm_logging_config(
+    endpoint_requirer: LokiPushApiConsumer, cert_path: Optional[Union[Path, str]]
+) -> Tuple[Optional[List[str]], Optional[str]]:
+    """Utility function to determine the charm_logging config you will likely want.
+
+    If no endpoint is provided:
+     disable charm logging.
+    If https endpoint is provided but cert_path is not found on disk:
+     disable charm logging.
+    If https endpoint is provided and cert_path is None:
+     ERROR
+    Else:
+     proceed with charm logging (with or without tls, as appropriate)
+
+    Args:
+        endpoint_requirer: an instance of LokiPushApiConsumer.
+        cert_path: a path where a cert is stored.
+
+    Returns:
+        A tuple with (optionally) the values of the endpoints and the certificate path.
+
+    Raises:
+         LokiPushApiError: if some endpoint are http and others https.
+    """
+    endpoints = [ep["url"] for ep in endpoint_requirer.loki_endpoints]
+    if not endpoints:
+        return None, None
+
+    https = tuple(endpoint.startswith("https://") for endpoint in endpoints)
+
+    if all(https):  # all endpoints are https
+        if cert_path is None:
+            raise LokiPushApiError("Cannot send logs to https endpoints without a certificate.")
+        if not Path(cert_path).exists():
+            # if endpoints is https BUT we don't have a server_cert yet:
+            # disable charm logging until we do to prevent tls errors
+            return None, None
+        return endpoints, str(cert_path)
+
+    if all(not x for x in https):  # all endpoints are http
+        return endpoints, None
+
+    # if there's a disagreement, that's very weird:
+    raise LokiPushApiError("Some endpoints are http, some others are https. That's not good.")
