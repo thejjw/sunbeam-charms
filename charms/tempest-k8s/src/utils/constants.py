@@ -41,14 +41,6 @@ RECEIVE_CA_CERT_RELATION_NAME = "receive-ca-cert"
 
 TEMPEST_CONCURRENCY = get_tempest_concurrency()
 
-# It's desirable to have more accounts than the concurrency,
-# so it can be hardcoded to a value that is
-# more than the max concurrency (see get_tempest_concurrency()),
-# and still a relatively small number of accounts.
-# It's also helpful to have more accounts to mitigate the effects
-# of credential locks not being released as per LP: #2052752.
-TEMPEST_ACCOUNTS_COUNT = "8"
-
 TEMPEST_HOME = "/var/lib/tempest"
 TEMPEST_WORKSPACE_PATH = f"{TEMPEST_HOME}/workspace"
 TEMPEST_CONF = f"{TEMPEST_WORKSPACE_PATH}/etc/tempest.conf"

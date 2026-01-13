@@ -436,6 +436,21 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.charm._on_get_lists_action(action_event)
         action_event.fail.assert_not_called()
 
+    def test_accounts_count_config_propagates_to_env(self):
+        """tempest-accounts-count config appears in TEMPEST_ACCOUNTS_COUNT env."""
+        self.add_identity_ops_relation(self.harness)
+        env = self.harness.charm._get_environment_for_tempest(
+            TempestEnvVariant.ADHOC
+        )
+        # default tempest-accounts-count is 8
+        self.assertEqual(env["TEMPEST_ACCOUNTS_COUNT"], "8")
+
+        self.harness.update_config({"tempest-accounts-count": "12"})
+        env = self.harness.charm._get_environment_for_tempest(
+            TempestEnvVariant.ADHOC
+        )
+        self.assertEqual(env["TEMPEST_ACCOUNTS_COUNT"], "12")
+
     def test_get_list_action_not_ready(self):
         """Test get-list action when pebble is not ready."""
         test_utils.set_all_pebbles_ready(self.harness)

@@ -54,6 +54,18 @@ config:
         A comma-separated list of Sunbeam node roles to be used for enabling
         tempest tests. Removing a role from the list will disable tempest tests
         relating to that role. Valid roles are: storage, compute, control.
+    tempest-accounts-count:
+      type: string
+      default: "8"
+      description: |
+        Number of tempest accounts for testing.
+
+        It's desirable to have more accounts than the concurrency so it can be
+        set to a value higher than the max concurrency (see
+        get_tempest_concurrency()) while remaining a relatively small number.
+
+        This also helps mitigate effects of credential locks not being released
+        (LP: #2052752).
 
 actions:
   validate:
