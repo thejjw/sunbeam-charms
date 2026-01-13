@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9876c397_7ad15f18",
+        "filename": "charms/tempest-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-01-13T08:45:31Z",
+      "side": 1,
+      "message": "Is there a reason why this is of type string instead of int?\n\nDo you plan to add a magic value?",
+      "range": {
+        "startLine": 58,
+        "startChar": 12,
+        "endLine": 58,
+        "endChar": 18
+      },
+      "revId": "72853441eb053daeab3a28be23d09110cfde02bf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bb9d1f86_f072dcc4",
+        "filename": "charms/tempest-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-01-13T08:45:31Z",
+      "side": 1,
+      "message": "Isn\u0027t this comment better being part of the description? So that people outside of the code base doing a `juju config tempest-k8s` can read and reason about this value better?",
+      "range": {
+        "startLine": 60,
+        "startChar": 8,
+        "endLine": 65,
+        "endChar": 69
+      },
+      "revId": "72853441eb053daeab3a28be23d09110cfde02bf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
