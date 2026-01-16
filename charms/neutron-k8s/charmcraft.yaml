@@ -116,6 +116,14 @@ config:
         When enabled, floating IPs are managed by distributed routers.
       type: boolean
 
+actions:
+  pause:
+    description: Pause container services
+    additionalProperties: false
+  resume:
+    description: Resume container services
+    additionalProperties: false
+
 containers:
   neutron-server:
     resource: neutron-server-image

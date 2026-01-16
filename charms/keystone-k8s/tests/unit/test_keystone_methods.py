@@ -118,7 +118,6 @@ def _identity_service_relation():
         remote_units_data={0: {}},
     )
 
-
 # ---------------------------------------------------------------------------
 # Utility function test (pure, no charm needed)
 # ---------------------------------------------------------------------------
@@ -540,6 +539,53 @@ class TestActions:
         assert "username" in ctx2.action_results
         assert ctx2.action_results["username"] == "admin"
         assert "openrc" in ctx2.action_results
+
+    def test_pause_sets_maintenance_status(self, ctx, complete_state):
+        """Pause action set the unit in maintenance and pause containers."""
+        state_mid = _bootstrap(ctx, complete_state)
+
+        ctx2 = _new_ctx()
+        state_paused = ctx2.run(ctx2.on.action("pause"), state_mid)
+
+        # Fire config-changed while paused won't change the status
+        # or container states
+        cleanup_database_requires_events()
+        ctx3 = _new_ctx()
+        state_out = ctx3.run(ctx3.on.config_changed(), state_paused)
+
+        container = state_out.get_container("keystone")
+        wsgi_status = container.service_statuses.get("wsgi-keystone")
+
+        assert wsgi_status == testing.pebble.ServiceStatus.INACTIVE, (
+            f"Expected wsgi-keystone to be INACTIVE after pause, "
+            f"got {wsgi_status}"
+        )
+
+        assert isinstance(state_out.unit_status, testing.MaintenanceStatus)
+        assert "Paused" in state_out.unit_status.message
+
+
+    def test_resume_restores_active_status(self, ctx, complete_state):
+        """Resume set the unit to active and restarts containers."""
+        state_mid = _bootstrap(ctx, complete_state)
+
+        # Pause first
+        ctx2 = _new_ctx()
+        state_paused = ctx2.run(ctx2.on.action("pause"), state_mid)
+
+        # Resume
+        cleanup_database_requires_events()
+        ctx3 = _new_ctx()
+        state_resumed = ctx3.run(ctx3.on.action("resume"), state_paused)
+
+        container = state_resumed.get_container("keystone")
+        wsgi_status = container.service_statuses.get("wsgi-keystone")
+        assert wsgi_status == testing.pebble.ServiceStatus.ACTIVE, (
+            f"Expected wsgi-keystone to be ACTIVE after resume, "
+            f"got {wsgi_status}"
+        )
+
+        assert state_resumed.unit_status == testing.ActiveStatus("")
 
 
 # ---------------------------------------------------------------------------

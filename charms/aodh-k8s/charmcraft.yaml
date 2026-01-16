@@ -42,6 +42,14 @@ config:
         means all). (integer value)
       type: int
 
+actions:
+  pause:
+    description: Pause container services
+    additionalProperties: false
+  resume:
+    description: Resume container services
+    additionalProperties: false
+
 containers:
   aodh-api:
     resource: aodh-api-image
