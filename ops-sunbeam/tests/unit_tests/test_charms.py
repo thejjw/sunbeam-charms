@@ -103,6 +103,12 @@ tags:
 
 subordinate: false
 
+actions:
+    pause:
+        description: Pause service
+    resume:
+        description: Resume service
+
 requires:
   database:
     interface: mysql_client

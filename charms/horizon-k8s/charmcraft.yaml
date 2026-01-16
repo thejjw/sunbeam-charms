@@ -193,6 +193,12 @@ config:
 actions:
   get-dashboard-url:
     description: URL for access to the Horizon OpenStack Dashboard.
+  pause:
+    description: Pause container services
+    additionalProperties: false
+  resume:
+    description: Resume container services
+    additionalProperties: false
 
 containers:
   horizon:

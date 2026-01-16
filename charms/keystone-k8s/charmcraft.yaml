@@ -129,6 +129,12 @@ actions:
     description: |
       List CA certs uploaded for transfer.
       Certificate names with `.` will be replace with `-`.
+  pause:
+    description: Pause container services
+    additionalProperties: false
+  resume:
+    description: Resume container services
+    additionalProperties: false
 
 containers:
   keystone:
