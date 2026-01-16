@@ -486,6 +486,8 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.charm.peers.interface.peers_rel.data.__getitem__.return_value = {
             TEMPEST_READY_KEY: ""
         }
+        # Ensure the unit is not considered paused by the base charm
+        self.harness.charm.peers.is_unit_paused = Mock(return_value=False)
 
         mock_pebble = Mock()
         mock_pebble.init_tempest = Mock(side_effect=RuntimeError)
