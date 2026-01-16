@@ -35,6 +35,7 @@ import ops_sunbeam.tracing as sunbeam_tracing
 from ops.model import (
     ActiveStatus,
     BlockedStatus,
+    MaintenanceStatus,
     WaitingStatus,
 )
 
@@ -280,11 +281,44 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
             logger.error("Not able to add Healthcheck layer")
             logger.exception(connect_error)
 
+    def stop_healthcheck(self, check_name: str) -> None:
+        """Stop a healthcheck."""
+        container = self.charm.unit.get_container(self.container_name)
+        try:
+            plan = container.get_plan()
+            if plan.checks and check_name in plan.checks:
+                logger.debug(f"Stopping healthcheck for {check_name}")
+                container.stop_checks("up")
+
+        except ops.pebble.ConnectionError as connect_error:
+            logger.error("Not able to stop the %s healthcheck", check_name)
+            logger.exception(connect_error)
+
+    def start_healthcheck(self, check_name: str) -> None:
+        """Start a healthcheck."""
+        container = self.charm.unit.get_container(self.container_name)
+        try:
+            plan = container.get_plan()
+            if plan.checks and check_name in plan.checks:
+                logger.debug(f"Starting healthcheck for {check_name}")
+                container.start_checks("up")
+
+        except ops.pebble.ConnectionError as connect_error:
+            logger.error("Not able to start the %s healthcheck", check_name)
+            logger.exception(connect_error)
+
     def _on_update_status(self, event: ops.framework.EventBase) -> None:
         """Assess and set status.
 
         Also takes into account healthchecks.
         """
+        if self.is_service_paused():
+            self.status.set(
+                MaintenanceStatus(
+                    "Paused. Use 'resume' action to resume normal service."
+                )
+            )
+            return
         if not self.pebble_ready:
             self.status.set(WaitingStatus("pebble not ready"))
             return
@@ -318,6 +352,13 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
             return
 
         self.status.set(ActiveStatus(""))
+
+    def is_service_paused(self) -> bool:
+        """Determine whether service is paused.
+
+        Override in inheriting classes to provide pause functionality.
+        """
+        return False
 
     @staticmethod
     def _restart_service(container: ops.Container, service_name: str) -> None:
@@ -561,3 +602,9 @@ class WSGIPebbleHandler(PebbleHandler):
         return [
             sunbeam_core.ContainerConfigFile(self.wsgi_conf, "root", "root")
         ]
+
+    def is_service_paused(self) -> bool:
+        """Determine whether service is paused."""
+        container = self.charm.unit.get_container(self.container_name)
+        check = container.get_check("up")
+        return check.status == ops.pebble.CheckStatus.INACTIVE
