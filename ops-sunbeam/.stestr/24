@@ -1,0 +1,581 @@
+time: 2026-01-27 19:19:45.524975Z
+tags: worker-4
+test: tests.unit_tests.test_compound_status.TestCompoundStatus.test_add_status_idempotency
+time: 2026-01-27 19:19:45.540863Z
+successful: tests.unit_tests.test_compound_status.TestCompoundStatus.test_add_status_idempotency [ multipart
+]
+tags: -worker-4
+time: 2026-01-27 19:19:45.542625Z
+tags: worker-11
+test: tests.unit_tests.test_compound_status.TestCompoundStatus.test_status_new_unknown_message
+time: 2026-01-27 19:19:45.550770Z
+successful: tests.unit_tests.test_compound_status.TestCompoundStatus.test_status_new_unknown_message [ multipart
+]
+tags: -worker-11
+time: 2026-01-27 19:19:45.541163Z
+tags: worker-4
+test: tests.unit_tests.test_compound_status.TestCompoundStatus.test_status_pool_priority
+time: 2026-01-27 19:19:45.552934Z
+successful: tests.unit_tests.test_compound_status.TestCompoundStatus.test_status_pool_priority [ multipart
+]
+tags: -worker-4
+time: 2026-01-27 19:19:45.553502Z
+tags: worker-4
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_snap_name_property
+time: 2026-01-27 19:19:45.559162Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_snap_name_property [ multipart
+]
+tags: -worker-4
+time: 2026-01-27 19:19:45.551286Z
+tags: worker-11
+test: tests.unit_tests.test_compound_status.TestCompoundStatus.test_status_triggering_on_set
+time: 2026-01-27 19:19:45.560549Z
+successful: tests.unit_tests.test_compound_status.TestCompoundStatus.test_status_triggering_on_set [ multipart
+]
+tags: -worker-11
+time: 2026-01-27 19:19:45.566633Z
+tags: worker-12
+test: tests.unit_tests.test_compound_status.TestCompoundStatus.test_serializing_status
+time: 2026-01-27 19:19:45.578983Z
+successful: tests.unit_tests.test_compound_status.TestCompoundStatus.test_serializing_status [ multipart
+]
+tags: -worker-12
+time: 2026-01-27 19:19:45.532604Z
+tags: worker-8
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_admin_url_fallback_to_service_dns
+time: 2026-01-27 19:19:45.582610Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_admin_url_fallback_to_service_dns [ multipart
+]
+tags: -worker-8
+time: 2026-01-27 19:19:45.565754Z
+tags: worker-13
+test: tests.unit_tests.test_compound_status.TestCompoundStatus.test_all_active_status
+time: 2026-01-27 19:19:45.586296Z
+successful: tests.unit_tests.test_compound_status.TestCompoundStatus.test_all_active_status [ multipart
+]
+tags: -worker-13
+time: 2026-01-27 19:19:45.582828Z
+tags: worker-8
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_internal_url_fallback_to_service_dns
+time: 2026-01-27 19:19:45.594804Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_internal_url_fallback_to_service_dns [ multipart
+]
+tags: -worker-8
+time: 2026-01-27 19:19:45.595106Z
+tags: worker-8
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_peer_unit_data
+time: 2026-01-27 19:19:45.610116Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_peer_unit_data [ multipart
+]
+tags: -worker-8
+time: 2026-01-27 19:19:45.527729Z
+tags: worker-6
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_endpoint_urls
+time: 2026-01-27 19:19:45.614326Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_endpoint_urls [ multipart
+]
+tags: -worker-6
+time: 2026-01-27 19:19:45.569408Z
+tags: worker-14
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_peer_leader_ready
+time: 2026-01-27 19:19:45.616301Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_peer_leader_ready [ multipart
+]
+tags: -worker-14
+time: 2026-01-27 19:19:45.562963Z
+tags: worker-11
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_internal_url_ingress_internal
+time: 2026-01-27 19:19:45.626838Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_internal_url_ingress_internal [ multipart
+]
+tags: -worker-11
+time: 2026-01-27 19:19:45.616445Z
+tags: worker-14
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_public_url_fallback_to_internal
+time: 2026-01-27 19:19:45.629976Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_public_url_fallback_to_internal [ multipart
+]
+tags: -worker-14
+time: 2026-01-27 19:19:45.546698Z
+tags: worker-7
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_public_url_ingress_public
+time: 2026-01-27 19:19:45.627929Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_public_url_ingress_public [ multipart
+]
+tags: -worker-7
+time: 2026-01-27 19:19:45.579208Z
+tags: worker-12
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_add_explicit_port
+time: 2026-01-27 19:19:45.634330Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_add_explicit_port [ multipart
+]
+tags: -worker-12
+time: 2026-01-27 19:19:45.627704Z
+tags: worker-11
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_already_installed
+time: 2026-01-27 19:19:45.634942Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_already_installed [ multipart
+]
+tags: -worker-11
+time: 2026-01-27 19:19:45.579069Z
+tags: worker-15
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_contexts
+time: 2026-01-27 19:19:45.636117Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_contexts [ multipart
+]
+tags: -worker-15
+time: 2026-01-27 19:19:45.548060Z
+tags: worker-10
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_admin_url_id_svc
+time: 2026-01-27 19:19:45.643431Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_admin_url_id_svc [ multipart
+]
+tags: -worker-10
+time: 2026-01-27 19:19:45.635244Z
+tags: worker-11
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_confinement_and_channel_change_is_latest
+time: 2026-01-27 19:19:45.644160Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_confinement_and_channel_change_is_latest [ multipart
+]
+tags: -worker-11
+time: 2026-01-27 19:19:45.635038Z
+tags: worker-12
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_not_installed
+time: 2026-01-27 19:19:45.651541Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_not_installed [ multipart
+]
+tags: -worker-12
+time: 2026-01-27 19:19:45.614670Z
+tags: worker-6
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_internal_url_fallback_to_id_svc
+time: 2026-01-27 19:19:45.651890Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_internal_url_fallback_to_id_svc [ multipart
+]
+tags: -worker-6
+time: 2026-01-27 19:19:45.586638Z
+tags: worker-13
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test__on_database_changed
+time: 2026-01-27 19:19:45.652839Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test__on_database_changed [ multipart
+]
+tags: -worker-13
+time: 2026-01-27 19:19:45.559422Z
+tags: worker-4
+test: tests.unit_tests.test_core.TestOSBaseOperatorMultiSVCAPICharm.test_start_services
+time: 2026-01-27 19:19:45.658148Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorMultiSVCAPICharm.test_start_services [ multipart
+]
+tags: -worker-4
+time: 2026-01-27 19:19:45.636337Z
+tags: worker-15
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_public_url_attribute_error
+time: 2026-01-27 19:19:45.658352Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_public_url_attribute_error [ multipart
+]
+tags: -worker-15
+time: 2026-01-27 19:19:45.644867Z
+tags: worker-11
+test: tests.unit_tests.test_job_ctrl.TestJobCtrl.test_run_once_per_unit
+time: 2026-01-27 19:19:45.661742Z
+successful: tests.unit_tests.test_job_ctrl.TestJobCtrl.test_run_once_per_unit [ multipart
+]
+tags: -worker-11
+time: 2026-01-27 19:19:45.644007Z
+tags: worker-10
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_peer_leader_db
+time: 2026-01-27 19:19:45.666535Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_peer_leader_db [ multipart
+]
+tags: -worker-10
+time: 2026-01-27 19:19:45.658670Z
+tags: worker-15
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_channel_change
+time: 2026-01-27 19:19:45.668200Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_channel_change [ multipart
+]
+tags: -worker-15
+time: 2026-01-27 19:19:45.653010Z
+tags: worker-6
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_confinement_change_is_latest
+time: 2026-01-27 19:19:45.671339Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_confinement_change_is_latest [ multipart
+]
+tags: -worker-6
+time: 2026-01-27 19:19:45.668909Z
+tags: worker-15
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_confinement_change_not_latest
+time: 2026-01-27 19:19:45.678139Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_confinement_change_not_latest [ multipart
+]
+tags: -worker-15
+time: 2026-01-27 19:19:45.667168Z
+tags: worker-10
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_no_certificates
+time: 2026-01-27 19:19:45.683962Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_no_certificates [ multipart
+]
+tags: -worker-10
+time: 2026-01-27 19:19:45.555214Z
+tags: worker-5
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_action_stops_healthcheck
+time: 2026-01-27 19:19:45.687411Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_action_stops_healthcheck [ multipart
+]
+tags: -worker-5
+time: 2026-01-27 19:19:45.684422Z
+tags: worker-10
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_found
+time: 2026-01-27 19:19:45.688276Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_found [ multipart
+]
+tags: -worker-10
+time: 2026-01-27 19:19:45.651976Z
+tags: worker-12
+test: tests.unit_tests.test_job_ctrl.TestJobCtrl.test_local_job_storage
+time: 2026-01-27 19:19:45.693312Z
+successful: tests.unit_tests.test_job_ctrl.TestJobCtrl.test_local_job_storage [ multipart
+]
+tags: -worker-12
+time: 2026-01-27 19:19:45.689151Z
+tags: worker-10
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_app_managed_non_leader
+time: 2026-01-27 19:19:45.694475Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_app_managed_non_leader [ multipart
+]
+tags: -worker-10
+time: 2026-01-27 19:19:45.680698Z
+tags: worker-15
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_set_snap_data_namespace
+time: 2026-01-27 19:19:45.695713Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_set_snap_data_namespace [ multipart
+]
+tags: -worker-15
+time: 2026-01-27 19:19:45.688133Z
+tags: worker-5
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_pebble_ready_handler
+time: 2026-01-27 19:19:45.700756Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_pebble_ready_handler [ multipart
+]
+tags: -worker-5
+time: 2026-01-27 19:19:45.694910Z
+tags: worker-10
+test: tests.unit_tests.test_templating.TestTemplating.test_render
+time: 2026-01-27 19:19:45.701235Z
+successful: tests.unit_tests.test_templating.TestTemplating.test_render [ multipart
+]
+tags: -worker-10
+time: 2026-01-27 19:19:45.678265Z
+tags: worker-6
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_none_certificates
+time: 2026-01-27 19:19:45.702244Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_none_certificates [ multipart
+]
+tags: -worker-6
+time: 2026-01-27 19:19:45.702696Z
+tags: worker-6
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_empty_chain
+time: 2026-01-27 19:19:45.706175Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_empty_chain [ multipart
+]
+tags: -worker-6
+time: 2026-01-27 19:19:45.525096Z
+tags: worker-3
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_action_stops_services
+time: 2026-01-27 19:19:45.709500Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_action_stops_services [ multipart
+]
+tags: -worker-3
+time: 2026-01-27 19:19:45.524647Z
+tags: worker-1
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_resume_action_initializes_container_services
+time: 2026-01-27 19:19:45.712050Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_resume_action_initializes_container_services [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 19:19:45.701290Z
+tags: worker-5
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_relation_handlers_ready
+time: 2026-01-27 19:19:45.713724Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_relation_handlers_ready [ multipart
+]
+tags: -worker-5
+time: 2026-01-27 19:19:45.706713Z
+tags: worker-6
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_entity_app_managed
+time: 2026-01-27 19:19:45.713719Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_entity_app_managed [ multipart
+]
+tags: -worker-6
+time: 2026-01-27 19:19:45.543526Z
+tags: worker-9
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_write_config
+time: 2026-01-27 19:19:45.714931Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_write_config [ multipart
+]
+tags: -worker-9
+time: 2026-01-27 19:19:45.653094Z
+tags: worker-13
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_assess_status
+time: 2026-01-27 19:19:45.719796Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_assess_status [ multipart
+]
+tags: -worker-13
+time: 2026-01-27 19:19:45.715446Z
+tags: worker-9
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_snap_channel_property_default
+time: 2026-01-27 19:19:45.726222Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_snap_channel_property_default [ multipart
+]
+tags: -worker-9
+time: 2026-01-27 19:19:45.720433Z
+tags: worker-13
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharm.test_relation_handlers_ready
+time: 2026-01-27 19:19:45.727060Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharm.test_relation_handlers_ready [ multipart
+]
+tags: -worker-13
+time: 2026-01-27 19:19:45.714083Z
+tags: worker-6
+test: tests.unit_tests.test_templating.TestTemplating.test_render_no_change
+time: 2026-01-27 19:19:45.729016Z
+successful: tests.unit_tests.test_templating.TestTemplating.test_render_no_change [ multipart
+]
+tags: -worker-6
+time: 2026-01-27 19:19:45.630657Z
+tags: worker-14
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_relation_handlers_ready
+time: 2026-01-27 19:19:45.727023Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_relation_handlers_ready [ multipart
+]
+tags: -worker-14
+time: 2026-01-27 19:19:45.693652Z
+tags: worker-12
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_custom_certificate_requests
+time: 2026-01-27 19:19:45.730853Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_custom_certificate_requests [ multipart
+]
+tags: -worker-12
+time: 2026-01-27 19:19:45.714467Z
+tags: worker-5
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_not_found
+time: 2026-01-27 19:19:45.733254Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_not_found [ multipart
+]
+tags: -worker-5
+time: 2026-01-27 19:19:45.733753Z
+tags: worker-5
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_with_certificates
+time: 2026-01-27 19:19:45.737528Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_with_certificates [ multipart
+]
+tags: -worker-5
+time: 2026-01-27 19:19:45.731288Z
+tags: worker-12
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_default_certificate_requests
+time: 2026-01-27 19:19:45.738816Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_default_certificate_requests [ multipart
+]
+tags: -worker-12
+time: 2026-01-27 19:19:45.528195Z
+tags: worker-2
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_resume_action_starts_healthcheck
+time: 2026-01-27 19:19:45.740990Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_resume_action_starts_healthcheck [ multipart
+]
+tags: -worker-2
+time: 2026-01-27 19:19:45.702726Z
+tags: worker-15
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_app_managed_leader_with_valid_cert
+time: 2026-01-27 19:19:45.742204Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_app_managed_leader_with_valid_cert [ multipart
+]
+tags: -worker-15
+time: 2026-01-27 19:19:45.727449Z
+tags: worker-14
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_multiple_certificates
+time: 2026-01-27 19:19:45.745190Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_multiple_certificates [ multipart
+]
+tags: -worker-14
+time: 2026-01-27 19:19:45.742646Z
+tags: worker-15
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_none_sans
+time: 2026-01-27 19:19:45.746745Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_none_sans [ multipart
+]
+tags: -worker-15
+time: 2026-01-27 19:19:45.727471Z
+tags: worker-13
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_multiple_certificates
+time: 2026-01-27 19:19:45.746815Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_multiple_certificates [ multipart
+]
+tags: -worker-13
+time: 2026-01-27 19:19:45.726898Z
+tags: worker-9
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_single_certificate
+time: 2026-01-27 19:19:45.748562Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_single_certificate [ multipart
+]
+tags: -worker-9
+time: 2026-01-27 19:19:45.745561Z
+tags: worker-14
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_no_certificates
+time: 2026-01-27 19:19:45.748754Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_no_certificates [ multipart
+]
+tags: -worker-14
+time: 2026-01-27 19:19:45.740550Z
+tags: worker-12
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_with_none_certificates
+time: 2026-01-27 19:19:45.749184Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_with_none_certificates [ multipart
+]
+tags: -worker-12
+time: 2026-01-27 19:19:45.747198Z
+tags: worker-13
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_dns_sans_mismatch
+time: 2026-01-27 19:19:45.751455Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_dns_sans_mismatch [ multipart
+]
+tags: -worker-13
+time: 2026-01-27 19:19:45.749052Z
+tags: worker-9
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_entity_unit_managed
+time: 2026-01-27 19:19:45.753238Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_entity_unit_managed [ multipart
+]
+tags: -worker-9
+time: 2026-01-27 19:19:45.749074Z
+tags: worker-14
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_none_certificate
+time: 2026-01-27 19:19:45.754687Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_none_certificate [ multipart
+]
+tags: -worker-14
+time: 2026-01-27 19:19:45.753624Z
+tags: worker-9
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_empty_sans
+time: 2026-01-27 19:19:45.756930Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_empty_sans [ multipart
+]
+tags: -worker-9
+time: 2026-01-27 19:19:45.751849Z
+tags: worker-13
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_no_csrs_with_expected_requests
+time: 2026-01-27 19:19:45.777300Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_no_csrs_with_expected_requests [ multipart
+]
+tags: -worker-13
+time: 2026-01-27 19:19:45.610567Z
+tags: worker-8
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_enter_maintenance
+time: 2026-01-27 19:19:45.779471Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_enter_maintenance [ multipart
+]
+tags: -worker-8
+time: 2026-01-27 19:19:45.757233Z
+tags: worker-9
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_ip_sans_mismatch
+time: 2026-01-27 19:19:45.783069Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_ip_sans_mismatch [ multipart
+]
+tags: -worker-9
+time: 2026-01-27 19:19:45.778437Z
+tags: worker-13
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_uses_default_requests
+time: 2026-01-27 19:19:45.783798Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_uses_default_requests [ multipart
+]
+tags: -worker-13
+time: 2026-01-27 19:19:45.783667Z
+tags: worker-9
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_sans_match
+time: 2026-01-27 19:19:45.787649Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_sans_match [ multipart
+]
+tags: -worker-9
+time: 2026-01-27 19:19:45.780091Z
+tags: worker-8
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharm.test_write_config
+time: 2026-01-27 19:19:45.790260Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharm.test_write_config [ multipart
+]
+tags: -worker-8
+time: 2026-01-27 19:19:45.755278Z
+tags: worker-14
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_app_managed_leader_with_none
+time: 2026-01-27 19:19:45.791620Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_app_managed_leader_with_none [ multipart
+]
+tags: -worker-14
+time: 2026-01-27 19:19:45.793015Z
+tags: worker-14
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_with_mixed_certificates
+time: 2026-01-27 19:19:45.799023Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_with_mixed_certificates [ multipart
+]
+tags: -worker-14
+time: 2026-01-27 19:19:45.790744Z
+tags: worker-8
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_unit_managed_with_multiple_certs
+time: 2026-01-27 19:19:45.816247Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_unit_managed_with_multiple_certs [ multipart
+]
+tags: -worker-8
+time: 2026-01-27 19:19:45.817323Z
+tags: worker-8
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_missing_common_name
+time: 2026-01-27 19:19:45.845068Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_missing_common_name [ multipart
+]
+tags: -worker-8
+time: 2026-01-27 19:19:45.628101Z
+tags: worker-7
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_start_services
+time: 2026-01-27 19:19:45.917973Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_start_services [ multipart
+]
+tags: -worker-7
+time: 2026-01-27 19:19:45.919313Z
+tags: worker-7
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_container_names
+time: 2026-01-27 19:19:45.945011Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_container_names [ multipart
+]
+tags: -worker-7
+time: 2026-01-27 19:19:45.509859Z
+tags: worker-0
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_endpoint_urls_no_ingress
+time: 2026-01-27 19:19:45.955414Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_endpoint_urls_no_ingress [ multipart
+]
+tags: -worker-0
+time: 2026-01-27 19:19:45.949686Z
+tags: worker-7
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_write_config
+time: 2026-01-27 19:19:45.977689Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_write_config [ multipart
+]
+tags: -worker-7
+time: 2026-01-27 19:19:45.978166Z
+tags: worker-7
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_set_snap_data
+time: 2026-01-27 19:19:45.995353Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_set_snap_data [ multipart
+]
+tags: -worker-7
+time: 2026-01-27 19:19:45.997677Z
+tags: worker-7
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_without_certificates
+time: 2026-01-27 19:19:46.019300Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_without_certificates [ multipart
+]
+tags: -worker-7
+time: 2026-01-27 19:19:46.020326Z
+tags: worker-7
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_multiple_certificates
+time: 2026-01-27 19:19:46.046353Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_multiple_certificates [ multipart
+]
+tags: -worker-7

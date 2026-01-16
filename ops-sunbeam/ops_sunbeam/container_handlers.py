@@ -280,11 +280,43 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
             logger.error("Not able to add Healthcheck layer")
             logger.exception(connect_error)
 
+    def stop_healthcheck(self, check_name: str) -> None:
+        """Stop a healthcheck."""
+        container = self.charm.unit.get_container(self.container_name)
+        try:
+            plan = container.get_plan()
+            if plan.checks and check_name in plan.checks:
+                logger.debug(f"Stopping healthcheck for {check_name}")
+                container.stop_checks("up")
+
+        except ops.pebble.ConnectionError as connect_error:
+            logger.error("Not able to stop the %s healthcheck", check_name)
+            logger.exception(connect_error)
+
+    def start_healthcheck(self, check_name: str) -> None:
+        """Start a healthcheck."""
+        container = self.charm.unit.get_container(self.container_name)
+        try:
+            plan = container.get_plan()
+            if plan.checks and check_name in plan.checks:
+                logger.debug(f"Starting healthcheck for {check_name}")
+                container.start_checks("up")
+
+        except ops.pebble.ConnectionError as connect_error:
+            logger.error("Not able to start the %s healthcheck", check_name)
+            logger.exception(connect_error)
+
     def _on_update_status(self, event: ops.framework.EventBase) -> None:
         """Assess and set status.
 
         Also takes into account healthchecks.
         """
+        if self.charm.is_service_paused:
+            logger.warning(
+                "Unit is paused, not checking container status for %s",
+                self.container_name,
+            )
+            return
         if not self.pebble_ready:
             self.status.set(WaitingStatus("pebble not ready"))
             return

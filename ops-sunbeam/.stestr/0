@@ -1,0 +1,1429 @@
+time: 2026-01-16 17:22:55.880226Z
+tags: worker-3
+test: tests.unit_tests.test_compound_status.TestCompoundStatus.test_add_status_idempotency
+time: 2026-01-16 17:22:55.906568Z
+successful: tests.unit_tests.test_compound_status.TestCompoundStatus.test_add_status_idempotency [ multipart
+]
+tags: -worker-3
+time: 2026-01-16 17:22:55.902411Z
+tags: worker-0
+test: tests.unit_tests.test_compound_status.TestCompoundStatus.test_all_active_status
+time: 2026-01-16 17:22:55.920499Z
+successful: tests.unit_tests.test_compound_status.TestCompoundStatus.test_all_active_status [ multipart
+]
+tags: -worker-0
+time: 2026-01-16 17:22:55.907280Z
+tags: worker-3
+test: tests.unit_tests.test_compound_status.TestCompoundStatus.test_status_triggering_on_set
+time: 2026-01-16 17:22:55.922046Z
+successful: tests.unit_tests.test_compound_status.TestCompoundStatus.test_status_triggering_on_set [ multipart
+]
+tags: -worker-3
+time: 2026-01-16 17:22:55.973348Z
+tags: worker-4
+test: tests.unit_tests.test_compound_status.TestCompoundStatus.test_serializing_status
+time: 2026-01-16 17:22:55.985403Z
+successful: tests.unit_tests.test_compound_status.TestCompoundStatus.test_serializing_status [ multipart
+]
+tags: -worker-4
+time: 2026-01-16 17:22:55.982773Z
+tags: worker-6
+test: tests.unit_tests.test_compound_status.TestCompoundStatus.test_status_new_unknown_message
+time: 2026-01-16 17:22:55.998458Z
+successful: tests.unit_tests.test_compound_status.TestCompoundStatus.test_status_new_unknown_message [ multipart
+]
+tags: -worker-6
+time: 2026-01-16 17:22:56.001048Z
+tags: worker-6
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_internal_url_ingress_internal
+time: 2026-01-16 17:22:56.030912Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_internal_url_ingress_internal [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-6
+time: 2026-01-16 17:22:56.049008Z
+tags: worker-6
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharm.test_write_config
+time: 2026-01-16 17:22:56.058460Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharm.test_write_config [ multipart
+]
+tags: -worker-6
+time: 2026-01-16 17:22:55.921680Z
+tags: worker-0
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_internal_url_fallback_to_id_svc
+time: 2026-01-16 17:22:56.000832Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_internal_url_fallback_to_id_svc [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-0
+time: 2026-01-16 17:22:55.904687Z
+tags: worker-5
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_endpoint_urls_no_ingress
+time: 2026-01-16 17:22:56.018344Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_endpoint_urls_no_ingress [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-5
+time: 2026-01-16 17:22:55.986106Z
+tags: worker-4
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_assess_status
+time: 2026-01-16 17:22:56.008422Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_assess_status [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-4
+time: 2026-01-16 17:22:56.026127Z
+tags: worker-4
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharm.test_relation_handlers_ready
+time: 2026-01-16 17:22:56.035733Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharm.test_relation_handlers_ready [ multipart
+]
+tags: -worker-4
+time: 2026-01-16 17:22:56.058863Z
+tags: worker-6
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_confinement_and_channel_change_is_latest
+time: 2026-01-16 17:22:56.069034Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_confinement_and_channel_change_is_latest [ multipart
+]
+tags: -worker-6
+time: 2026-01-16 17:22:55.922901Z
+tags: worker-3
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_peer_leader_ready
+time: 2026-01-16 17:22:56.027461Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_peer_leader_ready [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-3
+time: 2026-01-16 17:22:56.036208Z
+tags: worker-4
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_snap_name_property
+time: 2026-01-16 17:22:56.043377Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_snap_name_property [ multipart
+]
+tags: -worker-4
+time: 2026-01-16 17:22:56.069498Z
+tags: worker-6
+test: tests.unit_tests.test_templating.TestTemplating.test_render_no_change
+time: 2026-01-16 17:22:56.080827Z
+successful: tests.unit_tests.test_templating.TestTemplating.test_render_no_change [ multipart
+]
+tags: -worker-6
+time: 2026-01-16 17:22:55.983238Z
+tags: worker-2
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_action_with_multiple_pebble_handlers
+time: 2026-01-16 17:22:56.009971Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_action_with_multiple_pebble_handlers [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 866, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-2
+time: 2026-01-16 17:22:55.999636Z
+tags: worker-7
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_endpoint_urls
+time: 2026-01-16 17:22:56.059995Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_endpoint_urls [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-7
+time: 2026-01-16 17:22:55.968178Z
+tags: worker-9
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_resume_action_initializes_container_services
+time: 2026-01-16 17:22:56.045962Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_resume_action_initializes_container_services [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 866, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-9
+time: 2026-01-16 17:22:56.026058Z
+tags: worker-2
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_confinement_change_is_latest
+time: 2026-01-16 17:22:56.059728Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_confinement_change_is_latest [ multipart
+]
+tags: -worker-2
+time: 2026-01-16 17:22:55.984637Z
+tags: worker-13
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_start_services
+time: 2026-01-16 17:22:56.009668Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_start_services [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-13
+time: 2026-01-16 17:22:56.065139Z
+tags: worker-9
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_write_config
+time: 2026-01-16 17:22:56.086026Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_write_config [ multipart
+]
+tags: -worker-9
+time: 2026-01-16 17:22:56.027820Z
+tags: worker-13
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_pebble_ready_handler
+time: 2026-01-16 17:22:56.043232Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_pebble_ready_handler [ multipart
+]
+tags: -worker-13
+time: 2026-01-16 17:22:55.973015Z
+tags: worker-10
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test__on_database_changed
+time: 2026-01-16 17:22:56.052107Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test__on_database_changed [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-10
+time: 2026-01-16 17:22:56.061187Z
+tags: worker-3
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_resume_action_with_multiple_pebble_handlers
+time: 2026-01-16 17:22:56.078007Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_resume_action_with_multiple_pebble_handlers [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 866, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-3
+time: 2026-01-16 17:22:56.036184Z
+tags: worker-5
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_public_url_fallback_to_internal
+time: 2026-01-16 17:22:56.049674Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_public_url_fallback_to_internal [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-5
+time: 2026-01-16 17:22:56.044032Z
+tags: worker-13
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_not_installed
+time: 2026-01-16 17:22:56.058678Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_not_installed [ multipart
+]
+tags: -worker-13
+time: 2026-01-16 17:22:56.059043Z
+tags: worker-13
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_snap_channel_property_default
+time: 2026-01-16 17:22:56.073801Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_snap_channel_property_default [ multipart
+]
+tags: -worker-13
+time: 2026-01-16 17:22:56.052998Z
+tags: worker-5
+test: tests.unit_tests.test_core.TestOSBaseOperatorMultiSVCAPICharm.test_start_services
+time: 2026-01-16 17:22:56.070073Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorMultiSVCAPICharm.test_start_services [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6CE
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 564, in setUp
+    super().setUp(test_charms.TestMultiSvcCharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-5
+time: 2026-01-16 17:22:56.028662Z
+tags: worker-0
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_peer_leader_db
+time: 2026-01-16 17:22:56.050189Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_peer_leader_db [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-0
+time: 2026-01-16 17:22:56.053444Z
+tags: worker-0
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_write_config
+time: 2026-01-16 17:22:56.067452Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_write_config [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-0
+time: 2026-01-16 17:22:56.068035Z
+tags: worker-10
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_internal_url_fallback_to_service_dns
+time: 2026-01-16 17:22:56.089794Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_internal_url_fallback_to_service_dns [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-10
+time: 2026-01-16 17:22:56.043867Z
+tags: worker-4
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_entity_app_managed
+time: 2026-01-16 17:22:56.110671Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_entity_app_managed [ multipart
+]
+tags: -worker-4
+time: 2026-01-16 17:22:56.110980Z
+tags: worker-4
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_entity_unit_managed
+time: 2026-01-16 17:22:56.114317Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_entity_unit_managed [ multipart
+]
+tags: -worker-4
+time: 2026-01-16 17:22:56.086866Z
+tags: worker-7
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_action_stops_services
+time: 2026-01-16 17:22:56.114261Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_action_stops_services [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 866, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-7
+time: 2026-01-16 17:22:56.081371Z
+tags: worker-3
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_missing_common_name
+time: 2026-01-16 17:22:56.121904Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_missing_common_name [ multipart
+]
+tags: -worker-3
+time: 2026-01-16 17:22:56.100226Z
+tags: worker-10
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_action_stops_healthcheck
+time: 2026-01-16 17:22:56.119892Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_action_stops_healthcheck [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 866, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-10
+time: 2026-01-16 17:22:56.068061Z
+tags: worker-12
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_admin_url_id_svc
+time: 2026-01-16 17:22:56.105477Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_admin_url_id_svc [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-12
+time: 2026-01-16 17:22:56.119766Z
+tags: worker-12
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_already_installed
+time: 2026-01-16 17:22:56.135042Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_already_installed [ multipart
+]
+tags: -worker-12
+time: 2026-01-16 17:22:56.060119Z
+tags: worker-2
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_multiple_certificates
+time: 2026-01-16 17:22:56.135610Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_multiple_certificates [ multipart
+]
+tags: -worker-2
+time: 2026-01-16 17:22:56.123400Z
+tags: worker-3
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_sans_match
+time: 2026-01-16 17:22:56.134908Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_sans_match [ multipart
+]
+tags: -worker-3
+time: 2026-01-16 17:22:56.136032Z
+tags: worker-2
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_none_certificates
+time: 2026-01-16 17:22:56.139196Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_none_certificates [ multipart
+]
+tags: -worker-2
+time: 2026-01-16 17:22:56.075448Z
+tags: worker-14
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_add_explicit_port
+time: 2026-01-16 17:22:56.107980Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_add_explicit_port [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-14
+time: 2026-01-16 17:22:56.120102Z
+tags: worker-14
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_set_snap_data
+time: 2026-01-16 17:22:56.130608Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_set_snap_data [ multipart
+]
+tags: -worker-14
+time: 2026-01-16 17:22:56.117821Z
+tags: worker-7
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_no_certificates
+time: 2026-01-16 17:22:56.142138Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_no_certificates [ multipart
+]
+tags: -worker-7
+time: 2026-01-16 17:22:56.087171Z
+tags: worker-9
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_not_found
+time: 2026-01-16 17:22:56.141252Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_not_found [ multipart
+]
+tags: -worker-9
+time: 2026-01-16 17:22:56.135558Z
+tags: worker-12
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_set_snap_data_namespace
+time: 2026-01-16 17:22:56.144445Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_set_snap_data_namespace [ multipart
+]
+tags: -worker-12
+time: 2026-01-16 17:22:56.139764Z
+tags: worker-2
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_without_certificates
+time: 2026-01-16 17:22:56.144440Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_without_certificates [ multipart
+]
+tags: -worker-2
+time: 2026-01-16 17:22:56.142477Z
+tags: worker-7
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_custom_certificate_requests
+time: 2026-01-16 17:22:56.146594Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_custom_certificate_requests [ multipart
+]
+tags: -worker-7
+time: 2026-01-16 17:22:56.141617Z
+tags: worker-9
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_unit_managed_with_multiple_certs
+time: 2026-01-16 17:22:56.147234Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_unit_managed_with_multiple_certs [ multipart
+]
+tags: -worker-9
+time: 2026-01-16 17:22:56.146890Z
+tags: worker-7
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_ip_sans_mismatch
+time: 2026-01-16 17:22:56.150197Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_ip_sans_mismatch [ multipart
+]
+tags: -worker-7
+time: 2026-01-16 17:22:56.147158Z
+tags: worker-2
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_multiple_certificates
+time: 2026-01-16 17:22:56.150426Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_multiple_certificates [ multipart
+]
+tags: -worker-2
+time: 2026-01-16 17:22:56.131052Z
+tags: worker-14
+test: tests.unit_tests.test_job_ctrl.TestJobCtrl.test_local_job_storage
+time: 2026-01-16 17:22:56.143325Z
+failure: tests.unit_tests.test_job_ctrl.TestJobCtrl.test_local_job_storage [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+5F7
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_job_ctrl.py", line 76, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-14
+time: 2026-01-16 17:22:56.148295Z
+tags: worker-9
+test: tests.unit_tests.test_templating.TestTemplating.test_render
+time: 2026-01-16 17:22:56.162701Z
+successful: tests.unit_tests.test_templating.TestTemplating.test_render [ multipart
+]
+tags: -worker-9
+time: 2026-01-16 17:22:56.075296Z
+tags: worker-5
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_default_certificate_requests
+time: 2026-01-16 17:22:56.161246Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_default_certificate_requests [ multipart
+]
+tags: -worker-5
+time: 2026-01-16 17:22:56.148006Z
+tags: worker-14
+test: tests.unit_tests.test_job_ctrl.TestJobCtrl.test_run_once_per_unit
+time: 2026-01-16 17:22:56.163220Z
+failure: tests.unit_tests.test_job_ctrl.TestJobCtrl.test_run_once_per_unit [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+5F7
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_job_ctrl.py", line 76, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-14
+time: 2026-01-16 17:22:56.161745Z
+tags: worker-5
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_dns_sans_mismatch
+time: 2026-01-16 17:22:56.171937Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_dns_sans_mismatch [ multipart
+]
+tags: -worker-5
+time: 2026-01-16 17:22:56.120044Z
+tags: worker-8
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_admin_url_fallback_to_service_dns
+time: 2026-01-16 17:22:56.149169Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_admin_url_fallback_to_service_dns [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-8
+time: 2026-01-16 17:22:56.144967Z
+tags: worker-12
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_app_managed_non_leader
+time: 2026-01-16 17:22:56.181895Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_app_managed_non_leader [ multipart
+]
+tags: -worker-12
+time: 2026-01-16 17:22:56.182744Z
+tags: worker-12
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_with_none_certificates
+time: 2026-01-16 17:22:56.186103Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_with_none_certificates [ multipart
+]
+tags: -worker-12
+time: 2026-01-16 17:22:56.071103Z
+tags: worker-0
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_app_managed_leader_with_valid_cert
+time: 2026-01-16 17:22:56.194145Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_app_managed_leader_with_valid_cert [ multipart
+]
+tags: -worker-0
+time: 2026-01-16 17:22:56.125891Z
+tags: worker-10
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_single_certificate
+time: 2026-01-16 17:22:56.200712Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_context_single_certificate [ multipart
+]
+tags: -worker-10
+time: 2026-01-16 17:22:56.172159Z
+tags: worker-8
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_then_resume_cycle
+time: 2026-01-16 17:22:56.197025Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_pause_then_resume_cycle [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 866, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-8
+time: 2026-01-16 17:22:56.201019Z
+tags: worker-10
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_with_mixed_certificates
+time: 2026-01-16 17:22:56.204756Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_with_mixed_certificates [ multipart
+]
+tags: -worker-10
+time: 2026-01-16 17:22:56.197625Z
+tags: worker-0
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_empty_sans
+time: 2026-01-16 17:22:56.205845Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_empty_sans [ multipart
+]
+tags: -worker-0
+time: 2026-01-16 17:22:56.167237Z
+tags: worker-14
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_app_managed_leader_with_none
+time: 2026-01-16 17:22:56.208136Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_app_managed_leader_with_none [ multipart
+]
+tags: -worker-14
+time: 2026-01-16 17:22:56.204224Z
+tags: worker-8
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_container_names
+time: 2026-01-16 17:22:56.218365Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_container_names [ multipart
+]
+tags: -worker-8
+time: 2026-01-16 17:22:56.074290Z
+tags: worker-13
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_found
+time: 2026-01-16 17:22:56.237939Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_found [ multipart
+]
+tags: -worker-13
+time: 2026-01-16 17:22:56.219738Z
+tags: worker-8
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_empty_chain
+time: 2026-01-16 17:22:56.261922Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_empty_chain [ multipart
+]
+tags: -worker-8
+time: 2026-01-16 17:22:56.263271Z
+tags: worker-8
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_no_certificates
+time: 2026-01-16 17:22:56.271227Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_no_certificates [ multipart
+]
+tags: -worker-8
+time: 2026-01-16 17:22:56.264553Z
+tags: worker-11
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_relation_handlers_ready
+time: 2026-01-16 17:22:56.289017Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmK8S.test_relation_handlers_ready [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 17:22:56.242434Z
+tags: worker-15
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_peer_unit_data
+time: 2026-01-16 17:22:56.298271Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_peer_unit_data [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-15
+time: 2026-01-16 17:22:56.308397Z
+tags: worker-1
+test: tests.unit_tests.test_compound_status.TestCompoundStatus.test_status_pool_priority
+time: 2026-01-16 17:22:56.341632Z
+successful: tests.unit_tests.test_compound_status.TestCompoundStatus.test_status_pool_priority [ multipart
+]
+tags: -worker-1
+time: 2026-01-16 17:22:56.291694Z
+tags: worker-11
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_multiple_certificates
+time: 2026-01-16 17:22:56.352788Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_multiple_certificates [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 17:22:56.354719Z
+tags: worker-11
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_with_certificates
+time: 2026-01-16 17:22:56.358688Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_ready_with_certificates [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 17:22:56.324938Z
+tags: worker-15
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_public_url_ingress_public
+time: 2026-01-16 17:22:56.354250Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_public_url_ingress_public [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-15
+time: 2026-01-16 17:22:56.358978Z
+tags: worker-11
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_no_csrs_with_expected_requests
+time: 2026-01-16 17:22:56.370392Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_no_csrs_with_expected_requests [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 17:22:56.371374Z
+tags: worker-11
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_uses_default_requests
+time: 2026-01-16 17:22:56.376837Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_uses_default_requests [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 17:22:56.360506Z
+tags: worker-15
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_relation_handlers_ready
+time: 2026-01-16 17:22:56.380877Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_relation_handlers_ready [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-15
+time: 2026-01-16 17:22:56.388486Z
+tags: worker-15
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_channel_change
+time: 2026-01-16 17:22:56.409533Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_channel_change [ multipart
+]
+tags: -worker-15
+time: 2026-01-16 17:22:56.343592Z
+tags: worker-1
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_contexts
+time: 2026-01-16 17:22:56.381016Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_contexts [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-1
+time: 2026-01-16 17:22:56.410992Z
+tags: worker-15
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_none_sans
+time: 2026-01-16 17:22:56.456631Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_validate_and_regenerate_none_sans [ multipart
+]
+tags: -worker-15
+time: 2026-01-16 17:22:56.415315Z
+tags: worker-1
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_public_url_attribute_error
+time: 2026-01-16 17:22:56.437110Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharm.test_public_url_attribute_error [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 168, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-1
+time: 2026-01-16 17:22:56.445673Z
+tags: worker-1
+test: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_resume_action_starts_healthcheck
+time: 2026-01-16 17:22:56.485045Z
+failure: tests.unit_tests.test_core.TestOSBaseOperatorAPICharmActions.test_resume_action_starts_healthcheck [ multipart
+Content-Type: text/x-traceback;charset=utf8,language=python
+traceback
+6C0
+Traceback (most recent call last):
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 866, in setUp
+    super().setUp(test_charms.MyAPICharm)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_core.py", line 156, in setUp
+    self.harness.begin()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/_private/harness.py", line 438, in begin
+    self._charm = TestCharm(self._framework)  # type: ignore
+                  ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/core.py", line 103, in __call__
+    instance = super().__call__(*args, **kw)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/tests/unit_tests/test_charms.py", line 272, in __init__
+    super().__init__(framework)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/ops-sunbeam/ops_sunbeam/charm.py", line 857, in __init__
+    self.framework.observe(self.on["pause"].action, self._on_pause_action)
+                           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 507, in __getattr__
+    return getattr(self._emitter, self._prefix + name)
+  File "/home/cocenza/Documents/canonical/sunbeam-charms/.tox/py3/lib/python3.13/site-packages/ops/framework.py", line 496, in __getattr__
+    return super().__getattribute__(name)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+AttributeError: 'CharmEvents' object has no attribute 'pause_action'
+0
+]
+tags: -worker-1
+time: 2026-01-16 17:22:56.496527Z
+tags: worker-1
+test: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_confinement_change_not_latest
+time: 2026-01-16 17:22:56.528495Z
+successful: tests.unit_tests.test_core.TestOSBaseOperatorCharmSnap.test_ensure_snap_present_confinement_change_not_latest [ multipart
+]
+tags: -worker-1
+time: 2026-01-16 17:22:56.531063Z
+tags: worker-1
+test: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_none_certificate
+time: 2026-01-16 17:22:56.591365Z
+successful: tests.unit_tests.test_relation_handlers.TestTlsCertificatesHandler.test_get_certificate_context_none_certificate [ multipart
+]
+tags: -worker-1
