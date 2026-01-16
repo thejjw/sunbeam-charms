@@ -231,6 +231,14 @@ class OSBaseOperatorCharm(
         return handlers
 
     @property
+    def is_service_paused(self) -> bool:
+        """Whether the service is paused."""
+        services_paused = False
+        if self.supports_peer_relation:
+            services_paused = self.peers.is_unit_paused()
+        return services_paused
+
+    @property
     def remote_external_access(self) -> bool:
         """Whether this charm needs external access for remote service.
 
@@ -354,6 +362,15 @@ class OSBaseOperatorCharm(
 
     def configure_charm(self, event: ops.framework.EventBase) -> None:
         """Catchall handler to configure charm services."""
+        if self.is_service_paused:
+            self.status.set(
+                MaintenanceStatus(
+                    "Paused. Use 'resume' action to resume normal service."
+                )
+            )
+            logging.warning("Unit is paused, not configuring charm services")
+            return
+
         with sunbeam_guard.guard(self, "Bootstrapping"):
             # Publishing relation data may be dependent on something else (like
             # receiving a piece of data from the leader). To cover that
@@ -692,6 +709,9 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
 
     def init_container_services(self):
         """Run init on pebble handlers that are ready."""
+        if self.is_service_paused:
+            logging.warning("Unit is paused, not starting services")
+            return
         for ph in self.pebble_handlers:
             if ph.pebble_ready:
                 logging.debug(f"Running init for {ph.service_name}")
@@ -706,6 +726,9 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
 
     def check_pebble_handlers_ready(self):
         """Check pebble handlers are ready."""
+        if self.is_service_paused:
+            logging.warning("Unit is paused, not checking container services")
+            return
         for ph in self.pebble_handlers:
             if not ph.service_ready:
                 logging.debug(
@@ -851,6 +874,54 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
 
     wsgi_admin_script: str
     wsgi_public_script: str
+
+    def __init__(self, framework):
+        super().__init__(framework)
+
+        actions = self.meta.actions or {}
+
+        if "pause" in actions:
+            self.framework.observe(
+                self.on["pause"].action, self._on_pause_action
+            )
+
+        if "resume" in actions:
+            self.framework.observe(
+                self.on["resume"].action, self._on_resume_action
+            )
+
+    def _on_pause_action(self, event: ops.ActionEvent) -> None:
+        """Handle pause action."""
+        try:
+            if self.supports_peer_relation:
+                self.peers.set_unit_paused_state(True)
+        except Exception:
+            logging.exception("Failed to set peer paused state")
+
+        for ph in self.pebble_handlers:
+            ph.stop_healthcheck("up")
+        self.stop_services()
+
+        self.status.set(
+            MaintenanceStatus(
+                "Paused. Use 'resume' action to resume normal service."
+            )
+        )
+
+    def _on_resume_action(self, event: ops.ActionEvent) -> None:
+        """Handle resume action."""
+        try:
+            if self.supports_peer_relation:
+                self.peers.set_unit_paused_state(False)
+        except Exception:
+            logging.exception("Failed to clear peer paused state")
+
+        for ph in self.pebble_handlers:
+            ph.start_healthcheck("up")
+
+        self.configure_charm(event)
+
+        self.status.set(ActiveStatus(""))
 
     @property
     def service_endpoints(self) -> list[dict]:

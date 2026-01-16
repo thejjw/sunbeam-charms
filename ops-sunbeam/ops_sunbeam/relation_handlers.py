@@ -662,6 +662,7 @@ class BasePeerHandler(RelationHandler):
 
     interface: sunbeam_interfaces.OperatorPeers
     LEADER_READY_KEY = "leader_ready"
+    UNIT_PAUSED_KEY = "paused"
 
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for peer relation."""
@@ -744,6 +745,22 @@ class BasePeerHandler(RelationHandler):
     def set_unit_data(self, settings: dict[str, str]) -> None:
         """Publish settings on the peer unit data bag."""
         self.interface.set_unit_data(settings)
+
+    def get_local_unit_value(self, key: str) -> str | None:
+        """Return the value for key from the local unit's peer unit databag."""
+        return self.interface.get_local_unit_value(key)
+
+    def set_unit_paused_state(self, paused: bool) -> None:
+        """Set the local unit pause state on the peer unit databag."""
+        self.set_unit_data({self.UNIT_PAUSED_KEY: json.dumps(paused)})
+
+    def is_unit_paused(self) -> bool:
+        """Return whether the local unit is marked paused in the peer relation."""
+        is_paused = self.get_local_unit_value(self.UNIT_PAUSED_KEY)
+        if is_paused is None:
+            return False
+        else:
+            return json.loads(is_paused)
 
     def get_all_unit_values(
         self, key: str, include_local_unit: bool = False
