@@ -27,6 +27,14 @@ config:
       description: Name of the OpenStack region
       type: string
 
+actions:
+  pause:
+    description: Pause container services
+    additionalProperties: false
+  resume:
+    description: Resume container services
+    additionalProperties: false
+
 containers:
   ironic-api:
     resource: ironic-api-image
