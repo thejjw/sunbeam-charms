@@ -852,6 +852,33 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
     wsgi_admin_script: str
     wsgi_public_script: str
 
+    def __init__(self, framework):
+        super().__init__(framework)
+
+        actions = self.meta.actions or {}
+
+        if "pause" in actions:
+            self.framework.observe(
+                self.on["pause"].action, self._on_pause_action
+            )
+
+        if "resume" in actions:
+            self.framework.observe(
+                self.on["resume"].action, self._on_resume_action
+            )
+
+    def _on_pause_action(self, event: ops.ActionEvent) -> None:
+        """Handle pause action."""
+        for ph in self.pebble_handlers:
+            ph.stop_healthcheck("up")
+        self.stop_services()
+
+    def _on_resume_action(self, event: ops.ActionEvent) -> None:
+        """Handle resume action."""
+        for ph in self.pebble_handlers:
+            ph.start_healthcheck("up")
+        self.init_container_services()
+
     @property
     def service_endpoints(self) -> list[dict]:
         """List of endpoints for this service."""
