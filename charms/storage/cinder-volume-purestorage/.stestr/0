@@ -1,0 +1,7 @@
+time: 2026-01-16 17:30:22.170674Z
+tags: worker-0
+test: unit.test_cinder_volume_purestorage_charm.TestCinderPureStorageOperatorCharm.test_all_relations
+time: 2026-01-16 17:30:22.216190Z
+successful: unit.test_cinder_volume_purestorage_charm.TestCinderPureStorageOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-0

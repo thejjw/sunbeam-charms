@@ -56,6 +56,14 @@ config:
       default: RegionOne
       description: Name of the OpenStack region
 
+actions:
+  pause:
+    description: Pause container services
+    additionalProperties: false
+  resume:
+    description: Resume container services
+    additionalProperties: false
+
 containers:
   masakari-api:
     resource: masakari-image
