@@ -44,6 +44,14 @@ config:
 
         Example: [{"vendor_id": "8086", "product_id": "1563", "name": "intel-sr-iov"}]
 
+actions:
+  pause:
+    description: Pause container services
+    additionalProperties: false
+  resume:
+    description: Resume container services
+    additionalProperties: false
+
 containers:
   nova-api:
     resource: nova-api-image

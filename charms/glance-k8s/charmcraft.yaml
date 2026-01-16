@@ -288,6 +288,12 @@ actions:
       For a neat human readable summary:
 
         juju run-action --wait glance/0 describe-status --format=json | jq -r '.[].results.output'
+  pause:
+    description: Pause container services
+    additionalProperties: false
+  resume:
+    description: Resume container services
+    additionalProperties: false
 
 containers:
   glance-api:

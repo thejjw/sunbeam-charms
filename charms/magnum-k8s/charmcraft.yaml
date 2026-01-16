@@ -70,6 +70,13 @@ config:
         Workload clusters.
         Supported drivers for canonical k8s are cilium
 
+actions:
+  pause:
+    description: Pause container services
+    additionalProperties: false
+  resume:
+    description: Resume container services
+    additionalProperties: false
 
 containers:
   magnum-api:

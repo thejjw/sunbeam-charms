@@ -692,6 +692,12 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
 
     def init_container_services(self):
         """Run init on pebble handlers that are ready."""
+        services_paused = False
+        if self.supports_peer_relation:
+            services_paused = self.peers.is_unit_paused()
+        if services_paused:
+            logging.info("Unit is paused, not starting services")
+            return
         for ph in self.pebble_handlers:
             if ph.pebble_ready:
                 logging.debug(f"Running init for {ph.service_name}")
@@ -851,6 +857,47 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
 
     wsgi_admin_script: str
     wsgi_public_script: str
+
+    def __init__(self, framework):
+        super().__init__(framework)
+
+        actions = self.meta.actions or {}
+
+        if "pause" in actions:
+            self.framework.observe(
+                self.on["pause"].action, self._on_pause_action
+            )
+
+        if "resume" in actions:
+            self.framework.observe(
+                self.on["resume"].action, self._on_resume_action
+            )
+
+    def _on_pause_action(self, event: ops.ActionEvent) -> None:
+        """Handle pause action."""
+        try:
+            if self.supports_peer_relation:
+                self.peers.set_unit_paused_state(True)
+        except Exception:
+            logging.exception("Failed to set peer paused state")
+
+        for ph in self.pebble_handlers:
+            ph.stop_healthcheck("up")
+        self.stop_services()
+
+    def _on_resume_action(self, event: ops.ActionEvent) -> None:
+        """Handle resume action."""
+        try:
+            if self.supports_peer_relation:
+                self.peers.set_unit_paused_state(False)
+        except Exception:
+            logging.exception("Failed to clear peer paused state")
+
+        self.configure_charm(event)
+
+        for ph in self.pebble_handlers:
+            ph.start_healthcheck("up")
+        self.init_container_services()
 
     @property
     def service_endpoints(self) -> list[dict]:

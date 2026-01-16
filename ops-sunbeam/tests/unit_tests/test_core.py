@@ -856,3 +856,79 @@ class TestOSBaseOperatorCharmSnap(test_utils.CharmTestCase):
         # Config should be preserved
         snap.get.assert_called_once_with(None, typed=True)
         snap.set.assert_called_once_with({"settings.debug": True}, typed=True)
+
+
+class TestOSBaseOperatorAPICharmActions(_TestOSBaseOperatorAPICharm):
+    """Test pause and resume actions for API charms."""
+
+    def setUp(self) -> None:
+        """Run test class setup."""
+        super().setUp(test_charms.MyAPICharm)
+
+    def _setup_charm_ready(self) -> None:
+        """Set up charm to be in a ready state."""
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        test_utils.add_complete_peer_relation(self.harness)
+        self.set_pebble_ready()
+        self.harness.charm.leader_set({"foo": "bar"})
+        test_utils.add_api_relations(self.harness)
+        test_utils.add_complete_identity_credentials_relation(self.harness)
+        self.harness.set_can_connect("my-service", True)
+
+    def test_pause_action_stops_healthcheck(self) -> None:
+        """Test that pause action stops healthcheck for all pebble handlers."""
+        self._setup_charm_ready()
+
+        for ph in self.harness.charm.pebble_handlers:
+            ph.stop_healthcheck = MagicMock()
+
+        self.harness.run_action("pause")
+
+        for ph in self.harness.charm.pebble_handlers:
+            ph.stop_healthcheck.assert_called_once_with("up")
+
+    def test_pause_enter_maintenance(self) -> None:
+        """Test that pause action sets maintenance status."""
+        self._setup_charm_ready()
+
+        self.harness.run_action("pause")
+
+        self.harness.charm.on.update_status.emit()
+
+        for ph in self.harness.charm.pebble_handlers:
+            self.assertIsInstance(
+                ph.status.status, ops.model.MaintenanceStatus
+            )
+
+    def test_pause_action_stops_services(self) -> None:
+        """Test that pause action stops all services."""
+        self._setup_charm_ready()
+
+        with patch.object(self.harness.charm, "stop_services") as mock_stop:
+            self.harness.run_action("pause")
+
+            mock_stop.assert_called()
+
+    def test_resume_action_starts_healthcheck(self) -> None:
+        """Test that resume action starts healthcheck for all pebble handlers."""
+        self._setup_charm_ready()
+
+        for ph in self.harness.charm.pebble_handlers:
+            ph.start_healthcheck = MagicMock()
+
+        self.harness.run_action("resume")
+
+        for ph in self.harness.charm.pebble_handlers:
+            ph.start_healthcheck.assert_called_once_with("up")
+
+    def test_resume_action_initializes_container_services(self) -> None:
+        """Test that resume action initializes container services."""
+        self._setup_charm_ready()
+
+        with patch.object(
+            self.harness.charm, "init_container_services"
+        ) as mock_init:
+            self.harness.run_action("resume")
+
+            mock_init.assert_called_once()
