@@ -1,0 +1,5 @@
+'unit.test_charm.TestCharm.test_initial_bootstrap_no_leader', (0, 8)
+'unit.test_charm.TestCharm.test_get_credentials', (512, 8)
+'unit.test_charm.TestCharm.test_initial_bootstrap', (1024, 8)
+'unit.test_charm.TestCharm.test_config', (1536, 8)
+'unit.test_charm.TestCharm.test_openstack_snap_not_installed', (2048, 8)

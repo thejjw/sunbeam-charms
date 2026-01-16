@@ -1,0 +1,28 @@
+time: 2026-01-16 17:30:31.210670Z
+tags: worker-2
+test: unit.test_neutron_charm.TestNeutronOperatorCharm.test_pebble_ready_handler
+time: 2026-01-16 17:30:31.397182Z
+successful: unit.test_neutron_charm.TestNeutronOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-2
+time: 2026-01-16 17:30:31.209078Z
+tags: worker-1
+test: unit.test_neutron_charm.TestNeutronOperatorCharm.test_generic_switch_config_relation
+time: 2026-01-16 17:30:32.050015Z
+successful: unit.test_neutron_charm.TestNeutronOperatorCharm.test_generic_switch_config_relation [ multipart
+]
+tags: -worker-1
+time: 2026-01-16 17:30:31.213070Z
+tags: worker-3
+test: unit.test_neutron_charm.TestNeutronOperatorCharm.test_baremetal_switch_config_relation
+time: 2026-01-16 17:30:32.052766Z
+successful: unit.test_neutron_charm.TestNeutronOperatorCharm.test_baremetal_switch_config_relation [ multipart
+]
+tags: -worker-3
+time: 2026-01-16 17:30:31.207524Z
+tags: worker-0
+test: unit.test_neutron_charm.TestNeutronOperatorCharm.test_all_relations
+time: 2026-01-16 17:30:32.163615Z
+successful: unit.test_neutron_charm.TestNeutronOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-0

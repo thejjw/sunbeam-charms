@@ -1,0 +1,5 @@
+'unit.test_charm.TestEpaOrchestratorCharm.test_ensure_services_running_no_op', (0, 8)
+'unit.test_charm.TestEpaOrchestratorCharm.test_all_relations', (512, 8)
+'unit.test_charm.TestEpaOrchestratorCharm.test_stop_services_no_op', (1024, 8)
+'unit.test_charm.TestEpaOrchestratorCharm.test_snap_name_property_default', (1536, 8)
+'unit.test_charm.TestEpaOrchestratorCharm.test_snap_channel_property', (2048, 7)

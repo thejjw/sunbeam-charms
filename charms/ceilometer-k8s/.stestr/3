@@ -1,0 +1,14 @@
+time: 2026-01-16 20:35:52.250539Z
+tags: worker-1
+test: unit.test_charm.TestCeilometerOperatorCharm.test_pebble_ready_handler
+time: 2026-01-16 20:35:52.320486Z
+successful: unit.test_charm.TestCeilometerOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-1
+time: 2026-01-16 20:35:52.249317Z
+tags: worker-0
+test: unit.test_charm.TestCeilometerOperatorCharm.test_all_relations
+time: 2026-01-16 20:35:52.363470Z
+successful: unit.test_charm.TestCeilometerOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-0

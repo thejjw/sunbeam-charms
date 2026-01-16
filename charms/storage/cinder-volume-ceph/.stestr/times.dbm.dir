@@ -1,0 +1,2 @@
+'unit.test_cinder_volume_ceph_charm.TestCinderCephOperatorCharm.test_all_relations', (0, 8)
+'unit.test_cinder_volume_ceph_charm.TestCinderCephOperatorCharm.test_ceph_access', (512, 8)

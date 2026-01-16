@@ -1,0 +1,5 @@
+'unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_connect_ovn_chassis_success', (0, 8)
+'unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_set_network_agents_local_settings_action_with_bridge_mapping', (512, 8)
+'unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_connect_ovn_chassis_errors_out', (1024, 7)
+'unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_set_network_agents_local_settings_action', (1536, 8)
+'unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_configure_snap_sets_snap_data_and_connects', (2048, 6)

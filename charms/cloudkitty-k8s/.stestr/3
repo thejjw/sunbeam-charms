@@ -1,0 +1,14 @@
+time: 2026-01-16 20:35:42.343294Z
+tags: worker-1
+test: unit.test_cloudkitty_charm.TestCloudkittyOperatorCharm.test_pebble_ready_handler
+time: 2026-01-16 20:35:42.426051Z
+successful: unit.test_cloudkitty_charm.TestCloudkittyOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-1
+time: 2026-01-16 20:35:42.333369Z
+tags: worker-0
+test: unit.test_cloudkitty_charm.TestCloudkittyOperatorCharm.test_all_relations
+time: 2026-01-16 20:35:42.518350Z
+successful: unit.test_cloudkitty_charm.TestCloudkittyOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-0

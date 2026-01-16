@@ -1,0 +1,14 @@
+time: 2026-01-16 19:41:32.859442Z
+tags: worker-0
+test: unit.test_charm.TestCharm.test_all_relations
+time: 2026-01-16 19:41:32.929739Z
+successful: unit.test_charm.TestCharm.test_all_relations [ multipart
+]
+tags: -worker-0
+time: 2026-01-16 19:41:32.875016Z
+tags: worker-1
+test: unit.test_charm.TestCharm.test_mandatory_relations
+time: 2026-01-16 19:41:32.930604Z
+successful: unit.test_charm.TestCharm.test_mandatory_relations [ multipart
+]
+tags: -worker-1

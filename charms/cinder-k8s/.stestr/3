@@ -1,0 +1,7 @@
+time: 2026-01-16 20:36:03.271006Z
+tags: worker-0
+test: unit.test_cinder_charm.TestCinderOperatorCharm.test_pebble_ready_handler
+time: 2026-01-16 20:36:03.360043Z
+successful: unit.test_cinder_charm.TestCinderOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-0

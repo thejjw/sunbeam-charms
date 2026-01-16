@@ -1,0 +1,21 @@
+time: 2026-01-16 17:29:25.946232Z
+tags: worker-0
+test: unit.test_cinder_volume_charm.TestCharm.test_mandatory_relations
+time: 2026-01-16 17:29:26.009692Z
+successful: unit.test_cinder_volume_charm.TestCharm.test_mandatory_relations [ multipart
+]
+tags: -worker-0
+time: 2026-01-16 17:29:25.956244Z
+tags: worker-2
+test: unit.test_cinder_volume_charm.TestCharm.test_all_relations
+time: 2026-01-16 17:29:26.011106Z
+successful: unit.test_cinder_volume_charm.TestCharm.test_all_relations [ multipart
+]
+tags: -worker-2
+time: 2026-01-16 17:29:25.950362Z
+tags: worker-1
+test: unit.test_cinder_volume_charm.TestCharm.test_backend_leaving
+time: 2026-01-16 17:29:26.018866Z
+successful: unit.test_cinder_volume_charm.TestCharm.test_backend_leaving [ multipart
+]
+tags: -worker-1

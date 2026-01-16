@@ -1,0 +1,49 @@
+time: 2026-01-27 19:18:48.295792Z
+tags: worker-4
+test: unit.test_charm.TestIronicConductorOperatorCharm.test_loadbalancer_ip
+time: 2026-01-27 19:18:48.362637Z
+successful: unit.test_charm.TestIronicConductorOperatorCharm.test_loadbalancer_ip [ multipart
+]
+tags: -worker-4
+time: 2026-01-27 19:18:48.259470Z
+tags: worker-5
+test: unit.test_charm.TestIronicConductorOperatorCharm.test_set_temp_url_secret_failures
+time: 2026-01-27 19:18:48.365457Z
+successful: unit.test_charm.TestIronicConductorOperatorCharm.test_set_temp_url_secret_failures [ multipart
+]
+tags: -worker-5
+time: 2026-01-27 19:18:48.255411Z
+tags: worker-2
+test: unit.test_charm.TestIronicConductorOperatorCharm.test_all_relations
+time: 2026-01-27 19:18:48.437604Z
+successful: unit.test_charm.TestIronicConductorOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-2
+time: 2026-01-27 19:18:48.255191Z
+tags: worker-3
+test: unit.test_charm.TestIronicConductorOperatorCharm.test_set_temp_url_secret
+time: 2026-01-27 19:18:48.441523Z
+successful: unit.test_charm.TestIronicConductorOperatorCharm.test_set_temp_url_secret [ multipart
+]
+tags: -worker-3
+time: 2026-01-27 19:18:48.383239Z
+tags: worker-1
+test: unit.test_charm.TestIronicConductorOperatorCharm.test_charm_invalid_config
+time: 2026-01-27 19:18:48.671442Z
+successful: unit.test_charm.TestIronicConductorOperatorCharm.test_charm_invalid_config [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 19:18:48.558614Z
+tags: worker-6
+test: unit.test_charm.TestIronicConductorOperatorCharm.test_pebble_ready_handler
+time: 2026-01-27 19:18:48.705520Z
+successful: unit.test_charm.TestIronicConductorOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-6
+time: 2026-01-27 19:18:48.299526Z
+tags: worker-0
+test: unit.test_charm.TestIronicConductorOperatorCharm.test_charm_configuration
+time: 2026-01-27 19:18:48.714216Z
+successful: unit.test_charm.TestIronicConductorOperatorCharm.test_charm_configuration [ multipart
+]
+tags: -worker-0

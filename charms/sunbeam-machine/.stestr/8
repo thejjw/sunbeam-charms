@@ -1,0 +1,49 @@
+time: 2026-01-27 20:31:36.105835Z
+tags: worker-1
+test: unit.test_charm.TestCharm.test_ensure_package_installed_mixed_kernel_and_regular_packages
+time: 2026-01-27 20:31:36.134614Z
+successful: unit.test_charm.TestCharm.test_ensure_package_installed_mixed_kernel_and_regular_packages [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 20:31:36.129773Z
+tags: worker-0
+test: unit.test_charm.TestCharm.test_ensure_package_installed_multiple_packages
+time: 2026-01-27 20:31:36.165384Z
+successful: unit.test_charm.TestCharm.test_ensure_package_installed_multiple_packages [ multipart
+]
+tags: -worker-0
+time: 2026-01-27 20:31:36.137683Z
+tags: worker-6
+test: unit.test_charm.TestCharm.test_ensure_package_installed_with_kernel_placeholder
+time: 2026-01-27 20:31:36.166109Z
+successful: unit.test_charm.TestCharm.test_ensure_package_installed_with_kernel_placeholder [ multipart
+]
+tags: -worker-6
+time: 2026-01-27 20:31:36.132189Z
+tags: worker-3
+test: unit.test_charm.TestCharm.test_proxy_settings
+time: 2026-01-27 20:31:36.170487Z
+successful: unit.test_charm.TestCharm.test_proxy_settings [ multipart
+]
+tags: -worker-3
+time: 2026-01-27 20:31:36.142165Z
+tags: worker-4
+test: unit.test_charm.TestCharm.test_ensure_package_installed_when_not_present
+time: 2026-01-27 20:31:36.176328Z
+successful: unit.test_charm.TestCharm.test_ensure_package_installed_when_not_present [ multipart
+]
+tags: -worker-4
+time: 2026-01-27 20:31:36.265164Z
+tags: worker-2
+test: unit.test_charm.TestCharm.test_ensure_package_installed_when_present
+time: 2026-01-27 20:31:36.314797Z
+successful: unit.test_charm.TestCharm.test_ensure_package_installed_when_present [ multipart
+]
+tags: -worker-2
+time: 2026-01-27 20:31:36.275655Z
+tags: worker-5
+test: unit.test_charm.TestCharm.test_initial
+time: 2026-01-27 20:31:36.324537Z
+successful: unit.test_charm.TestCharm.test_initial [ multipart
+]
+tags: -worker-5

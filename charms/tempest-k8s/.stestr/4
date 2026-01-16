@@ -1,0 +1,406 @@
+time: 2026-01-16 20:52:08.687555Z
+tags: worker-11
+test: unit.test_cleanup.TestCleanup.test_cleanup_images
+time: 2026-01-16 20:52:08.691417Z
+successful: unit.test_cleanup.TestCleanup.test_cleanup_images [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 20:52:08.692032Z
+tags: worker-11
+test: unit.test_cleanup.TestCleanup.test_cleanup_networks_resources
+time: 2026-01-16 20:52:08.695103Z
+successful: unit.test_cleanup.TestCleanup.test_cleanup_networks_resources [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 20:52:08.695373Z
+tags: worker-11
+test: unit.test_cleanup.TestCleanup.test_get_exclude_resources
+time: 2026-01-16 20:52:08.700084Z
+successful: unit.test_cleanup.TestCleanup.test_get_exclude_resources [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 20:52:08.707648Z
+tags: worker-6
+test: unit.test_cleanup.TestCleanup.test_get_test_projects_in_domain_with_exclusion
+time: 2026-01-16 20:52:08.711924Z
+successful: unit.test_cleanup.TestCleanup.test_get_test_projects_in_domain_with_exclusion [ multipart
+]
+tags: -worker-6
+time: 2026-01-16 20:52:08.775044Z
+tags: worker-8
+test: unit.test_cleanup.TestCleanup.test_run_quick_cleanup
+time: 2026-01-16 20:52:08.780033Z
+successful: unit.test_cleanup.TestCleanup.test_run_quick_cleanup [ multipart
+]
+tags: -worker-8
+time: 2026-01-16 20:52:08.780707Z
+tags: worker-8
+test: unit.test_cleanup.TestCleanup.test_run_quick_cleanup_error
+time: 2026-01-16 20:52:08.783394Z
+successful: unit.test_cleanup.TestCleanup.test_run_quick_cleanup_error [ multipart
+]
+tags: -worker-8
+time: 2026-01-16 20:52:08.624051Z
+tags: worker-4
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_is_tempest_ready_false
+time: 2026-01-16 20:52:08.818720Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_is_tempest_ready_false [ multipart
+]
+tags: -worker-4
+time: 2026-01-16 20:52:08.834881Z
+tags: worker-10
+test: unit.test_cleanup.TestCleanup.test_cleanup_block_resources
+time: 2026-01-16 20:52:08.838959Z
+successful: unit.test_cleanup.TestCleanup.test_cleanup_block_resources [ multipart
+]
+tags: -worker-10
+time: 2026-01-16 20:52:08.839416Z
+tags: worker-10
+test: unit.test_cleanup.TestCleanup.test_cleanup_stacks_endpoint_not_found
+time: 2026-01-16 20:52:08.840325Z
+successful: unit.test_cleanup.TestCleanup.test_cleanup_stacks_endpoint_not_found [ multipart
+]
+tags: -worker-10
+time: 2026-01-16 20:52:08.840586Z
+tags: worker-10
+test: unit.test_cleanup.TestCleanup.test_run_extensive_cleanup
+time: 2026-01-16 20:52:08.843208Z
+successful: unit.test_cleanup.TestCleanup.test_run_extensive_cleanup [ multipart
+]
+tags: -worker-10
+time: 2026-01-16 20:52:08.854092Z
+tags: worker-9
+test: unit.test_cleanup.TestCleanup.test_cleanup_compute_resources
+time: 2026-01-16 20:52:08.858545Z
+successful: unit.test_cleanup.TestCleanup.test_cleanup_compute_resources [ multipart
+]
+tags: -worker-9
+time: 2026-01-16 20:52:08.858982Z
+tags: worker-9
+test: unit.test_cleanup.TestCleanup.test_run_cleanup_functions_unsuccessful
+time: 2026-01-16 20:52:08.861127Z
+successful: unit.test_cleanup.TestCleanup.test_run_cleanup_functions_unsuccessful [ multipart
+]
+tags: -worker-9
+time: 2026-01-16 20:52:08.713022Z
+tags: worker-6
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_init_tempest_fail
+time: 2026-01-16 20:52:08.864687Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_init_tempest_fail [ multipart
+]
+tags: -worker-6
+time: 2026-01-16 20:52:08.865057Z
+tags: worker-6
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_start
+time: 2026-01-16 20:52:08.903719Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_start [ multipart
+]
+tags: -worker-6
+time: 2026-01-16 20:52:08.783899Z
+tags: worker-8
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_current_config_hash_changes
+time: 2026-01-16 20:52:08.926225Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_current_config_hash_changes [ multipart
+]
+tags: -worker-8
+time: 2026-01-16 20:52:08.933706Z
+tags: worker-7
+test: unit.test_cleanup.TestCleanup.test_cleanup_stacks_success
+time: 2026-01-16 20:52:08.937619Z
+successful: unit.test_cleanup.TestCleanup.test_cleanup_stacks_success [ multipart
+]
+tags: -worker-7
+time: 2026-01-16 20:52:08.938598Z
+tags: worker-7
+test: unit.test_cleanup.TestCleanup.test_get_test_projects_in_domain
+time: 2026-01-16 20:52:08.940101Z
+successful: unit.test_cleanup.TestCleanup.test_get_test_projects_in_domain [ multipart
+]
+tags: -worker-7
+time: 2026-01-16 20:52:08.700771Z
+tags: worker-11
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_validate_action_invalid_list
+time: 2026-01-16 20:52:08.978735Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_validate_action_invalid_list [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 20:52:08.766845Z
+tags: worker-1
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_blocked_status_invalid_schedule
+time: 2026-01-16 20:52:08.979463Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_blocked_status_invalid_schedule [ multipart
+]
+tags: -worker-1
+time: 2026-01-16 20:52:08.926693Z
+tags: worker-8
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_validate_action_success
+time: 2026-01-16 20:52:08.997760Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_validate_action_success [ multipart
+]
+tags: -worker-8
+time: 2026-01-16 20:52:08.999021Z
+tags: worker-8
+test: unit.test_validators.TempestCharmValidatorTests.test_expression_too_sparse
+time: 2026-01-16 20:52:09.000188Z
+successful: unit.test_validators.TempestCharmValidatorTests.test_expression_too_sparse [ multipart
+]
+tags: -worker-8
+time: 2026-01-16 20:52:08.979956Z
+tags: worker-11
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_validate_action_no_params
+time: 2026-01-16 20:52:09.038521Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_validate_action_no_params [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 20:52:09.034548Z
+tags: worker-15
+test: unit.test_cleanup.TestCleanup.test_run_cleanup_functions
+time: 2026-01-16 20:52:09.039689Z
+successful: unit.test_cleanup.TestCleanup.test_run_cleanup_functions [ multipart
+]
+tags: -worker-15
+time: 2026-01-16 20:52:09.040484Z
+tags: worker-11
+test: unit.test_validators.TempestCharmValidatorTests.test_valid_cron_expressions
+time: 2026-01-16 20:52:09.045087Z
+successful: unit.test_validators.TempestCharmValidatorTests.test_valid_cron_expressions [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 20:52:08.861518Z
+tags: worker-9
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_concurrency_calculation_less_cpus
+time: 2026-01-16 20:52:09.051603Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_concurrency_calculation_less_cpus [ multipart
+]
+tags: -worker-9
+time: 2026-01-16 20:52:08.843525Z
+tags: worker-10
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_all_relations
+time: 2026-01-16 20:52:09.121290Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-10
+time: 2026-01-16 20:52:08.854115Z
+tags: worker-2
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_error_initing_tempest
+time: 2026-01-16 20:52:09.127769Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_error_initing_tempest [ multipart
+]
+tags: -worker-2
+time: 2026-01-16 20:52:09.056307Z
+tags: worker-9
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_validate_action_invalid_regex
+time: 2026-01-16 20:52:09.163233Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_validate_action_invalid_regex [ multipart
+]
+tags: -worker-9
+time: 2026-01-16 20:52:09.164779Z
+tags: worker-9
+test: unit.test_validators.TempestCharmValidatorTests.test_expression_invalid_day
+time: 2026-01-16 20:52:09.165855Z
+successful: unit.test_validators.TempestCharmValidatorTests.test_expression_invalid_day [ multipart
+]
+tags: -worker-9
+time: 2026-01-16 20:52:08.940501Z
+tags: worker-7
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_roles_default_overrides
+time: 2026-01-16 20:52:09.196265Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_roles_default_overrides [ multipart
+]
+tags: -worker-7
+time: 2026-01-16 20:52:09.192772Z
+tags: worker-13
+test: unit.test_cleanup.TestCleanup.test_connect_to_os
+time: 2026-01-16 20:52:09.195825Z
+successful: unit.test_cleanup.TestCleanup.test_connect_to_os [ multipart
+]
+tags: -worker-13
+time: 2026-01-16 20:52:09.122097Z
+tags: worker-10
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_roles_compute_only_overrides
+time: 2026-01-16 20:52:09.237545Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_roles_compute_only_overrides [ multipart
+]
+tags: -worker-10
+time: 2026-01-16 20:52:09.040216Z
+tags: worker-15
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_init_tempest_already_run
+time: 2026-01-16 20:52:09.265938Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_init_tempest_already_run [ multipart
+]
+tags: -worker-15
+time: 2026-01-16 20:52:09.198424Z
+tags: worker-7
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_tempest_env_variant
+time: 2026-01-16 20:52:09.308041Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_tempest_env_variant [ multipart
+]
+tags: -worker-7
+time: 2026-01-16 20:52:09.391589Z
+tags: worker-5
+test: unit.test_cleanup.TestCleanup.test_cleanup_users
+time: 2026-01-16 20:52:09.396516Z
+successful: unit.test_cleanup.TestCleanup.test_cleanup_users [ multipart
+]
+tags: -worker-5
+time: 2026-01-16 20:52:09.397277Z
+tags: worker-5
+test: unit.test_cleanup.TestCleanup.test_cleanup_users_with_exclusion
+time: 2026-01-16 20:52:09.398944Z
+successful: unit.test_cleanup.TestCleanup.test_cleanup_users_with_exclusion [ multipart
+]
+tags: -worker-5
+time: 2026-01-16 20:52:09.399287Z
+tags: worker-5
+test: unit.test_cleanup.TestCleanup.test_run_extensive_cleanup_permission_error
+time: 2026-01-16 20:52:09.400979Z
+successful: unit.test_cleanup.TestCleanup.test_run_extensive_cleanup_permission_error [ multipart
+]
+tags: -worker-5
+time: 2026-01-16 20:52:09.267974Z
+tags: worker-15
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_remove_identity_triggers_tempest_no_longer_ready
+time: 2026-01-16 20:52:09.404775Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_remove_identity_triggers_tempest_no_longer_ready [ multipart
+]
+tags: -worker-15
+time: 2026-01-16 20:52:08.899167Z
+tags: worker-3
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_config_context_schedule
+time: 2026-01-16 20:52:09.450100Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_config_context_schedule [ multipart
+]
+tags: -worker-3
+time: 2026-01-16 20:52:09.221980Z
+tags: worker-12
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_is_tempest_ready
+time: 2026-01-16 20:52:09.457592Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_is_tempest_ready [ multipart
+]
+tags: -worker-12
+time: 2026-01-16 20:52:09.197252Z
+tags: worker-13
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_init_tempest_success
+time: 2026-01-16 20:52:09.459033Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_init_tempest_success [ multipart
+]
+tags: -worker-13
+time: 2026-01-16 20:52:09.405412Z
+tags: worker-15
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_validate_action_params
+time: 2026-01-16 20:52:09.474529Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_validate_action_params [ multipart
+]
+tags: -worker-15
+time: 2026-01-16 20:52:09.475714Z
+tags: worker-15
+test: unit.test_validators.TempestCharmValidatorTests.test_schedule_type_is_immutable
+time: 2026-01-16 20:52:09.478439Z
+successful: unit.test_validators.TempestCharmValidatorTests.test_schedule_type_is_immutable [ multipart
+]
+tags: -worker-15
+time: 2026-01-16 20:52:09.459176Z
+tags: worker-12
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_set_tempest_ready
+time: 2026-01-16 20:52:09.511030Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_set_tempest_ready [ multipart
+]
+tags: -worker-12
+time: 2026-01-16 20:52:09.459726Z
+tags: worker-13
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_pebble_ready_handler
+time: 2026-01-16 20:52:09.531090Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-13
+time: 2026-01-16 20:52:09.512230Z
+tags: worker-12
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_upgrade_charm
+time: 2026-01-16 20:52:09.613106Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_upgrade_charm [ multipart
+]
+tags: -worker-12
+time: 2026-01-16 20:52:09.616864Z
+tags: worker-12
+test: unit.test_validators.TempestCharmValidatorTests.test_expression_too_fast_edge_cases
+time: 2026-01-16 20:52:09.622316Z
+successful: unit.test_validators.TempestCharmValidatorTests.test_expression_too_fast_edge_cases [ multipart
+]
+tags: -worker-12
+time: 2026-01-16 20:52:09.367514Z
+tags: worker-0
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_get_list_action
+time: 2026-01-16 20:52:09.627029Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_get_list_action [ multipart
+]
+tags: -worker-0
+time: 2026-01-16 20:52:09.621970Z
+tags: worker-14
+test: unit.test_cleanup.TestCleanup.test_cleanup_project
+time: 2026-01-16 20:52:09.631949Z
+successful: unit.test_cleanup.TestCleanup.test_cleanup_project [ multipart
+]
+tags: -worker-14
+time: 2026-01-16 20:52:09.401241Z
+tags: worker-5
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_concurrency_calculation_more_cpus
+time: 2026-01-16 20:52:09.670581Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_concurrency_calculation_more_cpus [ multipart
+]
+tags: -worker-5
+time: 2026-01-16 20:52:09.673522Z
+tags: worker-5
+test: unit.test_validators.TempestCharmValidatorTests.test_expression_too_fast
+time: 2026-01-16 20:52:09.677596Z
+successful: unit.test_validators.TempestCharmValidatorTests.test_expression_too_fast [ multipart
+]
+tags: -worker-5
+time: 2026-01-16 20:52:09.531743Z
+tags: worker-13
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_roles_storage_only_overrides
+time: 2026-01-16 20:52:09.725554Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_roles_storage_only_overrides [ multipart
+]
+tags: -worker-13
+time: 2026-01-16 20:52:09.727420Z
+tags: worker-13
+test: unit.test_validators.TempestCharmValidatorTests.test_expression_missing_column
+time: 2026-01-16 20:52:09.728054Z
+successful: unit.test_validators.TempestCharmValidatorTests.test_expression_missing_column [ multipart
+]
+tags: -worker-13
+time: 2026-01-16 20:52:09.632561Z
+tags: worker-14
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_get_list_action_not_ready
+time: 2026-01-16 20:52:09.965824Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_get_list_action_not_ready [ multipart
+]
+tags: -worker-14
+time: 2026-01-16 20:52:09.967125Z
+tags: worker-14
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_logging_ready
+time: 2026-01-16 20:52:10.015484Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_logging_ready [ multipart
+]
+tags: -worker-14
+time: 2026-01-16 20:52:10.017755Z
+tags: worker-14
+test: unit.test_tempest_charm.TestTempestOperatorCharm.test_roles_blank_raises
+time: 2026-01-16 20:52:10.068758Z
+successful: unit.test_tempest_charm.TestTempestOperatorCharm.test_roles_blank_raises [ multipart
+]
+tags: -worker-14
+time: 2026-01-16 20:52:10.069851Z
+tags: worker-14
+test: unit.test_validators.TempestCharmValidatorTests.test_expression_seven_fields
+time: 2026-01-16 20:52:10.070312Z
+successful: unit.test_validators.TempestCharmValidatorTests.test_expression_seven_fields [ multipart
+]
+tags: -worker-14
+time: 2026-01-16 20:52:10.070601Z
+tags: worker-14
+test: unit.test_validators.TempestCharmValidatorTests.test_expression_six_fields
+time: 2026-01-16 20:52:10.070765Z
+successful: unit.test_validators.TempestCharmValidatorTests.test_expression_six_fields [ multipart
+]
+tags: -worker-14

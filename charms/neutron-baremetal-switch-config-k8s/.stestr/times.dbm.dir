@@ -1,0 +1,5 @@
+'unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_all_relations', (0, 8)
+'unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_validate_configs', (512, 8)
+'unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_duplicate_sections', (1024, 8)
+'unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_invalid_secrets', (1536, 8)
+'unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_missing_additional_file', (2048, 8)

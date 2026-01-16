@@ -1,0 +1,14 @@
+time: 2026-01-27 20:54:37.572575Z
+tags: worker-1
+test: unit.test_cinder_volume_ceph_charm.TestCinderCephOperatorCharm.test_all_relations
+time: 2026-01-27 20:54:37.671703Z
+successful: unit.test_cinder_volume_ceph_charm.TestCinderCephOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 20:54:37.573492Z
+tags: worker-0
+test: unit.test_cinder_volume_ceph_charm.TestCinderCephOperatorCharm.test_ceph_access
+time: 2026-01-27 20:54:37.673733Z
+successful: unit.test_cinder_volume_ceph_charm.TestCinderCephOperatorCharm.test_ceph_access [ multipart
+]
+tags: -worker-0

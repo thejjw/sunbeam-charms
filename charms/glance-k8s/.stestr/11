@@ -1,0 +1,21 @@
+time: 2026-01-27 20:53:49.233736Z
+tags: worker-2
+test: unit.test_glance_charm.TestGlanceOperatorCharm.test_pebble_ready_handler
+time: 2026-01-27 20:53:49.384402Z
+successful: unit.test_glance_charm.TestGlanceOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-2
+time: 2026-01-27 20:53:49.234254Z
+tags: worker-1
+test: unit.test_glance_charm.TestGlanceOperatorCharm.test_all_relations
+time: 2026-01-27 20:53:49.484718Z
+successful: unit.test_glance_charm.TestGlanceOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 20:53:49.232882Z
+tags: worker-0
+test: unit.test_glance_charm.TestGlanceOperatorCharm.test_enabled_backends
+time: 2026-01-27 20:53:49.530704Z
+successful: unit.test_glance_charm.TestGlanceOperatorCharm.test_enabled_backends [ multipart
+]
+tags: -worker-0

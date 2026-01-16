@@ -1,0 +1,21 @@
+time: 2026-01-16 20:35:56.041157Z
+tags: worker-2
+test: unit.test_charm.TestManilaCephfsCharm.test_pebble_ready_handler
+time: 2026-01-16 20:35:56.095089Z
+successful: unit.test_charm.TestManilaCephfsCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-2
+time: 2026-01-16 20:35:56.033147Z
+tags: worker-1
+test: unit.test_charm.TestManilaCephfsCharm.test_all_relations
+time: 2026-01-16 20:35:56.154407Z
+successful: unit.test_charm.TestManilaCephfsCharm.test_all_relations [ multipart
+]
+tags: -worker-1
+time: 2026-01-16 20:35:56.034206Z
+tags: worker-0
+test: unit.test_charm.TestManilaCephfsCharm.test_remove_relations
+time: 2026-01-16 20:35:56.216834Z
+successful: unit.test_charm.TestManilaCephfsCharm.test_remove_relations [ multipart
+]
+tags: -worker-0

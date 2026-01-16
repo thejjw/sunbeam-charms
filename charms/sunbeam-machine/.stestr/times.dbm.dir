@@ -1,0 +1,7 @@
+'unit.test_charm.TestCharm.test_ensure_package_installed_with_kernel_placeholder', (0, 8)
+'unit.test_charm.TestCharm.test_proxy_settings', (512, 8)
+'unit.test_charm.TestCharm.test_initial', (1024, 8)
+'unit.test_charm.TestCharm.test_ensure_package_installed_when_not_present', (1536, 8)
+'unit.test_charm.TestCharm.test_ensure_package_installed_multiple_packages', (2048, 8)
+'unit.test_charm.TestCharm.test_ensure_package_installed_when_present', (2560, 8)
+'unit.test_charm.TestCharm.test_ensure_package_installed_mixed_kernel_and_regular_packages', (3072, 7)

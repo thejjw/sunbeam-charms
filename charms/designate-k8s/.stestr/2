@@ -1,0 +1,14 @@
+time: 2026-01-16 20:13:04.405662Z
+tags: worker-1
+test: unit.test_designate_charm.TestDesignateOperatorCharm.test_pebble_ready_handler
+time: 2026-01-16 20:13:04.499235Z
+successful: unit.test_designate_charm.TestDesignateOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-1
+time: 2026-01-16 20:13:04.427858Z
+tags: worker-0
+test: unit.test_designate_charm.TestDesignateOperatorCharm.test_all_relations
+time: 2026-01-16 20:13:04.566290Z
+successful: unit.test_designate_charm.TestDesignateOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-0

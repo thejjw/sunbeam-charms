@@ -1,0 +1,14 @@
+time: 2026-01-27 19:18:56.923970Z
+tags: worker-1
+test: unit.test_barbican_charm.TestBarbicanOperatorCharm.test_pebble_ready_handler
+time: 2026-01-27 19:18:57.018516Z
+successful: unit.test_barbican_charm.TestBarbicanOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 19:18:56.923300Z
+tags: worker-0
+test: unit.test_barbican_charm.TestBarbicanOperatorCharm.test_all_relations
+time: 2026-01-27 19:18:57.172832Z
+successful: unit.test_barbican_charm.TestBarbicanOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-0

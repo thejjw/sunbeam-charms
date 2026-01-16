@@ -1,0 +1,112 @@
+time: 2026-01-27 20:31:30.154670Z
+tags: worker-0
+test: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_get_keystone_sp_urls_action_with_urls
+time: 2026-01-27 20:31:30.171213Z
+successful: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_get_keystone_sp_urls_action_with_urls [ multipart
+]
+tags: -worker-0
+time: 2026-01-27 20:31:30.174298Z
+tags: worker-4
+test: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_get_keystone_sp_urls_action_no_urls
+time: 2026-01-27 20:31:30.183585Z
+successful: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_get_keystone_sp_urls_action_no_urls [ multipart
+]
+tags: -worker-4
+time: 2026-01-27 20:31:30.193689Z
+tags: worker-9
+test: unit.test_certs_utils.TestCertificateUtils.test_is_valid_chain_invalid
+time: 2026-01-27 20:31:30.208897Z
+successful: unit.test_certs_utils.TestCertificateUtils.test_is_valid_chain_invalid [ multipart
+]
+tags: -worker-9
+time: 2026-01-27 20:31:30.231585Z
+tags: worker-8
+test: unit.test_certs_utils.TestCertificateUtils.test_is_valid_chain_valid
+time: 2026-01-27 20:31:30.245487Z
+successful: unit.test_certs_utils.TestCertificateUtils.test_is_valid_chain_valid [ multipart
+]
+tags: -worker-8
+time: 2026-01-27 20:31:30.206115Z
+tags: worker-5
+test: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_config_changed_with_valid_ca_chain
+time: 2026-01-27 20:31:30.277713Z
+successful: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_config_changed_with_valid_ca_chain [ multipart
+]
+tags: -worker-5
+time: 2026-01-27 20:31:30.265591Z
+tags: worker-10
+test: unit.test_certs_utils.TestCertificateUtils.test_parse_cert_chain_valid
+time: 2026-01-27 20:31:30.288450Z
+successful: unit.test_certs_utils.TestCertificateUtils.test_parse_cert_chain_valid [ multipart
+]
+tags: -worker-10
+time: 2026-01-27 20:31:30.282579Z
+tags: worker-12
+test: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_metadata_fetch_error
+time: 2026-01-27 20:31:30.293356Z
+successful: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_metadata_fetch_error [ multipart
+]
+tags: -worker-12
+time: 2026-01-27 20:31:30.333881Z
+tags: worker-3
+test: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_valid_config_with_relation
+time: 2026-01-27 20:31:30.390958Z
+successful: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_valid_config_with_relation [ multipart
+]
+tags: -worker-3
+time: 2026-01-27 20:31:30.384657Z
+tags: worker-6
+test: unit.test_certs_utils.TestCertificateUtils.test_parse_cert_chain_invalid
+time: 2026-01-27 20:31:30.399086Z
+successful: unit.test_certs_utils.TestCertificateUtils.test_parse_cert_chain_invalid [ multipart
+]
+tags: -worker-6
+time: 2026-01-27 20:31:30.422217Z
+tags: worker-7
+test: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_config_changed_without_ca_chain
+time: 2026-01-27 20:31:30.444522Z
+successful: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_config_changed_without_ca_chain [ multipart
+]
+tags: -worker-7
+time: 2026-01-27 20:31:30.451553Z
+tags: worker-2
+test: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_config_changed_ca_chain_parse_error
+time: 2026-01-27 20:31:30.494370Z
+successful: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_config_changed_ca_chain_parse_error [ multipart
+]
+tags: -worker-2
+time: 2026-01-27 20:31:30.631162Z
+tags: worker-14
+test: unit.test_certs_utils.TestCertificateUtils.test_parse_cert_chain_empty
+time: 2026-01-27 20:31:30.631852Z
+successful: unit.test_certs_utils.TestCertificateUtils.test_parse_cert_chain_empty [ multipart
+]
+tags: -worker-14
+time: 2026-01-27 20:31:30.653851Z
+tags: worker-15
+test: unit.test_certs_utils.TestCertificateUtils.test_is_valid_chain_empty
+time: 2026-01-27 20:31:30.654766Z
+successful: unit.test_certs_utils.TestCertificateUtils.test_is_valid_chain_empty [ multipart
+]
+tags: -worker-15
+time: 2026-01-27 20:31:30.650418Z
+tags: worker-1
+test: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_invalid_ca_chain
+time: 2026-01-27 20:31:30.678479Z
+successful: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_invalid_ca_chain [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 20:31:30.672046Z
+tags: worker-13
+test: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_missing_config
+time: 2026-01-27 20:31:30.682400Z
+successful: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_missing_config [ multipart
+]
+tags: -worker-13
+time: 2026-01-27 20:31:30.846572Z
+tags: worker-11
+test: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_valid_config_no_relation
+time: 2026-01-27 20:31:30.864395Z
+successful: unit.test_keystone_saml_charm.TestKeystoneSamlK8SCharm.test_valid_config_no_relation [ multipart
+]
+tags: -worker-11

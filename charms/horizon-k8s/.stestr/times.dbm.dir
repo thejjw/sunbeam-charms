@@ -1,0 +1,3 @@
+'unit.test_horizon_charm.TestHorizonOperatorCharm.test_pebble_ready_handler', (0, 8)
+'unit.test_horizon_charm.TestHorizonOperatorCharm.test_get_dashboard_url_action', (512, 8)
+'unit.test_horizon_charm.TestHorizonOperatorCharm.test_all_relations', (1024, 8)

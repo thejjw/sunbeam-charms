@@ -1,0 +1,7 @@
+time: 2026-01-16 20:57:50.900532Z
+tags: worker-0
+test: unit.test_cinder_volume_hitachi_charm.TestCinderHitachiOperatorCharm.test_all_relations
+time: 2026-01-16 20:57:50.954249Z
+successful: unit.test_cinder_volume_hitachi_charm.TestCinderHitachiOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-0

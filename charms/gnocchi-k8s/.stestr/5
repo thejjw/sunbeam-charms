@@ -1,0 +1,14 @@
+time: 2026-01-16 20:58:10.763815Z
+tags: worker-1
+test: unit.test_charm.TestGnocchiCephOperatorCharm.test_pebble_ready_handler
+time: 2026-01-16 20:58:10.922134Z
+successful: unit.test_charm.TestGnocchiCephOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-1
+time: 2026-01-16 20:58:10.760367Z
+tags: worker-0
+test: unit.test_charm.TestGnocchiCephOperatorCharm.test_all_relations
+time: 2026-01-16 20:58:11.070058Z
+successful: unit.test_charm.TestGnocchiCephOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-0

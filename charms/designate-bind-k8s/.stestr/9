@@ -1,0 +1,14 @@
+time: 2026-01-27 20:54:59.797131Z
+tags: worker-1
+test: unit.test_bind_charm.TestBindOperatorCharm.test_pebble_ready_handler
+time: 2026-01-27 20:54:59.828479Z
+successful: unit.test_bind_charm.TestBindOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 20:54:59.795668Z
+tags: worker-0
+test: unit.test_bind_charm.TestBindOperatorCharm.test_peer_relation
+time: 2026-01-27 20:54:59.850602Z
+successful: unit.test_bind_charm.TestBindOperatorCharm.test_peer_relation [ multipart
+]
+tags: -worker-0

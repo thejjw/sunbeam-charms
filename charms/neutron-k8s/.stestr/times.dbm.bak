@@ -1,0 +1,4 @@
+'unit.test_neutron_charm.TestNeutronOperatorCharm.test_pebble_ready_handler', (0, 8)
+'unit.test_neutron_charm.TestNeutronOperatorCharm.test_generic_switch_config_relation', (512, 8)
+'unit.test_neutron_charm.TestNeutronOperatorCharm.test_baremetal_switch_config_relation', (1024, 8)
+'unit.test_neutron_charm.TestNeutronOperatorCharm.test_all_relations', (1536, 8)

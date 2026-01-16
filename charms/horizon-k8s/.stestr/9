@@ -1,0 +1,21 @@
+time: 2026-01-27 20:54:33.883266Z
+tags: worker-2
+test: unit.test_horizon_charm.TestHorizonOperatorCharm.test_pebble_ready_handler
+time: 2026-01-27 20:54:34.016499Z
+successful: unit.test_horizon_charm.TestHorizonOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-2
+time: 2026-01-27 20:54:33.881619Z
+tags: worker-1
+test: unit.test_horizon_charm.TestHorizonOperatorCharm.test_get_dashboard_url_action
+time: 2026-01-27 20:54:34.016547Z
+successful: unit.test_horizon_charm.TestHorizonOperatorCharm.test_get_dashboard_url_action [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 20:54:33.878354Z
+tags: worker-0
+test: unit.test_horizon_charm.TestHorizonOperatorCharm.test_all_relations
+time: 2026-01-27 20:54:34.218131Z
+successful: unit.test_horizon_charm.TestHorizonOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-0

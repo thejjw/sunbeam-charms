@@ -1,0 +1,182 @@
+time: 2026-01-27 19:18:51.267765Z
+tags: worker-12
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_for_label_credential_keys
+time: 2026-01-27 19:18:51.396169Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_for_label_credential_keys [ multipart
+]
+tags: -worker-12
+time: 2026-01-27 19:18:51.274501Z
+tags: worker-10
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_non_leader_no_bootstraps
+time: 2026-01-27 19:18:51.405880Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_non_leader_no_bootstraps [ multipart
+]
+tags: -worker-10
+time: 2026-01-27 19:18:51.336509Z
+tags: worker-14
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_for_label_fernet_keys
+time: 2026-01-27 19:18:51.444396Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_for_label_fernet_keys [ multipart
+]
+tags: -worker-14
+time: 2026-01-27 19:18:51.396713Z
+tags: worker-12
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_on_peer_data_changed_with_fernet_keys_and_fernet_secret_same
+time: 2026-01-27 19:18:51.464312Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_on_peer_data_changed_with_fernet_keys_and_fernet_secret_same [ multipart
+]
+tags: -worker-12
+time: 2026-01-27 19:18:51.445712Z
+tags: worker-14
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_pebble_ready_handler
+time: 2026-01-27 19:18:51.487050Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-14
+time: 2026-01-27 19:18:51.406168Z
+tags: worker-10
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_on_peer_data_changed_no_bootstrap
+time: 2026-01-27 19:18:51.493639Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_on_peer_data_changed_no_bootstrap [ multipart
+]
+tags: -worker-10
+time: 2026-01-27 19:18:51.382765Z
+tags: worker-13
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_non_leader_on_secret_rotate_for_label_fernet_keys
+time: 2026-01-27 19:18:51.494651Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_non_leader_on_secret_rotate_for_label_fernet_keys [ multipart
+]
+tags: -worker-13
+time: 2026-01-27 19:18:51.465450Z
+tags: worker-12
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_on_secret_changed_with_fernet_keys_and_fernet_secret_different
+time: 2026-01-27 19:18:51.515656Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_on_secret_changed_with_fernet_keys_and_fernet_secret_different [ multipart
+]
+tags: -worker-12
+time: 2026-01-27 19:18:51.316025Z
+tags: worker-7
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_bootstraps
+time: 2026-01-27 19:18:51.562826Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_bootstraps [ multipart
+]
+tags: -worker-7
+time: 2026-01-27 19:18:51.259764Z
+tags: worker-6
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_identity_service_secret_when_unexpected_error
+time: 2026-01-27 19:18:51.576287Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_identity_service_secret_when_unexpected_error [ multipart
+]
+tags: -worker-6
+time: 2026-01-27 19:18:51.487282Z
+tags: worker-14
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_sync_oidc_providers
+time: 2026-01-27 19:18:51.578522Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_sync_oidc_providers [ multipart
+]
+tags: -worker-14
+time: 2026-01-27 19:18:51.494833Z
+tags: worker-13
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_oauth_relation
+time: 2026-01-27 19:18:51.586919Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_oauth_relation [ multipart
+]
+tags: -worker-13
+time: 2026-01-27 19:18:51.275749Z
+tags: worker-0
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_identity_service_secret_when_failing_to_connect_once
+time: 2026-01-27 19:18:51.633602Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_identity_service_secret_when_failing_to_connect_once [ multipart
+]
+tags: -worker-0
+time: 2026-01-27 19:18:51.303739Z
+tags: worker-4
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_domain_config
+time: 2026-01-27 19:18:51.651171Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_domain_config [ multipart
+]
+tags: -worker-4
+time: 2026-01-27 19:18:51.336742Z
+tags: worker-3
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_identity_service_secret
+time: 2026-01-27 19:18:51.671500Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_identity_service_secret [ multipart
+]
+tags: -worker-3
+time: 2026-01-27 19:18:51.587521Z
+tags: worker-13
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_trusted_dashboard_relation
+time: 2026-01-27 19:18:51.673561Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_trusted_dashboard_relation [ multipart
+]
+tags: -worker-13
+time: 2026-01-27 19:18:51.272493Z
+tags: worker-2
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_identity_service_secret_when_failing_to_connect_twice
+time: 2026-01-27 19:18:51.675593Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_identity_service_secret_when_failing_to_connect_twice [ multipart
+]
+tags: -worker-2
+time: 2026-01-27 19:18:51.459545Z
+tags: worker-8
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_identity_service_secret_when_configured_not_active
+time: 2026-01-27 19:18:51.728320Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_leader_on_secret_rotate_identity_service_secret_when_configured_not_active [ multipart
+]
+tags: -worker-8
+time: 2026-01-27 19:18:51.346840Z
+tags: worker-1
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_keystone_saml2_relation
+time: 2026-01-27 19:18:51.739174Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_keystone_saml2_relation [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 19:18:51.176093Z
+tags: worker-5
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_id_client
+time: 2026-01-27 19:18:51.760292Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_id_client [ multipart
+]
+tags: -worker-5
+time: 2026-01-27 19:18:51.487661Z
+tags: worker-9
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_on_peer_data_changed_with_fernet_keys_and_fernet_secret_different
+time: 2026-01-27 19:18:51.810804Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_on_peer_data_changed_with_fernet_keys_and_fernet_secret_different [ multipart
+]
+tags: -worker-9
+time: 2026-01-27 19:18:51.641942Z
+tags: worker-15
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_get_admin_account_action
+time: 2026-01-27 19:18:51.832065Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_get_admin_account_action [ multipart
+]
+tags: -worker-15
+time: 2026-01-27 19:18:51.833557Z
+tags: worker-15
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_get_service_account_action
+time: 2026-01-27 19:18:51.889542Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_get_service_account_action [ multipart
+]
+tags: -worker-15
+time: 2026-01-27 19:18:51.636989Z
+tags: worker-11
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_get_idp_file_name_from_issuer_url
+time: 2026-01-27 19:18:51.926376Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_get_idp_file_name_from_issuer_url [ multipart
+]
+tags: -worker-11
+time: 2026-01-27 19:18:51.893251Z
+tags: worker-15
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_non_leader_on_secret_rotate_for_label_credential_keys
+time: 2026-01-27 19:18:51.986389Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_non_leader_on_secret_rotate_for_label_credential_keys [ multipart
+]
+tags: -worker-15
+time: 2026-01-27 19:18:51.927410Z
+tags: worker-11
+test: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_on_secret_changed_with_fernet_keys_and_fernet_secret_same
+time: 2026-01-27 19:18:52.091251Z
+successful: unit.test_keystone_charm.TestKeystoneOperatorCharm.test_on_secret_changed_with_fernet_keys_and_fernet_secret_same [ multipart
+]
+tags: -worker-11

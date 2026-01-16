@@ -1,0 +1,35 @@
+time: 2026-01-27 19:17:56.357689Z
+tags: worker-1
+test: unit.test_charm.TestCharm.test_initial_bootstrap_no_leader
+time: 2026-01-27 19:17:56.388634Z
+successful: unit.test_charm.TestCharm.test_initial_bootstrap_no_leader [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 19:17:56.357821Z
+tags: worker-2
+test: unit.test_charm.TestCharm.test_get_credentials
+time: 2026-01-27 19:17:56.389922Z
+successful: unit.test_charm.TestCharm.test_get_credentials [ multipart
+]
+tags: -worker-2
+time: 2026-01-27 19:17:56.375832Z
+tags: worker-4
+test: unit.test_charm.TestCharm.test_openstack_snap_not_installed
+time: 2026-01-27 19:17:56.391220Z
+successful: unit.test_charm.TestCharm.test_openstack_snap_not_installed [ multipart
+]
+tags: -worker-4
+time: 2026-01-27 19:17:56.359177Z
+tags: worker-0
+test: unit.test_charm.TestCharm.test_initial_bootstrap
+time: 2026-01-27 19:17:56.394023Z
+successful: unit.test_charm.TestCharm.test_initial_bootstrap [ multipart
+]
+tags: -worker-0
+time: 2026-01-27 19:17:56.387943Z
+tags: worker-3
+test: unit.test_charm.TestCharm.test_config
+time: 2026-01-27 19:17:56.426158Z
+successful: unit.test_charm.TestCharm.test_config [ multipart
+]
+tags: -worker-3

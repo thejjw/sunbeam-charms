@@ -1,0 +1,14 @@
+time: 2026-01-27 20:30:43.722346Z
+tags: worker-1
+test: unit.test_magnum_charm.TestMagnumOperatorCharm.test_pebble_ready_handler
+time: 2026-01-27 20:30:43.805813Z
+successful: unit.test_magnum_charm.TestMagnumOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 20:30:43.710632Z
+tags: worker-0
+test: unit.test_magnum_charm.TestMagnumOperatorCharm.test_all_relations
+time: 2026-01-27 20:30:43.914699Z
+successful: unit.test_magnum_charm.TestMagnumOperatorCharm.test_all_relations [ multipart
+]
+tags: -worker-0

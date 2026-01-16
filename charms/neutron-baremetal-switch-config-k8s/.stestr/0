@@ -1,0 +1,35 @@
+time: 2026-01-16 17:30:36.132615Z
+tags: worker-0
+test: unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_all_relations
+time: 2026-01-16 17:30:36.142935Z
+successful: unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_all_relations [ multipart
+]
+tags: -worker-0
+time: 2026-01-16 17:30:36.129907Z
+tags: worker-1
+test: unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_validate_configs
+time: 2026-01-16 17:30:36.143384Z
+successful: unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_validate_configs [ multipart
+]
+tags: -worker-1
+time: 2026-01-16 17:30:36.145010Z
+tags: worker-2
+test: unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_duplicate_sections
+time: 2026-01-16 17:30:36.161290Z
+successful: unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_duplicate_sections [ multipart
+]
+tags: -worker-2
+time: 2026-01-16 17:30:36.158332Z
+tags: worker-3
+test: unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_invalid_secrets
+time: 2026-01-16 17:30:36.176612Z
+successful: unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_invalid_secrets [ multipart
+]
+tags: -worker-3
+time: 2026-01-16 17:30:36.208838Z
+tags: worker-4
+test: unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_missing_additional_file
+time: 2026-01-16 17:30:36.224637Z
+successful: unit.test_charm.TestNeutronBaremetalSwitchConfigCharm.test_missing_additional_file [ multipart
+]
+tags: -worker-4

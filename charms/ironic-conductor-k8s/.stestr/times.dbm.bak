@@ -1,0 +1,7 @@
+'unit.test_charm.TestIronicConductorOperatorCharm.test_loadbalancer_ip', (0, 8)
+'unit.test_charm.TestIronicConductorOperatorCharm.test_pebble_ready_handler', (512, 8)
+'unit.test_charm.TestIronicConductorOperatorCharm.test_set_temp_url_secret_failures', (1024, 8)
+'unit.test_charm.TestIronicConductorOperatorCharm.test_all_relations', (1536, 8)
+'unit.test_charm.TestIronicConductorOperatorCharm.test_charm_configuration', (2048, 8)
+'unit.test_charm.TestIronicConductorOperatorCharm.test_charm_invalid_config', (2560, 8)
+'unit.test_charm.TestIronicConductorOperatorCharm.test_set_temp_url_secret', (3072, 8)

@@ -1,0 +1,35 @@
+time: 2026-01-16 17:29:35.848127Z
+tags: worker-3
+test: unit.test_charm.TestEpaOrchestratorCharm.test_ensure_services_running_no_op
+time: 2026-01-16 17:29:35.875206Z
+successful: unit.test_charm.TestEpaOrchestratorCharm.test_ensure_services_running_no_op [ multipart
+]
+tags: -worker-3
+time: 2026-01-16 17:29:35.850721Z
+tags: worker-1
+test: unit.test_charm.TestEpaOrchestratorCharm.test_all_relations
+time: 2026-01-16 17:29:35.885112Z
+successful: unit.test_charm.TestEpaOrchestratorCharm.test_all_relations [ multipart
+]
+tags: -worker-1
+time: 2026-01-16 17:29:35.853088Z
+tags: worker-0
+test: unit.test_charm.TestEpaOrchestratorCharm.test_stop_services_no_op
+time: 2026-01-16 17:29:35.890046Z
+successful: unit.test_charm.TestEpaOrchestratorCharm.test_stop_services_no_op [ multipart
+]
+tags: -worker-0
+time: 2026-01-16 17:29:35.910930Z
+tags: worker-4
+test: unit.test_charm.TestEpaOrchestratorCharm.test_snap_name_property_default
+time: 2026-01-16 17:29:35.948285Z
+successful: unit.test_charm.TestEpaOrchestratorCharm.test_snap_name_property_default [ multipart
+]
+tags: -worker-4
+time: 2026-01-16 17:29:35.828873Z
+tags: worker-2
+test: unit.test_charm.TestEpaOrchestratorCharm.test_snap_channel_property
+time: 2026-01-16 17:29:37.292148Z
+successful: unit.test_charm.TestEpaOrchestratorCharm.test_snap_channel_property [ multipart
+]
+tags: -worker-2

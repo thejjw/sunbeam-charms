@@ -1,0 +1,7 @@
+time: 2026-01-27 19:18:00.051174Z
+tags: worker-0
+test: unit.test_keystone_ldap_charm.TestKeystoneLDAPK8SCharm.test_charm
+time: 2026-01-27 19:18:00.066204Z
+successful: unit.test_keystone_ldap_charm.TestKeystoneLDAPK8SCharm.test_charm [ multipart
+]
+tags: -worker-0

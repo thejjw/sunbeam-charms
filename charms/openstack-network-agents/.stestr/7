@@ -1,0 +1,35 @@
+time: 2026-01-27 19:20:29.636962Z
+tags: worker-2
+test: unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_connect_ovn_chassis_success
+time: 2026-01-27 19:20:29.646365Z
+successful: unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_connect_ovn_chassis_success [ multipart
+]
+tags: -worker-2
+time: 2026-01-27 19:20:29.641436Z
+tags: worker-3
+test: unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_set_network_agents_local_settings_action
+time: 2026-01-27 19:20:29.650562Z
+successful: unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_set_network_agents_local_settings_action [ multipart
+]
+tags: -worker-3
+time: 2026-01-27 19:20:29.641263Z
+tags: worker-1
+test: unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_set_network_agents_local_settings_action_with_bridge_mapping
+time: 2026-01-27 19:20:29.650661Z
+successful: unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_set_network_agents_local_settings_action_with_bridge_mapping [ multipart
+]
+tags: -worker-1
+time: 2026-01-27 19:20:29.642735Z
+tags: worker-4
+test: unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_connect_ovn_chassis_errors_out
+time: 2026-01-27 19:20:29.650929Z
+successful: unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_connect_ovn_chassis_errors_out [ multipart
+]
+tags: -worker-4
+time: 2026-01-27 19:20:29.636993Z
+tags: worker-0
+test: unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_configure_snap_sets_snap_data_and_connects
+time: 2026-01-27 19:20:31.174663Z
+successful: unit.test_openstack_network_agents.TestOpenstackNetworkAgentsCharm.test_configure_snap_sets_snap_data_and_connects [ multipart
+]
+tags: -worker-0

@@ -1,0 +1,203 @@
+time: 2026-01-16 20:13:10.009792Z
+tags: worker-3
+test: unit.test_charm.TestCharm.test_consul_notify_initialization
+time: 2026-01-16 20:13:10.101750Z
+successful: unit.test_charm.TestCharm.test_consul_notify_initialization [ multipart
+]
+tags: -worker-3
+time: 2026-01-16 20:13:09.966067Z
+tags: worker-6
+test: unit.test_charm.TestCharm.test_consul_notify_event_handler
+time: 2026-01-16 20:13:10.102739Z
+successful: unit.test_charm.TestCharm.test_consul_notify_event_handler [ multipart
+]
+tags: -worker-6
+time: 2026-01-16 20:13:10.000710Z
+tags: worker-10
+test: unit.test_charm.TestCharm.test_list_gpus_error
+time: 2026-01-16 20:13:10.107046Z
+successful: unit.test_charm.TestCharm.test_list_gpus_error [ multipart
+]
+tags: -worker-10
+time: 2026-01-16 20:13:10.049412Z
+tags: worker-9
+test: unit.test_charm.TestCharm.test_clear_system_ovs_datapaths
+time: 2026-01-16 20:13:10.128199Z
+successful: unit.test_charm.TestCharm.test_clear_system_ovs_datapaths [ multipart
+]
+tags: -worker-9
+time: 2026-01-16 20:13:10.007613Z
+tags: worker-2
+test: unit.test_charm.TestCharm.test_disable_system_ovs
+time: 2026-01-16 20:13:10.128824Z
+successful: unit.test_charm.TestCharm.test_disable_system_ovs [ multipart
+]
+tags: -worker-2
+time: 2026-01-16 20:13:10.104160Z
+tags: worker-6
+test: unit.test_charm.TestCharm.test_list_nics_snap_not_installed
+time: 2026-01-16 20:13:10.184691Z
+successful: unit.test_charm.TestCharm.test_list_nics_snap_not_installed [ multipart
+]
+tags: -worker-6
+time: 2026-01-16 20:13:10.129293Z
+tags: worker-9
+test: unit.test_charm.TestCharm.test_clear_system_ovs_datapaths_missing_ovs_dpctl
+time: 2026-01-16 20:13:10.195267Z
+successful: unit.test_charm.TestCharm.test_clear_system_ovs_datapaths_missing_ovs_dpctl [ multipart
+]
+tags: -worker-9
+time: 2026-01-16 20:13:10.078313Z
+tags: worker-4
+test: unit.test_charm.TestCharm.test_handle_ovs_dpdk_one_out_of_two_numa_nodes
+time: 2026-01-16 20:13:10.200918Z
+successful: unit.test_charm.TestCharm.test_handle_ovs_dpdk_one_out_of_two_numa_nodes [ multipart
+]
+tags: -worker-4
+time: 2026-01-16 20:13:10.068887Z
+tags: worker-5
+test: unit.test_charm.TestCharm.test_openstack_hypervisor_snap_not_installed
+time: 2026-01-16 20:13:10.207928Z
+successful: unit.test_charm.TestCharm.test_openstack_hypervisor_snap_not_installed [ multipart
+]
+tags: -worker-5
+time: 2026-01-16 20:13:10.201481Z
+tags: worker-4
+test: unit.test_utils.TestOpenstackHypervisorUtils.test_get_systemd_unit_status
+time: 2026-01-16 20:13:10.206872Z
+successful: unit.test_utils.TestOpenstackHypervisorUtils.test_get_systemd_unit_status [ multipart
+]
+tags: -worker-4
+time: 2026-01-16 20:13:10.111742Z
+tags: worker-10
+test: unit.test_charm.TestCharm.test_snap_connect_success
+time: 2026-01-16 20:13:10.228744Z
+successful: unit.test_charm.TestCharm.test_snap_connect_success [ multipart
+]
+tags: -worker-10
+time: 2026-01-16 20:13:10.147373Z
+tags: worker-7
+test: unit.test_charm.TestCharm.test_handle_ovs_dpdk_disabled
+time: 2026-01-16 20:13:10.236926Z
+successful: unit.test_charm.TestCharm.test_handle_ovs_dpdk_disabled [ multipart
+]
+tags: -worker-7
+time: 2026-01-16 20:13:10.157473Z
+tags: worker-12
+test: unit.test_charm.TestCharm.test_bitmask_to_core_list
+time: 2026-01-16 20:13:10.247898Z
+successful: unit.test_charm.TestCharm.test_bitmask_to_core_list [ multipart
+]
+tags: -worker-12
+time: 2026-01-16 20:13:10.207274Z
+tags: worker-4
+test: unit.test_utils.TestOpenstackHypervisorUtils.test_get_systemd_unit_status_not_found
+time: 2026-01-16 20:13:10.265438Z
+successful: unit.test_utils.TestOpenstackHypervisorUtils.test_get_systemd_unit_status_not_found [ multipart
+]
+tags: -worker-4
+time: 2026-01-16 20:13:10.146089Z
+tags: worker-13
+test: unit.test_charm.TestCharm.test_get_dpdk_settings_override_invalid
+time: 2026-01-16 20:13:10.265111Z
+successful: unit.test_charm.TestCharm.test_get_dpdk_settings_override_invalid [ multipart
+]
+tags: -worker-13
+time: 2026-01-16 20:13:10.208492Z
+tags: worker-5
+test: unit.test_charm.TestCharm.test_snap_connect_failure_snaperror
+time: 2026-01-16 20:13:10.286010Z
+successful: unit.test_charm.TestCharm.test_snap_connect_failure_snaperror [ multipart
+]
+tags: -worker-5
+time: 2026-01-16 20:13:10.248548Z
+tags: worker-12
+test: unit.test_charm.TestCharm.test_get_dpdk_settings_override
+time: 2026-01-16 20:13:10.332839Z
+successful: unit.test_charm.TestCharm.test_get_dpdk_settings_override [ multipart
+]
+tags: -worker-12
+time: 2026-01-16 20:13:10.265504Z
+tags: worker-13
+test: unit.test_charm.TestCharm.test_list_flavors
+time: 2026-01-16 20:13:10.409867Z
+successful: unit.test_charm.TestCharm.test_list_flavors [ multipart
+]
+tags: -worker-13
+time: 2026-01-16 20:13:10.239224Z
+tags: worker-7
+test: unit.test_charm.TestCharm.test_list_nics_error
+time: 2026-01-16 20:13:10.432205Z
+successful: unit.test_charm.TestCharm.test_list_nics_error [ multipart
+]
+tags: -worker-7
+time: 2026-01-16 20:13:10.362849Z
+tags: worker-14
+test: unit.test_charm.TestCharm.test_disable_system_ovs_missing
+time: 2026-01-16 20:13:10.496212Z
+successful: unit.test_charm.TestCharm.test_disable_system_ovs_missing [ multipart
+]
+tags: -worker-14
+time: 2026-01-16 20:13:10.461912Z
+tags: worker-15
+test: unit.test_charm.TestCharm.test_core_list_to_bitmask
+time: 2026-01-16 20:13:10.552186Z
+successful: unit.test_charm.TestCharm.test_core_list_to_bitmask [ multipart
+]
+tags: -worker-15
+time: 2026-01-16 20:13:10.496752Z
+tags: worker-14
+test: unit.test_charm.TestCharm.test_list_gpus
+time: 2026-01-16 20:13:10.582552Z
+successful: unit.test_charm.TestCharm.test_list_gpus [ multipart
+]
+tags: -worker-14
+time: 2026-01-16 20:13:10.494522Z
+tags: worker-8
+test: unit.test_charm.TestCharm.test_get_dpdk_numa_nodes_no_interfaces
+time: 2026-01-16 20:13:10.606148Z
+successful: unit.test_charm.TestCharm.test_get_dpdk_numa_nodes_no_interfaces [ multipart
+]
+tags: -worker-8
+time: 2026-01-16 20:13:10.553715Z
+tags: worker-15
+test: unit.test_charm.TestCharm.test_handle_ovs_dpdk_disabled_through_override
+time: 2026-01-16 20:13:10.644533Z
+successful: unit.test_charm.TestCharm.test_handle_ovs_dpdk_disabled_through_override [ multipart
+]
+tags: -worker-15
+time: 2026-01-16 20:13:10.607710Z
+tags: worker-8
+test: unit.test_charm.TestCharm.test_handle_ovs_dpdk_numa_unavailable
+time: 2026-01-16 20:13:10.784960Z
+successful: unit.test_charm.TestCharm.test_handle_ovs_dpdk_numa_unavailable [ multipart
+]
+tags: -worker-8
+time: 2026-01-16 20:13:10.711551Z
+tags: worker-11
+test: unit.test_charm.TestCharm.test_get_dpdk_numa_nodes
+time: 2026-01-16 20:13:10.833979Z
+successful: unit.test_charm.TestCharm.test_get_dpdk_numa_nodes [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 20:13:10.836578Z
+tags: worker-11
+test: unit.test_charm.TestCharm.test_list_nics
+time: 2026-01-16 20:13:10.935621Z
+successful: unit.test_charm.TestCharm.test_list_nics [ multipart
+]
+tags: -worker-11
+time: 2026-01-16 20:13:10.173509Z
+tags: worker-1
+test: unit.test_charm.TestCharm.test_all_relations
+time: 2026-01-16 20:13:11.198285Z
+successful: unit.test_charm.TestCharm.test_all_relations [ multipart
+]
+tags: -worker-1
+time: 2026-01-16 20:13:10.369121Z
+tags: worker-0
+test: unit.test_charm.TestCharm.test_mandatory_relations
+time: 2026-01-16 20:13:11.357012Z
+successful: unit.test_charm.TestCharm.test_mandatory_relations [ multipart
+]
+tags: -worker-0

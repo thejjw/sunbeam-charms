@@ -1,0 +1,7 @@
+time: 2026-01-16 17:30:11.141185Z
+tags: worker-0
+test: unit.test_charm.TestSunbeamLibsCharm.test_pebble_ready_handler
+time: 2026-01-16 17:30:11.150549Z
+successful: unit.test_charm.TestSunbeamLibsCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-0

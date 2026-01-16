@@ -1,0 +1,5 @@
+'unit.test_charm.TestNeutronGenericSwitchConfigCharm.test_invalid_secrets', (0, 8)
+'unit.test_charm.TestNeutronGenericSwitchConfigCharm.test_validate_configs', (512, 8)
+'unit.test_charm.TestNeutronGenericSwitchConfigCharm.test_all_relations', (1024, 8)
+'unit.test_charm.TestNeutronGenericSwitchConfigCharm.test_missing_additional_file', (1536, 8)
+'unit.test_charm.TestNeutronGenericSwitchConfigCharm.test_duplicate_sections', (2048, 8)

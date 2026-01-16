@@ -1,0 +1,21 @@
+time: 2026-01-16 19:42:04.887229Z
+tags: worker-2
+test: unit.test_ovn_central_charm.TestOVNCentralOperatorCharm.test_pebble_ready_handler
+time: 2026-01-16 19:42:04.937066Z
+successful: unit.test_ovn_central_charm.TestOVNCentralOperatorCharm.test_pebble_ready_handler [ multipart
+]
+tags: -worker-2
+time: 2026-01-16 19:42:04.885021Z
+tags: worker-0
+test: unit.test_ovn_central_charm.TestOVNCentralOperatorCharm.test_all_relations_non_leader
+time: 2026-01-16 19:42:05.172601Z
+successful: unit.test_ovn_central_charm.TestOVNCentralOperatorCharm.test_all_relations_non_leader [ multipart
+]
+tags: -worker-0
+time: 2026-01-16 19:42:04.886194Z
+tags: worker-1
+test: unit.test_ovn_central_charm.TestOVNCentralOperatorCharm.test_all_relations_leader
+time: 2026-01-16 19:42:05.220201Z
+successful: unit.test_ovn_central_charm.TestOVNCentralOperatorCharm.test_all_relations_leader [ multipart
+]
+tags: -worker-1
