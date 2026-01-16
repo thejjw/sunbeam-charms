@@ -133,6 +133,12 @@ actions:
       Certificate names with `.` will be replace with `-`.
       Bundles received on receive-ca-cert relations are exposed as
       receive-ca-cert-<relation-id>-relation.
+  pause:
+    description: Pause container services
+    additionalProperties: false
+  resume:
+    description: Resume container services
+    additionalProperties: false
 
 containers:
   keystone:
