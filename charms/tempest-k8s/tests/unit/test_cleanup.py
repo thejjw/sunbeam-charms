@@ -87,7 +87,8 @@ class TestCleanup(unittest.TestCase):
 
     def test_get_exclude_resources(self):
         """Test get exclude resources from test accounts file."""
-        account_file_content = textwrap.dedent("""
+        account_file_content = textwrap.dedent(
+            """
         - domain_name: mydomain
           password: password1
           project_name: tempest-test_creds-11949114
@@ -100,7 +101,8 @@ class TestCleanup(unittest.TestCase):
           resources:
             network: tempest-test_creds-20041716-network
           username: tempest-test_creds-18083146-project
-        """)
+        """
+        )
 
         expected_result = {
             "projects": {
