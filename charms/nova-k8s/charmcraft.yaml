@@ -60,6 +60,14 @@ config:
       description: |
         Enable spreading the instances between hosts with the same best weight.
 
+actions:
+  pause:
+    description: Pause container services
+    additionalProperties: false
+  resume:
+    description: Resume container services
+    additionalProperties: false
+
 containers:
   nova-api:
     resource: nova-api-image

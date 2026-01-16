@@ -124,6 +124,14 @@ config:
         running neutron server will be used.
       type: string
 
+actions:
+  pause:
+    description: Pause container services
+    additionalProperties: false
+  resume:
+    description: Resume container services
+    additionalProperties: false
+
 containers:
   neutron-server:
     resource: neutron-server-image
