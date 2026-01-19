@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Utils for cleaning up tempest-related resources."""
+
 import argparse
 import os
 from collections.abc import (
