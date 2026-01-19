@@ -17,6 +17,7 @@
 
 This charm provide Barbican services as part of an OpenStack deployment
 """
+
 import hashlib
 import json
 import logging
