@@ -16,7 +16,6 @@
 
 """Utility helper functions."""
 
-
 import collections
 import json
 import logging
