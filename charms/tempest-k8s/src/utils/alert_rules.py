@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Working with the loki logging alert rules."""
+
 import os
 from math import (
     ceil,

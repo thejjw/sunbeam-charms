@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Constants for the tempest charm."""
+
 from multiprocessing import (
     cpu_count,
 )

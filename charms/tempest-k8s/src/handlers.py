@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Handers for the tempest charm."""
+
 import hashlib
 import json
 import logging
