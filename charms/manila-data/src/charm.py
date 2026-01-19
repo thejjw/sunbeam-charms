@@ -20,6 +20,7 @@
 This charm provide manila-data capabilities for OpenStack.
 This charm is responsible for managing the manila-data snap.
 """
+
 import logging
 from typing import (
     Mapping,

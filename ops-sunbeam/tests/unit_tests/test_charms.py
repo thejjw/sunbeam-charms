@@ -71,9 +71,7 @@ tags:
 subordinate: false
 """
 
-CHARM_METADATA_K8S = (
-    CHARM_METADATA
-    + """
+CHARM_METADATA_K8S = CHARM_METADATA + """
 containers:
   my-service:
     resource: mysvc-image
@@ -91,7 +89,6 @@ resources:
   mysvc-image:
     type: oci-image
 """
-)
 
 API_CHARM_METADATA = """
 name: my-service

@@ -22,6 +22,7 @@ The user will still see a single status and message
 but the charm can easily set the status of various
 aspects of the application without clobbering other parts.
 """
+
 import json
 import logging
 import typing

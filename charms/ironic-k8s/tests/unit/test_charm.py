@@ -105,13 +105,8 @@ class TestIronicOperatorCharm(test_utils.CharmTestCase):
         return rel_id
 
     def add_complete_ingress_relation(self) -> None:
-        """Add complete ingress and traefik-route relations."""
+        """Add complete ingress relations."""
         test_utils.add_complete_ingress_relation(self.harness)
-        self.harness.add_relation(
-            "traefik-route-internal",
-            "ironic",
-            app_data={"external_host": "dummy-ip", "scheme": "http"},
-        )
 
     def test_pebble_ready_handler(self):
         """Test pebble ready event handling."""

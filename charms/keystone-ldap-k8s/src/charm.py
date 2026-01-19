@@ -21,6 +21,7 @@
 
 Send domain configuration to the keystone charm.
 """
+
 import json
 import logging
 from typing import (

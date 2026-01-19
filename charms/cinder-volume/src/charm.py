@@ -21,6 +21,7 @@ This charm provide Cinder Volume capabilities for OpenStack.
 This charm is responsible for managing the cinder-volume snap, actual
 backend configurations are managed by the subordinate charms.
 """
+
 import logging
 import typing
 from typing import (

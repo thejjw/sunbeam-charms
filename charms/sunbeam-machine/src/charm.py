@@ -87,8 +87,7 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Configure the iSCSI initiator with a valid IQN."""
         fqdn = socket.getfqdn()
         iqn = f"iqn.2024-04.com.ubuntu.sunbeam:{fqdn}"
-        content = textwrap.dedent(
-            f"""\
+        content = textwrap.dedent(f"""\
             ## DO NOT EDIT OR REMOVE THIS FILE!
             ## This file is Juju managed.
             ## If you remove this file, the iSCSI daemon will not start.
@@ -96,8 +95,7 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
             ## may reject this initiator.  The InitiatorName must be unique
             ## for each iSCSI initiator.  Do NOT duplicate iSCSI InitiatorNames.
             InitiatorName={iqn}
-            """
-        )
+            """)
         path = Path(ISCSI_INITIATORNAME_FILE)
         path.parent.mkdir(parents=True, exist_ok=True)
         if not path.exists():
