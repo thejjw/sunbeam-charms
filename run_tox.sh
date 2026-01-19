@@ -63,7 +63,7 @@ then
     ops_sunbeam_tst_path="ops-sunbeam/tests/unit_tests"
 
     codespell ${src_path} ${tst_path} ${ops_sunbeam_src_path} ${ops_sunbeam_tst_path} || exit 1
-    pflake8 --config pyproject.toml ${src_path} ${tst_path} ${ops_sunbeam_src_path} ${ops_sunbeam_tst_path} || exit 1
+    pflake8 ${src_path} ${tst_path} ${ops_sunbeam_src_path} ${ops_sunbeam_tst_path} || exit 1
     isort --check-only --diff ${src_path} ${tst_path} ${ops_sunbeam_src_path} ${ops_sunbeam_tst_path} || exit 1
     black --config pyproject.toml --check --diff ${src_path} ${tst_path} ${ops_sunbeam_src_path} ${ops_sunbeam_tst_path} || exit 1
 elif [[ $1 == "linters" ]]
