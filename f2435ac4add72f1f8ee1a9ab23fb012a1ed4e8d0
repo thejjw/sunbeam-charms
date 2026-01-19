@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33591605_044771b5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-01-19T15:37:27Z",
+      "side": 1,
+      "message": "What happens if I run `juju run keystone/0 pause` and then, the user does `k8s kubectl delete -n openstack keystone-0`?\n\nThis will re-create the pod, and we\u0027ll lose any notion of the pod being in maintenance.\n\nI\u0027m not sure we have a better way except using the peer relation in that case.\n\nWhat do you think should be the proper solution here?",
+      "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "779cbbc8_b8ef441d",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 870,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-01-19T15:37:27Z",
+      "side": 1,
+      "message": "I wonder if we should have a main workload status about the whole unit being in maintenance, what do you think?\n\nWe can defer that if having multiple pebble handlers in maintenance shows well.",
+      "range": {
+        "startLine": 870,
+        "startChar": 8,
+        "endLine": 870,
+        "endChar": 24
+      },
+      "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05024ba2_9cb69287",
+        "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-01-19T15:37:27Z",
+      "side": 1,
+      "message": "Does the status behave well when a charm has multiple containers? (such as nova-k8s)",
+      "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9716a00c_1b93db59",
+        "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-01-19T15:37:27Z",
+      "side": 1,
+      "message": "What happens here if no `up` check is defined?",
+      "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
