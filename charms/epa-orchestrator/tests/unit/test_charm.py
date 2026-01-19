@@ -14,7 +14,6 @@
 
 """Tests for EPA Orchestrator charm."""
 
-
 import charm
 import ops_sunbeam.test_utils as test_utils
 
