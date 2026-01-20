@@ -16,6 +16,7 @@
 
 import json
 import logging
+import os
 import socket
 
 DEFAULT_EPA_SOCK_PATH = "/var/snap/epa-orchestrator/current/data/epa.sock"
@@ -42,6 +43,14 @@ class EPAClient:
 
     def __init__(self, socket_path: str = DEFAULT_EPA_SOCK_PATH):
         self._socket_path = socket_path
+
+    def is_available(self) -> bool:
+        """Check if EPA service is available.
+
+        Returns:
+            True if the socket exists, False otherwise.
+        """
+        return os.path.exists(self._socket_path)
 
     def _send_request(self, request: dict) -> dict:
         logging.debug("EPA request: %s", request)

@@ -847,7 +847,8 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         snap_data.update(self._handle_nova_service(contexts))
         snap_data.update(self._handle_receive_ca_cert(contexts))
         snap_data.update(self._handle_masakari_service(contexts))
-        snap_data.update(self._handle_ovs_dpdk())
+        if self._epa_client.is_available():
+            snap_data.update(self._handle_ovs_dpdk())
 
         self.set_snap_data(snap_data)
         self.ensure_services_running()
