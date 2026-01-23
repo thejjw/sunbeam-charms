@@ -40,11 +40,12 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 4
+LIBPATCH = 5
 
 
 LOADBALANCER_KEY = "loadbalancer-address"
 EXTERNAL_KEY = "external-connectivity"
+PROXY_KEY = "proxy-relation"
 
 
 # TODO: add your code here! Happy coding!
@@ -77,6 +78,17 @@ class OVSDBCMSServerEvents(ObjectEvents):
 class OVSDBCMSRequires(Object):
     """
     OVSDBCMSRequires class
+
+    The OVSDBCMSRequires class handles the requires side of the
+    ovsdb-cms relation.
+
+    This class can support vanilla, proxied and loadbalancer-based
+    connections. The order of preference is:
+    1. Proxied connections (if proxy-relation is set to true by the provider)
+    2. Loadbalancer-based connections (if loadbalancer-address is provided
+       by the provider)
+    3. Direct connections (if bound-hostname or bound-address are provided
+       by the provider)
     """
 
     on = OVSDBCMSServerEvents()
@@ -113,8 +125,9 @@ class OVSDBCMSRequires(Object):
     def request_access(self, external_connectivity: bool) -> None:
         """Request access to the external connectivity."""
         if self.model.unit.is_leader():
-            for rel in self.model.relations[self.relation_name]:
-                rel.data[self.model.app][EXTERNAL_KEY] = json.dumps(
+            relation = self.model.get_relation(self.relation_name)
+            if relation:
+                relation.data[self.model.app][EXTERNAL_KEY] = json.dumps(
                     external_connectivity
                 )
 
@@ -135,7 +148,29 @@ class OVSDBCMSRequires(Object):
             return relation.data[relation.app].get(LOADBALANCER_KEY)
         return None
 
+    def proxied_connection_strings(self) -> dict[str, str]:
+        """Return proxied relationdata connection strings."""
+        relation = self.model.get_relation(self.relation_name)
+        if not relation:
+            return {}
+        if self.remote_proxied():
+            return {
+                "nb": relation.data[relation.app].get("db_nb_connection_strs", ""),
+                "sb": relation.data[relation.app].get("db_sb_connection_strs", ""),
+            }
+        return {}
+
+    def remote_proxied(self) -> bool:
+        relation = self.model.get_relation(self.relation_name)
+        if relation:
+            proxied = relation.data[relation.app].get(PROXY_KEY)
+            return proxied == "true"
+        return False
+
     def remote_ready(self) -> bool:
+        """Whether the remote side is ready."""
+        if self.remote_proxied():
+            return all(self.proxied_connection_strings().values())
         if self.external_connectivity:
             return self.loadbalancer_address() is not None
         return all(self.bound_hostnames()) or all(self.bound_addresses())
@@ -200,11 +235,13 @@ class OVSDBCMSProvides(Object):
         charm: ops.CharmBase,
         relation_name: str,
         loadbalancer_address: str | None = None,
+        proxy_relation: bool = False,
     ):
         super().__init__(charm, relation_name)
         self.charm = charm
         self.relation_name = relation_name
         self.loadbalancer_address = loadbalancer_address
+        self.proxy_relation = proxy_relation
         self.framework.observe(
             self.charm.on[relation_name].relation_joined,
             self._on_ovsdb_cms_relation_joined,
@@ -217,17 +254,20 @@ class OVSDBCMSProvides(Object):
             self.charm.on[relation_name].relation_broken,
             self._on_ovsdb_cms_relation_broken,
         )
-        self.update_relation_data(loadbalancer_address)
+        self.update_relation_data()
 
     def update_relation_data(
-        self, loadbalancer_address: str | None = None
+        self
     ) -> None:
         """Update relation data."""
-        if loadbalancer_address and self.model.unit.is_leader():
-            for rel in self.model.relations[self.relation_name]:
-                rel.data[self.model.app][
-                    LOADBALANCER_KEY
-                ] = loadbalancer_address
+        if not self.model.unit.is_leader():
+            return
+        for rel in self.model.relations[self.relation_name]:
+            app_data = rel.data[self.model.app]
+            if self.proxy_relation:
+                app_data[PROXY_KEY] = "true"
+            if self.loadbalancer_address:
+                app_data[LOADBALANCER_KEY] = self.loadbalancer_address
 
     def _on_ovsdb_cms_relation_joined(self, event):
         """Handle ovsdb-cms joined."""
@@ -250,3 +290,30 @@ class OVSDBCMSProvides(Object):
         for relation in relations:
             for k, v in settings.items():
                 relation.data[self.model.unit][k] = v
+
+    def set_app_data(self, settings: typing.Dict[str, str]) -> None:
+        """Publish settings on the peer application data bag."""
+        if not self.model.unit.is_leader():
+            return
+        relations = self.framework.model.relations[self.relation_name]
+        for relation in relations:
+            for k, v in settings.items():
+                relation.data[self.model.app][k] = v
+
+    def clear_unit_data(self) -> None:
+        """Clear all unit relation data for all relations."""
+        for relation in self.model.relations[self.relation_name]:
+            databag = relation.data[self.model.unit]
+            databag.update(
+                {key: '' for key in databag}
+            )
+
+    def clear_app_data(self) -> None:
+        """Clear all application relation data for all relations."""
+        if not self.model.unit.is_leader():
+            return
+        for relation in self.model.relations[self.relation_name]:
+            databag = relation.data[self.model.app]
+            databag.update(
+                {key: '' for key in databag}
+            )

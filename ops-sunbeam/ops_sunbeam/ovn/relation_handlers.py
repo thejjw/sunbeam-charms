@@ -24,7 +24,6 @@ from typing import (
     Iterator,
 )
 
-import ops.charm
 import ops.framework
 import ops_sunbeam.interfaces as sunbeam_interfaces
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
@@ -37,6 +36,7 @@ from ops_sunbeam.charm import (
 )
 
 if typing.TYPE_CHECKING:
+    import charms.microovn.v0.ovsdb as microovsdb
     import charms.ovn_central_k8s.v0.ovsdb as ovsdb
 
 logger = logging.getLogger(__name__)
@@ -608,35 +608,115 @@ class OVSDBCMSRequiresHandler(
     def context(self) -> dict:
         """Context from relation data."""
         ctxt = super().context()
-        ctxt.update(
-            {
-                "local_hostname": self.cluster_local_hostname,
-                "hostnames": self.interface.bound_hostnames(),
-                "local_address": self.cluster_local_addr,
-                "addresses": self.interface.bound_addresses(),
-                "db_sb_connection_strs": ",".join(self.db_sb_connection_strs),
-                "db_nb_connection_strs": ",".join(self.db_nb_connection_strs),
-                "db_sb_connection_hostname_strs": ",".join(
-                    self.db_sb_connection_hostname_strs
-                ),
-                "db_nb_connection_hostname_strs": ",".join(
-                    self.db_nb_connection_hostname_strs
-                ),
-            }
-        )
-        if lb_address := self.interface.loadbalancer_address():
-            ctxt["db_ingress_sb_connection_strs"] = self.db_connection_strs(
+
+        db_nb_connection_strs = ",".join(self.db_nb_connection_strs)
+        db_sb_connection_strs = ",".join(self.db_sb_connection_strs)
+        db_ingress_nb_connection_strs: typing.Iterable[str]
+        db_ingress_sb_connection_strs: typing.Iterable[str]
+
+        if self.interface.remote_proxied():
+            conn_strs = self.interface.proxied_connection_strings()
+            db_nb_connection_strs = conn_strs.get("nb", "")
+            db_ingress_nb_connection_strs = db_nb_connection_strs.split(",")
+            db_sb_connection_strs = conn_strs.get("sb", "")
+            db_ingress_sb_connection_strs = db_sb_connection_strs.split(",")
+        elif lb_address := self.interface.loadbalancer_address():
+            db_ingress_sb_connection_strs = self.db_connection_strs(
                 [lb_address], self.db_sb_port
             )
-            ctxt["db_ingress_nb_connection_strs"] = self.db_connection_strs(
+
+            db_ingress_nb_connection_strs = self.db_connection_strs(
                 [lb_address], self.db_nb_port
             )
         else:
-            ctxt["db_ingress_sb_connection_strs"] = (
-                self.db_ingress_sb_connection_strs
+            db_ingress_sb_connection_strs = self.db_ingress_sb_connection_strs
+            db_ingress_nb_connection_strs = self.db_ingress_nb_connection_strs
+
+        ctxt.update(
+            {
+                "db_nb_connection_strs": db_nb_connection_strs,
+                "db_sb_connection_strs": db_sb_connection_strs,
+                "db_ingress_nb_connection_strs": db_ingress_nb_connection_strs,
+                "db_ingress_sb_connection_strs": db_ingress_sb_connection_strs,
+            }
+        )
+
+        return ctxt
+
+
+class MicroOVSDBRequiresHandler(sunbeam_rhandlers.RelationHandler):
+    """Handle requires side of microovsdb ovsdb relation."""
+
+    interface: "microovsdb.OVSDBRequires"
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for an Identity service relation."""
+        logger.debug("Setting up ovsdb requires event handler")
+        import charms.microovn.v0.ovsdb as microovsdb
+
+        ovsdb_svc = sunbeam_tracing.trace_type(microovsdb.OVSDBRequires)(
+            self.charm,
+            self.relation_name,
+        )
+        # Workaround because microovn ovsdb does not expose ready/goneaway events
+        rel_name = self.relation_name.replace("-", "_")
+        on = self.charm.on[rel_name]
+
+        ready_check_events = (
+            on.relation_changed,
+            on.relation_created,
+            on.relation_joined,
+            on.relation_departed,
+        )
+        for evt in ready_check_events:
+            self.framework.observe(
+                evt,
+                self._on_ovsdb_service_changed,
             )
-            ctxt["db_ingress_nb_connection_strs"] = (
-                self.db_ingress_nb_connection_strs
-            )
+        self.framework.observe(
+            on.relation_broken,
+            self._on_ovsdb_service_goneaway,
+        )
+        return ovsdb_svc
+
+    def _on_ovsdb_service_changed(
+        self, event: ops.RelationChangedEvent
+    ) -> None:
+        """Handle OVSDB change events."""
+        if self.ready:
+            self._on_ovsdb_service_ready(event)
+
+    def _on_ovsdb_service_ready(self, event: ops.framework.EventBase) -> None:
+        """Handle OVSDB change events."""
+        self.callback_f(event)
+
+    def _on_ovsdb_service_goneaway(
+        self, event: ops.framework.EventBase
+    ) -> None:
+        """Handle OVSDB change events."""
+        self.callback_f(event)
+        if self.mandatory:
+            logger.debug("ovsdb integration removed, stop services")
+            self.charm.stop_services({self.relation_name})
+            self.status.set(BlockedStatus("integration missing"))
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return self.interface.get_connection_strings() is not None
+
+    def context(self) -> dict:
+        """Context from relation data."""
+        ctxt = super().context()
+        connection_strings = self.interface.get_connection_strings()
+        if connection_strings is None:
+            return ctxt
+
+        ctxt.update(
+            {
+                "db_sb_connection_strs": connection_strings.sb,
+                "db_nb_connection_strs": connection_strings.nb,
+            }
+        )
 
         return ctxt

@@ -133,6 +133,7 @@ class TestCharm(test_utils.CharmTestCase):
         self.snap.SnapCache.return_value = {
             "openstack-hypervisor": hypervisor_snap_mock,
             "epa-orchestrator": epa_orchestrator_snap_mock,
+            "microovn": mock.Mock(present=False),
         }
         self.socket.getfqdn.return_value = "test.local"
         self.socket.gethostname.return_value = "test"
@@ -296,6 +297,7 @@ class TestCharm(test_utils.CharmTestCase):
         self.snap.SnapCache.return_value = {
             "openstack-hypervisor": hypervisor_snap_mock,
             "epa-orchestrator": epa_orchestrator_snap_mock,
+            "microovn": mock.Mock(present=False),
         }
         self.socket.getfqdn.return_value = "test.local"
         self.socket.gethostname.return_value = "test"
@@ -1094,3 +1096,20 @@ network:
 
         ret_val = self.harness.charm._disable_system_ovs()
         self.assertFalse(ret_val)
+
+    def test_microovn_present(self):
+        """Test microovn present handling."""
+        self.harness.begin()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = True
+        epa_orchestrator_snap_mock = MagicMock()
+        epa_orchestrator_snap_mock.present = False
+        microovn_snap_mock = MagicMock()
+        microovn_snap_mock.present = True
+        self.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": epa_orchestrator_snap_mock,
+            "microovn": microovn_snap_mock,
+        }
+
+        hypervisor_snap_mock.alias.assert_not_called

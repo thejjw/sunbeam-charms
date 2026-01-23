@@ -139,4 +139,5 @@ class TestOpenstackNetworkAgentsCharm(test_utils.CharmTestCase):
         (kwargs,), _ = set_snap_data_mock.call_args
         assert kwargs == {
             "settings.debug": True,
+            "network.external-bridge-address": "0.0.0.0/0",
         }
