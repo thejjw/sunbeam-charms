@@ -66,11 +66,6 @@ requires:
     interface: tracing
     optional: true
     limit: 1
-  # noop relation.
-  traefik-route-internal:
-    interface: traefik_route
-    optional: true
-    limit: 1
 
 provides:
   ironic-api:
