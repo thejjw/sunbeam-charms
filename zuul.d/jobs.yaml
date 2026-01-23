@@ -509,6 +509,19 @@
       charm: openstack-network-agents
 
 - job:
+    name: charm-build-sunbeam-ovn-proxy
+    description: Build sunbeam ovn-proxy charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/sunbeam-ovn-proxy/
+      - rebuild
+    vars:
+      charm: sunbeam-ovn-proxy
+
+- job:
     name: func-test-core
     description: |
       Zaza smoke test for all the core sunbeam charms.
@@ -558,6 +571,7 @@
         - charm-build-ovn-relay-k8s
       # test_dir relative to project src dir
       test_dir: tests/core
+
 # This test set may be unstable, and more tests need to be added for the tempest-k8s charm,
 # so it is only trigger by changes in the tempest-k8s charm and associated tests for now.
 # It has been copied from the tests/core charm bundle.
@@ -1202,6 +1216,19 @@
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/openstack-network-agents/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-sunbeam-ovn-proxy
+    description: |
+      Publish sunbeam-ovn-proxy built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/sunbeam-ovn-proxy/
       - rebuild
     secrets:
       - charmhub_token

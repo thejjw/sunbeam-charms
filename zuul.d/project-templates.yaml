@@ -132,6 +132,8 @@
             nodeset: ubuntu-noble
         - charm-build-openstack-network-agents:
             nodeset: ubuntu-noble
+        - charm-build-sunbeam-ovn-proxy:
+            nodeset: ubuntu-noble
     gate:
       fail-fast: true
       jobs:
@@ -218,6 +220,8 @@
         - charm-build-watcher-k8s:
             nodeset: ubuntu-noble
         - charm-build-openstack-network-agents:
+            nodeset: ubuntu-noble
+        - charm-build-sunbeam-ovn-proxy:
             nodeset: ubuntu-noble
 
 - project-template:
@@ -309,4 +313,6 @@
             - publish-charm-keystone-saml-k8s:
                 nodeset: ubuntu-noble
             - publish-charm-openstack-network-agents:
+                nodeset: ubuntu-noble
+            - publish-charm-sunbeam-ovn-proxy:
                 nodeset: ubuntu-noble

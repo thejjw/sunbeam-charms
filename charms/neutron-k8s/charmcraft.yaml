@@ -143,6 +143,7 @@ requires:
     interface: keystone
   ovsdb-cms:
     interface: ovsdb-cms
+    limit: 1
   certificates:
     interface: tls-certificates
     optional: true
