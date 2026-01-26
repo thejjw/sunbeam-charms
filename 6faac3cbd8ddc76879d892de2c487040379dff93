@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c36d57c2_2260405c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-01-26T14:59:01Z",
+      "side": 1,
+      "message": "LGTM. The job that published `main` completed successfully",
+      "revId": "6faac3cbd8ddc76879d892de2c487040379dff93",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
