@@ -82,7 +82,7 @@ wheels = [
 ]
 
 [[package]]
-name = "cinder-volume-powerstore"
+name = "cinder-volume-dellpowerstore"
 version = "2025.1"
 source = { virtual = "." }
 dependencies = [

@@ -2,7 +2,7 @@
 # See LICENSE file for licensing details.
 
 [project]
-name = "cinder-volume-powerstore"
+name = "cinder-volume-dellpowerstore"
 version = "2025.1"
 requires-python = "~=3.12.0"
 

@@ -21,12 +21,9 @@ This charm provide Cinder <-> Dell PowerStore integration as part
 of an OpenStack deployment
 """
 
-import ipaddress
 import logging
-from enum import (
-    StrEnum,
-)
 import typing
+from typing import Optional, List
 
 import ops
 import ops_sunbeam.charm as charm
@@ -37,101 +34,78 @@ import pydantic
 logger = logging.getLogger(__name__)
 
 
-class NvmeTransport(StrEnum):
-    """Enumeration of valid NVMe transport types."""
-
-    # Only TCP is supported for now
-    # ROCE = "roce"
-    TCP = "tcp"
-
-
-def ip_network_list_validator(value: str) -> list[pydantic.IPvAnyNetwork]:
-    """Validate and parse a comma-separated list of IP networks."""
-    if not value:
-        raise ValueError("Value cannot be empty")
-    try:
-        return [ipaddress.ip_network(ip.strip()) for ip in value.split(",")]
-    except ValueError as e:
-        raise ValueError(f"Invalid IP network: {e}")
-
-
-def list_serializer(value: list) -> str:
-    """Serialize a list to a comma-separated string."""
-    return ",".join(str(v) for v in value)
-
-
-CIDR_LIST_TYPING = typing.Annotated[
-    list[pydantic.IPvAnyNetwork] | None,
-    pydantic.BeforeValidator(ip_network_list_validator),
-    pydantic.PlainSerializer(list_serializer, return_type=str),
-]
-
-
 @sunbeam_tracing.trace_sunbeam_charm
-class CinderVolumePowerStoreOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
+class CinderVolumeDellPowerStoreOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
     """Cinder/Dell PowerStore Operator charm."""
 
-    service_name = "cinder-volume-powerstore"
+    service_name = "cinder-volume-dellpowerstore"
 
     @property
     def backend_key(self) -> str:
         """Return the backend key."""
-        return "powerstore." + self.model.app.name
+        return "dellpowerstore." + self.model.app.name
+
+    def _parse_ports(self, raw_ports: Optional[str]) -> list[str]:
+        """Convert comma-separated ports into a clean list.
+
+        Handles empty strings, None, spaces, and stray commas.
+        Example inputs:
+          - "" -> []
+          - "10.0.0.10" -> ["10.0.0.10"]
+          - "10.0.0.10,10.0.0.11" -> ["10.0.0.10", "10.0.0.11"]
+          - "20:00:..., 20:00:..." -> ["20:00:...", "20:00:..."]
+        """
+        if not raw_ports:
+            return []
+
+        return [p.strip() for p in raw_ports.split(",") if p.strip()]
+
 
     def _configuration_type_overrides(self) -> dict[str, typing.Any]:
         """Configuration type overrides for pydantic model generation."""
         overrides = super()._configuration_type_overrides()
 
-        overrides.pop("protocol", None)
-
         overrides.update(
             {
                 "san-ip": typing.Annotated[
                     str,
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("san-ip")
+                    ),
                     sunbeam_storage.Required,
                 ],
                 "san-login": typing.Annotated[
                     str,
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("san-login")
+                    ),
                     sunbeam_storage.Required,
                 ],
                 "san-password": typing.Annotated[
                     str,
-                    sunbeam_storage.Required,
-                ],
-                "storage-protocol": typing.Annotated[
-                    typing.Literal["fc", "iscsi"],
-                    pydantic.BeforeValidator(lambda v: None if v is None else str(v).lower()),
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("san-password")
+                    ),
                     sunbeam_storage.Required,
                 ],
                 "protocol": typing.Annotated[
                     typing.Optional[typing.Literal["fc", "iscsi"]],
                     pydantic.BeforeValidator(lambda v: None if v is None else str(v).lower()),
                 ],
-
-#                "powerstore_nvme":,
-#                "powerstore_ports":,
+                "powerstore_nvme": typing.Annotated[
+                    Optional[bool], "optional",
+                ],
+                "powerstore_ports": typing.Annotated[
+                    Optional[list[str]],
+                    pydantic.BeforeValidator(
+                        lambda raw: [] if not raw else [p.strip() for p in str(raw).split(",") if p.strip()]
+                    ),
+                    "optional",
+                ],
             }
         )
         return overrides
-    
-    def _resolve_protocol(self) -> str:
-        cfg = self.model.config
-        legacy = cfg.get("protocol")
-        canon = cfg.get("storage-protocol")
-
-        if canon:
-            if legacy and legacy != canon:
-                raise ValueError(
-                    "Conflicting values: 'protocol' vs 'storage-protocol'"
-                )
-            return canon
-
-        if legacy:
-            return legacy
-
-        #Default
-        return "fc"
 
 
 if __name__ == "__main__":  # pragma: nocover
-    ops.main(CinderVolumePowerStoreOperatorCharm)
+    ops.main(CinderVolumeDellPowerStoreOperatorCharm)

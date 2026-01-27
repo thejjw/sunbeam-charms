@@ -1,8 +1,8 @@
-# cinder-volume-powerstore
+# cinder-volume-dellpowerstore
 
 ## Description
 
-The cinder-volume-powerstore is an operator to manage the Cinder service
+The cinder-volume-dellpowerstore is an operator to manage the Cinder service
 integration with Dell PowerStore backend on a snap based deployment.
 
 ## Usage
@@ -11,7 +11,7 @@ integration with Dell PowerStore backend on a snap based deployment.
 
 cinder-volume-powerstore is deployed using below command:
 
-    juju deploy cinder-volume-powerstore
+    juju deploy cinder-volume-dell-powerstore
 
 Now connect the cinder-volume-powerstore application to the cinder-volume
 service:
@@ -34,7 +34,7 @@ deployed then see file `actions.yaml`.
 
 ## Relations
 
-cinder-volume-powerstore requires the following relations:
+cinder-volume-dellpowerstore requires the following relations:
 
 `cinder-volume`: To connect to Cinder service
 

@@ -1,5 +1,5 @@
 type: charm
-name: cinder-volume-powerstore
+name: cinder-volume-dellpowerstore
 summary: OpenStack volume service - Dell PowerStore backend
 description: |
   Cinder is the OpenStack project that provides volume management for
@@ -39,12 +39,6 @@ config:
         storage array. If unset, SSL verification is not performed.
       type: string
     protocol:
-      type: string
-      default: null
-      description: |
-        [DEPRECATED] Use 'storage-protocol' (fc|iscsi).
-        If defined, value is mapped to storage-protocol
-    storage-protocol:
       default: fc
       description: |
         Can be either FC or iSCSI.
@@ -60,15 +54,15 @@ config:
       description: |
         Dell PowerStore management IP address or hostname.
         This is the primary array management interface.
-      type: string
+      type: secret
     san-login:
       description: |
         Dell PowerStore management username.
-      type: string
+      type: secret
     san-password:
       description: |
         Dell PowerStore management password.
-      type: string
+      type: secret
     powerstore_nvme:
       default: false
       description: |
@@ -78,6 +72,9 @@ config:
       description: |
         Comma separated list of PowerStore iSCSI IPs or FC WWNs.
         All ports are used if this option is unset.
+        Examples:
+          - "10.0.0.10,10.0.0.11"
+          - "58:cc:f0:98:49:22:07:02,58:cc:f0:98:49:23:07:02"
       type: string
     replication_device:
       description: |

@@ -1,4 +1,4 @@
-# cinder-volume-powerstore
+# cinder-volume-dellpowerstore
 
 ## Developing
 

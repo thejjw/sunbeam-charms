@@ -27,8 +27,8 @@ import ops.testing
 import ops_sunbeam.test_utils as test_utils
 
 
-class _CinderVolumePowerStoreOperatorCharm(
-    charm.CinderVolumePowerStoreOperatorCharm
+class _CinderVolumeDellPowerStoreOperatorCharm(
+    charm.CinderVolumeDellPowerStoreOperatorCharm
 ):
     """Charm wrapper for test usage."""
 
@@ -55,8 +55,8 @@ def add_complete_cinder_volume_relation(harness: ops.testing.Harness) -> int:
     )
 
 
-class TestCinderPowerStoreOperatorCharm(test_utils.CharmTestCase):
-    """Test cases for CinderPowerStoreOperatorCharm class."""
+class TestCinderDellPowerStoreOperatorCharm(test_utils.CharmTestCase):
+    """Test cases for CinderDellPowerStoreOperatorCharm class."""
 
     PATCHES = []
 
@@ -81,12 +81,24 @@ class TestCinderPowerStoreOperatorCharm(test_utils.CharmTestCase):
     def test_all_relations(self):
         """Test charm in context of full set of relations."""
         self.harness.begin_with_initial_hooks()
+        san_ip_secret = self.harness.add_user_secret(
+            {"san-ip": "10.20.30.40"}
+        )
+        san_login_secret = self.harness.add_user_secret(
+            {"san-login": "admin"}
+        )   
+        san_password_secret = self.harness.add_user_secret(
+            {"san-password": "dangerous"}
+        )
         add_complete_cinder_volume_relation(self.harness)
+        self.harness.grant_secret(san_ip_secret, self.harness.charm.app)
+        self.harness.grant_secret(san_login_secret, self.harness.charm.app)
+        self.harness.grant_secret(san_password_secret, self.harness.charm.app)
         self.harness.update_config(
             {
-                "san-ip": "10.20.30.40",
-                "san-login": "admin",
-                "san-password": "password",
+                "san-ip": san_ip_secret,
+                "san-login": san_login_secret,
+                "san-password": san_password_secret,
                 "storage-protocol": "fc",
             }
         )
