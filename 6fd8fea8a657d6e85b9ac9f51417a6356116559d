@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c9a88d5_cbe32034",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-01-27T12:45:27Z",
+      "side": 1,
+      "message": "@gabriel.cocenza@canonical.com\nyou can run `tox -e py3` (for all) or `tox -e py3 -- keystone-k8s` or `tox -e py3 -- ops-sunbeam` for specific targets.\n\n\nThis will make it easier to review failures locally before uploading multiple revisions.",
+      "revId": "6fd8fea8a657d6e85b9ac9f51417a6356116559d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
