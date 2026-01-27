@@ -1,0 +1,125 @@
+type: charm
+name: cinder-volume-dellpowerstore
+summary: OpenStack volume service - Dell PowerStore backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with Dell PowerStore storage
+  backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.  If unset the Juju
+        application name is used.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    driver-ssl-cert:
+      default: null
+      description: |
+        PEM-encoded SSL certificate to use for HTTPS connections to the
+        storage array. If unset, SSL verification is not performed.
+      type: string
+    protocol:
+      default: fc
+      description: |
+        Can be either FC or iSCSI.
+        Note that the driver class doesn't change regardless of the protocol
+      type: string
+    use-multipath-for-image-xfer:
+      default: true
+      description: |
+        Enable multipathing for image transfer operations to improve
+        performance and reliability.
+      type: boolean
+    san-ip:
+      description: |
+        Dell PowerStore management IP address or hostname.
+        This is the primary array management interface.
+      type: secret
+    san-login:
+      description: |
+        Dell PowerStore management username.
+      type: secret
+    san-password:
+      description: |
+        Dell PowerStore management password.
+      type: secret
+    powerstore_nvme:
+      default: false
+      description: |
+        Enables the connection to use NVMe based protocol.
+      type: boolean
+    powerstore_ports:
+      description: |
+        Comma separated list of PowerStore iSCSI IPs or FC WWNs.
+        All ports are used if this option is unset.
+        Examples:
+          - "10.0.0.10,10.0.0.11"
+          - "58:cc:f0:98:49:22:07:02,58:cc:f0:98:49:23:07:02"
+      type: string
+    replication_device:
+      description: |
+        Specific replication configuration settings. Must be set under
+        the form of
+        backend_id:powerstore_repl_1,
+        san_ip: <Replication system San ip>,
+        san_login: <Replication system San username>,
+        san_password: <Replication system San password>
+      type: string
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
