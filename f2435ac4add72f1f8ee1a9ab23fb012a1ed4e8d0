@@ -43,6 +43,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f35dfcef_026efd38",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 870,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2026-01-27T20:50:59Z",
+      "side": 1,
+      "message": "Makes sense. I\u0027ve changed to act in the workload because has the highest priority. Now charms with multiple containers, e.g nova, will still be marked as maintenance even after update_status",
+      "parentUuid": "779cbbc8_b8ef441d",
+      "range": {
+        "startLine": 870,
+        "startChar": 8,
+        "endLine": 870,
+        "endChar": 24
+      },
+      "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "05024ba2_9cb69287",
         "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
         "patchSetId": 4
@@ -54,6 +78,24 @@
       "writtenOn": "2026-01-19T15:37:27Z",
       "side": 1,
       "message": "Does the status behave well when a charm has multiple containers? (such as nova-k8s)",
+      "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7a1f0e6_dce974b7",
+        "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2026-01-27T20:50:59Z",
+      "side": 1,
+      "message": "See the last patch. Now it\u0027s behaving as expected.\n\nThanks for catching it",
+      "parentUuid": "05024ba2_9cb69287",
       "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
