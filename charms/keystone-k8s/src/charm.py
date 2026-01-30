@@ -2690,11 +2690,21 @@ export OS_AUTH_VERSION=3
         logger.debug("Received an ingress_changed event")
         self.configure_charm(event)
         if self.bootstrapped():
+            if not self._is_keystone_service_ready():
+                return
             self.keystone_manager.update_service_catalog_for_keystone()
 
         if self.can_service_requests():
             self.check_outstanding_identity_service_requests(force=True)
             self.check_outstanding_identity_credentials_requests(force=True)
+
+    def _is_keystone_service_ready(self) -> bool:
+        """Return True if Pebble and Keystone service are ready."""
+        ph = self.get_named_pebble_handler(KEYSTONE_CONTAINER)
+        if not ph or not ph.service_ready:
+            logger.debug("Keystone service not ready; skipping keystone call")
+            return False
+        return True
 
     def _sanitize_secrets(self, request: dict) -> dict:
         """Sanitize any secrets.
