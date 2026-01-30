@@ -2690,7 +2690,14 @@ export OS_AUTH_VERSION=3
         logger.debug("Received an ingress_changed event")
         self.configure_charm(event)
         if self.bootstrapped():
-            self.keystone_manager.update_service_catalog_for_keystone()
+            try:
+                self.keystone_manager.update_service_catalog_for_keystone()
+            except keystoneauth1.exceptions.ConnectFailure as e:
+                logger.debug(
+                    "Skipping service catalog update on ingress change due to connection failure: %s",
+                    e,
+                )
+                return
 
         if self.can_service_requests():
             self.check_outstanding_identity_service_requests(force=True)

@@ -520,6 +520,18 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
         )
         assert self.harness.charm.logging.ready
 
+    def test_ingress_changed_catalog_connectfailure_is_handled(self):
+        """Catalog update should handle keystone ConnectFailure."""
+        test_utils.add_complete_ingress_relation(self.harness)
+        self.harness.set_leader()
+        self.harness.container_pebble_ready("keystone")
+        self.harness.charm.bootstrapped = MagicMock(return_value=True)
+        self.km_mock.update_service_catalog_for_keystone.side_effect = (
+            keystoneauth1.exceptions.ConnectFailure("connect failed")
+        )
+        self.harness.charm._ingress_changed(MagicMock())
+        self.km_mock.update_service_catalog_for_keystone.assert_called_once_with()
+
     def test_on_peer_data_changed_no_bootstrap(self):
         """Test peer_relation_changed on no bootstrap."""
         test_utils.add_complete_ingress_relation(self.harness)
