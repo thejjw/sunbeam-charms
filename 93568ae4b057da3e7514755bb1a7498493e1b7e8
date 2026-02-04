@@ -34,6 +34,23 @@
       "parentUuid": "6453f15e_5a4514a8",
       "revId": "93568ae4b057da3e7514755bb1a7498493e1b7e8",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dd2f6ff7_5ffab022",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-04T14:21:25Z",
+      "side": 1,
+      "message": "@jeanpierre.roquesalane@dell.com\n\nYou have submitted a relation chain.\n\nThere\u0027s only one patchset for the current  review, but you\u0027ve submitted 2 patches in your branch, and abandonned the old one.\n\nWe should not see on the top right:\n\n`submitted together`",
+      "revId": "93568ae4b057da3e7514755bb1a7498493e1b7e8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
