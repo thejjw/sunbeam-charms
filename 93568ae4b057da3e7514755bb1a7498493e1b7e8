@@ -51,6 +51,24 @@
       "message": "@jeanpierre.roquesalane@dell.com\n\nYou have submitted a relation chain.\n\nThere\u0027s only one patchset for the current  review, but you\u0027ve submitted 2 patches in your branch, and abandonned the old one.\n\nWe should not see on the top right:\n\n`submitted together`",
       "revId": "93568ae4b057da3e7514755bb1a7498493e1b7e8",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc1b4ccf_7f19ccc1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31779
+      },
+      "writtenOn": "2026-02-04T18:48:52Z",
+      "side": 1,
+      "message": "Oh I see. my bad.\nIt should be better now.\nLet me know if that\u0027s ok.",
+      "parentUuid": "dd2f6ff7_5ffab022",
+      "revId": "93568ae4b057da3e7514755bb1a7498493e1b7e8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
