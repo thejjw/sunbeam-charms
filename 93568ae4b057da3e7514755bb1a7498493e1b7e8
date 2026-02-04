@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6453f15e_5a4514a8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-04T14:01:08Z",
+      "side": 1,
+      "message": "@jeanpierre.roquesalane@dell.com can you collapse the 2 commits into a single commit?\n\nit makes review harder and would be strange to commit in the code base.",
+      "revId": "93568ae4b057da3e7514755bb1a7498493e1b7e8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
