@@ -45,6 +45,23 @@
       },
       "revId": "393b6a1f901c19429ad3da060945168f06a1440a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d140b794_0688afc0",
+        "filename": "charms/storage/cinder-volume-dellpowerstore/tests/unit/test_cinder_volume_powerstore_charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-04T19:49:06Z",
+      "side": 1,
+      "message": "```suggestion\n        )\n```",
+      "revId": "393b6a1f901c19429ad3da060945168f06a1440a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
