@@ -26,6 +26,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e505cd7c_bb46f934",
+        "filename": "charms/storage/cinder-volume-dellpowerstore/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 31779
+      },
+      "writtenOn": "2026-02-05T08:00:06Z",
+      "side": 1,
+      "message": "I don\u0027t see any lambda here but a list comprehension. Can you elaborate your concern? I can rewrite the method.",
+      "parentUuid": "7d742dba_be0f73da",
+      "range": {
+        "startLine": 48,
+        "startChar": 8,
+        "endLine": 48,
+        "endChar": 20
+      },
+      "revId": "393b6a1f901c19429ad3da060945168f06a1440a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d9bf8b73_0a2e4f8a",
         "filename": "charms/storage/cinder-volume-dellpowerstore/src/charm.py",
         "patchSetId": 3
@@ -49,6 +73,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4a8c56a9_38b78146",
+        "filename": "charms/storage/cinder-volume-dellpowerstore/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 31779
+      },
+      "writtenOn": "2026-02-05T08:00:06Z",
+      "side": 1,
+      "message": "I added it in case the charm framework use metadata, but I don\u0027t think it will harm if I remove it. I\u0027ll need to test the charm again without the string to confirm it.",
+      "parentUuid": "d9bf8b73_0a2e4f8a",
+      "range": {
+        "startLine": 96,
+        "startChar": 37,
+        "endLine": 96,
+        "endChar": 47
+      },
+      "revId": "393b6a1f901c19429ad3da060945168f06a1440a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d140b794_0688afc0",
         "filename": "charms/storage/cinder-volume-dellpowerstore/tests/unit/test_cinder_volume_powerstore_charm.py",
         "patchSetId": 3
@@ -60,6 +108,24 @@
       "writtenOn": "2026-02-04T19:49:06Z",
       "side": 1,
       "message": "```suggestion\n        )\n```",
+      "revId": "393b6a1f901c19429ad3da060945168f06a1440a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e925c228_5951f539",
+        "filename": "charms/storage/cinder-volume-dellpowerstore/tests/unit/test_cinder_volume_powerstore_charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 31779
+      },
+      "writtenOn": "2026-02-05T08:00:06Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "d140b794_0688afc0",
       "revId": "393b6a1f901c19429ad3da060945168f06a1440a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
