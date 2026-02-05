@@ -62,7 +62,7 @@ The charm provides the following relation:
 
 The charm by default uses follwoing images:
 
-- `ghcr.io/canonical/manila-share:2024.1`
+- `ghcr.io/canonical/manila-share:2024.1-24.04_edge`
 
 ## Contributing
 

@@ -52,7 +52,7 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./keystone-k8s_ubuntu-20.04-amd64.charm --trust --resource keystone-image=ghcr.io/canonical/keystone:2024.1
+    juju deploy ./keystone-k8s_ubuntu-20.04-amd64.charm --trust --resource keystone-image=ghcr.io/canonical/keystone:2024.1-24.04_edge
 
 <!-- LINKS -->
 

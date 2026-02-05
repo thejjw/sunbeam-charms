@@ -202,7 +202,7 @@ resources:
   horizon-image:
     type: oci-image
     description: OCI image for Horizon
-    upstream-source: ghcr.io/canonical/horizon:2024.1
+    upstream-source: ghcr.io/canonical/horizon:2024.1-24.04_edge
 
 requires:
   database:

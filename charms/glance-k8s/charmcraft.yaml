@@ -300,7 +300,7 @@ resources:
   glance-api-image:
     type: oci-image
     description: OCI image for OpenStack Glance
-    upstream-source: ghcr.io/canonical/glance-api:2024.1
+    upstream-source: ghcr.io/canonical/glance-api:2024.1-24.04_edge
 
 storage:
   local-repository:

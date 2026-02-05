@@ -46,7 +46,7 @@ run:
 
 To deploy the local test instance:
 
-    juju deploy ./placement-k8s_ubuntu-20.04-amd64.charm --trust --resource placement-image=ghcr.io/canonical/placement-api:2024.1
+    juju deploy ./placement-k8s_ubuntu-20.04-amd64.charm --trust --resource placement-image=ghcr.io/canonical/placement-api:2024.1-24.04_edge
 
 <!-- LINKS -->
 
