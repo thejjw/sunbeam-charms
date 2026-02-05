@@ -54,7 +54,7 @@ resources:
   masakari-image:
     description: OCI image for OpenStack Masakari services
     type: oci-image
-    upstream-source: ghcr.io/canonical/masakari-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/masakari-consolidated:2024.1-24.04_edge
 
 requires:
   amqp:

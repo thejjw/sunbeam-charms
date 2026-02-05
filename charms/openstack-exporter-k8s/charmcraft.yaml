@@ -31,7 +31,7 @@ resources:
   openstack-exporter-image:
     type: oci-image
     description: OCI image for OpenStack openstack-exporter
-    upstream-source: ghcr.io/canonical/openstack-exporter:1.7.0-3be9ddb
+    upstream-source: ghcr.io/canonical/openstack-exporter:1.7.0-3be9ddb-bare_edge
 
 requires:
   identity-ops:

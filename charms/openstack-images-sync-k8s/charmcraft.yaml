@@ -53,7 +53,7 @@ resources:
   openstack-images-sync-image:
     type: oci-image
     description: OCI image for OpenStack Images Sync
-    upstream-source: ghcr.io/canonical/openstack-images-sync:2024.1
+    upstream-source: ghcr.io/canonical/openstack-images-sync:2024.1-24.04_edge
 
 requires:
   ingress-internal:

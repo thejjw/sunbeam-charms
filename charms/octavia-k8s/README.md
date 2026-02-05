@@ -53,7 +53,7 @@ octavia-k8s requires the following relations:
 
 The charm by default uses following images:
 
-    ghcr.io/canonical/octavia-consolidated:2024.1
+    ghcr.io/canonical/octavia-consolidated:2024.1-24.04_edge
 
 ## Contributing
 

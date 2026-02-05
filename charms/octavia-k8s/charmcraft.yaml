@@ -46,15 +46,15 @@ resources:
   octavia-api-image:
     type: oci-image
     description: OCI image for OpenStack octavia
-    upstream-source: ghcr.io/canonical/octavia-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/octavia-consolidated:2024.1-24.04_edge
   octavia-driver-agent-image:
     type: oci-image
     description: OCI image for OpenStack Octavia Driver Agent
-    upstream-source: ghcr.io/canonical/octavia-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/octavia-consolidated:2024.1-24.04_edge
   octavia-housekeeping-image:
     type: oci-image
     description: OCI image for OpenStack Octavia Housekeeping
-    upstream-source: ghcr.io/canonical/octavia-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/octavia-consolidated:2024.1-24.04_edge
 
 storage:
   agent-sockets:

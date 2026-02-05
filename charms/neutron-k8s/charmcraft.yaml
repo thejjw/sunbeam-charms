@@ -124,7 +124,7 @@ resources:
   neutron-server-image:
     type: oci-image
     description: OCI image for OpenStack Neutron API
-    upstream-source: ghcr.io/canonical/neutron-server:2024.1
+    upstream-source: ghcr.io/canonical/neutron-server:2024.1-24.04_edge
 
 requires:
   ingress-internal:
