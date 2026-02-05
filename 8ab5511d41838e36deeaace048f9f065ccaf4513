@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6f1a06e_79de98cd",
+        "filename": "charms/keystone-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 2695,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-05T12:00:49Z",
+      "side": 1,
+      "message": "Seems a bit dangerous to me to just blindly ignore connection failures. I wonder if we have a better way to know the pod is going away?",
+      "revId": "8ab5511d41838e36deeaace048f9f065ccaf4513",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
