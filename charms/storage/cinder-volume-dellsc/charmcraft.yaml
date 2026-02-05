@@ -1,0 +1,165 @@
+type: charm
+name: cinder-volume-dellsc
+summary: OpenStack volume service - Dell SC backend
+description: |
+  Cinder is the OpenStack project that provides block-storage management
+  for virtual machines and bare-metal hosts. This charm integrates the
+  `cinder-volume` snap with Dell Storage Center (SC Series) arrays. It
+  renders a dedicated backend stanza (`dellsc.<app-name>.*`) in *cinder.conf*
+  and manages driver options via Juju config.
+
+assumes:
+  - juju >= 3.3
+
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      type: string
+      default: null
+      description: |
+        Name that Cinder will report for this backend. If unset the Juju
+        application name is used.
+    backend-availability-zone:
+      type: string
+      default: null
+      description: |
+        Availability zone to associate with this backend (Pike+).
+    san-ip:
+      type: string
+      description: Dell Storage Center management IP or hostname.
+    san-credentials-secret:
+      type: secret
+      description: |
+        Juju secret containing Dell Storage Center credentials.
+        Must contain keys `username` and `password`.
+    dellsc-config-secret:
+      type: secret
+      description: |
+        Juju secret containing Dell Storage Center credentials.
+        Must contain keys `primary-username`, `primary-password`,
+        `secondary-username`, and `secondary-password`.
+    protocol:
+      type: string
+      default: fc
+      enum: [fc, iscsi]
+      description: |
+        Front-end protocol to use. `fc` selects the Fibre Channel driver,
+        `iscsi` selects the iSCSI driver.
+    dell-sc-ssn:
+      type: int
+      default: null
+      description: Storage Center system serial number.
+    dell-sc-api-port:
+      type: int
+      default: 3033
+      description: Dell Storage Center API port.
+    dell-sc-server-folder:
+      type: string
+      default: openstack
+      description: Server folder name on the Storage Center.
+    dell-sc-volume-folder:
+      type: string
+      default: openstack
+      description: Volume folder name on the Storage Center.
+    dell-server-os:
+      type: string
+      default: Red Hat Linux 6.x
+      description: Server OS type to use when creating new servers.
+    dell-sc-verify-cert:
+      type: boolean
+      default: false
+      description: Verify HTTPS certificates for the Storage Center API.
+    san-thin-provision:
+      type: boolean
+      default: true
+      description: Use thin provisioning for volumes.
+    excluded-domain-ips:
+      type: string
+      default: null
+      description: Comma-separated list of excluded domain IPs.
+    included-domain-ips:
+      type: string
+      default: null
+      description: Comma-separated list of included domain IPs.
+    secondary-san-ip:
+      type: string
+      default: null
+      description: Secondary Dell Storage Center management IP.
+    secondary-san-credentials-secret:
+      type: secret
+      default: null
+      description: |
+        Juju secret containing secondary Dell Storage Center credentials.
+        Must contain keys `username` and `password`.
+    secondary-sc-api-port:
+      type: int
+      default: 3033
+      description: Secondary Dell Storage Center API port.
+    dell-api-async-rest-timeout:
+      type: int
+      default: 15
+      description: Async REST API timeout in seconds.
+    dell-api-sync-rest-timeout:
+      type: int
+      default: 30
+      description: Sync REST API timeout in seconds.
+    ssh-conn-timeout:
+      type: int
+      default: 30
+      description: SSH connection timeout in seconds.
+    ssh-max-pool-conn:
+      type: int
+      default: 5
+      description: Maximum SSH pool connections.
+    ssh-min-pool-conn:
+      type: int
+      default: 1
+      description: Minimum SSH pool connections.
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt-get update
+      apt-get install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
