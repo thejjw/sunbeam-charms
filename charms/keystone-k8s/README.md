@@ -266,7 +266,7 @@ You can now source the `openrc-idp` file and use the OpenID provider with the Op
 
 ## OCI Images
 
-The charm by default uses `ghcr.io/canonical/keystone:2024.1` image.
+The charm by default uses `ghcr.io/canonical/keystone:2024.1-24.04_edge` image.
 
 ## Contributing
 

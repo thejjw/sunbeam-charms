@@ -44,9 +44,9 @@ applications:
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
-      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
-      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:24.03
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03-24.04_edge
+      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03-24.04_edge
+      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:24.03-24.04_edge
   ovn-relay:
     {% if ovn_relay_k8s is defined and ovn_relay_k8s is sameas true -%}
     charm: ../../../ovn-relay-k8s.charm
@@ -58,7 +58,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:24.03-24.04_edge
   keystone:
     {% if keystone_k8s is defined and keystone_k8s is sameas true -%}
     charm: ../../../keystone-k8s.charm
@@ -73,7 +73,7 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
     resources:
-      keystone-image: ghcr.io/canonical/keystone:2024.1
+      keystone-image: ghcr.io/canonical/keystone:2024.1-24.04_edge
   glance:
     {% if glance_k8s is defined and glance_k8s is sameas true -%}
     charm: ../../../glance-k8s.charm
@@ -87,7 +87,7 @@ applications:
     storage:
       local-repository: 10G
     resources:
-      glance-api-image: ghcr.io/canonical/glance-api:2024.1
+      glance-api-image: ghcr.io/canonical/glance-api:2024.1-24.04_edge
   nova:
     {% if nova_k8s is defined and nova_k8s is sameas true -%}
     charm: ../../../nova-k8s.charm
@@ -99,10 +99,10 @@ applications:
     scale: 1
     trust: true
     resources:
-      nova-api-image: ghcr.io/canonical/nova-consolidated:2024.1
-      nova-scheduler-image: ghcr.io/canonical/nova-consolidated:2024.1
-      nova-conductor-image: ghcr.io/canonical/nova-consolidated:2024.1
-      nova-spiceproxy-image: ghcr.io/canonical/nova-consolidated:2024.1
+      nova-api-image: ghcr.io/canonical/nova-consolidated:2024.1-24.04_edge
+      nova-scheduler-image: ghcr.io/canonical/nova-consolidated:2024.1-24.04_edge
+      nova-conductor-image: ghcr.io/canonical/nova-consolidated:2024.1-24.04_edge
+      nova-spiceproxy-image: ghcr.io/canonical/nova-consolidated:2024.1-24.04_edge
   placement:
     {% if placement_k8s is defined and placement_k8s is sameas true -%}
     charm: ../../../placement-k8s.charm
@@ -114,7 +114,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      placement-api-image: ghcr.io/canonical/placement-api:2024.1
+      placement-api-image: ghcr.io/canonical/placement-api:2024.1-24.04_edge
   neutron:
     {% if neutron_k8s is defined and neutron_k8s is sameas true -%}
     charm: ../../../neutron-k8s.charm
@@ -128,7 +128,7 @@ applications:
     options:
       debug: true
     resources:
-      neutron-server-image: ghcr.io/canonical/neutron-server:2024.1
+      neutron-server-image: ghcr.io/canonical/neutron-server:2024.1-24.04_edge
   tempest:
     {% if tempest_k8s is defined and tempest_k8s is sameas true -%}
     charm: ../../../tempest-k8s.charm
@@ -140,7 +140,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      tempest-image: ghcr.io/canonical/tempest:2024.1
+      tempest-image: ghcr.io/canonical/tempest:2024.1-24.04_edge
 
 relations:
 - - tls-operator:certificates

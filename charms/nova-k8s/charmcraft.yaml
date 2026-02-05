@@ -58,19 +58,19 @@ resources:
   nova-api-image:
     type: oci-image
     description: OCI image for OpenStack Nova API
-    upstream-source: ghcr.io/canonical/nova-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/nova-consolidated:2024.1-24.04_edge
   nova-scheduler-image:
     type: oci-image
     description: OCI image for OpenStack Nova Scheduler
-    upstream-source: ghcr.io/canonical/nova-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/nova-consolidated:2024.1-24.04_edge
   nova-conductor-image:
     type: oci-image
     description: OCI image for OpenStack Nova Conductor
-    upstream-source: ghcr.io/canonical/nova-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/nova-consolidated:2024.1-24.04_edge
   nova-spiceproxy-image:
     type: oci-image
     description: OCI image for OpenStack Nova Spice proxy
-    upstream-source: ghcr.io/canonical/nova-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/nova-consolidated:2024.1-24.04_edge
 
 requires:
   ingress-internal:

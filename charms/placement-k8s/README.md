@@ -44,7 +44,7 @@ placement-k8s requires the following relations:
 
 ## OCI Images
 
-The charm by default uses `ghcr.io/canonical/placement-api:2024.1` image.
+The charm by default uses `ghcr.io/canonical/placement-api:2024.1-24.04_edge` image.
 
 ## Contributing
 
