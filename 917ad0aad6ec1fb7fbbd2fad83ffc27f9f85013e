@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8f02867_281885f3",
+        "filename": "charms/storage/cinder-volume-dellsc/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-05T11:53:12Z",
+      "side": 1,
+      "message": "can we follow other charm pattern, where each config option is defined as a secret?\n\nIt doesn\u0027t really matter then if the same secret is used over field, or a different secret, but it allows for a better discovery of a charm config options",
+      "range": {
+        "startLine": 47,
+        "startChar": 4,
+        "endLine": 47,
+        "endChar": 24
+      },
+      "revId": "917ad0aad6ec1fb7fbbd2fad83ffc27f9f85013e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
