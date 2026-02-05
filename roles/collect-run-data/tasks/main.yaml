@@ -14,6 +14,12 @@
     path: "{{ zuul.project.src_dir }}/log"
     state: directory
     mode: 0755
+- name: Collect multipath status
+  shell: sudo multipath -ll > {{ zuul.project.src_dir }}/log/multipath.txt
+  ignore_errors: True
+- name: Collect multipathd status
+  shell: sudo multipathd show status > {{ zuul.project.src_dir }}/log/multipathd-status.txt
+  ignore_errors: True
 - name: collect disk usage
   shell: df -h > {{ zuul.project.src_dir }}/log/df.txt
 - name: collect mount list

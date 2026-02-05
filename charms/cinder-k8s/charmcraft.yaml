@@ -38,11 +38,11 @@ resources:
   cinder-api-image:
     type: oci-image
     description: OCI image for OpenStack Cinder API
-    upstream-source: ghcr.io/canonical/cinder-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/cinder-consolidated:2024.1-24.04_edge
   cinder-scheduler-image:
     type: oci-image
     description: OCI image for OpenStack Cinder Scheduler
-    upstream-source: ghcr.io/canonical/cinder-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/cinder-consolidated:2024.1-24.04_edge
 
 requires:
   database:

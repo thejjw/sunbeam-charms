@@ -49,7 +49,7 @@ run:
 To deploy the local test instance:
 
     juju deploy ./ironic-k8s.charm ironic --trust \
-      --resource ironic-api-image=ghcr.io/canonical/ironic-api:2024.1
+      --resource ironic-api-image=ghcr.io/canonical/ironic-api:2024.1-24.04_edge
 
 To upgrade / refresh the ironic-k8s charm with a locally-built charm, use the
 following command:

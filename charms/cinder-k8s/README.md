@@ -49,8 +49,8 @@ cinder-k8s requires the following relations:
 
 The charm by default uses follwoing images:
 
-`ghcr.io/canonical/cinder-api:2024.1`
-`ghcr.io/canonical/cinder-scheduler:2024.1`
+`ghcr.io/canonical/cinder-api:2024.1-24.04_edge`
+`ghcr.io/canonical/cinder-scheduler:2024.1-24.04_edge`
 
 ## Contributing
 

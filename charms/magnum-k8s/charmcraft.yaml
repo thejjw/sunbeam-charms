@@ -81,11 +81,11 @@ resources:
   magnum-api-image:
     type: oci-image
     description: OCI image for OpenStack magnum
-    upstream-source: ghcr.io/canonical/magnum-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/magnum-consolidated:2024.1-24.04_edge
   magnum-conductor-image:
     type: oci-image
     description: OCI image for OpenStack magnum
-    upstream-source: ghcr.io/canonical/magnum-consolidated:2024.1
+    upstream-source: ghcr.io/canonical/magnum-consolidated:2024.1-24.04_edge
 
 requires:
   database:
