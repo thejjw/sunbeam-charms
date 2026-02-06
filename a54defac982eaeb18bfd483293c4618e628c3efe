@@ -16,6 +16,23 @@
       "message": "Ok, the hypervisor snap with the fix was held back in the review process. It is now actually present on 2024.1/edge",
       "revId": "a54defac982eaeb18bfd483293c4618e628c3efe",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c388399_23cce8cf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-02-06T18:13:18Z",
+      "side": 1,
+      "message": "LGTM!",
+      "revId": "a54defac982eaeb18bfd483293c4618e628c3efe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
