@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ac838215_89b28438",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-06T00:13:17Z",
+      "side": 1,
+      "message": "recheck\n\n\nhypervisor snap modified with to detect when multipathd is not setup",
+      "revId": "011730325051e9ab3b11d34934e4207860f1e8d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
