@@ -16,6 +16,23 @@
       "message": "recheck\n\n\nhypervisor snap modified with to detect when multipathd is not setup",
       "revId": "011730325051e9ab3b11d34934e4207860f1e8d7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2d965b8_72e2a1fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-06T03:33:52Z",
+      "side": 1,
+      "message": "Recheck\n\nSnap was not published in time",
+      "revId": "011730325051e9ab3b11d34934e4207860f1e8d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
