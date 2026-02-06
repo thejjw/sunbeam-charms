@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13e00cfb_43a90a48",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-06T14:34:17Z",
+      "side": 1,
+      "message": "Ok, the hypervisor snap with the fix was held back in the review process. It is now actually present on 2024.1/edge",
+      "revId": "a54defac982eaeb18bfd483293c4618e628c3efe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
