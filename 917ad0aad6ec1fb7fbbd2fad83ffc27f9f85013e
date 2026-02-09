@@ -22,6 +22,30 @@
       },
       "revId": "917ad0aad6ec1fb7fbbd2fad83ffc27f9f85013e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "129a89ee_d21939bf",
+        "filename": "charms/storage/cinder-volume-dellsc/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 38760
+      },
+      "writtenOn": "2026-02-09T06:01:15Z",
+      "side": 1,
+      "message": "if i\u0027ve understood you correctly patchset 2 should include the changes you\u0027ve mentioned. i\u0027ve also made the charm config options match the cinder driver options verbatim",
+      "parentUuid": "c8f02867_281885f3",
+      "range": {
+        "startLine": 47,
+        "startChar": 4,
+        "endLine": 47,
+        "endChar": 24
+      },
+      "revId": "917ad0aad6ec1fb7fbbd2fad83ffc27f9f85013e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
