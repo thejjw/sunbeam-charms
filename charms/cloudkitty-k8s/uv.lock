@@ -91,8 +91,8 @@ wheels = [
 ]
 
 [[package]]
-name = "cinder-k8s"
-version = "2024.1"
+name = "cloudkitty-k8s"
+version = "2025.1"
 source = { virtual = "." }
 dependencies = [
     { name = "cryptography" },
