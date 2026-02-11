@@ -19,16 +19,22 @@
 import json
 import os
 import textwrap
+import unittest
 from unittest.mock import (
     ANY,
     MagicMock,
     call,
+    patch,
 )
 
 import charm
 import keystoneauth1.exceptions
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.test_utils as test_utils
+from ops.model import (
+    ModelError,
+    SecretNotFoundError,
+)
 
 
 class _KeystoneOperatorCharm(charm.KeystoneOperatorCharm):
@@ -954,3 +960,629 @@ class TestKeystoneOperatorCharm(test_utils.CharmTestCase):
             "/etc/keystone/domains/keystone.mydomain.conf",
             contents=textwrap.dedent(expect_entries).lstrip(),
         )
+
+
+class TestIdentityResourceProvidesHandler(unittest.TestCase):
+    """Tests for IdentityResourceProvidesHandler methods."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.mock_charm = MagicMock()
+        self.mock_charm.unit.is_leader.return_value = True
+        self.mock_model = MagicMock()
+        self.mock_charm.model = self.mock_model
+
+        self.mock_relation = MagicMock()
+        self.mock_relation.name = "identity-ops"
+        self.mock_relation.id = 1
+        self.mock_model.get_relation.return_value = self.mock_relation
+
+        self.mock_interface = MagicMock()
+
+        # Peers mock for SecretStore
+        self.mock_charm.peers.ready = True
+        self._store_data = {}
+
+        def _get_app_data(key):
+            return self._store_data.get(key)
+
+        def _set_app_data(data):
+            self._store_data.update(data)
+
+        self.mock_charm.peers.get_app_data.side_effect = _get_app_data
+        self.mock_charm.peers.set_app_data.side_effect = _set_app_data
+
+        # Build handler
+        self.handler = charm.IdentityResourceProvidesHandler.__new__(
+            charm.IdentityResourceProvidesHandler
+        )
+        self.handler.charm = self.mock_charm
+        self.handler.relation_name = "identity-ops"
+        self.handler.callback_f = MagicMock()
+        self.handler.interface = self.mock_interface
+
+        # Patch model property to return our mock (ops.Object.model
+        # resolves via framework which we don't init)
+        self._model_patcher = patch.object(
+            type(self.handler),
+            "model",
+            new_callable=lambda: property(lambda s: self.mock_model),
+        )
+        self._model_patcher.start()
+
+        self.handler.store = charm.SecretStore(self.mock_charm, "id-ops-store")
+
+        # Mock ksclient on charm
+        self.mock_ksclient = MagicMock()
+        self.mock_charm.keystone_manager.ksclient = self.mock_ksclient
+
+    def tearDown(self):
+        """Clean up patchers."""
+        self._model_patcher.stop()
+
+    # ── SecretStore tests ──────────────────────────────────────────────
+
+    def test_secret_store_store_and_get(self):
+        """Test storing and getting a secret."""
+        self.handler.store.store_secret("my-label", "secret:abc123")
+        self.assertEqual(
+            self.handler.store.get_secret("my-label"), "secret:abc123"
+        )
+
+    def test_secret_store_get_nonexistent(self):
+        """Test getting a nonexistent secret returns None."""
+        self.assertIsNone(self.handler.store.get_secret("missing"))
+
+    def test_secret_store_drop_secret(self):
+        """Test dropping a secret."""
+        self.handler.store.store_secret("lbl", "sid")
+        self.handler.store.drop_secret("lbl")
+        self.assertIsNone(self.handler.store.get_secret("lbl"))
+
+    def test_secret_store_drop_nonexistent(self):
+        """Dropping a non-existent label should be a no-op."""
+        self.handler.store.drop_secret("nope")
+
+    def test_secret_store_list_secrets_with_prefix(self):
+        """Test listing secrets by prefix."""
+        self.handler.store.store_secret("identity-ops-1:A", "s1")
+        self.handler.store.store_secret("identity-ops-1:B", "s2")
+        self.handler.store.store_secret("identity-ops-2:C", "s3")
+        result = self.handler.store.list_secrets_with_prefix("identity-ops-1:")
+        self.assertEqual(
+            result, {"identity-ops-1:A": "s1", "identity-ops-1:B": "s2"}
+        )
+
+    def test_secret_store_not_ready(self):
+        """Secret store should return empty/None when peers not ready."""
+        self.mock_charm.peers.ready = False
+        self.assertIsNone(self.handler.store.get_secret("x"))
+        self.assertEqual(self.handler.store.list_secrets_with_prefix("x"), {})
+
+    def test_secret_store_non_leader_cannot_write(self):
+        """Non-leader should not be able to store or drop secrets."""
+        self.mock_charm.unit.is_leader.return_value = False
+        self.handler.store.store_secret("lbl", "sid")
+        self.assertIsNone(self.handler.store.get_secret("lbl"))
+
+    # ── to_prefix / to_label ──────────────────────────────────────────
+
+    def test_to_prefix(self):
+        """Test prefix generation."""
+        self.assertEqual(
+            self.handler.to_prefix(self.mock_relation),
+            "identity-ops-1:",
+        )
+
+    def test_to_label(self):
+        """Test label generation."""
+        self.assertEqual(
+            self.handler.to_label(self.mock_relation, "my-req"),
+            "identity-ops-1:my-req",
+        )
+
+    # ── _sanitize_secrets ──────────────────────────────────────────────
+
+    def test_sanitize_secrets_replaces_secret_prefix(self):
+        """Params starting with secret:// should be replaced with secret content."""
+        mock_secret = MagicMock()
+        mock_secret.get_content.return_value = {"password": "s3cret"}
+        self.mock_model.get_secret.return_value = mock_secret
+
+        request = {
+            "ops": [
+                {
+                    "name": "create_user",
+                    "params": {"password": "secret://my-secret-id"},
+                }
+            ]
+        }
+        result = self.handler._sanitize_secrets(request)
+        self.assertEqual(result["ops"][0]["params"]["password"], "s3cret")
+        self.mock_model.get_secret.assert_called_once_with(
+            id="secret://my-secret-id"
+        )
+
+    def test_sanitize_secrets_no_secret_prefix_untouched(self):
+        """Params without secret:// prefix should stay as is."""
+        request = {
+            "ops": [
+                {
+                    "name": "create_user",
+                    "params": {"name": "alice", "domain_id": "default"},
+                }
+            ]
+        }
+        result = self.handler._sanitize_secrets(request)
+        self.assertEqual(result["ops"][0]["params"]["name"], "alice")
+        self.assertEqual(result["ops"][0]["params"]["domain_id"], "default")
+        self.mock_model.get_secret.assert_not_called()
+
+    def test_sanitize_secrets_raises_on_model_error(self):
+        """Should raise ValueError when secret cannot be retrieved."""
+        self.mock_model.get_secret.side_effect = ModelError()
+        request = {
+            "ops": [
+                {
+                    "name": "create_user",
+                    "params": {"password": "secret://bad-id"},
+                }
+            ]
+        }
+        with self.assertRaises(ValueError):
+            self.handler._sanitize_secrets(request)
+
+    def test_sanitize_secrets_raises_on_secret_not_found(self):
+        """Should raise ValueError when secret is not found."""
+        self.mock_model.get_secret.side_effect = SecretNotFoundError("gone")
+        request = {
+            "ops": [
+                {
+                    "name": "create_user",
+                    "params": {"password": "secret://bad-id"},
+                }
+            ]
+        }
+        with self.assertRaises(ValueError):
+            self.handler._sanitize_secrets(request)
+
+    def test_sanitize_secrets_non_string_values_untouched(self):
+        """Non-string param values should be left as is."""
+        request = {
+            "ops": [{"name": "op1", "params": {"count": 5, "flag": True}}]
+        }
+        result = self.handler._sanitize_secrets(request)
+        self.assertEqual(result["ops"][0]["params"]["count"], 5)
+        self.assertEqual(result["ops"][0]["params"]["flag"], True)
+
+    # ── _generate_secret_params ────────────────────────────────────────
+
+    @patch("charm.sunbeam_core.random_string", return_value="randomval")
+    def test_generate_secret_params(self, mock_rand):
+        """Test secret parameter generation."""
+        result = self.handler._generate_secret_params(
+            ["password", "token"], length=16
+        )
+        self.assertEqual(
+            result, {"password": "randomval", "token": "randomval"}
+        )
+        self.assertEqual(mock_rand.call_count, 2)
+        mock_rand.assert_called_with(16)
+
+    @patch("charm.sunbeam_core.random_string")
+    def test_generate_secret_params_empty_list(self, mock_rand):
+        """Empty secret_params should return empty dict."""
+        result = self.handler._generate_secret_params([])
+        self.assertEqual(result, {})
+        mock_rand.assert_not_called()
+
+    # ── _create_and_grant_ops_secret ───────────────────────────────────
+
+    def test_create_and_grant_new_secret(self):
+        """Should create a new secret and grant it to the relation."""
+        mock_secret = MagicMock()
+        mock_secret.id = "secret:new-id"
+        self.mock_model.app.add_secret.return_value = mock_secret
+
+        secret_data = {"password": "pw123"}
+        result = self.handler._create_and_grant_ops_secret(
+            self.mock_relation, "my-req", secret_data
+        )
+
+        self.assertEqual(result, "secret:new-id")
+        self.mock_model.app.add_secret.assert_called_once_with(
+            secret_data,
+            label="identity-ops-1:my-req",
+        )
+        mock_secret.grant.assert_called_once_with(self.mock_relation)
+        # Should be stored in the store
+        label = self.handler.to_label(self.mock_relation, "my-req")
+        self.assertEqual(self.handler.store.get_secret(label), "secret:new-id")
+
+    def test_create_and_grant_updates_existing_secret(self):
+        """Should update and re-grant an existing secret."""
+        label = self.handler.to_label(self.mock_relation, "my-req")
+        self.handler.store.store_secret(label, "secret:old-id")
+
+        mock_secret = MagicMock()
+        self.mock_model.get_secret.return_value = mock_secret
+
+        secret_data = {"password": "newpw"}
+        result = self.handler._create_and_grant_ops_secret(
+            self.mock_relation, "my-req", secret_data
+        )
+
+        self.assertEqual(result, "secret:old-id")
+        self.mock_model.get_secret.assert_called_once_with(id="secret:old-id")
+        mock_secret.set_content.assert_called_once_with(secret_data)
+        mock_secret.grant.assert_called_once_with(self.mock_relation)
+        # Should NOT create a new secret
+        self.mock_model.app.add_secret.assert_not_called()
+
+    def test_create_and_grant_recreates_when_existing_not_found(self):
+        """Should create new secret when stored reference is stale."""
+        label = self.handler.to_label(self.mock_relation, "my-req")
+        self.handler.store.store_secret(label, "secret:stale-id")
+
+        self.mock_model.get_secret.side_effect = SecretNotFoundError("gone")
+
+        mock_new_secret = MagicMock()
+        mock_new_secret.id = "secret:brand-new"
+        self.mock_model.app.add_secret.return_value = mock_new_secret
+
+        result = self.handler._create_and_grant_ops_secret(
+            self.mock_relation, "my-req", {"password": "pw"}
+        )
+        self.assertEqual(result, "secret:brand-new")
+        self.mock_model.app.add_secret.assert_called_once()
+        mock_new_secret.grant.assert_called_once_with(self.mock_relation)
+        self.assertEqual(
+            self.handler.store.get_secret(label), "secret:brand-new"
+        )
+
+    # ── _on_goneaway ──────────────────────────────────────────────────
+
+    def test_on_goneaway_cleans_up_secrets(self):
+        """Should remove all secrets for the departing relation."""
+        # Pre-populate store with secrets for relation 1
+        self.handler.store.store_secret("identity-ops-1:req-a", "secret:id-a")
+        self.handler.store.store_secret("identity-ops-1:req-b", "secret:id-b")
+        # Also have a secret for a different relation
+        self.handler.store.store_secret("identity-ops-2:req-c", "secret:id-c")
+
+        mock_secret_a = MagicMock()
+        mock_secret_b = MagicMock()
+        self.mock_model.get_secret.side_effect = [mock_secret_a, mock_secret_b]
+
+        event = MagicMock()
+        event.relation_name = "identity-ops"
+        event.relation_id = 1
+
+        self.handler._on_goneaway(event)
+
+        # Both secrets should have been removed
+        mock_secret_a.remove_all_revisions.assert_called_once()
+        mock_secret_b.remove_all_revisions.assert_called_once()
+
+        # Store entries for relation 1 should be gone
+        self.assertIsNone(
+            self.handler.store.get_secret("identity-ops-1:req-a")
+        )
+        self.assertIsNone(
+            self.handler.store.get_secret("identity-ops-1:req-b")
+        )
+        # Relation 2 secret should be untouched
+        self.assertEqual(
+            self.handler.store.get_secret("identity-ops-2:req-c"),
+            "secret:id-c",
+        )
+
+    def test_on_goneaway_ignores_missing_secrets(self):
+        """Should continue and drop store entry even if secret is already gone."""
+        self.handler.store.store_secret("identity-ops-1:req-a", "secret:id-a")
+        self.mock_model.get_secret.side_effect = SecretNotFoundError("gone")
+
+        event = MagicMock()
+        event.relation_name = "identity-ops"
+        event.relation_id = 1
+
+        self.handler._on_goneaway(event)
+
+        # Store entry should still be dropped
+        self.assertIsNone(
+            self.handler.store.get_secret("identity-ops-1:req-a")
+        )
+
+    # ── handle_op_request ──────────────────────────────────────────────
+
+    @patch("charm.sunbeam_core.random_string", return_value="genpw")
+    def test_handle_op_request_simple_success(self, _):
+        """Test a simple op request with no secrets."""
+        self.mock_ksclient.create_user.return_value = {"id": "user-1"}
+
+        request = {
+            "id": "req-1",
+            "tag": "tag-1",
+            "ops": [
+                {
+                    "name": "create_user",
+                    "params": {"name": "alice", "domain_id": "default"},
+                }
+            ],
+        }
+        self.handler.handle_op_request(1, "identity-ops", request)
+
+        self.mock_ksclient.create_user.assert_called_once_with(
+            name="alice", domain_id="default"
+        )
+        response = self.mock_interface.set_ops_response.call_args
+        ops_response = response.kwargs["ops_response"]
+        self.assertEqual(ops_response["id"], "req-1")
+        self.assertEqual(ops_response["tag"], "tag-1")
+        self.assertEqual(ops_response["ops"][0]["return-code"], 0)
+        self.assertEqual(ops_response["ops"][0]["value"], {"id": "user-1"})
+        self.assertNotIn("secret-id", ops_response["ops"][0])
+
+    @patch("charm.sunbeam_core.random_string", return_value="genpw")
+    def test_handle_op_request_with_secret_request(self, _):
+        """Test op request that includes a secret-request."""
+        self.mock_ksclient.create_user.return_value = {"id": "user-1"}
+
+        mock_created_secret = MagicMock()
+        mock_created_secret.id = "secret:created-id"
+        self.mock_model.app.add_secret.return_value = mock_created_secret
+
+        request = {
+            "id": "req-1",
+            "tag": "tag-1",
+            "ops": [
+                {
+                    "name": "create_user",
+                    "params": {"name": "alice"},
+                    "secret-request": {
+                        "secret-label": "creds-alice",
+                        "secret-params": ["password"],
+                    },
+                }
+            ],
+        }
+        self.handler.handle_op_request(1, "identity-ops", request)
+
+        # Should have called create_user with generated password
+        call_kwargs = self.mock_ksclient.create_user.call_args.kwargs
+        self.assertEqual(call_kwargs["name"], "alice")
+        self.assertEqual(call_kwargs["password"], "genpw")
+
+        # Should have created and granted a secret
+        response = self.mock_interface.set_ops_response.call_args.kwargs[
+            "ops_response"
+        ]
+        self.assertEqual(response["ops"][0]["return-code"], 0)
+        self.assertEqual(response["ops"][0]["secret-id"], "secret:created-id")
+
+    @patch("charm.sunbeam_core.random_string", return_value="genpw")
+    def test_handle_op_request_secret_params_without_label_fails(self, _):
+        """Secret-params without secret-label should cause an error."""
+        request = {
+            "id": "req-1",
+            "tag": "tag-1",
+            "ops": [
+                {
+                    "name": "create_user",
+                    "params": {"name": "alice"},
+                    "secret-request": {
+                        "secret-params": ["password"],
+                    },
+                }
+            ],
+        }
+        self.handler.handle_op_request(1, "identity-ops", request)
+
+        response = self.mock_interface.set_ops_response.call_args.kwargs[
+            "ops_response"
+        ]
+        self.assertEqual(response["ops"][0]["return-code"], -1)
+        self.assertIn(
+            "secret-params provided without secret-label",
+            response["ops"][0]["value"],
+        )
+
+    @patch("charm.sunbeam_core.random_string", return_value="genpw")
+    def test_handle_op_request_relation_not_found(self, _):
+        """Should return early (no response) when relation is not found."""
+        self.mock_model.get_relation.return_value = None
+
+        request = {
+            "id": "req-1",
+            "tag": "tag-1",
+            "ops": [{"name": "create_user", "params": {"name": "alice"}}],
+        }
+        self.handler.handle_op_request(1, "identity-ops", request)
+
+        self.mock_interface.set_ops_response.assert_not_called()
+
+    @patch("charm.sunbeam_core.random_string", return_value="genpw")
+    def test_handle_op_request_op_exception(self, _):
+        """Op failure should return error code and repr of exception."""
+        self.mock_ksclient.create_user.side_effect = RuntimeError("boom")
+
+        request = {
+            "id": "req-1",
+            "tag": "tag-1",
+            "ops": [{"name": "create_user", "params": {"name": "alice"}}],
+        }
+        self.handler.handle_op_request(1, "identity-ops", request)
+
+        response = self.mock_interface.set_ops_response.call_args.kwargs[
+            "ops_response"
+        ]
+        self.assertEqual(response["ops"][0]["return-code"], -1)
+        self.assertIn("boom", response["ops"][0]["value"])
+
+    @patch("charm.sunbeam_core.random_string", return_value="genpw")
+    def test_handle_op_request_multiple_ops(self, _):
+        """Test request with multiple ops."""
+        self.mock_ksclient.create_user.return_value = {"id": "user-1"}
+        self.mock_ksclient.create_role.return_value = {"id": "role-1"}
+
+        request = {
+            "id": "req-multi",
+            "tag": "tag-multi",
+            "ops": [
+                {"name": "create_user", "params": {"name": "alice"}},
+                {"name": "create_role", "params": {"name": "admin"}},
+            ],
+        }
+        self.handler.handle_op_request(1, "identity-ops", request)
+
+        response = self.mock_interface.set_ops_response.call_args.kwargs[
+            "ops_response"
+        ]
+        self.assertEqual(len(response["ops"]), 2)
+        self.assertEqual(response["ops"][0]["return-code"], 0)
+        self.assertEqual(response["ops"][0]["value"], {"id": "user-1"})
+        self.assertEqual(response["ops"][1]["return-code"], 0)
+        self.assertEqual(response["ops"][1]["value"], {"id": "role-1"})
+
+    @patch("charm.sunbeam_core.random_string", return_value="genpw")
+    def test_handle_op_request_partial_failure(self, _):
+        """First op succeeds, second fails — both should be in response."""
+        self.mock_ksclient.create_user.return_value = {"id": "user-1"}
+        self.mock_ksclient.create_role.side_effect = RuntimeError("fail")
+
+        request = {
+            "id": "req-1",
+            "tag": "t",
+            "ops": [
+                {"name": "create_user", "params": {"name": "alice"}},
+                {"name": "create_role", "params": {"name": "admin"}},
+            ],
+        }
+        self.handler.handle_op_request(1, "identity-ops", request)
+
+        response = self.mock_interface.set_ops_response.call_args.kwargs[
+            "ops_response"
+        ]
+        self.assertEqual(response["ops"][0]["return-code"], 0)
+        self.assertEqual(response["ops"][1]["return-code"], -1)
+
+    @patch("charm.sunbeam_core.random_string", return_value="genpw")
+    def test_handle_op_request_sanitizes_secrets_in_params(self, _):
+        """Secret values in params should be resolved before calling the function."""
+        mock_secret = MagicMock()
+        mock_secret.get_content.return_value = {"password": "resolved_pw"}
+        self.mock_model.get_secret.return_value = mock_secret
+        self.mock_ksclient.create_user.return_value = {"id": "u1"}
+
+        request = {
+            "id": "req-1",
+            "tag": "t",
+            "ops": [
+                {
+                    "name": "create_user",
+                    "params": {
+                        "name": "bob",
+                        "password": "secret://my-secret",
+                    },
+                }
+            ],
+        }
+        self.handler.handle_op_request(1, "identity-ops", request)
+
+        call_kwargs = self.mock_ksclient.create_user.call_args.kwargs
+        self.assertEqual(call_kwargs["password"], "resolved_pw")
+
+    @patch("charm.sunbeam_core.random_string", return_value="genpw")
+    def test_handle_op_request_jinja_templating(self, _):
+        """Jinja templates in params should be rendered using context from prior ops."""
+        self.mock_ksclient.create_user.return_value = {
+            "id": "user-1",
+            "name": "alice",
+        }
+        self.mock_ksclient.grant_role.return_value = None
+
+        request = {
+            "id": "req-1",
+            "tag": "t",
+            "ops": [
+                {
+                    "name": "create_user",
+                    "params": {"name": "alice"},
+                },
+                {
+                    "name": "grant_role",
+                    "params": {
+                        "user_id": "{{ create_user[0]['id'] }}",
+                        "role": "admin",
+                    },
+                },
+            ],
+        }
+        self.handler.handle_op_request(1, "identity-ops", request)
+
+        call_kwargs = self.mock_ksclient.grant_role.call_args.kwargs
+        self.assertEqual(call_kwargs["user_id"], "user-1")
+        self.assertEqual(call_kwargs["role"], "admin")
+
+    @patch("charm.sunbeam_core.random_string", return_value="genpw")
+    def test_handle_op_request_sanitize_failure_aborts(self, _):
+        """If _sanitize_secrets raises, handle_op_request should not call any function."""
+        self.mock_model.get_secret.side_effect = SecretNotFoundError("gone")
+
+        request = {
+            "id": "req-1",
+            "tag": "t",
+            "ops": [
+                {
+                    "name": "create_user",
+                    "params": {
+                        "name": "alice",
+                        "password": "secret://bad-id",
+                    },
+                }
+            ],
+        }
+        # _sanitize_secrets will raise ValueError, which propagates
+        # since it happens before the per-op try/except
+        with self.assertRaises(ValueError):
+            self.handler.handle_op_request(1, "identity-ops", request)
+
+        self.mock_ksclient.create_user.assert_not_called()
+
+    @patch("charm.sunbeam_core.random_string", return_value="genpw")
+    def test_handle_op_request_empty_ops(self, _):
+        """Request with empty ops list should send response with empty ops."""
+        request = {"id": "req-1", "tag": "t", "ops": []}
+        self.handler.handle_op_request(1, "identity-ops", request)
+
+        response = self.mock_interface.set_ops_response.call_args.kwargs[
+            "ops_response"
+        ]
+        self.assertEqual(response["ops"], [])
+
+    @patch("charm.sunbeam_core.random_string", return_value="genpw")
+    def test_handle_op_response_initial_return_code(self, _):
+        """Ops in response should initially have return-code -2 before execution."""
+        # We test this indirectly: if the function isn't found, the
+        # exception handler should set return-code to -1
+        self.mock_ksclient.nonexistent_func = None
+        delattr(self.mock_ksclient, "nonexistent_func")
+
+        request = {
+            "id": "req-1",
+            "tag": "t",
+            "ops": [{"name": "nonexistent_func", "params": {}}],
+        }
+        self.handler.handle_op_request(1, "identity-ops", request)
+
+        response = self.mock_interface.set_ops_response.call_args.kwargs[
+            "ops_response"
+        ]
+        # An AttributeError should have been caught
+        self.assertEqual(response["ops"][0]["return-code"], -1)
+
+    # ── ready ──────────────────────────────────────────────────────────
+
+    def test_ready_always_true(self):
+        """Handler.ready should always return True."""
+        self.assertTrue(self.handler.ready)

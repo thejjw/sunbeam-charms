@@ -1,4 +1,5 @@
 stestr
+testtools < 2.8.3  # 2.8.3 breaks stestr
 coverage
 
 tenacity                   # ops-sunbeam
