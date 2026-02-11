@@ -98,6 +98,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2dc9a99f_dfcf789b",
+        "filename": "charms/storage/cinder-volume-dellpowerstore/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-11T21:41:40Z",
+      "side": 1,
+      "message": "I like the method approach, there\u0027s bits of documentation, we well understand what\u0027s it\u0027s trying to do!",
+      "parentUuid": "0252f579_1e8cfb1f",
+      "range": {
+        "startLine": 48,
+        "startChar": 8,
+        "endLine": 48,
+        "endChar": 20
+      },
+      "revId": "393b6a1f901c19429ad3da060945168f06a1440a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d9bf8b73_0a2e4f8a",
         "filename": "charms/storage/cinder-volume-dellpowerstore/src/charm.py",
         "patchSetId": 3
