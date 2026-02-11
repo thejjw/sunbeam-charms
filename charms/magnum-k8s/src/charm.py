@@ -211,9 +211,11 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         _cadapters.extend([MagnumConfigurationContext(self, "magnum")])
         return _cadapters
 
-    def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
+    def get_relation_handlers(
+        self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> list[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
-        handlers = super().get_relation_handlers()
+        handlers = super().get_relation_handlers(handlers)
         self.user_id_ops = (
             sunbeam_rhandlers.UserIdentityResourceRequiresHandler(
                 self,

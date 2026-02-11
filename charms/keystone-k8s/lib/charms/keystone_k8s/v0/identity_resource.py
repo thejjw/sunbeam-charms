@@ -117,7 +117,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 4
+LIBPATCH = 5
 
 
 REQUEST_NOT_SENT = 1
@@ -343,10 +343,34 @@ class IdentityOpsRequestEvent(EventBase):
         self.request = snapshot["request"]
 
 
+class IdentityOpsRequesterGoneAwayEvent(EventBase):
+    """Has IdentityOpsRequesterGoneAway Event."""
+
+    def __init__(self, handle, relation_id, relation_name):
+        """Initialise event."""
+        super().__init__(handle)
+        self.relation_id = relation_id
+        self.relation_name = relation_name
+
+    def snapshot(self):
+        """Snapshot the event."""
+        return {
+            "relation_id": self.relation_id,
+            "relation_name": self.relation_name,
+        }
+
+    def restore(self, snapshot):
+        """Restore the event."""
+        super().restore(snapshot)
+        self.relation_id = snapshot["relation_id"]
+        self.relation_name = snapshot["relation_name"]
+
+
 class IdentityResourceProviderEvents(ObjectEvents):
     """Events class for `on`."""
 
     process_op = EventSource(IdentityOpsRequestEvent)
+    goneaway = EventSource(IdentityOpsRequesterGoneAwayEvent)
 
 
 class IdentityResourceProvides(Object):
@@ -362,6 +386,10 @@ class IdentityResourceProvides(Object):
             self.charm.on[relation_name].relation_changed,
             self._on_identity_resource_relation_changed,
         )
+        self.framework.observe(
+            self.charm.on[relation_name].relation_broken,
+            self._on_identity_resource_relation_broken,
+        )
 
     def _on_identity_resource_relation_changed(
         self, event: RelationChangedEvent
@@ -372,6 +400,12 @@ class IdentityResourceProvides(Object):
             self.on.process_op.emit(
                 event.relation.id, event.relation.name, request
             )
+
+    def _on_identity_resource_relation_broken(
+        self, event: RelationBrokenEvent
+    ):
+        """Handle IdentityResource broken."""
+        self.on.goneaway.emit(event.relation.id, event.relation.name)
 
     def set_ops_response(
         self, relation_id: str, relation_name: str, ops_response: dict
