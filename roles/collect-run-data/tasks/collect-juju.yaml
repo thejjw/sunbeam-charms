@@ -1,0 +1,51 @@
+- name: Switch to controller
+  ansible.builtin.command:
+    cmd: juju switch {{ controller }}
+  register: res
+  changed_when: '"no change" not in res.stderr'
+- name: collect juju models
+  shell: juju models --format json | jq '[.models[] | .name]'
+  register: models
+  changed_when: false
+- name: register model to variable
+  set_fact:
+    juju_models: "{{ models.stdout | from_json }}"
+- name: debug logs replay
+  args:
+    executable: /bin/bash
+  shell: |
+    set -o pipefail
+    controller={{ controller }}
+    model={{ item }}
+    model_safe=$(echo $model | tr / -)
+    juju debug-log --replay -m $model > {{ zuul.project.src_dir }}/log/debug-hooks-$controller-$model_safe.txt
+  loop: "{{ juju_models }}"
+- name: juju status
+  args:
+    executable: /bin/bash
+  shell: |
+    set -o pipefail
+    controller={{ controller }}
+    model={{ item }}
+    model_safe=$(echo $model | tr / -)
+    juju status -m $model > "{{ zuul.project.src_dir }}/log/juju-status-$controller-$model_safe.txt"
+    juju status -m $model --format=yaml > "{{ zuul.project.src_dir }}/log/juju-status-$controller-$model_safe.yaml"
+  loop: "{{ juju_models }}"
+- name: Collect units' info
+  args:
+    executable: /bin/bash
+  shell: |
+    set -o pipefail
+    set -x
+    controller={{ controller }}
+    model={{ item }}
+    model_safe=$(echo $model | tr / -)
+    LOG_FOLDER={{ zuul.project.src_dir }}/log/unit-info/$controller-$model_safe
+    mkdir -p $LOG_FOLDER
+    for unit in $(juju status --model $model --format json | jq -r '[.applications[].units | keys[0]] | join("\n")');
+    do
+      echo Collecting unit info: $unit
+      unit_name=$(echo $unit | tr / -)
+      juju show-unit --model $model --output="$LOG_FOLDER/$unit_name.yaml" $unit
+    done
+  loop: "{{ juju_models }}"

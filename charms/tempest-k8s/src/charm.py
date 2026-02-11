@@ -260,11 +260,16 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
     def _get_environment_for_tempest(
         self, variant: TempestEnvVariant
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Return a dictionary of environment variables.
 
         To be used with pebble commands that run tempest discover, etc.
         """
+        if not self.user_id_ops.ready:
+            logger.warning(
+                "Identity relation not ready, environment for tempest will be incomplete"
+            )
+            return {}
         logger.debug("Retrieving OpenStack credentials")
         credential = self.user_id_ops.get_user_credential()
         tempest_env = {
@@ -301,13 +306,18 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         tempest_env.update(self._get_os_cacert_environment())
         return tempest_env
 
-    def _get_cleanup_env(self) -> Dict[str, str]:
+    def _get_cleanup_env(self) -> dict[str, str]:
         """Return a dictionary of environment variables.
 
         To be used with tempest resource cleanup functions.
         """
-        logger.debug("Retrieving OpenStack credentials")
         credential = self.user_id_ops.get_user_credential()
+        if not self.user_id_ops.ready or not credential:
+            logger.warning(
+                "Identity relation not ready, environment for tempest cleanup will be incomplete"
+            )
+            return {}
+        logger.debug("Retrieving OpenStack credentials")
         cleanup_env = {
             "OS_AUTH_URL": credential.get("auth-url"),
             "OS_USERNAME": credential.get("username"),
