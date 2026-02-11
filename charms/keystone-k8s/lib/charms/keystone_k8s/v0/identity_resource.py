@@ -117,13 +117,15 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 4
+LIBPATCH = 5
 
 
 REQUEST_NOT_SENT = 1
 REQUEST_SENT = 2
 REQUEST_PROCESSED = 3
 
+STATUS_READY = "ready"
+STATUS_NOT_READY = "not_ready"
 
 class IdentityOpsProviderReadyEvent(RelationEvent):
     """Has IdentityOpsProviderReady Event."""
@@ -161,7 +163,7 @@ class IdentityResourceRequires(Object):
         super().__init__(charm, relation_name)
         self.charm = charm
         self.relation_name = relation_name
-        self._stored.set_default(provider_ready=False, requests=[])
+        self._stored.set_default(provider_gone=False, requests=[])
         self.framework.observe(
             self.charm.on[relation_name].relation_joined,
             self._on_identity_resource_relation_joined,
@@ -179,7 +181,6 @@ class IdentityResourceRequires(Object):
         self, event: RelationJoinedEvent
     ):
         """Handle IdentityResource joined."""
-        self._stored.provider_ready = True
         self.on.provider_ready.emit(event.relation)
 
     def _on_identity_resource_relation_changed(
@@ -194,7 +195,7 @@ class IdentityResourceRequires(Object):
         self, event: RelationBrokenEvent
     ):
         """Handle IdentityResource broken."""
-        self._stored.provider_ready = False
+        self._stored.provider_gone = True
         self.on.provider_goneaway.emit(event.relation)
 
     @property
@@ -244,6 +245,15 @@ class IdentityResourceRequires(Object):
                 return request
 
         return {}
+
+    @property
+    def provider_ready(self) -> bool:
+        """Check if provider is ready.
+
+        Exit hatch not to check the remote app data if
+        we know the provider is gone.
+        """
+        return not self._stored.provider_gone and self.get_remote_app_data("status") == STATUS_READY
 
     def is_request_processed(self, id: str) -> bool:
         """Check if request is processed."""
@@ -303,10 +313,10 @@ class IdentityResourceRequires(Object):
         ops = request.get("ops")
         req = self.get_request_from_store(id_)
         if req and req.get("state") == REQUEST_PROCESSED:
-            logger.debug("Request {id_} already processed")
+            logger.debug("Request %s already processed", id_)
             return
 
-        if not self._stored.provider_ready:
+        if not self.provider_ready:
             self.save_request_in_store(id_, tag, ops, REQUEST_NOT_SENT)
             logger.debug("Keystone not yet ready to take requests")
             return
@@ -343,10 +353,34 @@ class IdentityOpsRequestEvent(EventBase):
         self.request = snapshot["request"]
 
 
+class IdentityOpsRequesterGoneAwayEvent(EventBase):
+    """Has IdentityOpsRequesterGoneAway Event."""
+
+    def __init__(self, handle, relation_id, relation_name):
+        """Initialise event."""
+        super().__init__(handle)
+        self.relation_id = relation_id
+        self.relation_name = relation_name
+
+    def snapshot(self):
+        """Snapshot the event."""
+        return {
+            "relation_id": self.relation_id,
+            "relation_name": self.relation_name,
+        }
+
+    def restore(self, snapshot):
+        """Restore the event."""
+        super().restore(snapshot)
+        self.relation_id = snapshot["relation_id"]
+        self.relation_name = snapshot["relation_name"]
+
+
 class IdentityResourceProviderEvents(ObjectEvents):
     """Events class for `on`."""
 
     process_op = EventSource(IdentityOpsRequestEvent)
+    goneaway = EventSource(IdentityOpsRequesterGoneAwayEvent)
 
 
 class IdentityResourceProvides(Object):
@@ -362,6 +396,10 @@ class IdentityResourceProvides(Object):
             self.charm.on[relation_name].relation_changed,
             self._on_identity_resource_relation_changed,
         )
+        self.framework.observe(
+            self.charm.on[relation_name].relation_broken,
+            self._on_identity_resource_relation_broken,
+        )
 
     def _on_identity_resource_relation_changed(
         self, event: RelationChangedEvent
@@ -372,6 +410,26 @@ class IdentityResourceProvides(Object):
             self.on.process_op.emit(
                 event.relation.id, event.relation.name, request
             )
+
+    def _on_identity_resource_relation_broken(
+        self, event: RelationBrokenEvent
+    ):
+        """Handle IdentityResource broken."""
+        self.on.goneaway.emit(event.relation.id, event.relation.name)
+
+    def publish_status(self, status: str):
+        """Publish status to the related app."""
+        if status not in [STATUS_READY, STATUS_NOT_READY]:
+            logger.debug(f"Invalid status {status}, not publishing")
+            return
+        if not self.model.unit.is_leader():
+            logger.debug("Not a leader unit, not sending status")
+            return
+
+        logger.debug("Publishing status to related app")
+        for relation in self.model.relations[self.relation_name]:
+            app_data = relation.data[relation.app]
+            app_data["status"] = status
 
     def set_ops_response(
         self, relation_id: str, relation_name: str, ops_response: dict

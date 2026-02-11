@@ -311,6 +311,18 @@ class IdentityCredentialsProvidesHandler(sunbeam_rhandlers.RelationHandler):
 class IdentityResourceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for identity resource relation."""
 
+    charm: "KeystoneOperatorCharm"
+    interface: "sunbeam_ops_svc.IdentityResourceProvides"
+
+    def __post_init__(self):
+        """Post init processing."""
+        super().__post_init__()
+        self.store = SecretStore(self.charm, "id-ops-store")
+
+    def update_relation_data(self):
+        """Update relation data."""
+        self.interface.publish_status(sunbeam_ops_svc.STATUS_READY)
+
     def setup_event_handler(self):
         """Configure event handlers for an Identity resource relation."""
         logger.debug("Setting up Identity Resource event handler")
@@ -322,11 +334,174 @@ class IdentityResourceProvidesHandler(sunbeam_rhandlers.RelationHandler):
             ops_svc.on.process_op,
             self._on_process_op,
         )
+        self.framework.observe(
+            ops_svc.on.goneaway,
+            self._on_goneaway,
+        )
         return ops_svc
 
     def _on_process_op(self, event) -> None:
         """Handles keystone ops events."""
         self.callback_f(event)
+
+    def _on_goneaway(
+        self, event: sunbeam_ops_svc.IdentityOpsRequesterGoneAwayEvent
+    ) -> None:
+        """Handle goneaway event when requester goes away."""
+        relation = self.model.get_relation(
+            event.relation_name, event.relation_id
+        )
+        prefix = self.to_prefix(relation)
+        for label, secret_id in self.store.list_secrets_with_prefix(
+            prefix
+        ).items():
+            try:
+                secret = self.model.get_secret(id=secret_id)
+                secret.remove_all_revisions()
+            except SecretNotFoundError:
+                logger.debug(
+                    f"Secret {secret_id} not found when handling goneaway"
+                )
+            self.store.drop_secret(label)
+
+    def _sanitize_secrets(self, request: dict) -> dict:
+        """Sanitize any secrets.
+
+        Look for any secrets in op parameters and retrieve the secret value.
+        Use the same parameter name while retrieving value from secret.
+
+        Raises ValueError if a secret cannot be retrieved.
+        """
+        for op in request.get("ops", []):
+            for param, value in op.get("params", {}).items():
+                if isinstance(value, str) and value.startswith(SECRET_PREFIX):
+                    try:
+                        credentials = self.model.get_secret(id=value)
+                        op["params"][param] = credentials.get_content(
+                            refresh=True
+                        ).get(param)
+                    except (ModelError, SecretNotFoundError) as e:
+                        raise ValueError(
+                            f"Not able to retrieve secret for param"
+                            f" '{param}' from {value}: {e}"
+                        ) from e
+
+        return request
+
+    def _generate_secret_params(
+        self, secret_params: list[str], length: int = 12
+    ) -> dict[str, str]:
+        """Generate random values for requested secret parameters."""
+        return {
+            param: sunbeam_core.random_string(length)
+            for param in secret_params
+        }
+
+    def to_prefix(self, relation: Relation) -> str:
+        """Generate a prefix for storing secret IDs."""
+        return f"{relation.name}-{relation.id}:"
+
+    def to_label(self, relation: Relation, request_label: str) -> str:
+        """Generate a label for storing secret IDs."""
+        return self.to_prefix(relation) + request_label
+
+    def _create_and_grant_ops_secret(
+        self,
+        relation: Relation,
+        request_label: str,
+        secret_data: dict[str, str],
+    ) -> str:
+        """Create a secret with generated params and grant it to the relation.
+
+        Returns the secret ID.
+        """
+        label = self.to_label(relation, request_label)
+
+        existing_secret_id = self.store.get_secret(label)
+        if existing_secret_id:
+            try:
+                secret = self.model.get_secret(id=existing_secret_id)
+                secret.set_content(secret_data)
+                secret.grant(relation)
+                return existing_secret_id
+            except SecretNotFoundError:
+                logger.debug(
+                    f"Secret {existing_secret_id} not found, creating new one"
+                )
+
+        secret = self.model.app.add_secret(
+            secret_data,
+            label=label,
+        )
+        secret.grant(relation)
+        self.store.store_secret(label, secret.id)
+        return secret.id
+
+    def handle_op_request(
+        self, relation_id: int, relation_name: str, request: dict
+    ):
+        """Process op request."""
+        response = {}
+        response["id"] = request.get("id")
+        response["tag"] = request.get("tag")
+        response["ops"] = [
+            {"name": op.get("name"), "return-code": -2, "value": None}
+            for op in request.get("ops", [])
+        ]
+        context: dict[str, list[dict[str, str | int]]] = defaultdict(list)
+
+        request = self._sanitize_secrets(request)
+        relation = self.model.get_relation(relation_name, relation_id)
+        if not relation:
+            logger.error(
+                f"Relation {relation_name} with id {relation_id} not found for processing op request"
+            )
+            return
+        for idx, op in enumerate(request.get("ops", [])):
+            func_name = op.get("name")
+            try:
+                func = getattr(self.charm.keystone_manager.ksclient, func_name)
+                params = op.get("params", {})
+                secret_request = op.get("secret-request", {})
+                secret_request_label = secret_request.get("secret-label")
+                secret_params = secret_request.get("secret-params", [])
+                if secret_params and not secret_request_label:
+                    raise ValueError(
+                        "secret-params provided without secret-label in request"
+                    )
+                computed_params = params.copy()
+                generated = self._generate_secret_params(secret_params)
+                computed_params.update(generated)
+                for key, value in params.items():
+                    if isinstance(value, str):
+                        templated_value = jinja2.Template(value).render(
+                            context
+                        )
+                        logger.debug(
+                            f"handle_op_request: {value} templated to {templated_value}"
+                        )
+                        computed_params[key] = templated_value
+                result = func(**computed_params)
+
+                # Create and grant secret if secret_params were requested
+                if generated:
+                    secret_id = self._create_and_grant_ops_secret(
+                        relation=relation,
+                        request_label=secret_request_label,
+                        secret_data=generated,
+                    )
+                    response["ops"][idx]["secret-id"] = secret_id
+                response["ops"][idx]["return-code"] = 0
+                response["ops"][idx]["value"] = result
+            except Exception as e:
+                response["ops"][idx]["return-code"] = -1
+                response["ops"][idx]["value"] = repr(e)
+            context[func_name].append(response["ops"][idx]["value"])
+
+        logger.debug(f"handle_op_request: Sending response {response}")
+        self.interface.set_ops_response(
+            relation_id, relation_name, ops_response=response
+        )
 
     @property
     def ready(self) -> bool:
@@ -362,7 +537,6 @@ class IdentityEndpointsProvidesHandler(sunbeam_rhandlers.RelationHandler):
 
 
 class _BaseIDPHandler(sunbeam_rhandlers.RelationHandler):
-
     def _get_idp_file_name_from_issuer_url(self, issuer_url):
         """Generate a sanitized file name from the issuer URL.
 
@@ -921,6 +1095,66 @@ class WSGIKeystonePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         except ops.pebble.ExecError:
             logger.exception("Failed to disable keystone site in apache")
         super().init_service(context)
+
+
+class SecretStore:
+    """Secret store over the peer relation."""
+
+    def __init__(self, charm: "KeystoneOperatorCharm", store_name: str):
+        self.charm = charm
+        self.store_name = store_name
+
+    def store_ready(self) -> bool:
+        """Check if the secret store is ready."""
+        return self.charm.peers.ready
+
+    def _read_store(self) -> dict[str, str]:
+        """Read the secret store."""
+        store = self.charm.peers.get_app_data(self.store_name)
+        if store:
+            return json.loads(store)
+        return {}
+
+    def _write_store(self, data: dict[str, str]):
+        """Write the secret store."""
+        if not self.charm.unit.is_leader():
+            return
+        self.charm.peers.set_app_data({self.store_name: json.dumps(data)})
+
+    def store_secret(self, label: str, secret_id: str):
+        """Set a secret."""
+        if not self.store_ready() or not self.charm.unit.is_leader():
+            return
+        store = self._read_store()
+        store[label] = secret_id
+        self._write_store(store)
+
+    def get_secret(self, label: str) -> str | None:
+        """Get a secret."""
+        if not self.store_ready():
+            return None
+        store = self._read_store()
+        return store.get(label)
+
+    def drop_secret(self, label: str):
+        """Delete a secret."""
+        if not self.store_ready() or not self.charm.unit.is_leader():
+            return
+        store = self._read_store()
+        if label in store:
+            del store[label]
+            self._write_store(store)
+
+    def list_secrets_with_prefix(self, prefix: str) -> dict[str, str]:
+        """List all secrets with the given prefix."""
+        if not self.store_ready():
+            return {}
+        store = self._read_store()
+        return {
+            key: value
+            for key, value in store.items()
+            if key.startswith(prefix)
+        }
 
 
 @sunbeam_tracing.trace_sunbeam_charm(extra_types=(manager.KeystoneManager,))
@@ -2097,7 +2331,9 @@ export OS_AUTH_VERSION=3
                     f"{relation.app.name} {relation.name}/{relation.id}"
                     f" for request id {request_id}"
                 )
-                self.handle_op_request(relation.id, relation.name, request)
+                self.ops_svc.handle_op_request(
+                    relation.id, relation.name, request
+                )
 
     def check_outstanding_identity_endpoints_requests(self, force=False):
         """Check requests from identity endpoints relation.
@@ -2696,27 +2932,6 @@ export OS_AUTH_VERSION=3
             self.check_outstanding_identity_service_requests(force=True)
             self.check_outstanding_identity_credentials_requests(force=True)
 
-    def _sanitize_secrets(self, request: dict) -> dict:
-        """Sanitize any secrets.
-
-        Look for any secrets in op parameters and retrieve the secret value.
-        Use the same parameter name while retrieving value from secret.
-        """
-        for op in request.get("ops", []):
-            for param, value in op.get("params", {}).items():
-                if isinstance(value, str) and value.startswith(SECRET_PREFIX):
-                    try:
-                        credentials = self.model.get_secret(id=value)
-                        op["params"][param] = credentials.get_content(
-                            refresh=True
-                        ).get(param)
-                    except (ModelError, SecretNotFoundError) as e:
-                        logger.debug(
-                            f"Not able to retrieve secret {value}: {str(e)}"
-                        )
-
-        return request
-
     def handle_ops_from_event(self, event):
         """Process ops request event."""
         logger.debug("Handle ops from event")
@@ -2728,50 +2943,8 @@ export OS_AUTH_VERSION=3
             return
 
         request = json.loads(event.request)
-        self.handle_op_request(
+        self.ops_svc.handle_op_request(
             event.relation_id, event.relation_name, request=request
-        )
-
-    def handle_op_request(
-        self, relation_id: str, relation_name: str, request: dict
-    ):
-        """Process op request."""
-        response = {}
-        response["id"] = request.get("id")
-        response["tag"] = request.get("tag")
-        response["ops"] = [
-            {"name": op.get("name"), "return-code": -2, "value": None}
-            for op in request.get("ops", [])
-        ]
-        context = defaultdict(list)
-
-        request = self._sanitize_secrets(request)
-        for idx, op in enumerate(request.get("ops", [])):
-            func_name = op.get("name")
-            try:
-                func = getattr(self.keystone_manager.ksclient, func_name)
-                params = op.get("params", {})
-                computed_params = params.copy()
-                for key, value in params.items():
-                    if isinstance(value, str):
-                        templated_value = jinja2.Template(value).render(
-                            context
-                        )
-                        logger.debug(
-                            f"handle_op_request: {value} templated to {templated_value}"
-                        )
-                        computed_params[key] = templated_value
-                result = func(**computed_params)
-                response["ops"][idx]["return-code"] = 0
-                response["ops"][idx]["value"] = result
-            except Exception as e:
-                response["ops"][idx]["return-code"] = -1
-                response["ops"][idx]["value"] = repr(e)
-            context[func_name].append(response["ops"][idx]["value"])
-
-        logger.debug(f"handle_op_request: Sending response {response}")
-        self.ops_svc.interface.set_ops_response(
-            relation_id, relation_name, ops_response=response
         )
 
     def _get_combined_ca_and_chain(self) -> (str, list):
