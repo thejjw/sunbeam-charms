@@ -13,13 +13,9 @@
 # limitations under the License.
 """Handers for the tempest charm."""
 
-import hashlib
-import json
 import logging
 import os
 import re
-import secrets
-import string
 from functools import (
     wraps,
 )
@@ -32,6 +28,7 @@ from typing import (
 )
 
 import charms.grafana_k8s.v0.grafana_dashboard as grafana_dashboard
+import charms.keystone_k8s.v0.identity_resource as id_ops
 import charms.loki_k8s.v1.loki_push_api as loki_push_api
 import ops
 import ops.model
@@ -310,8 +307,12 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
 
 @sunbeam_tracing.trace_type
-class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
+class TempestUserIdentityRelationHandler(
+    sunbeam_rhandlers.IdentityResourceMixin, sunbeam_rhandlers.RelationHandler
+):
     """Relation handler for identity ops."""
+
+    interface: "id_ops.IdentityResourceRequires"
 
     CREDENTIALS_SECRET_PREFIX = "tempest-user-identity-resource-"
     CONFIGURE_SECRET_PREFIX = "configure-credential-"
@@ -370,24 +371,17 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
     ):
         super().__init__(charm, relation_name, callback_f, mandatory)
         self.charm = charm
+        self.username = OPENSTACK_USER
         self.region = region
+        self._init_mixin()
 
     @property
     def ready(self) -> bool:
         """Whether the relation is ready."""
-        # We define that keystone relation is ready,
-        # once we have all the responses to ops requests,
-        # and the details have been stored
-        # in the credentials secret maintained by the charm.
         content = self.get_user_credential()
         return bool(
             content and content.get("auth-url") and content.get("domain-id")
         )
-
-    @property
-    def label(self) -> str:
-        """Secret label to share over keystone resource relation."""
-        return self.CREDENTIALS_SECRET_PREFIX + OPENSTACK_USER
 
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for the relation."""
@@ -398,108 +392,40 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
             self.charm,
             self.relation_name,
         )
-        self.framework.observe(
-            ops_svc.on.provider_ready,
-            self._on_provider_ready,
-        )
-        self.framework.observe(
-            ops_svc.on.provider_goneaway,
-            self._on_provider_goneaway,
-        )
-        self.framework.observe(
-            ops_svc.on.response_available,
-            self._on_response_available,
-        )
+        self._setup_identity_resource_events(ops_svc)
         return ops_svc
 
     def get_user_credential(self) -> Optional[dict]:
-        """Retrieve the user credential."""
-        credentials_id = self.charm.leader_get(self.label)
-        if not credentials_id:
-            logger.warning("Failed to get openstack credential for tempest.")
-            return None
-        secret = self.model.get_secret(id=credentials_id)
-        return secret.get_content(refresh=True)
+        """Retrieve the full user credential dict from config secret."""
+        return self.get_config_secret_content()
 
-    def _hash_ops(self, ops: list) -> str:
-        """Hash ops request."""
-        return hashlib.sha256(json.dumps(ops).encode()).hexdigest()
+    @property
+    def _create_user_tag(self) -> str:
+        return "setup_tempest_resource"
 
-    def _ensure_credential(self) -> str:
-        """Ensure the credential exists and return the secret id."""
-        credentials_id = self.charm.leader_get(self.label)
+    def _get_delete_user_domain(self) -> str | None:
+        return OPENSTACK_DOMAIN
 
-        # If it exists and the credentials have already been set,
-        # simply return the id
-        if credentials_id:
-            secret = self.model.get_secret(id=credentials_id)
-            content = secret.get_content(refresh=True)
-            if "password" in content:
-                return credentials_id
+    def _build_config_content(self, username: str, password: str) -> dict:
+        """Build config secret with tempest-specific extra fields."""
+        content = {
+            "username": username,
+            "password": password,
+            "project-name": OPENSTACK_PROJECT,
+            "domain-name": OPENSTACK_DOMAIN,
+        }
+        # Preserve existing auth-url and domain-id if available
+        existing = self.get_config_secret_content()
+        if existing:
+            if "auth-url" in existing:
+                content["auth-url"] = existing["auth-url"]
+            if "domain-id" in existing:
+                content["domain-id"] = existing["domain-id"]
+        return content
 
-        # Otherwise, generate and save the credentials.
-        return self._set_secret(
-            {
-                "username": OPENSTACK_USER,
-                "password": self._generate_password(18),
-                "project-name": OPENSTACK_PROJECT,
-                "domain-name": OPENSTACK_DOMAIN,
-            },
-        )
-
-    def _set_secret(self, entries: Dict[str, str]) -> str:
-        """Create or update a secret."""
-        credential_id = self.charm.leader_get(self.label)
-
-        # update secret if credential_id exists
-        if credential_id:
-            secret = self.model.get_secret(id=credential_id)
-            content = secret.get_content(refresh=True)
-            content.update(entries)
-            if content != secret.get_content(refresh=True):
-                secret.set_content(content)
-            return credential_id
-
-        # create new secret if credential_id does not exist
-        credential_secret = self.model.app.add_secret(
-            entries,
-            label=self.label,
-        )
-        self.charm.leader_set({self.label: credential_secret.id})
-        return credential_secret.id
-
-    def _delete_secret(self):
-        """Delete the credentials secret if exists.
-
-        Is a no-op if the charm is not leader,
-        because non-leader units cannot set application data.
-        """
-        if not self.model.unit.is_leader():
-            return
-
-        credential_id = self.charm.leader_get(self.label)
-        if credential_id:
-            secret = self.model.get_secret(id=credential_id)
-            secret.remove_all_revisions()
-            self.charm.leader_set({self.label: ""})
-
-    def _generate_password(self, length: int) -> str:
-        """Utility function to generate secure random string for password."""
-        alphabet = string.ascii_letters + string.digits
-        return "".join(secrets.choice(alphabet) for i in range(length))
-
-    def _grant_ops_secret(self, relation: ops.Relation) -> None:
-        """Grant ops secret."""
-        secret = self.model.get_secret(id=self._ensure_credential())
-        secret.grant(relation)
-
-    def _setup_tempest_resource_ops(self) -> List[dict]:
+    def _setup_tempest_resource_ops(self) -> list[dict]:
         """Set up openstack resource ops."""
-        credential_id = self._ensure_credential()
-        credential_secret = self.model.get_secret(id=credential_id)
-        content = credential_secret.get_content(refresh=True)
-        username = content.get("username")
-        password = content.get("password")
+        username = self.ensure_username(OPENSTACK_USER)
         setup_ops = [
             {
                 "name": "create_role",
@@ -525,8 +451,11 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
                 "name": "create_user",
                 "params": {
                     "name": username,
-                    "password": password,
                     "domain": "{{ create_domain[0].id }}",
+                },
+                "secret-request": {
+                    "secret-label": self.credentials_secret_label,
+                    "secret-params": ["password"],
                 },
             },
             {
@@ -551,7 +480,7 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
         ]
         return setup_ops
 
-    def list_endpoint_ops(self) -> list[dict]:
+    def _list_endpoint_ops(self) -> list[dict]:
         """Operations to list keystone endpoint."""
         return [
             {
@@ -564,98 +493,72 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
             },
         ]
 
-    def _setup_tempest_resource_request(self) -> dict:
-        """Set up openstack resource for tempest."""
-        ops = []
+    def _create_request(self) -> dict:
+        """Build the combined teardown + setup + list_endpoint request."""
+        request_ops = []
         # Teardown before setup to ensure it begins with a clean environment.
-        ops.extend(self.teardown_ops)
-        ops.extend(self._setup_tempest_resource_ops())
-        ops.extend(self.list_endpoint_ops())
-        request = {
-            "id": self._hash_ops(ops),
-            "tag": "setup_tempest_resource",
-            "ops": ops,
+        request_ops.extend(self.teardown_ops)
+        request_ops.extend(self._setup_tempest_resource_ops())
+        request_ops.extend(self._list_endpoint_ops())
+        return {
+            "id": self._hash_ops(request_ops),
+            "tag": self._create_user_tag,
+            "ops": request_ops,
         }
-        return request
 
-    def _process_list_endpoint_response(self, response: dict) -> None:
-        """Process extra ops request: `_list_endpoint_ops`."""
-        for op in response.get("ops", []):
-            if op.get("name") != "list_endpoint":
-                continue
-            if op.get("return-code") != 0:
-                logger.warning("List endpoint ops failed.")
-                return
-            for endpoint in op.get("value", {}):
+    def _process_extra_response(self, response: dict) -> None:
+        """Extract auth-url and domain-id from response into config secret."""
+        config_id = self.charm.leader_get(self.config_label)
+        if not config_id:
+            return
+
+        content = self._get_secret_content(config_id)
+        if not content:
+            return
+
+        updated = False
+
+        # Extract auth-url from list_endpoint response
+        op = self._find_op(response, "list_endpoint")
+        if op and op.get("return-code") == 0:
+            for endpoint in op.get("value", []):
                 auth_url = endpoint.get("url")
                 if auth_url is not None:
-                    self._set_secret({"auth-url": auth_url})
-                    return
+                    content["auth-url"] = auth_url
+                    updated = True
+                    break
+        else:
+            logger.warning("list_endpoint op not found or failed in response")
 
-    def _process_setup_tempest_resource_response(self, response: dict) -> None:
-        """Process extra ops request: "_setup_tempest_resource_request"."""
-        for op in response.get("ops", []):
-            if op.get("name") != "create_domain":
-                continue
-            if op.get("return-code") != 0:
-                logger.warning("Create domain ops failed.")
-                return
+        # Extract domain-id from create_domain response
+        op = self._find_op(response, "create_domain")
+        if op and op.get("return-code") == 0:
             domain_id = op.get("value", {}).get("id")
             if domain_id is not None:
-                self._set_secret({"domain-id": domain_id})
-                return
+                content["domain-id"] = domain_id
+                updated = True
+        else:
+            logger.warning("create_domain op not found or failed in response")
 
-    def _on_provider_ready(self, event) -> None:
-        """Handles response available events."""
-        if not self.model.unit.is_leader():
-            return
-        logger.info("Identity ops provider ready: setup tempest resources")
-        self.interface.request_ops(self._setup_tempest_resource_request())
-        self._grant_ops_secret(event.relation)
+        if updated:
+            self._set_secret_content(config_id, content)
 
-        # Mark tempest as not ready,
-        # so that the tempest environment is definitely re-inited on rejoin.
+    def _on_provider_ready_extra(self, event) -> None:
+        """Mark tempest as not ready on provider ready."""
         self.charm.set_tempest_ready(False)
 
-        self.callback_f(event)
-
-    def _on_response_available(self, event) -> None:
-        """Handles response available events."""
-        if not self.model.unit.is_leader():
-            return
-        logger.info("Handle response from identity ops")
-
-        response = self.interface.response
-        logger.info("%s", json.dumps(response, indent=4))
-        self._process_list_endpoint_response(response)
-        self._process_setup_tempest_resource_response(response)
-        self.callback_f(event)
-
-    def _on_provider_goneaway(self, event) -> None:
-        """Handle gone_away event."""
-        # If it's not the leader, skip these steps,
-        # because the cleanup should only happen from a single leader unit.
-        # Either way, multiple units are not supported or tested currently.
-        if not self.model.unit.is_leader():
-            return
+    def _on_goneaway_cleanup(self, event) -> None:
+        """Extensive cleanup on provider goneaway."""
         logger.info("Identity ops provider gone away")
 
-        # If the relation is going away, then tempest is no longer ready,
-        # and the environment should be inited again if rejoined.
+        # Mark tempest as not ready
         self.charm.set_tempest_ready(False)
 
-        # Do an extensive clean-up upon identity relation removal if credential
-        # exists.
+        # Do an extensive clean-up upon identity relation removal
         env = self.charm._get_cleanup_env()
         if env and env.get("OS_AUTH_URL"):
             pebble = self.charm.pebble_handler()
             pebble.run_extensive_cleanup(env)
-
-        # Delete the stored keystone credentials,
-        # because they are no longer valid.
-        self._delete_secret()
-
-        self.callback_f(event)
 
 
 @sunbeam_tracing.trace_type
