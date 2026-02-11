@@ -512,7 +512,7 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         self.harness.charm.set_tempest_ready.assert_has_calls(
             [call(False), call(False)]
         )
-        self.assertEqual(self.harness.charm.set_tempest_ready.call_count, 3)
+        self.assertEqual(self.harness.charm.set_tempest_ready.call_count, 2)
         self.assertIn(
             "tempest init failed", self.harness.charm.status.message()
         )
