@@ -6,8 +6,8 @@ external-libraries:
   - charms.certificate_transfer_interface.v0.certificate_transfer
   - charms.loki_k8s.v1.loki_push_api
   - charms.sunbeam_nova_compute_operator.v0.cloud_compute
-  - charms.tempo_k8s.v2.tracing
-  - charms.tempo_k8s.v1.charm_tracing
+  - charms.tempo_coordinator_k8s.v0.tracing
+  - charms.tempo_coordinator_k8s.v0.charm_tracing
 internal-libraries:
   - charms.keystone_k8s.v1.identity_service
   - charms.sunbeam_libs.v0.service_readiness
