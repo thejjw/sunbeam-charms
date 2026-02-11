@@ -37,9 +37,10 @@ MACHINE_BUNDLE_FILE = "./tests/openstack/bundles/machines.yaml"
 def replace_model_in_bundle(bundle: Path, words_to_replace: dict):
     """Replace words in a file."""
     content = bundle.read_text()
+    modified_content = content
     for old_word, new_word in words_to_replace.items():
         logging.debug(f"Replacing {old_word} with {new_word}")
-        modified_content = content.replace(old_word, new_word)
+        modified_content = modified_content.replace(old_word, new_word)
 
     bundle.write_text(modified_content)
 

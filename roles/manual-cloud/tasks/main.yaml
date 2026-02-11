@@ -83,7 +83,7 @@
 
 - name: Ensure k8s is defined in juju clouds
   ansible.builtin.shell:
-    cmd: set -o pipefail && sudo k8s config | juju add-k8s k8s --controller manual
+    cmd: set -o pipefail && sudo k8s config | juju add-k8s k8s --client --controller manual
     executable: /bin/bash
   register: res
   changed_when: '"already exists" not in res.stderr'
@@ -98,6 +98,20 @@
     mode: '0644'
     owner: '{{ ansible_user }}'
   when: env_type == 'k8s'
+
+- name: Bootstrap the primary region controller
+  ansible.builtin.command:
+    cmd: juju bootstrap --config caas-image-repo="ghcr.io/juju" k8s primary
+  register: res
+  when: primary_controller | default(false) | bool
+  changed_when: '"already exists" not in res.stderr'
+  failed_when: '"ERROR" in res.stderr and "already exists" not in res.stderr'
+
+- name: Ensure the current juju controller is manual
+  ansible.builtin.command:
+    cmd: juju switch primary
+  register: res
+  changed_when: '"no change" not in res.stderr'
 
 - name: Collect snap versions
   ansible.builtin.command: snap list

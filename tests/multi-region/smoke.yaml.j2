@@ -1,0 +1,81 @@
+bundle: kubernetes
+
+applications:
+  traefik:
+    charm: ch:traefik-k8s
+    channel: latest/candidate
+    base: ubuntu@20.04
+    scale: 1
+    trust: true
+    options:
+      kubernetes-service-annotations: metallb.universe.tf/address-pool=public
+  mysql:
+    charm: ch:mysql-k8s
+    channel: 8.0/stable
+    base: ubuntu@22.04
+    scale: 1
+    trust: true
+    options:
+      profile-limit-memory: 1000
+      experimental-max-connections: 30
+  keystone:
+    {% if keystone_k8s is defined and keystone_k8s is sameas true -%}
+    charm: ../../../keystone-k8s.charm
+    {% else -%}
+    charm: ch:keystone-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    storage:
+      fernet-keys: 5M
+      credential-keys: 5M
+    resources:
+      keystone-image: ghcr.io/canonical/keystone:2025.1-24.04_edge
+  horizon:
+    {% if horizon_k8s is defined and horizon_k8s is sameas true -%}
+    charm: ../../../horizon-k8s.charm
+    {% else -%}
+    charm: ch:horizon-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      horizon-image: ghcr.io/canonical/horizon:2025.1-24.04_edge
+
+relations:
+- - mysql:database
+  - keystone:database
+- - traefik:ingress
+  - keystone:ingress-internal
+
+- - mysql:database
+  - horizon:database
+- - keystone:identity-credentials
+  - horizon:identity-credentials
+- - traefik:ingress
+  - horizon:ingress-internal
+- - keystone:send-ca-cert
+  - horizon:receive-ca-cert
+- - keystone:identity-endpoints
+  - horizon:identity-endpoints
+---
+applications:
+  keystone:
+    offers:
+      identity-service:
+        endpoints:
+          - identity-service
+      identity-credentials:
+        endpoints:
+          - identity-credentials
+      identity-ops:
+        endpoints:
+          - identity-ops
+      send-ca-cert:
+        endpoints:
+          - send-ca-cert
+

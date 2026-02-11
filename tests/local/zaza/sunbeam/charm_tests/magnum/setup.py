@@ -20,12 +20,8 @@ import jubilant
 import zaza.model
 
 
-def configure():
-    """Setup any configurations required by Magnum.
-
-    Setup kubeconfig configuration parameter by adding a juju secret.
-    """
-    model = zaza.model.get_juju_model()
+def configure_at_model(model: str):
+    """Configure Magnum at a given model."""
     application = "magnum"
     secret_name = "kubeconfig"
     secret_content = {"kubeconfig": "fake-kubeconfig"}
@@ -59,3 +55,12 @@ def configure():
         lambda status: jubilant.all_active(status, application),
         timeout=180,
     )
+
+
+def configure():
+    """Setup any configurations required by Magnum.
+
+    Setup kubeconfig configuration parameter by adding a juju secret.
+    """
+    model = zaza.model.get_juju_model()
+    configure_at_model(model)

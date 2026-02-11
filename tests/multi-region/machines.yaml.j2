@@ -1,0 +1,146 @@
+machines:
+  "0":
+    base: ubuntu@24.04
+    arch: amd64
+
+applications:
+  microceph:
+    charm: ch:microceph
+    channel: squid/stable
+    base: ubuntu@24.04
+    arch: amd64
+    to:
+      - "0"
+    scale: 1
+    options:
+      snap-channel: squid/stable
+      default-pool-size: 1
+      enable-rgw: "*"
+      region: RegionTwo
+      namespace-projects: true
+    storage:
+      osd-standalone: loop,3,2G
+  sunbeam-machine:
+    {% if sunbeam_machine is defined and sunbeam_machine is sameas true -%}
+    charm: ../../../sunbeam-machine.charm
+    {% else -%}
+    charm: ch:sunbeam-machine
+    channel: 2025.1/edge
+    {% endif -%}
+    scale: 1
+    to:
+      - "0"
+  epa-orchestrator:
+    {% if epa_orchestrator is defined and epa_orchestrator is sameas true -%}
+    charm: ../../../epa-orchestrator.charm
+    {% else -%}
+    charm: ch:epa-orchestrator
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+  cinder-volume:
+    {% if cinder_volume is defined and cinder_volume is sameas true -%}
+    charm: ../../../cinder-volume.charm
+    {% else -%}
+    charm: ch:cinder-volume
+    channel: 2025.1/edge
+    {% endif -%}
+    scale: 1
+    to:
+      - "0"
+    options:
+      snap-channel: 2025.1/edge
+  cinder-microceph:
+    {% if cinder_volume_ceph is defined and cinder_volume_ceph is sameas true -%}
+    charm: ../../../cinder-volume-ceph.charm
+    {% else -%}
+    charm: ch:cinder-volume-ceph
+    channel: 2025.1/edge
+    {% endif -%}
+    options:
+      ceph-osd-replication-count: 1
+  hypervisor:
+    {% if openstack_hypervisor is defined and openstack_hypervisor is sameas true -%}
+    charm: ../../../openstack-hypervisor.charm
+    {% else -%}
+    charm: ch:openstack-hypervisor
+    channel: 2025.1/edge
+    {% endif -%}
+    scale: 1
+    to:
+      - "0"
+    arch: amd64
+    options:
+      snap-channel: 2025.1/edge
+      external-bridge-address: 0.0.0.0/0
+
+saas:
+  identity-service:
+    url: PRIMARY_CONTROLLER:admin/PRIMARY_MODEL.identity-service
+  identity-credentials:
+    url: PRIMARY_CONTROLLER:admin/PRIMARY_MODEL.identity-credentials
+  send-ca-cert:
+    url: PRIMARY_CONTROLLER:admin/PRIMARY_MODEL.send-ca-cert
+  amqp:
+    url: SECONDARY_CONTROLLER:admin/SECONDARY_MODEL.amqp
+  cinder-database:
+    url: SECONDARY_CONTROLLER:admin/SECONDARY_MODEL.cinder-database
+  ovsdb-cms:
+    url: SECONDARY_CONTROLLER:admin/SECONDARY_MODEL.ovsdb-cms
+  certificates:
+    url: SECONDARY_CONTROLLER:admin/SECONDARY_MODEL.certificates
+  nova-service:
+    url: SECONDARY_CONTROLLER:admin/SECONDARY_MODEL.nova-service
+  traefik-route-rgw:
+    url: SECONDARY_CONTROLLER:admin/SECONDARY_MODEL.traefik-route-rgw
+
+relations:
+  - - sunbeam-machine:sunbeam-machine
+    - epa-orchestrator:sunbeam-machine
+
+  - - cinder-volume:amqp
+    - amqp:amqp
+  - - cinder-volume:identity-credentials
+    - identity-credentials
+  - - cinder-volume:database
+    - cinder-database
+
+  - - microceph:ceph
+    - cinder-microceph:ceph
+  - - cinder-volume:cinder-volume
+    - cinder-microceph:cinder-volume
+
+  - - microceph:receive-ca-cert
+    - send-ca-cert:send-ca-cert
+  - - microceph:traefik-route-rgw
+    - traefik-route-rgw:traefik-route
+  - - microceph:identity-service
+    - identity-service
+
+  - - amqp:amqp
+    - hypervisor:amqp
+  - - identity-credentials
+    - hypervisor:identity-credentials
+  - - send-ca-cert:send-ca-cert
+    - hypervisor:receive-ca-cert
+  - - ovsdb-cms
+    - hypervisor:ovsdb-cms
+  - - certificates
+    - hypervisor:certificates
+  - - nova-service
+    - hypervisor:nova-service
+  - - hypervisor:ceph-access
+    - cinder-microceph:ceph-access
+
+---
+applications:
+  cinder-volume:
+    offers:
+      storage-backend:
+        endpoints:
+          - storage-backend
+  microceph:
+    offers:
+      ceph:
+        endpoints:
+          - ceph
