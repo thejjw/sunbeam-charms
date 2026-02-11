@@ -14,6 +14,7 @@
 
 """Shared fixtures for tempest-k8s unit tests."""
 
+import json
 from pathlib import (
     Path,
 )
@@ -30,11 +31,14 @@ from ops_sunbeam.test_utils_scenario import (
 CHARM_ROOT = Path(__file__).parents[2]
 
 # The secret label used by TempestUserIdentityRelationHandler to store
-# credentials in peer app data.
-IDENTITY_OPS_SECRET_LABEL = (
+# provider-owned credential references in peer app data.
+IDENTITY_OPS_CREDENTIALS_LABEL = (
     "tempest-user-identity-resource-CloudValidation-test-user"
 )
+IDENTITY_OPS_CONFIG_LABEL = "configure-credential-CloudValidation-test-user"
 IDENTITY_OPS_SECRET_ID = "secret:tempest-creds"
+IDENTITY_OPS_CONFIG_SECRET_ID = "secret:tempest-config-creds"
+IDENTITY_OPS_REQUEST_ID = "tempest-create-user-request"
 
 
 # ---------------------------------------------------------------------------
@@ -45,40 +49,70 @@ IDENTITY_OPS_SECRET_ID = "secret:tempest-creds"
 def identity_ops_secret(
     secret_id: str = IDENTITY_OPS_SECRET_ID,
 ) -> testing.Secret:
-    """Secret containing identity-ops credentials (owned by the app)."""
+    """Secret containing the provider-owned password payload."""
+    return testing.Secret(
+        tracked_content={
+            "password": "password",
+        },
+        id=secret_id,
+        label=IDENTITY_OPS_CREDENTIALS_LABEL,
+        owner="app",
+    )
+
+
+def identity_ops_config_secret(
+    secret_id: str = IDENTITY_OPS_CONFIG_SECRET_ID,
+) -> testing.Secret:
+    """Secret containing the resolved Tempest configuration credentials."""
     return testing.Secret(
         tracked_content={
             "username": "tempest",
             "password": "password",
-            "project-name": "CloudValidation-tempest",
-            "domain-name": "tempest",
+            "project-name": "CloudValidation-test-project",
+            "domain-name": "CloudValidation-b82746a08d",
             "domain-id": "tempest-domain-id",
             "auth-url": "http://10.6.0.23/openstack-keystone/v3",
         },
         id=secret_id,
-        label=IDENTITY_OPS_SECRET_LABEL,
+        label=IDENTITY_OPS_CONFIG_LABEL,
         owner="app",
     )
 
 
 def identity_ops_relation() -> testing.Relation:
-    """identity-ops relation (keystone-resources interface)."""
+    """identity-ops relation in a processed and provider-ready state."""
     return testing.Relation(
         endpoint="identity-ops",
         remote_app_name="keystone",
-        remote_app_data={},
+        local_app_data={
+            "request": json.dumps({"id": IDENTITY_OPS_REQUEST_ID, "ops": []}),
+            "response": json.dumps(
+                {
+                    "id": IDENTITY_OPS_REQUEST_ID,
+                    "tag": "setup_tempest_resource",
+                }
+            ),
+        },
+        remote_app_data={"status": "ready"},
         remote_units_data={0: {}},
     )
 
 
 def peer_relation_with_credential(
     secret_id: str = IDENTITY_OPS_SECRET_ID,
+    config_secret_id: str = IDENTITY_OPS_CONFIG_SECRET_ID,
 ) -> testing.PeerRelation:
     """Peer relation with the identity-ops secret reference in app data."""
     return testing.PeerRelation(
         endpoint="peers",
         local_app_data={
-            IDENTITY_OPS_SECRET_LABEL: secret_id,
+            IDENTITY_OPS_CREDENTIALS_LABEL: json.dumps(
+                {
+                    "username": "tempest",
+                    "password": secret_id,
+                }
+            ),
+            IDENTITY_OPS_CONFIG_LABEL: config_secret_id,
         },
     )
 
@@ -121,7 +155,7 @@ def complete_relations():
 @pytest.fixture()
 def complete_secrets():
     """All secrets needed by complete relations."""
-    return [identity_ops_secret()]
+    return [identity_ops_secret(), identity_ops_config_secret()]
 
 
 @pytest.fixture()

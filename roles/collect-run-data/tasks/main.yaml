@@ -18,62 +18,28 @@
   shell: df -h > {{ zuul.project.src_dir }}/log/df.txt
 - name: collect mount list
   shell: mount > {{ zuul.project.src_dir }}/log/mount.txt
-- name: debug logs replay
-  args:
-    executable: /bin/bash
-  shell: |
-    set -o pipefail
-    MODEL="$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')"
-    juju switch $MODEL
-    juju debug-log --replay > {{ zuul.project.src_dir }}/log/debug-hooks.txt
-    CONTROLLER_MODEL="$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^controller$')"
-    if [[ -n "$CONTROLLER_MODEL" ]]; then
-      juju switch "$CONTROLLER_MODEL"
-      juju debug-log --replay > {{ zuul.project.src_dir }}/log/debug-hooks-$CONTROLLER_MODEL.txt
-    fi
-    exit 0
-- name: juju status
-  args:
-    executable: /bin/bash
-  shell: |
-    set -o pipefail
-    CONTROLLER_MODEL="$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^controller$')"
-    if [[ -n "$CONTROLLER_MODEL" ]]; then
-      juju status -m "$CONTROLLER_MODEL" > "{{ zuul.project.src_dir }}/log/juju-status.$CONTROLLER_MODEL.txt"
-      juju status -m "$CONTROLLER_MODEL" --format=yaml > "{{ zuul.project.src_dir }}/log/juju-status.$CONTROLLER_MODEL.yaml"
-    fi
-    for model in $(juju models | grep zaza- | awk '{gsub(/\*?/,""); print $1}'); do
-      juju status -m $model > {{ zuul.project.src_dir }}/log/juju-status.$model.txt
-      juju status -m $model --format=yaml > {{ zuul.project.src_dir }}/log/juju-status.$model.yaml
-    done
-- name: Collect units' info
-  args:
-    executable: /bin/bash
-  shell: |
-    set -o pipefail
-    set -x
-    LOG_FOLDER={{ zuul.project.src_dir }}/log/unit-info/
-    MODEL_NAME=$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')
-    mkdir -p $LOG_FOLDER
-    for unit in $(juju status --format json | jq -r '[.applications[].units | keys[0]] | join("\n")');
-    do
-      echo Collecting unit info: $unit
-      unit_name=$(echo $unit | tr / -)
-      juju show-unit --output="$LOG_FOLDER/$unit_name.yaml" $unit
-    done
-    CONTROLLER_MODEL="$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^controller$')"
-    if [[ -n "$CONTROLLER_MODEL" ]]; then
-      juju switch $CONTROLLER_MODEL
-      for unit in $(juju status --format json | jq -r '[.applications[].units | keys[0]] | join("\n")');
-      do
-        echo Collecting unit info: $unit
-        unit_name=$(echo $unit | tr / -)
-        juju show-unit --output="$LOG_FOLDER/$unit_name.yaml" $unit
-      done
-    fi
+- name: collect juju controller related data
+  ansible.builtin.include_tasks: collect-juju.yaml
+  vars:
+    controller: manual
+- name: collect juju primary controller
+  ansible.builtin.include_tasks: collect-juju.yaml
+  when: primary_controller | default(false) | bool
+  vars:
+    controller: primary
 - name: Include k8s tasks
   include_tasks: k8s.yaml
   when: env_type == 'k8s'
+- name: Collect k8s pods related to manual controller
+  include_tasks: k8s-juju.yaml
+  when: env_type == 'k8s'
+  vars:
+    controller: manual
+- name: Collect k8s pods related to primary controller
+  include_tasks: k8s-juju.yaml
+  when: env_type == 'k8s' and primary_controller | default(false) | bool
+  vars:
+    controller: primary
 - name: Collect sos report
   args:
     executable: /bin/bash

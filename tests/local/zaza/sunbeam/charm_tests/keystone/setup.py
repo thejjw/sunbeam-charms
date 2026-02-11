@@ -26,6 +26,7 @@ SERVICE_CODES = {
     "cloudkitty": [requests.codes.service_unavailable],
     "heat-cfn": [requests.codes.bad_request],
     "heat": [requests.codes.bad_request],
+    "swift": [requests.codes.bad_request],
 }
 
 
