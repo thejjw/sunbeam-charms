@@ -4,7 +4,7 @@
   register: build_output
   vars:
     download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
-    download_artifact_query: "change={{ zuul.change }}&patchset={{ zuul.patchset }}&pipeline=check"
+    download_artifact_query: "change={{ zuul.change }}&patchset={{ zuul.patchset }}&pipeline=check&limit=100"
 
 - name: Get relevant charm build jobs
   set_fact:

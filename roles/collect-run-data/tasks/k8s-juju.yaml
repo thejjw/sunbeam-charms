@@ -1,0 +1,65 @@
+- name: Switch to controller
+  ansible.builtin.command:
+    cmd: juju switch {{ controller }}
+  register: res
+  changed_when: '"no change" not in res.stderr'
+- name: collect juju models
+  shell: juju models --format json | jq '[.models[] | .name]'
+  register: models
+  changed_when: false
+- name: register model to variable
+  set_fact:
+    juju_models: "{{ models.stdout | from_json }}"
+- name: debug describe resources
+  args:
+    executable: /bin/bash
+  shell: |
+    set -o pipefail
+    LOG_FOLDER={{ zuul.project.src_dir }}/log/describe-resources
+    mkdir -p $LOG_FOLDER
+    sudo k8s kubectl describe nodes > $LOG_FOLDER/describe-nodes.txt
+    sudo k8s kubectl describe pods -n kube-system > $LOG_FOLDER/describe-pods-kube-system.txt
+    sudo k8s kubectl logs -n kube-system deployment/coredns --all-containers > $LOG_FOLDER/coredns.log
+    exit 0
+- name: debug describe resources - juju
+  args:
+    executable: /bin/bash
+  shell: |
+    set -o pipefail
+    controller={{ controller }}
+    model={{ item | split('/') | last }}
+    sudo k8s kubectl describe -n $model pods > {{ zuul.project.src_dir }}/log/describe-pods-$controller-$model.txt
+    exit 0
+  loop: "{{ juju_models }}"
+- name: Collect var logs
+  args:
+    executable: /bin/bash
+  shell: |
+    set -o pipefail
+    controller={{ controller }}
+    model={{ item | split('/') | last }}
+    UNITS=$(juju status --model $model --format oneline | awk '{print $2}' | sed -e 's!:!!' | grep -Ev '^$' | paste -s -d' ')
+    for UNIT_NAME in $UNITS; do
+        POD_NAME=$(echo $UNIT_NAME | sed -e 's!/!-!')
+        CONTAINERS=$(sudo k8s kubectl get pods -n $model $POD_NAME -o jsonpath='{.spec.containers[*].name}' | sed -e 's/charm //')
+        for CONTAINER in $CONTAINERS; do
+            juju ssh --container $CONTAINER --model $model $UNIT_NAME "tar zcf /tmp/logs.tgz /var/log/"
+            juju scp --container $CONTAINER --model $model $UNIT_NAME:/tmp/logs.tgz {{ zuul.project.src_dir }}/log/$controller-$model-$POD_NAME-$CONTAINER.tgz
+        done
+    done
+  loop: "{{ juju_models }}"
+- name: Collect pods logs
+  args:
+    executable: /bin/bash
+  shell: |
+    set -o pipefail
+    controller={{ controller }}
+    model={{ item | split('/') | last }}
+    LOG_FOLDER={{ zuul.project.src_dir }}/log/pods/$controller-$model/
+    mkdir -p $LOG_FOLDER
+    for pod in $(sudo k8s kubectl get pods -n $model -o=jsonpath='{.items[*].metadata.name}');
+    do
+      echo Collecting logs: $pod
+      sudo k8s kubectl logs --ignore-errors -n $model --all-containers $pod > $LOG_FOLDER/$pod.log
+    done
+  loop: "{{ juju_models }}"
