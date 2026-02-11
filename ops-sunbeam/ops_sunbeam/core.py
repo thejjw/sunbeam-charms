@@ -15,6 +15,8 @@
 """Collection of core components."""
 
 import collections
+import secrets
+import string
 from typing import (
     TYPE_CHECKING,
     Generator,
@@ -103,3 +105,9 @@ class PostInitMeta(type):
         instance = super().__call__(*args, **kw)
         instance.__post_init__()
         return instance
+
+
+def random_string(length: int) -> str:
+    """Utility function to generate secure random string."""
+    alphabet = string.ascii_letters + string.digits
+    return "".join(secrets.choice(alphabet) for i in range(length))

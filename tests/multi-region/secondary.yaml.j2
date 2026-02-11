@@ -1,0 +1,565 @@
+bundle: kubernetes
+
+applications:
+  traefik:
+    charm: ch:traefik-k8s
+    channel: latest/candidate
+    base: ubuntu@20.04
+    scale: 1
+    trust: true
+    options:
+      kubernetes-service-annotations: metallb.universe.tf/address-pool=public
+  traefik-rgw:
+    charm: ch:traefik-k8s
+    channel: latest/candidate
+    base: ubuntu@20.04
+    scale: 1
+    trust: true
+    options:
+      kubernetes-service-annotations: metallb.universe.tf/address-pool=public
+  mysql:
+    charm: ch:mysql-k8s
+    channel: 8.0/stable
+    base: ubuntu@22.04
+    scale: 1
+    trust: true
+    options:
+      profile-limit-memory: 6202
+      experimental-max-connections: 466
+  tls-operator:
+    charm: self-signed-certificates
+    channel: 1/beta
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      ca-common-name: internal-ca
+  rabbitmq:
+    charm: ch:rabbitmq-k8s
+    channel: 3.12/edge
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    options:
+      minimum-replicas: 1
+  ovn-central:
+    {% if ovn_central_k8s is defined and ovn_central_k8s is sameas true -%}
+    charm: ../../../ovn-central-k8s.charm
+    {% else -%}
+    charm: ch:ovn-central-k8s
+    channel: 25.03/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    resources:
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:25.03-24.04_edge
+      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:25.03-24.04_edge
+      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:25.03-24.04_edge
+  ovn-relay:
+    {% if ovn_relay_k8s is defined and ovn_relay_k8s is sameas true -%}
+    charm: ../../../ovn-relay-k8s.charm
+    {% else -%}
+    charm: ch:ovn-relay-k8s
+    channel: 25.03/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    resources:
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:25.03-24.04_edge
+  glance:
+    {% if glance_k8s is defined and glance_k8s is sameas true -%}
+    charm: ../../../glance-k8s.charm
+    {% else -%}
+    charm: ch:glance-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      region: RegionTwo
+    storage:
+      local-repository: 10G
+    resources:
+      glance-api-image: ghcr.io/canonical/glance-api:2025.1-24.04_edge
+  nova:
+    {% if nova_k8s is defined and nova_k8s is sameas true -%}
+    charm: ../../../nova-k8s.charm
+    {% else -%}
+    charm: ch:nova-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      region: RegionTwo
+    resources:
+      nova-api-image: ghcr.io/canonical/nova-consolidated:2025.1-24.04_edge
+      nova-scheduler-image: ghcr.io/canonical/nova-consolidated:2025.1-24.04_edge
+      nova-conductor-image: ghcr.io/canonical/nova-consolidated:2025.1-24.04_edge
+      nova-spiceproxy-image: ghcr.io/canonical/nova-consolidated:2025.1-24.04_edge
+  placement:
+    {% if placement_k8s is defined and placement_k8s is sameas true -%}
+    charm: ../../../placement-k8s.charm
+    {% else -%}
+    charm: ch:placement-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      region: RegionTwo
+    resources:
+      placement-api-image: ghcr.io/canonical/placement-api:2025.1-24.04_edge
+  neutron:
+    {% if neutron_k8s is defined and neutron_k8s is sameas true -%}
+    charm: ../../../neutron-k8s.charm
+    {% else -%}
+    charm: ch:neutron-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      region: RegionTwo
+    resources:
+      neutron-server-image: ghcr.io/canonical/neutron-server:2025.1-24.04_edge
+  neutron-baremetal-config:
+    {% if neutron_baremetal_switch_config_k8s is defined and neutron_baremetal_switch_config_k8s is sameas true -%}
+    charm: ../../../neutron-baremetal-switch-config-k8s.charm
+    {% else -%}
+    charm: ch:neutron-baremetal-switch-config-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      debug: true
+  neutron-generic-config:
+    {% if neutron_generic_switch_config_k8s is defined and neutron_generic_switch_config_k8s is sameas true -%}
+    charm: ../../../neutron-generic-switch-config-k8s.charm
+    {% else -%}
+    charm: ch:neutron-generic-switch-config-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      debug: true
+  cinder-router:
+    charm: ch:mysql-router-k8s
+    channel: 8.0/edge
+    base: ubuntu@22.04
+    scale: 1
+    trust: true
+    options:
+      expose-external: loadbalancer
+  cinder:
+    {% if cinder_k8s is defined and cinder_k8s is sameas true -%}
+    charm: ../../../cinder-k8s.charm
+    {% else -%}
+    charm: ch:cinder-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      region: RegionTwo
+    resources:
+      cinder-api-image: ghcr.io/canonical/cinder-consolidated:2025.1-24.04_edge
+      cinder-scheduler-image: ghcr.io/canonical/cinder-consolidated:2025.1-24.04_edge
+  # Images Sync feature
+  openstack-images-sync:
+    {% if openstack_images_sync_k8s is defined and openstack_images_sync_k8s is sameas true -%}
+    charm: ../../../openstack-images-sync-k8s.charm
+    {% else -%}
+    charm: ch:openstack-images-sync-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      frequency: test-do-not-use
+      architecture: amd64
+      release: jammy
+      max-items: 1
+      region: RegionTwo
+    resources:
+      openstack-images-sync-image: ghcr.io/canonical/openstack-images-sync:2025.1-24.04_edge
+  # Vault feature
+  vault:
+    charm: ch:vault-k8s
+    channel: 1.16/stable
+    base: ubuntu@22.04
+    scale: 1
+    trust: true
+  # Secrets feature
+  barbican:
+    {% if barbican_k8s is defined and barbican_k8s is sameas true -%}
+    charm: ../../../barbican-k8s.charm
+    {% else -%}
+    charm: ch:barbican-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      region: RegionTwo
+    resources:
+      barbican-api-image: ghcr.io/canonical/barbican-consolidated:2025.1-24.04_edge
+      barbican-worker-image: ghcr.io/canonical/barbican-consolidated:2025.1-24.04_edge
+  # Orchestration feature
+  heat:
+    {% if heat_k8s is defined and heat_k8s is sameas true -%}
+    charm: ../../../heat-k8s.charm
+    {% else -%}
+    charm: ch:heat-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      region: RegionTwo
+    resources:
+      heat-api-image: ghcr.io/canonical/heat-consolidated:2025.1-24.04_edge
+      heat-engine-image:  ghcr.io/canonical/heat-consolidated:2025.1-24.04_edge
+  # Bare metal feature
+  ironic:
+    {% if ironic_k8s is defined and ironic_k8s is sameas true -%}
+    charm: ../../../ironic-k8s.charm
+    {% else -%}
+    charm: ch:ironic-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      region: RegionTwo
+    resources:
+      ironic-api-image: ghcr.io/canonical/ironic-consolidated:2025.1-24.04_edge
+      ironic-novncproxy-image: ghcr.io/canonical/ironic-consolidated:2025.1-24.04_edge
+  ironic-conductor:
+    {% if ironic_conductor_k8s is defined and ironic_conductor_k8s is sameas true -%}
+    charm: ../../../ironic-conductor-k8s.charm
+    {% else -%}
+    charm: ch:ironic-conductor-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    options:
+      region: RegionTwo
+    resources:
+      ironic-conductor-image: ghcr.io/canonical/ironic-conductor:2025.1-24.04_edge
+  nova-ironic:
+    {% if nova_ironic_k8s is defined and nova_ironic_k8s is sameas true -%}
+    charm: ../../../nova-ironic-k8s.charm
+    {% else -%}
+    charm: ch:nova-ironic-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    resources:
+      nova-ironic-image: ghcr.io/canonical/nova-ironic:2025.1-24.04_edge
+  # Load Balancer feature
+  octavia:
+    {% if octavia_k8s is defined and octavia_k8s is sameas true -%}
+    charm: ../../../octavia-k8s.charm
+    {% else -%}
+    charm: ch:octavia-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      region: RegionTwo
+    resources:
+      octavia-api-image: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
+      octavia-driver-agent-image: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
+      octavia-housekeeping-image: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
+  # CAAS feature
+  magnum:
+    {% if magnum_k8s is defined and magnum_k8s is sameas true -%}
+    charm: ../../../magnum-k8s.charm
+    {% else -%}
+    charm: ch:magnum-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      region: RegionTwo
+    resources:
+      magnum-api-image: ghcr.io/canonical/magnum-consolidated:2025.1-24.04_edge
+      magnum-conductor-image: ghcr.io/canonical/magnum-consolidated:2025.1-24.04_edge
+  openstack-exporter:
+    {% if openstack_exporter_k8s is defined and openstack_exporter_k8s is sameas true -%}
+    charm: ../../../openstack-exporter-k8s.charm
+    {% else -%}
+    charm: ch:openstack-exporter-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    options:
+      region: RegionTwo
+    resources:
+      openstack-exporter-image: ghcr.io/canonical/openstack-exporter:1.7.0-3be9ddb-bare_edge
+  watcher:
+    {% if watcher_k8s is defined and watcher_k8s is sameas true -%}
+    charm: ../../../watcher-k8s.charm
+    {% else -%}
+    charm: ch:watcher-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    options:
+      region: RegionTwo
+    resources:
+      watcher-image: ghcr.io/canonical/watcher-consolidated:2025.1-24.04_edge
+relations:
+- - tls-operator:certificates
+  - ovn-central:certificates
+
+- - tls-operator:certificates
+  - ovn-relay:certificates
+- - ovn-relay:ovsdb-cms
+  - ovn-central:ovsdb-cms
+
+- - mysql:database
+  - glance:database
+- - rabbitmq:amqp
+  - glance:amqp
+- - traefik:ingress
+  - glance:ingress-internal
+
+- - mysql:database
+  - nova:database
+- - mysql:database
+  - nova:api-database
+- - mysql:database
+  - nova:cell-database
+- - rabbitmq:amqp
+  - nova:amqp
+- - traefik:ingress
+  - nova:ingress-internal
+- - traefik:traefik-route
+  - nova:traefik-route-internal
+- - placement:placement
+  - nova:placement
+
+- - mysql:database
+  - placement:database
+- - traefik:ingress
+  - placement:ingress-internal
+
+- - mysql:database
+  - neutron:database
+- - rabbitmq:amqp
+  - neutron:amqp
+- - traefik:ingress
+  - neutron:ingress-internal
+- - tls-operator:certificates
+  - neutron:certificates
+- - neutron:ovsdb-cms
+  - ovn-central:ovsdb-cms
+
+- - traefik:ingress
+  - openstack-images-sync:ingress-internal
+
+- - mysql:database
+  - heat:database
+- - traefik:traefik-route
+  - heat:traefik-route-internal
+- - rabbitmq:amqp
+  - heat:amqp
+
+- - mysql:database
+  - ironic:database
+- - traefik:ingress
+  - ironic:ingress-internal
+- - traefik:traefik-route
+  - ironic:traefik-route-internal
+- - rabbitmq:amqp
+  - ironic:amqp
+- - neutron:ironic-api
+  - ironic:ironic-api
+
+- - mysql:database
+  - ironic-conductor:database
+- - rabbitmq:amqp
+  - ironic-conductor:amqp
+
+- - mysql:database
+  - nova-ironic:database
+- - rabbitmq:amqp
+  - nova-ironic:amqp
+- - traefik:traefik-route
+  - nova-ironic:traefik-route-internal
+- - ironic:ironic-api
+  - nova-ironic:ironic-api
+
+- - mysql:database
+  - octavia:database
+- - traefik:ingress
+  - octavia:ingress-internal
+- - tls-operator:certificates
+  - octavia:certificates
+- - octavia:ovsdb-cms
+  - ovn-central:ovsdb-cms
+
+- - mysql:database
+  - barbican:database
+- - rabbitmq:amqp
+  - barbican:amqp
+- - traefik:ingress
+  - barbican:ingress-internal
+- - vault:vault-kv
+  - barbican:vault-kv
+
+- - mysql:database
+  - magnum:database
+- - rabbitmq:amqp
+  - magnum:amqp
+- - traefik:ingress
+  - magnum:ingress-internal
+
+- - mysql:database
+  - cinder-router:backend-database
+- - cinder:database
+  - cinder-router:database
+- - cinder:amqp
+  - rabbitmq:amqp
+- - traefik:ingress
+  - cinder:ingress-internal
+- - glance:image-service
+  - cinder:image-service
+
+- - mysql:database
+  - watcher:database
+- - watcher:amqp
+  - rabbitmq:amqp
+- - traefik:ingress
+  - watcher:ingress-internal
+---
+applications:
+  tls-operator:
+    offers:
+      certificates:
+        endpoints:
+          - certificates
+  rabbitmq:
+    offers:
+      amqp:
+        endpoints:
+          - amqp
+  ovn-relay:
+    offers:
+      ovsdb-cms:
+        endpoints:
+          - ovsdb-cms-relay
+  nova:
+    offers:
+      nova-service:
+        endpoints:
+          - nova-service
+  cinder-router:
+    offers:
+      cinder-database:
+        endpoints:
+          - database
+  traefik-rgw:
+    offers:
+      traefik-route-rgw:
+        endpoints:
+          - traefik-route
+saas:
+  identity-credentials:
+    url: PRIMARY_CONTROLLER:admin/PRIMARY_MODEL.identity-credentials
+  identity-ops:
+    url: PRIMARY_CONTROLLER:admin/PRIMARY_MODEL.identity-ops
+  identity-service:
+    url: PRIMARY_CONTROLLER:admin/PRIMARY_MODEL.identity-service
+  send-ca-cert:
+    url: PRIMARY_CONTROLLER:admin/PRIMARY_MODEL.send-ca-cert
+
+relations:
+- - identity-service
+  - glance:identity-service
+- - send-ca-cert
+  - glance:receive-ca-cert
+
+- - identity-service
+  - nova:identity-service
+- - send-ca-cert
+  - nova:receive-ca-cert
+
+- - identity-service
+  - placement:identity-service
+- - send-ca-cert
+  - placement:receive-ca-cert
+
+- - identity-service
+  - neutron:identity-service
+- - send-ca-cert
+  - neutron:receive-ca-cert
+
+- - identity-service
+  - openstack-images-sync:identity-service
+- - send-ca-cert
+  - openstack-images-sync:receive-ca-cert
+
+- - identity-service
+  - heat:identity-service
+- - identity-ops
+  - heat:identity-ops
+- - send-ca-cert
+  - heat:receive-ca-cert
+
+- - identity-service
+  - ironic:identity-service
+- - send-ca-cert
+  - ironic:receive-ca-cert
+
+- - identity-credentials
+  - ironic-conductor:identity-credentials
+
+- - identity-credentials
+  - nova-ironic:identity-credentials
+
+- - identity-service
+  - octavia:identity-service
+- - identity-ops
+  - octavia:identity-ops
+- - send-ca-cert
+  - octavia:receive-ca-cert
+
+- - identity-service
+  - barbican:identity-service
+- - identity-ops
+  - barbican:identity-ops
+- - send-ca-cert
+  - barbican:receive-ca-cert
+
+- - identity-service
+  - magnum:identity-service
+- - identity-ops
+  - magnum:identity-ops
+- - send-ca-cert
+  - magnum:receive-ca-cert
+
+- - identity-service
+  - cinder:identity-service
+- - send-ca-cert
+  - cinder:receive-ca-cert
+
+- - identity-service
+  - watcher:identity-service
+- - send-ca-cert
+  - watcher:receive-ca-cert
+
+- - identity-ops
+  - openstack-exporter:identity-ops
