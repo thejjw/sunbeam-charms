@@ -1340,3 +1340,119 @@
         - charm-build-cinder-volume-ceph
       # test_dir relative to project src dir
       test_dir: tests/openstack
+
+
+- job:
+    name: func-test-multi-region
+    description: |
+      Zaza smoke test for all the k8s sunbeam charms.
+    timeout: 7200
+    pre-run: playbooks/pre-run-func-test.yaml
+    run: playbooks/zaza-func-test.yaml
+    post-run: playbooks/collect-run-data.yaml
+    dependencies:
+      - name: charm-build-keystone-k8s
+        soft: true
+      - name: charm-build-glance-k8s
+        soft: true
+      - name: charm-build-nova-k8s
+        soft: true
+      - name: charm-build-placement-k8s
+        soft: true
+      - name: charm-build-neutron-k8s
+        soft: true
+      - name: charm-build-neutron-baremetal-switch-config-k8s
+        soft: true
+      - name: charm-build-neutron-generic-switch-config-k8s
+        soft: true
+      - name: charm-build-openstack-images-sync-k8s
+        soft: true
+      - name: charm-build-ovn-central-k8s
+        soft: true
+      - name: charm-build-ovn-relay-k8s
+        soft: true
+      - name: charm-build-cinder-k8s
+        soft: true
+      - name: charm-build-watcher-k8s
+        soft: true
+      - name: charm-build-heat-k8s
+        soft: true
+      - name: charm-build-ironic-k8s
+        soft: true
+      - name: charm-build-ironic-conductor-k8s
+        soft: true
+      - name: charm-build-nova-ironic-k8s
+        soft: true
+      - name: charm-build-octavia-k8s
+        soft: true
+      - name: charm-build-barbican-k8s
+        soft: true
+      - name: charm-build-magnum-k8s
+        soft: true
+      - name: charm-build-openstack-exporter-k8s
+        soft: true
+      - name: charm-build-horizon-k8s
+        soft: true
+      - name: charm-build-openstack-hypervisor
+        soft: true
+      - name: charm-build-cinder-volume
+        soft: true
+      - name: charm-build-cinder-volume-ceph
+        soft: true
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/keystone-k8s/
+      - charms/glance-k8s/
+      - charms/nova-k8s/
+      - charms/neutron-k8s/
+      - charms/neutron-baremetal-switch-config-k8s/
+      - charms/neutron-generic-switch-config-k8s/
+      - charms/placement-k8s/
+      - charms/openstack-images-sync-k8s/
+      - charms/ovn-central-k8s/
+      - charms/ovn-relay-k8s/
+      - charms/cinder-k8s/
+      - charms/watcher-k8s/
+      - charms/heat-k8s/
+      - charms/ironic-k8s/
+      - charms/ironic-conductor-k8s/
+      - charms/nova-ironic-k8s/
+      - charms/octavia-k8s/
+      - charms/barbican-k8s/
+      - charms/magnum-k8s/
+      - charms/openstack-exporter-k8s/
+      - charms/horizon-k8s/
+      - charms/openstack-hypervisor/
+      - charms/cinder-volume/
+      - charms/storage/cinder-volume-ceph/
+      - rebuild
+    vars:
+      # Artifacts will be downloaded from below charm jobs
+      charm_jobs:
+        - charm-build-keystone-k8s
+        - charm-build-glance-k8s
+        - charm-build-nova-k8s
+        - charm-build-placement-k8s
+        - charm-build-neutron-k8s
+        - charm-build-neutron-baremetal-switch-config-k8s
+        - charm-build-neutron-generic-switch-config-k8s
+        - charm-build-openstack-images-sync-k8s
+        - charm-build-ovn-central-k8s
+        - charm-build-ovn-relay-k8s
+        - charm-build-cinder-k8s
+        - charm-build-watcher-k8s
+        - charm-build-heat-k8s
+        - charm-build-ironic-k8s
+        - charm-build-ironic-conductor-k8s
+        - charm-build-nova-ironic-k8s
+        - charm-build-octavia-k8s
+        - charm-build-barbican-k8s
+        - charm-build-magnum-k8s
+        - charm-build-openstack-exporter-k8s
+        - charm-build-horizon-k8s
+        - charm-build-openstack-hypervisor
+        - charm-build-cinder-volume
+        - charm-build-cinder-volume-ceph
+      # test_dir relative to project src dir
+      test_dir: tests/multi-region
+      primary_controller: true
