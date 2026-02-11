@@ -18,8 +18,6 @@ import abc
 import hashlib
 import json
 import logging
-import secrets
-import string
 import typing
 from typing import (
     Any,
@@ -38,6 +36,7 @@ import ops_sunbeam.interfaces as sunbeam_interfaces
 import ops_sunbeam.tracing as sunbeam_tracing
 from ops import (
     ModelError,
+    SecretNotFoundError,
 )
 from ops.model import (
     ActiveStatus,
@@ -49,6 +48,7 @@ from ops.model import (
 from ops_sunbeam.core import (
     PostInitMeta,
     RelationDataMapping,
+    random_string,
 )
 
 if typing.TYPE_CHECKING:
@@ -1690,13 +1690,37 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
         )
         return ops_svc
 
+    def update_relation_data(self):
+        """Update relation outside of relation context."""
+        return self._clean_old_credentials()
+
+    def _clean_old_credentials(self):
+        """Clean old credentials if they exist.
+
+        Cleanup all credential where label=secret-ref.
+        Newer version of this interface is `label:{dict...}`
+        """
+        if not self.model.unit.is_leader():
+            return
+        value = self.charm.leader_get(self.credentials_secret_label)
+        if not value or not value.startswith("secret:"):
+            # Nothing to do
+            return
+        try:
+            secret = self.model.get_secret(id=value)
+            secret.remove_all_revisions()
+            # Unset the revision
+            self.charm.leader_set({self.credentials_secret_label: ""})
+        except (ModelError, SecretNotFoundError):
+            logger.debug(f"Old secret {value} already removed or not found")
+
     def _hash_ops(self, ops: list) -> str:
         """Hash ops request."""
         return hashlib.sha256(json.dumps(ops).encode()).hexdigest()
 
     @property
-    def label(self) -> str:
-        """Secret label to share over keystone resource relation."""
+    def credentials_secret_label(self) -> str:
+        """Secret label to create credentials with."""
         return self.CREDENTIALS_SECRET_PREFIX + self.username
 
     @property
@@ -1712,65 +1736,65 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
     def _delete_user_tag(self) -> str:
         return "delete_user_" + self.username
 
-    def random_string(self, length: int) -> str:
-        """Utility function to generate secure random string."""
-        alphabet = string.ascii_letters + string.digits
-        return "".join(secrets.choice(alphabet) for i in range(length))
+    def _get_credentials(self) -> tuple[str, str] | None:
+        """Get credentials from secret.
 
-    def _ensure_credentials(self, refresh_user: bool = False) -> str:
-        credentials_id = self.charm.leader_get(self.label)
-        suffix_length = 6
-        password_length = 18
-
-        if credentials_id:
-            if refresh_user:
-                username = self.username
-                if self.add_suffix:
-                    suffix = self.random_string(suffix_length)
-                    username += "-" + suffix
-                secret = self.model.get_secret(id=credentials_id)
-                secret.set_content(
-                    {
-                        "username": username,
-                        "password": self.random_string(password_length),
-                    }
-                )
-            return credentials_id
-
-        username = self.username
-        password = self.random_string(password_length)
-        if self.add_suffix:
-            suffix = self.random_string(suffix_length)
-            username += "-" + suffix
-        secret = self.model.app.add_secret(
-            {"username": username, "password": password},
-            label=self.label,
-            rotate=self.rotate,
-        )
-        if not secret.id:
-            # We just created the secret, therefore id is always set
-            raise RuntimeError("Secret id not set")
-        self.charm.leader_set({self.label: secret.id})
-        return secret.id
-
-    def _grant_ops_secret(self, relation: ops.Relation):
-        secret = self.model.get_secret(id=self._ensure_credentials())
-        secret.grant(relation)
-
-    def _get_credentials(self) -> tuple[str, str]:
-        credentials_id = self._ensure_credentials()
-        secret = self.model.get_secret(id=credentials_id)
+        Returns (username, password) if both are available, None otherwise.
+        Credentials are fully available only after keystone has processed
+        the create_user request and returned a secret-id.
+        """
+        credentials_json = self.charm.leader_get(self.credentials_secret_label)
+        if not credentials_json:
+            return None
+        credentials = json.loads(credentials_json)
+        username = credentials["username"]
+        password_secret = credentials.get("password")
+        if not password_secret:
+            return None
+        secret = self.model.get_secret(id=password_secret)
         content = secret.get_content(refresh=True)
-        return content["username"], content["password"]
+        return username, content["password"]
 
     def get_config_credentials(self) -> tuple[str, str] | None:
         """Get credential from config secret."""
         credentials_id = self.charm.leader_get(self.config_label)
         if not credentials_id:
             return None
-        secret = self.model.get_secret(id=credentials_id)
+        try:
+            secret = self.model.get_secret(id=credentials_id)
+        except SecretNotFoundError:
+            logger.debug(
+                f"Config secret {credentials_id} not found, cleaning up reference"
+            )
+            self.charm.leader_set({self.config_label: ""})
+            return None
         content = secret.get_content(refresh=True)
         return content["username"], content["password"]
+
+    def update_credentials(self, username: str, password_secret: str) -> None:
+        """Update credentials in the secret."""
+        self.charm.leader_set(
+            {
+                self.credentials_secret_label: json.dumps(
+                    {"username": username, "password": password_secret}
+                )
+            }
+        )
+
+    def ensure_username(self, username: str, add_suffix: bool = False) -> str:
+        """Ensure username is consistent across hook calls.
+
+        Reads the stored username directly from peer data rather than
+        going through _get_credentials (which requires a valid password
+        secret).
+        """
+        credentials_json = self.charm.leader_get(self.credentials_secret_label)
+        if credentials_json:
+            return json.loads(credentials_json)["username"]
+        if add_suffix:
+            username += "-" + random_string(5)
+        self.update_credentials(username, "")
+        return username
 
     def _update_config_credentials(self) -> bool:
         """Update config credentials.
@@ -1778,11 +1802,16 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
         Returns True if credentials are updated, False otherwise.
         """
         credentials_id = self.charm.leader_get(self.config_label)
-        username, password = self._get_credentials()
+        credentials = self._get_credentials()
+        if not credentials:
+            return False
+        username, password = credentials
         content = {"username": username, "password": password}
         if credentials_id is None:
             secret = self.model.app.add_secret(
-                content, label=self.config_label
+                content,
+                label=self.config_label,
+                rotate=self.rotate,
             )
             if not secret.id:
                 # We just created the secret, therefore id is always set
@@ -1798,8 +1827,7 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
         return False
 
     def _create_user_request(self) -> dict:
-        credentials_id = self._ensure_credentials()
-        username, _ = self._get_credentials()
+        username = self.ensure_username(self.username, self.add_suffix)
         requests = []
         domain = self._params["domain"]
         create_domain = {
@@ -1819,8 +1847,11 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
             "name": "create_user",
             "params": {
                 "name": username,
-                "password": credentials_id,
                 **params,
+            },
+            "secret-request": {
+                "secret-label": self.credentials_secret_label,
+                "secret-params": ["password"],
             },
         }
         requests.append(create_user)
@@ -1907,16 +1938,39 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
             "ops": requests,
         }
 
+    def _find_op(self, response: dict, op_name: str) -> dict | None:
+        for op in response.get("ops", []):
+            if op.get("name") == op_name:
+                return op
+        return None
+
     def _process_create_user_response(self, response: dict) -> None:
-        if {op.get("return-code") for op in response.get("ops", [])} == {0}:
-            logger.debug("Create user completed.")
-            config_credentials = self.get_config_credentials()
-            credentials_updated = self._update_config_credentials()
-            if config_credentials and credentials_updated:
-                username = config_credentials[0]
-                self.add_user_to_delete_user_list(username)
-        else:
-            logger.debug("Error in creation of user ops " f"{response}")
+        if {op.get("return-code") for op in response.get("ops", [])} != {0}:
+            logger.debug(f"Error in creation of user ops {response}")
+            return
+
+        logger.debug("Create user completed.")
+        op = self._find_op(response, "create_user")
+        if not op:
+            logger.debug("create_user op not found in response")
+            return
+
+        credentials_secret = op.get("secret-id")
+        if not credentials_secret:
+            logger.debug("No secret-id found in create_user op response")
+            return
+
+        value = op.get("value", {})
+        username = value.get("name")
+        if not username:
+            logger.debug("No username found in create_user op response")
+            return
+
+        config_credentials = self.get_config_credentials()
+        self.update_credentials(username, credentials_secret)
+        credentials_updated = self._update_config_credentials()
+        if config_credentials and credentials_updated:
+            self.add_user_to_delete_user_list(config_credentials[0])
 
     def add_user_to_delete_user_list(self, user: str) -> None:
         """Update users list to delete."""
@@ -1931,7 +1985,10 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
         deleted_users = []
         for op in response.get("ops", []):
             if op.get("return-code") == 0:
-                deleted_users.append(op.get("value").get("name"))
+                value = op.get("value", {})
+                name = value.get("name")
+                if name:
+                    deleted_users.append(name)
             else:
                 logger.debug(f"Error in running delete user for op {op}")
 
@@ -1964,25 +2021,27 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
             )
 
     def _on_secret_rotate(self, event: ops.SecretRotateEvent):
-        # All the juju secrets are created on leader unit, so return
-        # if unit is not leader at this stage instead of checking at
-        # each secret.
         logger.debug(f"secret-rotate triggered for label {event.secret.label}")
         if not self.model.unit.is_leader():
             logger.debug("Not leader unit, no action required")
             return
 
-        # Secret rotate on stack user secret sent to ops
-        if event.secret.label == self.label:
-            self._ensure_credentials(refresh_user=True)
-            request = self._create_user_request()
-            logger.debug(f"Sending ops request: {request}")
-            self.interface.request_ops(request)
-        else:
+        if event.secret.label != self.config_label:
             logger.debug(
                 "Ignoring the secret-rotate event for label "
                 f"{event.secret.label}"
             )
+            return
+
+        # Rotation triggered on config secret - request new credentials
+        # Clear stored credentials to force new username generation
+        # The old username will be added to the delete list by
+        # _process_create_user_response when the new credentials arrive.
+        self.charm.leader_set({self.credentials_secret_label: ""})
+
+        request = self._create_user_request()
+        logger.debug(f"Sending rotated ops request: {request}")
+        self.interface.request_ops(request)
 
     def _on_secret_remove(self, event: ops.SecretRemoveEvent):
         logger.debug(f"secret-remove triggered for label {event.secret.label}")
@@ -2013,7 +2072,6 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
         if not self.model.unit.is_leader():
             return
         self.interface.request_ops(self._create_user_request())
-        self._grant_ops_secret(event.relation)
         self.callback_f(event)
 
     def _on_response_available(self, event) -> None:
@@ -2034,6 +2092,14 @@ class UserIdentityResourceRequiresHandler(RelationHandler):
 
     def _on_provider_goneaway(self, event) -> None:
         """Handle gone_away  event."""
+        # Provider is gone, clear credentials and add current user to delete list
+        credentials_json = self.charm.leader_get(self.credentials_secret_label)
+        if credentials_json:
+            credentials = json.loads(credentials_json)
+            username = credentials["username"]
+            if username:
+                self.add_user_to_delete_user_list(username)
+        self.charm.leader_set({self.credentials_secret_label: ""})
         self.callback_f(event)
 
     @property
