@@ -1,0 +1,26 @@
+- name: Get all job names
+  uri:
+    url: "{{ download_artifact_api }}/builds?{{ download_artifact_query }}"
+  register: build_output
+  vars:
+    download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
+    download_artifact_query: "change={{ zuul.change }}&patchset={{ zuul.patchset }}&pipeline=check"
+
+- name: Get relevant charm build jobs
+  set_fact:
+    relevant_charm_build_jobs: "{{ build_output.json | selectattr('job_name', 'match', '^charm-build-.*$') | map(attribute='job_name') | list | intersect(charm_jobs) }}"
+
+- name: Print relevant build jobs
+  debug:
+    msg: "Relevant charm build jobs: {{ relevant_charm_build_jobs }}"
+
+- name: built charm is present locally (artifact from previous job)
+  include_role:
+    name: download-artifact
+  vars:
+    download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
+    download_artifact_type: charm
+    download_artifact_pipeline: check
+    download_artifact_job: "{{ item }}"
+    download_artifact_directory: "{{ zuul.project.src_dir }}"
+  with_items: "{{ relevant_charm_build_jobs }}"

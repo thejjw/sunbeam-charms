@@ -86,6 +86,8 @@ env_type: k8s
 k8s_channel: 1.32-classic/stable
 k8s_classic_mode: true
 charmcraft_channel: 3.x/stable
+nftables_enabled: false
+skip_charm_download: true
 ```
 
 Run func tests using ansible
