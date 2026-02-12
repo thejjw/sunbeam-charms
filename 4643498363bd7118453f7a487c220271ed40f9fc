@@ -16,6 +16,24 @@
       "message": "While this should do the trick, there\u0027s a lot of duplication on secret handling for example, would mind taking a look at: https://opendev.org/openstack/sunbeam-charms/src/commit/3f6c6e1a759877bad0f8fe3cc66c8157af28c94c/charms/storage/cinder-volume-hitachi/src/charm.py#L51\n\nAnd see how we can simplify the charm?\n\nIn theory, we\u0027d rather the storage charm to be simple configuration translator to the snap. Doing mainly validation, in a consistent manner.",
       "revId": "4643498363bd7118453f7a487c220271ed40f9fc",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c73d3c93_52585fd7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38760
+      },
+      "writtenOn": "2026-02-12T23:43:12Z",
+      "side": 1,
+      "message": "I\u0027ve modified the charm and uploaded patchset 3. This includes using ops_sunbeam.storage for validation",
+      "parentUuid": "a24c24dc_93691ab6",
+      "revId": "4643498363bd7118453f7a487c220271ed40f9fc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
