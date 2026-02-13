@@ -10,3 +10,4 @@ sinks:
     transformers:
     publishers:
      - notifier://?topic=alarm.all
+     - gnocchi://
