@@ -1,0 +1,68 @@
+# cinder-volume-dellsc – Contributing Guide
+
+Thank you for your interest in improving the **cinder-volume‑dellsc** charm!
+This document explains how to get a development environment up and
+running, how the code is structured, and how to run tests and build the
+charm.
+
+---
+
+## Developing
+
+### 1. Set up a virtualenv
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements-dev.txt
+```
+
+*The same tooling is used by all Sunbeam charms, so you may reuse an
+existing environment if you already work on other charms.*
+
+### 2. Code style & linting
+
+* **black** – auto‑formats Python code.
+* **ruff** – fast linter (runs `flake8`, `isort`, etc.).
+* **mypy** – optional static typing; the CI gate enforces “strict‑optional”.
+
+Run all checks locally:
+
+```bash
+tox -e pep8
+```
+
+---
+
+## Code overview
+
+The charm is built with the
+[**Charmed Operator Framework**](https://juju.is/docs/sdk) and the
+`ops_sunbeam` helper library.
+
+* **`CinderVolumeDellSCOperatorCharm`** (in `src/charm.py`) extends
+  `OSSubordinateBaseOperatorCharm` and publishes a *single* relation –
+  **`cinder-volume`** – to inject the Dell SC backend stanza into
+   `cinder.conf` within the principal application (usually the
+  `cinder-volume` snap).
+* Unlike the Ceph variant, this charm **does not** speak to Ceph, RabbitMQ
+  or a database; all driver parameters are supplied via charm **config**.
+* Configuration is rendered through a Jinja2 template shipped inside the
+  `cinder-volume` snap, so the charm’s responsibility is limited to
+  mapping config keys and triggering a service restart.
+
+---
+
+## Intended use case
+
+Deploy the charm side‑by‑side with the principal **`cinder-volume`** charm
+in a Sunbeam (or other Juju‑managed) Kubernetes model to attach a Dell SC
+storage array as an additional Cinder backend.
+
+Example:
+
+```bash
+juju deploy cinder-volume          # principal
+juju deploy cinder-volume-dellsc  --trust
+juju relate cinder-volume-dellsc cinder-volume
+```
