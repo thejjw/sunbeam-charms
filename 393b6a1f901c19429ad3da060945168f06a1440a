@@ -120,6 +120,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b509de1_a5335922",
+        "filename": "charms/storage/cinder-volume-dellpowerstore/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 31779
+      },
+      "writtenOn": "2026-02-13T10:56:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2dc9a99f_dfcf789b",
+      "range": {
+        "startLine": 48,
+        "startChar": 8,
+        "endLine": 48,
+        "endChar": 20
+      },
+      "revId": "393b6a1f901c19429ad3da060945168f06a1440a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d9bf8b73_0a2e4f8a",
@@ -157,6 +181,30 @@
       "side": 1,
       "message": "I added it in case the charm framework use metadata, but I don\u0027t think it will harm if I remove it. I\u0027ll need to test the charm again without the string to confirm it.",
       "parentUuid": "d9bf8b73_0a2e4f8a",
+      "range": {
+        "startLine": 96,
+        "startChar": 37,
+        "endLine": 96,
+        "endChar": 47
+      },
+      "revId": "393b6a1f901c19429ad3da060945168f06a1440a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "90cff5a6_ec9b24e2",
+        "filename": "charms/storage/cinder-volume-dellpowerstore/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 31779
+      },
+      "writtenOn": "2026-02-13T10:56:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4a8c56a9_38b78146",
       "range": {
         "startLine": 96,
         "startChar": 37,
