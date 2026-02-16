@@ -310,7 +310,6 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             action_event.set_results.call_args.args[0]["error"],
         )
 
-    @patch("charm.TEMPEST_CONCURRENCY", "4")
     def test_validate_action_success(self):
         """Test validate action with default params."""
         test_utils.set_all_pebbles_ready(self.harness)
@@ -346,7 +345,6 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
             environment=TEST_TEMPEST_ENV,
         )
 
-    @patch("charm.TEMPEST_CONCURRENCY", "4")
     def test_validate_action_params(self):
         """Test validate action with more params."""
         test_utils.set_all_pebbles_ready(self.harness)
@@ -434,6 +432,35 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
         action_event = Mock()
         self.harness.charm._on_get_lists_action(action_event)
         action_event.fail.assert_not_called()
+
+    def test_accounts_count_config_propagates_to_env(self):
+        """tempest-accounts-count config appears in TEMPEST_ACCOUNTS_COUNT env."""
+        self.add_identity_ops_relation(self.harness)
+        env = self.harness.charm._get_environment_for_tempest(
+            TempestEnvVariant.ADHOC
+        )
+        # default tempest-accounts-count is 8
+        self.assertEqual(env["TEMPEST_ACCOUNTS_COUNT"], "8")
+
+        self.harness.update_config({"tempest-accounts-count": 12})
+        env = self.harness.charm._get_environment_for_tempest(
+            TempestEnvVariant.ADHOC
+        )
+        self.assertEqual(env["TEMPEST_ACCOUNTS_COUNT"], "12")
+
+    @patch("utils.constants.cpu_count", Mock(return_value=8))
+    def test_tempest_concurrency_config(self):
+        """tempest-concurrency config appears in TEMPEST_CONCURRENCY env."""
+        self.add_identity_ops_relation(self.harness)
+        env = self.harness.charm._get_environment_for_tempest(
+            TempestEnvVariant.ADHOC
+        )
+        self.assertEqual(env["TEMPEST_CONCURRENCY"], "4")
+        self.harness.update_config({"tempest-concurrency": 1})
+        env = self.harness.charm._get_environment_for_tempest(
+            TempestEnvVariant.ADHOC
+        )
+        self.assertEqual(env["TEMPEST_CONCURRENCY"], "1")
 
     def test_get_list_action_not_ready(self):
         """Test get-list action when pebble is not ready."""
@@ -633,12 +660,14 @@ class TestTempestOperatorCharm(test_utils.CharmTestCase):
     @patch("utils.constants.cpu_count", Mock(return_value=2))
     def test_concurrency_calculation_less_cpus(self):
         """Test concurrency is calculated correctly with only 2 cpus."""
-        self.assertEqual(get_tempest_concurrency(), "2")
+        limit = self.harness.charm.config.get("tempest-concurrency")
+        self.assertEqual(get_tempest_concurrency(limit), "2")
 
     @patch("utils.constants.cpu_count", Mock(return_value=8))
     def test_concurrency_calculation_more_cpus(self):
         """Test concurrency is bounded to 4."""
-        self.assertEqual(get_tempest_concurrency(), "4")
+        limit = self.harness.charm.config.get("tempest-concurrency")
+        self.assertEqual(get_tempest_concurrency(limit), "4")
 
     def test_logging_ready(self):
         """Test logging relation ready."""
