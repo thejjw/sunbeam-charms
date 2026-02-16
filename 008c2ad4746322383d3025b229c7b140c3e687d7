@@ -33,6 +33,24 @@
       "message": "@drew.lawrence442@gmail.com Thanks for the patch. Please can you share with me the documentation for the required/optional config options required to enable dellsc storage backend? I need to validate what we defined in cinder-volume and what we are defining in this dellsc charm.",
       "revId": "008c2ad4746322383d3025b229c7b140c3e687d7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3597e515_182fb5d7",
+        "filename": "charms/storage/cinder-volume-dellsc/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 38760
+      },
+      "writtenOn": "2026-02-16T23:17:04Z",
+      "side": 1,
+      "message": "The documentation for the config options can be found at the bottom of this page:\nhttps://docs.openstack.org/cinder/2025.1/configuration/block-storage/drivers/dell-storagecenter-driver.html\n\nThe above link also contains the minimum configuration requirements in the \u0027iSCSI Configuration\u0027 and \u0027Fibre Channel Configuration\u0027 sections.\n\nAdditionally I\u0027ve archived Dell\u0027s documentation here (links from there new support site are broken):\nhttps://drive.google.com/file/d/1WiJCUW5JS0sbpyPRFBze4BTUrkXLkDmR/view?usp\u003dsharing",
+      "parentUuid": "c06a1b4e_0a031408",
+      "revId": "008c2ad4746322383d3025b229c7b140c3e687d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
