@@ -18,10 +18,10 @@ from multiprocessing import (
 )
 
 
-def get_tempest_concurrency() -> str:
+def get_tempest_concurrency(limit: int) -> str:
     """Return the concurrency for tempest.
 
-    4 is chosen as a constant small number,
+    `limit` is the default small number configurable via charm config,
     to avoid overloading the cloud and/or the host machine.
     If less cpu cores are available,
     the concurrency value must be bounded by that,
@@ -30,7 +30,7 @@ def get_tempest_concurrency() -> str:
     Note that this will be run in a k8s container,
     so this could reflect the host machine's number of cores.
     """
-    return str(min(4, cpu_count()))
+    return str(min(limit, cpu_count()))
 
 
 # It's the target location for the OS cacert template file.  See
@@ -39,16 +39,6 @@ OS_CACERT_PATH = "/usr/local/share/ca-certificates/ca-bundle.pem"
 # The relation name of 'receive-ca-cert'. See
 # https://opendev.org/openstack/sunbeam-charms/src/branch/main/ops-sunbeam/ops_sunbeam/charm.py#L194
 RECEIVE_CA_CERT_RELATION_NAME = "receive-ca-cert"
-
-TEMPEST_CONCURRENCY = get_tempest_concurrency()
-
-# It's desirable to have more accounts than the concurrency,
-# so it can be hardcoded to a value that is
-# more than the max concurrency (see get_tempest_concurrency()),
-# and still a relatively small number of accounts.
-# It's also helpful to have more accounts to mitigate the effects
-# of credential locks not being released as per LP: #2052752.
-TEMPEST_ACCOUNTS_COUNT = "8"
 
 TEMPEST_HOME = "/var/lib/tempest"
 TEMPEST_WORKSPACE_PATH = f"{TEMPEST_HOME}/workspace"
