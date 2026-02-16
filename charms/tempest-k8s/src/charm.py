@@ -60,7 +60,6 @@ from utils.constants import (
     OS_CACERT_PATH,
     RECEIVE_CA_CERT_RELATION_NAME,
     TEMPEST_ADHOC_OUTPUT,
-    TEMPEST_CONCURRENCY,
     TEMPEST_CONF,
     TEMPEST_EXCLUDE_LIST,
     TEMPEST_HOME,
@@ -69,6 +68,7 @@ from utils.constants import (
     TEMPEST_TEST_ACCOUNTS,
     TEMPEST_WORKSPACE,
     TEMPEST_WORKSPACE_PATH,
+    get_tempest_concurrency,
 )
 from utils.overrides import (
     get_compute_overrides,
@@ -281,7 +281,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "OS_DOMAIN_ID": credential.get("domain-id"),
             "OS_USER_DOMAIN_ID": credential.get("domain-id"),
             "OS_PROJECT_DOMAIN_ID": credential.get("domain-id"),
-            "TEMPEST_CONCURRENCY": TEMPEST_CONCURRENCY,
+            "TEMPEST_CONCURRENCY": get_tempest_concurrency(
+                self.config.get("tempest-concurrency")
+            ),
             "TEMPEST_ACCOUNTS_COUNT": str(
                 self.config.get("tempest-accounts-count")
             ),
@@ -481,6 +483,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         return {
             "roles": self.config.get("roles"),
             "region": self.config.get("region"),
+            "tempest-concurrency": self.config.get("tempest-concurrency"),
             "tempest-accounts-count": str(
                 self.config.get("tempest-accounts-count")
             ),
