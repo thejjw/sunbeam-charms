@@ -16,6 +16,24 @@
       "message": "Is this constant still required?",
       "revId": "2f6e047fbd1f5835798251697305a4a9f9907b21",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83d2e49c_0393ea39",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-02-17T11:07:49Z",
+      "side": 1,
+      "message": "cleaned up the dead code.",
+      "parentUuid": "589a5541_7e5c542b",
+      "revId": "2f6e047fbd1f5835798251697305a4a9f9907b21",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
