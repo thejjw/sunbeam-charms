@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "589a5541_7e5c542b",
+        "filename": "charms/tempest-k8s/src/utils/constants.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-02-17T09:36:48Z",
+      "side": 1,
+      "message": "Is this constant still required?",
+      "revId": "2f6e047fbd1f5835798251697305a4a9f9907b21",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
