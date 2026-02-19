@@ -16,6 +16,23 @@
       "message": "recheck\n\ntesttools 2.8.4 was released",
       "revId": "3433e0114c64151136298f69b7bad3452468f8cd",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "59793c61_07d12f58",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-19T16:32:39Z",
+      "side": 1,
+      "message": "recheck timeout on waiting for the model to settle",
+      "revId": "3433e0114c64151136298f69b7bad3452468f8cd",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
