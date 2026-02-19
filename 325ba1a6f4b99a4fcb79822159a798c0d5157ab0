@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a438e4ae_9d4f7e42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-02-19T12:38:13Z",
+      "side": 1,
+      "message": "recheck testtools 2.8.4 is released",
+      "revId": "325ba1a6f4b99a4fcb79822159a798c0d5157ab0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
