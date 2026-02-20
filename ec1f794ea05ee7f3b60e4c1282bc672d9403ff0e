@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "ec1f794ea05ee7f3b60e4c1282bc672d9403ff0e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9f9413a6_5ee686c1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-20T11:21:05Z",
+      "side": 1,
+      "message": "recheck new version of the hypervisor snap getting released",
+      "revId": "ec1f794ea05ee7f3b60e4c1282bc672d9403ff0e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
