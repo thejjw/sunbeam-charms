@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6815b737_92b7e201",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-20T11:20:54Z",
+      "side": 1,
+      "message": "recheck new version of the hypervisor snap getting released",
+      "revId": "4c7afcb2c47331bd64c69905e0f5e7da1c515be9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
