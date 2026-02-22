@@ -67,6 +67,23 @@
       "message": "Recheck",
       "revId": "4c7afcb2c47331bd64c69905e0f5e7da1c515be9",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e584c82_a669067b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 13252
+      },
+      "writtenOn": "2026-02-22T11:36:37Z",
+      "side": 1,
+      "message": "recheck needed to dequeue stuck jobs",
+      "revId": "4c7afcb2c47331bd64c69905e0f5e7da1c515be9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
