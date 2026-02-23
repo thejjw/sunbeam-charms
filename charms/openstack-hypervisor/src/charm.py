@@ -98,6 +98,9 @@ EPA_ALLOCATION_OVS_DPDK_HUGEPAGES = "ovs-dpdk-hugepages"
 EPA_ALLOCATION_OVS_DPDK_CONTROL_PLANE = "ovs-dpdk-control-plane"
 EPA_ALLOCATION_OVS_DPDK_DATAPATH = "ovs-dpdk-datapath"
 
+# Snap Key if microovn switch restart is needed after DPDK config change.
+MICROOVN_RESTART_TRIGGER_SNAP_KEY = "network.external-switch-restart"
+
 
 class SnapInstallationError(Exception):
     """Custom exception for snap installation failure errors."""
@@ -492,14 +495,33 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def ensure_services_running(self):
         """Ensure systemd services running."""
         # This should taken care of by the snap
+        snap_cache = self.get_snap_cache()
+        hypervisor_snap = snap_cache["openstack-hypervisor"]
+        microovn_snap = snap_cache["microovn"]
+        if (
+            microovn_snap.present
+            and hypervisor_snap.get(MICROOVN_RESTART_TRIGGER_SNAP_KEY)
+            == "true"
+        ):
+            logger.info(
+                "Restarting microovn switch due to DPDK config change."
+            )
+            microovn_snap.restart(["switch"])
+            # Reset the trigger key
+            hypervisor_snap.set({MICROOVN_RESTART_TRIGGER_SNAP_KEY: "false"})
         svcs = [
-            "snap.openstack-hypervisor.neutron-ovn-metadata-agent.service",
-            "snap.openstack-hypervisor.nova-api-metadata.service",
-            "snap.openstack-hypervisor.nova-compute.service",
+            "neutron-ovn-metadata-agent",
+            "nova-api-metadata",
+            "nova-compute",
         ]
-        for svc in svcs:
-            if os.system(f"systemctl is-active --quiet {svc}") != 0:
-                os.system(f"systemctl start {svc}")
+        inactive = [
+            svc
+            for svc in svcs
+            if not hypervisor_snap.services[svc].get("active")
+        ]
+        if inactive:
+            logger.info(f"Starting inactive services: {', '.join(inactive)}")
+            hypervisor_snap.start(inactive)
 
     def generate_metadata_secret(self) -> str:
         """Generate a secure secret.
@@ -622,6 +644,21 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
         return changes_made
 
+    def _is_microovn_present(self) -> bool:
+        """Check if microovn is installed on the system."""
+        cache = self.get_snap_cache()
+        try:
+            microovn = cache["microovn"]
+            if microovn.present:
+                logger.debug("microovn snap is present.")
+                return True
+            else:
+                logger.debug("microovn snap is not present.")
+                return False
+        except snap.SnapNotFoundError:
+            logger.debug("microovn snap not found in snap cache.")
+            return False
+
     def ensure_snap_present(self):
         """Install snap if it is not already present."""
         config = self.model.config.get
@@ -697,10 +734,11 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             # Netplan expects the "ovs-vsctl" alias in order to pick up the
             # snap installation. The other aliases are there for consistency
             # and convenience.
-            hypervisor.alias("ovs-vsctl", "ovs-vsctl")
-            hypervisor.alias("ovs-appctl", "ovs-appctl")
-            hypervisor.alias("ovs-dpctl", "ovs-dpctl")
-            hypervisor.alias("ovs-ofctl", "ovs-ofctl")
+            if not self._is_microovn_present():
+                hypervisor.alias("ovs-vsctl", "ovs-vsctl")
+                hypervisor.alias("ovs-appctl", "ovs-appctl")
+                hypervisor.alias("ovs-dpctl", "ovs-dpctl")
+                hypervisor.alias("ovs-ofctl", "ovs-ofctl")
         except (snap.SnapError, snap.SnapNotFoundError) as e:
             logger.error(
                 "An exception occurred when installing openstack-hypervisor. Reason: %s",

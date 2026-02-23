@@ -1,0 +1,47 @@
+type: charm
+name: sunbeam-ovn-proxy
+title: Sunbeam OVN Proxy
+summary: Relation proxy between ovsdb and ovsdb-cms.
+description: |
+  The goal of this charm is to act as a relation proxy between
+  the ovsdb-cms relation and the ovsdb relation. This is needed
+  because MicroOVN only provides OVSDB interface, while Sunbeam
+  charms need more information that is provided by the ovsdb-cms
+  relation.
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+parts:
+  charm:
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - jinja2
+      - pydantic
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
+
+requires:
+  ovsdb:
+    interface: ovsdb
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+provides:
+  ovsdb-cms:
+    interface: ovsdb-cms

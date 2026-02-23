@@ -35,6 +35,7 @@ import ops_sunbeam.tracing as sunbeam_tracing
 
 logger = logging.getLogger(__name__)
 
+MICROOVN_SNAP = "microovn"
 OVN_CHASSIS_PLUG = "ovn-chassis"
 OVN_CHASSIS_SLOT = "microovn:ovn-chassis"
 
@@ -93,6 +94,28 @@ class OpenstackNetworkAgentsOperatorCharm(
     def snap_channel(self) -> str:
         """Channel to track in the Snap Store."""
         return str(self.model.config.get("snap-channel"))
+
+    def _on_install(self, event: ops.InstallEvent):
+        """Handle the install event."""
+        if not self._check_microovn_ready():
+            logger.error("Microovn snap is not ready, deferring install event")
+            event.defer()
+            return
+
+        return super()._on_install(event)
+
+    def _check_microovn_ready(self) -> bool:
+        """Check if microovn snap is ready."""
+        microovn = self.snap_module.SnapCache()[MICROOVN_SNAP]
+        if not microovn.present:
+            logger.warning(f"{MICROOVN_SNAP} snap is not present")
+            return False
+        if not microovn.services.get("switch", {}).get("active", False):
+            logger.warning(
+                f"{MICROOVN_SNAP} snap switch service is not active"
+            )
+            return False
+        return True
 
     def ensure_services_running(self, enable: bool = True) -> None:
         """No-op; there are no services to start."""
@@ -161,6 +184,9 @@ class OpenstackNetworkAgentsOperatorCharm(
             {
                 "settings.debug": bool(
                     self.model.config.get("debug") or False
+                ),
+                "network.external-bridge-address": str(
+                    self.model.config.get("external-bridge-address")
                 ),
             }
         )

@@ -1,0 +1,6 @@
+external-libraries:
+  - charms.tempo_coordinator_k8s.v0.tracing
+  - charms.tempo_coordinator_k8s.v0.charm_tracing
+  - charms.microovn.v0.ovsdb
+internal-libraries:
+  - charms.ovn_central_k8s.v0.ovsdb
