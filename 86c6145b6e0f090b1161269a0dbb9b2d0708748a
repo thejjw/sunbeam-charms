@@ -16,6 +16,23 @@
       "message": "recheck, juju registry was down today",
       "revId": "86c6145b6e0f090b1161269a0dbb9b2d0708748a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4de000d7_4544f9ae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-02-24T04:28:52Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "86c6145b6e0f090b1161269a0dbb9b2d0708748a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
