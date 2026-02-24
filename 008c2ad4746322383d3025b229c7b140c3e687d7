@@ -138,6 +138,24 @@
       "message": "nit: This is a duplicate. It\u0027s already validated in base charm",
       "revId": "008c2ad4746322383d3025b229c7b140c3e687d7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4342c01a_731a1c2f",
+        "filename": "charms/storage/cinder-volume-dellsc/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 38760
+      },
+      "writtenOn": "2026-02-24T22:19:41Z",
+      "side": 1,
+      "message": "@ahmad.hassan@canonical.com the driver-ssl-cert override is to \u0027invalidate\u0027 this setting (has to be none). it\u0027s included in the base charm but it\u0027s not valid for the dellsc driver, it will only ever use the system CA bundle. I\u0027ve included a note at line 50.",
+      "parentUuid": "20f6cffc_41a9832d",
+      "revId": "008c2ad4746322383d3025b229c7b140c3e687d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
