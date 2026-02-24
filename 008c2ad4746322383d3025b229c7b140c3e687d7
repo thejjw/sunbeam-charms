@@ -37,6 +37,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "50d7eb8e_20ad4afb",
+        "filename": "charms/storage/cinder-volume-dellsc/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-02-24T09:30:46Z",
+      "side": 1,
+      "message": "Hi @drew.lawrence442@gmail.com I noticed that for Dual DSM, you are not setting `secondary-sc-api-port` in the charm.py but that property only exists in charmcraft config. Is this intentional?\n\nFrom the cinder documentation, this is a required property for dual DSM\n```\n[dell]\n #The IP address and port of the secondary DSM.\nsecondary_san_ip \u003d 192.168.0.102\nsecondary_sc_api_port \u003d 3033\n #Specify credentials for the secondary DSM.\nsecondary_san_login \u003d Admin\nsecondary_san_password \u003d secret \n```\n\nI have similar question for other fields like dell_sc_api_port. These are not defined in charm.py\n\nLastly, many of the the properties already validated in the base charm, you do not need to re-validate in the dellsc charm\n\nhttps://opendev.org/openstack/sunbeam-charms/src/branch/main/ops-sunbeam/ops_sunbeam/charm.py#L1422\n\n            \"driver-ssl-cert\": typing.Annotated[\n                str | None,\n                pydantic.BeforeValidator(\n                    sunbeam_storage.certificate_validator\n                ),\n            ],\n            \"san-ip\": typing.Annotated[\n                pydantic.IPvAnyAddress | str, sunbeam_storage.Required\n            ],\n            \"volume-backend-name\": str,\n            \"backend-availability-zone\": str,\n            \"protocol\": str,",
+      "revId": "008c2ad4746322383d3025b229c7b140c3e687d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c06a1b4e_0a031408",
         "filename": "charms/storage/cinder-volume-dellsc/src/charm.py",
         "patchSetId": 4
