@@ -70,6 +70,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9e4a6c61_6d785ba6",
+        "filename": "charms/storage/cinder-volume-dellsc/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-02-24T10:13:47Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "5a96b509_23b4c5fa",
+      "revId": "008c2ad4746322383d3025b229c7b140c3e687d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c06a1b4e_0a031408",
@@ -101,6 +119,23 @@
       "side": 1,
       "message": "The documentation for the config options can be found at the bottom of this page:\nhttps://docs.openstack.org/cinder/2025.1/configuration/block-storage/drivers/dell-storagecenter-driver.html\n\nThe above link also contains the minimum configuration requirements in the \u0027iSCSI Configuration\u0027 and \u0027Fibre Channel Configuration\u0027 sections.\n\nAdditionally I\u0027ve archived Dell\u0027s documentation here (links from there new support site are broken):\nhttps://drive.google.com/file/d/1WiJCUW5JS0sbpyPRFBze4BTUrkXLkDmR/view?usp\u003dsharing",
       "parentUuid": "c06a1b4e_0a031408",
+      "revId": "008c2ad4746322383d3025b229c7b140c3e687d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "20f6cffc_41a9832d",
+        "filename": "charms/storage/cinder-volume-dellsc/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-02-24T10:13:47Z",
+      "side": 1,
+      "message": "nit: This is a duplicate. It\u0027s already validated in base charm",
       "revId": "008c2ad4746322383d3025b229c7b140c3e687d7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
