@@ -798,7 +798,7 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
         return {
             "extension_drivers": "port_security,qos,dns_domain_ports,port_forwarding,uplink_status_propagation,port_numa_affinity_policy,port_hardware_offload_type",
             "type_drivers": "geneve,vlan,flat",
-            "tenant_network_types": "geneve,vlan,flat",
+            "project_network_types": "geneve,vlan,flat",
             # Limiting defaults to 2**16 -1 even though geneve vni max is 2**24-1
             # ml2_geneve_allocations will be populated with each vni range
             # which will result in db timeouts if range is 1 - 2**24-1
