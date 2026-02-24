@@ -54,6 +54,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5a96b509_23b4c5fa",
+        "filename": "charms/storage/cinder-volume-dellsc/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-02-24T09:44:39Z",
+      "side": 1,
+      "message": "_configuration_type_overrides are just configuration overrides to add extra validation. All values from the config options are passed to the snap (when they have a value)",
+      "parentUuid": "50d7eb8e_20ad4afb",
+      "revId": "008c2ad4746322383d3025b229c7b140c3e687d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c06a1b4e_0a031408",
         "filename": "charms/storage/cinder-volume-dellsc/src/charm.py",
         "patchSetId": 4
