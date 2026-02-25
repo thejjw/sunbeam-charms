@@ -27,6 +27,236 @@ config:
       default: RegionOne
       description: Name of the OpenStack region
       type: string
+    amp-ssh-key-name:
+      description: |
+        Name of nova key to use to provide ssh access to Amphora VMs. Note
+        that this key must be visible to the project used by Octavia.
+      type: string
+    amp-image-owner-id:
+      description: |
+        Restrict glance image selection to a specific owner ID. This is a
+        recommended security setting.
+      type: string
+    amp-secgroup-list:
+      description: |
+        Comma-separated list of security group IDs to attach to Amphora
+        instances.
+      type: string
+    amp-flavor-id:
+      description: |
+        ID of Nova flavor Octavia should use when launching Amphora
+        instances.
+      type: string
+    amp-boot-network-list:
+      description: |
+        Comma-separated list of network IDs to attach to Amphora instances
+        at boot time.
+      type: string
+    amp-image-tag:
+      default: octavia-amphora
+      description: |
+        Glance image tag for selection of Amphorae image to boot load
+        balancer instances.
+      type: string
+    lb-mgmt-issuing-cacert:
+      description: |
+        Certificate Authority Certificate used to issue new certificates stored
+        on the Amphora load balancer instances. The Amphorae use them to
+        authenticate themselves to the Octavia controller services.
+
+        Note due to security concerns it is important not use the same CA
+        certificate for both lb-mgmt-issuing-cacert and
+        lb-mgmt-controller-cacert configuration options. Failing to keep
+        them separate may lead to abuse of certificate data to gain access to
+        other Amphora instances in the event one of them is compromised.
+
+        Note that these certificates are not used for any load balancer payload
+        data.
+      type: string
+    lb-mgmt-issuing-ca-private-key:
+      description: |
+        Private key for the Certificate Authority set in lb-mgmt-issuing-cacert.
+
+        Note that these certificates are not used for any load balancer payload
+        data.
+      type: string
+    lb-mgmt-issuing-ca-key-passphrase:
+      description: |
+        Passphrase for the key set in lb-mgmt-issuing-ca-private-key.
+
+        NOTE: As of this writing Octavia requires the private key to be protected
+        with a passphrase.
+
+        Note that these certificates are not used for any load balancer payload
+        data.
+      type: string
+    lb-mgmt-controller-cacert:
+      description: |
+        Certificate Authority Certificate installed on Amphorae with the
+        purpose of the Amphora agent using it to authenticate connections
+        from Octavia controller services.
+
+        Note due to security concerns it is important not use the same CA
+        certificate for both lb-mgmt-issuing-cacert and
+        lb-mgmt-controller-cacert configuration options. Failing to keep
+        them separate may lead to abuse of certificate data to gain access to
+        other Amphora instances in the event one of them is compromised.
+
+        Note that these certificates are not used for any load balancer payload
+        data.
+      type: string
+    lb-mgmt-controller-cert:
+      description: |
+        Certificate used by the Octavia controller to authenticate itself to
+        its Amphorae.
+
+        Note that these certificates are not used for any load balancer payload
+        data.
+      type: string
+    loadbalancer-topology:
+      default: SINGLE
+      description: |
+        Load balancer topology configuration.
+        Supported values are 'SINGLE' and 'ACTIVE_STANDBY'.
+      type: string
+    enable-volume-based-amphora:
+      default: false
+      description: |
+        Enable the use of cinder volumes for the amphora. When this option
+        is enabled, Octavia will create a volume and attach it to the
+        amphora.
+      type: boolean
+    volume-size:
+      default: 16
+      description: |
+        Size of the volume, in GB, for amphora instance. Applies only when
+        enable-volume-based-amphora is True.
+      type: int
+    volume-type:
+      description: |
+        Type of volume for amphora volume root disk. Applies only when
+        enable-volume-based-amphora is True. If not specified, the
+        default_volume_type from cinder.conf will be used.
+      type: string
+    anti-affinity-policy:
+      default: auto
+      description: |
+        Sets the anti-affinity policy for Nova. Possible values are
+        anti-affinity, soft-anti-affinity, auto or disable.
+        When set to auto, the charm will use soft-anti-affinity when
+        loadbalancer-topology is ACTIVE_STANDBY, and disable anti-affinity
+        when set to SINGLE.
+      type: string
+    connection-max-retries:
+      default: 120
+      description: |
+        Retry threshold for connecting to amphorae. This is used when waiting
+        for a new amphora to become available as well as during a failover.
+      type: int
+    connection-retry-interval:
+      default: 5
+      description: |
+        Retry timeout between connection attempts in seconds. This is used
+        when waiting for a new amphora to become available as well as during a
+        failover.
+      type: int
+    active-connection-max-retries:
+      default: 15
+      description: |
+        Retry threshold for connecting to an active amphora.
+      type: int
+    active-connection-retry-interval:
+      default: 2
+      description: |
+        Retry timeout between connection attempts in seconds for active amphora.
+      type: int
+    admin-log-targets:
+      description: |
+        Comma-separated list of syslog receiver endpoints for administrative
+        log offloading, e.g. "192.0.2.1:10514". When set, amphora
+        administrative logs (haproxy, keepalived, amphora agent) are forwarded
+        to these endpoints via the lb-mgmt network.
+      type: string
+    administrative-log-facility:
+      default: 1
+      description: |
+        LOG_LOCAL facility number (0-7) used for administrative log messages.
+        Only applicable when admin-log-targets is set.
+      type: int
+    forward-all-logs:
+      default: false
+      description: |
+        When True, forward all administrative logs from the amphora (kernel,
+        system, security) in addition to load balancer related logs.
+        Only applicable when admin-log-targets is set.
+      type: boolean
+    tenant-log-targets:
+      description: |
+        Comma-separated list of syslog receiver endpoints for tenant flow
+        log offloading, e.g. "192.0.2.1:10514". When set, per-connection
+        flow logs are forwarded to these endpoints via the lb-mgmt network.
+      type: string
+    user-log-facility:
+      default: 0
+      description: |
+        LOG_LOCAL facility number (0-7) used for tenant flow log messages.
+        Only applicable when tenant-log-targets is set.
+      type: int
+    log-protocol:
+      default: UDP
+      description: |
+        Protocol used for syslog log offloading. Supported values are UDP
+        and TCP. When using multiple log targets for failover, TCP must be
+        used — with UDP, rsyslog is unable to detect if the primary endpoint
+        has failed, making failover ineffective.
+      type: string
+    log-retry-count:
+      default: 5
+      description: |
+        Number of times to retry a failed log target before failing over to
+        the next target. When using multiple log targets with TCP, setting
+        this to 0 causes immediate failover as soon as the client detects
+        that the primary server is unavailable.
+      type: int
+    log-retry-interval:
+      default: 2
+      description: |
+        Seconds to wait before a failed log target becomes eligible for use
+        again after a failover event. Values up to 1800 (30 minutes) are
+        supported. When log-retry-count is 0, a higher value here ensures
+        the failed server is not retried for a meaningful period after it
+        became unavailable.
+      type: int
+    disable-local-log-storage:
+      default: false
+      description: |
+        When True, stops log entries from being written to disk inside the
+        amphora. Warning: this disables ALL log storage including kernel
+        and security logs. Recommended only when log offloading is configured.
+      type: boolean
+    user-log-format:
+      description: |
+        Custom HAProxy log format string for tenant flow logs. When empty,
+        the default Octavia flow log format is used. Supports HAProxy log
+        format variables as well as {{ project_id }} and {{ lb_id }}.
+      type: string
+    connection-logging:
+      default: true
+      description: |
+        When False, disables tenant flow (connection) logging entirely,
+        regardless of other log settings. Disabling can improve load
+        balancing performance, and is recommended when
+        disable-local-log-storage is True.
+      type: boolean
+    amphora-network-attachment:
+      description: |
+        Name of the Kubernetes NetworkAttachmentDefinition for Octavia
+        amphora management network. This network is used for communication
+        between Octavia health manager and amphora instances.
+        When set, Octavia pods will have an additional network interface
+        attached via Multus CNI.
+        Example: "octavia-mgmt-net"
+      type: string
 
 containers:
   octavia-api:
@@ -41,6 +271,10 @@ containers:
         location: /var/run/octavia/
   octavia-housekeeping:
     resource: octavia-housekeeping-image
+  octavia-health-manager:
+    resource: octavia-health-manager-image
+  octavia-worker:
+    resource: octavia-worker-image
 
 resources:
   octavia-api-image:
@@ -55,6 +289,14 @@ resources:
     type: oci-image
     description: OCI image for OpenStack Octavia Housekeeping
     upstream-source: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
+  octavia-health-manager-image:
+    type: oci-image
+    description: OCI image for OpenStack Octavia Health manager
+    upstream-source: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
+  octavia-worker-image:
+    type: oci-image
+    description: OCI image for OpenStack Octavia Worker
+    upstream-source: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
 
 storage:
   agent-sockets:
@@ -67,6 +309,9 @@ storage:
 requires:
   database:
     interface: mysql_client
+    limit: 1
+  amqp:
+    interface: rabbitmq
     limit: 1
   identity-service:
     interface: keystone
@@ -96,6 +341,9 @@ requires:
     interface: tracing
     optional: true
     limit: 1
+  barbican-service:
+    interface: service-ready
+    optional: true
 
 peers:
   peers:
