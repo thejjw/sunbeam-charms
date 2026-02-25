@@ -156,6 +156,24 @@
       "parentUuid": "20f6cffc_41a9832d",
       "revId": "008c2ad4746322383d3025b229c7b140c3e687d7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b0b4749_9e71d143",
+        "filename": "charms/storage/cinder-volume-dellsc/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-02-25T04:50:59Z",
+      "side": 1,
+      "message": "@drew.lawrence442@gmail.com, sorry i wasn\u0027t explicit. I meant `san-ip` as its already validated in the base charm https://opendev.org/openstack/sunbeam-charms/src/branch/main/ops-sunbeam/ops_sunbeam/charm.py#L1422\n\nOther fields protocol etc are ok here because base charm is defining them but not validating them.\n\ni am approving the PR. LGTM. Thanks for your contributions.",
+      "parentUuid": "4342c01a_731a1c2f",
+      "revId": "008c2ad4746322383d3025b229c7b140c3e687d7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
