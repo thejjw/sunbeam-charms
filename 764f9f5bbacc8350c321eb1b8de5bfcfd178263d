@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b395bd4e_0267a481",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-02-25T01:26:34Z",
+      "side": 1,
+      "message": "sunbeam-charms are not yet published to 2026.1/edge and  main publishes charms to 2025.1/edge. Deferring review until sunbeam-charms start publishing to 2026.1",
+      "revId": "764f9f5bbacc8350c321eb1b8de5bfcfd178263d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
