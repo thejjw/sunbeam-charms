@@ -18,6 +18,7 @@ This charm provide Magnum services as part of an OpenStack deployment
 """
 
 import logging
+import os
 from functools import (
     cached_property,
 )
@@ -101,6 +102,9 @@ class MagnumConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "command": "magnum-conductor",
                     "user": "magnum",
                     "group": "magnum",
+                    "environment": {
+                        **self.charm.proxy_env(),
+                    },
                 }
             },
         }
@@ -324,6 +328,19 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         except (SecretNotFoundError, ModelError, yaml.YAMLError) as e:
             logger.info(f"Error in retrieving kubeconfig secret: {e}")
             return None
+
+    def proxy_env(self) -> dict[str, str]:
+        """Get proxy settings from environment."""
+        juju_proxy_vars = [
+            "JUJU_CHARM_HTTP_PROXY",
+            "JUJU_CHARM_HTTPS_PROXY",
+            "JUJU_CHARM_NO_PROXY",
+        ]
+        return {
+            proxy_var.removeprefix("JUJU_CHARM_"): value
+            for proxy_var in juju_proxy_vars
+            if (value := os.environ.get(proxy_var))
+        }
 
     def _get_create_role_ops(self) -> list:
         """Generate ops request for create role."""
