@@ -67,3 +67,18 @@ class TestCinderOperatorCharm(test_utils.CharmTestCase):
         self.assertEqual(self.harness.charm.seen_events, [])
         self.harness.container_pebble_ready("cinder-api")
         self.assertEqual(self.harness.charm.seen_events, ["PebbleReadyEvent"])
+
+    def test_cinder_conf_contains_region_name(self):
+        """Test cinder.conf includes region_name from config."""
+        self.harness.set_leader()
+        test_utils.set_all_pebbles_ready(self.harness)
+        test_utils.add_all_relations(self.harness)
+        test_utils.add_complete_ingress_relation(self.harness)
+
+        container = self.harness.charm.unit.get_container("cinder-api")
+        client = container._pebble  # type: ignore
+        with client.pull("/etc/cinder/cinder.conf") as infile:
+            received_data = infile.read()
+
+        # Default region in charmcraft.yaml is RegionOne
+        self.assertIn("region_name = RegionOne", received_data)
