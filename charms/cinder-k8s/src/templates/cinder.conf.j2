@@ -8,6 +8,7 @@ rootwrap_config = /etc/cinder/rootwrap.conf
 debug = {{ options.debug }}
 transport_url = {{ amqp.transport_url }}
 auth_strategy = keystone
+os_region_name = {{ options.region }}
 
 {% include "parts/section-database" %}
 
