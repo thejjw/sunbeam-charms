@@ -18,11 +18,9 @@
 
 import functools
 import itertools
+import json
 
-from scenario import (
-    Relation,
-    Secret,
-)
+from ops import testing
 
 # Data used to create Relation objects. If an incomplete relation is being
 # created only the 'endpoint', 'interface' and 'remote_app_name' key are
@@ -32,8 +30,11 @@ default_relations = {
         "endpoint": "amqp",
         "interface": "rabbitmq",
         "remote_app_name": "rabbitmq",
-        "remote_app_data": {"password": "foo"},
-        "remote_units_data": {0: {"ingress-address": "host1"}},
+        "remote_app_data": {
+            "hostname": "rabbithost1.local",
+            "password": "rabbit.pass",
+        },
+        "remote_units_data": {0: {"ingress-address": "10.0.0.13"}},
     },
     "identity-credentials": {
         "endpoint": "identity-credentials",
@@ -47,7 +48,7 @@ default_relations = {
             "internal-host": "keystone.internal",
             "internal-port": "5000",
             "internal-protocol": "http",
-            "credentials": "foo",
+            "credentials": "secret:foo",
             "project-name": "user-project",
             "project-id": "uproj-id",
             "user-domain-name": "udomain-name",
@@ -59,6 +60,69 @@ default_relations = {
             "internal-endpoint": "http://10.153.2.45:80/openstack-keystone",
         },
     },
+    "database": {
+        "endpoint": "database",
+        "interface": "mysql_client",
+        "remote_app_name": "mysql",
+        "remote_app_data": {
+            "secret-user": "secret:db-creds",
+            "endpoints": "10.0.0.10",
+        },
+        "remote_units_data": {0: {"ingress-address": "10.0.0.3"}},
+    },
+    "ingress-internal": {
+        "endpoint": "ingress-internal",
+        "interface": "ingress",
+        "remote_app_name": "traefik-internal",
+        "remote_app_data": {
+            "ingress": json.dumps({"url": "http://internal-url"}),
+        },
+        "remote_units_data": {0: {}},
+    },
+    "ingress-public": {
+        "endpoint": "ingress-public",
+        "interface": "ingress",
+        "remote_app_name": "traefik-public",
+        "remote_app_data": {
+            "ingress": json.dumps({"url": "http://public-url"}),
+        },
+        "remote_units_data": {0: {}},
+    },
+    "certificates": {
+        "endpoint": "certificates",
+        "interface": "tls-certificates",
+        "remote_app_name": "vault",
+        "remote_app_data": {"certificates": "TEST_CERT_LIST"},
+        "remote_units_data": {0: {}},
+    },
+    "logging": {
+        "endpoint": "logging",
+        "interface": "loki_push_api",
+        "remote_app_name": "loki",
+        "remote_app_data": {},
+        "remote_units_data": {
+            0: {
+                "endpoint": json.dumps(
+                    {"url": "http://10.20.23.1/cos-loki-0/loki/api/v1/push"}
+                ),
+            },
+        },
+    },
+}
+
+# Secrets required by specific relation types.
+# Maps remote_app_name to a factory returning a testing.Secret.
+_relation_secrets = {
+    "mysql": lambda: testing.Secret(
+        tracked_content={"username": "foo", "password": "hardpassword"},
+        id="secret:db-creds",
+        owner=None,
+    ),
+    "keystone": lambda: testing.Secret(
+        tracked_content={"username": "svcuser1", "password": "svcpass1"},
+        id="secret:foo",
+        owner=None,
+    ),
 }
 
 
@@ -79,17 +143,14 @@ def relation_combinations(
     _relation_pairs = []
     for rel_name in metadata.get("requires", {}):
         rel = default_relations[rel_name]
-        complete_relation = Relation(
+        complete_relation = testing.Relation(
             endpoint=rel["endpoint"],
-            interface=rel["interface"],
             remote_app_name=rel["remote_app_name"],
-            local_unit_data=rel.get("local_unit_data", {}),
             remote_app_data=rel.get("remote_app_data", {}),
             remote_units_data=rel.get("remote_units_data", {}),
         )
-        relation_missing_data = Relation(
+        relation_missing_data = testing.Relation(
             endpoint=rel["endpoint"],
-            interface=rel["interface"],
             remote_app_name=rel["remote_app_name"],
         )
         _incomplete_relations.append(relation_missing_data)
@@ -125,18 +186,35 @@ complete_relation = functools.partial(
 )
 
 
+def get_secrets_for_relations(relations):
+    """Create secrets required by the given relations.
+
+    Returns a list of testing.Secret objects needed by the relations
+    (e.g. identity-credentials and database both use secrets).
+    """
+    secrets = []
+    seen = set()
+    for relation in relations:
+        factory = _relation_secrets.get(relation.remote_app_name)
+        if factory and relation.remote_app_name not in seen:
+            seen.add(relation.remote_app_name)
+            secrets.append(factory())
+    return secrets
+
+
 def get_keystone_secret_definition(relations):
-    """Create the keystone identity secret."""
-    ident_rel_id = None
-    secret = None
+    """Create the keystone identity secret.
+
+    Kept for backward compatibility; prefer get_secrets_for_relations().
+    """
     for relation in relations:
         if relation.remote_app_name == "keystone":
-            ident_rel_id = relation.relation_id
-    if ident_rel_id:
-        secret = Secret(
-            id="foo",
-            contents={0: {"username": "svcuser1", "password": "svcpass1"}},
-            owner="keystone",  # or 'app'
-            remote_grants={ident_rel_id: {"my-service/0"}},
-        )
-    return secret
+            return testing.Secret(
+                tracked_content={
+                    "username": "svcuser1",
+                    "password": "svcpass1",
+                },
+                id="secret:foo",
+                owner=None,
+            )
+    return None

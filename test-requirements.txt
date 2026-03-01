@@ -1,4 +1,5 @@
-stestr
+pytest
+pytest-cov
 coverage
 
 tenacity                   # ops-sunbeam

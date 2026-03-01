@@ -18,39 +18,26 @@
 from . import test_fixtures
 from . import scenario_utils as utils
 import re
-import sys
-
-sys.path.append("tests/lib")  # noqa
-sys.path.append("src")  # noqa
 
 import pytest
-from scenario import (
-    State,
-    Context,
-    Container,
-    Mount,
-)
-from ops.model import (
-    ActiveStatus,
-    MaintenanceStatus,
-)
+from ops import testing
 
 
 class TestOSBaseOperatorCharmScenarios:
     @pytest.mark.parametrize("leader", (True, False))
     def test_no_relations(self, leader):
         """Check charm with no relations becomes active."""
-        state = State(leader=leader, config={}, containers=[])
-        ctxt = Context(
-            charm_type=test_fixtures.MyCharm,
+        state = testing.State(leader=leader, config={}, containers=[])
+        ctx = testing.Context(
+            test_fixtures.MyCharm,
             meta=test_fixtures.MyCharm_Metadata,
         )
-        out = ctxt.run("install", state)
-        assert out.unit_status == MaintenanceStatus(
+        out = ctx.run(ctx.on.install(), state)
+        assert out.unit_status == testing.MaintenanceStatus(
             "(bootstrap) Service not bootstrapped"
         )
-        out = ctxt.run("config-changed", state)
-        assert out.unit_status == ActiveStatus("")
+        out = ctx.run(ctx.on.config_changed(), state)
+        assert out.unit_status == testing.ActiveStatus("")
 
     @pytest.mark.parametrize("leader", (True, False))
     @pytest.mark.parametrize(
@@ -59,18 +46,19 @@ class TestOSBaseOperatorCharmScenarios:
     )
     def test_relation_missing(self, relations, leader):
         """Check charm with a missing relation is blocked."""
-        ctxt = Context(
-            charm_type=test_fixtures.MyCharmMulti,
+        ctx = testing.Context(
+            test_fixtures.MyCharmMulti,
             meta=test_fixtures.MyCharmMulti_Metadata,
         )
-        state = State(
+        secret = utils.get_keystone_secret_definition(relations)
+        state = testing.State(
             leader=True,
             config={},
             containers=[],
             relations=list(relations),
-            secrets=[utils.get_keystone_secret_definition(relations)],
+            secrets=[secret] if secret else [],
         )
-        out = ctxt.run("config-changed", state)
+        out = ctx.run(ctx.on.config_changed(), state)
         assert out.unit_status.name == "blocked"
         assert re.match(r".*integration missing", out.unit_status.message)
 
@@ -81,18 +69,19 @@ class TestOSBaseOperatorCharmScenarios:
     )
     def test_relation_incomplete(self, relations, leader):
         """Check charm with an incomplete relation is waiting."""
-        ctxt = Context(
-            charm_type=test_fixtures.MyCharmMulti,
+        ctx = testing.Context(
+            test_fixtures.MyCharmMulti,
             meta=test_fixtures.MyCharmMulti_Metadata,
         )
-        state = State(
+        secret = utils.get_keystone_secret_definition(relations)
+        state = testing.State(
             leader=True,
             config={},
             containers=[],
             relations=list(relations),
-            secrets=[utils.get_keystone_secret_definition(relations)],
+            secrets=[secret] if secret else [],
         )
-        out = ctxt.run("config-changed", state)
+        out = ctx.run(ctx.on.config_changed(), state)
         assert out.unit_status.name == "waiting"
         assert re.match(
             r".*Not all relations are ready", out.unit_status.message
@@ -105,19 +94,20 @@ class TestOSBaseOperatorCharmScenarios:
     )
     def test_relations_complete(self, relations, leader):
         """Check charm with complete relations is active."""
-        ctxt = Context(
-            charm_type=test_fixtures.MyCharmMulti,
+        ctx = testing.Context(
+            test_fixtures.MyCharmMulti,
             meta=test_fixtures.MyCharmMulti_Metadata,
         )
-        state = State(
+        secret = utils.get_keystone_secret_definition(relations)
+        state = testing.State(
             leader=True,
             config={},
             containers=[],
             relations=list(relations),
-            secrets=[utils.get_keystone_secret_definition(relations)],
+            secrets=[secret] if secret else [],
         )
-        out = ctxt.run("config-changed", state)
-        assert out.unit_status == ActiveStatus("")
+        out = ctx.run(ctx.on.config_changed(), state)
+        assert out.unit_status == testing.ActiveStatus("")
 
 
 class TestOSBaseOperatorCharmK8SScenarios:
@@ -127,31 +117,32 @@ class TestOSBaseOperatorCharmK8SScenarios:
     )
     def test_relation_missing(self, tmp_path, relations, leader):
         """Check k8s charm with a missing relation is blocked."""
-        ctxt = Context(
-            charm_type=test_fixtures.MyCharmK8S,
+        ctx = testing.Context(
+            test_fixtures.MyCharmK8S,
             meta=test_fixtures.MyCharmK8S_Metadata,
         )
         p1 = tmp_path / "c1"
         p2 = tmp_path / "c2"
-        state = State(
+        secret = utils.get_keystone_secret_definition(relations)
+        state = testing.State(
             leader=True,
             config={},
             containers=[
-                Container(
+                testing.Container(
                     name="container1",
                     can_connect=True,
-                    mounts={"local": Mount("/etc", p1)},
+                    mounts={"local": testing.Mount(location="/etc", source=p1)},
                 ),
-                Container(
+                testing.Container(
                     name="container2",
                     can_connect=True,
-                    mounts={"local": Mount("/etc", p2)},
+                    mounts={"local": testing.Mount(location="/etc", source=p2)},
                 ),
             ],
             relations=list(relations),
-            secrets=[utils.get_keystone_secret_definition(relations)],
+            secrets=[secret] if secret else [],
         )
-        out = ctxt.run("config-changed", state)
+        out = ctx.run(ctx.on.config_changed(), state)
         assert re.match(r".*integration missing", out.unit_status.message)
         assert out.unit_status.name == "blocked"
 
@@ -162,31 +153,32 @@ class TestOSBaseOperatorCharmK8SScenarios:
     )
     def test_relation_incomplete(self, tmp_path, relations, leader):
         """Check k8s charm with an incomplete relation is waiting."""
-        ctxt = Context(
-            charm_type=test_fixtures.MyCharmK8S,
+        ctx = testing.Context(
+            test_fixtures.MyCharmK8S,
             meta=test_fixtures.MyCharmK8S_Metadata,
         )
         p1 = tmp_path / "c1"
         p2 = tmp_path / "c2"
-        state = State(
+        secret = utils.get_keystone_secret_definition(relations)
+        state = testing.State(
             leader=True,
             config={},
             containers=[
-                Container(
+                testing.Container(
                     name="container1",
                     can_connect=True,
-                    mounts={"local": Mount("/etc", p1)},
+                    mounts={"local": testing.Mount(location="/etc", source=p1)},
                 ),
-                Container(
+                testing.Container(
                     name="container2",
                     can_connect=True,
-                    mounts={"local": Mount("/etc", p2)},
+                    mounts={"local": testing.Mount(location="/etc", source=p2)},
                 ),
             ],
             relations=list(relations),
-            secrets=[utils.get_keystone_secret_definition(relations)],
+            secrets=[secret] if secret else [],
         )
-        out = ctxt.run("config-changed", state)
+        out = ctx.run(ctx.on.config_changed(), state)
         assert out.unit_status.name == "waiting"
         assert re.match(
             r".*Not all relations are ready", out.unit_status.message
@@ -198,31 +190,32 @@ class TestOSBaseOperatorCharmK8SScenarios:
     )
     def test_relation_container_not_ready(self, tmp_path, relations, leader):
         """Check k8s charm with container is cannot connect to it waiting ."""
-        ctxt = Context(
-            charm_type=test_fixtures.MyCharmK8S,
+        ctx = testing.Context(
+            test_fixtures.MyCharmK8S,
             meta=test_fixtures.MyCharmK8S_Metadata,
         )
         p1 = tmp_path / "c1"
         p2 = tmp_path / "c2"
-        state = State(
+        secret = utils.get_keystone_secret_definition(relations)
+        state = testing.State(
             leader=True,
             config={},
             containers=[
-                Container(
+                testing.Container(
                     name="container1",
                     can_connect=False,
-                    mounts={"local": Mount("/etc", p1)},
+                    mounts={"local": testing.Mount(location="/etc", source=p1)},
                 ),
-                Container(
+                testing.Container(
                     name="container2",
                     can_connect=True,
-                    mounts={"local": Mount("/etc", p2)},
+                    mounts={"local": testing.Mount(location="/etc", source=p2)},
                 ),
             ],
             relations=list(relations),
-            secrets=[utils.get_keystone_secret_definition(relations)],
+            secrets=[secret] if secret else [],
         )
-        out = ctxt.run("config-changed", state)
+        out = ctx.run(ctx.on.config_changed(), state)
         assert out.unit_status.name == "waiting"
         assert re.match(
             r".*Payload container not ready", out.unit_status.message
@@ -234,32 +227,33 @@ class TestOSBaseOperatorCharmK8SScenarios:
     )
     def test_relation_all_complete(self, tmp_path, relations, leader):
         """Check k8s charm with complete rels & ready containers is active."""
-        ctxt = Context(
-            charm_type=test_fixtures.MyCharmK8S,
+        ctx = testing.Context(
+            test_fixtures.MyCharmK8S,
             meta=test_fixtures.MyCharmK8S_Metadata,
         )
         p1 = tmp_path / "c1"
         p2 = tmp_path / "c2"
-        state = State(
+        secret = utils.get_keystone_secret_definition(relations)
+        state = testing.State(
             leader=True,
             config={},
             containers=[
-                Container(
+                testing.Container(
                     name="container1",
                     can_connect=True,
-                    mounts={"local": Mount("/etc", p1)},
+                    mounts={"local": testing.Mount(location="/etc", source=p1)},
                 ),
-                Container(
+                testing.Container(
                     name="container2",
                     can_connect=True,
-                    mounts={"local": Mount("/etc", p2)},
+                    mounts={"local": testing.Mount(location="/etc", source=p2)},
                 ),
             ],
             relations=list(relations),
-            secrets=[utils.get_keystone_secret_definition(relations)],
+            secrets=[secret] if secret else [],
         )
-        out = ctxt.run("config-changed", state)
-        assert out.unit_status == ActiveStatus("")
+        out = ctx.run(ctx.on.config_changed(), state)
+        assert out.unit_status == testing.ActiveStatus("")
 
 
 class TestOSBaseOperatorCharmK8SAPIScenarios:
@@ -270,25 +264,26 @@ class TestOSBaseOperatorCharmK8SAPIScenarios:
     )
     def test_relation_missing(self, tmp_path, relations, leader):
         """Check k8s API charm with a missing relation is blocked."""
-        ctxt = Context(
-            charm_type=test_fixtures.MyCharmK8SAPI,
+        ctx = testing.Context(
+            test_fixtures.MyCharmK8SAPI,
             meta=test_fixtures.MyCharmK8SAPI_Metadata,
         )
         p1 = tmp_path / "c1"
-        state = State(
+        secret = utils.get_keystone_secret_definition(relations)
+        state = testing.State(
             leader=True,
             config={},
             containers=[
-                Container(
+                testing.Container(
                     name="my-service",
                     can_connect=True,
-                    mounts={"local": Mount("/etc", p1)},
+                    mounts={"local": testing.Mount(location="/etc", source=p1)},
                 )
             ],
             relations=list(relations),
-            secrets=[utils.get_keystone_secret_definition(relations)],
+            secrets=[secret] if secret else [],
         )
-        out = ctxt.run("config-changed", state)
+        out = ctx.run(ctx.on.config_changed(), state)
         assert re.match(r".*integration missing", out.unit_status.message)
         assert out.unit_status.name == "blocked"
 
@@ -299,25 +294,26 @@ class TestOSBaseOperatorCharmK8SAPIScenarios:
     )
     def test_relation_incomplete(self, tmp_path, relations, leader):
         """Check k8s API charm with an incomplete relation is waiting."""
-        ctxt = Context(
-            charm_type=test_fixtures.MyCharmK8SAPI,
+        ctx = testing.Context(
+            test_fixtures.MyCharmK8SAPI,
             meta=test_fixtures.MyCharmK8SAPI_Metadata,
         )
         p1 = tmp_path / "c1"
-        state = State(
+        secret = utils.get_keystone_secret_definition(relations)
+        state = testing.State(
             leader=True,
             config={},
             containers=[
-                Container(
+                testing.Container(
                     name="my-service",
                     can_connect=True,
-                    mounts={"local": Mount("/etc", p1)},
+                    mounts={"local": testing.Mount(location="/etc", source=p1)},
                 )
             ],
             relations=list(relations),
-            secrets=[utils.get_keystone_secret_definition(relations)],
+            secrets=[secret] if secret else [],
         )
-        out = ctxt.run("config-changed", state)
+        out = ctx.run(ctx.on.config_changed(), state)
         assert out.unit_status.name == "waiting"
         assert re.match(
             r".*Not all relations are ready", out.unit_status.message
@@ -330,25 +326,26 @@ class TestOSBaseOperatorCharmK8SAPIScenarios:
     )
     def test_relation_container_not_ready(self, tmp_path, relations, leader):
         """Check k8s API charm with stopped container is waiting."""
-        ctxt = Context(
-            charm_type=test_fixtures.MyCharmK8SAPI,
+        ctx = testing.Context(
+            test_fixtures.MyCharmK8SAPI,
             meta=test_fixtures.MyCharmK8SAPI_Metadata,
         )
         p1 = tmp_path / "c1"
-        state = State(
+        secret = utils.get_keystone_secret_definition(relations)
+        state = testing.State(
             leader=True,
             config={},
             containers=[
-                Container(
+                testing.Container(
                     name="my-service",
                     can_connect=False,
-                    mounts={"local": Mount("/etc", p1)},
+                    mounts={"local": testing.Mount(location="/etc", source=p1)},
                 )
             ],
             relations=list(relations),
-            secrets=[utils.get_keystone_secret_definition(relations)],
+            secrets=[secret] if secret else [],
         )
-        out = ctxt.run("config-changed", state)
+        out = ctx.run(ctx.on.config_changed(), state)
         assert out.unit_status.name == "waiting"
         assert re.match(
             r".*Payload container not ready", out.unit_status.message
@@ -361,23 +358,24 @@ class TestOSBaseOperatorCharmK8SAPIScenarios:
     )
     def test_relation_all_complete(self, tmp_path, relations, leader):
         """Check k8s API charm all rels and containers are ready."""
-        ctxt = Context(
-            charm_type=test_fixtures.MyCharmK8SAPI,
+        ctx = testing.Context(
+            test_fixtures.MyCharmK8SAPI,
             meta=test_fixtures.MyCharmK8SAPI_Metadata,
         )
         p1 = tmp_path / "c1"
-        state = State(
+        secret = utils.get_keystone_secret_definition(relations)
+        state = testing.State(
             leader=True,
             config={},
             containers=[
-                Container(
+                testing.Container(
                     name="my-service",
                     can_connect=True,
-                    mounts={"local": Mount("/etc", p1)},
+                    mounts={"local": testing.Mount(location="/etc", source=p1)},
                 )
             ],
             relations=list(relations),
-            secrets=[utils.get_keystone_secret_definition(relations)],
+            secrets=[secret] if secret else [],
         )
-        out = ctxt.run("config-changed", state)
-        assert out.unit_status == ActiveStatus("")
+        out = ctx.run(ctx.on.config_changed(), state)
+        assert out.unit_status == testing.ActiveStatus("")

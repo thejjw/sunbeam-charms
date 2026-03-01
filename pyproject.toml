@@ -4,6 +4,7 @@
 # Testing tools configuration
 [tool.coverage.run]
 branch = true
+omit = ["*/templates/*"]
 
 [tool.coverage.report]
 show_missing = true
