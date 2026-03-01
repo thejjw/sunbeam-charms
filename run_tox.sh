@@ -78,7 +78,7 @@ then
     if should_test_ops_sunbeam $2; then
         path_python=$(python3 ./repository.py pythonpath)
         pushd ops-sunbeam
-        PYTHONPATH=$path_python stestr run --slowest || exit 1
+        PYTHONPATH=$path_python python -m pytest tests/unit_tests/ -v --tb=short || exit 1
         popd
     fi
 
@@ -86,13 +86,14 @@ then
     for charm in $(get_charms_to_test $2); do
         python3 repository.py -v prepare --clean $charm || exit 1
         pushd charms/$charm
-        PYTHONPATH=./src:./lib stestr run --slowest || exit 1
+        PYTHONPATH=./src:./lib python -m pytest tests/unit/ -v --tb=short || exit 1
         popd
         python3 repository.py -v clean $charm || exit 1
     done
 
 elif [[ $1 == "cover" ]];
 then
+    COV_CONFIG="$PWD/pyproject.toml"
     coverage erase
 
     # Run coverage on ops-sunbeam
@@ -100,8 +101,7 @@ then
         path_python=$(python3 ./repository.py pythonpath)
         pushd ops-sunbeam
         coverage erase
-        PYTHONPATH=$path_python PYTHON="coverage run --parallel-mode --omit .tox/*" stestr run --slowest || exit 1
-        coverage combine
+        PYTHONPATH=$path_python python -m pytest tests/unit_tests/ --cov=ops_sunbeam --cov-branch --cov-config="$COV_CONFIG" --cov-report= --cov-append || exit 1
         popd
     fi
 
@@ -110,8 +110,7 @@ then
         python3 repository.py -v prepare --clean $charm || exit 1
         pushd charms/$charm
         coverage erase
-        PYTHONPATH=./src:./lib:../../ops-sunbeam PYTHON="coverage run --parallel-mode --omit .tox/*,src/templates/*" stestr run --slowest || exit 1
-        coverage combine
+        PYTHONPATH=./src:./lib:../../ops-sunbeam python -m pytest tests/unit/ --cov=src --cov-branch --cov-config="$COV_CONFIG" --cov-report= --cov-append || exit 1
         popd
     done
 
