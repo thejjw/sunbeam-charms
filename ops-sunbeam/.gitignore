@@ -8,5 +8,5 @@ venv
 __pycache__/
 *.py[cod]
 **.swp
-.stestr/
+.pytest_cache/
 lib/charms/*

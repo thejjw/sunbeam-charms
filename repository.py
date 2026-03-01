@@ -14,7 +14,6 @@ EXTERNAL_LIB_DIR = ROOT_DIR / "libs" / "external" / "lib"
 OPS_SUNBEAM_DIR = ROOT_DIR / "ops-sunbeam" / "ops_sunbeam"
 BUILD_FILE = ".sunbeam-build.yaml"
 UTILITY_FILES = [
-    ROOT_DIR / ".stestr.conf",
     ROOT_DIR / ".jujuignore",
 ]
 STORAGE_DIR = "storage"
