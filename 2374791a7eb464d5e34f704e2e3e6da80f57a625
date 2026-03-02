@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2aa2d59f_2350cb41",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-02T13:19:05Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "2374791a7eb464d5e34f704e2e3e6da80f57a625",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ef397c9c_06c7fd02",
+        "filename": "charms/keystone-k8s/tests/unit/test_keystone_methods.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1047,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-02T13:19:05Z",
+      "side": 1,
+      "message": "These methods may be useful for other charms. Can be moved out as helper functions. This change can be done in subsequent PRs when we see another charm requiring these functions.",
+      "revId": "2374791a7eb464d5e34f704e2e3e6da80f57a625",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
