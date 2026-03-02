@@ -35,6 +35,8 @@
         cinder-k8s: 2024.1/edge
         cinder-volume: 2024.1/edge
         cinder-volume-ceph: 2024.1/edge
+        cinder-volume-dellpowerstore: 2024.1/edge
+        cinder-volume-dellsc: 2024.1/edge
         cinder-volume-purestorage: 2024.1/edge
         cinder-volume-hitachi: 2024.1/edge
         horizon-k8s: 2024.1/edge
