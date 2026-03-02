@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80b38fae_82848874",
+        "filename": "charms/storage/cinder-volume-dellpowerstore/pyproject.toml",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-02T23:57:01Z",
+      "side": 1,
+      "message": "version should be 2024.1",
+      "revId": "8995f535645388567552ce65d0f760ae19538d90",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72824ea0_97b39abd",
+        "filename": "charms/storage/cinder-volume-dellpowerstore/uv.lock",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-02T23:57:01Z",
+      "side": 1,
+      "message": "Should be 2024.1",
+      "revId": "8995f535645388567552ce65d0f760ae19538d90",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
