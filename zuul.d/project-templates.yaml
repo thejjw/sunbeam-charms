@@ -72,6 +72,10 @@
             nodeset: ubuntu-noble
         - charm-build-cinder-volume-ceph:
             nodeset: ubuntu-noble
+        - charm-build-cinder-volume-dellpowerstore:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-dellsc:
+            nodeset: ubuntu-noble
         - charm-build-cinder-volume-purestorage:
             nodeset: ubuntu-noble
         - charm-build-cinder-volume-hitachi:
@@ -160,6 +164,10 @@
         - charm-build-cinder-volume:
             nodeset: ubuntu-noble
         - charm-build-cinder-volume-ceph:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-dellpowerstore:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-dellsc:
             nodeset: ubuntu-noble
         - charm-build-cinder-volume-purestorage:
             nodeset: ubuntu-noble
@@ -253,6 +261,10 @@
             - publish-charm-cinder-volume:
                 nodeset: ubuntu-noble
             - publish-charm-cinder-volume-ceph:
+                nodeset: ubuntu-noble
+            - publish-charm-cinder-volume-dellpowerstore:
+                nodeset: ubuntu-noble
+            - publish-charm-cinder-volume-dellsc:
                 nodeset: ubuntu-noble
             - publish-charm-cinder-volume-purestorage:
                 nodeset: ubuntu-noble

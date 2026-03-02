@@ -143,6 +143,32 @@
     vars:
       charm: cinder-volume
 - job:
+    name: charm-build-cinder-volume-dellpowerstore
+    description: Build sunbeam cinder-volume-dellpowerstore charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-dellpowerstore/
+      - rebuild
+    vars:
+      charm: cinder-volume-dellpowerstore
+      storage: true
+- job:
+    name: charm-build-cinder-volume-dellsc
+    description: Build sunbeam cinder-volume-dellsc charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-dellsc/
+      - rebuild
+    vars:
+      charm: cinder-volume-dellsc
+      storage: true
+- job:
     name: charm-build-cinder-volume-ceph
     description: Build sunbeam cinder-volume-ceph charm
     run: playbooks/charm/build.yaml
@@ -748,6 +774,32 @@
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-ceph/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-cinder-volume-dellpowerstore
+    description: |
+      Publish cinder-volume-dellpowerstore built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-dellpowerstore/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-cinder-volume-dellsc
+    description: |
+      Publish cinder-volume-dellsc built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-dellsc/
       - rebuild
     secrets:
       - charmhub_token
