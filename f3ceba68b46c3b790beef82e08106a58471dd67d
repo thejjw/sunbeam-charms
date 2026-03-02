@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3cb7e715_7745c8f5",
+        "filename": "charms/storage/cinder-volume-dellsc/pyproject.toml",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-02T23:58:43Z",
+      "side": 1,
+      "message": "version should be 2024.1",
+      "revId": "f3ceba68b46c3b790beef82e08106a58471dd67d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3c5779f_023a29cb",
+        "filename": "charms/storage/cinder-volume-dellsc/uv.lock",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-02T23:58:43Z",
+      "side": 1,
+      "message": "version should be 2024.1",
+      "revId": "f3ceba68b46c3b790beef82e08106a58471dd67d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
