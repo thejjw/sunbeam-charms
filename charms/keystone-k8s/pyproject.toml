@@ -22,7 +22,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "stestr",
+    "pytest",
     "coverage",
     "tenacity",                   # ops-sunbeam
     "ops[testing]>=2.17.0",       # all charms, private paths have moved
