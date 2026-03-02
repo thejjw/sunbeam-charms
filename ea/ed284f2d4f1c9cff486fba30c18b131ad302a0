@@ -1,0 +1,10 @@
+Workflow+1: Ahmad Hassan <ahmad.hassan@canonical.com>
+Verified+2: Zuul
+Code-Review+2: Ahmad Hassan <ahmad.hassan@canonical.com>
+Code-Review+2: Guillaume Boutry <guillaume.boutry@canonical.com>
+Submitted-by: Zuul
+Submitted-at: Mon, 02 Mar 2026 08:35:48 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/974827
+Comments-Total: 19
+Project: openstack/sunbeam-charms
+Branch: refs/heads/main
