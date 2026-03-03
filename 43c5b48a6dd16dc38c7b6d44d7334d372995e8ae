@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "66c088b4_45163dad",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31779
+      },
+      "writtenOn": "2026-03-03T07:59:11Z",
+      "side": 1,
+      "message": "Thanks @guillaume.boutry@canonical.com",
+      "revId": "43c5b48a6dd16dc38c7b6d44d7334d372995e8ae",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
