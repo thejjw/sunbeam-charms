@@ -16,6 +16,23 @@
       "message": "Thanks @guillaume.boutry@canonical.com",
       "revId": "43c5b48a6dd16dc38c7b6d44d7334d372995e8ae",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f0a48a80_83d2a9a5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-03T08:05:48Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "43c5b48a6dd16dc38c7b6d44d7334d372995e8ae",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
