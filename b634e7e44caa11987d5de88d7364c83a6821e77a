@@ -16,6 +16,23 @@
       "message": "LGTM",
       "revId": "b634e7e44caa11987d5de88d7364c83a6821e77a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "503a979d_40ea5156",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-03T10:12:10Z",
+      "side": 1,
+      "message": "recheck\n\nThis change only touches unit tests, should not affect functional tests",
+      "revId": "b634e7e44caa11987d5de88d7364c83a6821e77a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
