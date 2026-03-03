@@ -1,0 +1,166 @@
+type: charm
+name: cinder-volume-hpe3par
+summary: OpenStack volume service - HPE 3Par backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with HPE 3Par storage
+  backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.  If unset the Juju
+        application name is used.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    protocol:
+      default: fc
+      description: |
+        HPE 3Par Client protocl selector, determines driver class to use:
+         fc- cinder.volume.drivers.hpe.hpe_3par_fc.HPE3PARFCDriver 
+         iscsi - cinder.volume.drivers.hpe.hpe_3par_iscsi.HPE3PARISCSIDriver 
+      type: string
+    san-ip:
+      description: |
+        HPE 3Par management IP address or hostname.
+        This is the primary array management interface.
+      type: string
+    san-login:
+      type: secret
+      description: |
+        Juju secret containing the HPE 3PAR SAN login. 
+    san-password:
+      type: secret
+      description: |
+        Juju secret containing the HPE 3PAR SAN password. 
+    replication-device:
+      description: |
+        Specific replication configuration settings. Must be set under
+        the form of
+        backend_id:hpe3par_device_2,
+        san_ip: <Replication system San ip>,
+        san_login: <Replication system San username>,
+        san_password: <Replication system San password>
+      type: string
+    use-multipath-for-image-xfer:
+      description: | 
+        If set to True, use_multipath_for_image_xfer will be set. Multipath will be used to attach/detach volumes for volume to image and image to volume transfers.
+      type: boolean
+      default: false
+    enforce-multipath-for-image-xfer:
+      description: | 
+        If set to True, enforce_multipath_for_image_xfer will be set. Multipathd will be mandatory for volume to image conversions or it will raise an exception.
+      type: boolean
+      default: false
+    reserved-percentage:
+      description: | 
+        This flag represents the percentage of reserved back-end capacity
+      type: int
+      default: 15
+    max-over-subscription-ratio:
+      description: | 
+        The ratio of oversubscription when thin provisioned volumes are involved.
+      type: float
+      default: 20.0
+    hpe3par-api-url:
+      description: | 
+        HPE 3Par WSAPI url
+      type: string
+    hpe3par-username:
+      description: | 
+        HPE 3Par user with admin role
+      type: secret
+    hpe3par-password:
+      description: | 
+        HPE 3Par password for the specified user
+      type: secret
+    hpe3par-cpg:
+      description: | 
+        HPE 3Par list of CPG(s) to use for volume creation
+      type: string
+    hpe3par-target-nsp:
+      description: | 
+        HPE 3Par The nsp of the backend to be used
+      type: string
+    hpe3par-debug:
+      description: | 
+        HPE 3Par enable debug for WSAPI calls
+      type: boolean
+      default: false
+    hpe3par-snapshot-retention:
+      description: | 
+        HPE 3Par snapshot retention time in hours
+      type: string
+    hpe3par-snapshot-expiration:
+      description: | 
+        HPE 3Par snapshot expiration time in hours
+      type: string
+    hpe3par-cpg-snap:
+      description: | 
+        HPE 3Par list of CPG(s) to use for snapshot volume creation
+      type: string
+    hpe3par-iscsi-ips:
+      description: | 
+        HPE 3Par list of iSCSI addresses:[port] to use
+      type: string
+    hpe3par-iscsi-chap-enabled:
+      description: | 
+        HPE 3Par enable CHAP authentication for iSCSI connections
+      type: boolean
+      default: false
+
+   
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
