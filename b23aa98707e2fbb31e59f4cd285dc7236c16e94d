@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "961e2542_77bcfcb5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-03T13:29:36Z",
+      "side": 1,
+      "message": "Please; do not include .stestr artifacts into the code base :)",
+      "revId": "b23aa98707e2fbb31e59f4cd285dc7236c16e94d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
