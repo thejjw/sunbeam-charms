@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "424e3019_9ec54a27",
+        "filename": "charms/storage/cinder-volume-hpe3par/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-03T16:01:47Z",
+      "side": 1,
+      "message": "```suggestion\n         fc - cinder.volume.drivers.hpe.hpe_3par_fc.HPE3PARFCDriver \n```",
+      "range": {
+        "startLine": 39,
+        "startChar": 9,
+        "endLine": 39,
+        "endChar": 13
+      },
+      "revId": "209d319c607df15251d80547099c3a596c9ab7f5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc42357a_fb61cbb2",
+        "filename": "charms/storage/cinder-volume-hpe3par/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-03T16:01:47Z",
+      "side": 1,
+      "message": "There\u0027s lot of trailing whitespaces in this yaml, can you remove them?",
+      "range": {
+        "startLine": 39,
+        "startChar": 66,
+        "endLine": 39,
+        "endChar": 67
+      },
+      "revId": "209d319c607df15251d80547099c3a596c9ab7f5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0fc4177f_791d5459",
+        "filename": "charms/storage/cinder-volume-hpe3par/tests/unit/test_cinder_volume_hpethreepar_charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-03T16:01:47Z",
+      "side": 1,
+      "message": "Hello, the master branch (stable/2024.1) have just migrated to scenario for testing, and we like to stay away from harness if possible, would you mind migrating these tests to ops-scenario? (other storage backends have been migrated)",
+      "range": {
+        "startLine": 58,
+        "startChar": 6,
+        "endLine": 58,
+        "endChar": 40
+      },
+      "revId": "209d319c607df15251d80547099c3a596c9ab7f5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
