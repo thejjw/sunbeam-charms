@@ -199,6 +199,9 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 53, appProtocol="domain", name="bind", protocol="UDP"
             ),
             core_v1.ServicePort(
+                53, appProtocol="domain", name="bind", protocol="TCP"
+            ),
+            core_v1.ServicePort(
                 953, appProtocol="rndc", name="rndc", protocol="TCP"
             ),
         ]
@@ -209,6 +212,7 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         )
         self.unit.set_ports(
             ops.Port(protocol="udp", port=53),
+            ops.Port(protocol="tcp", port=53),
             ops.Port(protocol="tcp", port=953),
         )
 
