@@ -207,7 +207,10 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             service_ports,
             refresh_event=[self.on.install],
         )
-        self.unit.set_ports(53, 953)
+        self.unit.set_ports(
+            ops.Port(protocol="udp", port=53),
+            ops.Port(protocol="tcp", port=953),
+        )
 
     def _on_secret_rotate(self, event: ops.SecretRotateEvent):
         """Handle secret rotate event."""
