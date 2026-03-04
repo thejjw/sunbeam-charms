@@ -48,6 +48,15 @@ class TestAllRelations:
             state_out, ctx, "designate-bind", "/etc/bind/named.conf.options"
         )
 
+    def test_opens_dns_and_rndc_ports(self, ctx, complete_state):
+        """Charm declares DNS (UDP+TCP 53) and RNDC (TCP 953) ports."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert state_out.opened_ports == {
+            testing.UDPPort(53),
+            testing.TCPPort(53),
+            testing.TCPPort(953),
+        }
+
 
 class TestPebbleReady:
     """Pebble-ready event with peers → container configured."""
