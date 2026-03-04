@@ -40,6 +40,12 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from lightkube.core.client import (
+    Client,
+)
+from lightkube.resources.core_v1 import (
+    Service,
+)
 from ops.framework import (
     StoredState,
 )
@@ -193,6 +199,12 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def __init__(self, *args):
         super().__init__(*args)
         self.framework.observe(self.on.secret_rotate, self._on_secret_rotate)
+        self.framework.observe(
+            self.on.install, self._reconcile_clusterip_service
+        )
+        self.framework.observe(
+            self.on.config_changed, self._reconcile_clusterip_service
+        )
 
         service_ports = [
             core_v1.ServicePort(
@@ -208,6 +220,41 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             refresh_event=[self.on.install, self.on.config_changed],
         )
         self.unit.set_ports(53, 953)
+
+    def _reconcile_clusterip_service(self, _event: ops.EventBase) -> None:
+        """Ensure ClusterIP service exposes UDP port 53."""
+        if not self.unit.is_leader():
+            return
+
+        client = Client()
+        service = client.get(
+            Service,
+            name=self.app.name,
+            namespace=self.model.name,
+        )
+
+        ports = list(service.spec.ports or [])
+        if any(
+            p.port == 53 and getattr(p, "protocol", "TCP") == "UDP"
+            for p in ports
+        ):
+            return
+
+        ports.append(
+            core_v1.ServicePort(
+                53,
+                appProtocol="domain",
+                name="bind-udp",
+                protocol="UDP",
+            )
+        )
+        service.spec.ports = ports
+        client.patch(
+            Service,
+            name=self.app.name,
+            namespace=self.model.name,
+            obj=service,
+        )
 
     def _on_secret_rotate(self, event: ops.SecretRotateEvent):
         """Handle secret rotate event."""
