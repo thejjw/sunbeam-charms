@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1651e9e1_157238b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-04T09:07:27Z",
+      "side": 1,
+      "message": "Hey @ahmad.hassan@canonical.com, I think the solution to this problem is just to replace line 222 with:\n`self.unit.set_ports(ops.Port(protocol\u003d\"udp\", port\u003d53), ops.Port(protocol\u003d\"udp\", port\u003d953))`\n\nLooking at the set_ports documentation, raw integers will be interpreted as TCP port instead of udp, which I think is the crux of the issue:\n\n            ports: The ports to open. Provide an int to open a TCP port, or\n                a :class:`Port` to open a port for another protocol.\n\nhttps://documentation.ubuntu.com/ops/latest/reference/ops/#ops.Unit.set_ports",
+      "revId": "d409ffbf10523c7ac196dd9ba4d8335d61902cf6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
