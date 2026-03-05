@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12887797_11c8d8cd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-05T06:55:56Z",
+      "side": 1,
+      "message": "recheck machine charm integration took time",
+      "revId": "c116ccd0e2ac0b88b467b644fba0f33159ebf5f5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
