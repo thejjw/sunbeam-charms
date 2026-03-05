@@ -497,18 +497,21 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         # This should taken care of by the snap
         snap_cache = self.get_snap_cache()
         hypervisor_snap = snap_cache["openstack-hypervisor"]
-        microovn_snap = snap_cache["microovn"]
-        if (
-            microovn_snap.present
-            and hypervisor_snap.get(MICROOVN_RESTART_TRIGGER_SNAP_KEY)
-            == "true"
-        ):
-            logger.info(
-                "Restarting microovn switch due to DPDK config change."
-            )
-            microovn_snap.restart(["switch"])
-            # Reset the trigger key
-            hypervisor_snap.set({MICROOVN_RESTART_TRIGGER_SNAP_KEY: "false"})
+
+        if self._is_microovn_present():
+            microovn_snap = snap_cache["microovn"]
+            if (
+                hypervisor_snap.get(MICROOVN_RESTART_TRIGGER_SNAP_KEY)
+                == "true"
+            ):
+                logger.info(
+                    "Restarting microovn switch due to DPDK config change."
+                )
+                microovn_snap.restart(["switch"])
+                # Reset the trigger key
+                hypervisor_snap.set(
+                    {MICROOVN_RESTART_TRIGGER_SNAP_KEY: "false"}
+                )
         svcs = [
             "neutron-ovn-metadata-agent",
             "nova-api-metadata",

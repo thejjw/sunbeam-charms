@@ -292,6 +292,22 @@ class TestSnap:
         args, _kwargs = hypervisor_snap_mock.set.call_args
         assert "configure-trigger" in args[0]
 
+    def test_ensure_services_running_skips_when_microovn_absent(
+        self, charm_instance
+    ):
+        """Do not attempt restart when microovn snap is not present."""
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = True
+        microovn_snap_mock = MagicMock()
+        microovn_snap_mock.present = False
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock
+        }
+        hypervisor_snap_mock.get.return_value = "true"
+        charm_instance.ensure_services_running()
+        # Assert no restart or trigger reset occurred
+        microovn_snap_mock.restart.assert_not_called()
+
     def test_snap_connect_failure_snaperror(self, charm_instance):
         """Raise SnapError on connect failure."""
         hypervisor_snap_mock = MagicMock()
