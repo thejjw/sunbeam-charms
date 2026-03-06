@@ -22,6 +22,11 @@ actions:
   get-credentials:
     description: |
       Return information necessary to connect to clusterd.
+  refresh-snap:
+    description: |
+      Refresh the openstack snap to the latest available revision on the
+      configured channel. The snap is held after installation to prevent
+      automatic refreshes; use this action to apply updates explicitly.
 
 requires:
   certificates:

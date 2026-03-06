@@ -83,6 +83,9 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         self.framework.observe(
             self.on.get_credentials_action, self._on_get_credentials_action
         )
+        self.framework.observe(
+            self.on.refresh_snap_action, self._on_refresh_snap_action
+        )
         self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
         self._clusterd = clusterd.ClusterdClient(
             Path("/var/snap/openstack/common/state/control.socket")
@@ -250,6 +253,23 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
 
         return str(binding.network.bind_address)
 
+    def _on_refresh_snap_action(self, event: ops.ActionEvent) -> None:
+        """Refresh openstack snap to latest on configured channel."""
+        snap_channel = self.model.config.get("snap-channel")
+        try:
+            cache = snap.SnapCache()
+            openstack = cache["openstack"]
+            openstack.unhold()
+            openstack.ensure(snap.SnapState.Latest, channel=snap_channel)
+            openstack.hold()
+            self._state.channel = openstack.channel
+            self.set_workload_version()
+            event.set_results(
+                {"result": "Snap openstack refreshed successfully"}
+            )
+        except snap.SnapError as e:
+            event.fail(f"Failed to refresh snap openstack: {e}")
+
     def ensure_snap_present(self):
         """Install/refresh snap if needed."""
         config = self.model.config.get
@@ -262,6 +282,7 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
                 openstack.ensure(snap.SnapState.Latest, channel=snap_channel)
                 self._state.channel = openstack.channel
                 self.set_workload_version()
+            openstack.hold()
         except (snap.SnapError, snap.SnapNotFoundError) as e:
             logger.error(
                 "An exception occurred when installing snap. Reason: %s",
