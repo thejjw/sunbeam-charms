@@ -172,7 +172,8 @@ class OpenstackNetworkAgentsOperatorCharm(
         new_snap_settings = {}
         for setting in local_settings:
             action_param = setting.split(".")[1]
-            if event.params.get(action_param):
+            # enable-chassis-as-gw is a boolean, so we want to allow false values to be set
+            if event.params.get(action_param) is not None:
                 new_snap_settings[setting] = event.params.get(action_param)
         if new_snap_settings:
             self.set_snap_data(new_snap_settings)
