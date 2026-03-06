@@ -30,6 +30,13 @@ requires:
     optional: true
     limit: 1
 
+actions:
+  refresh-snap:
+    description: |
+      Refresh the snap to the latest available revision on the configured
+      channel. The snap is held after installation to prevent automatic
+      refreshes; use this action to apply updates explicitly.
+
 parts:
   charm:
     build-packages:
