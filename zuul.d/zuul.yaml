@@ -15,6 +15,7 @@
             nodeset: charms-ubuntu-noble-32GB
             voting: false
     vars:
+      ensure_tox_version: ==4.48.0
       juju_channel: 3.6/stable
       juju_classic_mode: false
       env_type: k8s
