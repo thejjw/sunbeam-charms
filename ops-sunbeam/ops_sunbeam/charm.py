@@ -1183,6 +1183,12 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
             self.on.install,
             self._on_install,
         )
+        actions = self.meta.actions or {}
+        if "refresh-snap" in actions:
+            self.framework.observe(
+                self.on["refresh-snap"].action,
+                self._on_refresh_snap_action,
+            )
 
     def _import_snap(self):
         import charms.operator_libs_linux.v2.snap as snap
@@ -1271,12 +1277,10 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
                     "%s snap already installed and in correct confinement",
                     self.snap_name,
                 )
-                return
-            # If snap needs confinement change and is already latest,
-            # must uninstall/reinstall at same revision.
-            # If there was a channel change, then we just install latest
-            complex_refresh = want_devmode != is_devmode and snap_svc.latest
-            if complex_refresh:
+            elif want_devmode != is_devmode and snap_svc.latest:
+                # If snap needs confinement change and is already latest,
+                # must uninstall/reinstall at same revision.
+                # If there was a channel change, then we just install latest
                 prev_status = self.unit.status
                 self.unit.status = MaintenanceStatus("Reinstalling snap")
                 if snap_svc.channel != self.snap_channel:
@@ -1310,6 +1314,7 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
                     channel=self.snap_channel,
                     devmode=want_devmode,
                 )
+            snap_svc.hold()
         except self.snap_module.SnapError as e:
             logger.error(
                 "An exception occurred when installing %s. Reason: %s",
@@ -1363,6 +1368,22 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
             snap_svc.set(new_settings, typed=True)
         else:
             logger.debug("Snap settings do not need updating")
+
+    def _on_refresh_snap_action(self, event: ops.ActionEvent) -> None:
+        """Refresh snap to the latest revision on the configured channel."""
+        try:
+            snap_svc = self.get_snap()
+            snap_svc.unhold()
+            snap_svc.ensure(
+                self.snap_module.SnapState.Latest,
+                channel=self.snap_channel,
+            )
+            snap_svc.hold()
+            event.set_results(
+                {"result": f"Snap {self.snap_name} refreshed successfully"}
+            )
+        except self.snap_module.SnapError as e:
+            event.fail(f"Failed to refresh snap {self.snap_name}: {e}")
 
     def configure_snap(self, event: ops.EventBase) -> None:
         """Run configuration on managed snap."""
