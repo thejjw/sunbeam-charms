@@ -200,6 +200,11 @@ actions:
   list-flavors:
     description: |
       List the flavors or compute host capabilities.
+  refresh-snap:
+    description: |
+      Refresh the openstack-hypervisor snap to the latest available revision
+      on the configured channel. The snap is held after installation to
+      prevent automatic refreshes; use this action to apply updates explicitly.
 
 requires:
   amqp:

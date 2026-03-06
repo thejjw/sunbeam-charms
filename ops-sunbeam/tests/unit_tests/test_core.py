@@ -584,6 +584,11 @@ class TestOSBaseOperatorCharmSnap(test_utils.CharmTestCase):
 
     PATCHES = []
 
+    SNAP_CHARM_ACTIONS = """
+refresh-snap:
+  description: Refresh snap to latest on configured channel.
+"""
+
     def setUp(self) -> None:
         """Charm test class setup."""
         super().setUp(sunbeam_charm, self.PATCHES)
@@ -592,6 +597,7 @@ class TestOSBaseOperatorCharmSnap(test_utils.CharmTestCase):
             test_charms.CHARM_METADATA,
             None,
             charm_config=test_charms.CHARM_CONFIG,
+            charm_actions=self.SNAP_CHARM_ACTIONS,
             initial_charm_config=test_charms.INITIAL_CHARM_CONFIG,
         )
         self.mock_event = MagicMock()

@@ -157,6 +157,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self._list_flavors_action,
         )
         self.framework.observe(
+            self.on.refresh_snap_action,
+            self._on_refresh_snap_action,
+        )
+        self.framework.observe(
             self.on.install,
             self._on_install,
         )
@@ -492,6 +496,23 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
         event.set_results({"result": flavors})
 
+    def _on_refresh_snap_action(self, event: ActionEvent) -> None:
+        """Refresh openstack-hypervisor snap to latest on configured channel."""
+        channel: str | None = self.model.config.get("snap-channel")  # type: ignore
+        try:
+            cache = self.get_snap_cache()
+            hypervisor = cache[HYPERVISOR_SNAP_NAME]
+            hypervisor.unhold()
+            hypervisor.ensure(snap.SnapState.Latest, channel=channel)
+            hypervisor.hold()
+            event.set_results(
+                {
+                    "result": f"Snap {HYPERVISOR_SNAP_NAME} refreshed successfully"
+                }
+            )
+        except snap.SnapError as e:
+            event.fail(f"Failed to refresh snap {HYPERVISOR_SNAP_NAME}: {e}")
+
     def ensure_services_running(self):
         """Ensure systemd services running."""
         # This should taken care of by the snap
@@ -694,11 +715,9 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                     "%s snap already installed and in correct confinement",
                     HYPERVISOR_SNAP_NAME,
                 )
-                return
             # If snap needs confinement change and is already latest,
             # must uninstall/reinstall at same revision
-            complex_refresh = want_devmode != is_devmode and hypervisor.latest
-            if complex_refresh:
+            elif want_devmode != is_devmode and hypervisor.latest:
                 prev_status = self.unit.status
                 self.unit.status = ops.MaintenanceStatus("Reinstalling snap")
                 if hypervisor.channel != channel:
@@ -742,6 +761,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 hypervisor.alias("ovs-appctl", "ovs-appctl")
                 hypervisor.alias("ovs-dpctl", "ovs-dpctl")
                 hypervisor.alias("ovs-ofctl", "ovs-ofctl")
+            hypervisor.hold()
         except (snap.SnapError, snap.SnapNotFoundError) as e:
             logger.error(
                 "An exception occurred when installing openstack-hypervisor. Reason: %s",
