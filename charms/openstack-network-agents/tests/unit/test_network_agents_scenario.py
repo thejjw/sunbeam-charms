@@ -338,3 +338,45 @@ class TestSetNetworkAgentsLocalSettingsAction:
                     "network.enable-chassis-as-gw": True,
                 }
             )
+
+    def test_action_with_enable_chassis_as_gw_false(self, ctx, complete_state):
+        """Boolean False must be forwarded to snap, not silently dropped."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            charm_instance = mgr.charm
+            charm_instance.set_snap_data = MagicMock()
+
+            evt = MagicMock()
+            evt.params = {"enable-chassis-as-gw": False}
+
+            charm_instance._set_network_agents_local_settings_action(evt)
+
+            charm_instance.set_snap_data.assert_called_once_with(
+                {"network.enable-chassis-as-gw": False}
+            )
+
+    def test_action_omitted_params_are_not_sent(self, ctx, complete_state):
+        """Parameters not provided in the action should not appear in snap settings."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            charm_instance = mgr.charm
+            charm_instance.set_snap_data = MagicMock()
+
+            evt = MagicMock()
+            evt.params = {"bridge-name": "br-ex"}
+
+            charm_instance._set_network_agents_local_settings_action(evt)
+
+            snap_data = charm_instance.set_snap_data.call_args[0][0]
+            assert snap_data == {"network.bridge-name": "br-ex"}
+
+    def test_action_empty_params_no_snap_call(self, ctx, complete_state):
+        """Action with no recognized params should not call set_snap_data."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            charm_instance = mgr.charm
+            charm_instance.set_snap_data = MagicMock()
+
+            evt = MagicMock()
+            evt.params = {}
+
+            charm_instance._set_network_agents_local_settings_action(evt)
+
+            charm_instance.set_snap_data.assert_not_called()
