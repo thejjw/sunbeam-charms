@@ -59,7 +59,7 @@ from charms.ceilometer_k8s.v0.ceilometer_service import (
     CeilometerConfigChangedEvent,
     CeilometerServiceGoneAwayEvent,
 )
-from charms.consul_client.v0.consul_notify import (
+from charms.consul_client.v1.consul_notify import (
     ConsulNotifyRequirer,
 )
 from charms.grafana_agent.v0.cos_agent import (
@@ -85,7 +85,7 @@ MIGRATION_BINDING = "migration"
 DATA_BINDING = "data"
 MTLS_USAGES = {x509.OID_SERVER_AUTH, x509.OID_CLIENT_AUTH}
 HYPERVISOR_SNAP_NAME = "openstack-hypervisor"
-EVACUATION_UNIX_SOCKET_FILEPATH = "data/shutdown.sock"
+EVACUATION_UNIX_SOCKET_FILE = "shutdown.sock"
 EPA_INFO_PLUG = "epa-info"
 EPA_INFO_SLOT = "epa-orchestrator:epa-info"
 
@@ -255,11 +255,11 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         """
         logger.debug("Handling consul-notify relation ready event")
         snap_name = HYPERVISOR_SNAP_NAME
-        unix_socket_filepath = EVACUATION_UNIX_SOCKET_FILEPATH
+        unix_socket_file = EVACUATION_UNIX_SOCKET_FILE
 
         self.consul_notify.set_socket_info(
             snap_name=snap_name,
-            unix_socket_filepath=unix_socket_filepath,
+            unix_socket_filepath=unix_socket_file,
         )
 
     def _on_upgrade_charm(self, event: ops.framework.EventBase):

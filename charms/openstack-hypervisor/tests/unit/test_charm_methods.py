@@ -259,7 +259,7 @@ class TestConsul:
 
         charm_instance.consul_notify.set_socket_info.assert_called_once_with(
             snap_name=charm.HYPERVISOR_SNAP_NAME,
-            unix_socket_filepath=charm.EVACUATION_UNIX_SOCKET_FILEPATH,
+            unix_socket_filepath=charm.EVACUATION_UNIX_SOCKET_FILE,
         )
 
 
