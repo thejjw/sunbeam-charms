@@ -22,6 +22,7 @@ This charm is responsible for managing the cinder-volume snap, actual
 backend configurations are managed by the subordinate charms.
 """
 
+import base64
 import logging
 import typing
 from typing import (
@@ -254,12 +255,26 @@ class CinderVolumeOperatorCharm(charm.OSBaseOperatorCharmSnap):
                     "enable-telemetry-notifications"
                 ],
             }
+            snap_data.update(self._handle_receive_ca_cert(contexts))
         except AttributeError as e:
             raise sunbeam_guard.WaitingExceptionError(
                 "Data missing: {}".format(e.name)
             )
         self.set_snap_data(snap_data)
         self.check_serving_backends()
+
+    def _handle_receive_ca_cert(self, contexts) -> dict[str, str | None]:
+        """Return snap settings for the optional CA bundle relation."""
+        if (
+            hasattr(contexts.receive_ca_cert, "ca_bundle")
+            and contexts.receive_ca_cert.ca_bundle
+        ):
+            return {
+                "ca.bundle": base64.b64encode(
+                    contexts.receive_ca_cert.ca_bundle.encode()
+                ).decode()
+            }
+        return {"ca.bundle": None}
 
     def check_serving_backends(self):
         """Check if backends are ready to serve."""

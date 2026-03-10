@@ -135,6 +135,8 @@ relations:
     - identity-credentials:identity-credentials
   - - cinder-volume:database
     - cinder-database
+  - - cinder-volume:receive-ca-cert
+    - send-ca-cert:send-ca-cert
 
   - - microceph:ceph
     - cinder-microceph:ceph
