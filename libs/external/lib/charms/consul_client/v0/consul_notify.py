@@ -90,10 +90,11 @@ class MyRequirerCharm(CharmBase):
 
         This event happens when the relation is created or joined.
         '''
-        # Set the socket information for the provider
+        # Set the socket information for the provider.
+        # unix_socket_filepath as the socket file name, not as an absolute path.
         self.consul_notify.set_socket_info(
             snap_name="my-service-snap",
-            unix_socket_filepath="/var/snap/my-service-snap/common/socket.sock"
+            unix_socket_filepath="socket.sock"
         )
 ```
 """
@@ -113,7 +114,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 2
+LIBPATCH = 3
 
 DEFAULT_RELATION_NAME = "consul-notify"
 
