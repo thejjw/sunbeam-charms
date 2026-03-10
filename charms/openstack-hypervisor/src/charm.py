@@ -96,7 +96,7 @@ EPA_ALLOCATION_OVS_DPDK_HUGEPAGES = "ovs-dpdk-hugepages"
 EPA_ALLOCATION_OVS_DPDK_CONTROL_PLANE = "ovs-dpdk-control-plane"
 EPA_ALLOCATION_OVS_DPDK_DATAPATH = "ovs-dpdk-datapath"
 HYPERVISOR_SNAP_NAME = "openstack-hypervisor"
-EVACUATION_UNIX_SOCKET_FILEPATH = "data/shutdown.sock"
+EVACUATION_UNIX_SOCKET_FILEPATH = "shutdown.sock"
 
 # Snap Key if microovn switch restart is needed after DPDK config change.
 MICROOVN_RESTART_TRIGGER_SNAP_KEY = "network.external-switch-restart"
