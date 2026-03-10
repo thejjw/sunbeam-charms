@@ -33,6 +33,23 @@
       "message": "@ahmad.hassan@canonical.com\n\nThe first instance is to only set this one.\n\nThen, @himawan.winarto@canonical.com will open a new bug and look into making it configurable as whole feature; rather than an adhoc change.",
       "revId": "40cf8fc9502036832942298208338e090688f35c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "213e1dec_734f96ee",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-03-10T21:42:57Z",
+      "side": 1,
+      "message": "Ok",
+      "revId": "40cf8fc9502036832942298208338e090688f35c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
