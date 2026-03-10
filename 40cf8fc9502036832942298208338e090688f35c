@@ -16,6 +16,23 @@
       "message": "This isn\u0027t enough. The ask in the bug is to make this configurable via charm config also",
       "revId": "40cf8fc9502036832942298208338e090688f35c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "204219a3_e7dd7a81",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-10T21:28:44Z",
+      "side": 1,
+      "message": "@ahmad.hassan@canonical.com\n\nThe first instance is to only set this one.\n\nThen, @himawan.winarto@canonical.com will open a new bug and look into making it configurable as whole feature; rather than an adhoc change.",
+      "revId": "40cf8fc9502036832942298208338e090688f35c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
