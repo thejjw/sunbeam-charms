@@ -88,6 +88,24 @@
       "parentUuid": "58f952df_6e2af103",
       "revId": "d112f6b154eb7035f7f2786f8c1c9eaa73bfe9dd",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2c769ed8_0059620f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-03-10T11:23:24Z",
+      "side": 1,
+      "message": "We have single consul snap, that is used to deploy either consul server or consul client depending upon the input config passed. https://github.com/canonical/snap-consul/blob/main/snap-wrappers/consul-wrapper#L6C68-L7C108\n\nSo that is why, consul-client-operator charm https://github.com/canonical/consul-client-operator builds the socket path with in charm, prepare the config, then start the snap with that config. \n\nRegarding slot, hypervisor defines `hypervisor/\u003csocket name\u003e`\n\nOn the plug side, consul-client defines plug target path which is currently SNAP_DATA, the slot `hypervisor/\u003csocket name\u003e` is mounted as is in SNAP_DATA so consumer becomes   `SNAP_DATA/hypervisor/\u003csocket name\u003e`",
+      "parentUuid": "18e91b55_6a820fd0",
+      "revId": "d112f6b154eb7035f7f2786f8c1c9eaa73bfe9dd",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
