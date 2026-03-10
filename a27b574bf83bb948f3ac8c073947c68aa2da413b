@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "98e5dc21_f1cc7113",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-10T23:11:44Z",
+      "side": 1,
+      "message": "depends-on: https://github.com/canonical/snap-cinder-volume/pull/35",
+      "revId": "a27b574bf83bb948f3ac8c073947c68aa2da413b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
