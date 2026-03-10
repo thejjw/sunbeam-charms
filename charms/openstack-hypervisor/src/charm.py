@@ -84,6 +84,8 @@ logger = logging.getLogger(__name__)
 MIGRATION_BINDING = "migration"
 DATA_BINDING = "data"
 MTLS_USAGES = {x509.OID_SERVER_AUTH, x509.OID_CLIENT_AUTH}
+HYPERVISOR_SNAP_NAME = "openstack-hypervisor"
+EVACUATION_UNIX_SOCKET_FILEPATH = "shutdown.sock"
 EPA_INFO_PLUG = "epa-info"
 EPA_INFO_SLOT = "epa-orchestrator:epa-info"
 
