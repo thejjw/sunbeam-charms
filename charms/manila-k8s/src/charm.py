@@ -178,8 +178,8 @@ class ManilaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
     service_name = "manila-api"
-    wsgi_admin_script = "/usr/bin/manila-wsgi"
-    wsgi_public_script = "/usr/bin/manila-wsgi"
+    wsgi_admin_script = "/usr/bin/manila-api-wsgi"
+    wsgi_public_script = "/usr/bin/manila-api-wsgi"
 
     db_sync_cmds = [
         [
