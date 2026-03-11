@@ -30,7 +30,7 @@ applications:
     charm: ../../../keystone-k8s.charm
     {% else -%}
     charm: ch:keystone-k8s
-    channel: 2025.1/edge
+    channel: 2026.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
@@ -39,13 +39,13 @@ applications:
       fernet-keys: 5M
       credential-keys: 5M
     resources:
-      keystone-image: ghcr.io/canonical/keystone:2025.1-24.04_edge
+      keystone-image: ghcr.io/canonical/keystone:2026.1-26.04_edge
   keystone-saml:
     {% if keystone_saml_k8s is defined and keystone_saml_k8s is sameas true -%}
     charm: ../../../keystone-saml-k8s.charm
     {% else -%}
     charm: ch:keystone-saml-k8s
-    channel: 2025.1/edge
+    channel: 2026.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
@@ -61,13 +61,13 @@ applications:
     charm: ../../../horizon-k8s.charm
     {% else -%}
     charm: ch:horizon-k8s
-    channel: 2025.1/edge
+    channel: 2026.1/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      horizon-image: ghcr.io/canonical/horizon:2025.1-24.04_edge
+      horizon-image: ghcr.io/canonical/horizon:2026.1-26.04_edge
 
 relations:
 - - mysql:database

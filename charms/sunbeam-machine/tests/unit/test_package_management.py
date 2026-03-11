@@ -116,6 +116,36 @@ class TestEnsurePackageInstalled:
         mock_apt.update.assert_called_once()
         mock_pkg.ensure.assert_called_with("Present")
 
+    def test_kernel_package_skipped_when_nvme_tcp_module_present(
+        self, monkeypatch
+    ):
+        """Missing kernel package is skipped if nvme-tcp is already present."""
+
+        class PackageNotFoundError(Exception):
+            pass
+
+        mock_apt = MagicMock()
+        mock_apt.PackageNotFoundError = PackageNotFoundError
+        mock_apt.DebianPackage.from_system.side_effect = PackageNotFoundError
+        monkeypatch.setattr(charm, "apt", mock_apt)
+
+        mock_platform = MagicMock()
+        mock_platform.release.return_value = "7.0.0-14-generic"
+        monkeypatch.setattr(charm, "platform", mock_platform)
+        monkeypatch.setattr(
+            charm, "PACKAGES", ["linux-modules-extra-{kernel}"]
+        )
+
+        mock_self = MagicMock()
+        mock_self._nvme_tcp_module_present.return_value = True
+
+        charm.SunbeamMachineCharm._ensure_package_installed(mock_self)
+
+        mock_apt.update.assert_not_called()
+        mock_self._nvme_tcp_module_present.assert_called_once_with(
+            "7.0.0-14-generic"
+        )
+
     def test_mixed_kernel_and_regular_packages(self, monkeypatch):
         """Both kernel-placeholder and regular packages handled correctly."""
         installed_packages = []
