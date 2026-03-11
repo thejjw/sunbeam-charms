@@ -227,7 +227,7 @@ resources:
   octavia-api-image:
     type: oci-image
     description: OCI image for OpenStack octavia
-    upstream-source: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/octavia-consolidated:2026.1-26.04_edge
 
 storage:
   agent-sockets:
