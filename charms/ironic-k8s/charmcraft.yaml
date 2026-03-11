@@ -38,11 +38,11 @@ resources:
   ironic-api-image:
     type: oci-image
     description: OCI image for OpenStack Ironic API
-    upstream-source: ghcr.io/canonical/ironic-api:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/ironic-api:2026.1-26.04_edge
   ironic-novncproxy-image:
     type: oci-image
     description: OCI image for OpenStack Ironic noVNC proxy
-    upstream-source: ghcr.io/canonical/ironic-novncproxy:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/ironic-novncproxy:2026.1-26.04_edge
 
 requires:
   amqp:
