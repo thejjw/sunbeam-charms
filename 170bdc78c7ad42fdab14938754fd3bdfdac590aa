@@ -16,6 +16,23 @@
       "message": "recheck unrelated tempest issues",
       "revId": "170bdc78c7ad42fdab14938754fd3bdfdac590aa",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15b34d45_d5b979ac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-11T13:26:42Z",
+      "side": 1,
+      "message": "recheck\n\nunrelated failure in the cinder-volume snap (pkg_resource), fixed",
+      "revId": "170bdc78c7ad42fdab14938754fd3bdfdac590aa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
