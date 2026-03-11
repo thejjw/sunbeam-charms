@@ -61,6 +61,27 @@ class IronicConfigurationContext(sunbeam_ctxts.ConfigContext):
 
 
 @sunbeam_tracing.trace_type
+class IronicWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
+    """Pebble handler for Ironic API container."""
+
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Enable and start WSGI service."""
+        container = self.charm.unit.get_container(self.container_name)
+        try:
+            process = container.exec(
+                ["a2dissite", "ironic-api"], timeout=5 * 60
+            )
+            out, warnings = process.wait_output()
+            if warnings:
+                for line in warnings.splitlines():
+                    logger.warning("a2dissite warn: %s", line.strip())
+            logging.debug(f"Output from a2dissite: \n{out}")
+        except ops.pebble.ExecError:
+            logger.exception("Failed to disable ironic-api site in apache")
+        super().init_service(context)
+
+
+@sunbeam_tracing.trace_type
 class IronicNoVNCProxyPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Ironic noVNC Proxy."""
 
@@ -189,7 +210,7 @@ class IronicOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
         """Pebble handlers for the operator."""
         pebble_handlers = [
-            sunbeam_chandlers.WSGIPebbleHandler(
+            IronicWSGIPebbleHandler(
                 self,
                 IRONIC_API_CONTAINER,
                 self.service_name,
