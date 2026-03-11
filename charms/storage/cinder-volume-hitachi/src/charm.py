@@ -53,10 +53,10 @@ class CinderVolumeHitachiOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
         overrides = super()._configuration_type_overrides()
         overrides.update(
             {
-                "san-username": typing.Annotated[
+                "san-login": typing.Annotated[
                     str,
                     pydantic.BeforeValidator(
-                        sunbeam_storage.secret_validator("san-username")
+                        sunbeam_storage.secret_validator("san-login")
                     ),
                     sunbeam_storage.Required,
                 ],

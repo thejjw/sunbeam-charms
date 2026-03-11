@@ -73,7 +73,7 @@ def complete_state():
     """Full state with leader, cinder-volume relation, config and secrets."""
     san_secret = testing.Secret(
         tracked_content={
-            "san-username": "admin",
+            "san-login": "admin",
             "san-password": "secret",
         },
         owner="app",
@@ -82,7 +82,7 @@ def complete_state():
         leader=True,
         config={
             "san-ip": "10.0.0.1",
-            "san-username": san_secret.id,
+            "san-login": san_secret.id,
             "san-password": san_secret.id,
             "hitachi-storage-id": "450000",
             "hitachi-pools": "pool0",

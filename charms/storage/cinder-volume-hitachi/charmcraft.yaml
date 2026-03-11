@@ -40,11 +40,11 @@ config:
     san-ip:
       type: string
       description: Hitachi VSP management IP or hostname.
-    san-username:
+    san-login:
       type: secret
       description: |
         Hitachi VSP REST API username.
-        Must contain the key `san-username`.
+        Must contain the key `san-login`.
     san-password:
       type: secret
       description: |
