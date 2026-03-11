@@ -1,0 +1,27 @@
+groups:
+- name: OctaviaLoadBalancer
+  rules:
+  - alert: LoadBalancerProvisioningError
+    expr:  group by (id,name,project_id,provider,provisioning_status,vip_address) (openstack_loadbalancer_loadbalancer_status{provisioning_status="ERROR"})
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "OpenStack Loadbalancer {{ $labels.id }} Provisioning State in ERROR"
+      description: |
+        The OpenStack Loadbalancer {{ $labels.id }}, {{ $labels.name }} is in provisioning_status: ERROR. Additional data:
+        Project ID: {{ $labels.project_id }}
+        VIP Address: {{ $labels.vip_address }}
+        Operating Status: {{ $value }}
+  - alert: LoadBalancerProvisioningPending
+    expr:  group by (id,name,project_id,provider,provisioning_status,vip_address) (openstack_loadbalancer_loadbalancer_status{provisioning_status=~"PENDING_.*"})
+    for: 1h
+    labels:
+      severity: critical
+    annotations:
+      summary: "OpenStack Loadbalancer {{ $labels.id }} has been in provisioning State in a {{ $labels.provisioning_status }} for more than an hour"
+      description: |
+        The OpenStack Loadbalancer {{ $labels.id }}, {{ $labels.name }} has been  in provisioning_status: {{ $labels.provisioning_status }}. Additional data:
+        Project ID: {{ $labels.project_id }}
+        VIP Address: {{ $labels.vip_address }}
+        Operating Status: {{ $value }}
