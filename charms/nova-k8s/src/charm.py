@@ -57,6 +57,25 @@ NOVA_SPICEPROXY_INGRESS_PORT = 6082
 
 
 @sunbeam_tracing.trace_type
+class NovaWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
+    """Pebble handler for Nova API container."""
+
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Enable and start WSGI service."""
+        container = self.charm.unit.get_container(self.container_name)
+        try:
+            process = container.exec(["a2dissite", "nova-api"], timeout=5 * 60)
+            out, warnings = process.wait_output()
+            if warnings:
+                for line in warnings.splitlines():
+                    logger.warning("a2dissite warn: %s", line.strip())
+            logging.debug(f"Output from a2dissite: \n{out}")
+        except ops.pebble.ExecError:
+            logger.exception("Failed to disable nova-api site in apache")
+        super().init_service(context)
+
+
+@sunbeam_tracing.trace_type
 class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
     """Configuration context for WSGI configuration."""
 
@@ -502,7 +521,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
         """Pebble handlers for operator."""
         pebble_handlers = [
-            sunbeam_chandlers.WSGIPebbleHandler(
+            NovaWSGIPebbleHandler(
                 self,
                 NOVA_WSGI_CONTAINER,
                 self.service_name,
