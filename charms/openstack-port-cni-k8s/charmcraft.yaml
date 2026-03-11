@@ -1,0 +1,121 @@
+type: charm
+name: openstack-port-cni-k8s
+title: OpenStack Port CNI
+summary: Deploys ovs-cni and openstack-port-cni manifests to a Kubernetes cluster.
+description: |
+  This charm manages two sets of Kubernetes manifests:
+
+  1. **ovs-cni** (upstream from k8snetworkplumbingwg) — installs the OVS CNI
+     binary on every node and runs the OVS marker DaemonSet that exposes Open
+     vSwitch bridges as Kubernetes node resources.
+
+  2. **openstack-port-cni** (canonical) — runs a thin/thick CNI architecture
+     where an initContainer installs the ``openstack-port-cni`` binary and a
+     DaemonSet runs ``openstack-port-daemon``.  The daemon holds OpenStack
+     credentials (injected from the Keystone relation) and manages Neutron
+     ports over a Unix domain socket.
+
+  Requires a Keystone relation (``identity-credentials``) in order to inject
+  OpenStack credentials into the daemon.
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+assumes:
+  - k8s-api
+  - juju >= 3.3
+
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+config:
+  options:
+    ovs-cni-release:
+      type: string
+      default: v0.39.0
+      description: |
+        Version of ovs-cni to deploy.  Must match a subdirectory under
+        ``upstream/ovs-cni/manifests/`` bundled in this charm.
+    openstack-port-cni-release:
+      type: string
+      default: "0.1.0"
+      description: |
+        Version of openstack-port-cni to deploy.  Must match a
+        subdirectory under ``upstream/openstack-port-cni/manifests/``
+        bundled in this charm.
+    region:
+      type: string
+      default: RegionOne
+      description: OpenStack region name passed to the openstack-port-daemon.
+
+requires:
+  identity-credentials:
+    interface: keystone-credentials
+    limit: 1
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+peers:
+  peers:
+    interface: openstack-port-cni-peer
+
+actions:
+  list-versions:
+    description: List the manifest versions supported by this charm.
+  list-resources:
+    description: List the Kubernetes resources managed by this charm.
+    params:
+      resources:
+        type: string
+        default: ""
+        description: |
+          Space-separated list of Kubernetes resource types to filter the
+          output (e.g. ``DaemonSet ServiceAccount``).
+  scrub-resources:
+    description: |
+      Remove any Kubernetes resources created by an older version of this
+      charm that are no longer needed by the current version.
+    params:
+      resources:
+        type: string
+        default: ""
+        description: |
+          Space-separated list of resource types to restrict the scrub
+          operation to.
+  sync-resources:
+    description: |
+      Re-apply any managed Kubernetes resources that are missing from the
+      cluster (e.g. accidentally deleted).
+    params:
+      resources:
+        type: string
+        default: ""
+        description: |
+          Space-separated list of resource types to restrict the sync
+          operation to.
+
+parts:
+  charm:
+    plugin: uv
+    source: .
+    build-snaps:
+      - astral-uv
+    build-packages:
+      - git
+  manifests:
+    # Bundle the upstream manifest trees into the charm so that
+    # ops.manifests can locate them at runtime under upstream/.
+    plugin: dump
+    source: ./upstream
+    organize:
+      ovs-cni: upstream/ovs-cni
+      openstack-port-cni: upstream/openstack-port-cni
