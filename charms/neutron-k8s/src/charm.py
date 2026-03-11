@@ -22,6 +22,9 @@ This charm provide Neutron services as part of an OpenStack deployment
 import configparser
 import logging
 import re
+from collections.abc import (
+    Callable,
+)
 from typing import (
     List,
 )
@@ -255,99 +258,152 @@ class SwitchConfigRequiresHandler(sunbeam_rhandlers.RelationHandler):
 
 
 @sunbeam_tracing.trace_type
-class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+class NeutronServerPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Handler for interacting with pebble data."""
 
-    def get_layer(self):
-        """Neutron server service.
+    def __init__(
+        self,
+        charm: "NeutronOperatorCharm",
+        container_name: str,
+        service_name: str,
+        container_configs: list,
+        template_dir: str,
+        callback_f: Callable,
+        wsgi_service_name: str,
+    ) -> None:
+        """Run constructor.
 
-        :returns: pebble service layer configuration for neutron server service
+        Set wsgi_service_name before super().__init__() so it is
+        available when default_container_configs() is called.
+        """
+        self.wsgi_service_name = wsgi_service_name
+        super().__init__(
+            charm,
+            container_name,
+            service_name,
+            container_configs,
+            template_dir,
+            callback_f,
+            wsgi_service_name,
+        )
+
+    @property
+    def wsgi_conf(self) -> str:
+        """Location of WSGI config file."""
+        return f"/etc/apache2/sites-available/{self.wsgi_service_name}.conf"
+
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Enable and start WSGI service."""
+        container = self.charm.unit.get_container(self.container_name)
+        try:
+            process = container.exec(
+                ["a2dissite", "neutron-api"], timeout=5 * 60
+            )
+            out, warnings = process.wait_output()
+            if warnings:
+                for line in warnings.splitlines():
+                    logger.warning("a2dissite warn: %s", line.strip())
+            logging.debug(f"Output from a2dissite: \n{out}")
+        except ops.pebble.ExecError:
+            logger.exception("Failed to disable neutron-api site in apache")
+        super().init_service(context)
+
+    def get_layer(self):
+        """Neutron WSGI + RPC + periodic workers service layer.
+
+        :returns: pebble service layer configuration for neutron services
+            and ironic-neutron-agent
         :rtype: dict
         """
-        neutron_command = [
-            "neutron-server",
+        layer = super().get_layer()
+
+        rpc_command = [
+            "neutron-rpc-server",
+            "--config-dir",
+            "/etc/neutron",
+            "--config-file",
+            "/etc/neutron/plugins/ml2/ml2_conf.ini",
+        ]
+        periodic_command = [
+            "neutron-periodic-workers",
             "--config-dir",
             "/etc/neutron",
             "--config-file",
             "/etc/neutron/plugins/ml2/ml2_conf.ini",
         ]
         if self.charm.baremetal_config.ready:
-            neutron_command.extend(["--config-file", ML2_BAREMETAL_CONF])
+            rpc_command.extend(["--config-file", ML2_BAREMETAL_CONF])
+            periodic_command.extend(["--config-file", ML2_BAREMETAL_CONF])
         if self.charm.generic_config.ready:
-            neutron_command.extend(["--config-file", ML2_GENERIC_CONF])
+            rpc_command.extend(["--config-file", ML2_GENERIC_CONF])
+            periodic_command.extend(["--config-file", ML2_GENERIC_CONF])
 
-        return {
-            "summary": "neutron server layer",
-            "description": "pebble configuration for neutron server",
-            "services": {
-                "neutron-server": {
-                    "override": "replace",
-                    "summary": "Neutron Server",
-                    "command": " ".join(neutron_command),
-                    "user": "neutron",
-                    "group": "neutron",
-                },
-                IRONIC_AGENT: {
-                    "override": "replace",
-                    "summary": "Neutron Ironic Agent",
-                    "command": f"ironic-neutron-agent --config-dir /etc/neutron --config-file {IRONIC_AGENT_CONF}",
-                    "user": "neutron",
-                    "group": "neutron",
-                },
-            },
+        layer["services"]["neutron-rpc-server"] = {
+            "override": "replace",
+            "summary": "Neutron RPC Server",
+            "command": " ".join(rpc_command),
+            "user": "neutron",
+            "group": "neutron",
+        }
+        layer["services"]["neutron-periodic-workers"] = {
+            "override": "replace",
+            "summary": "Neutron Periodic Workers",
+            "command": " ".join(periodic_command),
+            "user": "neutron",
+            "group": "neutron",
+        }
+        layer["services"][IRONIC_AGENT] = {
+            "override": "replace",
+            "summary": "Neutron Ironic Agent",
+            "command": (
+                "ironic-neutron-agent"
+                " --config-dir /etc/neutron"
+                f" --config-file {IRONIC_AGENT_CONF}"
+            ),
+            "user": "neutron",
+            "group": "neutron",
         }
 
-    def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer.
-
-        :returns: pebble health check layer configuration for neutron server
-                  service
-        :rtype: dict
-        """
-        return {
-            "checks": {
-                "online": {
-                    "override": "replace",
-                    "level": "ready",
-                    "http": {"url": self.charm.healthcheck_http_url},
-                },
-            }
-        }
+        return layer
 
     def default_container_configs(self):
         """Base container configs."""
-        return [
-            sunbeam_core.ContainerConfigFile(
-                "/etc/neutron/neutron.conf", "neutron", "neutron"
-            ),
-            sunbeam_core.ContainerConfigFile(
-                "/etc/neutron/api-paste.ini", "neutron", "neutron"
-            ),
-            sunbeam_core.ContainerConfigFile(
-                "/etc/neutron/api_audit_map.conf", "root", "neutron"
-            ),
-            sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
-                "root",
-                "neutron",
-                0o640,
-            ),
-            sunbeam_core.ContainerConfigFile(
-                ML2_BAREMETAL_CONF,
-                "root",
-                "neutron",
-            ),
-            sunbeam_core.ContainerConfigFile(
-                ML2_GENERIC_CONF,
-                "root",
-                "neutron",
-            ),
-            sunbeam_core.ContainerConfigFile(
-                IRONIC_AGENT_CONF,
-                "root",
-                "neutron",
-            ),
-        ]
+        _cconfigs = super().default_container_configs()
+        _cconfigs.extend(
+            [
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/neutron/neutron.conf", "neutron", "neutron"
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/neutron/api-paste.ini", "neutron", "neutron"
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/neutron/api_audit_map.conf", "root", "neutron"
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    "/usr/local/share/ca-certificates/ca-bundle.pem",
+                    "root",
+                    "neutron",
+                    0o640,
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    ML2_BAREMETAL_CONF,
+                    "root",
+                    "neutron",
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    ML2_GENERIC_CONF,
+                    "root",
+                    "neutron",
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    IRONIC_AGENT_CONF,
+                    "root",
+                    "neutron",
+                ),
+            ]
+        )
+        return _cconfigs
 
     def write_config(
         self, context: sunbeam_core.OPSCharmContexts
@@ -396,25 +452,20 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
         return updated_files
 
-    def start_service(self, restart: bool = True) -> None:
-        """Check and start services in container.
+    def start_wsgi(self, restart: bool = True) -> None:
+        """Start WSGI and related services.
 
-        :param restart: Whether to stop services before starting them.
+        Always re-apply the layer so dynamic config (switch configs)
+        is reflected in service commands.
         """
         container = self.charm.unit.get_container(self.container_name)
         if not container:
             logger.debug(
                 f"{self.container_name} container is not ready. "
-                "Cannot start service."
+                "Cannot start wsgi service."
             )
             return
-
-        plan = container.get_plan()
-        layer = self.get_layer()
-
-        if layer["services"] != plan.services:
-            container.add_layer(self.service_name, layer, combine=True)
-
+        container.add_layer(self.service_name, self.get_layer(), combine=True)
         self.start_all(restart=restart)
 
     def start_all(
@@ -484,9 +535,8 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "neutron-server"
-    # Remove wsgi_admin_script and wsgi_admin_script after aso fix
-    wsgi_admin_script = ""
-    wsgi_public_script = ""
+    wsgi_admin_script = "/usr/share/neutron/neutron-api.wsgi"
+    wsgi_public_script = "/usr/share/neutron/neutron-api.wsgi"
 
     db_sync_cmds = [
         [
@@ -652,6 +702,7 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.container_configs,
                 self.template_dir,
                 self.configure_charm,
+                "wsgi-neutron-api",
             )
         ]
 
@@ -678,6 +729,13 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def ingress_healthcheck_path(self):
         """Healthcheck path for ingress relation."""
         return "/healthcheck"
+
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
 
     @property
     def service_user(self) -> str:
@@ -757,6 +815,7 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
     def default_container_configs(self):
         """Neutron container configs."""
         return [
+            sunbeam_core.ContainerConfigFile(self.wsgi_conf, "root", "root"),
             sunbeam_core.ContainerConfigFile(
                 "/etc/neutron/neutron.conf", "root", "neutron", 0o640
             ),
@@ -829,6 +888,7 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
                 [],
                 self.template_dir,
                 self.configure_charm,
+                "wsgi-neutron-api",
             )
         ]
 
