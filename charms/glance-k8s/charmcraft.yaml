@@ -15,7 +15,8 @@ links:
   issues:
     - https://bugs.launchpad.net/charm-glance-k8s
 
-base: ubuntu@24.04
+base: ubuntu@26.04
+build-base: ubuntu@devel
 platforms:
   amd64:
   arm64:
@@ -301,7 +302,7 @@ resources:
   glance-api-image:
     type: oci-image
     description: OCI image for OpenStack Glance
-    upstream-source: ghcr.io/canonical/glance-api:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/glance-api:2026.1-26.04_edge
 
 storage:
   local-repository:

@@ -4,7 +4,7 @@
 [project]
 name = "neutron-k8s"
 version = "2025.1"
-requires-python = "~=3.12.0"
+requires-python = ">=3.12,<3.15"
 
 dependencies = [
     "cryptography",

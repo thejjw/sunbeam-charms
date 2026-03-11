@@ -6,7 +6,8 @@ description: |
   Configures the epa-orchestrator snap as a part of the openstack deployment.
 assumes:
   - juju >= 3.1
-base: ubuntu@24.04
+base: ubuntu@26.04
+build-base: ubuntu@devel
 subordinate: true
 platforms:
   amd64:

@@ -16,7 +16,8 @@ links:
   source: https://opendev.org/openstack/sunbeam-charms
   issues: https://bugs.launchpad.net/sunbeam-charms
 
-base: ubuntu@24.04
+base: ubuntu@26.04
+build-base: ubuntu@devel
 platforms:
   amd64:
   arm64:
@@ -63,7 +64,7 @@ resources:
   watcher-image:
     description: OCI image for OpenStack Watcher services
     type: oci-image
-    upstream-source: ghcr.io/canonical/watcher-consolidated:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/watcher-consolidated:2026.1-26.04_edge
 
 requires:
   amqp:

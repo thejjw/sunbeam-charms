@@ -5,7 +5,8 @@ summary: A juju charm to run sunbeam clusterd
 description: |
   Manage sunbeam clusterd deployment
 
-base: ubuntu@24.04
+base: ubuntu@26.04
+build-base: ubuntu@devel
 platforms:
   amd64:
   arm64:

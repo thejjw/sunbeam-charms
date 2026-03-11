@@ -7,7 +7,8 @@ description: |
   provider bridge/physnet mapping, and runs neutron-ovn-metadata-agent.
   Attach this charm to MicroOVN units to provide north/south traffic.
 
-base: ubuntu@24.04
+base: ubuntu@26.04
+build-base: ubuntu@devel
 subordinate: true
 
 platforms:

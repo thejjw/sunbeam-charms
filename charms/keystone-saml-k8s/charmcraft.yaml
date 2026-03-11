@@ -5,7 +5,8 @@ summary: Integrator charm to enable saml2 providers in Keystone
 description: |
   Integrator charm to enable saml2 providers in Keystone.
 
-base: ubuntu@24.04
+base: ubuntu@26.04
+build-base: ubuntu@devel
 platforms:
   amd64:
   arm64:

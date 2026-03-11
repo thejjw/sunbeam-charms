@@ -10,7 +10,8 @@ links:
   source: https://opendev.org/openstack/sunbeam-charms
   issues: https://bugs.launchpad.net/sunbeam-charms
 
-base: ubuntu@24.04
+base: ubuntu@26.04
+build-base: ubuntu@devel
 platforms:
   amd64:
   arm64:

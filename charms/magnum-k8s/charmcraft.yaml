@@ -8,7 +8,8 @@ assumes:
   - k8s-api
   - juju >= 3.1
 
-base: ubuntu@24.04
+base: ubuntu@26.04
+build-base: ubuntu@devel
 platforms:
   amd64:
   arm64:
@@ -82,11 +83,11 @@ resources:
   magnum-api-image:
     type: oci-image
     description: OCI image for OpenStack magnum
-    upstream-source: ghcr.io/canonical/magnum-consolidated:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/magnum-consolidated:2026.1-26.04_edge
   magnum-conductor-image:
     type: oci-image
     description: OCI image for OpenStack magnum
-    upstream-source: ghcr.io/canonical/magnum-consolidated:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/magnum-consolidated:2026.1-26.04_edge
 
 requires:
   database:

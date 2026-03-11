@@ -5,7 +5,8 @@ summary: Keep OpenStack images in sync with the latest versions
 description: |
   Openstack Images Sync operator allows synchronization from a SimpleStreams source to an OpenStack cloud.
 
-base: ubuntu@24.04
+base: ubuntu@26.04
+build-base: ubuntu@devel
 platforms:
   amd64:
   arm64:
@@ -54,7 +55,7 @@ resources:
   openstack-images-sync-image:
     type: oci-image
     description: OCI image for OpenStack Images Sync
-    upstream-source: ghcr.io/canonical/openstack-images-sync:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/openstack-images-sync:2026.1-26.04_edge
 
 requires:
   ingress-internal:

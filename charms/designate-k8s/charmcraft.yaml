@@ -14,7 +14,8 @@ links:
   issues:
     - https://bugs.launchpad.net/charm-designate-k8s
 
-base: ubuntu@24.04
+base: ubuntu@26.04
+build-base: ubuntu@devel
 platforms:
   amd64:
   arm64:
@@ -45,7 +46,7 @@ resources:
   designate-image:
     type: oci-image
     description: OCI image for OpenStack designate
-    upstream-source: ghcr.io/canonical/designate-consolidated:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/designate-consolidated:2026.1-26.04_edge
 
 requires:
   database:

@@ -13,7 +13,8 @@ links:
   issues:
     - https://bugs.launchpad.net/charm-cinder-k8s
 
-base: ubuntu@24.04
+base: ubuntu@26.04
+build-base: ubuntu@devel
 platforms:
   amd64:
   arm64:
@@ -39,11 +40,11 @@ resources:
   cinder-api-image:
     type: oci-image
     description: OCI image for OpenStack Cinder API
-    upstream-source: ghcr.io/canonical/cinder-consolidated:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/cinder-consolidated:2026.1-26.04_edge
   cinder-scheduler-image:
     type: oci-image
     description: OCI image for OpenStack Cinder Scheduler
-    upstream-source: ghcr.io/canonical/cinder-consolidated:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/cinder-consolidated:2026.1-26.04_edge
 
 requires:
   database:

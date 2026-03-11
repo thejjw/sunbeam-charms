@@ -18,7 +18,8 @@ description: |
   Requires a Keystone relation (``identity-credentials``) in order to inject
   OpenStack credentials into the daemon.
 
-base: ubuntu@24.04
+base: ubuntu@26.04
+build-base: ubuntu@devel
 platforms:
   amd64:
   arm64:
