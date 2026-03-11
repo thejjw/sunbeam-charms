@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f19b8fcc_e261f123",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-11T13:26:08Z",
+      "side": 1,
+      "message": "recheck\n\nunrelated failure fixed in the cinder-volume snap",
+      "revId": "cb7c6cb0f6b326a62408f78ee3f5ec5ded1b9abe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
