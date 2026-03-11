@@ -21,8 +21,13 @@ relations are: amqp, database, identity-credentials (requires) and
 storage-backend (provides, but marked mandatory by the charm class).
 """
 
+import base64
+import json
 from pathlib import (
     Path,
+)
+from unittest.mock import (
+    MagicMock,
 )
 
 import charm
@@ -54,6 +59,22 @@ def storage_backend_relation() -> testing.Relation:
         endpoint="storage-backend",
         remote_app_name="cinder",
         remote_app_data={"ready": "true"},
+    )
+
+
+def receive_ca_cert_relation(
+    ca: str = "TEST_CA", chain: list[str] | None = None
+) -> testing.Relation:
+    """receive-ca-cert relation carrying a CA and optional chain."""
+    return testing.Relation(
+        endpoint="receive-ca-cert",
+        remote_app_name="keystone",
+        remote_units_data={
+            0: {
+                "ca": ca,
+                "chain": json.dumps(chain or []),
+            }
+        },
     )
 
 
@@ -210,6 +231,51 @@ class TestInstallEvent:
             "maintenance",
             "active",
         )
+
+
+class TestConfigureSnap:
+    """Focused tests for snap configuration payloads."""
+
+    def test_configure_snap_sets_ca_bundle(self, ctx, complete_state):
+        """configure_snap should pass the receive-ca-cert bundle to the snap."""
+        state_in = testing.State(
+            leader=True,
+            relations=[
+                *complete_state.relations,
+                receive_ca_cert_relation(
+                    ca="ROOT_CA",
+                    chain=["INTERMEDIATE_CA"],
+                ),
+            ],
+            secrets=complete_state.secrets,
+        )
+
+        with ctx(ctx.on.config_changed(), state_in) as mgr:
+            charm_instance = mgr.charm
+            charm_instance.set_snap_data = MagicMock()
+            charm_instance.check_serving_backends = MagicMock()
+
+            charm_instance.configure_snap(MagicMock())
+
+            snap_data = charm_instance.set_snap_data.call_args.args[0]
+            assert (
+                snap_data["ca.bundle"]
+                == base64.b64encode(b"ROOT_CA\nINTERMEDIATE_CA").decode()
+            )
+
+    def test_configure_snap_unsets_missing_ca_bundle(
+        self, ctx, complete_state
+    ):
+        """configure_snap should unset ca.bundle when no relation is present."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            charm_instance = mgr.charm
+            charm_instance.set_snap_data = MagicMock()
+            charm_instance.check_serving_backends = MagicMock()
+
+            charm_instance.configure_snap(MagicMock())
+
+            snap_data = charm_instance.set_snap_data.call_args.args[0]
+            assert snap_data["ca.bundle"] is None
 
 
 # ---------------------------------------------------------------------------
