@@ -140,6 +140,8 @@
             nodeset: ubuntu-noble
         - charm-build-sunbeam-ovn-proxy:
             nodeset: ubuntu-noble
+        - charm-build-openstack-port-cni-k8s:
+            nodeset: ubuntu-noble
     gate:
       fail-fast: true
       jobs:
@@ -234,6 +236,8 @@
         - charm-build-openstack-network-agents:
             nodeset: ubuntu-noble
         - charm-build-sunbeam-ovn-proxy:
+            nodeset: ubuntu-noble
+        - charm-build-openstack-port-cni-k8s:
             nodeset: ubuntu-noble
 
 - project-template:
@@ -333,4 +337,6 @@
             - publish-charm-openstack-network-agents:
                 nodeset: ubuntu-noble
             - publish-charm-sunbeam-ovn-proxy:
+                nodeset: ubuntu-noble
+            - publish-charm-openstack-port-cni-k8s:
                 nodeset: ubuntu-noble

@@ -71,3 +71,4 @@
         epa-orchestrator: 2024.1/edge
         openstack-network-agents: 2024.1/edge
         sunbeam-ovn-proxy: 2024.1/edge
+        openstack-port-cni-k8s: 2024.1/edge
