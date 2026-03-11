@@ -3054,7 +3054,367 @@ class TestCertificateTransferFullFlow:
         # Juju strips empty-string values from relation data, so "ca" and
         # "certificate" won't be present when set to "".
         assert unit_data.get("ca", "") == ""
+
+
+class TestDedupePreserveOrder:
+    """Unit tests for KeystoneOperatorCharm._dedupe_preserve_order."""
+
+    def test_empty_list(self):
+        """Return an empty list unchanged."""
+        assert charm.KeystoneOperatorCharm._dedupe_preserve_order([]) == []
+
+    def test_no_duplicates(self):
+        """Keep the original order when no duplicates are present."""
+        result = charm.KeystoneOperatorCharm._dedupe_preserve_order(
+            ["a", "b", "c"]
+        )
+        assert result == ["a", "b", "c"]
+
+    def test_duplicates_removed_preserving_order(self):
+        """Drop duplicate values while preserving first-seen order."""
+        result = charm.KeystoneOperatorCharm._dedupe_preserve_order(
+            ["b", "a", "b", "c", "a"]
+        )
+        assert result == ["b", "a", "c"]
+
+    def test_blank_and_empty_strings_filtered(self):
+        """Filter out blank entries while preserving valid values."""
+        result = charm.KeystoneOperatorCharm._dedupe_preserve_order(
+            ["", "a", "", "b"]
+        )
+        assert result == ["a", "b"]
+
+    def test_all_empty_strings(self):
+        """Return an empty list when all entries are blank."""
+        result = charm.KeystoneOperatorCharm._dedupe_preserve_order(
+            ["", "", ""]
+        )
+        assert result == []
+
+    def test_single_element(self):
+        """Return a single-element list unchanged."""
+        assert charm.KeystoneOperatorCharm._dedupe_preserve_order(["x"]) == [
+            "x"
+        ]
+
+    def test_all_duplicates(self):
+        """Keep only one value when all entries are duplicates."""
+        result = charm.KeystoneOperatorCharm._dedupe_preserve_order(
+            ["x", "x", "x"]
+        )
+        assert result == ["x"]
+
+
+class TestReceiveCaCertPropagation:
+    """Test receive-ca-cert propagation to send-ca-cert."""
+
+    def test_receive_ca_cert_propagates_to_send_relation(
+        self, ctx, complete_state
+    ):
+        """CA received on receive-ca-cert is republished on send-ca-cert."""
+        state_mid = _bootstrap(ctx, complete_state)
+        ca_pem, _ = _get_self_signed()
+
+        receive_ca_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority",
+            remote_units_data={0: {"ca": ca_pem, "chain": json.dumps([])}},
+        )
+        send_ca_rel = testing.Relation(
+            endpoint="send-ca-cert",
+            remote_app_name="nova",
+            remote_units_data={0: {}},
+        )
+        state_with_rel = dataclasses.replace(
+            state_mid,
+            relations=[*state_mid.relations, receive_ca_rel, send_ca_rel],
+        )
+
+        ctx2 = _new_ctx()
+        state_out = ctx2.run(
+            ctx2.on.relation_changed(receive_ca_rel), state_with_rel
+        )
+
+        send_rel = [
+            r for r in state_out.relations if r.endpoint == "send-ca-cert"
+        ][0]
+        unit_data = dict(send_rel.local_unit_data)
+        assert ca_pem in unit_data["ca"]
+
+    def test_mixed_action_and_receive_ca_are_both_published(
+        self, ctx, complete_state
+    ):
+        """Action-uploaded and receive-ca-cert CAs are both sent downstream."""
+        state_mid = _bootstrap(ctx, complete_state)
+        uploaded_ca_pem, _ = _get_self_signed()
+        uploaded_ca_b64 = base64.b64encode(uploaded_ca_pem.encode()).decode()
+
+        ctx2 = _new_ctx()
+        state_added = ctx2.run(
+            ctx2.on.action(
+                "add-ca-certs",
+                params={"name": "uploaded-ca", "ca": uploaded_ca_b64},
+            ),
+            state_mid,
+        )
+        state_added = _fix_checks(state_added)
+        cleanup_database_requires_events()
+
+        received_ca_pem, _ = _make_self_signed_cert("Received CA")
+        receive_ca_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority",
+            remote_units_data={
+                0: {"ca": received_ca_pem, "chain": json.dumps([])}
+            },
+        )
+        send_ca_rel = testing.Relation(
+            endpoint="send-ca-cert",
+            remote_app_name="nova",
+            remote_units_data={0: {}},
+        )
+        state_with_rel = dataclasses.replace(
+            state_added,
+            relations=[*state_added.relations, receive_ca_rel, send_ca_rel],
+        )
+
+        ctx3 = _new_ctx()
+        state_out = ctx3.run(
+            ctx3.on.relation_changed(receive_ca_rel), state_with_rel
+        )
+
+        send_rel = [
+            r for r in state_out.relations if r.endpoint == "send-ca-cert"
+        ][0]
+        unit_data = dict(send_rel.local_unit_data)
+        assert uploaded_ca_pem in unit_data["ca"]
+        assert received_ca_pem in unit_data["ca"]
         assert json.loads(unit_data.get("chain", "[]")) == []
+
+    def test_receive_ca_with_chain_propagates_chain(self, ctx, complete_state):
+        """Chain received on receive-ca-cert is republished on send-ca-cert."""
+        state_mid = _bootstrap(ctx, complete_state)
+        ca_pem, _ = _get_self_signed()
+        chain_pem, _ = _make_self_signed_cert("Intermediate CA")
+
+        receive_ca_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority",
+            remote_units_data={
+                0: {
+                    "ca": ca_pem,
+                    "chain": json.dumps([chain_pem]),
+                }
+            },
+        )
+        send_ca_rel = testing.Relation(
+            endpoint="send-ca-cert",
+            remote_app_name="nova",
+            remote_units_data={0: {}},
+        )
+        state_with_rel = dataclasses.replace(
+            state_mid,
+            relations=[*state_mid.relations, receive_ca_rel, send_ca_rel],
+        )
+
+        ctx2 = _new_ctx()
+        state_out = ctx2.run(
+            ctx2.on.relation_changed(receive_ca_rel), state_with_rel
+        )
+
+        send_rel = [
+            r for r in state_out.relations if r.endpoint == "send-ca-cert"
+        ][0]
+        unit_data = dict(send_rel.local_unit_data)
+        parsed_chain = json.loads(unit_data.get("chain", "[]"))
+        assert any(chain_pem in c for c in parsed_chain)
+
+    def test_receive_ca_with_empty_relation_data(self, ctx, complete_state):
+        """Relation with no unit data does not cause errors."""
+        state_mid = _bootstrap(ctx, complete_state)
+
+        receive_ca_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority",
+            remote_units_data={0: {}},
+        )
+        send_ca_rel = testing.Relation(
+            endpoint="send-ca-cert",
+            remote_app_name="nova",
+            remote_units_data={0: {}},
+        )
+        state_with_rel = dataclasses.replace(
+            state_mid,
+            relations=[*state_mid.relations, receive_ca_rel, send_ca_rel],
+        )
+
+        ctx2 = _new_ctx()
+        state_out = ctx2.run(
+            ctx2.on.relation_changed(receive_ca_rel), state_with_rel
+        )
+
+        send_rel = [
+            r for r in state_out.relations if r.endpoint == "send-ca-cert"
+        ][0]
+        unit_data = dict(send_rel.local_unit_data)
+        assert unit_data.get("ca", "") == ""
+
+    def test_receive_ca_with_malformed_chain_json(self, ctx, complete_state):
+        """Malformed chain JSON is handled gracefully, charm does not crash."""
+        state_mid = _bootstrap(ctx, complete_state)
+        ca_pem, _ = _get_self_signed()
+
+        receive_ca_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority",
+            remote_units_data={0: {"ca": ca_pem, "chain": "not-valid-json"}},
+        )
+        send_ca_rel = testing.Relation(
+            endpoint="send-ca-cert",
+            remote_app_name="nova",
+            remote_units_data={0: {}},
+        )
+        state_with_rel = dataclasses.replace(
+            state_mid,
+            relations=[*state_mid.relations, receive_ca_rel, send_ca_rel],
+        )
+
+        ctx2 = _new_ctx()
+        # Must not raise — charm handles malformed data gracefully
+        ctx2.run(ctx2.on.relation_changed(receive_ca_rel), state_with_rel)
+
+    def test_multiple_receive_ca_cert_units(self, ctx, complete_state):
+        """Propagate CAs from multiple receive-ca-cert units."""
+        state_mid = _bootstrap(ctx, complete_state)
+        ca_pem_1, _ = _get_self_signed()
+        ca_pem_2, _ = _make_self_signed_cert("Second CA")
+
+        receive_ca_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority",
+            remote_units_data={
+                0: {"ca": ca_pem_1, "chain": json.dumps([])},
+                1: {"ca": ca_pem_2, "chain": json.dumps([])},
+            },
+        )
+        send_ca_rel = testing.Relation(
+            endpoint="send-ca-cert",
+            remote_app_name="nova",
+            remote_units_data={0: {}},
+        )
+        state_with_rel = dataclasses.replace(
+            state_mid,
+            relations=[*state_mid.relations, receive_ca_rel, send_ca_rel],
+        )
+
+        ctx2 = _new_ctx()
+        state_out = ctx2.run(
+            ctx2.on.relation_changed(receive_ca_rel), state_with_rel
+        )
+
+        send_rel = [
+            r for r in state_out.relations if r.endpoint == "send-ca-cert"
+        ][0]
+        unit_data = dict(send_rel.local_unit_data)
+        assert ca_pem_1 in unit_data["ca"]
+        assert ca_pem_2 in unit_data["ca"]
+
+    def test_duplicate_ca_across_units_deduped(self, ctx, complete_state):
+        """Same CA from multiple units appears only once."""
+        state_mid = _bootstrap(ctx, complete_state)
+        ca_pem, _ = _get_self_signed()
+
+        receive_ca_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority",
+            remote_units_data={
+                0: {"ca": ca_pem, "chain": json.dumps([])},
+                1: {"ca": ca_pem, "chain": json.dumps([])},
+            },
+        )
+        send_ca_rel = testing.Relation(
+            endpoint="send-ca-cert",
+            remote_app_name="nova",
+            remote_units_data={0: {}},
+        )
+        state_with_rel = dataclasses.replace(
+            state_mid,
+            relations=[*state_mid.relations, receive_ca_rel, send_ca_rel],
+        )
+
+        ctx2 = _new_ctx()
+        state_out = ctx2.run(
+            ctx2.on.relation_changed(receive_ca_rel), state_with_rel
+        )
+
+        send_rel = [
+            r for r in state_out.relations if r.endpoint == "send-ca-cert"
+        ][0]
+        unit_data = dict(send_rel.local_unit_data)
+        # CA should appear exactly once, not duplicated
+        assert unit_data["ca"].count(ca_pem.strip()) == 1
+
+    def test_duplicate_chain_across_uploaded_and_received_deduped(
+        self, ctx, complete_state
+    ):
+        """Same chain cert from upload and receive appears only once."""
+        state_mid = _bootstrap(ctx, complete_state)
+        ca_pem, _ = _get_self_signed()
+        chain_pem, _ = _make_self_signed_cert("Shared Chain")
+
+        # Upload a CA with a chain
+        ca_b64 = base64.b64encode(ca_pem.encode()).decode()
+        chain_b64 = base64.b64encode(chain_pem.encode()).decode()
+        ctx2 = _new_ctx()
+        state_added = ctx2.run(
+            ctx2.on.action(
+                "add-ca-certs",
+                params={
+                    "name": "with-chain",
+                    "ca": ca_b64,
+                    "chain": chain_b64,
+                },
+            ),
+            state_mid,
+        )
+        state_added = _fix_checks(state_added)
+        cleanup_database_requires_events()
+
+        # Receive the same chain from a relation
+        received_ca_pem, _ = _make_self_signed_cert("Received CA")
+        receive_ca_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority",
+            remote_units_data={
+                0: {
+                    "ca": received_ca_pem,
+                    "chain": json.dumps([chain_pem]),
+                }
+            },
+        )
+        send_ca_rel = testing.Relation(
+            endpoint="send-ca-cert",
+            remote_app_name="nova",
+            remote_units_data={0: {}},
+        )
+        state_with_rel = dataclasses.replace(
+            state_added,
+            relations=[*state_added.relations, receive_ca_rel, send_ca_rel],
+        )
+
+        ctx3 = _new_ctx()
+        state_out = ctx3.run(
+            ctx3.on.relation_changed(receive_ca_rel), state_with_rel
+        )
+
+        send_rel = [
+            r for r in state_out.relations if r.endpoint == "send-ca-cert"
+        ][0]
+        unit_data = dict(send_rel.local_unit_data)
+        parsed_chain = json.loads(unit_data.get("chain", "[]"))
+        # chain_pem should appear exactly once across all chain entries
+        all_chain_text = "\n".join(parsed_chain)
+        assert all_chain_text.count(chain_pem.strip()) == 1
 
 
 class TestNonLeaderSecretSync:
