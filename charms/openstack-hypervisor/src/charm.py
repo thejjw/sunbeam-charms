@@ -743,9 +743,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             cache = self.get_snap_cache()
             hypervisor = cache[HYPERVISOR_SNAP_NAME]
 
+            is_local_snap = str(hypervisor.revision).startswith("x")
             if (
                 hypervisor.present
-                and hypervisor.channel == channel
+                and (hypervisor.channel == channel or is_local_snap)
                 and is_devmode == want_devmode
             ):
                 logger.debug(
