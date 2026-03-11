@@ -16,8 +16,18 @@ enable_api_admin = True
 enable_host_header = True
 enabled_extensions_admin = reports, quotas, counts, tenants, zones
 
+[service:central]
+workers = 1
+
+[service:mdns]
+workers = 1
+
+[service:producer]
+workers = 1
+
 [service:worker]
 enabled = True
+workers = 1
 
 [storage:sqlalchemy]
 {% include "parts/database-connection" %}

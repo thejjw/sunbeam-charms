@@ -87,14 +87,20 @@ class TestPebbleReady:
         out_container = state_out.get_container("neutron-server")
         assert "neutron-server" in out_container.layers
         layer = out_container.layers["neutron-server"]
-        assert "neutron-server" in layer.to_dict().get("services", {})
+        services = layer.to_dict().get("services", {})
+        assert "neutron-server" in services
+        assert "wsgi-neutron-api" not in services
 
     def test_pebble_ready_without_relations_blocked(self, ctx):
         """Pebble-ready but no relations → blocked."""
         container = testing.Container(
             name="neutron-server",
             can_connect=True,
-            execs=[testing.Exec(command_prefix=["sudo"], return_code=0)],
+            execs=[
+                testing.Exec(command_prefix=["a2dissite"], return_code=0),
+                testing.Exec(command_prefix=["a2ensite"], return_code=0),
+                testing.Exec(command_prefix=["sudo"], return_code=0),
+            ],
         )
         state_in = testing.State(leader=True, containers=[container])
         state_out = ctx.run(ctx.on.pebble_ready(container), state_in)

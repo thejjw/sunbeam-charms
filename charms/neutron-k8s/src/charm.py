@@ -22,6 +22,9 @@ This charm provide Neutron services as part of an OpenStack deployment
 import configparser
 import logging
 import re
+from collections.abc import (
+    Callable,
+)
 from typing import (
     List,
 )
@@ -255,64 +258,159 @@ class SwitchConfigRequiresHandler(sunbeam_rhandlers.RelationHandler):
 
 
 @sunbeam_tracing.trace_type
-class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+class NeutronServerPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Handler for interacting with pebble data."""
 
-    def get_layer(self):
-        """Neutron server service.
+    def __init__(
+        self,
+        charm: "NeutronOperatorCharm",
+        container_name: str,
+        service_name: str,
+        container_configs: list,
+        template_dir: str,
+        callback_f: Callable,
+        wsgi_service_name: str,
+    ) -> None:
+        """Run constructor.
 
-        :returns: pebble service layer configuration for neutron server service
+        Set wsgi_service_name before super().__init__() so it is
+        available when default_container_configs() is called.
+        """
+        self.wsgi_service_name = wsgi_service_name
+        super().__init__(
+            charm,
+            container_name,
+            service_name,
+            container_configs,
+            template_dir,
+            callback_f,
+            wsgi_service_name,
+        )
+
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Configure and start Neutron services."""
+        self.configure_container(context)
+        if self._files_changed:
+            self.start_wsgi(restart=True)
+        else:
+            self.start_wsgi(restart=False)
+        self.status.set(ops.model.ActiveStatus(""))
+
+    def get_layer(self):
+        """Neutron API + RPC + periodic workers service layer.
+
+        :returns: pebble service layer configuration for neutron services
+            and ironic-neutron-agent
         :rtype: dict
         """
-        neutron_command = [
+        api_command = [
             "neutron-server",
             "--config-dir",
             "/etc/neutron",
             "--config-file",
             "/etc/neutron/plugins/ml2/ml2_conf.ini",
         ]
+        rpc_command = [
+            "neutron-rpc-server",
+            "--config-dir",
+            "/etc/neutron",
+            "--config-file",
+            "/etc/neutron/plugins/ml2/ml2_conf.ini",
+        ]
+        periodic_command = [
+            "neutron-periodic-workers",
+            "--config-dir",
+            "/etc/neutron",
+            "--config-file",
+            "/etc/neutron/plugins/ml2/ml2_conf.ini",
+        ]
         if self.charm.baremetal_config.ready:
-            neutron_command.extend(["--config-file", ML2_BAREMETAL_CONF])
+            api_command.extend(["--config-file", ML2_BAREMETAL_CONF])
+            rpc_command.extend(["--config-file", ML2_BAREMETAL_CONF])
+            periodic_command.extend(["--config-file", ML2_BAREMETAL_CONF])
         if self.charm.generic_config.ready:
-            neutron_command.extend(["--config-file", ML2_GENERIC_CONF])
+            api_command.extend(["--config-file", ML2_GENERIC_CONF])
+            rpc_command.extend(["--config-file", ML2_GENERIC_CONF])
+            periodic_command.extend(["--config-file", ML2_GENERIC_CONF])
 
-        return {
-            "summary": "neutron server layer",
-            "description": "pebble configuration for neutron server",
+        layer = {
+            "summary": f"{self.service_name} layer",
+            "description": "pebble config layer for neutron services",
             "services": {
                 "neutron-server": {
                     "override": "replace",
-                    "summary": "Neutron Server",
-                    "command": " ".join(neutron_command),
+                    "summary": "Neutron API Server",
+                    "command": " ".join(api_command),
                     "user": "neutron",
                     "group": "neutron",
-                },
-                IRONIC_AGENT: {
-                    "override": "replace",
-                    "summary": "Neutron Ironic Agent",
-                    "command": f"ironic-neutron-agent --config-dir /etc/neutron --config-file {IRONIC_AGENT_CONF}",
-                    "user": "neutron",
-                    "group": "neutron",
+                    "environment": {
+                        "PYTHONPATH": "/var/lib/neutron/uwsgi-shim",
+                    },
                 },
             },
         }
+        layer["services"]["neutron-rpc-server"] = {
+            "override": "replace",
+            "summary": "Neutron RPC Server",
+            "command": " ".join(rpc_command),
+            "user": "neutron",
+            "group": "neutron",
+        }
+        layer["services"]["neutron-periodic-workers"] = {
+            "override": "replace",
+            "summary": "Neutron Periodic Workers",
+            "command": " ".join(periodic_command),
+            "user": "neutron",
+            "group": "neutron",
+            "environment": {
+                "PYTHONPATH": "/var/lib/neutron/uwsgi-shim",
+            },
+        }
+        layer["services"][IRONIC_AGENT] = {
+            "override": "replace",
+            "summary": "Neutron Ironic Agent",
+            "command": (
+                "ironic-neutron-agent"
+                " --config-dir /etc/neutron"
+                f" --config-file {IRONIC_AGENT_CONF}"
+            ),
+            "user": "neutron",
+            "group": "neutron",
+        }
 
-    def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer.
+        return layer
 
-        :returns: pebble health check layer configuration for neutron server
-                  service
-        :rtype: dict
-        """
+    def get_healthcheck_layer(self) -> ops.pebble.LayerDict:
+        """Health check pebble layer for the Neutron API service."""
         return {
             "checks": {
+                "up": {
+                    "override": "replace",
+                    "level": "alive",
+                    "period": "10s",
+                    "timeout": self.charm.healthcheck_http_timeout,
+                    "threshold": 3,
+                    "http": {"url": self.charm.healthcheck_http_url},
+                },
                 "online": {
                     "override": "replace",
                     "level": "ready",
+                    "period": self.charm.healthcheck_period,
+                    "timeout": self.charm.healthcheck_http_timeout,
                     "http": {"url": self.charm.healthcheck_http_url},
                 },
             }
         }
+
+    def add_healthchecks(self) -> None:
+        """Add or replace Neutron health checks in the Pebble plan."""
+        healthcheck_layer = self.get_healthcheck_layer()
+        container = self.charm.unit.get_container(self.container_name)
+        try:
+            container.add_layer("healthchecks", healthcheck_layer, combine=True)
+        except ops.pebble.ConnectionError as connect_error:
+            logger.error("Not able to add Healthcheck layer")
+            logger.exception(connect_error)
 
     def default_container_configs(self):
         """Base container configs."""
@@ -345,6 +443,11 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             sunbeam_core.ContainerConfigFile(
                 IRONIC_AGENT_CONF,
                 "root",
+                "neutron",
+            ),
+            sunbeam_core.ContainerConfigFile(
+                "/var/lib/neutron/uwsgi-shim/uwsgi.py",
+                "neutron",
                 "neutron",
             ),
         ]
@@ -396,25 +499,20 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
         return updated_files
 
-    def start_service(self, restart: bool = True) -> None:
-        """Check and start services in container.
+    def start_wsgi(self, restart: bool = True) -> None:
+        """Start WSGI and related services.
 
-        :param restart: Whether to stop services before starting them.
+        Always re-apply the layer so dynamic config (switch configs)
+        is reflected in service commands.
         """
         container = self.charm.unit.get_container(self.container_name)
         if not container:
             logger.debug(
                 f"{self.container_name} container is not ready. "
-                "Cannot start service."
+                "Cannot start wsgi service."
             )
             return
-
-        plan = container.get_plan()
-        layer = self.get_layer()
-
-        if layer["services"] != plan.services:
-            container.add_layer(self.service_name, layer, combine=True)
-
+        container.add_layer(self.service_name, self.get_layer(), combine=True)
         self.start_all(restart=restart)
 
     def start_all(
@@ -437,6 +535,15 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
         services = container.get_services()
         service_names = list(services.keys())
+
+        if self.wsgi_service_name in service_names:
+            logger.warning(
+                "Stopping stale apache WSGI service %s",
+                self.wsgi_service_name,
+            )
+            if services[self.wsgi_service_name].is_running():
+                container.stop(self.wsgi_service_name)
+            service_names.remove(self.wsgi_service_name)
 
         ironic_rel = self.model.relations[IRONIC_API_RELATION]
         if not ironic_rel and IRONIC_AGENT in service_names:
@@ -472,6 +579,9 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         services = container.get_services()
         service_names = list(services.keys())
 
+        if self.wsgi_service_name in service_names:
+            service_names.remove(self.wsgi_service_name)
+
         ironic_rel = self.model.relations[IRONIC_API_RELATION]
         if not ironic_rel and IRONIC_AGENT in service_names:
             service_names.remove(IRONIC_AGENT)
@@ -484,9 +594,8 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "neutron-server"
-    # Remove wsgi_admin_script and wsgi_admin_script after aso fix
-    wsgi_admin_script = ""
-    wsgi_public_script = ""
+    wsgi_admin_script = "/usr/share/neutron/neutron-api.wsgi"
+    wsgi_public_script = "/usr/share/neutron/neutron-api.wsgi"
 
     db_sync_cmds = [
         [
@@ -652,6 +761,7 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.container_configs,
                 self.template_dir,
                 self.configure_charm,
+                "wsgi-neutron-api",
             )
         ]
 
@@ -678,6 +788,13 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def ingress_healthcheck_path(self):
         """Healthcheck path for ingress relation."""
         return "/healthcheck"
+
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
 
     @property
     def service_user(self) -> str:
@@ -805,6 +922,11 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
                 "root",
                 "neutron",
             ),
+            sunbeam_core.ContainerConfigFile(
+                "/var/lib/neutron/uwsgi-shim/uwsgi.py",
+                "neutron",
+                "neutron",
+            ),
         ]
 
 
@@ -829,6 +951,7 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
                 [],
                 self.template_dir,
                 self.configure_charm,
+                "wsgi-neutron-api",
             )
         ]
 
