@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e75b16ed_607d03df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-11T17:08:30Z",
+      "side": 1,
+      "message": "recheck, git cloen  TLS handshake issue",
+      "revId": "481b69224c4185d2a1c9c2587da5e6a02b82f495",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
