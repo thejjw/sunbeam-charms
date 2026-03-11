@@ -87,7 +87,7 @@ class TestPebbleReady:
         out_container = state_out.get_container("neutron-server")
         assert "neutron-server" in out_container.layers
         layer = out_container.layers["neutron-server"]
-        assert "neutron-server" in layer.to_dict().get("services", {})
+        assert "wsgi-neutron-api" in layer.to_dict().get("services", {})
 
     def test_pebble_ready_without_relations_blocked(self, ctx):
         """Pebble-ready but no relations → blocked."""
