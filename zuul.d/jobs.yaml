@@ -561,6 +561,19 @@
       charm: sunbeam-ovn-proxy
 
 - job:
+    name: charm-build-openstack-port-cni-k8s
+    description: Build openstack-port-cni-k8s charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/openstack-port-cni-k8s/
+      - rebuild
+    vars:
+      charm: openstack-port-cni-k8s
+
+- job:
     name: func-test-core
     description: |
       Zaza smoke test for all the core sunbeam charms.
@@ -1307,6 +1320,19 @@
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/sunbeam-ovn-proxy/
+      - rebuild
+    secrets:
+      - charmhub_token
+    timeout: 3600
+
+- job:
+    name: publish-charm-openstack-port-cni-k8s
+    description: |
+      Publish openstack-port-cni-k8s built in gate pipeline.
+    run: playbooks/charm/publish.yaml
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/openstack-port-cni-k8s/
       - rebuild
     secrets:
       - charmhub_token
