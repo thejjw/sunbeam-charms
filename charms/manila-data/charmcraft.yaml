@@ -27,7 +27,7 @@ config:
       type: string
       description: Name of the snap to install.
     snap-channel:
-      default: 2025.1/edge
+      default: 2026.1/edge
       type: string
     enable-telemetry-notifications:
       type: boolean

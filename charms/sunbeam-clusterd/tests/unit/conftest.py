@@ -59,7 +59,7 @@ def _mock_snap():
     """Mock snap module so no real snap operations occur."""
     mock_openstack = MagicMock()
     mock_openstack.present = True
-    mock_openstack.channel = "2025.1/edge"
+    mock_openstack.channel = "2026.1/edge"
     mock_openstack.revision = "100"
     mock_openstack.get.return_value = None
 

@@ -31,15 +31,23 @@ from typing import (
 import charms.sunbeam_nova_compute_operator.v0.cloud_compute as cloud_compute
 import ops
 import ops.framework
+import ops.model
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+import pydantic
 from charms.nova_k8s.v0.nova_service import (
     NovaConfigRequestEvent,
     NovaServiceProvides,
+)
+from charms.traefik_k8s.v2.ingress import (
+    DataValidationError,
+    IngressHealthCheck,
+    IngressPerAppRequirer,
+    IngressRequirerAppData,
 )
 from ops.pebble import (
     ExecError,
@@ -54,6 +62,27 @@ NOVA_SPICEPROXY_CONTAINER = "nova-spiceproxy"
 NOVA_API_INGRESS_NAME = "nova"
 NOVA_SPICEPROXY_INGRESS_NAME = "nova-spiceproxy"
 NOVA_SPICEPROXY_INGRESS_PORT = 6082
+NOVA_METADATA_PORT = 8775
+NOVA_METADATA_INGRESS_SUFFIX = "-metadata"
+
+
+@sunbeam_tracing.trace_type
+class NovaWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
+    """Pebble handler for Nova API container."""
+
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Enable and start WSGI service."""
+        container = self.charm.unit.get_container(self.container_name)
+        try:
+            process = container.exec(["a2dissite", "nova-api"], timeout=5 * 60)
+            out, warnings = process.wait_output()
+            if warnings:
+                for line in warnings.splitlines():
+                    logger.warning("a2dissite warn: %s", line.strip())
+            logging.debug(f"Output from a2dissite: \n{out}")
+        except ops.pebble.ExecError:
+            logger.exception("Failed to disable nova-api site in apache")
+        super().init_service(context)
 
 
 @sunbeam_tracing.trace_type
@@ -87,8 +116,100 @@ class NovaConfigContext(sunbeam_ctxts.ConfigContext):
         ctxt["pci_aliases"] = [
             json.dumps(alias, sort_keys=True) for alias in aliases
         ]
+        ctxt["metadata_proxy_shared_secret"] = (
+            self.charm.get_shared_metadatasecret()
+        )
 
         return ctxt
+
+
+class NovaMetadataIngressRequirer(IngressPerAppRequirer):
+    """Ingress requirer that publishes a distinct metadata route name."""
+
+    def _publish_app_data(self, scheme, port, relation):
+        """Publish metadata ingress requirements."""
+        app_databag = relation.data[self.app]
+        if not scheme:
+            scheme = self._get_scheme()
+
+        try:
+            IngressRequirerAppData(
+                model=self.model.name,
+                name=f"{self.model.app.name}{NOVA_METADATA_INGRESS_SUFFIX}",
+                scheme=scheme,
+                port=port,
+                strip_prefix=self._strip_prefix,
+                redirect_https=self._redirect_https,
+                healthcheck_params=(
+                    IngressHealthCheck(**self.healthcheck_params)
+                    if self.healthcheck_params
+                    else None
+                ),
+            ).dump(app_databag)
+            # Older traefik-k8s ingress providers still validate host in the
+            # application databag.
+            app_databag["host"] = json.dumps(socket.getfqdn())
+        except pydantic.ValidationError as exc:
+            msg = "failed to validate metadata ingress app data"
+            logger.info(msg, exc_info=True)
+            raise DataValidationError(msg) from exc
+
+
+@sunbeam_tracing.trace_type
+class NovaMetadataIngressHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for Nova metadata ingress."""
+
+    interface: NovaMetadataIngressRequirer
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for metadata ingress."""
+        logger.debug("Setting up Nova metadata ingress handler")
+        interface = sunbeam_tracing.trace_type(NovaMetadataIngressRequirer)(
+            self.charm,
+            self.relation_name,
+            port=NOVA_METADATA_PORT,
+            strip_prefix=True,
+            scheme="http",
+            healthcheck_params={"path": "/"},
+        )
+        self.framework.observe(interface.on.ready, self._on_ready)
+        self.framework.observe(interface.on.revoked, self._on_revoked)
+        return interface
+
+    def _on_ready(self, event) -> None:
+        """Handle metadata ingress ready events."""
+        if self.url:
+            self.callback_f(event)
+
+    def _on_revoked(self, event) -> None:
+        """Handle metadata ingress revoked events."""
+        self.callback_f(event)
+        if self.mandatory:
+            self.status.set(ops.model.BlockedStatus("integration missing"))
+
+    def update_relation_data(self):
+        """Publish metadata ingress requirements outside relation events."""
+        if not self.charm.unit.is_leader():
+            return
+        if not self.charm.model.relations.get(self.relation_name):
+            return
+        self.interface.provide_ingress_requirements(port=NOVA_METADATA_PORT)
+
+    @property
+    def ready(self) -> bool:
+        """Whether metadata ingress is ready."""
+        try:
+            return bool(self.interface.url)
+        except DataValidationError:
+            logger.debug("Failed to fetch metadata ingress URL", exc_info=True)
+            return False
+
+    @property
+    def url(self) -> str | None:
+        """Return the metadata ingress URL."""
+        if not self.ready:
+            return None
+        return self.interface.url
 
 
 @sunbeam_tracing.trace_type
@@ -359,11 +480,13 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_admin_script = "/usr/bin/nova-api-wsgi"
     wsgi_public_script = "/usr/bin/nova-api-wsgi"
     shared_metadata_secret_key = "shared-metadata-secret"
+    metadata_proxy_secret_key = "metadata-proxy-shared-secret"
 
     def __init__(self, framework):
         super().__init__(framework)
         self.traefik_route_public = None
         self.traefik_route_internal = None
+        self.metadata_ingress = None
         self.framework.observe(
             self.on.peers_relation_created, self._on_peer_relation_created
         )
@@ -461,6 +584,18 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return 8774
 
     @property
+    def nova_metadata_url(self) -> str | None:
+        """URL for accessing Nova metadata API from compute nodes."""
+        if self.metadata_ingress:
+            return self.metadata_ingress.url
+        return None
+
+    def open_ports(self):
+        """Register Nova API and metadata ports in the underlying cloud."""
+        super().open_ports()
+        self.unit.open_port("tcp", NOVA_METADATA_PORT)
+
+    @property
     def nova_spiceproxy_public_url(self) -> str | None:
         """URL for accessing public endpoint for nova spiceproxy service."""
         if self.traefik_route_public and self.traefik_route_public.ready:
@@ -502,7 +637,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
         """Pebble handlers for operator."""
         pebble_handlers = [
-            sunbeam_chandlers.WSGIPebbleHandler(
+            NovaWSGIPebbleHandler(
                 self,
                 NOVA_WSGI_CONTAINER,
                 self.service_name,
@@ -559,6 +694,15 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.set_config_from_event,
             )
             handlers.append(self.config_svc)
+
+        if self.can_add_handler("ingress-metadata", handlers):
+            self.metadata_ingress = NovaMetadataIngressHandler(
+                self,
+                "ingress-metadata",
+                self.configure_charm,
+                "ingress-metadata" in self.mandatory_relations,
+            )
+            handlers.append(self.metadata_ingress)
 
         self.traefik_route_public = sunbeam_rhandlers.TraefikRouteHandler(
             self,
@@ -713,13 +857,44 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         }
         return config
 
-    def get_shared_metadatasecret(self):
+    def get_shared_metadatasecret(self) -> str | None:
         """Return the shared metadata secret."""
+        secret_id = self.leader_get(self.shared_metadata_secret_key)
+        if not secret_id:
+            return None
+
+        try:
+            secret = self.model.get_secret(id=secret_id)
+            return secret.get_content(refresh=True).get(
+                self.metadata_proxy_secret_key
+            )
+        except ops.model.ModelError:
+            logger.exception("Failed to retrieve metadata proxy secret")
+            return None
+
+    def get_shared_metadatasecret_id(self) -> str | None:
+        """Return the shared metadata Juju secret ID."""
         return self.leader_get(self.shared_metadata_secret_key)
 
-    def set_shared_metadatasecret(self):
-        """Store the shared metadata secret."""
-        self.leader_set({self.shared_metadata_secret_key: str(uuid.uuid1())})
+    def set_shared_metadatasecret(self) -> None:
+        """Store the shared metadata secret in Juju secret storage."""
+        if self.leader_get(self.shared_metadata_secret_key):
+            return
+
+        secret = self.model.app.add_secret(
+            {self.metadata_proxy_secret_key: str(uuid.uuid4())},
+            label=self.shared_metadata_secret_key,
+        )
+        self.leader_set({self.shared_metadata_secret_key: secret.id})
+
+    def grant_shared_metadatasecret(self, relation: ops.Relation) -> None:
+        """Grant the shared metadata secret to a relation."""
+        secret_id = self.get_shared_metadatasecret_id()
+        if not secret_id:
+            return
+
+        secret = self.model.get_secret(id=secret_id)
+        secret.grant(relation)
 
     def register_compute_nodes(self, event: ops.framework.EventBase) -> None:
         """Register compute nodes when the event is received.
@@ -851,12 +1026,17 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if not self.peers.ready:
             return
 
-        metadata_secret = self.get_shared_metadatasecret()
-        if metadata_secret:
-            logger.debug("Found metadata secret in leader DB")
-        elif self.unit.is_leader():
+        metadata_secret_id = self.get_shared_metadatasecret_id()
+        if not metadata_secret_id and self.unit.is_leader():
             logger.debug("Creating metadata secret")
             self.set_shared_metadatasecret()
+        elif not metadata_secret_id:
+            logger.debug("Metadata secret not ready")
+            return
+
+        metadata_secret = self.get_shared_metadatasecret()
+        if metadata_secret:
+            logger.debug("Found metadata secret")
         else:
             logger.debug("Metadata secret not ready")
             return
@@ -874,16 +1054,27 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             nova_spiceproxy_url=self.nova_spiceproxy_public_url,
             pci_aliases=self.model.config.get("pci-aliases") or "[]",
             region=self.model.config.get("region") or "RegionOne",
+            metadata_url=self.nova_metadata_url,
+            metadata_proxy_shared_secret_id=(
+                self.get_shared_metadatasecret_id()
+            ),
         )
+        self.grant_shared_metadatasecret(event.relation)
 
     def set_config_on_update(self) -> None:
         """Set config on relation on update of local data."""
+        secret_id = self.get_shared_metadatasecret_id()
         self.config_svc.interface.set_config(
             relation=None,
             nova_spiceproxy_url=self.nova_spiceproxy_public_url,
             pci_aliases=self.model.config.get("pci-aliases") or "[]",
             region=self.model.config.get("region") or "RegionOne",
+            metadata_url=self.nova_metadata_url,
+            metadata_proxy_shared_secret_id=secret_id,
         )
+        if secret_id:
+            for relation in self.model.relations["nova-service"]:
+                self.grant_shared_metadatasecret(relation)
 
 
 if __name__ == "__main__":  # pragma: nocover

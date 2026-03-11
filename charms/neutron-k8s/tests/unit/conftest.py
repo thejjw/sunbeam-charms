@@ -102,6 +102,8 @@ def container():
         name="neutron-server",
         can_connect=True,
         execs=[
+            testing.Exec(command_prefix=["a2dissite"], return_code=0),
+            testing.Exec(command_prefix=["a2ensite"], return_code=0),
             testing.Exec(command_prefix=["sudo"], return_code=0),
         ],
     )

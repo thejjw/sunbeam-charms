@@ -29,6 +29,8 @@ cafile = /usr/local/share/ca-certificates/ca-bundle.pem
 [neutron]
 {% include "parts/identity-data" %}
 region_name = {{ options.region }}
+service_metadata_proxy = True
+metadata_proxy_shared_secret = {{ nova.metadata_proxy_shared_secret }}
 
 [placement]
 {% include "parts/identity-data" %}
