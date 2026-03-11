@@ -71,3 +71,4 @@
         cloudkitty-k8s: 2025.1/edge
         openstack-network-agents: 2025.1/edge
         sunbeam-ovn-proxy: 2025.1/edge
+        openstack-port-cni-k8s: 2025.1/edge
