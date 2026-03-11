@@ -55,87 +55,86 @@ HEAT_API_CFN_PORT = 8000
 
 
 @sunbeam_tracing.trace_type
-class HeatAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+class HeatAPIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Pebble handler for Heat API container."""
 
-    def get_layer(self):
-        """Heat API service.
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Enable and start WSGI service."""
+        container = self.charm.unit.get_container(self.container_name)
+        for site in ("heat-api", "heat-api-cfn"):
+            try:
+                process = container.exec(["a2dissite", site], timeout=5 * 60)
+                out, warnings = process.wait_output()
+                if warnings:
+                    for line in warnings.splitlines():
+                        logger.warning("a2dissite warn: %s", line.strip())
+                logging.debug(f"Output from a2dissite: \n{out}")
+            except ops.pebble.ExecError:
+                logger.exception("Failed to disable %s site in apache", site)
+        super().init_service(context)
 
-        :returns: pebble service layer configuration for heat api service
-        :rtype: dict
-        """
-        return {
-            "summary": "heat api layer",
-            "description": "pebble configuration for heat api service",
-            "services": {
-                "heat-api": {
-                    "override": "replace",
-                    "summary": "Heat API",
-                    "command": "heat-api",
-                    "user": "heat",
-                    "group": "heat",
-                }
-            },
-        }
-
-    def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer.
-
-        :returns: pebble health check layer configuration for heat service
-        """
-        return {
-            "checks": {
-                "online": {
-                    "override": "replace",
-                    "level": "ready",
-                    "http": {
-                        "url": f"http://localhost:{HEAT_API_PORT}/healthcheck"
-                    },
-                },
-            }
-        }
+    def default_container_configs(
+        self,
+    ) -> list[sunbeam_core.ContainerConfigFile]:
+        """Container configs for heat API WSGI service."""
+        return [
+            sunbeam_core.ContainerConfigFile(self.wsgi_conf, "root", "root"),
+        ]
 
 
 @sunbeam_tracing.trace_type
-class HeatCfnAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+class HeatCfnAPIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Pebble handler for Heat CFN API container."""
 
-    def get_layer(self):
-        """Heat CFN API service.
-
-        :returns: pebble service layer configuration for heat cfn api service
-        :rtype: dict
-        """
-        return {
-            "summary": "heat api cfn layer",
-            "description": "pebble configuration for heat api cfn service",
-            "services": {
-                "heat-api-cfn": {
-                    "override": "replace",
-                    "summary": "Heat API CFN",
-                    "command": "heat-api-cfn --config-file /etc/heat/heat-api-cfn.conf",
-                    "user": "heat",
-                    "group": "heat",
-                }
-            },
-        }
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Enable and start WSGI service."""
+        container = self.charm.unit.get_container(self.container_name)
+        for site in ("heat-api", "heat-api-cfn"):
+            try:
+                process = container.exec(["a2dissite", site], timeout=5 * 60)
+                out, warnings = process.wait_output()
+                if warnings:
+                    for line in warnings.splitlines():
+                        logger.warning("a2dissite warn: %s", line.strip())
+                logging.debug(f"Output from a2dissite: \n{out}")
+            except ops.pebble.ExecError:
+                logger.exception("Failed to disable %s site in apache", site)
+        super().init_service(context)
 
     def get_healthcheck_layer(self) -> dict:
         """Health check pebble layer.
 
-        :returns: pebble health check layer configuration for heat service
+        :returns: pebble health check layer configuration for heat cfn service
         """
         return {
             "checks": {
+                "up": {
+                    "override": "replace",
+                    "level": "alive",
+                    "period": "10s",
+                    "timeout": "3s",
+                    "threshold": 3,
+                    "exec": {"command": "service apache2 status"},
+                },
                 "online": {
                     "override": "replace",
                     "level": "ready",
+                    "period": "10s",
+                    "timeout": "3s",
                     "http": {
                         "url": f"http://localhost:{HEAT_API_CFN_PORT}/healthcheck"
                     },
                 },
             }
         }
+
+    def default_container_configs(
+        self,
+    ) -> list[sunbeam_core.ContainerConfigFile]:
+        """Container configs for heat CFN API WSGI service."""
+        return [
+            sunbeam_core.ContainerConfigFile(self.wsgi_conf, "root", "root"),
+        ]
 
 
 @sunbeam_tracing.trace_type
@@ -264,7 +263,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def get_pebble_handlers(
         self,
-    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+    ) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for operator."""
         pebble_handlers = [
             HeatAPIPebbleHandler(
@@ -274,6 +273,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.heat_api_container_configs(),
                 self.template_dir,
                 self.configure_charm,
+                "wsgi-heat-api",
             ),
             HeatCfnAPIPebbleHandler(
                 self,
@@ -282,6 +282,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.heat_api_cfn_container_configs(),
                 self.template_dir,
                 self.configure_charm,
+                "wsgi-heat-api-cfn",
             ),
             HeatEnginePebbleHandler(
                 self,
