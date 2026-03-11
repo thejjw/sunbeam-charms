@@ -125,6 +125,17 @@ class OctaviaWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         container = self.charm.unit.get_container(self.container_name)
         try:
             process = container.exec(
+                ["a2dissite", "octavia-api"], timeout=5 * 60
+            )
+            out, warnings = process.wait_output()
+            if warnings:
+                for line in warnings.splitlines():
+                    logger.warning("a2dissite warn: %s", line.strip())
+            logging.debug(f"Output from a2dissite: \n{out}")
+        except ops.pebble.ExecError:
+            logger.exception("Failed to disable octavia-api site in apache")
+        try:
+            process = container.exec(
                 ["a2ensite", self.wsgi_service_name], timeout=5 * 60
             )
             out, warnings = process.wait_output()

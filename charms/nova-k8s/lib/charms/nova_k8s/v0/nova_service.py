@@ -68,6 +68,7 @@ from ops.framework import (
     ObjectEvents,
 )
 from ops.model import (
+    ModelError,
     Relation,
 )
 
@@ -79,7 +80,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 3
+LIBPATCH = 4
 
 
 class NovaConfigRequestEvent(RelationEvent):
@@ -119,6 +120,8 @@ class NovaServiceProvides(Object):
         nova_spiceproxy_url: str,
         pci_aliases: str,
         region: str,
+        metadata_url: str,
+        metadata_proxy_shared_secret_id: str,
     ) -> None:
         """Set nova configuration on the relation."""
         if not self.charm.unit.is_leader():
@@ -133,6 +136,10 @@ class NovaServiceProvides(Object):
             "spice-proxy-url": nova_spiceproxy_url or "",
             "pci-aliases": pci_aliases or "",
             "region": region or "",
+            "metadata-url": metadata_url or "",
+            "metadata-proxy-shared-secret-id": (
+                metadata_proxy_shared_secret_id or ""
+            ),
         }
         if relation is None:
             logging.debug(
@@ -223,3 +230,28 @@ class NovaServiceRequires(Object):
     def region(self) -> str | None:
         """Return the region of the Nova API service."""
         return self.get_remote_app_data("region")
+
+    @property
+    def nova_metadata_url(self) -> str | None:
+        """Return the Nova metadata API URL."""
+        return self.get_remote_app_data("metadata-url")
+
+    @property
+    def metadata_proxy_shared_secret(self) -> str | None:
+        """Return the Nova metadata proxy shared secret."""
+        secret_id = self.get_remote_app_data(
+            "metadata-proxy-shared-secret-id"
+        )
+        if secret_id:
+            try:
+                secret = self.framework.model.get_secret(id=secret_id)
+                return secret.get_content(refresh=True).get(
+                    "metadata-proxy-shared-secret"
+                )
+            except ModelError:
+                logging.exception(
+                    "Failed to retrieve Nova metadata proxy secret"
+                )
+                return None
+
+        return None
