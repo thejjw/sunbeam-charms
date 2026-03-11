@@ -20,6 +20,7 @@ Nova is the most complex K8s charm: 4 containers, 3 databases, placement
 relation, traefik-route relations, and multi-step db-sync commands.
 """
 
+import json
 from pathlib import (
     Path,
 )
@@ -54,6 +55,7 @@ DB_SECRET_ID = "secret:db-creds"
 API_DB_SECRET_ID = "secret:api-db-creds"
 CELL_DB_SECRET_ID = "secret:cell-db-creds"
 ID_SECRET_ID = "secret:id-svc-creds"
+METADATA_SECRET_ID = "secret:metadata-proxy"
 
 # ---------------------------------------------------------------------------
 # Mandatory relations (non-optional requires from charmcraft.yaml)
@@ -107,7 +109,7 @@ def _all_containers(can_connect: bool = True) -> list[testing.Container]:
     ]
 
 
-# CheckInfo for the nova-conductor alive check (matches get_layer() definition).
+# CheckInfo for the nova-conductor alive check.
 # startup=UNSET mirrors the plan (no 'startup' key in the layer dict).
 _CONDUCTOR_CHECK_INFO = testing.CheckInfo(
     "nova-conductor-alive",
@@ -117,7 +119,7 @@ _CONDUCTOR_CHECK_INFO = testing.CheckInfo(
 )
 
 # Pebble layer that includes the alive check, added to the container so that
-# the scenario consistency checker can validate the event is consistent.
+# the scenario consistency checker can validate check events.
 _CONDUCTOR_CHECK_LAYER = ops_pebble.Layer(
     {
         "checks": {
@@ -167,6 +169,15 @@ def _placement_relation() -> testing.Relation:
     )
 
 
+def _nova_service_relation() -> testing.Relation:
+    """Nova service relation to a hypervisor requirer."""
+    return testing.Relation(
+        endpoint="nova-service",
+        remote_app_name="hypervisor",
+        remote_units_data={0: {}},
+    )
+
+
 def _all_secrets() -> list[testing.Secret]:
     return [
         db_credentials_secret(secret_id=DB_SECRET_ID),
@@ -174,6 +185,15 @@ def _all_secrets() -> list[testing.Secret]:
         db_credentials_secret(secret_id=CELL_DB_SECRET_ID),
         identity_service_secret(secret_id=ID_SECRET_ID),
     ]
+
+
+def _metadata_secret() -> testing.Secret:
+    return testing.Secret(
+        {"metadata-proxy-shared-secret": "fake-uuid"},
+        id=METADATA_SECRET_ID,
+        label="shared-metadata-secret",
+        owner="app",
+    )
 
 
 def _all_relations() -> list:
@@ -188,6 +208,10 @@ def _all_relations() -> list:
         amqp_relation_complete(),
         identity_service_relation_complete(secret_id=ID_SECRET_ID),
         ingress_relation_complete(endpoint="ingress-internal"),
+        ingress_relation_complete(
+            endpoint="ingress-metadata",
+            url="http://internal-url/test-model-nova-k8s-metadata",
+        ),
         traefik_route_relation_complete(endpoint="traefik-route-internal"),
         traefik_route_relation_complete(endpoint="traefik-route-public"),
         _placement_relation(),
@@ -248,6 +272,21 @@ class TestPebbleReady:
         # Should reach active once all relations are present
         assert state_out.unit_status == testing.ActiveStatus("")
 
+    def test_conductor_pebble_ready_without_relations_has_no_check(self, ctx):
+        """Conductor check is not installed before service configuration."""
+        containers = _all_containers()
+        target = [c for c in containers if c.name == "nova-conductor"][0]
+        state_in = testing.State(
+            leader=True,
+            containers=containers,
+            secrets=_all_secrets(),
+        )
+        state_out = ctx.run(ctx.on.pebble_ready(target), state_in)
+
+        conductor = state_out.get_container("nova-conductor")
+        assert "nova-conductor" in conductor.plan.services
+        assert "nova-conductor-alive" not in conductor.plan.checks
+
 
 class TestAllRelations:
     """Config-changed with all required relations complete → active."""
@@ -256,7 +295,7 @@ class TestAllRelations:
         """Test all relations."""
         state_in = testing.State(
             leader=True,
-            relations=_all_relations(),
+            relations=_all_relations() + [_nova_service_relation()],
             containers=_all_containers(),
             secrets=_all_secrets(),
         )
@@ -274,7 +313,7 @@ class TestAllRelations:
         """Config files are rendered into the nova-api container."""
         state_in = testing.State(
             leader=True,
-            relations=_all_relations(),
+            relations=_all_relations() + [_nova_service_relation()],
             containers=_all_containers(),
             secrets=_all_secrets(),
         )
@@ -391,7 +430,7 @@ class TestWaitingNonLeader:
         # Build peer relation with metadata secret set (as leader would)
         peers = testing.PeerRelation(
             endpoint="peers",
-            local_app_data={"shared-metadata-secret": "fake-uuid"},
+            local_app_data={"shared-metadata-secret": METADATA_SECRET_ID},
         )
         relations = [r for r in _all_relations() if r.endpoint != "peers"] + [
             peers
@@ -401,13 +440,103 @@ class TestWaitingNonLeader:
             leader=False,
             relations=relations,
             containers=_all_containers(),
-            secrets=_all_secrets(),
+            secrets=_all_secrets() + [_metadata_secret()],
         )
         state_out = ctx.run(ctx.on.config_changed(), state_in)
 
         assert isinstance(state_out.unit_status, testing.WaitingStatus)
         assert "Leader not ready" in state_out.unit_status.message
 
+
+class TestNovaMetadataEndpoint:
+    """Nova metadata endpoint publication."""
+
+    def test_opens_metadata_port(self, ctx):
+        """The K8s service exposes the metadata API port."""
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert testing.TCPPort(8775) in state_out.opened_ports
+
+    def test_nova_conf_contains_metadata_proxy_secret(self, ctx):
+        """nova.conf renders the metadata proxy shared secret."""
+        peers = testing.PeerRelation(
+            endpoint="peers",
+            local_app_data={"shared-metadata-secret": METADATA_SECRET_ID},
+        )
+        relations = [r for r in _all_relations() if r.endpoint != "peers"] + [
+            peers
+        ]
+        state_in = testing.State(
+            leader=True,
+            relations=relations,
+            containers=_all_containers(),
+            secrets=_all_secrets() + [_metadata_secret()],
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "nova-api",
+            "/etc/nova/nova.conf",
+            [
+                "service_metadata_proxy = True",
+                "metadata_proxy_shared_secret = fake-uuid",
+            ],
+        )
+
+    def test_metadata_ingress_uses_distinct_app_name(self, ctx):
+        """ingress-metadata publishes a metadata-specific app name."""
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        relation = next(
+            rel
+            for rel in state_out.relations
+            if rel.endpoint == "ingress-metadata"
+        )
+
+        assert json.loads(relation.local_app_data["name"]) == (
+            "nova-k8s-metadata"
+        )
+        assert json.loads(relation.local_app_data["host"])
+        assert json.loads(relation.local_app_data["port"]) == 8775
+        assert json.loads(relation.local_app_data["strip-prefix"]) is True
+
+    def test_nova_service_relation_includes_metadata_endpoint(self, ctx):
+        """nova-service relation publishes URL and secret for metadata."""
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations() + [_nova_service_relation()],
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        relation = next(
+            rel for rel in state_out.relations if rel.endpoint == "nova-service"
+        )
+
+        assert (
+            relation.local_app_data["metadata-url"]
+            == "http://internal-url/test-model-nova-k8s-metadata"
+        )
+        secret_id = relation.local_app_data[
+            "metadata-proxy-shared-secret-id"
+        ]
+        assert secret_id
+        secret = state_out.get_secret(id=secret_id)
+        assert (
+            secret.latest_content["metadata-proxy-shared-secret"]
+        )
 
 class TestNovaConductorCheckRecovered:
     """nova_conductor_pebble_check_recovered retriggers configure_charm.

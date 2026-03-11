@@ -42,11 +42,11 @@ resources:
   heat-api-image:
     type: oci-image
     description: OCI image for OpenStack Heat
-    upstream-source: ghcr.io/canonical/heat-consolidated:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/heat-consolidated:2026.1-26.04_edge
   heat-engine-image:
     type: oci-image
     description: OCI image for OpenStack Heat Engine
-    upstream-source: ghcr.io/canonical/heat-consolidated:2025.1-24.04_edge
+    upstream-source: ghcr.io/canonical/heat-consolidated:2026.1-26.04_edge
 
 requires:
   database:
