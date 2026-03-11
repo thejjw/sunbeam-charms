@@ -43,6 +43,16 @@ config:
         PCI devices that can be requested through flavor extra specs.
 
         Example: [{"vendor_id": "8086", "product_id": "1563", "name": "intel-sr-iov"}]
+    enabled-filters:
+      type: string
+      default: >
+        ComputeFilter, ComputeCapabilitiesFilter, ImagePropertiesFilter,
+        ServerGroupAntiAffinityFilter, ServerGroupAffinityFilter,
+        PciPassthroughFilter, NUMATopologyFilter,
+        AggregateInstanceExtraSpecsFilter
+      description: |
+        Comma separated list of the enabled compute scheduler filters, in order.
+        Sets the `filter_scheduler.enabled_filters` option in nova.conf.
 
 containers:
   nova-api:

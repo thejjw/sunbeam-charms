@@ -55,6 +55,30 @@ NOVA_API_INGRESS_NAME = "nova"
 NOVA_SPICEPROXY_INGRESS_NAME = "nova-spiceproxy"
 NOVA_SPICEPROXY_INGRESS_PORT = 6082
 
+NOVA_FILTER_SCHEDULER_LIST = [
+    "AggregateInstanceExtraSpecsFilter",
+    "AggregateIoOpsFilter",
+    "AggregateMultiTenancyIsolation",
+    "AggregateNumInstancesFilter",
+    "AggregateTypeAffinityFilter",
+    "AllHostsFilter",
+    "ComputeCapabilitiesFilter",
+    "ComputeFilter",
+    "DifferentHostFilter",
+    "ImagePropertiesFilter",
+    "IsolatedHostsFilter",
+    "IoOpsFilter",
+    # "JsonFilter",
+    "MetricsFilter",
+    "NUMATopologyFilter",
+    "NumInstancesFilter",
+    "PciPassthroughFilter",
+    "SameHostFilter",
+    "ServerGroupAffinityFilter",
+    "ServerGroupAntiAffinityFilter",
+    "SimpleCIDRAffinityFilter",
+]
+
 
 @sunbeam_tracing.trace_type
 class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
@@ -87,6 +111,20 @@ class NovaConfigContext(sunbeam_ctxts.ConfigContext):
         ctxt["pci_aliases"] = [
             json.dumps(alias, sort_keys=True) for alias in aliases
         ]
+
+        enabled_filters = config.get("enabled-filters")
+
+        # Validate enabled filters
+        enabled_filters_list = [f.strip() for f in enabled_filters.split(",")]
+        for f in enabled_filters_list:
+            if f not in NOVA_FILTER_SCHEDULER_LIST:
+                raise ValueError(
+                    f"Invalid scheduler filter '{f}' in enabled-filters "
+                    "config. Valid filters are: "
+                    f"{', '.join(NOVA_FILTER_SCHEDULER_LIST)}"
+                )
+
+        ctxt["enabled_filters"] = enabled_filters
 
         return ctxt
 

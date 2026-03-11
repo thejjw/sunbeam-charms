@@ -234,6 +234,62 @@ class TestAllRelations:
         nova_conf = fs / "etc" / "nova" / "nova.conf"
         assert nova_conf.exists(), "nova.conf not written to container"
 
+    def test_enabled_filters_default_rendered(self, ctx):
+        """The default enabled_filters are rendered into nova.conf."""
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        out_container = state_out.get_container("nova-api")
+        fs = out_container.get_filesystem(ctx)
+        nova_conf = fs / "etc" / "nova" / "nova.conf"
+        content = nova_conf.read_text()
+
+        assert (
+            "enabled_filters = ComputeFilter, ComputeCapabilitiesFilter, "
+            "ImagePropertiesFilter, ServerGroupAntiAffinityFilter, "
+            "ServerGroupAffinityFilter, PciPassthroughFilter, "
+            "NUMATopologyFilter, AggregateInstanceExtraSpecsFilter" in content
+        )
+
+    def test_enabled_filters_custom_config(self, ctx):
+        """A custom comma-separated enabled-filters config is respected."""
+        custom = "ComputeFilter, ImagePropertiesFilter"
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+            config={"enabled-filters": custom},
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        out_container = state_out.get_container("nova-api")
+        fs = out_container.get_filesystem(ctx)
+        nova_conf = fs / "etc" / "nova" / "nova.conf"
+        content = nova_conf.read_text()
+
+        assert f"enabled_filters = {custom}" in content
+
+    def test_enabled_filters_wrong_config(self, ctx):
+        """A wrong enabled-filter config should throw an error."""
+        wrong = "NonExistentFilter, ComputeFilter"
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+            config={"enabled-filters": wrong},
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert isinstance(state_out.unit_status, testing.BlockedStatus)
+        assert "Invalid scheduler filter" in state_out.unit_status.message
+
 
 class TestBlockedWhenEachRelationMissing:
     """Parametrized: removing each mandatory relation → blocked/waiting."""
