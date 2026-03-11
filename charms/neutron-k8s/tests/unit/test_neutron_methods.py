@@ -168,13 +168,15 @@ class TestNeutronServerPebbleLayer:
             return_value=generic_ready
         )
         handler.charm = mock_charm
+        handler.service_name = "neutron-server"
+        handler.wsgi_service_name = "wsgi-neutron-api"
         return handler
 
     def test_layer_with_baremetal_only(self):
         """Command includes baremetal config file when baremetal is ready."""
         handler = self._make_handler(baremetal_ready=True, generic_ready=False)
         layer = handler.get_layer()
-        cmd = layer["services"]["neutron-server"]["command"]
+        cmd = layer["services"]["neutron-rpc-server"]["command"]
         assert charm.ML2_BAREMETAL_CONF in cmd
         assert charm.ML2_GENERIC_CONF not in cmd
 
@@ -182,7 +184,7 @@ class TestNeutronServerPebbleLayer:
         """Command includes generic config file when generic is ready."""
         handler = self._make_handler(baremetal_ready=False, generic_ready=True)
         layer = handler.get_layer()
-        cmd = layer["services"]["neutron-server"]["command"]
+        cmd = layer["services"]["neutron-rpc-server"]["command"]
         assert charm.ML2_GENERIC_CONF in cmd
         assert charm.ML2_BAREMETAL_CONF not in cmd
 
@@ -190,7 +192,7 @@ class TestNeutronServerPebbleLayer:
         """Command includes both config files when both are ready."""
         handler = self._make_handler(baremetal_ready=True, generic_ready=True)
         layer = handler.get_layer()
-        cmd = layer["services"]["neutron-server"]["command"]
+        cmd = layer["services"]["neutron-rpc-server"]["command"]
         assert charm.ML2_BAREMETAL_CONF in cmd
         assert charm.ML2_GENERIC_CONF in cmd
 
@@ -200,6 +202,6 @@ class TestNeutronServerPebbleLayer:
             baremetal_ready=False, generic_ready=False
         )
         layer = handler.get_layer()
-        cmd = layer["services"]["neutron-server"]["command"]
+        cmd = layer["services"]["neutron-rpc-server"]["command"]
         assert charm.ML2_BAREMETAL_CONF not in cmd
         assert charm.ML2_GENERIC_CONF not in cmd

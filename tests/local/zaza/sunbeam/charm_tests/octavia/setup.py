@@ -61,7 +61,7 @@ MULTUS_MANIFEST_URL = (
 )
 
 # The openstack-port-cni-k8s charm channel to deploy.
-PORT_CNI_CHANNEL = "2025.1/edge"
+PORT_CNI_CHANNEL = "2026.1/edge"
 
 # NetworkAttachmentDefinition name — matches amphora-network-attachment config.
 NAD_NAME = "ovs-lbmgmt"

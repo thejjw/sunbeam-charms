@@ -92,7 +92,7 @@ wheels = [
 
 [[package]]
 name = "cinder-volume-purestorage"
-version = "2025.1"
+version = "2026.1"
 source = { virtual = "." }
 dependencies = [
     { name = "cosl" },
