@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "547f60d7_d347da61",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-03-11T14:10:28Z",
+      "side": 1,
+      "message": "Implement the config option for scheduler filter",
+      "revId": "fe1954f57f784f73219b620dc4920480fe1e978d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
