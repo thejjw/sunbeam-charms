@@ -262,8 +262,8 @@ class MasakariHostMonitorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 class MasakariOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
-    wsgi_admin_script = "/usr/bin/masakari-wsgi"
-    wsgi_public_script = "/usr/bin/masakari-wsgi"
+    wsgi_admin_script = "/usr/bin/masakari-api-wsgi"
+    wsgi_public_script = "/usr/bin/masakari-api-wsgi"
 
     db_sync_cmds = [
         [
