@@ -115,6 +115,24 @@
       "message": "What happens here if no `up` check is defined?",
       "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1ff48e31_e591b7d3",
+        "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 33536
+      },
+      "writtenOn": "2026-03-11T20:49:26Z",
+      "side": 1,
+      "message": "Logic now is checking in the peer relation or in _state to check if is paused or not, so I think we are fine",
+      "parentUuid": "9716a00c_1b93db59",
+      "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
