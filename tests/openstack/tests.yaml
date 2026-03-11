@@ -174,3 +174,6 @@ target_deploy_status:
   cloudkitty:
     workload-status: waiting
     workload-status-message-regex: '^.*Not all relations are ready$'
+  openstack-port-cni:
+    workload-status: waiting
+    workload-status-message-regex: '^DaemonSet ovs-cni-amd64: .*pods ready$'

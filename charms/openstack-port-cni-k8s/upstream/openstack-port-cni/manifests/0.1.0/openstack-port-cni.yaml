@@ -1,0 +1,134 @@
+# openstack-port-cni RBAC and DaemonSet
+# Source: https://github.com/canonical/openstack-port-cni
+# Image: ghcr.io/canonical/openstack-port-cni:0.1.0-7e56263-bare_edge
+#
+# Architecture:
+#   initContainer  - copies the thin openstack-port-cni binary into /opt/cni/bin/
+#   main container - runs the openstack-port-daemon which holds OpenStack
+#                    credentials and manages Neutron ports over a Unix socket.
+#
+# Credentials for the daemon are provided via the Kubernetes Secret
+# "openstack-port-cni-credentials" in kube-system (managed by the Juju charm).
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: openstack-port-cni
+  namespace: kube-system
+---
+# The daemon itself does not need any special Kubernetes RBAC; it only calls
+# the OpenStack Neutron API.  A minimal ClusterRole is kept here so that the
+# charm's label-based resource tracking can discover and clean up all objects.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: openstack-port-cni
+rules: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: openstack-port-cni
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: openstack-port-cni
+subjects:
+- kind: ServiceAccount
+  name: openstack-port-cni
+  namespace: kube-system
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: openstack-port-daemon
+  namespace: kube-system
+  labels:
+    app: openstack-port-cni
+spec:
+  selector:
+    matchLabels:
+      app: openstack-port-cni
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 10%
+  template:
+    metadata:
+      labels:
+        app: openstack-port-cni
+      annotations:
+        description: >
+          openstack-port-daemon manages Neutron ports and exposes a
+          Unix socket for the thin openstack-port-cni CNI binary.
+    spec:
+      serviceAccountName: openstack-port-cni
+      hostNetwork: true
+      hostPID: true
+      tolerations:
+      - operator: Exists
+        effect: NoSchedule
+      - operator: Exists
+        effect: NoExecute
+      priorityClassName: system-node-critical
+      initContainers:
+      - name: install-cni
+        # Copies the thin CNI binary to the host CNI bin directory so that
+        # kubelet can invoke it when pods request openstack-port networks.
+        # image: ghcr.io/canonical/openstack-port-cni:0.1.0-7e56263-bare_edge
+        image: ghcr.io/canonical/openstack-port-cni:0.1.0-7b7467d-24.04-bare_edge
+        command: ["/bin/sh", "-c"]
+        args:
+          - cp /opt/cni/bin/openstack-port-cni /host/opt/cni/bin/openstack-port-cni
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "15Mi"
+        volumeMounts:
+        - name: cnibin
+          mountPath: /host/opt/cni/bin
+      containers:
+      - name: openstack-port-daemon
+        image: ghcr.io/canonical/openstack-port-cni:0.1.0-7b7467d-24.04-bare_edge
+        command: ["/bin/openstack-port-daemon"]
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        # OpenStack credentials are injected from the Secret managed by the
+        # Juju charm via the identity-service (Keystone) relation.
+        envFrom:
+        - secretRef:
+            name: openstack-port-cni-credentials
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        volumeMounts:
+        - name: socket-dir
+          mountPath: /var/run/openstack-cni
+        - name: ca-bundle
+          mountPath: /etc/openstack-port-cni
+          readOnly: true
+        resources:
+          requests:
+            cpu: "10m"
+            memory: "30Mi"
+        terminationMessagePolicy: FallbackToLogsOnError
+      volumes:
+      - name: cnibin
+        hostPath:
+          path: /opt/cni/bin
+      - name: socket-dir
+        hostPath:
+          path: /var/run/openstack-cni
+          type: DirectoryOrCreate
+      - name: ca-bundle
+        secret:
+          secretName: openstack-port-cni-ca-bundle
+          optional: true
+          items:
+          - key: ca-bundle.pem
+            path: ca-bundle.pem
