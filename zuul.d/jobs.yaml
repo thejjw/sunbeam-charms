@@ -1216,6 +1216,10 @@
         soft: true
       - name: charm-build-cinder-volume-ceph
         soft: true
+      - name: charm-build-epa-orchestrator
+        soft: true
+      - name: charm-build-sunbeam-machine
+        soft: true
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-k8s/
@@ -1253,6 +1257,8 @@
       - charms/openstack-hypervisor/
       - charms/cinder-volume/
       - charms/storage/cinder-volume-ceph/
+      - charms/epa-orchestrator/
+      - charms/sunbeam-machine/
       - tests/openstack/
       - rebuild
     vars:
@@ -1293,6 +1299,8 @@
         - charm-build-openstack-hypervisor
         - charm-build-cinder-volume
         - charm-build-cinder-volume-ceph
+        - charm-build-epa-orchestrator
+        - charm-build-sunbeam-machine
       # test_dir relative to project src dir
       test_dir: tests/openstack
 - job:

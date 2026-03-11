@@ -743,9 +743,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             cache = self.get_snap_cache()
             hypervisor = cache[HYPERVISOR_SNAP_NAME]
 
+            is_local_snap = str(hypervisor.revision).startswith("x")
             if (
                 hypervisor.present
-                and hypervisor.channel == channel
+                and (hypervisor.channel == channel or is_local_snap)
                 and is_devmode == want_devmode
             ):
                 logger.debug(
@@ -931,7 +932,6 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 or local_ip,
                 "compute.resume-on-boot": config("resume-on-boot"),
                 "compute.pci-device-specs": config("pci-device-specs"),
-                "credentials.ovn-metadata-proxy-shared-secret": self.metadata_secret(),
                 "identity.admin-role": contexts.identity_credentials.admin_role,
                 "identity.auth-url": contexts.identity_credentials.internal_endpoint,
                 "identity.password": contexts.identity_credentials.password,
@@ -1048,6 +1048,18 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 config["identity.keystone-region-name"] = (
                     contexts.identity_credentials.region
                     or contexts.nova_service.region
+                )
+            if getattr(contexts.nova_service, "nova_metadata_url", None):
+                config["network.nova-metadata-proxy-url"] = (
+                    contexts.nova_service.nova_metadata_url
+                )
+            if getattr(
+                contexts.nova_service,
+                "metadata_proxy_shared_secret",
+                None,
+            ):
+                config["credentials.ovn-metadata-proxy-shared-secret"] = (
+                    contexts.nova_service.metadata_proxy_shared_secret
                 )
         except AttributeError as e:
             logger.debug(f"Nova service relation not integrated: {str(e)}")

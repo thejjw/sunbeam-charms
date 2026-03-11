@@ -73,9 +73,9 @@ class TestPebbleReady:
         out_container = state_out.get_container("heat-api")
         assert "heat-api" in out_container.layers
         layer = out_container.layers["heat-api"]
-        assert "heat-api" in layer.to_dict().get("services", {})
+        assert "wsgi-heat-api" in layer.to_dict().get("services", {})
 
-        assert out_container.service_statuses.get("heat-api") == (
+        assert out_container.service_statuses.get("wsgi-heat-api") == (
             testing.pebble.ServiceStatus.ACTIVE
         )
 
@@ -85,10 +85,20 @@ class TestPebbleReady:
             k8s_container(
                 "heat-api",
                 execs=[
-                    testing.Exec(command_prefix=["heat-manage"], return_code=0)
+                    testing.Exec(command_prefix=["a2dissite"], return_code=0),
+                    testing.Exec(command_prefix=["a2ensite"], return_code=0),
+                    testing.Exec(
+                        command_prefix=["heat-manage"], return_code=0
+                    ),
                 ],
             ),
-            k8s_container("heat-api-cfn"),
+            k8s_container(
+                "heat-api-cfn",
+                execs=[
+                    testing.Exec(command_prefix=["a2dissite"], return_code=0),
+                    testing.Exec(command_prefix=["a2ensite"], return_code=0),
+                ],
+            ),
             k8s_container("heat-engine"),
         ]
         state_in = testing.State(leader=True, containers=containers)

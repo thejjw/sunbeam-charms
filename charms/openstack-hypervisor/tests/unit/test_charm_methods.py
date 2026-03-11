@@ -42,6 +42,9 @@ import jsonschema
 import ops.testing
 import ops_sunbeam.guard as sunbeam_guard
 import pytest
+from charms.nova_k8s.v0.nova_service import (
+    NovaServiceRequires,
+)
 
 CHARM_ROOT = Path(__file__).parents[2]
 
@@ -71,6 +74,26 @@ class _TestableHypervisorCharm(charm.HypervisorOperatorCharm):
         framework.observe = patched_observe
         super().__init__(framework)
         framework.observe = original_observe
+
+
+def test_nova_service_secret_id_resolves_metadata_secret():
+    """nova-service resolves metadata proxy secret IDs via Juju secrets."""
+    nova_service = object.__new__(NovaServiceRequires)
+    nova_service.get_remote_app_data = lambda key: {
+        "metadata-proxy-shared-secret-id": "secret:metadata",
+    }.get(key)
+    secret = MagicMock()
+    secret.get_content.return_value = {
+        "metadata-proxy-shared-secret": "nova-secret",
+    }
+    nova_service.framework = SimpleNamespace(
+        model=SimpleNamespace(get_secret=MagicMock(return_value=secret))
+    )
+
+    assert nova_service.metadata_proxy_shared_secret == "nova-secret"
+    nova_service.framework.model.get_secret.assert_called_once_with(
+        id="secret:metadata"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -886,6 +909,13 @@ def _minimal_contexts_stub():
             username="nova",
         ),
         amqp=SimpleNamespace(transport_url="rabbit://..."),
+        nova_service=SimpleNamespace(
+            nova_spiceproxy_url=None,
+            pci_aliases=None,
+            region="RegionOne",
+            nova_metadata_url="http://internal-url/test-model-nova-metadata",
+            metadata_proxy_shared_secret="nova-secret",
+        ),
         receive_ca_cert=SimpleNamespace(ca_bundle=None),
     )
 
@@ -1008,6 +1038,20 @@ class TestOVSProvider:
         captured = _setup_configure_unit_mocks(harness.charm)
         harness.charm.configure_unit(MagicMock())
         assert captured.get("network.ovs-managed-by") == "microovn"
+
+    def test_nova_metadata_endpoint_included_in_snap_data(self, harness):
+        """configure_unit passes Nova metadata endpoint to the snap."""
+        harness.begin()
+        captured = _setup_configure_unit_mocks(harness.charm)
+        harness.charm.configure_unit(MagicMock())
+        assert (
+            captured.get("network.nova-metadata-proxy-url")
+            == "http://internal-url/test-model-nova-metadata"
+        )
+        assert (
+            captured.get("credentials.ovn-metadata-proxy-shared-secret")
+            == "nova-secret"
+        )
 
     @pytest.mark.parametrize(
         "ovs_provider", ["auto", "microovn", "hypervisor"]
