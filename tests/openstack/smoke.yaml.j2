@@ -488,6 +488,16 @@ applications:
     trust: true
     resources:
       cloudkitty-image: ghcr.io/canonical/cloudkitty-consolidated:2025.1-24.04_edge
+  openstack-port-cni:
+    {% if openstack_port_cni_k8s is defined and openstack_port_cni_k8s is sameas true -%}
+    charm: ../../../openstack-port-cni-k8s.charm
+    {% else -%}
+    charm: ch:openstack-port-cni-k8s
+    channel: 2025.1/edge
+    {% endif -%}
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
 relations:
 - - tls-operator:certificates
   - ovn-central:certificates
@@ -557,6 +567,11 @@ relations:
   - ovn-central:ovsdb-cms
 - - keystone:send-ca-cert
   - neutron:receive-ca-cert
+
+- - keystone:identity-credentials
+  - openstack-port-cni:identity-credentials
+- - keystone:send-ca-cert
+  - openstack-port-cni:receive-ca-cert
 
 - - keystone:identity-service
   - openstack-images-sync:identity-service
