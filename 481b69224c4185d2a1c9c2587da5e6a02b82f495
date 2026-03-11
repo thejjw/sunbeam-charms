@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "481b69224c4185d2a1c9c2587da5e6a02b82f495",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f87266b_2187a777",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-11T18:39:54Z",
+      "side": 1,
+      "message": "recheck, failure to build a charm...",
+      "revId": "481b69224c4185d2a1c9c2587da5e6a02b82f495",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
