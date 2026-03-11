@@ -1,11 +1,8 @@
 Listen {{ wsgi_config.public_port }}
 <VirtualHost *:{{ wsgi_config.public_port }}>
-    WSGIDaemonProcess neutron-api processes=4 threads=1 user={{ wsgi_config.user }} group={{ wsgi_config.group }} \
+    WSGIDaemonProcess heat-api processes=4 threads=1 user={{ wsgi_config.user }} group={{ wsgi_config.group }} \
                       display-name=%{GROUP}
-    WSGIProcessGroup neutron-api
-    {% if ingress_internal and ingress_internal.ingress_path -%}
-    WSGIScriptAlias {{ ingress_internal.ingress_path }} {{ wsgi_config.wsgi_public_script }}
-    {% endif -%}
+    WSGIProcessGroup heat-api
     WSGIScriptAlias / {{ wsgi_config.wsgi_public_script }}
     WSGIApplicationGroup %{GLOBAL}
     WSGIPassAuthorization On
@@ -15,7 +12,7 @@ Listen {{ wsgi_config.public_port }}
     ErrorLog {{ wsgi_config.error_log }}
     CustomLog {{ wsgi_config.custom_log }} combined
 
-    <Directory /usr/share/neutron>
+    <Directory /usr/bin>
         <IfVersion >= 2.4>
             Require all granted
         </IfVersion>
