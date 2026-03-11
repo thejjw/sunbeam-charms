@@ -15,6 +15,7 @@
 
 """Utilities for tracing."""
 
+import os
 from pathlib import (
     Path,
 )
@@ -30,11 +31,16 @@ from typing import (
 
 _T = TypeVar("_T", bound=type)
 
+# protobuf's native upb extension is not usable with Python 3.14 in the
+# currently locked tracing stack. Prefer the pure-Python implementation until
+# the dependency set is refreshed for Resolute.
+os.environ.setdefault("PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION", "python")
+
 try:
     from charms.tempo_coordinator_k8s.v0.charm_tracing import (
         trace_type,
     )
-except ImportError:
+except Exception:
 
     def trace_type(cls: _T) -> _T:
         """No-op decorator for tracing."""
@@ -45,7 +51,7 @@ try:
     from charms.tempo_coordinator_k8s.v0.charm_tracing import (
         trace_charm,
     )
-except ImportError:
+except Exception:
 
     def trace_charm(
         tracing_endpoint: str,
