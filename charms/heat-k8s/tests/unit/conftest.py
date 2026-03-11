@@ -174,14 +174,24 @@ def heat_api_container():
     """heat-api container with db-sync exec mock."""
     return k8s_container(
         "heat-api",
-        execs=[testing.Exec(command_prefix=["heat-manage"], return_code=0)],
+        execs=[
+            testing.Exec(command_prefix=["a2dissite"], return_code=0),
+            testing.Exec(command_prefix=["a2ensite"], return_code=0),
+            testing.Exec(command_prefix=["heat-manage"], return_code=0),
+        ],
     )
 
 
 @pytest.fixture()
 def heat_api_cfn_container():
     """heat-api-cfn container."""
-    return k8s_container("heat-api-cfn")
+    return k8s_container(
+        "heat-api-cfn",
+        execs=[
+            testing.Exec(command_prefix=["a2dissite"], return_code=0),
+            testing.Exec(command_prefix=["a2ensite"], return_code=0),
+        ],
+    )
 
 
 @pytest.fixture()
