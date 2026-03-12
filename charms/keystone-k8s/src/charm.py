@@ -1130,31 +1130,68 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             seen.add(entry)
         return deduped
 
+    @staticmethod
+    def _decode_relation_cert_value(value: str | None) -> str | None:
+        """Decode a relation cert value if it was JSON-encoded as a string."""
+        if not value:
+            return value
+        try:
+            decoded = json.loads(value)
+        except (json.JSONDecodeError, TypeError):
+            return value
+        return decoded if isinstance(decoded, str) else value
+
+    def _get_receive_ca_relation_entries(
+        self, relation: Relation
+    ) -> tuple[List[str], List[str]]:
+        """Get CA and chain entries from a receive-ca-cert relation."""
+        ca_certs = []
+        chains = []
+        for relation_data in relation.data.values():
+            ca = self._decode_relation_cert_value(relation_data.get("ca"))
+            try:
+                chain = json.loads(relation_data.get("chain", "[]"))
+            except (json.JSONDecodeError, TypeError):
+                logger.warning(
+                    "Invalid chain data on relation %s/%s, skipping: %r",
+                    relation.name,
+                    relation.id,
+                    relation_data.get("chain"),
+                )
+                chain = []
+            if ca:
+                ca_certs.append(ca)
+            chains.extend(chain)
+        return (
+            self._dedupe_preserve_order(ca_certs),
+            self._dedupe_preserve_order(chains),
+        )
+
+    def _get_received_ca_relation_bundles(
+        self,
+    ) -> Dict[str, Dict[str, str | None]]:
+        """Return received CA bundles keyed for action output."""
+        relation_bundles = {}
+        for relation in self.model.relations[RECEIVE_CA_CERTS]:
+            ca_certs, chains = self._get_receive_ca_relation_entries(relation)
+            if not ca_certs and not chains:
+                continue
+            relation_bundles[f"{relation.name}-{relation.id}-relation"] = {
+                "ca": "\n".join(ca_certs),
+                "chain": "\n".join(chains) or None,
+            }
+        return relation_bundles
+
     def _get_received_ca_and_chain(self) -> tuple[List[str], List[str]]:
         """Get CA and chain entries from receive-ca-cert relations."""
         ca_certs = []
         chains = []
-        receive_ca_cert_relations = list(
-            self.model.relations[RECEIVE_CA_CERTS]
-        )
-        if receive_ca_cert_relations:
-            for relation in receive_ca_cert_relations:
-                for k, v in relation.data.items():
-                    ca = v.get("ca")
-                    try:
-                        chain = json.loads(v.get("chain", "[]"))
-                    except (json.JSONDecodeError, TypeError):
-                        logger.warning(
-                            "Invalid chain data on relation %s/%s, "
-                            "skipping: %r",
-                            relation.name,
-                            relation.id,
-                            v.get("chain"),
-                        )
-                        chain = []
-                    if ca:
-                        ca_certs.append(ca)
-                    chains.extend(chain)
+        for relation in self.model.relations[RECEIVE_CA_CERTS]:
+            relation_cas, relation_chains = (
+                self._get_receive_ca_relation_entries(relation)
+            )
+            ca_certs.extend(relation_cas)
+            chains.extend(relation_chains)
         return (
             self._dedupe_preserve_order(ca_certs),
             self._dedupe_preserve_order(chains),
@@ -1535,6 +1572,7 @@ export OS_AUTH_VERSION=3
             certificates[name_] = certificates[name]
             certificates.pop(name)
 
+        certificates.update(self._get_received_ca_relation_bundles())
         event.set_results(certificates)
 
     def _on_peer_data_changed(self, event: RelationChangedEvent):

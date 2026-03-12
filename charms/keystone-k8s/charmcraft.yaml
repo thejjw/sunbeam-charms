@@ -127,8 +127,10 @@ actions:
     additionalProperties: false
   list-ca-certs:
     description: |
-      List CA certs uploaded for transfer.
+      List CA certs available for transfer.
       Certificate names with `.` will be replace with `-`.
+      Bundles received on receive-ca-cert relations are exposed as
+      receive-ca-cert-<relation-id>-relation.
 
 containers:
   keystone:
