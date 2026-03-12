@@ -77,6 +77,9 @@ requires:
     limit: 1
   identity-credentials:
     interface: keystone-credentials
+  receive-ca-cert:
+    interface: certificate_transfer
+    optional: true
   tracing:
     interface: tracing
     optional: true
