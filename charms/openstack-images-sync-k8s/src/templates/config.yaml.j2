@@ -2,7 +2,11 @@ cloud_name: {{ options.cloud_name}}
 frequency: {{ options.frequency }}
 mirrors:
 - content_id: '%(region)s' # Content ID choice
-  custom_properties: {"hw_firmware_type": "uefi"}
+# TODO (hemanth) commented as workaround to bug
+# https://bugs.launchpad.net/nova/+bug/2122288
+# revert once the fix is released to noble
+#  custom_properties: {"hw_firmware_type": "uefi"}
+  custom_properties: {}
   hypervisor_mapping: false
   image_conversion: false
   item_filters:
