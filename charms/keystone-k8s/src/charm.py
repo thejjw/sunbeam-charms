@@ -1118,8 +1118,22 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             combined.extend(chain)
         return "\n".join(combined)
 
-    def _get_ca_bundles_from_send_cert(self) -> List[str]:
+    @staticmethod
+    def _dedupe_preserve_order(entries: List[str]) -> List[str]:
+        """Deduplicate entries while preserving their first-seen order."""
+        deduped = []
+        seen = set()
+        for entry in entries:
+            if not entry or entry in seen:
+                continue
+            deduped.append(entry)
+            seen.add(entry)
+        return deduped
+
+    def _get_received_ca_and_chain(self) -> tuple[List[str], List[str]]:
+        """Get CA and chain entries from receive-ca-cert relations."""
         ca_certs = []
+        chains = []
         receive_ca_cert_relations = list(
             self.model.relations[RECEIVE_CA_CERTS]
         )
@@ -1127,12 +1141,24 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             for relation in receive_ca_cert_relations:
                 for k, v in relation.data.items():
                     ca = v.get("ca")
-                    chain = json.loads(v.get("chain", "[]"))
-                    if ca and ca not in ca_certs:
+                    try:
+                        chain = json.loads(v.get("chain", "[]"))
+                    except (json.JSONDecodeError, TypeError):
+                        logger.warning(
+                            "Invalid chain data on relation %s/%s, "
+                            "skipping: %r",
+                            relation.name,
+                            relation.id,
+                            v.get("chain"),
+                        )
+                        chain = []
+                    if ca:
                         ca_certs.append(ca)
-                    for item in chain:
-                        ca_certs.append(item)
-        return ca_certs
+                    chains.extend(chain)
+        return (
+            self._dedupe_preserve_order(ca_certs),
+            self._dedupe_preserve_order(chains),
+        )
 
     def _get_all_ca_bundles(self, additional_chain: List[str] = []) -> str:
         combined = []
@@ -1145,9 +1171,11 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if uploaded_cas:
             combined.append(uploaded_cas)
 
-        ca_certs = self._get_ca_bundles_from_send_cert()
+        ca_certs, chains = self._get_received_ca_and_chain()
         if ca_certs:
             combined.extend(ca_certs)
+        if chains:
+            combined.extend(chains)
 
         if additional_chain:
             combined.extend(additional_chain)
@@ -2631,6 +2659,7 @@ export OS_AUTH_VERSION=3
         self.keystone_bootstrap()
         self.set_leader_ready()
         self.check_outstanding_requests()
+        self._handle_certificate_transfers()
 
     def unit_fernet_bootstrapped(self) -> bool:
         """Check if fernet tokens have been setup."""
@@ -2782,16 +2811,17 @@ export OS_AUTH_VERSION=3
             relation_id, relation_name, ops_response=response
         )
 
-    def _get_combined_ca_and_chain(self) -> (str, list):
-        """Combine all certs for CA and chain.
+    def _get_uploaded_ca_and_chain_entries(
+        self,
+    ) -> tuple[list[str], list[str]]:
+        """Return uploaded CA and chain entries from peer data.
 
         Action add-ca-certs allows to add multiple CA cert and chain certs.
-        Combine all CA certs in the secret and chains in the secret.
         """
         certificates = self.peers.get_app_data(CERTIFICATE_TRANSFER_LABEL)
         if not certificates:
             logger.debug("No certificates to transfer")
-            return "", []
+            return [], []
 
         ca_list = []
         chain_list = []
@@ -2803,6 +2833,20 @@ export OS_AUTH_VERSION=3
                 ca_list.append(_ca)
             if _chain:
                 chain_list.append(_chain)
+        return (
+            self._dedupe_preserve_order(ca_list),
+            self._dedupe_preserve_order(chain_list),
+        )
+
+    def _get_combined_ca_and_chain(self) -> tuple[str, list[str]]:
+        """Combine uploaded certs for CA and chain.
+
+        Action add-ca-certs allows to add multiple CA cert and chain certs.
+        Combine all CA certs in the secret and chains in the secret.
+        """
+        ca_list, chain_list = self._get_uploaded_ca_and_chain_entries()
+        if not ca_list and not chain_list:
+            return "", []
 
         ca = "\n".join(ca_list)
         # chain sent as list of single string containing complete chain
@@ -2811,6 +2855,18 @@ export OS_AUTH_VERSION=3
             chain = ["\n".join(chain_list)]
 
         return ca, chain
+
+    def _get_transfer_ca_and_chain(self) -> tuple[str, list[str]]:
+        """Combine uploaded and received CA material for send-ca-cert."""
+        uploaded_ca, uploaded_chain = self._get_uploaded_ca_and_chain_entries()
+        received_ca, received_chain = self._get_received_ca_and_chain()
+
+        ca = self._dedupe_preserve_order([*uploaded_ca, *received_ca])
+        all_chains = self._dedupe_preserve_order(
+            [*uploaded_chain, *received_chain]
+        )
+        chain = ["\n".join(all_chains)] if all_chains else []
+        return "\n".join(ca), chain
 
     def _handle_certificate_transfers(
         self, relations: List[Relation] | None = None
@@ -2828,7 +2884,7 @@ export OS_AUTH_VERSION=3
                 ]
             ]
 
-        ca, chain = self._get_combined_ca_and_chain()
+        ca, chain = self._get_transfer_ca_and_chain()
 
         for relation in relations:
             logger.debug(
