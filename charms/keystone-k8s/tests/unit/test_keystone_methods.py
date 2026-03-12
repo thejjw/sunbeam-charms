@@ -1440,6 +1440,136 @@ class TestListCaCertsAction:
         assert "my-corp-ca" in ctx3.action_results
         assert "my.corp.ca" not in ctx3.action_results
 
+    def test_lists_received_relation_bundle(self, ctx, complete_state):
+        """Bundles from receive-ca-cert relations are included."""
+        state_mid = _bootstrap(ctx, complete_state)
+        ca_pem, _ = _get_self_signed()
+        chain_pem, _ = _make_self_signed_cert("Intermediate CA")
+        receive_ca_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority",
+            remote_units_data={
+                0: {"ca": ca_pem, "chain": json.dumps([chain_pem])}
+            },
+        )
+        state_with_rel = dataclasses.replace(
+            state_mid,
+            relations=[*state_mid.relations, receive_ca_rel],
+        )
+
+        ctx2 = _new_ctx()
+        ctx2.run(ctx2.on.action("list-ca-certs"), state_with_rel)
+
+        bundle_name = f"{receive_ca_rel.endpoint}-{receive_ca_rel.id}-relation"
+        assert bundle_name in ctx2.action_results
+        assert ctx2.action_results[bundle_name]["ca"] == ca_pem
+        assert ctx2.action_results[bundle_name]["chain"] == chain_pem
+
+    def test_lists_peer_and_received_relation_bundles(
+        self, ctx, complete_state
+    ):
+        """Peer-uploaded and receive-ca-cert bundles are returned together."""
+        state_mid = _bootstrap(ctx, complete_state)
+        uploaded_ca_pem, _ = _get_self_signed()
+        uploaded_ca_b64 = base64.b64encode(uploaded_ca_pem.encode()).decode()
+
+        ctx2 = _new_ctx()
+        state_added = ctx2.run(
+            ctx2.on.action(
+                "add-ca-certs",
+                params={"name": "listed-ca", "ca": uploaded_ca_b64},
+            ),
+            state_mid,
+        )
+        state_added = _fix_checks(state_added)
+        cleanup_database_requires_events()
+
+        received_ca_pem, _ = _make_self_signed_cert("Received CA")
+        receive_ca_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority",
+            remote_units_data={
+                0: {"ca": received_ca_pem, "chain": json.dumps([])}
+            },
+        )
+        state_with_rel = dataclasses.replace(
+            state_added,
+            relations=[*state_added.relations, receive_ca_rel],
+        )
+
+        ctx3 = _new_ctx()
+        ctx3.run(ctx3.on.action("list-ca-certs"), state_with_rel)
+
+        relation_bundle = (
+            f"{receive_ca_rel.endpoint}-{receive_ca_rel.id}-relation"
+        )
+        assert "listed-ca" in ctx3.action_results
+        assert relation_bundle in ctx3.action_results
+        assert ctx3.action_results[relation_bundle]["ca"] == received_ca_pem
+        assert ctx3.action_results[relation_bundle]["chain"] is None
+
+    def test_lists_multiple_received_relation_bundles(
+        self, ctx, complete_state
+    ):
+        """Each receive-ca-cert relation gets its own synthetic bundle name."""
+        state_mid = _bootstrap(ctx, complete_state)
+        first_ca_pem, _ = _get_self_signed()
+        second_ca_pem, _ = _make_self_signed_cert("Second Relation CA")
+        first_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority-a",
+            remote_units_data={
+                0: {"ca": first_ca_pem, "chain": json.dumps([])}
+            },
+        )
+        second_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority-b",
+            remote_units_data={
+                0: {"ca": second_ca_pem, "chain": json.dumps([])}
+            },
+        )
+        state_with_rel = dataclasses.replace(
+            state_mid,
+            relations=[*state_mid.relations, first_rel, second_rel],
+        )
+
+        ctx2 = _new_ctx()
+        ctx2.run(ctx2.on.action("list-ca-certs"), state_with_rel)
+
+        first_bundle = f"{first_rel.endpoint}-{first_rel.id}-relation"
+        second_bundle = f"{second_rel.endpoint}-{second_rel.id}-relation"
+        assert ctx2.action_results[first_bundle]["ca"] == first_ca_pem
+        assert ctx2.action_results[second_bundle]["ca"] == second_ca_pem
+
+    def test_received_relation_bundle_dedupes_multiple_units(
+        self, ctx, complete_state
+    ):
+        """A relation bundle aggregates and dedupes repeated unit data."""
+        state_mid = _bootstrap(ctx, complete_state)
+        ca_pem, _ = _get_self_signed()
+        chain_pem, _ = _make_self_signed_cert("Shared Chain")
+        receive_ca_rel = testing.Relation(
+            endpoint="receive-ca-cert",
+            remote_app_name="certificate-authority",
+            remote_units_data={
+                0: {"ca": ca_pem, "chain": json.dumps([chain_pem])},
+                1: {"ca": ca_pem, "chain": json.dumps([chain_pem])},
+            },
+        )
+        state_with_rel = dataclasses.replace(
+            state_mid,
+            relations=[*state_mid.relations, receive_ca_rel],
+        )
+
+        ctx2 = _new_ctx()
+        ctx2.run(ctx2.on.action("list-ca-certs"), state_with_rel)
+
+        bundle_name = f"{receive_ca_rel.endpoint}-{receive_ca_rel.id}-relation"
+        relation_bundle = ctx2.action_results[bundle_name]
+        assert relation_bundle["ca"].count(ca_pem.strip()) == 1
+        assert relation_bundle["chain"].count(chain_pem.strip()) == 1
+
 
 # ---------------------------------------------------------------------------
 # Action tests: regenerate-password
