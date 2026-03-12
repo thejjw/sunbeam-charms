@@ -16,6 +16,40 @@
       "message": "Implement the config option for scheduler filter",
       "revId": "fe1954f57f784f73219b620dc4920480fe1e978d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dbeec990_b67cd412",
+        "filename": "charms/nova-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-12T02:23:37Z",
+      "side": 1,
+      "message": "Can you crosscheck this filter list, what is available in Caracal and remove deprecated/removed filters from older releases",
+      "revId": "fe1954f57f784f73219b620dc4920480fe1e978d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e3a632f5_f0137da4",
+        "filename": "charms/nova-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-12T02:23:37Z",
+      "side": 1,
+      "message": "Does this make unit to Blocked state with clear message on unit status?",
+      "revId": "fe1954f57f784f73219b620dc4920480fe1e978d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
