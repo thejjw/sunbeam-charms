@@ -1,0 +1,5 @@
+endpoint_type = {{ client_endpoint_value | default("admin") }}
+region_name = {{ client_region }}
+{% if client_ca_key is defined and client_ca_key and receive_ca_cert and receive_ca_cert.ca_bundle -%}
+{{ client_ca_key }} = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}

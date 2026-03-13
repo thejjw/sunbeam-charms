@@ -18,6 +18,26 @@ glance_ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.pem
 
 {% include "parts/section-identity" %}
 
+[glance]
+auth_section = keystone_authtoken
+service_type = image
+service_name = glance
+{% set client_region = options.region -%}
+{% set client_ca_key = "cafile" -%}
+{% include "parts/client-valid-interfaces-admin" %}
+
+[nova]
+auth_section = service_user
+{% set client_region = options.region -%}
+{% set client_ca_key = "cafile" -%}
+{% include "parts/client-interface-admin" %}
+
+[barbican]
+auth_section = keystone_authtoken
+{% set client_region = options.region -%}
+{% set client_ca_key = "cafile" -%}
+{% include "parts/client-interface-admin" %}
+
 {% include "parts/section-service-user" %}
 
 [oslo_concurrency]

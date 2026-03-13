@@ -55,6 +55,25 @@ class TestAllRelations:
             state_out, ctx, "ironic-conductor", "/etc/ironic/ironic.conf"
         )
 
+    def test_ironic_conf_contains_client_regions(self, ctx, complete_state):
+        """ironic.conf renders region_name in peer client sections."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "ironic-conductor",
+            "/etc/ironic/ironic.conf",
+            [
+                "[nova]",
+                "region_name = region12",
+                "[neutron]",
+                "[glance]",
+                "[swift]",
+                "[cinder]",
+                "[service_catalog]",
+            ],
+        )
+
 
 class TestPebbleReady:
     """Pebble-ready event with all relations → container configured."""

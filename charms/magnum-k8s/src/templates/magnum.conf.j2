@@ -23,8 +23,10 @@ driver = messagingv2
 # Update region name from relations
 
 [cinder_client]
-endpoint_type = adminURL
-region_name = {{ options.region }}
+{% set client_region = options.region -%}
+{% set client_endpoint_value = "adminURL" -%}
+{% set client_ca_key = "ca_file" -%}
+{% include "parts/client-endpoint-type-admin" %}
 
 [api]
 api_paste_config=/etc/magnum/api-paste.ini
@@ -36,34 +38,34 @@ workers = 4
 {% include "parts/section-oslo-messaging-rabbit" %}
 
 [glance_client]
-region_name = {{ options.region }}
-{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
-{% endif -%}
+{% set client_region = options.region -%}
+{% set client_endpoint_value = "adminURL" -%}
+{% set client_ca_key = "ca_file" -%}
+{% include "parts/client-endpoint-type-admin" %}
 
 [heat_client]
-region_name = {{ options.region }}
-{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
-{% endif -%}
+{% set client_region = options.region -%}
+{% set client_endpoint_value = "adminURL" -%}
+{% set client_ca_key = "ca_file" -%}
+{% include "parts/client-endpoint-type-admin" %}
 
 [neutron_client]
-region_name = {{ options.region }}
-{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
-{% endif -%}
+{% set client_region = options.region -%}
+{% set client_endpoint_value = "adminURL" -%}
+{% set client_ca_key = "ca_file" -%}
+{% include "parts/client-endpoint-type-admin" %}
 
 [nova_client]
-region_name = {{ options.region }}
-{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
-{% endif -%}
+{% set client_region = options.region -%}
+{% set client_endpoint_value = "adminURL" -%}
+{% set client_ca_key = "ca_file" -%}
+{% include "parts/client-endpoint-type-admin" %}
 
 [octavia_client]
-region_name = {{ options.region }}
-{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
-{% endif -%}
+{% set client_region = options.region -%}
+{% set client_endpoint_value = "adminURL" -%}
+{% set client_ca_key = "ca_file" -%}
+{% include "parts/client-endpoint-type-admin" %}
 
 [audit_middleware_notifications]
 driver = log

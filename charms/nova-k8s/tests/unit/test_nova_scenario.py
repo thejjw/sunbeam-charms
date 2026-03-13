@@ -31,6 +31,7 @@ from ops import (
 )
 from ops_sunbeam.test_utils_scenario import (
     amqp_relation_complete,
+    assert_config_file_contains,
     db_credentials_secret,
     db_relation_complete,
     identity_service_relation_complete,
@@ -233,6 +234,27 @@ class TestAllRelations:
         fs = out_container.get_filesystem(ctx)
         nova_conf = fs / "etc" / "nova" / "nova.conf"
         assert nova_conf.exists(), "nova.conf not written to container"
+
+    def test_nova_conf_contains_admin_cinder_client(self, ctx):
+        """nova.conf renders an explicit admin Cinder client section."""
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "nova-api",
+            "/etc/nova/nova.conf",
+            [
+                "[cinder]",
+                "catalog_info = volumev3:cinderv3:adminURL",
+                "os_region_name = RegionOne",
+            ],
+        )
 
 
 class TestBlockedWhenEachRelationMissing:
