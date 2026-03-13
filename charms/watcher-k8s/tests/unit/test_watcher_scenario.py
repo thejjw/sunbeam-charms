@@ -25,6 +25,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    assert_config_file_contains,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
@@ -52,6 +53,27 @@ class TestAllRelations:
         state_out = ctx.run(ctx.on.config_changed(), complete_state)
         assert_config_file_exists(
             state_out, ctx, "watcher-api", "/etc/watcher/watcher.conf"
+        )
+
+    def test_watcher_clients_use_admin_interface(self, ctx, complete_state):
+        """watcher.conf renders admin interfaces for peer clients."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "watcher-api",
+            "/etc/watcher/watcher.conf",
+            [
+                "[cinder_client]",
+                "interface = admin",
+                "[glance_client]",
+                "[keystone_client]",
+                "[neutron_client]",
+                "[nova_client]",
+                "[placement_client]",
+                "[gnocchi_client]",
+                "[ironic_client]",
+            ],
         )
 
 

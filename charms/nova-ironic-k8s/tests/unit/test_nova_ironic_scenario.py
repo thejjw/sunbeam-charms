@@ -25,6 +25,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    assert_config_file_contains,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
@@ -57,6 +58,24 @@ class TestAllRelations:
         state_out = ctx.run(ctx.on.config_changed(), complete_state)
         assert_config_file_exists(
             state_out, ctx, "nova-ironic", "/etc/nova/rootwrap.conf"
+        )
+
+    def test_nova_ironic_conf_contains_client_regions(
+        self, ctx, complete_state
+    ):
+        """nova.conf renders region_name in peer client sections."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "nova-ironic",
+            "/etc/nova/nova.conf",
+            [
+                "[placement]",
+                "region_name = region12",
+                "[neutron]",
+                "[ironic]",
+            ],
         )
 
 

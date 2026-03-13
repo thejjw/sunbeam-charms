@@ -35,12 +35,21 @@ region_name = {{ identity_credentials.region }}
 
 [placement]
 {% include "parts/identity-data-id-creds" %}
+{% if identity_credentials.region -%}
+region_name = {{ identity_credentials.region }}
+{% endif -%}
 
 [neutron]
 {% include "parts/identity-data-id-creds" %}
+{% if identity_credentials.region -%}
+region_name = {{ identity_credentials.region }}
+{% endif -%}
 
 [ironic]
 {% include "parts/identity-data-id-creds" %}
+{% if identity_credentials.region -%}
+region_name = {{ identity_credentials.region }}
+{% endif -%}
 
 {% include "parts/section-oslo-messaging-rabbit" %}
 

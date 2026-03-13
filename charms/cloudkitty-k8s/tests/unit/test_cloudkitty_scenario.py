@@ -25,6 +25,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    assert_config_file_contains,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
@@ -50,6 +51,23 @@ class TestAllRelations:
         state_out = ctx.run(ctx.on.config_changed(), complete_state)
         assert_config_file_exists(
             state_out, ctx, "cloudkitty", "/etc/cloudkitty/cloudkitty.conf"
+        )
+
+    def test_cloudkitty_gnocchi_clients_use_admin_interface(
+        self, ctx, complete_state
+    ):
+        """cloudkitty.conf renders admin interfaces for Gnocchi clients."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "cloudkitty",
+            "/etc/cloudkitty/cloudkitty.conf",
+            [
+                "[fetcher_gnocchi]",
+                "interface = admin",
+                "[collector_gnocchi]",
+            ],
         )
 
 

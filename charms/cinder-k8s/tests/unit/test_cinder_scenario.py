@@ -72,6 +72,28 @@ class TestAllRelations:
             ["os_region_name = RegionOne"],
         )
 
+    def test_cinder_conf_contains_peer_client_sections(
+        self, ctx, complete_state
+    ):
+        """cinder.conf renders explicit client sections for peer services."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "cinder-api",
+            "/etc/cinder/cinder.conf",
+            [
+                "[glance]",
+                "auth_section = keystone_authtoken",
+                "valid_interfaces = admin",
+                "[nova]",
+                "auth_section = service_user",
+                "interface = admin",
+                "[barbican]",
+                "auth_section = keystone_authtoken",
+            ],
+        )
+
 
 class TestPebbleReady:
     """Pebble-ready event with all relations → container configured."""

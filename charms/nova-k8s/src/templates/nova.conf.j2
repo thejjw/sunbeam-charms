@@ -34,6 +34,13 @@ region_name = {{ options.region }}
 {% include "parts/identity-data" %}
 region_name = {{ options.region }}
 
+[cinder]
+catalog_info = volumev3:cinderv3:adminURL
+os_region_name = {{ options.region }}
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}
+
 {% include "parts/section-service-user" %}
 
 [cells]

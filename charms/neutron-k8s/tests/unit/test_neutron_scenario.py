@@ -25,6 +25,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    assert_config_file_contains,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
@@ -59,6 +60,17 @@ class TestAllRelations:
             ctx,
             "neutron-server",
             "/etc/neutron/plugins/ml2/ml2_conf.ini",
+        )
+
+    def test_neutron_conf_sets_nova_region(self, ctx, complete_state):
+        """neutron.conf pins the Nova client to the configured region."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "neutron-server",
+            "/etc/neutron/neutron.conf",
+            ["[nova]", "region_name = RegionOne"],
         )
 
 

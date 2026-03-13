@@ -1,0 +1,5 @@
+{{ client_interface_key | default("interface") }} = {{ client_interface_value | default("admin") }}
+{{ client_region_key | default("region_name") }} = {{ client_region }}
+{% if client_ca_key is defined and client_ca_key and receive_ca_cert and receive_ca_cert.ca_bundle -%}
+{{ client_ca_key }} = /usr/local/share/ca-certificates/ca-bundle.pem
+{% endif -%}

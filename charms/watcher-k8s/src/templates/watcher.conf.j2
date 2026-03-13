@@ -44,28 +44,36 @@ collector_plugins = {{ options.collector_plugins }}
 {% endif -%}
 
 [cinder_client]
-region_name = {{ options.region }}
+{% set client_region = options.region -%}
+{% include "parts/client-interface-admin" %}
 
 [glance_client]
-region_name = {{ options.region }}
+{% set client_region = options.region -%}
+{% include "parts/client-interface-admin" %}
 
 [keystone_client]
-region_name = {{ options.region }}
+{% set client_region = options.region -%}
+{% include "parts/client-interface-admin" %}
 
 [neutron_client]
-region_name = {{ options.region }}
+{% set client_region = options.region -%}
+{% include "parts/client-interface-admin" %}
 
 [nova_client]
-region_name = {{ options.region }}
+{% set client_region = options.region -%}
+{% include "parts/client-interface-admin" %}
 
 [placement_client]
-region_name = {{ options.region }}
+{% set client_region = options.region -%}
+{% include "parts/client-interface-admin" %}
 
 [gnocchi_client]
-region_name = {{ options.region }}
+{% set client_region = options.region -%}
+{% include "parts/client-interface-admin" %}
 
 [ironic_client]
-region_name = {{ options.region }}
+{% set client_region = options.region -%}
+{% include "parts/client-interface-admin" %}
 
 {% if options.maas_url and options.maas_api_key -%}
 [maas_client]

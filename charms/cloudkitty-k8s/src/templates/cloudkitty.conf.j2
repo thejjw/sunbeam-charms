@@ -32,11 +32,13 @@ backend = gnocchi
 [fetcher_gnocchi]
 gnocchi_auth_type = keystone
 auth_section = keystone_authtoken
-region_name = {{ options.region }}
+{% set client_region = options.region -%}
+{% include "parts/client-interface-admin" %}
 
 [collect]
 collector = gnocchi
 
 [collector_gnocchi]
 auth_section = keystone_authtoken
-region_name = {{ options.region }}
+{% set client_region = options.region -%}
+{% include "parts/client-interface-admin" %}

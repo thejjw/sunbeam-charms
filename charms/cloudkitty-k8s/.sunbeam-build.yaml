@@ -14,6 +14,7 @@ templates:
   - parts/section-database
   - parts/database-connection
   - parts/database-connection-settings
+  - parts/client-interface-admin
   - parts/section-identity
   - parts/identity-data
   - parts/section-oslo-messaging-rabbit

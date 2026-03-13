@@ -65,9 +65,15 @@ region_name = {{ identity_credentials.region }}
 
 [nova]
 {% include "parts/ironic-identity-data-id-creds" %}
+{% if identity_credentials.region -%}
+region_name = {{ identity_credentials.region }}
+{% endif -%}
 
 [neutron]
 {% include "parts/ironic-identity-data-id-creds" %}
+{% if identity_credentials.region -%}
+region_name = {{ identity_credentials.region }}
+{% endif -%}
 {% if options.cleaning_network %}
 cleaning_network = {{ options.cleaning_network }}
 {% endif %}
@@ -77,6 +83,9 @@ provisioning_network = {{ options.provisioning_network }}
 
 [glance]
 {% include "parts/ironic-identity-data-id-creds" %}
+{% if identity_credentials.region -%}
+region_name = {{ identity_credentials.region }}
+{% endif -%}
 swift_container = glance
 {% if ironic_config.temp_url_secret -%}
 swift_temp_url_key = {{ ironic_config.temp_url_secret }}
@@ -87,12 +96,21 @@ swift_temp_url_duration = {{ options.swift_temp_url_duration }}
 
 [swift]
 {% include "parts/ironic-identity-data-id-creds" %}
+{% if identity_credentials.region -%}
+region_name = {{ identity_credentials.region }}
+{% endif -%}
 
 [cinder]
 {% include "parts/ironic-identity-data-id-creds" %}
+{% if identity_credentials.region -%}
+region_name = {{ identity_credentials.region }}
+{% endif -%}
 
 [service_catalog]
 {% include "parts/ironic-identity-data-id-creds" %}
+{% if identity_credentials.region -%}
+region_name = {{ identity_credentials.region }}
+{% endif -%}
 
 {% include "parts/section-pxe" %}
 

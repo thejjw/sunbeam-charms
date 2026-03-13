@@ -26,6 +26,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    assert_config_file_contains,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
@@ -76,6 +77,27 @@ class TestAllRelations:
             ctx,
             "magnum-api",
             "/etc/apache2/sites-available/wsgi-magnum-api.conf",
+        )
+
+    def test_magnum_conf_uses_admin_client_endpoints(
+        self, ctx, complete_state
+    ):
+        """Peer client groups in magnum.conf prefer admin URLs."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "magnum-api",
+            "/etc/magnum/magnum.conf",
+            [
+                "[cinder_client]",
+                "endpoint_type = adminURL",
+                "[glance_client]",
+                "[heat_client]",
+                "[neutron_client]",
+                "[nova_client]",
+                "[octavia_client]",
+            ],
         )
 
 
