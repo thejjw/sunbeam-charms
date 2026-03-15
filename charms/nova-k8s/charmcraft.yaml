@@ -32,6 +32,15 @@ config:
       default: false
       description: Enable debug logging.
       type: boolean
+    host-subset-size:
+      default: 3
+      type: int
+      description: |
+        Size of subset of best hosts selected by scheduler.
+
+        New instances will be scheduled on a host chosen randomly from a subset
+        of the N best hosts, where N is the value set by this option.
+
     region:
       default: RegionOne
       description: Name of the OpenStack region
@@ -43,6 +52,11 @@ config:
         PCI devices that can be requested through flavor extra specs.
 
         Example: [{"vendor_id": "8086", "product_id": "1563", "name": "intel-sr-iov"}]
+    shuffle-best-same-weighed-hosts:
+      default: true
+      type: boolean
+      description: |
+        Enable spreading the instances between hosts with the same best weight.
 
 containers:
   nova-api:
