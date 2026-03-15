@@ -61,6 +61,13 @@ available_filters = nova.scheduler.filters.all_filters
 # https://docs.openstack.org/nova/latest/admin/pci-passthrough.html
 pci_in_placement = True
 
+# New instances will be scheduled on a host chosen randomly from a subset of the
+# N best hosts
+host_subset_size = {{ options.host_subset_size }}
+
+# Make sure hosts are shuffled to avoid always picking the first one
+shuffle_best_same_weighed_hosts = {{ options.shuffle_best_same_weighed_hosts }}
+
 [scheduler]
 # NOTE(jamespage): perform automatic host cell mapping
 #                  until we can orchestrate this better
