@@ -749,6 +749,22 @@ def assert_config_file_contains(
         ), f"Expected '{exp}' in {path}, content: {content[:500]}"
 
 
+def assert_config_file_not_contains(
+    state_out: testing.State,
+    ctx: testing.Context,
+    container_name: str,
+    path: str,
+    unexpected: list[str],
+) -> None:
+    """Assert a config file does not contain unexpected strings."""
+    file_path = assert_config_file_exists(state_out, ctx, container_name, path)
+    content = file_path.read_text()
+    for item in unexpected:
+        assert (
+            item not in content
+        ), f"Did not expect '{item}' in {path}, content: {content[:500]}"
+
+
 def assert_unit_status(
     state_out: testing.State,
     expected_status_name: str,
