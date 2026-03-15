@@ -22,6 +22,30 @@
       },
       "revId": "43162afef4822f850a0d2205f7fe088f91812487",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "305750ad_1f48b918",
+        "filename": "charms/nova-k8s/src/templates/nova.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-03-15T03:11:47Z",
+      "side": 1,
+      "message": "yeah, impressive",
+      "parentUuid": "f62cacaa_281be503",
+      "range": {
+        "startLine": 68,
+        "startChar": 37,
+        "endLine": 68,
+        "endChar": 43
+      },
+      "revId": "43162afef4822f850a0d2205f7fe088f91812487",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
