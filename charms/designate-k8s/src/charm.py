@@ -167,6 +167,12 @@ class DesignatePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         )
         return _cconfig
 
+    @property
+    def enable_rabbit_heartbeat_in_pthread(self) -> bool:
+        """Disable heartbeat_in_pthread for the shared designate config."""
+        # designate.conf is shared by the WSGI API and non-WSGI services.
+        return False
+
     def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
         """Enable and start WSGI service."""
         container = self.charm.unit.get_container(self.container_name)

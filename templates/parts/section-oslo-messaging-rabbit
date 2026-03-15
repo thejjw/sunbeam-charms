@@ -1,2 +1,5 @@
 [oslo_messaging_rabbit]
 rabbit_quorum_queue = True
+{% if service_template.heartbeat_in_pthread %}
+heartbeat_in_pthread = {{ service_template.heartbeat_in_pthread }}
+{% endif %}
