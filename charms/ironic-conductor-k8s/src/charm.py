@@ -191,6 +191,12 @@ class IronicConductorPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Pebble handler for Ironic Conductor."""
 
     @property
+    def enable_rabbit_heartbeat_in_pthread(self) -> bool:
+        """Disable heartbeat_in_pthread for the shared ironic config."""
+        # ironic.conf is shared by the WSGI service and ironic-conductor.
+        return False
+
+    @property
     def directories(self) -> list[sunbeam_chandlers.ContainerDir]:
         """List of directories to create in container."""
         return [

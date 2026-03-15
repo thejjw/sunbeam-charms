@@ -49,6 +49,11 @@ logger = logging.getLogger(__name__)
 ContainerDir = collections.namedtuple(
     "ContainerDir", ["path", "user", "group"]
 )
+ServiceTemplateContext = collections.namedtuple(
+    "ServiceTemplateContext",
+    ["heartbeat_in_pthread"],
+    defaults=(False,),
+)
 
 
 @sunbeam_tracing.trace_type
@@ -126,6 +131,25 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
         """Handle pebble check recovered event."""
         self._on_update_status(event)
 
+    @property
+    def enable_rabbit_heartbeat_in_pthread(self) -> bool:
+        """Whether rabbit heartbeat should be handled in a pthread."""
+        return False
+
+    def service_template_context(self) -> ServiceTemplateContext:
+        """Handler-specific template context."""
+        return ServiceTemplateContext(
+            heartbeat_in_pthread=self.enable_rabbit_heartbeat_in_pthread
+        )
+
+    def render_context(
+        self, context: sunbeam_core.OPSCharmContexts
+    ) -> dict[str, typing.Any]:
+        """Context used when rendering templates."""
+        render_context = dict(context)
+        render_context["service_template"] = self.service_template_context()
+        return render_context
+
     def write_config(
         self, context: sunbeam_core.OPSCharmContexts
     ) -> list[str]:
@@ -139,13 +163,14 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
         """
         files_updated = []
         container = self.charm.unit.get_container(self.container_name)
+        render_context = self.render_context(context)
         if container:
             for config in self.container_configs:
                 changed = sunbeam_templating.sidecar_config_render(
                     container,
                     config,
                     self.template_dir,
-                    context,
+                    render_context,
                 )
                 if changed:
                     files_updated.append(config.path)
@@ -448,6 +473,11 @@ class WSGIPebbleHandler(PebbleHandler):
             callback_f,
         )
         self.wsgi_service_name = wsgi_service_name
+
+    @property
+    def enable_rabbit_heartbeat_in_pthread(self) -> bool:
+        """Whether rabbit heartbeat should be handled in a pthread."""
+        return True
 
     def start_wsgi(self, restart: bool = True) -> None:
         """Check and start services in container.

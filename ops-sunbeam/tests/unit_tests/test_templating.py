@@ -29,6 +29,7 @@ import jinja2
 sys.path.append("lib")  # noqa
 sys.path.append("src")  # noqa
 
+import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.templating as sunbeam_templating
 import ops_sunbeam.test_utils as test_utils
@@ -83,3 +84,24 @@ class TestTemplating(test_utils.CharmTestCase):
             container_mock, config, "/tmp/templates", {"debug": True}
         )
         self.assertFalse(container_mock.push.called)
+
+    def test_render_context_defaults_to_service_behavior(self) -> None:
+        """Non-WSGI handlers should not enable heartbeat_in_pthread."""
+        handler = object.__new__(sunbeam_chandlers.PebbleHandler)
+
+        render_context = handler.render_context({"debug": True})
+
+        self.assertTrue(render_context["debug"])
+        self.assertFalse(
+            render_context["service_template"].heartbeat_in_pthread
+        )
+
+    def test_render_context_enables_wsgi_behavior(self) -> None:
+        """WSGI handlers should enable heartbeat_in_pthread."""
+        handler = object.__new__(sunbeam_chandlers.WSGIPebbleHandler)
+
+        render_context = handler.render_context({})
+
+        self.assertTrue(
+            render_context["service_template"].heartbeat_in_pthread
+        )

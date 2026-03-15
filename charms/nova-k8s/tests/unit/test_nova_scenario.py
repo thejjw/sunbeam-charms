@@ -32,6 +32,7 @@ from ops import (
 from ops_sunbeam.test_utils_scenario import (
     amqp_relation_complete,
     assert_config_file_contains,
+    assert_config_file_not_contains,
     db_credentials_secret,
     db_relation_complete,
     identity_service_relation_complete,
@@ -255,6 +256,45 @@ class TestAllRelations:
                 "os_region_name = RegionOne",
             ],
         )
+
+    def test_wsgi_nova_conf_contains_heartbeat_in_pthread(self, ctx):
+        """nova-api should render heartbeat_in_pthread."""
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "nova-api",
+            "/etc/nova/nova.conf",
+            ["heartbeat_in_pthread = True"],
+        )
+
+    def test_non_wsgi_nova_confs_omit_heartbeat_in_pthread(self, ctx):
+        """Non-WSGI Nova services should not render heartbeat_in_pthread."""
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        for container_name in [
+            "nova-scheduler",
+            "nova-conductor",
+            "nova-spiceproxy",
+        ]:
+            assert_config_file_not_contains(
+                state_out,
+                ctx,
+                container_name,
+                "/etc/nova/nova.conf",
+                ["heartbeat_in_pthread"],
+            )
 
 
 class TestBlockedWhenEachRelationMissing:

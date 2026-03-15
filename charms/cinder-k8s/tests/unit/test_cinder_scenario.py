@@ -27,6 +27,7 @@ from ops import (
 from ops_sunbeam.test_utils_scenario import (
     assert_config_file_contains,
     assert_config_file_exists,
+    assert_config_file_not_contains,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
     assert_unit_status,
@@ -92,6 +93,32 @@ class TestAllRelations:
                 "[barbican]",
                 "auth_section = keystone_authtoken",
             ],
+        )
+
+    def test_wsgi_cinder_conf_contains_heartbeat_in_pthread(
+        self, ctx, complete_state
+    ):
+        """cinder-api should render heartbeat_in_pthread."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "cinder-api",
+            "/etc/cinder/cinder.conf",
+            ["heartbeat_in_pthread = True"],
+        )
+
+    def test_scheduler_cinder_conf_omits_heartbeat_in_pthread(
+        self, ctx, complete_state
+    ):
+        """cinder-scheduler should not render heartbeat_in_pthread."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_not_contains(
+            state_out,
+            ctx,
+            "cinder-scheduler",
+            "/etc/cinder/cinder.conf",
+            ["heartbeat_in_pthread"],
         )
 
 
