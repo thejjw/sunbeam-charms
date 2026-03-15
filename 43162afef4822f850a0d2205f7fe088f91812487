@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f62cacaa_281be503",
+        "filename": "charms/nova-k8s/src/templates/nova.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-15T03:04:21Z",
+      "side": 1,
+      "message": "good catch from the pep8 linter...",
+      "range": {
+        "startLine": 68,
+        "startChar": 37,
+        "endLine": 68,
+        "endChar": 43
+      },
+      "revId": "43162afef4822f850a0d2205f7fe088f91812487",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
