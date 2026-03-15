@@ -37,6 +37,41 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "29c04377_2c6949c2",
+        "filename": "charms/nova-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-03-15T04:05:28Z",
+      "side": 1,
+      "message": "do we really want to have this list? ... we\u0027ll need to maintain it and refresh it on every release, we are increasing the maintenance cost. This became time consuming in Charmed OpenStack.\n\nI wonder if we should consider to get this list auto-generated, it can be by a script we run to refresh the list and a new patch is submitted for review(?)",
+      "parentUuid": "dbeec990_b67cd412",
+      "revId": "fe1954f57f784f73219b620dc4920480fe1e978d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c715a19c_ac31d8be",
+        "filename": "charms/nova-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-03-15T04:05:28Z",
+      "side": 1,
+      "message": "the charm should remove the invalid filters from the list and use the ones that are valid, this way the service can stay functional, the charm should log the message of what filters were dropped and why",
+      "revId": "fe1954f57f784f73219b620dc4920480fe1e978d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e3a632f5_f0137da4",
         "filename": "charms/nova-k8s/src/charm.py",
         "patchSetId": 1
