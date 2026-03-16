@@ -25,6 +25,9 @@ import tempfile
 from pathlib import (
     Path,
 )
+from types import (
+    SimpleNamespace,
+)
 from unittest import (
     mock,
 )
@@ -325,6 +328,26 @@ class TestSnap:
 
         with pytest.raises(snap.SnapError):
             charm_instance._connect_to_epa_orchestrator()
+
+
+class TestRelationDerivedConfig:
+    """Tests for relation-derived snap configuration helpers."""
+
+    def test_handle_barbican_service_ready(self, charm_instance):
+        """Ready Barbican relation should enable the key manager."""
+        contexts = SimpleNamespace(
+            barbican_service=SimpleNamespace(service_ready=True)
+        )
+
+        assert charm_instance._handle_barbican_service(contexts) == {
+            "compute.key-manager-enabled": True
+        }
+
+    def test_handle_barbican_service_missing(self, charm_instance):
+        """Missing Barbican relation should disable the key manager."""
+        assert charm_instance._handle_barbican_service(SimpleNamespace()) == {
+            "compute.key-manager-enabled": False
+        }
 
     def test_microovn_present(self, charm_instance):
         """Microovn present handling does not call alias."""

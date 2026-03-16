@@ -79,6 +79,10 @@ requires:
     optional: true
     limit: 1
 
+provides:
+  barbican-service:
+    interface: service-ready
+
 peers:
   peers:
     interface: barbican-peer
