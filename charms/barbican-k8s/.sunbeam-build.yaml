@@ -10,6 +10,7 @@ external-libraries:
 internal-libraries:
   - charms.keystone_k8s.v1.identity_service
   - charms.keystone_k8s.v0.identity_resource
+  - charms.sunbeam_libs.v0.service_readiness
 templates:
   - parts/section-database
   - parts/database-connection

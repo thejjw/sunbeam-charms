@@ -44,6 +44,9 @@ from ops import (
     model,
     pebble,
 )
+from ops.charm import (
+    RelationEvent,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -262,7 +265,10 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def configure_unit(self, event: framework.EventBase) -> None:
         """Run configuration on this unit."""
         self.disable_barbican_config()
-        super().configure_unit(event)
+        try:
+            super().configure_unit(event)
+        finally:
+            self.set_readiness_on_related_units()
 
     def get_relation_handlers(
         self,
@@ -277,7 +283,35 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             mandatory="identity-ops" in self.mandatory_relations,
         )
         handlers.append(self.id_ops)
+        if self.can_add_handler("barbican-service", handlers):
+            self.svc_ready_handler = (
+                sunbeam_rhandlers.ServiceReadinessProviderHandler(
+                    self,
+                    "barbican-service",
+                    self.handle_readiness_request_from_event,
+                )
+            )
+            handlers.append(self.svc_ready_handler)
         return handlers
+
+    def handle_readiness_request_from_event(
+        self, event: RelationEvent
+    ) -> None:
+        """Set service readiness in relation data."""
+        self.svc_ready_handler.interface.set_service_status(
+            event.relation, self.bootstrapped()
+        )
+
+    def set_readiness_on_related_units(self) -> None:
+        """Set service readiness on barbican-service related units."""
+        logger.debug(
+            "Set service readiness on all connected barbican-service relations"
+        )
+        readiness = self.bootstrapped()
+        for relation in self.framework.model.relations["barbican-service"]:
+            self.svc_ready_handler.interface.set_service_status(
+                relation, readiness
+            )
 
     def handle_keystone_ops(self, event: ops.EventBase) -> None:
         """Event handler for identity ops."""
