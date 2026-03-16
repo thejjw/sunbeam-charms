@@ -372,6 +372,16 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 )
             )
             handlers.append(self.masakari_svc)
+        if self.can_add_handler("barbican-service", handlers):
+            self.barbican_svc = (
+                sunbeam_rhandlers.ServiceReadinessRequiresHandler(
+                    self,
+                    "barbican-service",
+                    self.configure_charm,
+                    "barbican-service" in self.mandatory_relations,
+                )
+            )
+            handlers.append(self.barbican_svc)
         handlers = super().get_relation_handlers(handlers)
         return handlers
 
@@ -908,6 +918,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         snap_data.update(self._handle_nova_service(contexts))
         snap_data.update(self._handle_receive_ca_cert(contexts))
         snap_data.update(self._handle_masakari_service(contexts))
+        snap_data.update(self._handle_barbican_service(contexts))
         if self._epa_client.is_available():
             snap_data.update(self._handle_ovs_dpdk())
 
@@ -983,6 +994,19 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         except AttributeError:
             logger.info("masakari_service relation not integrated")
             return {"masakari.enable": False}
+
+    def _handle_barbican_service(
+        self, contexts: sunbeam_core.OPSCharmContexts
+    ) -> dict:
+        try:
+            return {
+                "compute.key-manager-enabled": (
+                    contexts.barbican_service.service_ready
+                )
+            }
+        except AttributeError:
+            logger.info("barbican_service relation not integrated")
+            return {"compute.key-manager-enabled": False}
 
     def _handle_receive_ca_cert(
         self, context: sunbeam_core.OPSCharmContexts

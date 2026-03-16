@@ -120,6 +120,8 @@ saas:
     url: admin/K8S_MODEL.traefik-route-rgw
   identity-service:
     url: admin/K8S_MODEL.identity-service
+  barbican-service:
+    url: admin/K8S_MODEL.barbican-service
 
 relations:
   - - sunbeam-machine:sunbeam-machine
@@ -170,6 +172,8 @@ relations:
     - hypervisor:certificates
   - - nova-service
     - hypervisor:nova-service
+  - - barbican-service
+    - hypervisor:barbican-service
   - - hypervisor:ceph-access
     - cinder-microceph:ceph-access
 
