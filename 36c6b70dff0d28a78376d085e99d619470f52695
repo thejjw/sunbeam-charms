@@ -50,6 +50,40 @@
       "message": "LGTM",
       "revId": "36c6b70dff0d28a78376d085e99d619470f52695",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f2ba540_f4a12eac",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-03-16T12:57:52Z",
+      "side": 1,
+      "message": "I\u0027m late to the party, but I think I found something that\u0027s worth to mention.",
+      "revId": "36c6b70dff0d28a78376d085e99d619470f52695",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "55e03de9_e7b5bfd9",
+        "filename": "templates/parts/section-oslo-messaging-rabbit",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-03-16T12:57:52Z",
+      "side": 1,
+      "message": "if upstream ever changes the default to true, while `service_template.heartbeat_in_pthread` is false, the key won\u0027t be rendered and use the default value of true, so there will be no way to set this false.",
+      "revId": "36c6b70dff0d28a78376d085e99d619470f52695",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
