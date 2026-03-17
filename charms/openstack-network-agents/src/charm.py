@@ -30,14 +30,18 @@ import subprocess
 import charms.operator_libs_linux.v2.snap as snap
 import ops
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+import yaml
 
 logger = logging.getLogger(__name__)
 
 MICROOVN_SNAP = "microovn"
+MICROOVN_DAEMON_YAML = "/var/snap/microovn/common/state/daemon.yaml"
 OVN_CHASSIS_PLUG = "ovn-chassis"
 OVN_CHASSIS_SLOT = "microovn:ovn-chassis"
+DATA_BINDING = "data"
 
 
 class AgentError(Exception):
@@ -77,6 +81,10 @@ class OpenstackNetworkAgentsOperatorCharm(
     def __init__(self, framework: ops.framework.Framework) -> None:
         super().__init__(framework)
         self.framework.observe(
+            self.on.update_status,
+            self._on_update_status,
+        )
+        self.framework.observe(
             self.on.set_network_agents_local_settings_action,
             self._set_network_agents_local_settings_action,
         )
@@ -84,6 +92,20 @@ class OpenstackNetworkAgentsOperatorCharm(
             self.on.list_nics_action,
             self._list_nics_action,
         )
+
+    @property
+    def data_address(self) -> str | None:
+        """Get address from data binding."""
+        use_binding = self.model.config.get("use-data-binding")
+        if not use_binding:
+            return None
+        binding = self.model.get_binding(DATA_BINDING)
+        if binding is None:
+            return None
+        address = binding.network.bind_address
+        if address is None:
+            return None
+        return str(address)
 
     @property
     def snap_name(self) -> str:
@@ -97,25 +119,102 @@ class OpenstackNetworkAgentsOperatorCharm(
 
     def _on_install(self, event: ops.InstallEvent):
         """Handle the install event."""
-        if not self._check_microovn_ready():
-            logger.error("Microovn snap is not ready, deferring install event")
+        try:
+            super()._on_install(event)
+        except sunbeam_guard.WaitingExceptionError as e:
+            logger.warning("Deferring install event: %s", e.msg)
             event.defer()
-            return
 
-        return super()._on_install(event)
+    def _on_update_status(self, event: ops.UpdateStatusEvent):
+        """Re-run configure_charm on update-status.
+
+        The base class does not observe update-status.  As a subordinate
+        whose principal (MicroOVN) may not be ready at initial deploy time,
+        we need periodic retries to finish configuration once the snap
+        installation succeeds via the deferred install event.
+        """
+        self.configure_charm(event)
+
+    def _get_microovn_node_name(self) -> str | None:
+        """Read the local MicroOVN node name from daemon.yaml."""
+        try:
+            with open(MICROOVN_DAEMON_YAML) as f:
+                data = yaml.safe_load(f)
+            return data.get("name")
+        except (FileNotFoundError, PermissionError, yaml.YAMLError) as e:
+            logger.warning("Failed to read %s: %s", MICROOVN_DAEMON_YAML, e)
+            return None
+
+    def _get_microovn_node_services(self) -> set[str]:
+        """Get the MicroOVN cluster services for the local node.
+
+        Reads the node name from daemon.yaml, then parses the output of
+        ``microovn status`` to find the services assigned to this node
+        (e.g. ``{"central", "chassis", "switch"}``).
+        """
+        node_name = self._get_microovn_node_name()
+        if not node_name:
+            return set()
+
+        try:
+            result = subprocess.run(
+                ["microovn", "status"],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            if result.returncode != 0:
+                logger.warning(
+                    "microovn status failed: %s", result.stderr.strip()
+                )
+                return set()
+        except (subprocess.TimeoutExpired, FileNotFoundError) as e:
+            logger.warning("Failed to run microovn status: %s", e)
+            return set()
+
+        lines = result.stdout.splitlines()
+        for i, line in enumerate(lines):
+            if node_name in line:
+                if i + 1 < len(lines):
+                    svc_line = lines[i + 1].strip()
+                    if svc_line.startswith("Services:"):
+                        svc_str = svc_line.removeprefix("Services:")
+                        return {s.strip() for s in svc_str.split(",")}
+        return set()
 
     def _check_microovn_ready(self) -> bool:
-        """Check if microovn snap is ready."""
+        """Check if microovn snap is ready.
+
+        The microovn snap must be present and the node must have the
+        ``switch`` service listed in ``microovn status``.
+        """
         microovn = self.snap_module.SnapCache()[MICROOVN_SNAP]
         if not microovn.present:
-            logger.warning(f"{MICROOVN_SNAP} snap is not present")
+            logger.warning("%s snap is not present", MICROOVN_SNAP)
             return False
-        if not microovn.services.get("switch", {}).get("active", False):
+
+        node_services = self._get_microovn_node_services()
+        if not node_services:
             logger.warning(
-                f"{MICROOVN_SNAP} snap switch service is not active"
+                "Could not determine %s services for this node",
+                MICROOVN_SNAP,
+            )
+            return False
+
+        if "switch" not in node_services:
+            logger.warning(
+                "%s node is missing the switch service", MICROOVN_SNAP
             )
             return False
         return True
+
+    def ensure_snap_present(self):
+        """Install snap after verifying microovn readiness."""
+        if not self._check_microovn_ready():
+            raise sunbeam_guard.WaitingExceptionError(
+                "Microovn snap is not ready"
+            )
+        return super().ensure_snap_present()
 
     def ensure_services_running(self, enable: bool = True) -> None:
         """No-op; there are no services to start."""
@@ -179,18 +278,18 @@ class OpenstackNetworkAgentsOperatorCharm(
             self.set_snap_data(new_snap_settings)
 
     def configure_snap(self, event: ops.EventBase) -> None:
-        """Push configuration into the snap (no subprocess)."""
+        """Push configuration into the snap."""
         self._connect_ovn_chassis()
-        self.set_snap_data(
-            {
-                "settings.debug": bool(
-                    self.model.config.get("debug") or False
-                ),
-                "network.external-bridge-address": str(
-                    self.model.config.get("external-bridge-address")
-                ),
-            }
-        )
+        snap_data = {
+            "settings.debug": bool(self.model.config.get("debug") or False),
+            "network.external-bridge-address": str(
+                self.model.config.get("external-bridge-address")
+            ),
+        }
+        data_addr = self.data_address
+        if data_addr:
+            snap_data["network.ip-address"] = data_addr
+        self.set_snap_data(snap_data)
 
     def _agent_cli_cmd(self, cmd: str):
         """Helper to run cli commands on the snap."""

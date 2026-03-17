@@ -18,6 +18,9 @@ requires:
     interface: juju-info
     scope: container
 
+extra-bindings:
+  data: null
+
 config:
   options:
     snap-name:
@@ -37,6 +40,12 @@ config:
     debug:
       type: boolean
       default: false
+    use-data-binding:
+      default: false
+      type: boolean
+      description: |
+        When true, resolve the data-plane IP from the 'data'
+        extra-binding and pass it to the snap as network.ip-address.
 
 actions:
   set-network-agents-local-settings:
