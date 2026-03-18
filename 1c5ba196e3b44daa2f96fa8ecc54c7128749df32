@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e9fcd44_c0116887",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2026-03-18T23:42:19Z",
+      "side": 1,
+      "message": "LGTM. Thanks Guillaume.",
+      "revId": "1c5ba196e3b44daa2f96fa8ecc54c7128749df32",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
