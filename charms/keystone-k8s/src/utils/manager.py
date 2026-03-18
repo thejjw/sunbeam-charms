@@ -451,6 +451,7 @@ class KeystoneManager:
             self.run_cmd(
                 [
                     "keystone-manage",
+                    "--debug",
                     "bootstrap",
                     "--bootstrap-username",
                     self.charm.charm_user,
@@ -470,7 +471,7 @@ class KeystoneManager:
                     self.internal_endpoint,
                     "--bootstrap-region-id",
                     self.regions[0],
-                ]
+                ],
             )
         except ops.pebble.ExecError:
             logger.exception("Error occurred bootstrapping keystone service")
