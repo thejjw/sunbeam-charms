@@ -25,6 +25,7 @@ from ops import (
 )
 from ops_sunbeam.test_utils_scenario import (
     amqp_relation_complete,
+    certificate_transfer_relation_complete,
     cleanup_database_requires_events,
     db_credentials_secret,
     db_relation_complete,
@@ -110,6 +111,18 @@ def complete_state(complete_relations, complete_secrets, containers):
     return testing.State(
         leader=True,
         relations=complete_relations,
+        containers=containers,
+        secrets=complete_secrets,
+    )
+
+
+@pytest.fixture()
+def complete_state_with_ca(complete_relations, complete_secrets, containers):
+    """Full state with leader, all relations including CA cert, secrets, and containers."""
+    return testing.State(
+        leader=True,
+        relations=complete_relations
+        + [certificate_transfer_relation_complete()],
         containers=containers,
         secrets=complete_secrets,
     )
