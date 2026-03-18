@@ -58,6 +58,30 @@ class TestAllRelations:
         )
 
 
+class TestCABundle:
+    """CA bundle is rendered when receive-ca-cert relation is present."""
+
+    def test_ca_bundle_written_api(self, ctx, complete_state_with_ca):
+        """CA bundle file is rendered in the manila-api container."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state_with_ca)
+        assert_config_file_exists(
+            state_out,
+            ctx,
+            "manila-api",
+            "/usr/local/share/ca-certificates/ca-bundle.pem",
+        )
+
+    def test_ca_bundle_written_scheduler(self, ctx, complete_state_with_ca):
+        """CA bundle file is rendered in the manila-scheduler container."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state_with_ca)
+        assert_config_file_exists(
+            state_out,
+            ctx,
+            "manila-scheduler",
+            "/usr/local/share/ca-certificates/ca-bundle.pem",
+        )
+
+
 class TestPebbleReady:
     """Pebble-ready event with all relations → container configured."""
 
