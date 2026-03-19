@@ -1,0 +1,136 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d616b94_fddcaa52",
+        "filename": "charms/openstack-port-cni-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-19T00:45:07Z",
+      "side": 1,
+      "message": "This is already defined on the parent class",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 54
+      },
+      "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "916336fd_b1a7f29c",
+        "filename": "charms/openstack-port-cni-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-19T00:45:07Z",
+      "side": 1,
+      "message": "We should also add project_id to this check.\n\nIf we have to choose between project name or id for being mandatory, id wins I think.",
+      "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ffe7509b_4bb57b3f",
+        "filename": "charms/openstack-port-cni-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-19T00:45:07Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we raise a BlockedException here?",
+      "range": {
+        "startLine": 228,
+        "startChar": 12,
+        "endLine": 234,
+        "endChar": 18
+      },
+      "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0212ed0_114b8670",
+        "filename": "charms/openstack-port-cni-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-19T00:45:07Z",
+      "side": 1,
+      "message": "I don\u0027t see where we delete the secret when the id creds relation goes away? we shouldn\u0027t keep stale data as a secret",
+      "range": {
+        "startLine": 336,
+        "startChar": 8,
+        "endLine": 336,
+        "endChar": 44
+      },
+      "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1584a27_7443a72b",
+        "filename": "charms/openstack-port-cni-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-19T00:45:07Z",
+      "side": 1,
+      "message": "Because this can early return without failing, the cni can still try to apply.",
+      "range": {
+        "startLine": 367,
+        "startChar": 13,
+        "endLine": 367,
+        "endChar": 40
+      },
+      "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a3fc4da_8cc3496b",
+        "filename": "charms/openstack-port-cni-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-19T00:45:07Z",
+      "side": 1,
+      "message": "Is there a reason we\u0027re bypassing the status pool ?",
+      "range": {
+        "startLine": 394,
+        "startChar": 3,
+        "endLine": 399,
+        "endChar": 53
+      },
+      "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
