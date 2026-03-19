@@ -63,12 +63,12 @@ config:
       description: |
         Dell PowerStore management password.
       type: secret
-    powerstore_nvme:
+    powerstore-nvme:
       default: false
       description: |
         Enables the connection to use NVMe based protocol.
       type: boolean
-    powerstore_ports:
+    powerstore-ports:
       description: |
         Comma separated list of PowerStore iSCSI IPs or FC WWNs.
         All ports are used if this option is unset.
@@ -76,7 +76,7 @@ config:
           - "10.0.0.10,10.0.0.11"
           - "58:cc:f0:98:49:22:07:02,58:cc:f0:98:49:23:07:02"
       type: string
-    replication_device:
+    replication-device:
       description: |
         Specific replication configuration settings. Must be set under
         the form of

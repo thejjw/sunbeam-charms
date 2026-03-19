@@ -92,12 +92,15 @@ class CinderVolumeDellPowerStoreOperatorCharm(charm.OSCinderVolumeDriverOperator
                     typing.Optional[typing.Literal["fc", "iscsi"]],
                     pydantic.BeforeValidator(lambda v: None if v is None else str(v).lower()),
                 ],
-                "powerstore_nvme": typing.Annotated[
+                "powerstore-nvme": typing.Annotated[
                     Optional[bool],
                 ],
-                "powerstore_ports": typing.Annotated[
+                "powerstore-ports": typing.Annotated[
                     Optional[list[str]],
                     pydantic.BeforeValidator(self._parse_ports),
+                ],
+                "replication-device": typing.Annotated[
+                    Optional[str],
                 ],
             }
         )
