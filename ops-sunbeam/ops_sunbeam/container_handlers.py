@@ -20,6 +20,7 @@ in the container.
 """
 
 import collections
+import io
 import logging
 import typing
 from collections.abc import (
@@ -290,21 +291,47 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
             execute command.
         """
         container = self.charm.unit.get_container(self.container_name)
-        process = container.exec(cmd, **kwargs)
+
+        class _LogWriter(io.TextIOBase):
+            """Write-through stream that logs each line as it arrives and accumulates output."""
+
+            def __init__(self, log_fn: typing.Callable[..., None]) -> None:
+                self._log = log_fn
+                self._buf = ""
+                self._accumulated = ""
+
+            def write(self, data: str) -> int:  # type: ignore[override]
+                self._accumulated += data
+                self._buf += data
+                while "\n" in self._buf:
+                    line, self._buf = self._buf.split("\n", 1)
+                    self._log("    %s", line)
+                return len(data)
+
+            def flush(self) -> None:
+                if self._buf:
+                    self._log("    %s", self._buf)
+                    self._buf = ""
+
+            def getvalue(self) -> str:
+                return self._accumulated
+
+        stdout_writer = _LogWriter(logger.debug)
+        stderr_writer = _LogWriter(logger.debug)
+        process = container.exec(
+            cmd,
+            stdout=typing.cast(typing.TextIO, stdout_writer),
+            stderr=typing.cast(typing.TextIO, stderr_writer),
+            **kwargs,
+        )
         try:
-            stdout, _ = process.wait_output()
-            # Not logging the command in case it included a password,
-            # too cautious ?
+            process.wait()
+            stdout_writer.flush()
+            stderr_writer.flush()
             logger.debug("Command complete")
-            if stdout:
-                for line in stdout.splitlines():
-                    logger.debug("    %s", line)
-            return stdout
+            return stdout_writer.getvalue()
         except ops.pebble.ExecError as e:
             logger.error("Exited with code %d. Stderr:", e.exit_code)
-            if e.stderr:
-                for line in e.stderr.splitlines():
-                    logger.error("    %s", line)
             if exception_on_error:
                 raise
         return ""
