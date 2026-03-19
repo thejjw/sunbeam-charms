@@ -307,6 +307,12 @@ class ManilaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "manila",
                 0o640,
             ),
+            sunbeam_core.ContainerConfigFile(
+                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "root",
+                "manila",
+                0o640,
+            ),
         ]
         return _cconfigs
 
