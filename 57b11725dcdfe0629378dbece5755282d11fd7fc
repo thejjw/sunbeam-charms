@@ -33,6 +33,23 @@
       "message": "recheck failed functest-run-suite --keep-model --smoke --test-directory\u003dtests/openstack",
       "revId": "57b11725dcdfe0629378dbece5755282d11fd7fc",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e3e3267_a4376b55",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38075
+      },
+      "writtenOn": "2026-03-20T03:41:34Z",
+      "side": 1,
+      "message": "recheck - previous failure seems like because keystone was stuck",
+      "revId": "57b11725dcdfe0629378dbece5755282d11fd7fc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
