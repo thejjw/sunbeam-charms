@@ -24,6 +24,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "75ad80e1_e2d3e3ae",
+        "filename": "charms/openstack-port-cni-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-21T05:16:20Z",
+      "side": 1,
+      "message": "removed",
+      "parentUuid": "5d616b94_fddcaa52",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 54
+      },
+      "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "916336fd_b1a7f29c",
@@ -37,6 +61,24 @@
       "writtenOn": "2026-03-19T00:45:07Z",
       "side": 1,
       "message": "We should also add project_id to this check.\n\nIf we have to choose between project name or id for being mandatory, id wins I think.",
+      "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d545bee0_1bcff91d",
+        "filename": "charms/openstack-port-cni-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-21T05:16:20Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "916336fd_b1a7f29c",
       "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -64,6 +106,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3ecf76e_e16bd47f",
+        "filename": "charms/openstack-port-cni-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-21T05:16:20Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "ffe7509b_4bb57b3f",
+      "range": {
+        "startLine": 228,
+        "startChar": 12,
+        "endLine": 234,
+        "endChar": 18
+      },
+      "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d0212ed0_114b8670",
@@ -77,6 +143,30 @@
       "writtenOn": "2026-03-19T00:45:07Z",
       "side": 1,
       "message": "I don\u0027t see where we delete the secret when the id creds relation goes away? we shouldn\u0027t keep stale data as a secret",
+      "range": {
+        "startLine": 336,
+        "startChar": 8,
+        "endLine": 336,
+        "endChar": 44
+      },
+      "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ffdda639_f1f935e3",
+        "filename": "charms/openstack-port-cni-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-21T05:16:20Z",
+      "side": 1,
+      "message": "changed logic to remove secret when relation goes away",
+      "parentUuid": "d0212ed0_114b8670",
       "range": {
         "startLine": 336,
         "startChar": 8,
@@ -123,6 +213,30 @@
       "writtenOn": "2026-03-19T00:45:07Z",
       "side": 1,
       "message": "Is there a reason we\u0027re bypassing the status pool ?",
+      "range": {
+        "startLine": 394,
+        "startChar": 3,
+        "endLine": 399,
+        "endChar": 53
+      },
+      "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "339151c4_fe1bf775",
+        "filename": "charms/openstack-port-cni-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-21T05:16:20Z",
+      "side": 1,
+      "message": "modified to use status pool",
+      "parentUuid": "7a3fc4da_8cc3496b",
       "range": {
         "startLine": 394,
         "startChar": 3,
