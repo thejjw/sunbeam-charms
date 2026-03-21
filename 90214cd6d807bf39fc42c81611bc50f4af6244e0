@@ -200,6 +200,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b92334a_b8978480",
+        "filename": "charms/openstack-port-cni-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-21T06:06:56Z",
+      "side": 1,
+      "message": "fixed by raising WaitingExceptionError",
+      "parentUuid": "f1584a27_7443a72b",
+      "range": {
+        "startLine": 367,
+        "startChar": 13,
+        "endLine": 367,
+        "endChar": 40
+      },
+      "revId": "90214cd6d807bf39fc42c81611bc50f4af6244e0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7a3fc4da_8cc3496b",
