@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8a8bb447_00aa2de1",
+        "filename": "charms/octavia-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-22T09:14:06Z",
+      "side": 1,
+      "message": "TODO: Move all certs as part of juju secret",
+      "revId": "58ebc51989ca9b50e450a54e465393517b60c2f0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "8f511c85_03576702",
         "filename": "charms/octavia-k8s/charmcraft.yaml",
         "patchSetId": 1
