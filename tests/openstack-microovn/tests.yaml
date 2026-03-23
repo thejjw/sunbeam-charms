@@ -15,7 +15,7 @@ configure:
   - zaza.openstack.charm_tests.glance.setup.add_cirros_alt_image
   - zaza.sunbeam.charm_tests.neutron.setup.basic_overcloud_network
 tests:
-  - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneMinimalNewRBAC
+  - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneMinimal
   - zaza.sunbeam.charm_tests.openstack_images_sync_k8s.tests.OpenStackImagesSyncK8sTest
   - zaza.sunbeam.charm_tests.api_audit.tests.AodhAPIAuditTest
   - zaza.sunbeam.charm_tests.api_audit.tests.BarbicanAPIAuditTest
@@ -88,6 +88,3 @@ target_deploy_status:
   watcher:
     workload-status: waiting
     workload-status-message-regex: '^.*integration incomplete$'
-  cloudkitty:
-    workload-status: waiting
-    workload-status-message-regex: '^.*Not all relations are ready$'
