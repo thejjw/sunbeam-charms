@@ -366,6 +366,33 @@ class TestRelationDerivedConfig:
         hypervisor_snap_mock.alias.assert_not_called
 
 
+class TestCPUTopologyProfile:
+    """Tests for cpu_topology_set parsing."""
+
+    def test_cpu_pinning_profile_percent_from_valid_json(self, harness):
+        """Return dedicated_percentage from cpu_topology_set."""
+        harness.begin()
+        harness.update_config(
+            {
+                "cpu_topology_set": json.dumps(
+                    {
+                        "nova_profile": {
+                            "dedicated_percentage": 60,
+                            "requested_cores_percentage": 90,
+                        }
+                    }
+                )
+            }
+        )
+        assert harness.charm._cpu_pinning_profile_percent() == 60
+
+    def test_cpu_pinning_profile_percent_invalid_json(self, harness):
+        """Ignore invalid cpu_topology_set."""
+        harness.begin()
+        harness.update_config({"cpu_topology_set": "{not-json}"})
+        assert harness.charm._cpu_pinning_profile_percent() is None
+
+
 # ---------------------------------------------------------------------------
 # DPDK tests
 # ---------------------------------------------------------------------------

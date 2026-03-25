@@ -851,6 +851,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
             snap_data = {
                 "compute.cpu-mode": "host-model",
+                "compute.cpu-pinning-profile": self._cpu_pinning_profile_percent(),
                 "compute.spice-proxy-address": config("ip-address")
                 or local_ip,
                 "compute.cacert": base64.b64encode(
@@ -925,6 +926,48 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         self.set_snap_data(snap_data)
         self.ensure_services_running()
         self._state.unit_bootstrapped = True
+
+    def _cpu_pinning_profile_percent(self) -> Optional[int]:
+        """Return dedicated_percentage from cpu_topology_set JSON, if configured.
+
+        The `cpu_topology_set` charm config is a JSON object:
+
+            {
+              "<profile_name>": {
+                "dedicated_percentage": <int 0-100>,
+                "requested_cores_percentage": <int 0-100>
+              }
+            }
+
+        For now we select the first profile object in the mapping and use
+        `dedicated_percentage`. If the config is unset/invalid, return None,
+        which unsets the snap option and preserves the default behavior.
+        """
+        raw = self.model.config.get("cpu_topology_set")
+        if not raw:
+            return None
+        try:
+            profiles = json.loads(raw)
+        except json.JSONDecodeError:
+            logger.warning("Invalid cpu_topology_set JSON; ignoring.")
+            return None
+        if not isinstance(profiles, dict) or not profiles:
+            return None
+
+        profile_obj = next(iter(profiles.values()))
+        if not isinstance(profile_obj, dict):
+            return None
+
+        dedicated_percentage = profile_obj.get("dedicated_percentage")
+        if dedicated_percentage is None:
+            return None
+        try:
+            dedicated_percentage_int = int(dedicated_percentage)
+        except (TypeError, ValueError):
+            return None
+        if dedicated_percentage_int < 0 or dedicated_percentage_int > 100:
+            return None
+        return dedicated_percentage_int
 
     def _handle_ceph_access(
         self, contexts: sunbeam_core.OPSCharmContexts
