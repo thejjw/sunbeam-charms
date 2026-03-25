@@ -94,9 +94,11 @@ DPDK_CONFIG_OVERRIDE_PATH = "/etc/sunbeam/dpdk.yaml"
 
 # We'll use separate reservation names for control plane cores and
 # datapath cores so that EPA won't override the reservations.
-EPA_ALLOCATION_OVS_DPDK_HUGEPAGES = "ovs-dpdk-hugepages"
-EPA_ALLOCATION_OVS_DPDK_CONTROL_PLANE = "ovs-dpdk-control-plane"
-EPA_ALLOCATION_OVS_DPDK_DATAPATH = "ovs-dpdk-datapath"
+EPA_ALLOCATION_OVS_DPDK_HUGEPAGES = "openstack-hypervisor-dpdk-hugepages"
+EPA_ALLOCATION_OVS_DPDK_CONTROL_PLANE = (
+    "openstack-hypervisor-dpdk-control-plane"
+)
+EPA_ALLOCATION_OVS_DPDK_DATAPATH = "openstack-hypervisor-dpdk-datapath"
 
 # Snap Key if microovn switch restart is needed after DPDK config change.
 MICROOVN_RESTART_TRIGGER_SNAP_KEY = "network.external-switch-restart"
@@ -851,6 +853,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
             snap_data = {
                 "compute.cpu-mode": "host-model",
+                "compute.cpu-pinning-profile": self._cpu_pinning_profile_percent(),
                 "compute.spice-proxy-address": config("ip-address")
                 or local_ip,
                 "compute.cacert": base64.b64encode(
@@ -925,6 +928,58 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         self.set_snap_data(snap_data)
         self.ensure_services_running()
         self._state.unit_bootstrapped = True
+
+    def _cpu_pinning_profile_percent(self) -> Optional[str]:
+        """Return cpu topology profile down to the hypervisor snap.
+
+        The `cpu_topology_set` charm config is a JSON object:
+
+            {
+              "<profile_name>": {
+                "dedicated_percentage": <int 0-100>,
+                "requested_cores_percentage": <int 0-100>
+              }
+            }
+
+        We select the first profile object in the mapping and return a JSON
+        string with both values so the snap can:
+        - allocate `requested_cores_percentage` cores via EPA
+        - split the resulting allocated cores into Nova
+          `cpu_dedicated_set`/`cpu_shared_set` using `dedicated_percentage`.
+
+        If the config is unset/invalid, return None which unsets the snap
+        option and preserves the default behavior.
+        """
+        raw = self.model.config.get("cpu_topology_set")
+        if not raw:
+            return None
+        try:
+            profiles = json.loads(raw)
+        except json.JSONDecodeError:
+            logger.warning("Invalid cpu_topology_set JSON; ignoring.")
+            return None
+        if not isinstance(profiles, dict) or not profiles:
+            return None
+
+        profile_obj = next(iter(profiles.values()))
+        if not isinstance(profile_obj, dict):
+            return None
+
+        dedicated_percentage = profile_obj.get("dedicated_percentage")
+        requested_cores_percentage = profile_obj.get(
+            "requested_cores_percentage"
+        )
+        if dedicated_percentage is None or requested_cores_percentage is None:
+            return None
+        dedicated_percentage_int = int(dedicated_percentage)
+        requested_cores_percentage_int = int(requested_cores_percentage)
+
+        return json.dumps(
+            {
+                "dedicated_percentage": dedicated_percentage_int,
+                "requested_cores_percentage": requested_cores_percentage_int,
+            }
+        )
 
     def _handle_ceph_access(
         self, contexts: sunbeam_core.OPSCharmContexts
