@@ -101,6 +101,9 @@ EPA_ALLOCATION_OVS_DPDK_DATAPATH = "ovs-dpdk-datapath"
 # Snap Key if microovn switch restart is needed after DPDK config change.
 MICROOVN_RESTART_TRIGGER_SNAP_KEY = "network.external-switch-restart"
 
+# Valid values for the ovs-provider config option.
+_VALID_OVS_PROVIDERS = frozenset({"auto", "microovn", "hypervisor"})
+
 
 class SnapInstallationError(Exception):
     """Custom exception for snap installation failure errors."""
@@ -122,7 +125,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run constructor."""
         super().__init__(framework)
-        self._state.set_default(metadata_secret="")
+        self._state.set_default(metadata_secret="", ovs_provider="")
         self.enable_monitoring = self.check_relation_exists("cos-agent")
         # Enable telemetry when ceilometer-service relation is joined
         self.enable_telemetry = self.check_relation_exists(
@@ -530,18 +533,24 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         hypervisor_snap = snap_cache["openstack-hypervisor"]
 
         if self._is_microovn_present():
-            microovn_snap = snap_cache["microovn"]
-            if (
-                hypervisor_snap.get(MICROOVN_RESTART_TRIGGER_SNAP_KEY)
-                == "true"
-            ):
-                logger.info(
-                    "Restarting microovn switch due to DPDK config change."
-                )
-                microovn_snap.restart(["switch"])
-                # Reset the trigger key
-                hypervisor_snap.set(
-                    {MICROOVN_RESTART_TRIGGER_SNAP_KEY: "false"}
+            try:
+                if (
+                    hypervisor_snap.get(MICROOVN_RESTART_TRIGGER_SNAP_KEY)
+                    == "true"
+                ):
+                    microovn_snap = snap_cache["microovn"]
+                    logger.info(
+                        "Restarting microovn switch due to DPDK config change."
+                    )
+                    microovn_snap.restart(["switch"])
+                    # Reset the trigger key
+                    hypervisor_snap.set(
+                        {MICROOVN_RESTART_TRIGGER_SNAP_KEY: "false"}
+                    )
+            except snap.SnapNotFoundError:
+                logger.debug(
+                    "microovn snap not yet installed; "
+                    "skipping switch restart check."
                 )
         svcs = [
             "neutron-ovn-metadata-agent",
@@ -679,7 +688,25 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         return changes_made
 
     def _is_microovn_present(self) -> bool:
-        """Check if microovn is installed on the system."""
+        """Check if microovn is installed on the system.
+
+        The result is influenced by the ovs-provider config option:
+          auto: auto-detect by inspecting the snap cache (default).
+          microovn: always return True regardless of snap state.
+          hypervisor: always return False regardless of snap state.
+        """
+        ovs_provider = self.model.config.get("ovs-provider", "auto")
+        if ovs_provider == "microovn":
+            logger.debug(
+                "ovs-provider=microovn: treating microovn as present."
+            )
+            return True
+        if ovs_provider == "hypervisor":
+            logger.debug(
+                "ovs-provider=hypervisor: treating microovn as absent."
+            )
+            return False
+        # ovs_provider == "auto" — auto-detect
         cache = self.get_snap_cache()
         try:
             microovn = cache["microovn"]
@@ -763,6 +790,18 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 )
             self._connect_to_epa_orchestrator()
 
+            # Set network.ovs-managed-by early (e.g. during install) so the
+            # snap's configure hook knows the OVS management mode before any
+            # relation data is available.  Clamp to "auto" if the value is
+            # absent or invalid — _validate_ovs_provider() will block the
+            # charm on the next configure_unit run.
+            ovs_provider = config("ovs-provider") or "auto"
+            if ovs_provider not in _VALID_OVS_PROVIDERS:
+                ovs_provider = "auto"
+            hypervisor.set(
+                {"network.ovs-managed-by": ovs_provider}, typed=True
+            )
+
             # Netplan expects the "ovs-vsctl" alias in order to pick up the
             # snap installation. The other aliases are there for consistency
             # and convenience.
@@ -834,11 +873,36 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Return snap cache."""
         return snap.SnapCache()
 
+    def _validate_ovs_provider(self) -> None:
+        """Block if ovs-provider is set to an invalid value."""
+        value = self.model.config.get("ovs-provider", "auto")
+        if value not in _VALID_OVS_PROVIDERS:
+            raise sunbeam_guard.BlockedExceptionError(
+                f"Invalid ovs-provider value '{value}'. "
+                "Allowed values: auto, microovn, hypervisor."
+            )
+
+    def _check_ovs_provider_immutable(self) -> None:
+        """Block if ovs-provider is changed after initial configuration."""
+        stored = self._state.ovs_provider
+        if stored == "" or stored is None:
+            # Not yet committed — first-time configuration, allow any value.
+            return
+        current = self.model.config.get("ovs-provider", "auto")
+        if current != stored:
+            raise sunbeam_guard.BlockedExceptionError(
+                f"ovs-provider cannot be changed after initial configuration "
+                f"(set: '{stored}', requested: '{current}'). "
+                "Restore the original value to unblock."
+            )
+
     def configure_unit(self, event) -> None:
         """Run configuration on this unit."""
         self.check_leader_ready()
         self.check_relation_handlers_ready(event)
         config = self.model.config.get
+        self._validate_ovs_provider()
+        self._check_ovs_provider_immutable()
         self.ensure_snap_present()
         local_ip = get_local_ip_by_default_route()
         try:
@@ -886,6 +950,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                     "external-bridge-address"
                 )
                 or "10.20.20.1/24",
+                "network.ovs-managed-by": config("ovs-provider"),
                 "network.ip-address": self.data_address
                 or config("ip-address")
                 or local_ip,
@@ -923,6 +988,9 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             snap_data.update(self._handle_ovs_dpdk())
 
         self.set_snap_data(snap_data)
+        self._state.ovs_provider = self.model.config.get(
+            "ovs-provider", "auto"
+        )
         self.ensure_services_running()
         self._state.unit_bootstrapped = True
 
