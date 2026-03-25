@@ -40,6 +40,7 @@ import charm
 import charms.operator_libs_linux.v2.snap as snap
 import jsonschema
 import ops.testing
+import ops_sunbeam.guard as sunbeam_guard
 import pytest
 
 CHARM_ROOT = Path(__file__).parents[2]
@@ -852,3 +853,253 @@ class TestOVSSystem:
         mock_get_status.return_value = None
 
         assert charm_instance._disable_system_ovs() is False
+
+
+# ---------------------------------------------------------------------------
+# OVS provider / ovs-managed-by tests
+# ---------------------------------------------------------------------------
+
+
+def _minimal_contexts_stub():
+    """Return a minimal contexts SimpleNamespace for configure_unit tests."""
+    return SimpleNamespace(
+        ovsdb_cms=SimpleNamespace(
+            db_ingress_sb_connection_strs=["ssl:10.0.0.1:6642"]
+        ),
+        certificates=SimpleNamespace(
+            ca_cert="CA",
+            cert="CERT",
+            key="KEY",
+            ca_with_chain="CA_CHAIN",
+        ),
+        identity_credentials=SimpleNamespace(
+            admin_role="admin",
+            internal_endpoint="http://keystone:5000",
+            password="secret",
+            project_domain_id="default",
+            project_domain_name="Default",
+            project_id="proj-id",
+            project_name="admin",
+            region="RegionOne",
+            user_domain_id="default",
+            user_domain_name="Default",
+            username="nova",
+        ),
+        amqp=SimpleNamespace(transport_url="rabbit://..."),
+        receive_ca_cert=SimpleNamespace(ca_bundle=None),
+    )
+
+
+def _setup_configure_unit_mocks(charm_instance):
+    """Stub out the heavy configure_unit dependencies and return captured snap_data."""
+    captured = {}
+    charm_instance.set_snap_data = lambda snap_data: captured.update(snap_data)
+    charm_instance.ensure_snap_present = MagicMock()
+    charm_instance.ensure_services_running = MagicMock()
+    charm_instance.check_leader_ready = MagicMock()
+    charm_instance.check_relation_handlers_ready = MagicMock()
+    charm_instance._check_ovs_provider_immutable = MagicMock()
+    charm_instance._validate_ovs_provider = MagicMock()
+    charm_instance.contexts = MagicMock(return_value=_minimal_contexts_stub())
+    return captured
+
+
+class TestOVSProvider:
+    """Tests for ovs-provider config handling.
+
+    Covers _is_microovn_present(), _check_ovs_provider_immutable(),
+    _validate_ovs_provider(), and the network.ovs-managed-by snap config key.
+    """
+
+    # --- _is_microovn_present ---
+
+    def test_is_microovn_present_config_microovn(self, harness):
+        """ovs-provider=microovn always returns True regardless of snap state."""
+        harness.update_config({"ovs-provider": "microovn"})
+        harness.begin()
+        assert harness.charm._is_microovn_present() is True
+
+    def test_is_microovn_present_config_hypervisor(self, harness):
+        """ovs-provider=hypervisor always returns False regardless of snap state."""
+        harness.update_config({"ovs-provider": "hypervisor"})
+        harness.begin()
+        # Even when microovn snap is reported as present, config wins.
+        microovn_snap_mock = MagicMock()
+        microovn_snap_mock.present = True
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": MagicMock(),
+            "microovn": microovn_snap_mock,
+        }
+        assert harness.charm._is_microovn_present() is False
+
+    def test_is_microovn_present_auto_snap_present(self, harness):
+        """ovs-provider=auto returns True when microovn snap is present."""
+        harness.update_config({"ovs-provider": "auto"})
+        harness.begin()
+        microovn_snap_mock = MagicMock()
+        microovn_snap_mock.present = True
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": MagicMock(),
+            "microovn": microovn_snap_mock,
+        }
+        assert harness.charm._is_microovn_present() is True
+
+    def test_is_microovn_present_auto_snap_absent(self, harness):
+        """ovs-provider=auto returns False when microovn snap is not present."""
+        harness.update_config({"ovs-provider": "auto"})
+        harness.begin()
+        microovn_snap_mock = MagicMock()
+        microovn_snap_mock.present = False
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": MagicMock(),
+            "microovn": microovn_snap_mock,
+        }
+        assert harness.charm._is_microovn_present() is False
+
+    # --- _check_ovs_provider_immutable ---
+
+    def test_check_ovs_provider_immutable_first_run_allows_any(
+        self, charm_instance
+    ):
+        """No stored value → first configuration is always allowed."""
+        charm_instance._state.ovs_provider = ""
+        # Should not raise when nothing has been committed yet.
+        charm_instance._check_ovs_provider_immutable()  # no exception
+
+    def test_check_ovs_provider_immutable_same_value_ok(self, harness):
+        """Same ovs-provider value after initial config does not raise."""
+        harness.update_config({"ovs-provider": "microovn"})
+        harness.begin()
+        harness.charm._state.ovs_provider = "microovn"
+        # Should not raise.
+        harness.charm._check_ovs_provider_immutable()
+
+    def test_check_ovs_provider_immutable_changed_raises(self, harness):
+        """Changing ovs-provider after initial config raises BlockedExceptionError."""
+        harness.update_config({"ovs-provider": "hypervisor"})
+        harness.begin()
+        # Simulate that "microovn" was the initially committed value.
+        harness.charm._state.ovs_provider = "microovn"
+        with pytest.raises(sunbeam_guard.BlockedExceptionError):
+            harness.charm._check_ovs_provider_immutable()
+
+    # --- _validate_ovs_provider ---
+
+    @pytest.mark.parametrize("value", ["auto", "microovn", "hypervisor"])
+    def test_validate_ovs_provider_valid_values(self, harness, value):
+        """Valid ovs-provider values do not raise."""
+        harness.update_config({"ovs-provider": value})
+        harness.begin()
+        harness.charm._validate_ovs_provider()  # must not raise
+
+    def test_validate_ovs_provider_invalid_raises(self, harness):
+        """An unrecognised ovs-provider value raises BlockedExceptionError."""
+        harness.update_config({"ovs-provider": "bad-value"})
+        harness.begin()
+        with pytest.raises(sunbeam_guard.BlockedExceptionError):
+            harness.charm._validate_ovs_provider()
+
+    # --- network.ovs-managed-by in snap_data ---
+
+    def test_ovs_managed_by_included_in_snap_data(self, harness):
+        """configure_unit passes network.ovs-managed-by to set_snap_data."""
+        harness.update_config({"ovs-provider": "microovn"})
+        harness.begin()
+        captured = _setup_configure_unit_mocks(harness.charm)
+        harness.charm.configure_unit(MagicMock())
+        assert captured.get("network.ovs-managed-by") == "microovn"
+
+    @pytest.mark.parametrize(
+        "ovs_provider", ["auto", "microovn", "hypervisor"]
+    )
+    def test_ovs_managed_by_value_matches_ovs_provider(
+        self, harness, ovs_provider
+    ):
+        """network.ovs-managed-by snap key always mirrors the ovs-provider config."""
+        harness.update_config({"ovs-provider": ovs_provider})
+        harness.begin()
+        captured = _setup_configure_unit_mocks(harness.charm)
+        harness.charm.configure_unit(MagicMock())
+        assert captured.get("network.ovs-managed-by") == ovs_provider
+
+    # --- ensure_snap_present: early ovs-managed-by ---
+
+    def test_ensure_snap_present_sets_ovs_managed_by(self, harness):
+        """ensure_snap_present sets network.ovs-managed-by on the snap."""
+        harness.update_config({"ovs-provider": "microovn"})
+        harness.begin()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = False
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": MagicMock(),
+            "microovn": MagicMock(),
+        }
+        with mock.patch.object(
+            harness.charm, "_disable_system_ovs", return_value=False
+        ), mock.patch.object(harness.charm, "_connect_to_epa_orchestrator"):
+            harness.charm.ensure_snap_present()
+
+        hypervisor_snap_mock.set.assert_called_with(
+            {"network.ovs-managed-by": "microovn"}, typed=True
+        )
+
+    def test_ensure_snap_present_invalid_ovs_provider_clamps_to_auto(
+        self, harness
+    ):
+        """ensure_snap_present falls back to auto for an invalid ovs-provider."""
+        harness.update_config({"ovs-provider": "bad-value"})
+        harness.begin()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = False
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": MagicMock(),
+            "microovn": MagicMock(),
+        }
+        with mock.patch.object(
+            harness.charm, "_disable_system_ovs", return_value=False
+        ), mock.patch.object(harness.charm, "_connect_to_epa_orchestrator"):
+            harness.charm.ensure_snap_present()
+
+        hypervisor_snap_mock.set.assert_called_with(
+            {"network.ovs-managed-by": "auto"}, typed=True
+        )
+
+    # --- ensure_services_running SnapNotFoundError ---
+
+    def test_ensure_services_running_microovn_snap_not_found_error(
+        self, charm_instance
+    ):
+        """Handle SnapNotFoundError when fetching microovn snap gracefully."""
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.get.return_value = "true"
+        hypervisor_snap_mock.services = {
+            svc: {"active": True}
+            for svc in [
+                "neutron-ovn-metadata-agent",
+                "nova-api-metadata",
+                "nova-compute",
+            ]
+        }
+        snap_cache = {"openstack-hypervisor": hypervisor_snap_mock}
+
+        def _snap_cache_getitem(key):
+            if key == "microovn":
+                raise snap.SnapNotFoundError
+            return snap_cache[key]
+
+        mock_cache = MagicMock()
+        mock_cache.__getitem__ = MagicMock(side_effect=_snap_cache_getitem)
+        charm.snap.SnapCache.return_value = mock_cache
+
+        with mock.patch.object(
+            charm_instance, "_is_microovn_present", return_value=True
+        ):
+            charm_instance.ensure_services_running()  # must not raise
+
+        # Trigger key read happened but no restart was attempted
+        hypervisor_snap_mock.get.assert_called_with(
+            charm.MICROOVN_RESTART_TRIGGER_SNAP_KEY
+        )
+        hypervisor_snap_mock.set.assert_not_called()
