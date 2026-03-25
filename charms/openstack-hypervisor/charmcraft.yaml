@@ -127,6 +127,60 @@ config:
             deployed). The hypervisor will integrate with microovn for OVS.
           hypervisor: Use the OVS bundled with the openstack-hypervisor snap,
             ignoring any installed microovn snap.
+    cpu_topology_set:
+      default: '{"nova_profile": {"dedicated_percentage": 10, "requested_cores_percentage": 90}}'
+      type: string
+      description: |
+        Nova CPU topology profiles as JSON.
+
+        This option allows selecting a CPU pinning profile without manually
+        specifying which cores go where. When set, the hypervisor snap will
+        split the EPA `allocated_cores` set (allocated by
+        `requested_cores_percentage`) into Nova's `cpu_dedicated_set`
+        and `cpu_shared_set` according to the selected profile's
+        `dedicated_percentage`.
+
+        1. `requested_cores_percentage` (0-100) is used when talking to the
+           `epa-orchestrator` snap: the hypervisor snap requests that fraction
+           of the host's **isolated** CPU pool. EPA returns a concrete
+           `allocated_cores` set. (requested_cores_percentage = 90 means 90% of
+           the isolated CPU pool is requested)
+
+        2. `dedicated_percentage` (0-100) splits **that allocated set** into
+         shared and dedicated cores. (dedicated_percentage = 60 means 60% of
+         the allocated cores go to the dedicated set, 40% to the shared set)
+
+        3. Nova is configured with those sets so pinning uses the dedicated
+           pool for pinned workloads and the shared pool for the rest.
+
+        Notes:
+        - The default value is valid JSON with dedicated_percentage 10 and
+          requested_cores_percentage 90. Clearing the option to an empty
+          string is invalid JSON and falls back to legacy EPA CPU sets.
+        - If the value is invalid JSON or the profile cannot be read, the
+          charm omits the snap pinning profile and the snap uses legacy
+          EPA-provided CPU sets.
+        - The EPA `shared_cpus` set is ignored when a profile is applied.
+        - `requested_cores_percentage` is used to size the EPA allocation
+          via the `allocate_cores_percent` socket action.
+
+        Format:
+
+            {
+              "<profile_name>": {
+                "dedicated_percentage": <int 0-100>,
+                "requested_cores_percentage": <int 0-100>
+              }
+            }
+
+        Example:
+
+            {
+              "nova_profile": {
+                "dedicated_percentage": 60,
+                "requested_cores_percentage": 90
+              }
+            }
 
 actions:
   set-hypervisor-local-settings:
