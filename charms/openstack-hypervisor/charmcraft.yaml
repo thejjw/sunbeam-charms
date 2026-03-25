@@ -117,6 +117,16 @@ config:
       description: |
         Temporary flag to enable devmode snap install. This is needed
         until openstack-hypervisor interfaces are all stable.
+    ovs-provider:
+      default: auto
+      type: string
+      description: |
+        Specifies the OVS provider to use. Allowed values are:
+          auto: Automatically detect whether microovn is present (default behaviour).
+          microovn: Treat microovn as present (either already installed or will be
+            deployed). The hypervisor will integrate with microovn for OVS.
+          hypervisor: Use the OVS bundled with the openstack-hypervisor snap,
+            ignoring any installed microovn snap.
 
 actions:
   set-hypervisor-local-settings:
