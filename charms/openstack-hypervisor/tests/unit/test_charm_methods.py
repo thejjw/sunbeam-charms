@@ -367,6 +367,72 @@ class TestRelationDerivedConfig:
         hypervisor_snap_mock.alias.assert_not_called
 
 
+class TestCPUTopologyProfile:
+    """Tests for cpu_topology_set parsing."""
+
+    def test_cpu_pinning_profile_percent_empty_falls_back_legacy(
+        self, harness
+    ):
+        """Blank or whitespace-only config is invalid JSON -> legacy (None)."""
+        harness.begin()
+        for value in ("", "   "):
+            harness.update_config({"cpu_topology_set": value})
+            assert harness.charm._cpu_pinning_profile_percent() is None
+
+    def test_cpu_pinning_profile_percent_charm_default_json(self, harness):
+        """Charmcraft default is valid JSON and yields 10/90."""
+        harness.begin()
+        profile_json = harness.charm._cpu_pinning_profile_percent()
+        assert profile_json is not None
+        profile = json.loads(profile_json)
+        assert profile["dedicated_percentage"] == 10
+        assert profile["requested_cores_percentage"] == 90
+
+    def test_cpu_pinning_profile_percent_from_valid_json(self, harness):
+        """Return dedicated_percentage from cpu_topology_set."""
+        harness.begin()
+        harness.update_config(
+            {
+                "cpu_topology_set": json.dumps(
+                    {
+                        "nova_profile": {
+                            "dedicated_percentage": 60,
+                            "requested_cores_percentage": 90,
+                        }
+                    }
+                )
+            }
+        )
+        profile_json = harness.charm._cpu_pinning_profile_percent()
+        assert profile_json is not None
+        profile = json.loads(profile_json)
+        assert profile["dedicated_percentage"] == 60
+        assert profile["requested_cores_percentage"] == 90
+
+    def test_cpu_pinning_profile_percent_invalid_json(self, harness):
+        """Invalid JSON falls back to legacy (None)."""
+        harness.begin()
+        harness.update_config({"cpu_topology_set": "{not-json}"})
+        assert harness.charm._cpu_pinning_profile_percent() is None
+
+    def test_cpu_pinning_profile_percent_invalid_percent_type(self, harness):
+        """Non-integer percentages fall back to legacy."""
+        harness.begin()
+        harness.update_config(
+            {
+                "cpu_topology_set": json.dumps(
+                    {
+                        "p": {
+                            "dedicated_percentage": "x",
+                            "requested_cores_percentage": 90,
+                        }
+                    }
+                )
+            }
+        )
+        assert harness.charm._cpu_pinning_profile_percent() is None
+
+
 # ---------------------------------------------------------------------------
 # DPDK tests
 # ---------------------------------------------------------------------------
