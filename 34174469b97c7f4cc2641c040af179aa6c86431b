@@ -16,6 +16,23 @@
       "message": "Clean backport",
       "revId": "34174469b97c7f4cc2641c040af179aa6c86431b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f7e82301_be967a2f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-26T00:04:47Z",
+      "side": 1,
+      "message": "recheck Charmhub Outage Failure",
+      "revId": "34174469b97c7f4cc2641c040af179aa6c86431b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
