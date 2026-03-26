@@ -14,6 +14,8 @@ dependencies = [
     "lightkube",
     "lightkube-models",
     "ops",
+    "cosl",
+    "opentelemetry-exporter-otlp-proto-http",
     "pwgen",
     "python-keystoneclient",  # keystone-k8s
     "tenacity", # From ops_sunbeam

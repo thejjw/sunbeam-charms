@@ -36,7 +36,8 @@ dev = [
     "pytest-interface-tester",    # barbican-k8s
     "pydantic",                   # traefik-k8s ingress lib
     "netifaces",                  # cinder-volume-ceph
-    "cosl",                       # openstack-exporter
+    "cosl",
+    "opentelemetry-exporter-otlp-proto-http",
     "requests-unixsocket",        # sunbeam-clusterd
     "openstacksdk",               # tempest-k8s
     "types-PyYAML",               # types stub for mypy
