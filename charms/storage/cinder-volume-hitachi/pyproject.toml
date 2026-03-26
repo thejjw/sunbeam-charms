@@ -14,10 +14,12 @@ dependencies = [
     "lightkube-models",
     "requests",
     "ops",
+    "opentelemetry-exporter-otlp-proto-http",
     "interface_tls_certificates@git+https://opendev.org/openstack/charm-ops-interface-tls-certificates",
     "interface_ceph_client@git+https://opendev.org/openstack/charm-ops-interface-ceph-client",
     "charmhelpers@git+https://github.com/juju/charm-helpers.git",
     "netifaces",
     "tenacity", # From ops_sunbeam
     "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
+    "cosl",
 ]

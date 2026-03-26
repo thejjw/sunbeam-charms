@@ -17,9 +17,12 @@ dependencies = [
     "python-glanceclient",
     "python-swiftclient",
     "ops",
+    "cosl",
+    "opentelemetry-exporter-otlp-proto-http",
     "interface_tls_certificates@git+https://opendev.org/openstack/charm-ops-interface-tls-certificates",
     "tenacity", # From ops_sunbeam
     "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
+    "cryptography",
 ]
 
 [tool.uv]
@@ -31,4 +34,5 @@ constraint-dependencies = [
     "python-glanceclient===4.8.0",
     "python-swiftclient===4.7.0",
     "tenacity===9.0.0",
+    "cryptography",
 ]

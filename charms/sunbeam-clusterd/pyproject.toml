@@ -14,9 +14,11 @@ dependencies = [
     "lightkube",
     "lightkube-models",
     "ops",
+    "opentelemetry-exporter-otlp-proto-http",
     "requests<2.32.0",
     "requests-unixsocket",
     "urllib3<1.27,>=1.21.1",
     "tenacity", # From ops_sunbeam
     "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
+    "cosl",
 ]
