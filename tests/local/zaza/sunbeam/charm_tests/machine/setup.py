@@ -20,18 +20,25 @@
 Deploy machine applications and integrations using jubilant.
 """
 
+import concurrent.futures
 import logging
+import re
 import subprocess
 from pathlib import (
     Path,
 )
 
 import jubilant
+import zaza.charm_lifecycle.utils as lc_utils
 import zaza.model
 
 MACHINE_MODEL = "controller"
 MACHINE_MODEL_WITH_OWNER = f"admin/{MACHINE_MODEL}"
 MACHINE_BUNDLE_FILE = "./tests/openstack/bundles/machines.yaml"
+K8S_WAIT_TIMEOUT = (
+    3600  # 1 hour for k8s model wait (covers full pods provisioning)
+)
+POST_CMR_WAIT_TIMEOUT = 1800  # 30 minutes for post-CMR parallel wait
 
 
 def replace_model_in_bundle(bundle: Path, words_to_replace: dict):
@@ -39,105 +46,176 @@ def replace_model_in_bundle(bundle: Path, words_to_replace: dict):
     content = bundle.read_text()
     for old_word, new_word in words_to_replace.items():
         logging.debug(f"Replacing {old_word} with {new_word}")
-        modified_content = content.replace(old_word, new_word)
+        content = content.replace(old_word, new_word)
 
-    bundle.write_text(modified_content)
+    bundle.write_text(content)
 
 
-def deploy_machine_applications():
-    """Deploy Machine applications.
+def _integrate(juju, k8s_model, k8s_endpoint, machine_offer):
+    """Create a cross-model integration, ignoring already-exists errors."""
+    try:
+        juju.cli(
+            "integrate",
+            "--model",
+            k8s_model,
+            k8s_endpoint,
+            f"{MACHINE_MODEL_WITH_OWNER}.{machine_offer}",
+            include_model=False,
+        )
+    except jubilant.CLIError as e:
+        if "already exists" not in e.stderr:
+            raise e
 
-    Deploy machine applications like hypervisor, microceph, cinder-volume.
-    Perform necessary cross model integrations.
-    Wait for the applications to be active.
+
+def _perform_common_cross_model_integrations(juju, k8s_model):
+    """Set up cross-model integrations for openstack and microovn tests.
+
+    These integrations connect k8s-side charms (cinder, gnocchi,
+    manila-cephfs) to their counterparts in the machines model.
     """
-    k8s_model = zaza.model.get_juju_model()
+    # cinder-volume starts blocked until integrated with cinder-k8s
+    _integrate(juju, k8s_model, "cinder:storage-backend", "storage-backend")
+    _integrate(juju, k8s_model, "gnocchi:ceph", "ceph")
+    _integrate(juju, k8s_model, "manila-cephfs:ceph-nfs", "ceph-nfs")
 
-    logging.debug("Updating machine bundle")
-    bundle = MACHINE_BUNDLE_FILE
-    words_to_replace = {"K8S_MODEL": k8s_model}
-    replace_model_in_bundle(Path(bundle), words_to_replace)
 
-    logging.info(bundle)
-    juju = jubilant.Juju(model=MACHINE_MODEL)
-    juju.cli("deploy", str(bundle), "--map-machines=existing,0=0")
+def _all_non_active_apps_settled(status, non_active_apps):
+    """Check non-active apps have reached their expected status.
 
-    # Wait for machine applications to be in relevant status
-    juju.wait(
-        lambda status: jubilant.all_active(
-            status,
-            "microceph",
-            "cinder-microceph",
-            "hypervisor",
-            "sunbeam-machine",
-            "epa-orchestrator",
-            "manila-data",
-        ),
-        timeout=1800,
-    )
+    Apps in non_active_apps that do not exist in this model are silently
+    skipped, so the same dict can be passed to both the machine and k8s
+    model waits.
 
-    # cinder-volume is in blocked as it needs to integrate with cinder-k8s
-    try:
-        juju.cli(
-            "integrate",
-            "--model",
-            k8s_model,
-            "cinder:storage-backend",
-            f"{MACHINE_MODEL_WITH_OWNER}.storage-backend",
-            include_model=False,
+    :param status: jubilant Status object
+    :param non_active_apps: dict mapping app name to expected workload
+        status string
+    """
+    unready = []
+    for app_name, expected_status in non_active_apps.items():
+        app = status.apps.get(app_name)
+        if app is None:
+            continue  # app not in this model — skip
+        for unit_name, unit in app.units.items():
+            if (
+                unit.workload_status.current != expected_status
+                or unit.juju_status.current != "idle"
+            ):
+                unready.append(
+                    f"{unit_name} "
+                    f"(workload={unit.workload_status.current!r}, "
+                    f"agent={unit.juju_status.current!r}, "
+                    f"expected={expected_status!r}/idle)"
+                )
+    if unready:
+        logging.info("Waiting for non-active apps: %s", ", ".join(unready))
+        return False
+    return True
+
+
+def _wait_for_cmr_apps(
+    juju, apps, active=False, timeout=POST_CMR_WAIT_TIMEOUT
+):
+    """Wait for k8s apps to have all units agent-idle (pods provisioned).
+
+    If active=True, also requires workload_status == "active" (used after
+    CMR is wired to confirm the apps have fully settled).
+
+    :param juju: jubilant.Juju for the k8s model
+    :param apps: list of app names to wait on
+    :param active: if True, also require workload_status == "active"
+    :param timeout: seconds before giving up
+    """
+
+    def _check(status):
+        unready = []
+        for app in apps:
+            if app not in status.apps or not status.apps[app].units:
+                continue
+            for unit_name, unit in status.apps[app].units.items():
+                if unit.juju_status.current != "idle" or (
+                    active and unit.workload_status.current != "active"
+                ):
+                    unready.append(
+                        f"{unit_name} "
+                        f"(workload={unit.workload_status.current!r}, "
+                        f"agent={unit.juju_status.current!r})"
+                    )
+        if unready:
+            logging.info("Waiting for CMR apps: %s", ", ".join(unready))
+            return False
+        return True
+
+    juju.wait(_check, delay=10, timeout=timeout)
+
+
+def _wait_for_model(juju, non_active_apps, timeout=POST_CMR_WAIT_TIMEOUT):
+    """Wait for all apps in a model to reach active/idle.
+
+    Apps listed in non_active_apps are waited on with their specified
+    workload status. All other apps in the model are expected to reach
+    active/idle.
+    """
+
+    def _check(status):
+        unready = [
+            f"{unit_name} "
+            f"(workload={unit.workload_status.current!r}, "
+            f"agent={unit.juju_status.current!r})"
+            for app_name, app in status.apps.items()
+            if app_name not in non_active_apps and app.units
+            for unit_name, unit in app.units.items()
+            if unit.workload_status.current != "active"
+            or unit.juju_status.current != "idle"
+        ]
+        if unready:
+            logging.info("Waiting for model apps: %s", ", ".join(unready))
+        return not unready and _all_non_active_apps_settled(
+            status, non_active_apps
         )
-    except jubilant.CLIError as e:
-        if "already exists" not in e.stderr:
-            raise e
 
+    juju.wait(_check, delay=10, timeout=timeout)
+
+
+def _configure_magnum(juju_k8s):
+    """Set up the magnum kubeconfig juju secret and configure the application.
+
+    Creates (or reuses) a juju secret named 'kubeconfig', grants it to magnum,
+    and sets the kubeconfig config option so magnum can proceed to active.
+    """
+    application = "magnum"
+    secret_name = "kubeconfig"
+    secret_content = {"kubeconfig": "fake-kubeconfig"}
+    secret_not_found_pattern = r'ERROR secret ".*" not found'
+    secret_uri: jubilant.secrettypes.SecretURI
+
+    create_secret = False
     try:
-        juju.cli(
-            "integrate",
-            "--model",
-            k8s_model,
-            "gnocchi:ceph",
-            f"{MACHINE_MODEL_WITH_OWNER}.ceph",
-            include_model=False,
-        )
+        kubeconfig_secret = juju_k8s.show_secret(identifier=secret_name)
+        secret_uri = kubeconfig_secret.uri
+        logging.debug(f"Juju secret {secret_name} found")
     except jubilant.CLIError as e:
-        if "already exists" not in e.stderr:
-            raise e
+        match = re.search(secret_not_found_pattern, e.stderr)
+        if not match:
+            raise
+        create_secret = True
 
-    try:
-        juju.cli(
-            "integrate",
-            "--model",
-            k8s_model,
-            "manila-cephfs:ceph-nfs",
-            f"{MACHINE_MODEL_WITH_OWNER}.ceph-nfs",
-            include_model=False,
+    if create_secret:
+        logging.debug(f"Create juju secret {secret_name}")
+        secret_uri = juju_k8s.add_secret(
+            name=secret_name, content=secret_content
         )
-    except jubilant.CLIError as e:
-        if "already exists" not in e.stderr:
-            raise e
+        juju_k8s.grant_secret(secret_uri, application)
 
-    juju.wait(
-        lambda status: jubilant.all_active(status, "cinder-volume"),
-        timeout=600,
-    )
+    logging.info(f"Setting {application} kubeconfig option")
+    juju_k8s.config(app=application, values={"kubeconfig": secret_uri})
 
-    juju_k8s = jubilant.Juju(model=k8s_model)
-    juju_k8s.wait(
-        lambda status: jubilant.all_active(
-            status,
-            "cinder",
-            "ceilometer",
-            "gnocchi",
-            "manila",
-            "manila-cephfs",
-            "watcher",
-        ),
-        timeout=1200,
-    )
 
-    # Workaround to enable Orchestrator module until
-    # https://github.com/canonical/microceph/pull/611
-    # is merged and published in squid/stable.
+def _enable_microceph_orchestrator():
+    """Workaround to enable Orchestrator module.
+
+    Required until https://github.com/canonical/microceph/pull/611
+    is merged and published in squid/stable.
+    """
     try:
         subprocess.run(
             ["sudo", "microceph.ceph", "mgr", "module", "enable", "microceph"],
@@ -148,5 +226,66 @@ def deploy_machine_applications():
             check=True,
         )
     except subprocess.CalledProcessError as e:
-        logging.error(f"Command failed with error: {e}")
+        logging.error("Command failed with error: %s", e)
         raise e
+
+
+def deploy_machine_applications():
+    """Deploy machine apps and wait for all apps to reach target status.
+
+    Deploys machine apps (hypervisor, microceph, cinder-volume, etc.).
+    Order: wait for k8s CMR-offering apps to be provisioned, wire CMR,
+    wait for machine apps to reach target status, wait for k8s CMR apps
+    to reach active (cinder/gnocchi/manila-cephfs unblock once CMR is wired).
+    """
+    k8s_model = zaza.model.get_juju_model()
+    target_deploy_status = lc_utils.get_charm_config().get(
+        "target_deploy_status", {}
+    )
+    non_active_apps = {
+        app: cfg["workload-status"]
+        for app, cfg in target_deploy_status.items()
+        if cfg.get("workload-status") != "active"
+    }
+
+    logging.debug("Updating machine bundle")
+    bundle = MACHINE_BUNDLE_FILE
+    replace_model_in_bundle(Path(bundle), {"K8S_MODEL": k8s_model})
+
+    logging.info(bundle)
+    juju_machine = jubilant.Juju(model=MACHINE_MODEL)
+    juju_machine.cli("deploy", str(bundle), "--map-machines=existing,0=0")
+
+    juju_k8s = jubilant.Juju(model=k8s_model)
+
+    _configure_magnum(juju_k8s)
+
+    # 1. Wait for k8s apps to reach their target status.
+    _wait_for_model(juju_k8s, non_active_apps, timeout=K8S_WAIT_TIMEOUT)
+
+    # 2. Wire CMR — all k8s pods are provisioned and etcd load has subsided.
+    _perform_common_cross_model_integrations(juju_machine, k8s_model)
+
+    # 3 & 4. Wait for machine apps and k8s CMR apps in parallel now that
+    # CMR is wired; machine model needs ceph credentials from microceph
+    # while k8s CMR apps need the storage-backend/ceph integrations.
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
+        futures = [
+            ex.submit(
+                _wait_for_model,
+                juju_machine,
+                non_active_apps,
+                timeout=POST_CMR_WAIT_TIMEOUT,
+            ),
+            ex.submit(
+                _wait_for_cmr_apps,
+                juju_k8s,
+                ["cinder", "gnocchi", "manila-cephfs"],
+                active=True,
+                timeout=POST_CMR_WAIT_TIMEOUT,
+            ),
+        ]
+        for future in concurrent.futures.as_completed(futures):
+            future.result()
+
+    _enable_microceph_orchestrator()
