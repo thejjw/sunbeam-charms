@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "557f7e84_a2135c3a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-26T00:04:06Z",
+      "side": 1,
+      "message": "recheck Charmhub Outage Failure",
+      "revId": "48d1fda1c086ee4cc309a2c8ff1e106d29ac4f93",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
