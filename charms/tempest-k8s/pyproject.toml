@@ -12,6 +12,7 @@ dependencies = [
     "lightkube-models",
     "ops",
     "cosl",
+    "opentelemetry-exporter-otlp-proto-http",
     # for validating cron expressions
     # due to https://github.com/corpusops/croniter/issues/144
     # we might need to find an alternative for croniter project
