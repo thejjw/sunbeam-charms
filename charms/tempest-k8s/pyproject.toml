@@ -12,6 +12,7 @@ dependencies = [
     "lightkube-models",
     "ops",
     "cosl",
+    "opentelemetry-exporter-otlp-proto-http",
     # for validating cron expressions
     # due to https://github.com/corpusops/croniter/issues/144
     # we might need to find an alternative for croniter project
@@ -19,4 +20,7 @@ dependencies = [
     "openstacksdk",  # for handling cleanup
     "tenacity", # From ops_sunbeam
     "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
+    "cryptography",
+    "jsonschema",
+    "pydantic",
 ]
