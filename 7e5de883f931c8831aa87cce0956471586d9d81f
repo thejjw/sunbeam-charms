@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5afe0ba9_886fa3ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-26T08:51:54Z",
+      "side": 1,
+      "message": "recheck  No_ROUTE_TO_HOST\n\n Could not connect to mirror.gra1.ovh.opendev.org:443 (2001:41d0:302:1000::1a11). - connect (113: No route to host) Could not connect to mirror.gra1.ovh.opendev.org:443 (217.182.142.242), connection timed out",
+      "revId": "7e5de883f931c8831aa87cce0956471586d9d81f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
