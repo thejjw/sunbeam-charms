@@ -33,6 +33,23 @@
       "message": "recheck Contorller download failure",
       "revId": "2d1b05cfc239df211bb8f79ad207482afa48a2eb",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3eecec3_d9717cb2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-26T14:25:49Z",
+      "side": 1,
+      "message": "recheck microceph snap installation took time",
+      "revId": "2d1b05cfc239df211bb8f79ad207482afa48a2eb",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
