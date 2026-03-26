@@ -208,6 +208,24 @@
       "message": "@guillaume.boutry@canonical.com I have tested this by removing `hypervisor` prefix from the relation data but configuring it via target in snap-consul https://github.com/canonical/snap-consul/blob/main/snap/snapcraft.yaml#L59 \n\n   consul-socket:\n     interface: content\n     content: consul-unix-sock\n-    target: $SNAP_DATA\n+    target: $SNAP_DATA/hypervisor\n\nThis doesn\u0027t work the way we want because plug\u0027s target will mount Slot\u0027s dir as it is inside $SNAP_DATA/hypervisor which results in path `/var/snap/consul-client/x1/hypervisor/hypervisor/shutdown.sock`\n\nThis is not what we want and I am not in favor of hardcoding directory path `hypervisor` inside snap consul. \n\nPlease can you clarify what is your proposed design?",
       "revId": "d112f6b154eb7035f7f2786f8c1c9eaa73bfe9dd",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b6adefe_e527ede6",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-03-26T06:11:42Z",
+      "side": 1,
+      "message": "@gboutry I have removed directory path from the relation data. The relation data will only send the socket name which is \u0027shutdown.sock\u0027. The directory mapping is defined in the plug service https://github.com/canonical/consul-client-operator/pull/33/changes#diff-92e00ff0d28a5b07ef624007fc8fca38f2fcabe8a20050373e7783e953b7b457R39",
+      "parentUuid": "a9685aee_54ac28d8",
+      "revId": "d112f6b154eb7035f7f2786f8c1c9eaa73bfe9dd",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
