@@ -12,6 +12,7 @@ dependencies = [
     "lightkube",
     "lightkube-models",
     "ops",
+    "anyio<4.13",
     "pwgen",
     "tenacity", # From ops_sunbeam
     "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0

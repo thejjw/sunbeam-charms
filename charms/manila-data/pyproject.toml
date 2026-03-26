@@ -10,6 +10,8 @@ dependencies = [
     "jinja2",
     "pydantic",
     "ops",
+    "cosl",
+    "opentelemetry-exporter-otlp-proto-http",
     "interface_tls_certificates@git+https://opendev.org/openstack/charm-ops-interface-tls-certificates",
     "tenacity", # From ops_sunbeam
     "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0

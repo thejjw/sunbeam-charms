@@ -14,6 +14,8 @@ dependencies = [
     "lightkube",
     "lightkube-models",
     "ops",
+    "opentelemetry-exporter-otlp-proto-http",
+    "anyio<4.13",
     "requests<2.32.0",
     "requests-unixsocket",
     "urllib3<1.27,>=1.21.1",
