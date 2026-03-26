@@ -1399,6 +1399,7 @@
       - charms/openstack-hyperivsor/
       - charms/cinder-volume/
       - charms/storage/cinder-volume-ceph/
+      - tests/openstack/
       - rebuild
     vars:
       # Artifacts will be downloaded from below charm jobs
