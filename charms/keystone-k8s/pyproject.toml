@@ -18,6 +18,8 @@ dependencies = [
     "python-keystoneclient",  # keystone-k8s
     "tenacity", # From ops_sunbeam
     "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
+    "cosl",
+    "opentelemetry-exporter-otlp-proto-http",
 ]
 
 [project.optional-dependencies]
@@ -36,7 +38,8 @@ dev = [
     "pytest-interface-tester",    # barbican-k8s
     "pydantic",                   # traefik-k8s ingress lib
     "netifaces",                  # cinder-volume-ceph
-    "cosl",                       # openstack-exporter
+    "cosl",
+    "opentelemetry-exporter-otlp-proto-http",
     "requests-unixsocket",        # sunbeam-clusterd
     "openstacksdk",               # tempest-k8s
     "types-PyYAML",               # types stub for mypy

@@ -14,6 +14,7 @@ dependencies = [
     "pyroute2",
     "netifaces",
     "cosl",
+    "opentelemetry-exporter-otlp-proto-http",
     "lightkube",
     "lightkube-models",
     "ops",

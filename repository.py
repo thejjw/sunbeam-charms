@@ -288,6 +288,9 @@ def main_cli():
     )
     fetch_lib_parser.set_defaults(func=fetch_lib_cli)
 
+    list_parser = subparsers.add_parser("list", help="List all charms.")
+    list_parser.set_defaults(func=list_cli)
+
     args = main_parser.parse_args()
     level = logging.INFO
     if args.verbose:
@@ -388,6 +391,12 @@ def fetch_lib_cli(
         subprocess.run(
             ["charmcraft", "fetch-lib", library], cwd=cwd, check=True
         )
+
+
+def list_cli(sunbeam_charms: list[str], **kwargs):
+    """List all available charms."""
+    for charm in sorted(sunbeam_charms):
+        print(charm)
 
 
 if __name__ == "__main__":
