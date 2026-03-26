@@ -86,6 +86,7 @@ name = "cinder-volume-dellpowerstore"
 version = "2025.1"
 source = { virtual = "." }
 dependencies = [
+    { name = "cosl" },
     { name = "cryptography" },
     { name = "jinja2" },
     { name = "lightkube" },
@@ -100,6 +101,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "cosl" },
     { name = "cryptography" },
     { name = "jinja2" },
     { name = "lightkube" },
@@ -110,6 +112,22 @@ requires-dist = [
     { name = "pydantic" },
     { name = "requests" },
     { name = "tenacity" },
+]
+
+[[package]]
+name = "cosl"
+version = "1.7.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "ops" },
+    { name = "pydantic" },
+    { name = "pyyaml" },
+    { name = "tenacity" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8b/86/a1756838edef0bb2e82bbb51d1164dda731334dc0494f3c69d006c7f6429/cosl-1.7.0.tar.gz", hash = "sha256:ab6e1f74a9ddcd8f55fe36b7bedb4c0fe983b5b35776094b31a31e48e63808b6", size = 149830, upload-time = "2026-03-23T17:55:25.872Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/35/3d/30d2a98fa06c72abb79aceb06f8e6a9848e806d25f86f4f327afa9b13a0b/cosl-1.7.0-py3-none-any.whl", hash = "sha256:a3469c228a0c89418a5d0c9c2c72b520b4f9973fab35ac193b1de9adfac8a4fb", size = 37833, upload-time = "2026-03-23T17:55:24.592Z" },
 ]
 
 [[package]]
