@@ -10,16 +10,12 @@ platforms:
 
 parts:
   charm:
+    plugin: uv
+    source: .
+    build-snaps:
+      - astral-uv
     build-packages:
       - git
-      - libffi-dev
-      - libssl-dev
-      - pkg-config
-    charm-binary-python-packages:
-      - cryptography
-      - requests
-    charm-requirements: [requirements.txt]
-
 config:
   options:
     name:
