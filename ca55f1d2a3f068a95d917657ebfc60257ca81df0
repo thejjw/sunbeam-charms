@@ -16,6 +16,23 @@
       "message": "recheck nova service container not ready",
       "revId": "ca55f1d2a3f068a95d917657ebfc60257ca81df0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "87f1a2b7_68c66a32",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-27T07:45:00Z",
+      "side": 1,
+      "message": "recheck read: connection reset by peer",
+      "revId": "ca55f1d2a3f068a95d917657ebfc60257ca81df0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
