@@ -171,6 +171,15 @@ class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "group": "nova",
                 }
             },
+            "checks": {
+                "nova-conductor-alive": {
+                    "override": "replace",
+                    "level": "alive",
+                    "exec": {"command": "pgrep -f nova-conductor"},
+                    "period": "10s",
+                    "threshold": 3,
+                },
+            },
         }
 
     def default_container_configs(
@@ -361,6 +370,23 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self.framework.observe(
             self.on["peers"].relation_departed, self._on_peer_relation_departed
         )
+        self.framework.observe(
+            self.on.nova_conductor_pebble_check_recovered,
+            self._on_nova_conductor_check_recovered,
+        )
+
+    def _on_nova_conductor_check_recovered(
+        self, event: ops.framework.EventBase
+    ) -> None:
+        """Re-run charm configuration when nova-conductor recovers.
+
+        Nova-conductor can crash immediately on first start if the placement
+        endpoint is temporarily unavailable (e.g. traefik route not yet
+        propagated).  Once pebble's backoff restarts the service successfully
+        the alive check recovers, firing this event so the charm can complete
+        its bootstrap.
+        """
+        self.configure_charm(event)
 
     def _on_peer_relation_created(
         self, event: ops.framework.EventBase
