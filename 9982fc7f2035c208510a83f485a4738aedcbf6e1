@@ -16,6 +16,23 @@
       "message": "recheck lxd snap installation failure",
       "revId": "9982fc7f2035c208510a83f485a4738aedcbf6e1",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b2067182_f6eb982b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-27T09:01:33Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "9982fc7f2035c208510a83f485a4738aedcbf6e1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
