@@ -20,7 +20,10 @@
 This charm provide Placement services as part of an OpenStack deployment
 """
 
+import json
 import logging
+import urllib.error
+import urllib.request
 from typing import (
     List,
 )
@@ -30,6 +33,7 @@ import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 from ops.charm import (
@@ -120,8 +124,31 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             event.relation, self.bootstrapped()
         )
 
+    def _placement_api_healthy(self) -> bool:
+        """Check that the placement API is actually serving on its local port.
+
+        Returns True if placement-api responds with valid version data,
+        False otherwise.  The check uses localhost so it is not subject to
+        traefik route availability.
+        """
+        url = f"http://localhost:{self.default_public_ingress_port}/"
+        req = urllib.request.Request(
+            url, headers={"Accept": "application/json"}
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=5) as resp:
+                data = json.loads(resp.read())
+                return "versions" in data
+        except Exception as e:
+            logger.debug("Placement API health check failed: %s", e)
+            return False
+
     def set_readiness_on_related_units(self) -> None:
         """Set service readiness on placement related units."""
+        if not self._placement_api_healthy():
+            raise sunbeam_guard.WaitingExceptionError(
+                "Placement API not yet serving"
+            )
         logger.debug(
             "Set service readiness on all connected placement relations"
         )

@@ -19,7 +19,11 @@
 from pathlib import (
     Path,
 )
+from unittest.mock import (
+    patch,
+)
 
+import charm
 import pytest
 from ops import (
     testing,
@@ -206,3 +210,54 @@ class TestRelationBrokenBlocksOrWaits:
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
         )
+
+
+class TestPlacementApiHealthCheck:
+    """Tests for _placement_api_healthy() gate in set_readiness_on_related_units()."""
+
+    def test_waiting_when_api_unhealthy(self, ctx, complete_state):
+        """Waiting status when placement-api is not yet serving valid version data.
+
+        This simulates the window between traefik signalling ready and the
+        placement-api actually accepting connections (e.g. traefik route not
+        yet propagated, or apache still starting up).
+        """
+        with patch.object(
+            charm.PlacementOperatorCharm,
+            "_placement_api_healthy",
+            return_value=False,
+        ):
+            state_out = ctx.run(ctx.on.config_changed(), complete_state)
+
+        assert isinstance(state_out.unit_status, testing.WaitingStatus)
+        assert "Placement API not yet serving" in state_out.unit_status.message
+
+    def test_active_when_api_healthy(self, ctx, complete_state):
+        """Active status when placement-api responds with version data.
+
+        The autouse fixture already patches _placement_api_healthy to True;
+        this test makes the expectation explicit.
+        """
+        # _mock_placement_api_healthy autouse fixture returns True
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert state_out.unit_status == testing.ActiveStatus("")
+
+    def test_ready_written_to_relation_when_healthy(self, ctx, complete_state):
+        """ready=true is written into the placement relation app data when healthy."""
+        placement_rel = testing.Relation(
+            endpoint="placement",
+            remote_app_name="nova",
+        )
+        state_in = testing.State(
+            leader=True,
+            relations=list(complete_state.relations) + [placement_rel],
+            containers=list(complete_state.containers),
+            secrets=list(complete_state.secrets),
+        )
+        # _mock_placement_api_healthy returns True (autouse)
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert state_out.unit_status == testing.ActiveStatus("")
+        out_rel = state_out.get_relation(placement_rel.id)
+        # ServiceReadinessProvider writes to local app data
+        assert out_rel.local_app_data.get("ready") == "true"

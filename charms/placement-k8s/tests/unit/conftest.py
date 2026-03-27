@@ -17,6 +17,9 @@
 from pathlib import (
     Path,
 )
+from unittest.mock import (
+    patch,
+)
 
 import charm
 import pytest
@@ -43,6 +46,21 @@ def _cleanup_db_events():
     """Remove dynamically-defined events so the next Context can re-create them."""
     yield
     cleanup_database_requires_events()
+
+
+@pytest.fixture(autouse=True)
+def _mock_placement_api_healthy():
+    """Patch _placement_api_healthy to True so unit tests don't make real HTTP calls.
+
+    Individual tests that want to exercise the unhealthy code path should
+    override this by patching within the test itself.
+    """
+    with patch.object(
+        charm.PlacementOperatorCharm,
+        "_placement_api_healthy",
+        return_value=True,
+    ):
+        yield
 
 
 @pytest.fixture()
