@@ -46,14 +46,23 @@
       set_fact:
         metadata: "{{ metadata_file.content | b64decode | from_yaml }}"
 
+    - name: Check if charm is in storage subdirectory
+      stat:
+        path: "{{ zuul.project.src_dir }}/charms/storage/{{ charm_build_name }}"
+      register: storage_charm_dir
+
+    - name: Set charm project dir
+      set_fact:
+        charm_project_dir: "{{ zuul.project.src_dir }}/charms/{{ 'storage/' if storage_charm_dir.stat.exists else '' }}{{ charm_build_name }}"
+
     - name: Upload charm to charmhub
       register: upload_charm_output
       args:
-        chdir: "{{ zuul.project.src_dir }}"
+        chdir: "{{ charm_project_dir }}"
       # TODO: The below command can error out with a message that says
       # upload with that digest already exists. This case need to be handled.
       # More details https://github.com/canonical/charmcraft/issues/826
-      command: charmcraft upload -v --name {{ charm_build_name }} {{ charm_build_name }}.charm
+      command: charmcraft upload -v --name {{ charm_build_name }} {{ zuul.project.src_dir }}/{{ charm_build_name }}.charm
       retries: 3
       until: >
         ("Revision" in upload_charm_output.stdout)
