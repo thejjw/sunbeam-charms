@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1115152d_b2a613c9",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-03-27T05:00:17Z",
+      "side": 0,
+      "message": "charms.consul_client.v1 will be published after the other pr is approved https://github.com/canonical/consul-client-operator/pull/33/changes",
+      "revId": "cfedf421c5a85341bb8e7f5869b43b106ad118fc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
