@@ -62,7 +62,7 @@
       # TODO: The below command can error out with a message that says
       # upload with that digest already exists. This case need to be handled.
       # More details https://github.com/canonical/charmcraft/issues/826
-      command: charmcraft upload -v --name {{ charm_build_name }} {{ zuul.project.src_dir }}/{{ charm_build_name }}.charm
+      command: charmcraft upload -v --name {{ charm_build_name }} {{ ansible_user_dir }}/{{ zuul.project.src_dir }}/{{ charm_build_name }}.charm
       retries: 3
       until: >
         ("Revision" in upload_charm_output.stdout)
