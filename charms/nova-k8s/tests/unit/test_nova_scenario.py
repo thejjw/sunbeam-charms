@@ -26,6 +26,7 @@ from pathlib import (
 
 import charm
 import pytest
+from ops import pebble as ops_pebble
 from ops import (
     testing,
 )
@@ -102,6 +103,56 @@ def _all_containers(can_connect: bool = True) -> list[testing.Container]:
         _nova_api_container(can_connect=can_connect),
         _service_container("nova-scheduler", can_connect=can_connect),
         _service_container("nova-conductor", can_connect=can_connect),
+        _service_container("nova-spiceproxy", can_connect=can_connect),
+    ]
+
+
+# CheckInfo for the nova-conductor alive check (matches get_layer() definition).
+# startup=UNSET mirrors the plan (no 'startup' key in the layer dict).
+_CONDUCTOR_CHECK_INFO = testing.CheckInfo(
+    "nova-conductor-alive",
+    level=ops_pebble.CheckLevel.ALIVE,
+    threshold=3,
+    startup=ops_pebble.CheckStartup.UNSET,
+)
+
+# Pebble layer that includes the alive check, added to the container so that
+# the scenario consistency checker can validate the event is consistent.
+_CONDUCTOR_CHECK_LAYER = ops_pebble.Layer(
+    {
+        "checks": {
+            "nova-conductor-alive": {
+                "override": "replace",
+                "level": "alive",
+                "exec": {"command": "pgrep -f nova-conductor"},
+                "period": "10s",
+                "threshold": 3,
+            }
+        }
+    }
+)
+
+
+def _conductor_container_with_check(
+    can_connect: bool = True,
+) -> testing.Container:
+    """Nova conductor container pre-populated with the alive check layer."""
+    return testing.Container(
+        name="nova-conductor",
+        can_connect=can_connect,
+        layers={"nova-conductor-check": _CONDUCTOR_CHECK_LAYER},
+        check_infos={_CONDUCTOR_CHECK_INFO},
+    )
+
+
+def _all_containers_with_conductor_check(
+    can_connect: bool = True,
+) -> list[testing.Container]:
+    """All containers; nova-conductor includes the alive check."""
+    return [
+        _nova_api_container(can_connect=can_connect),
+        _service_container("nova-scheduler", can_connect=can_connect),
+        _conductor_container_with_check(can_connect=can_connect),
         _service_container("nova-spiceproxy", can_connect=can_connect),
     ]
 
@@ -356,3 +407,103 @@ class TestWaitingNonLeader:
 
         assert isinstance(state_out.unit_status, testing.WaitingStatus)
         assert "Leader not ready" in state_out.unit_status.message
+
+
+class TestNovaConductorCheckRecovered:
+    """nova_conductor_pebble_check_recovered retriggers configure_charm.
+
+    When nova-conductor crashes at startup (e.g. placement endpoint not yet
+    serving) pebble will restart it with exponential backoff.  Once the
+    service is stable the alive check recovers and fires this event, allowing
+    nova to complete its bootstrap without waiting for update-status.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _fix_scenario_check_normalisation(self, monkeypatch):
+        """Work around ops-scenario 8.6.0 bug with pebble_check_recovered.
+
+        ``check_containers_consistency`` builds ``all_checks`` from raw
+        container names (``"nova-conductor"``) but compares them against
+        the normalised event name prefix (``"nova_conductor"``).  The two
+        never match, so every pebble_check_recovered on a hyphenated
+        container name fails with a spurious InconsistentScenarioError.
+        Filter that specific false-positive so tests remain strict for all
+        other consistency errors.
+        """
+        import scenario._consistency_checker as _cc
+
+        orig = _cc.check_containers_consistency
+
+        def _fixed(**kwargs):
+            result = orig(**kwargs)
+            cleaned = [
+                e
+                for e in result.errors
+                if "but that check is not in the" not in e
+            ]
+            return type(result)(cleaned, result.warnings)
+
+        monkeypatch.setattr(_cc, "check_containers_consistency", _fixed)
+
+    def test_conductor_check_recovered_reaches_active(self, ctx):
+        """Recovered check with all relations ready → ActiveStatus."""
+        # Use the same container object in both the event and state so the
+        # scenario consistency checker can resolve them.
+        nova_conductor = _conductor_container_with_check()
+        containers = [
+            _nova_api_container(),
+            _service_container("nova-scheduler"),
+            nova_conductor,
+            _service_container("nova-spiceproxy"),
+        ]
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=containers,
+            secrets=_all_secrets(),
+        )
+        state_out = ctx.run(
+            ctx.on.pebble_check_recovered(
+                nova_conductor, _CONDUCTOR_CHECK_INFO
+            ),
+            state_in,
+        )
+        assert state_out.unit_status == testing.ActiveStatus("")
+
+    def test_conductor_check_recovered_without_relations_waits(self, ctx):
+        """Recovered check with incomplete relations stays waiting/blocked."""
+        nova_conductor = _conductor_container_with_check()
+        containers = [
+            _nova_api_container(),
+            _service_container("nova-scheduler"),
+            nova_conductor,
+            _service_container("nova-spiceproxy"),
+        ]
+        state_in = testing.State(
+            leader=True,
+            containers=containers,
+        )
+        state_out = ctx.run(
+            ctx.on.pebble_check_recovered(
+                nova_conductor, _CONDUCTOR_CHECK_INFO
+            ),
+            state_in,
+        )
+        assert state_out.unit_status.name in ("blocked", "waiting")
+
+    def test_conductor_check_has_alive_level_in_layer(self, ctx):
+        """The nova-conductor alive check is present after config-changed."""
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        conductor = state_out.get_container("nova-conductor")
+        plan = conductor.plan
+        assert "nova-conductor-alive" in plan.checks
+        assert (
+            plan.checks["nova-conductor-alive"].level
+            == ops_pebble.CheckLevel.ALIVE
+        )
