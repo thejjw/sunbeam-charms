@@ -16,6 +16,23 @@
       "message": "recheck Failed to fetch https://mirror.gra1.ovh.opendev.org/ubuntu/dists/noble/InRelease",
       "revId": "6af4b52676f87b98bba2698b2152d6f89f1b578e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bc523263_863e8a50",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-28T04:09:47Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "6af4b52676f87b98bba2698b2152d6f89f1b578e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
