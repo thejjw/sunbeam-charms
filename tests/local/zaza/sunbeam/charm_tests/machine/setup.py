@@ -24,6 +24,12 @@ import concurrent.futures
 import logging
 import re
 import subprocess
+import threading
+from concurrent.futures import (
+    ThreadPoolExecutor,
+    wait as futures_wait,
+    FIRST_EXCEPTION,
+)
 from pathlib import (
     Path,
 )
@@ -35,6 +41,7 @@ import zaza.model
 MACHINE_MODEL = "controller"
 MACHINE_MODEL_WITH_OWNER = f"admin/{MACHINE_MODEL}"
 MACHINE_BUNDLE_FILE = "./tests/openstack/bundles/machines.yaml"
+MACHINE_MICROOVN_BUNDLE_FILE = "./tests/openstack-microovn/bundles/machines.yaml"
 K8S_WAIT_TIMEOUT = (
     3600  # 1 hour for k8s model wait (covers full pods provisioning)
 )
@@ -78,6 +85,48 @@ def _perform_common_cross_model_integrations(juju, k8s_model):
     _integrate(juju, k8s_model, "gnocchi:ceph", "ceph")
     _integrate(juju, k8s_model, "manila-cephfs:ceph-nfs", "ceph-nfs")
 
+
+def _perform_microovn_cross_model_integrations(juju, k8s_model):
+    """Set up cross-model integrations required by microovn tests.
+
+    These integrations connect k8s-side charms (neutron, octavia)
+    to their counterparts in the machines model.
+    """
+    _integrate(juju, k8s_model, "neutron:ovsdb-cms", "sunbeam-ovn-proxy")
+    _integrate(juju, k8s_model, "octavia:ovsdb-cms", "sunbeam-ovn-proxy")
+
+
+def _wait_for_all_apps(juju, juju_k8s, machine_apps, k8s_apps):
+    """Wait for machine apps and k8s apps to settle in parallel.
+
+    Both models are polled concurrently so that their convergence
+    time overlaps rather than being summed sequentially.
+
+    A shared stop_event is passed to each wait so that if one side
+    times out or errors, the other stops polling promptly rather than
+    running for its full 1800s.
+    """
+    stop_event = threading.Event()
+
+    def wait_machine():
+        juju.wait(
+            lambda status: stop_event.is_set() or jubilant.all_active(status, *machine_apps),
+            timeout=1800,
+        )
+
+    def wait_k8s():
+        juju_k8s.wait(
+            lambda status: stop_event.is_set() or jubilant.all_active(status, *k8s_apps),
+            timeout=1800,
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [pool.submit(wait_machine), pool.submit(wait_k8s)]
+        done, _ = futures_wait(futures, return_when=FIRST_EXCEPTION)
+        # Signal the other thread to stop polling on first failure.
+        stop_event.set()
+        for f in done:
+            f.result()  # re-raise any exception from the failed wait
 
 def _all_non_active_apps_settled(status, non_active_apps):
     """Check non-active apps have reached their expected status.
@@ -281,6 +330,75 @@ def deploy_machine_applications():
                 _wait_for_cmr_apps,
                 juju_k8s,
                 ["cinder", "gnocchi", "manila-cephfs"],
+                active=True,
+                timeout=POST_CMR_WAIT_TIMEOUT,
+            ),
+        ]
+        for future in concurrent.futures.as_completed(futures):
+            future.result()
+
+
+def deploy_machine_applications_microovn():
+    """Deploy Machine applications with MicroOVN as the OVN provider.
+
+    Deploy machine applications like hypervisor, microceph, cinder-volume,
+    microovn, sunbeam-ovn-proxy, and openstack-network-agents. In this
+    scenario MicroOVN manages the full OVN stack (control plane + OVS on
+    machines). There is no ovn-central-k8s or ovn-relay-k8s in the k8s model.
+
+    sunbeam-ovn-proxy bridges microovn:ovsdb to the ovsdb-cms interface,
+    serving the hypervisor in-bundle and providing a cross-model ovsdb-cms
+    offer for neutron and octavia in the k8s model.
+
+    Order: wait for k8s CMR-offering apps to be provisioned, wire CMR,
+    wait for machine apps to reach target status, wait for k8s CMR apps
+    to reach active (cinder/gnocchi/manila-cephfs/neutron/octavia unblock
+    once CMR is wired).
+    """
+    k8s_model = zaza.model.get_juju_model()
+    target_deploy_status = lc_utils.get_charm_config().get(
+        "target_deploy_status", {}
+    )
+    non_active_apps = {
+        app: cfg["workload-status"]
+        for app, cfg in target_deploy_status.items()
+        if cfg.get("workload-status") != "active"
+    }
+
+    logging.debug("Updating microovn machine bundle")
+    bundle = MACHINE_MICROOVN_BUNDLE_FILE
+    replace_model_in_bundle(Path(bundle), {"K8S_MODEL": k8s_model})
+
+    logging.info(bundle)
+    juju_machine = jubilant.Juju(model=MACHINE_MODEL)
+    juju_machine.cli("deploy", str(bundle), "--map-machines=existing,0=0")
+
+    juju_k8s = jubilant.Juju(model=k8s_model)
+
+    _configure_magnum(juju_k8s)
+
+    # 1. Wait for k8s apps to reach their target status.
+    _wait_for_model(juju_k8s, non_active_apps, timeout=K8S_WAIT_TIMEOUT)
+
+    # 2. Wire CMR — all k8s pods are provisioned and etcd load has subsided.
+    _perform_common_cross_model_integrations(juju_machine, k8s_model)
+    _perform_microovn_cross_model_integrations(juju_machine, k8s_model)
+
+    # 3 & 4. Wait for machine apps and k8s CMR apps in parallel now that
+    # CMR is wired; machine model needs ceph credentials from microceph
+    # while k8s CMR apps need the storage-backend/ceph/ovsdb-cms integrations.
+    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
+        futures = [
+            ex.submit(
+                _wait_for_model,
+                juju_machine,
+                non_active_apps,
+                timeout=POST_CMR_WAIT_TIMEOUT,
+            ),
+            ex.submit(
+                _wait_for_cmr_apps,
+                juju_k8s,
+                ["cinder", "gnocchi", "manila-cephfs", "neutron", "octavia"],
                 active=True,
                 timeout=POST_CMR_WAIT_TIMEOUT,
             ),
