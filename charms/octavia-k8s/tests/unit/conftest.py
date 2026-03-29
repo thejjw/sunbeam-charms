@@ -17,6 +17,9 @@
 from pathlib import (
     Path,
 )
+from unittest import (
+    mock,
+)
 
 import charm
 import pytest
@@ -24,6 +27,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    amqp_relation_complete,
     cleanup_database_requires_events,
     db_credentials_secret,
     db_relation_complete,
@@ -61,6 +65,24 @@ def ovsdb_cms_relation_complete(
 # ---------------------------------------------------------------------------
 
 
+@pytest.fixture()
+def mock_lightkube_client():
+    """Fixture providing a mock lightkube client (no real K8s calls)."""
+    return mock.MagicMock()
+
+
+@pytest.fixture(autouse=True)
+def _patch_lightkube(mock_lightkube_client):
+    """Patch KubernetesResourcePatcher.lightkube_client in every test."""
+    with mock.patch.object(
+        charm.KubernetesResourcePatcher,
+        "lightkube_client",
+        new_callable=mock.PropertyMock,
+        return_value=mock_lightkube_client,
+    ):
+        yield
+
+
 @pytest.fixture(autouse=True)
 def _cleanup_db_events():
     """Remove dynamically-defined events so the next Context can re-create them."""
@@ -70,16 +92,15 @@ def _cleanup_db_events():
 
 @pytest.fixture()
 def ctx():
-    """Create a testing.Context for OctaviaOVNOperatorCharm."""
-    return testing.Context(
-        charm.OctaviaOVNOperatorCharm, charm_root=CHARM_ROOT
-    )
+    """Create a testing.Context for OctaviaOperatorCharm."""
+    return testing.Context(charm.OctaviaOperatorCharm, charm_root=CHARM_ROOT)
 
 
 @pytest.fixture()
 def complete_relations():
     """All relations needed to reach active status."""
     return [
+        amqp_relation_complete(),
         db_relation_complete(),
         identity_service_relation_complete(),
         ingress_internal_relation_complete(),
@@ -123,11 +144,33 @@ def housekeeping_container():
 
 
 @pytest.fixture()
+def health_manager_container():
+    """A connectable octavia-health-manager container."""
+    return k8s_container("octavia-health-manager")
+
+
+@pytest.fixture()
+def worker_container():
+    """A connectable octavia-worker container."""
+    return k8s_container("octavia-worker")
+
+
+@pytest.fixture()
 def all_containers(
-    api_container, driver_agent_container, housekeeping_container
+    api_container,
+    driver_agent_container,
+    housekeeping_container,
+    health_manager_container,
+    worker_container,
 ):
-    """All three containers in connectable state."""
-    return [api_container, driver_agent_container, housekeeping_container]
+    """All five containers in connectable state."""
+    return [
+        api_container,
+        driver_agent_container,
+        housekeeping_container,
+        health_manager_container,
+        worker_container,
+    ]
 
 
 @pytest.fixture()
@@ -139,3 +182,40 @@ def complete_state(complete_relations, complete_secrets, all_containers):
         containers=all_containers,
         secrets=complete_secrets,
     )
+
+
+# ---------------------------------------------------------------------------
+# Amphora-specific fixtures
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture()
+def amphora_config():
+    """Config dict enabling Amphora with all required certificate settings."""
+    return {
+        "amphora-network-attachment": "octavia-mgmt",
+        # base64("test") = dGVzdA==
+        "lb-mgmt-issuing-cacert": "dGVzdA==",
+        "lb-mgmt-issuing-ca-private-key": "dGVzdA==",
+        "lb-mgmt-issuing-ca-key-passphrase": "s3cr3t-passphrase",
+        "lb-mgmt-controller-cacert": "dGVzdA==",
+        "lb-mgmt-controller-cert": "dGVzdA==",
+    }
+
+
+@pytest.fixture()
+def barbican_ready_relation():
+    """A barbican-service relation whose remote app reports itself ready."""
+    return testing.Relation(
+        endpoint="barbican-service",
+        remote_app_name="barbican-k8s",
+        remote_app_data={"ready": "true"},
+    )
+
+
+@pytest.fixture()
+def complete_relations_with_barbican(
+    complete_relations, barbican_ready_relation
+):
+    """All mandatory relations plus a ready barbican-service relation."""
+    return complete_relations + [barbican_ready_relation]
