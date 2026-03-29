@@ -41,6 +41,24 @@ from ops_sunbeam.test_utils_scenario import (
 CHARM_ROOT = Path(__file__).parents[2]
 
 
+def s3_credentials_relation_complete(
+    endpoint: str = "s3-credentials",
+) -> testing.Relation:
+    """S3 credentials relation with access-key, secret-key, and endpoint set."""
+    return testing.Relation(
+        endpoint=endpoint,
+        remote_app_name="s3-integrator",
+        remote_app_data={
+            "access-key": "test-access-key",
+            "secret-key": "test-secret-key",
+            "endpoint": "http://s3.example.com:9000",
+            "bucket": "gnocchi",
+            "region": "us-east-1",
+        },
+        remote_units_data={},
+    )
+
+
 @pytest.fixture(autouse=True)
 def _cleanup_db_events():
     """Remove dynamically-defined events so the next Context can re-create them."""
@@ -129,4 +147,71 @@ def complete_state(
         containers=containers,
         secrets=complete_secrets,
         stored_states=[ceph_stored_state],
+    )
+
+
+S3_EXECS = [
+    testing.Exec(command_prefix=["gnocchi-upgrade"], return_code=0),
+]
+
+
+@pytest.fixture()
+def gnocchi_api_container_s3():
+    """A connectable gnocchi-api container with S3 exec mocks (no ceph tools)."""
+    return k8s_api_container("gnocchi-api", extra_execs=S3_EXECS)
+
+
+@pytest.fixture()
+def gnocchi_metricd_container_s3():
+    """A connectable gnocchi-metricd container with S3 exec mocks."""
+    return k8s_container(
+        "gnocchi-metricd",
+        execs=[sudo_exec()] + S3_EXECS,
+    )
+
+
+@pytest.fixture()
+def containers_s3(gnocchi_api_container_s3, gnocchi_metricd_container_s3):
+    """Both containers configured for S3 (no ceph exec mocks)."""
+    return [gnocchi_api_container_s3, gnocchi_metricd_container_s3]
+
+
+@pytest.fixture()
+def complete_relations_s3():
+    """All relations needed to reach active status using S3 backend."""
+    return [
+        db_relation_complete(),
+        identity_service_relation_complete(),
+        ingress_internal_relation_complete(),
+        ingress_public_relation_complete(),
+        s3_credentials_relation_complete(),
+        peer_relation(),
+    ]
+
+
+@pytest.fixture()
+def complete_state_s3(complete_relations_s3, complete_secrets, containers_s3):
+    """Full state with leader, S3 relations, secrets, and containers."""
+    return testing.State(
+        leader=True,
+        relations=complete_relations_s3,
+        containers=containers_s3,
+        secrets=complete_secrets,
+    )
+
+
+@pytest.fixture()
+def state_no_storage_backend(complete_secrets, containers_s3):
+    """State with all mandatory relations except any storage backend (no ceph, no s3)."""
+    return testing.State(
+        leader=True,
+        containers=containers_s3,
+        relations=[
+            db_relation_complete(),
+            identity_service_relation_complete(),
+            ingress_internal_relation_complete(),
+            ingress_public_relation_complete(),
+            peer_relation(),
+        ],
+        secrets=complete_secrets,
     )

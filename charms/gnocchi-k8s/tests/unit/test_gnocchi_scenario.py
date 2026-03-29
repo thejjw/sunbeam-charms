@@ -179,3 +179,33 @@ class TestRelationBrokenBlocksOrWaits:
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
         )
+
+
+class TestS3Backend:
+    """S3 backend: charm reaches active and renders S3 driver config."""
+
+    def test_active_with_s3_credentials(self, ctx, complete_state_s3):
+        """Config-changed with S3 relation → ActiveStatus."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state_s3)
+        assert state_out.unit_status == testing.ActiveStatus("")
+
+    def test_s3_config_file_written(self, ctx, complete_state_s3):
+        """S3 relation present → gnocchi.conf is rendered with S3 driver."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state_s3)
+        assert_config_file_exists(
+            state_out, ctx, "gnocchi-api", "/etc/gnocchi/gnocchi.conf"
+        )
+        container = state_out.get_container("gnocchi-api")
+        fs = container.get_filesystem(ctx)
+        content = (fs / "etc/gnocchi/gnocchi.conf").read_text()
+        assert "driver = s3" in content
+        assert "driver = ceph" not in content
+        assert "s3_endpoint_url = http://s3.example.com:9000" in content
+
+    def test_blocked_when_neither_ceph_nor_s3(
+        self, ctx, state_no_storage_backend
+    ):
+        """All mandatory relations present but no storage backend → blocked."""
+        state_out = ctx.run(ctx.on.config_changed(), state_no_storage_backend)
+        assert isinstance(state_out.unit_status, testing.BlockedStatus)
+        assert "s3-credentials or ceph" in state_out.unit_status.message
