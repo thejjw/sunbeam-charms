@@ -1,5 +1,6 @@
 external-libraries:
   - charms.data_platform_libs.v0.data_interfaces
+  - charms.data_platform_libs.v0.s3
   - charms.rabbitmq_k8s.v0.rabbitmq
   - charms.traefik_k8s.v2.ingress
   - charms.certificate_transfer_interface.v0.certificate_transfer
