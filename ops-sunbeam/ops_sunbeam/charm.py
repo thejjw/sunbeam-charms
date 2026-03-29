@@ -124,6 +124,7 @@ class OSBaseOperatorCharm(
         )
         self.status_pool.add(self.bootstrap_status)
         self.framework.observe(self.on.config_changed, self._on_config_changed)
+        self.framework.observe(self.on.start, self._on_start)
         self.framework.observe(self.on.secret_changed, self._on_secret_changed)
         self.framework.observe(self.on.secret_rotate, self._on_secret_rotate)
         self.framework.observe(self.on.secret_remove, self._on_secret_remove)
@@ -422,6 +423,18 @@ class OSBaseOperatorCharm(
         status = self.status_pool.compute_status()
         if status:
             event.add_status(status)
+
+    def _on_start(self, event: ops.framework.EventBase) -> None:
+        """Handle start event.
+
+        On K8s, pods can restart with a new IP address. When that happens the
+        IP SANs in the existing CSR/certificate no longer match what the charm
+        would request today, so TlsCertificatesHandler.ready returns False and
+        the unit stays in "integration incomplete". Re-syncing here detects the
+        drift and requests a fresh certificate.
+        """
+        if hasattr(self, "certs"):
+            self.certs.validate_and_regenerate_certificates_if_needed()
 
     def _on_config_changed(self, event: ops.framework.EventBase) -> None:
         self.configure_charm(event)
