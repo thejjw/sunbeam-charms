@@ -69,6 +69,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ee6282f_9113667b",
+        "filename": "charms/octavia-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 894,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-29T06:06:16Z",
+      "side": 1,
+      "message": "Stated using pod status to get the secondary interface IP based on net-attach-def name",
+      "parentUuid": "ef0b2d22_9372960c",
+      "revId": "58ebc51989ca9b50e450a54e465393517b60c2f0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "590c7069_a86bee43",
@@ -86,6 +104,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "664ea99f_3547a6c3",
+        "filename": "charms/octavia-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 905,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-29T06:06:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "590c7069_a86bee43",
+      "revId": "58ebc51989ca9b50e450a54e465393517b60c2f0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bcc39818_624b0327",
@@ -99,6 +135,24 @@
       "writtenOn": "2026-03-21T13:05:11Z",
       "side": 1,
       "message": "Do we want to be able to start the pebble services (the services specific to amphora) before we set the mgmt ip?",
+      "revId": "58ebc51989ca9b50e450a54e465393517b60c2f0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0aadf068_3865b1b6",
+        "filename": "charms/octavia-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1178,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-29T06:06:16Z",
+      "side": 1,
+      "message": "Fixed in PS2 - swapped reconcile_amphota_containers and -set_lbmgmt_ip",
+      "parentUuid": "bcc39818_624b0327",
       "revId": "58ebc51989ca9b50e450a54e465393517b60c2f0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
