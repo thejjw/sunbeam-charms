@@ -103,6 +103,16 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
             self.charm.on.update_status, self._on_update_status
         )
         self._files_changed: list[str] = []
+        # Tracks whether configure_container() has already been called in the
+        # current hook invocation. configure_unit() calls configure_containers()
+        # first (needed before db-sync), then init_container_services() which
+        # calls init_service() -> configure_container() again. Without this
+        # guard that doubles every pebble pull() call in write_config(), making
+        # hooks take 2-3x longer. Reset in _reset_files_changed() after a
+        # service start/restart so that the next write_config() in the same
+        # hook (e.g. after a service bounce) still runs. Each hook is a new
+        # process so the flag always starts False across hooks.
+        self._container_configured: bool = False
 
     def __post_init__(self) -> None:
         """Post init."""
@@ -235,14 +245,25 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
     def _reset_files_changed(self) -> None:
         """Reset list of files changed."""
         self._files_changed = []
+        self._container_configured = False
 
     def configure_container(
         self, context: sunbeam_core.OPSCharmContexts
     ) -> None:
-        """Write configuration files to the container."""
+        """Write configuration files to the container.
+
+        Guarded by _container_configured to avoid being called twice in the
+        same hook invocation. configure_unit() calls configure_containers()
+        before db-sync, then init_container_services() -> init_service() calls
+        this method again. The duplicate call doubles all pebble pull() RPCs
+        in write_config() with no benefit since the context has not changed.
+        """
+        if self._container_configured:
+            return
         self.setup_dirs()
         self._files_changed.extend(self.write_config(context))
         self.files_changed(self._files_changed)
+        self._container_configured = True
 
     def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
         """Initialise service ready for use.

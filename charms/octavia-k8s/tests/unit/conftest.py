@@ -190,17 +190,56 @@ def complete_state(complete_relations, complete_secrets, all_containers):
 
 
 @pytest.fixture()
+def amphora_issuing_ca_relation():
+    """An amphora-issuing-ca relation (cert not yet issued)."""
+    return testing.Relation(
+        endpoint="amphora-issuing-ca",
+        remote_app_name="self-signed-certificates",
+    )
+
+
+@pytest.fixture()
+def amphora_controller_cert_relation():
+    """An amphora-controller-cert relation (cert not yet issued)."""
+    return testing.Relation(
+        endpoint="amphora-controller-cert",
+        remote_app_name="self-signed-certificates",
+    )
+
+
+@pytest.fixture()
+def mock_amphora_certs_ready():
+    """Mock Amphora TLS cert handlers as ready to skip cert-readiness waiting."""
+    with mock.patch.object(
+        charm.AmphoraTlsCertificatesHandler,
+        "ready",
+        new_callable=mock.PropertyMock,
+        return_value=True,
+    ):
+        yield
+
+
+@pytest.fixture()
+def mock_amphora_cert_context():
+    """Mock AmphoraCertificatesContext.context with fake cert data."""
+    with mock.patch.object(
+        charm.AmphoraCertificatesContext,
+        "context",
+        return_value={
+            "lb_mgmt_issuing_cacert": "FAKE_CA",
+            "lb_mgmt_issuing_ca_private_key": "FAKE_KEY",
+            "lb_mgmt_issuing_ca_root": "FAKE_ROOT_CA",
+            "lb_mgmt_controller_cacert": "FAKE_CA",
+            "lb_mgmt_controller_cert": "FAKE_CERT",
+        },
+    ):
+        yield
+
+
+@pytest.fixture()
 def amphora_config():
-    """Config dict enabling Amphora with all required certificate settings."""
-    return {
-        "amphora-network-attachment": "octavia-mgmt",
-        # base64("test") = dGVzdA==
-        "lb-mgmt-issuing-cacert": "dGVzdA==",
-        "lb-mgmt-issuing-ca-private-key": "dGVzdA==",
-        "lb-mgmt-issuing-ca-key-passphrase": "s3cr3t-passphrase",
-        "lb-mgmt-controller-cacert": "dGVzdA==",
-        "lb-mgmt-controller-cert": "dGVzdA==",
-    }
+    """Config dict enabling Amphora (cert relations replace old config options)."""
+    return {"amphora-network-attachment": "octavia-mgmt"}
 
 
 @pytest.fixture()
@@ -215,7 +254,14 @@ def barbican_ready_relation():
 
 @pytest.fixture()
 def complete_relations_with_barbican(
-    complete_relations, barbican_ready_relation
+    complete_relations,
+    barbican_ready_relation,
+    amphora_issuing_ca_relation,
+    amphora_controller_cert_relation,
 ):
-    """All mandatory relations plus a ready barbican-service relation."""
-    return complete_relations + [barbican_ready_relation]
+    """All mandatory relations plus barbican and Amphora TLS cert relations."""
+    return complete_relations + [
+        barbican_ready_relation,
+        amphora_issuing_ca_relation,
+        amphora_controller_cert_relation,
+    ]

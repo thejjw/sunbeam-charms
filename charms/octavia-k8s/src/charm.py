@@ -18,8 +18,6 @@
 This charm provide Octavia services as part of an OpenStack deployment
 """
 
-import base64
-import binascii
 import hashlib
 import json
 import logging
@@ -42,6 +40,9 @@ import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 import tenacity
+from charms.tls_certificates_interface.v4.tls_certificates import (
+    CertificateRequestAttributes,
+)
 from lightkube.core.client import (
     Client,
 )
@@ -290,42 +291,98 @@ class AmphoraHealthManagerContext(sunbeam_config_contexts.ConfigContext):
 
 
 @sunbeam_tracing.trace_type
+class AmphoraTlsCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
+    """TLS certificates handler for Amphora-specific relations.
+
+    Extends TlsCertificatesHandler to support arbitrary relation names
+    instead of the default 'certificates' relation that the base class
+    hardcodes in setup_event_handler.
+    """
+
+    def setup_event_handler(self) -> ops.Object:
+        """Configure event handlers using self.relation_name."""
+        logger.debug(
+            "Setting up certificates event handler for %s", self.relation_name
+        )
+        from charms.tls_certificates_interface.v4.tls_certificates import (
+            Mode,
+            TLSCertificatesRequiresV4,
+        )
+
+        mode = Mode.APP if self.app_managed_certificates else Mode.UNIT
+        self.certificates = sunbeam_tracing.trace_type(
+            TLSCertificatesRequiresV4
+        )(self.charm, self.relation_name, self.certificate_requests, mode)
+
+        self.framework.observe(
+            self.certificates.on.certificate_available,
+            self._on_certificate_available,
+        )
+        return self.certificates
+
+    def update_relation_data(self) -> None:
+        """No-op: skip cert.sync() to prevent re-entrancy into configure_charm.
+
+        The base class calls self.certificates.sync() here, which synchronously
+        emits certificate_available if certs are already present. That event
+        re-enters configure_charm() while the outer call is still inside
+        update_relations(), causing a full duplicate configure_unit() run
+        (including ~50 pebble pull() RPCs) before the outer run even starts.
+        Cert data is read directly from the relation in context() on every hook,
+        so skipping sync() here loses nothing.
+        """
+
+
+@sunbeam_tracing.trace_type
 class AmphoraCertificatesContext(sunbeam_config_contexts.ConfigContext):
     """Amphora Certificates configuration context.
 
-    Decodes base64-encoded certificate config options before passing
-    to templates.
+    Reads certificate material from the amphora-issuing-ca and
+    amphora-controller-cert tls-certificates relations.  The context
+    keys are intentionally identical to the old config-option-based keys
+    so that all Jinja2 templates (issuing_ca.pem.j2, controller_cert.pem.j2,
+    etc.) work without modification.
     """
-
-    def _decode_cert(self, config_key: str) -> str | None:
-        """Decode a single base64-encoded certificate config option.
-
-        :param config_key: The charm config key to read and decode.
-        :returns: Decoded PEM string, or None if unset or invalid.
-        :rtype: str | None
-        """
-        value = self.charm.config.get(config_key)
-        if not value:
-            return None
-        try:
-            return base64.b64decode(value).decode("utf-8")
-        except (ValueError, binascii.Error) as e:
-            logger.error(f"Failed to decode {config_key}: {e}")
-            return None
 
     def context(self) -> dict:
         """Configuration context for Amphora certificates."""
-        cert_keys = {
-            "lb_mgmt_controller_cacert": "lb-mgmt-controller-cacert",
-            "lb_mgmt_issuing_cacert": "lb-mgmt-issuing-cacert",
-            "lb_mgmt_issuing_ca_private_key": "lb-mgmt-issuing-ca-private-key",
-            "lb_mgmt_controller_cert": "lb-mgmt-controller-cert",
-        }
-        return {
-            ctx_key: decoded
-            for ctx_key, config_key in cert_keys.items()
-            if (decoded := self._decode_cert(config_key)) is not None
-        }
+        ctxt = {}
+
+        # Issuing CA cert + private key from the amphora-issuing-ca relation.
+        issuing_handler = getattr(self.charm, "amphora_issuing_ca", None)
+        if issuing_handler and issuing_handler.ready:
+            for _cn, cert in issuing_handler.get_certs():
+                if cert is not None:
+                    ctxt["lb_mgmt_issuing_cacert"] = str(cert.certificate)
+                    ctxt["lb_mgmt_issuing_ca_private_key"] = (
+                        issuing_handler.get_private_key()
+                    )
+                    # cert.ca is the signing CA that issued the issuing CA
+                    # certificate (may be an intermediate or root CA).
+                    # Appended to issuing_ca.pem so OpenSSL can verify the
+                    # full chain when validating per-Amphora certs.
+                    if cert.ca:
+                        ctxt["lb_mgmt_issuing_ca_root"] = str(cert.ca)
+                    break
+
+        # Controller cert + CA from the amphora-controller-cert relation.
+        # The controller cert file is a PEM bundle: cert || private-key,
+        # matching the format expected by Octavia's haproxy_amphora section.
+        controller_handler = getattr(
+            self.charm, "amphora_controller_cert", None
+        )
+        if controller_handler and controller_handler.ready:
+            for _cn, cert in controller_handler.get_certs():
+                if cert is not None:
+                    ctxt["lb_mgmt_controller_cacert"] = str(cert.ca)
+                    ctxt["lb_mgmt_controller_cert"] = (
+                        str(cert.certificate).rstrip("\n")
+                        + "\n"
+                        + controller_handler.get_private_key()
+                    )
+                    break
+
+        return ctxt
 
 
 @sunbeam_tracing.trace_type
@@ -754,6 +811,33 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 )
             )
             handlers.append(self.barbican_svc)
+        if self.can_add_handler("amphora-issuing-ca", handlers):
+            self.amphora_issuing_ca = AmphoraTlsCertificatesHandler(
+                self,
+                "amphora-issuing-ca",
+                self.configure_charm,
+                certificate_requests=[
+                    CertificateRequestAttributes(
+                        common_name="octavia-amphora-issuing-ca",
+                        is_ca=True,
+                    )
+                ],
+                mandatory=False,
+            )
+            handlers.append(self.amphora_issuing_ca)
+        if self.can_add_handler("amphora-controller-cert", handlers):
+            self.amphora_controller_cert = AmphoraTlsCertificatesHandler(
+                self,
+                "amphora-controller-cert",
+                self.configure_charm,
+                certificate_requests=[
+                    CertificateRequestAttributes(
+                        common_name=f"{self.app.name}-controller",
+                    )
+                ],
+                mandatory=False,
+            )
+            handlers.append(self.amphora_controller_cert)
         handlers = super().get_relation_handlers(handlers)
         return handlers
 
@@ -892,9 +976,8 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Handle the upgrade charm event."""
         logger.info("Handling upgrade-charm event")
         self.certs.validate_and_regenerate_certificates_if_needed()
-        # Re-detect the management network IP in case the pod was recreated.
-        self._set_lbmgmt_ip()
         # ops-sunbeam doesn't wire upgrade_charm -> configure_charm by default.
+        # configure_charm -> configure_unit -> _set_lbmgmt_ip re-detects the IP.
         self.configure_charm(event)
 
     def _read_pod_network_status(self, pod_name: str) -> list | None:
@@ -1013,8 +1096,19 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         network_attachment = self.config.get("amphora-network-attachment", "")
         lbmgmt_ip = self._get_lbmgmt_ip_from_network_status()
         if lbmgmt_ip:
-            self.peers.set_unit_data({"lbmgmt-ip": lbmgmt_ip})
-            logger.info(f"Set lbmgmt-ip to {lbmgmt_ip}")
+            peers_rels = self.model.relations.get("peers", [])
+            current_ip = (
+                peers_rels[0].data[self.model.unit].get("lbmgmt-ip")
+                if peers_rels
+                else None
+            )
+            if lbmgmt_ip != current_ip:
+                self.peers.set_unit_data({"lbmgmt-ip": lbmgmt_ip})
+                logger.info(f"Set lbmgmt-ip to {lbmgmt_ip}")
+            else:
+                logger.debug(
+                    f"lbmgmt-ip already set to {lbmgmt_ip}, skipping write"
+                )
             self.amphora_net_status.set(ops.ActiveStatus(""))
         elif network_attachment:
             # The operator has configured a network attachment but the
@@ -1146,41 +1240,19 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 + ", ".join(sorted(_VALID_LOG_PROTOCOL))
             )
         if self.config.get("amphora-network-attachment"):
-            required_certs = [
-                "lb-mgmt-issuing-cacert",
-                "lb-mgmt-issuing-ca-private-key",
-                "lb-mgmt-issuing-ca-key-passphrase",
-                "lb-mgmt-controller-cacert",
-                "lb-mgmt-controller-cert",
-            ]
-            missing = [c for c in required_certs if not self.config.get(c)]
-            if missing:
+            # Require both Amphora TLS cert relations to be connected.
+            if not self.model.relations.get("amphora-issuing-ca"):
                 errors.append(
-                    "Amphora certificates not configured: "
-                    + ", ".join(missing)
+                    "amphora-issuing-ca relation required for Amphora: "
+                    "relate to self-signed-certificates or "
+                    "manual-tls-certificates"
                 )
-            else:
-                # All cert values are present — validate that the base64-
-                # encoded ones are actually decodable so we surface a clear
-                # BlockedStatus rather than silently writing empty cert files.
-                b64_certs = [
-                    "lb-mgmt-issuing-cacert",
-                    "lb-mgmt-issuing-ca-private-key",
-                    "lb-mgmt-controller-cacert",
-                    "lb-mgmt-controller-cert",
-                ]
-                invalid = []
-                for key in b64_certs:
-                    value = self.config.get(key, "")
-                    try:
-                        base64.b64decode(value)
-                    except (ValueError, binascii.Error):
-                        invalid.append(key)
-                if invalid:
-                    errors.append(
-                        "Amphora certificates contain invalid base64: "
-                        + ", ".join(invalid)
-                    )
+            if not self.model.relations.get("amphora-controller-cert"):
+                errors.append(
+                    "amphora-controller-cert relation required for Amphora: "
+                    "relate to self-signed-certificates or "
+                    "manual-tls-certificates"
+                )
         return errors
 
     def configure_charm(self, event: ops.framework.EventBase) -> None:
@@ -1205,6 +1277,26 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             if not self.barbican_svc.ready:
                 self.config_status.set(
                     ops.WaitingStatus("Waiting for barbican-service")
+                )
+                return
+            if (
+                not getattr(self, "amphora_issuing_ca", None)
+                or not self.amphora_issuing_ca.ready
+            ):
+                self.config_status.set(
+                    ops.WaitingStatus(
+                        "Waiting for Amphora issuing CA certificate"
+                    )
+                )
+                return
+            if (
+                not getattr(self, "amphora_controller_cert", None)
+                or not self.amphora_controller_cert.ready
+            ):
+                self.config_status.set(
+                    ops.WaitingStatus(
+                        "Waiting for Amphora controller certificate"
+                    )
                 )
                 return
         self.config_status.set(ops.ActiveStatus(""))
@@ -1458,7 +1550,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             if not ph.pebble_ready:
                 continue
             if amphora_enabled:
-                ph.start_all()
+                ph.start_all(restart=False)
             else:
                 ph.stop_all()
 
