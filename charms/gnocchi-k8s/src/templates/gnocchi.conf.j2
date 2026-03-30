@@ -11,10 +11,19 @@ url = {{ database.connection }}
 
 
 [storage]
+{% if s3_credentials is defined %}
+driver = s3
+s3_endpoint_url = {{ s3_credentials.s3_endpoint }}
+s3_access_key_id = {{ s3_credentials.s3_access_key_id }}
+s3_secret_access_key = {{ s3_credentials.s3_secret_access_key }}
+s3_bucket_prefix = {{ s3_credentials.s3_bucket }}
+s3_region_name = {{ s3_credentials.s3_region }}
+{% else %}
 driver = ceph
 ceph_pool = gnocchi
 ceph_username = gnocchi
 ceph_conffile = /etc/ceph/ceph.conf
+{% endif %}
 
 [metricd]
 workers = 4

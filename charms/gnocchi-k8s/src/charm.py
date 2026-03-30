@@ -50,6 +50,58 @@ GNOCCHI_METRICD_CONTAINER = "gnocchi-metricd"
 
 
 @sunbeam_tracing.trace_type
+class S3RelationHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for s3-credentials relation."""
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for the s3-credentials relation."""
+        logger.debug("Setting up S3 credentials event handler")
+        from charms.data_platform_libs.v0.s3 import (
+            S3Requirer,
+        )
+
+        s3 = sunbeam_tracing.trace_type(S3Requirer)(
+            self.charm,
+            self.relation_name,
+            bucket_name="gnocchi",
+        )
+        self.framework.observe(
+            s3.on.credentials_changed, self._on_credentials_changed
+        )
+        self.framework.observe(
+            s3.on.credentials_gone, self._on_credentials_gone
+        )
+        return s3
+
+    def _on_credentials_changed(self, event: ops.framework.EventBase) -> None:
+        """Handle credentials changed event."""
+        self.callback_f(event)
+
+    def _on_credentials_gone(self, event: ops.framework.EventBase) -> None:
+        """Handle credentials gone event."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if S3 relation is ready."""
+        info = self.interface.get_s3_connection_info()
+        return bool(info.get("access-key") and info.get("secret-key"))
+
+    def context(self) -> dict:
+        """Return S3 context for template rendering."""
+        if not self.ready:
+            return {}
+        info = self.interface.get_s3_connection_info()
+        return {
+            "s3_endpoint": info.get("endpoint", ""),
+            "s3_access_key_id": info.get("access-key", ""),
+            "s3_secret_access_key": info.get("secret-key", ""),
+            "s3_bucket": info.get("bucket", "gnocchi"),
+            "s3_region": info.get("region", "us-east-1"),
+        }
+
+
+@sunbeam_tracing.trace_type
 class GnocchiServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
     """Handler for Gnocchi service relation on provider side."""
 
@@ -322,49 +374,62 @@ class GnocchiCephOperatorCharm(GnocchiOperatorCharm):
             mandatory="ceph" in self.mandatory_relations,
         )
         handlers.append(self.ceph)
+        self.s3 = S3RelationHandler(
+            self,
+            "s3-credentials",
+            self.configure_charm,
+            mandatory="s3-credentials" in self.mandatory_relations,
+        )
+        handlers.append(self.s3)
         return handlers
 
     def configure_containers(self):
-        """Setp ceph keyring and init pebble handlers that are ready."""
-        for ph in self.pebble_handlers:
-            if ph.pebble_ready:
-                ph.execute(
-                    [
-                        "ceph-authtool",
-                        f"/etc/ceph/ceph.client.{self.app.name}.keyring",
-                        "--create-keyring",
-                        f"--name=client.{self.app.name}",
-                        f"--add-key={self.ceph.key}",
-                    ],
-                    exception_on_error=True,
-                )
-                ph.execute(
-                    [
-                        "chown",
-                        f"{self.service_user}:{self.service_group}",
-                        f"/etc/ceph/ceph.client.{self.app.name}.keyring",
-                        "/etc/ceph/rbdmap",
-                    ],
-                    exception_on_error=True,
-                )
-                ph.execute(
-                    [
-                        "chmod",
-                        "640",
-                        f"/etc/ceph/ceph.client.{self.app.name}.keyring",
-                        "/etc/ceph/rbdmap",
-                    ],
-                    exception_on_error=True,
-                )
-                ph.configure_container(self.contexts())
-            else:
-                logging.debug(
-                    f"Not running configure containers for {ph.service_name},"
-                    " container not ready"
-                )
-                raise sunbeam_guard.WaitingExceptionError(
-                    "Payload container not ready"
-                )
+        """Set up storage backend and init pebble handlers that are ready."""
+        if not self.ceph.ready and not self.s3.ready:
+            raise sunbeam_guard.BlockedExceptionError(
+                "Need either s3-credentials or ceph relation"
+            )
+
+        if self.ceph.ready:
+            for ph in self.pebble_handlers:
+                if ph.pebble_ready:
+                    ph.execute(
+                        [
+                            "ceph-authtool",
+                            f"/etc/ceph/ceph.client.{self.app.name}.keyring",
+                            "--create-keyring",
+                            f"--name=client.{self.app.name}",
+                            f"--add-key={self.ceph.key}",
+                        ],
+                        exception_on_error=True,
+                    )
+                    ph.execute(
+                        [
+                            "chown",
+                            f"{self.service_user}:{self.service_group}",
+                            f"/etc/ceph/ceph.client.{self.app.name}.keyring",
+                            "/etc/ceph/rbdmap",
+                        ],
+                        exception_on_error=True,
+                    )
+                    ph.execute(
+                        [
+                            "chmod",
+                            "640",
+                            f"/etc/ceph/ceph.client.{self.app.name}.keyring",
+                            "/etc/ceph/rbdmap",
+                        ],
+                        exception_on_error=True,
+                    )
+                    ph.configure_container(self.contexts())
+                else:
+                    logging.debug(
+                        f"Not running configure containers for {ph.service_name},"
+                        " container not ready"
+                    )
+                    raise sunbeam_guard.WaitingExceptionError(
+                        "Payload container not ready"
+                    )
         super().configure_containers()
 
     def default_container_configs(
@@ -372,16 +437,17 @@ class GnocchiCephOperatorCharm(GnocchiOperatorCharm):
     ) -> List[sunbeam_core.ContainerConfigFile]:
         """Container configurations for handler."""
         _cconfigs = super().default_container_configs()
-        _cconfigs.extend(
-            [
-                sunbeam_core.ContainerConfigFile(
-                    "/etc/ceph/ceph.conf",
-                    self.service_user,
-                    self.service_group,
-                    0o640,
-                ),
-            ]
-        )
+        if self.ceph.ready:
+            _cconfigs.extend(
+                [
+                    sunbeam_core.ContainerConfigFile(
+                        "/etc/ceph/ceph.conf",
+                        self.service_user,
+                        self.service_group,
+                        0o640,
+                    ),
+                ]
+            )
         return _cconfigs
 
 

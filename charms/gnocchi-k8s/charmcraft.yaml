@@ -290,6 +290,11 @@ requires:
     limit: 1
   ceph:
     interface: ceph-client
+    optional: true
+  s3-credentials:
+    interface: s3
+    limit: 1
+    optional: true
   receive-ca-cert:
     interface: certificate_transfer
     optional: true
