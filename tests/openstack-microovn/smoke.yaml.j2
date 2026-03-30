@@ -591,6 +591,10 @@ relations:
   - octavia:ingress-internal
 - - tls-operator:certificates
   - octavia:certificates
+- - tls-operator:certificates
+  - octavia:amphora-issuing-ca
+- - tls-operator:certificates
+  - octavia:amphora-controller-cert
 - - keystone:send-ca-cert
   - octavia:receive-ca-cert
 

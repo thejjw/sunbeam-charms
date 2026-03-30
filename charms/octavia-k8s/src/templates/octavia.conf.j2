@@ -70,7 +70,7 @@ amp_boot_network_list = {{ options.amp_boot_network_list }}
 amp_image_tag = {{ options.amp_image_tag }}
 {% endif -%}
 amp_active_retries = 180
-{% if options.lb_mgmt_controller_cacert -%}
+{% if amphora_certs.lb_mgmt_controller_cacert -%}
 # This certificate is installed on the Amphorae and used for validating
 # the authenticity of the Octavia controller.
 client_ca = /etc/octavia/certs/controller_ca.pem
@@ -115,17 +115,14 @@ volume_type = {{ options.volume_type }}
 # and its Amphorae instances are issued locally on the Octavia controller.
 # Note that these certificates are not used for any load balancer payload data
 cert_generator = local_cert_generator
-{% if options.lb_mgmt_issuing_cacert -%}
+{% if amphora_certs.lb_mgmt_issuing_cacert -%}
 # This certificate is used to issue individual certificates for each
 # Amphora and to validate their authenticity when they connect to the
 # Octavia controller.
 ca_certificate = /etc/octavia/certs/issuing_ca.pem
 {% endif -%}
-{% if options.lb_mgmt_issuing_ca_private_key -%}
+{% if amphora_certs.lb_mgmt_issuing_ca_private_key -%}
 ca_private_key = /etc/octavia/certs/issuing_ca_key.pem
-{% endif -%}
-{% if options.lb_mgmt_issuing_ca_key_passphrase -%}
-ca_private_key_passphrase = {{ options.lb_mgmt_issuing_ca_key_passphrase }}
 {% endif -%}
 {% if barbican_service and barbican_service.service_ready -%}
 cert_manager = barbican_cert_manager
@@ -135,12 +132,12 @@ region_name = {{ options.region }}
 {% endif %}
 
 [haproxy_amphora]
-{% if options.lb_mgmt_issuing_cacert -%}
+{% if amphora_certs.lb_mgmt_issuing_cacert -%}
 # This certificate is used by the Octavia controller to validate the
 # authenticity of the Amphorae connecting to it.
 server_ca = /etc/octavia/certs/issuing_ca.pem
 {% endif -%}
-{% if options.lb_mgmt_controller_cert -%}
+{% if amphora_certs.lb_mgmt_controller_cert -%}
 # This certificate is used by the Octavia controller when it takes on the
 # role as a "client" connecting to the Amphorae.
 client_cert = /etc/octavia/certs/controller_cert.pem
