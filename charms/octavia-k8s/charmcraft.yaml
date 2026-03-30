@@ -58,61 +58,6 @@ config:
         Glance image tag for selection of Amphorae image to boot load
         balancer instances.
       type: string
-    lb-mgmt-issuing-cacert:
-      description: |
-        Certificate Authority Certificate used to issue new certificates stored
-        on the Amphora load balancer instances. The Amphorae use them to
-        authenticate themselves to the Octavia controller services.
-
-        Note due to security concerns it is important not use the same CA
-        certificate for both lb-mgmt-issuing-cacert and
-        lb-mgmt-controller-cacert configuration options. Failing to keep
-        them separate may lead to abuse of certificate data to gain access to
-        other Amphora instances in the event one of them is compromised.
-
-        Note that these certificates are not used for any load balancer payload
-        data.
-      type: string
-    lb-mgmt-issuing-ca-private-key:
-      description: |
-        Private key for the Certificate Authority set in lb-mgmt-issuing-cacert.
-
-        Note that these certificates are not used for any load balancer payload
-        data.
-      type: string
-    lb-mgmt-issuing-ca-key-passphrase:
-      description: |
-        Passphrase for the key set in lb-mgmt-issuing-ca-private-key.
-
-        NOTE: As of this writing Octavia requires the private key to be protected
-        with a passphrase.
-
-        Note that these certificates are not used for any load balancer payload
-        data.
-      type: string
-    lb-mgmt-controller-cacert:
-      description: |
-        Certificate Authority Certificate installed on Amphorae with the
-        purpose of the Amphora agent using it to authenticate connections
-        from Octavia controller services.
-
-        Note due to security concerns it is important not use the same CA
-        certificate for both lb-mgmt-issuing-cacert and
-        lb-mgmt-controller-cacert configuration options. Failing to keep
-        them separate may lead to abuse of certificate data to gain access to
-        other Amphora instances in the event one of them is compromised.
-
-        Note that these certificates are not used for any load balancer payload
-        data.
-      type: string
-    lb-mgmt-controller-cert:
-      description: |
-        Certificate used by the Octavia controller to authenticate itself to
-        its Amphorae.
-
-        Note that these certificates are not used for any load balancer payload
-        data.
-      type: string
     loadbalancer-topology:
       default: SINGLE
       description: |
@@ -271,38 +216,16 @@ containers:
     mounts:
       - storage: agent-sockets
         location: /var/run/octavia/
-  octavia-driver-agent:
-    resource: octavia-driver-agent-image
+  octavia-controller:
+    resource: octavia-api-image
     mounts:
       - storage: agent-sockets
         location: /var/run/octavia/
-  octavia-housekeeping:
-    resource: octavia-housekeeping-image
-  octavia-health-manager:
-    resource: octavia-health-manager-image
-  octavia-worker:
-    resource: octavia-worker-image
 
 resources:
   octavia-api-image:
     type: oci-image
     description: OCI image for OpenStack octavia
-    upstream-source: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
-  octavia-driver-agent-image:
-    type: oci-image
-    description: OCI image for OpenStack Octavia Driver Agent
-    upstream-source: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
-  octavia-housekeeping-image:
-    type: oci-image
-    description: OCI image for OpenStack Octavia Housekeeping
-    upstream-source: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
-  octavia-health-manager-image:
-    type: oci-image
-    description: OCI image for OpenStack Octavia Health manager
-    upstream-source: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
-  octavia-worker-image:
-    type: oci-image
-    description: OCI image for OpenStack Octavia Worker
     upstream-source: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
 
 storage:
@@ -310,7 +233,7 @@ storage:
     type: filesystem
     description: |
       Storage for the location of agent sockets shared between octavia-api
-      and octavia-driver-agent
+      and octavia-controller (for octavia-driver-agent service)
     minimum-size: 100M
 
 requires:
@@ -352,6 +275,20 @@ requires:
   barbican-service:
     interface: service-ready
     optional: true
+  amphora-issuing-ca:
+    interface: tls-certificates
+    optional: true
+    limit: 1
+    description: |
+      TLS relation to obtain the Amphora issuing CA certificate and private
+      key used to sign per-Amphora client certificates.
+  amphora-controller-cert:
+    interface: tls-certificates
+    optional: true
+    limit: 1
+    description: |
+      TLS relation to obtain the Octavia controller certificate and private
+      key used for mutual TLS with Amphora instances.
 
 peers:
   peers:

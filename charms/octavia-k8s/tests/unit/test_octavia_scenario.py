@@ -86,10 +86,7 @@ class TestBlockedWhenNoRelations:
         """No relations at all → blocked with 'integration missing'."""
         containers = [
             k8s_api_container("octavia-api", can_connect=False),
-            k8s_container("octavia-driver-agent", can_connect=False),
-            k8s_container("octavia-housekeeping", can_connect=False),
-            k8s_container("octavia-health-manager", can_connect=False),
-            k8s_container("octavia-worker", can_connect=False),
+            k8s_container("octavia-controller", can_connect=False),
         ]
         state_in = testing.State(leader=True, containers=containers)
         state_out = ctx.run(ctx.on.config_changed(), state_in)
@@ -191,6 +188,7 @@ class TestAmphoraNetworkAttachment:
         complete_secrets,
         all_containers,
         amphora_config,
+        mock_amphora_certs_ready,
     ):
         """Amphora enabled but second interface absent → WaitingStatus."""
         state_in = testing.State(
@@ -217,8 +215,10 @@ class TestAmphoraNetworkAttachment:
         complete_secrets,
         all_containers,
         amphora_config,
+        mock_amphora_certs_ready,
+        mock_amphora_cert_context,
     ):
-        """Amphora certs in config → octavia.conf has cert file paths."""
+        """Amphora cert relations present → octavia.conf has cert file paths."""
         state_in = testing.State(
             leader=True,
             relations=complete_relations_with_barbican,
@@ -241,7 +241,6 @@ class TestAmphoraNetworkAttachment:
             [
                 "ca_certificate = /etc/octavia/certs/issuing_ca.pem",
                 "ca_private_key = /etc/octavia/certs/issuing_ca_key.pem",
-                "ca_private_key_passphrase = s3cr3t-passphrase",
                 "server_ca = /etc/octavia/certs/issuing_ca.pem",
                 "client_ca = /etc/octavia/certs/controller_ca.pem",
                 "client_cert = /etc/octavia/certs/controller_cert.pem",
@@ -255,6 +254,7 @@ class TestAmphoraNetworkAttachment:
         complete_secrets,
         all_containers,
         amphora_config,
+        mock_amphora_certs_ready,
     ):
         """barbican-service ready → cert_manager = barbican_cert_manager written."""
         state_in = testing.State(
@@ -287,6 +287,7 @@ class TestAmphoraNetworkAttachment:
         complete_secrets,
         all_containers,
         amphora_config,
+        mock_amphora_certs_ready,
     ):
         """lbmgmt-ip pre-seeded in peer data → [health_manager] bind_ip rendered."""
         # Replace the plain peer relation with one pre-seeded with lbmgmt-ip
@@ -325,6 +326,50 @@ class TestAmphoraNetworkAttachment:
             ],
         )
 
+    def test_lbmgmt_ip_not_rewritten_when_unchanged(
+        self,
+        ctx,
+        complete_relations_with_barbican,
+        complete_secrets,
+        all_containers,
+        amphora_config,
+        mock_amphora_certs_ready,
+    ):
+        """lbmgmt-ip already set to the detected value → peer data not rewritten.
+
+        If set_unit_data were called unconditionally it would mutate
+        local_unit_data, triggering a peer-relation-changed hook and creating
+        an infinite hook loop in production.
+        """
+        peer_with_ip = testing.PeerRelation(
+            endpoint="peers",
+            local_unit_data={"lbmgmt-ip": "192.168.100.10"},
+        )
+        relations = [
+            r
+            for r in complete_relations_with_barbican
+            if r.endpoint != "peers"
+        ] + [peer_with_ip]
+        state_in = testing.State(
+            leader=True,
+            relations=relations,
+            containers=all_containers,
+            secrets=complete_secrets,
+            config=amphora_config,
+        )
+        with mock.patch.object(
+            charm.OctaviaOperatorCharm,
+            "_get_lbmgmt_ip_from_network_status",
+            return_value="192.168.100.10",
+        ):
+            state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        peer_out = state_out.get_relations("peers")[0]
+        # local_unit_data must be identical to what was passed in — no spurious write.
+        assert peer_out.local_unit_data.get("lbmgmt-ip") == "192.168.100.10"
+        # The in-state object must be the same instance (not replaced by a new write).
+        assert peer_out.local_unit_data == peer_with_ip.local_unit_data
+
     def test_amphora_containers_stopped_without_amphora_config(
         self,
         ctx,
@@ -339,12 +384,13 @@ class TestAmphoraNetworkAttachment:
             state_out = ctx.run(ctx.on.config_changed(), complete_state)
 
         assert state_out.unit_status == testing.ActiveStatus("")
-        hm_container = state_out.get_container("octavia-health-manager")
-        worker_container = state_out.get_container("octavia-worker")
-        hm_status = hm_container.service_statuses.get("octavia-health-manager")
-        wk_status = worker_container.service_statuses.get("octavia-worker")
-        # init_service skips start_service when Amphora not configured, so
-        # the services are never started and do not appear in service_statuses.
+        controller_container = state_out.get_container("octavia-controller")
+        hm_status = controller_container.service_statuses.get(
+            "octavia-health-manager"
+        )
+        wk_status = controller_container.service_statuses.get("octavia-worker")
+        # init_service only starts always-on services; health-manager and worker
+        # have startup: disabled and are not started when Amphora is unconfigured.
         assert hm_status is None
         assert wk_status is None
 
@@ -355,6 +401,7 @@ class TestAmphoraNetworkAttachment:
         complete_secrets,
         all_containers,
         amphora_config,
+        mock_amphora_certs_ready,
     ):
         """With amphora-network-attachment the health-manager and worker run."""
         state_in = testing.State(
@@ -371,10 +418,11 @@ class TestAmphoraNetworkAttachment:
         ):
             state_out = ctx.run(ctx.on.config_changed(), state_in)
 
-        hm_container = state_out.get_container("octavia-health-manager")
-        worker_container = state_out.get_container("octavia-worker")
-        hm_status = hm_container.service_statuses.get("octavia-health-manager")
-        wk_status = worker_container.service_statuses.get("octavia-worker")
+        controller_container = state_out.get_container("octavia-controller")
+        hm_status = controller_container.service_statuses.get(
+            "octavia-health-manager"
+        )
+        wk_status = controller_container.service_statuses.get("octavia-worker")
         assert hm_status == testing.pebble.ServiceStatus.ACTIVE
         assert wk_status == testing.pebble.ServiceStatus.ACTIVE
 
@@ -385,7 +433,7 @@ class TestAmphoraConfig:
     def test_blocked_when_amphora_certs_missing(
         self, ctx, complete_relations, complete_secrets, all_containers
     ):
-        """Setting amphora-network-attachment without certs → blocked."""
+        """Setting amphora-network-attachment without cert relations → blocked."""
         state_in = testing.State(
             leader=True,
             relations=complete_relations,
@@ -396,34 +444,40 @@ class TestAmphoraConfig:
         state_out = ctx.run(ctx.on.config_changed(), state_in)
         assert state_out.unit_status.name == "blocked"
         assert (
-            "Amphora certificates not configured"
+            "amphora-issuing-ca relation required"
             in state_out.unit_status.message
         )
 
     def test_blocked_when_barbican_not_integrated(
-        self, ctx, complete_relations, complete_secrets, all_containers
+        self,
+        ctx,
+        complete_relations,
+        complete_secrets,
+        all_containers,
+        amphora_issuing_ca_relation,
+        amphora_controller_cert_relation,
     ):
-        """amphora-network-attachment set with certs but no barbican relation → blocked."""
+        """amphora-network-attachment set with cert relations but no barbican → blocked."""
         state_in = testing.State(
             leader=True,
-            relations=complete_relations,
+            relations=complete_relations
+            + [amphora_issuing_ca_relation, amphora_controller_cert_relation],
             containers=all_containers,
             secrets=complete_secrets,
-            config={
-                "amphora-network-attachment": "octavia-mgmt",
-                "lb-mgmt-issuing-cacert": "dGVzdA==",
-                "lb-mgmt-issuing-ca-private-key": "dGVzdA==",
-                "lb-mgmt-issuing-ca-key-passphrase": "passphrase",
-                "lb-mgmt-controller-cacert": "dGVzdA==",
-                "lb-mgmt-controller-cert": "dGVzdA==",
-            },
+            config={"amphora-network-attachment": "octavia-mgmt"},
         )
         state_out = ctx.run(ctx.on.config_changed(), state_in)
         assert state_out.unit_status.name == "blocked"
         assert "barbican-service" in state_out.unit_status.message
 
     def test_waiting_when_barbican_not_ready(
-        self, ctx, complete_relations, complete_secrets, all_containers
+        self,
+        ctx,
+        complete_relations,
+        complete_secrets,
+        all_containers,
+        amphora_issuing_ca_relation,
+        amphora_controller_cert_relation,
     ):
         """barbican-service integrated but not yet ready → WaitingStatus."""
         barbican_rel = testing.Relation(
@@ -433,17 +487,15 @@ class TestAmphoraConfig:
         )
         state_in = testing.State(
             leader=True,
-            relations=complete_relations + [barbican_rel],
+            relations=complete_relations
+            + [
+                barbican_rel,
+                amphora_issuing_ca_relation,
+                amphora_controller_cert_relation,
+            ],
             containers=all_containers,
             secrets=complete_secrets,
-            config={
-                "amphora-network-attachment": "octavia-mgmt",
-                "lb-mgmt-issuing-cacert": "dGVzdA==",
-                "lb-mgmt-issuing-ca-private-key": "dGVzdA==",
-                "lb-mgmt-issuing-ca-key-passphrase": "passphrase",
-                "lb-mgmt-controller-cacert": "dGVzdA==",
-                "lb-mgmt-controller-cert": "dGVzdA==",
-            },
+            config={"amphora-network-attachment": "octavia-mgmt"},
         )
         state_out = ctx.run(ctx.on.config_changed(), state_in)
         assert state_out.unit_status.name == "waiting"
