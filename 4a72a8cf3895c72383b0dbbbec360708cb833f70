@@ -50,6 +50,23 @@
       "message": "recheck node failure",
       "revId": "4a72a8cf3895c72383b0dbbbec360708cb833f70",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6afafff_7c54e4a9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-03-30T12:36:18Z",
+      "side": 1,
+      "message": "LGTM, as a separate PR we should have functional test to verify this relation (atleast by the time we move out of ceph to s3).",
+      "revId": "4a72a8cf3895c72383b0dbbbec360708cb833f70",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
