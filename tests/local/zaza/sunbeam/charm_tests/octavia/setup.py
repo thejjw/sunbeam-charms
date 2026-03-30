@@ -34,12 +34,12 @@ Steps performed by configure_amphora():
      wait for the unit to reach active/idle.
 """
 
-import base64
 import glob
 import json
 import logging
 import os
 import subprocess
+import time
 import yaml
 from pathlib import Path
 
@@ -89,12 +89,6 @@ AMPHORA_FLAVOR_DISK_GB = 2
 LB_MGMT_SEC_GRP_NAME = "lb-mgmt-sec-grp"
 LB_HEALTH_MGR_SEC_GRP_NAME = "lb-health-mgr-sec-grp"
 
-# Certificate passphrase used for issuing CA key encryption.
-CERT_PASSPHRASE = "foobar"
-
-# Directory where generated certs are written.
-CERT_DIR = Path("/tmp/octavia-certs")
-
 # OVS bridge used by openstack-port-cni and the NAD resource annotation.
 OVS_BRIDGE = "br-int"
 
@@ -105,7 +99,21 @@ MICROOVN_SOCKET = "unix:/var/snap/microovn/common/run/switch/db.sock"
 OVS_CNI_RESOURCE = f"ovs-cni.network.kubevirt.io/{OVS_BRIDGE}"
 
 # Timeout (seconds) waiting for octavia to reach active/idle after config.
-OCTAVIA_ACTIVE_TIMEOUT = 900
+OCTAVIA_ACTIVE_TIMEOUT = 1800
+
+# How long octavia must remain continuously settled before we consider it
+# fully done.  This prevents returning during the brief (~6 second)
+# active/idle windows that occur between successive pebble-ready and
+# peers-relation-changed hooks executed after the pod restarts.
+_STABILITY_WINDOW_SECS = 30
+
+# Workload status message set by octavia while the Multus amphora-management
+# network interface has not yet attached to the pod.  Used as an exclusion
+# condition when waiting for octavia to settle — the same string is used by
+# the sunbeam-python loadbalancer feature for the same purpose.
+OCTAVIA_AMPHORA_NETWORK_WAITING_MESSAGE = (
+    "(amphora-network) Amphora management network interface not detected"
+)
 
 # ---------------------------------------------------------------------------
 # OpenStack client helpers (via zaza keystone session)
@@ -330,16 +338,28 @@ def _create_neutron_security_group(neutron_client, name, project_id):
     return sg["id"]
 
 
-def _neutron_sg_rule(neutron_client, sg_id, protocol, port_min=None, port_max=None):
-    """Add an ingress rule to a security group, ignoring duplicates."""
+def _neutron_sg_rule(
+    neutron_client,
+    sg_id,
+    protocol,
+    port_min=None,
+    port_max=None,
+    direction="ingress",
+    remote_ip_prefix=None,
+    ethertype="IPv4",
+):
+    """Add a rule to a security group, ignoring duplicates."""
     rule = {
         "security_group_id": sg_id,
-        "direction": "ingress",
+        "direction": direction,
+        "ethertype": ethertype,
         "protocol": protocol,
     }
     if port_min is not None:
         rule["port_range_min"] = port_min
         rule["port_range_max"] = port_max
+    if remote_ip_prefix is not None:
+        rule["remote_ip_prefix"] = remote_ip_prefix
     try:
         neutron_client.create_security_group_rule({"security_group_rule": rule})
     except Exception as exc:
@@ -360,17 +380,38 @@ def _create_security_groups(neutron_client, keystone_client):
     lb_sg_id = _create_neutron_security_group(
         neutron_client, LB_MGMT_SEC_GRP_NAME, svc_project_id
     )
-    _neutron_sg_rule(neutron_client, lb_sg_id, "tcp", 9443, 9443)   # agent REST API
-    _neutron_sg_rule(neutron_client, lb_sg_id, "icmp")              # health pings
-    _neutron_sg_rule(neutron_client, lb_sg_id, "tcp", 22, 22)       # SSH
+    # Ingress from lb-mgmt subnet
+    _neutron_sg_rule(neutron_client, lb_sg_id, "tcp", 9443, 9443,
+                     remote_ip_prefix=LB_MGMT_SUBNET_CIDR)           # agent REST API
+    _neutron_sg_rule(neutron_client, lb_sg_id, "icmp",
+                     remote_ip_prefix=LB_MGMT_SUBNET_CIDR)           # health pings
+    _neutron_sg_rule(neutron_client, lb_sg_id, "tcp", 22, 22,
+                     remote_ip_prefix=LB_MGMT_SUBNET_CIDR)           # SSH
+    # Egress to lb-mgmt subnet (controller → amphora)
+    _neutron_sg_rule(neutron_client, lb_sg_id, None,
+                     direction="egress",
+                     remote_ip_prefix=LB_MGMT_SUBNET_CIDR)           # all protocols IPv4
+    # Egress DNS + NTP (IPv4 and IPv6)
+    for port in (53, 123):
+        _neutron_sg_rule(neutron_client, lb_sg_id, "udp", port, port,
+                         direction="egress")                          # IPv4
+        _neutron_sg_rule(neutron_client, lb_sg_id, "udp", port, port,
+                         direction="egress", ethertype="IPv6")       # IPv6
 
     # --- lb-health-mgr-sec-grp ---
     hm_sg_id = _create_neutron_security_group(
         neutron_client, LB_HEALTH_MGR_SEC_GRP_NAME, svc_project_id
     )
-    _neutron_sg_rule(neutron_client, hm_sg_id, "udp", 5555, 5555)   # HM heartbeats
-    # Allow all ingress (no protocol restriction — mirrors the CLI command)
-    _neutron_sg_rule(neutron_client, hm_sg_id, None)
+    # Ingress HM heartbeats from lb-mgmt subnet
+    _neutron_sg_rule(neutron_client, hm_sg_id, "udp", 5555, 5555,
+                     remote_ip_prefix=LB_MGMT_SUBNET_CIDR)           # HM heartbeats
+    # Egress: user-created security groups have no default egress rules;
+    # add explicit egress-all so the health-manager can reach the amphora
+    # instances and other network services (DNS, NTP, etc.).
+    _neutron_sg_rule(neutron_client, hm_sg_id, None,
+                     direction="egress")                              # all protocols IPv4
+    _neutron_sg_rule(neutron_client, hm_sg_id, None,
+                     direction="egress", ethertype="IPv6")            # all protocols IPv6
 
     return lb_sg_id, hm_sg_id
 
@@ -456,176 +497,110 @@ def _create_nad(k8s_namespace, network_id, subnet_id, lb_sg_id, hm_sg_id):
 
 
 # ---------------------------------------------------------------------------
-# Step 6: Generate Octavia certificates
+# Step 6: Configure octavia juju application
 # ---------------------------------------------------------------------------
 
 
-def _generate_certs():
-    """Generate the issuing CA and controller CA + cert bundle.
-
-    Uses the controller CA as the issuing CA (standard Octavia test setup).
-    Certificates are written to CERT_DIR and re-used on subsequent runs.
-
-    Returns a dict:
-        controller_ca    – bytes of controller_ca.pem
-        controller_ca_key – bytes of controller_ca_key.pem
-        controller_cert_bundle – bytes of controller_cert_bundle.pem
-        passphrase       – the CERT_PASSPHRASE string (plaintext)
-    """
-    CERT_DIR.mkdir(parents=True, exist_ok=True)
-    (CERT_DIR / "demoCA" / "newcerts").mkdir(parents=True, exist_ok=True)
-    for fname in ("index.txt", "index.txt.attr"):
-        (CERT_DIR / "demoCA" / fname).touch()
-
-    issuing_ca_key = CERT_DIR / "issuing_ca_key.pem"
-    issuing_ca = CERT_DIR / "issuing_ca.pem"
-    controller_ca_key = CERT_DIR / "controller_ca_key.pem"
-    controller_ca = CERT_DIR / "controller_ca.pem"
-    controller_key = CERT_DIR / "controller_key.pem"
-    controller_csr = CERT_DIR / "controller.csr"
-    controller_cert = CERT_DIR / "controller_cert.pem"
-    controller_cert_bundle = CERT_DIR / "controller_cert_bundle.pem"
-
-    subj = "/C=US/ST=Somestate/O=Org/CN=www.example.com"
-    ssl_conf = "/etc/ssl/openssl.cnf"
-
-    if controller_cert_bundle.exists():
-        logging.info("Octavia certs already present in %s, reusing", CERT_DIR)
-    else:
-        logging.info("Generating Octavia CA and controller certificates")
-
-        # Issuing CA (generated but not used directly in Octavia config —
-        # the controller CA doubles as the issuing CA in this test setup).
-        subprocess.run(
-            [
-                "openssl", "genrsa",
-                "-passout", f"pass:{CERT_PASSPHRASE}",
-                "-des3",
-                "-out", str(issuing_ca_key),
-                "2048",
-            ],
-            check=True,
-        )
-        subprocess.run(
-            [
-                "openssl", "req", "-x509",
-                "-passin", f"pass:{CERT_PASSPHRASE}",
-                "-new", "-nodes",
-                "-key", str(issuing_ca_key),
-                "-config", ssl_conf,
-                "-subj", subj,
-                "-days", "365",
-                "-out", str(issuing_ca),
-            ],
-            check=True,
-        )
-
-        # Controller CA (used also as lb-mgmt-issuing-cacert in juju config).
-        subprocess.run(
-            [
-                "openssl", "genrsa",
-                "-passout", f"pass:{CERT_PASSPHRASE}",
-                "-des3",
-                "-out", str(controller_ca_key),
-                "2048",
-            ],
-            check=True,
-        )
-        subprocess.run(
-            [
-                "openssl", "req", "-x509",
-                "-passin", f"pass:{CERT_PASSPHRASE}",
-                "-new", "-nodes",
-                "-key", str(controller_ca_key),
-                "-config", ssl_conf,
-                "-subj", subj,
-                "-days", "365",
-                "-out", str(controller_ca),
-            ],
-            check=True,
-        )
-
-        # Controller cert + key (signed by the controller CA).
-        subprocess.run(
-            [
-                "openssl", "req",
-                "-newkey", "rsa:2048",
-                "-nodes",
-                "-keyout", str(controller_key),
-                "-subj", subj,
-                "-out", str(controller_csr),
-            ],
-            check=True,
-        )
-        subprocess.run(
-            [
-                "openssl", "ca",
-                "-passin", f"pass:{CERT_PASSPHRASE}",
-                "-config", ssl_conf,
-                "-cert", str(controller_ca),
-                "-keyfile", str(controller_ca_key),
-                "-create_serial",
-                "-batch",
-                "-in", str(controller_csr),
-                "-days", "365",
-                "-out", str(controller_cert),
-            ],
-            cwd=str(CERT_DIR),
-            check=True,
-        )
-
-        # Bundle: controller cert PEM + controller private key PEM.
-        with controller_cert_bundle.open("wb") as bundle_fp:
-            bundle_fp.write(controller_cert.read_bytes())
-            bundle_fp.write(controller_key.read_bytes())
-
-        logging.info("Certificates written to %s", CERT_DIR)
-
-    return {
-        "controller_ca": controller_ca.read_bytes(),
-        "controller_ca_key": controller_ca_key.read_bytes(),
-        "controller_cert_bundle": controller_cert_bundle.read_bytes(),
-        "passphrase": CERT_PASSPHRASE,
-    }
-
-
-# ---------------------------------------------------------------------------
-# Step 7: Configure octavia juju application
-# ---------------------------------------------------------------------------
-
-
-def _configure_octavia(juju_k8s, network_id, flavor_id, certs):
+def _configure_octavia(juju_k8s, network_id, flavor_id, lb_sg_id, hm_sg_id):
     """Set Amphora config options on the octavia application and wait for active.
 
     :param juju_k8s: jubilant.Juju handle for the k8s model
     :param network_id: id of the lb-mgmt-net Neutron network
     :param flavor_id: id of the Amphora Nova flavor
-    :param certs: dict returned by _generate_certs()
-    """
-    def _b64(data: bytes) -> str:
-        return base64.b64encode(data).decode()
+    :param lb_sg_id: id of the lb-health-mgr security group
+    :param hm_sg_id: id of the health-manager security group
 
+    Certificates are now provisioned via the amphora-issuing-ca and
+    amphora-controller-cert tls-certificates relations (e.g. related to
+    self-signed-certificates in CI).
+    """
     config = {
         # Compute / image
         "amp-flavor-id": flavor_id,
         "amp-image-tag": AMPHORA_IMAGE_TAG,
         "amp-boot-network-list": network_id,
+        "amp-secgroup-list": f"{lb_sg_id},{hm_sg_id}",
         # Multus network attachment
         "amphora-network-attachment": NAD_NAME,
-        # Certificates (base64-encoded PEM blobs)
-        "lb-mgmt-issuing-cacert": _b64(certs["controller_ca"]),
-        "lb-mgmt-issuing-ca-private-key": _b64(certs["controller_ca_key"]),
-        "lb-mgmt-issuing-ca-key-passphrase": certs["passphrase"],
-        "lb-mgmt-controller-cacert": _b64(certs["controller_ca"]),
-        "lb-mgmt-controller-cert": _b64(certs["controller_cert_bundle"]),
     }
 
     logging.info("Applying Amphora config to octavia: %s", list(config))
     juju_k8s.config(app="octavia", values=config)
 
-    logging.info("Waiting for octavia to become active after Amphora config")
+    # --- Phase 1: wait for config-changed to fire ---
+    #
+    # The agent goes non-idle as soon as Juju queues the config-changed hook.
+    # If the hook has already fired and finished before we first poll, we
+    # catch TimeoutError and move on (the agent is idle because it is done).
+    logging.info("Waiting for octavia config-changed hook to fire")
+    try:
+        juju_k8s.wait(
+            lambda status: not jubilant.all_agents_idle(status, "octavia"),
+            timeout=120,
+            delay=2,
+        )
+    except TimeoutError:
+        logging.info(
+            "octavia agent did not go non-idle within 120 s; "
+            "config-changed may have already completed"
+        )
+
+    # --- Phase 2: wait for octavia to settle ---
+    #
+    # The config-changed hook patches the StatefulSet pod-template with the
+    # Multus network annotation.  Kubernetes then performs a rolling update:
+    # the octavia-0 pod is deleted and recreated with a new UID.  The charm
+    # runs upgrade-charm → config-changed → pebble-ready → peers-relation-
+    # changed hooks.  During this sequence:
+    #
+    #   * The agent alternates between "executing" and briefly "idle" (~6 s).
+    #   * The workload is "blocked" with OCTAVIA_AMPHORA_NETWORK_WAITING_MESSAGE
+    #     while the Multus interface has not yet attached to the new pod.
+    #   * Once the interface attaches, subsequent hooks transition the workload
+    #     to "active" (certs are provided by self-signed-certificates in CI).
+    #
+    # We wait until all three conditions hold simultaneously for
+    # _STABILITY_WINDOW_SECS seconds:
+    #   1. Agent is idle (no hook running).
+    #   2. Workload is active or blocked.
+    #   3. Workload message is NOT OCTAVIA_AMPHORA_NETWORK_WAITING_MESSAGE.
+    #
+    # This mirrors the sunbeam-python loadbalancer feature's
+    # wait_until_desired_status call: both exclude the network-waiting blocked
+    # message and accept the cert-waiting blocked state or active.
+    logging.info(
+        "Waiting for octavia to settle after Amphora config (stable for %d s)",
+        _STABILITY_WINDOW_SECS,
+    )
+    _stable_since: list[float | None] = [None]
+
+    def _is_settled(status) -> bool:
+        app = status.apps.get("octavia")
+        if not app:
+            _stable_since[0] = None
+            return False
+        for unit in app.units.values():
+            if unit.juju_status.current != "idle":
+                _stable_since[0] = None
+                return False
+            if unit.workload_status.current not in ("active", "blocked"):
+                _stable_since[0] = None
+                return False
+            if (unit.workload_status.message or "") == OCTAVIA_AMPHORA_NETWORK_WAITING_MESSAGE:
+                _stable_since[0] = None
+                return False
+        # All units are in a stable terminal state.
+        if _stable_since[0] is None:
+            _stable_since[0] = time.monotonic()
+        if time.monotonic() - _stable_since[0] >= _STABILITY_WINDOW_SECS:
+            logging.info(
+                "octavia has been stably settled for %d s", _STABILITY_WINDOW_SECS
+            )
+            return True
+        return False
+
     juju_k8s.wait(
-        lambda status: jubilant.all_active(status, "octavia"),
+        _is_settled,
         timeout=OCTAVIA_ACTIVE_TIMEOUT,
         delay=10,
     )
@@ -665,8 +640,5 @@ def configure_amphora():
     # --- 5. NetworkAttachmentDefinition ---
     _create_nad(k8s_model, network_id, subnet_id, lb_sg_id, hm_sg_id)
 
-    # --- 6. Certificates ---
-    certs = _generate_certs()
-
-    # --- 7. Configure octavia + wait ---
-    _configure_octavia(juju_k8s, network_id, flavor_id, certs)
+    # --- 6. Configure octavia + wait ---
+    _configure_octavia(juju_k8s, network_id, flavor_id, lb_sg_id, hm_sg_id)
