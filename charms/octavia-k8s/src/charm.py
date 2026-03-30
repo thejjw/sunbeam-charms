@@ -18,8 +18,6 @@
 This charm provide Octavia services as part of an OpenStack deployment
 """
 
-import base64
-import binascii
 import hashlib
 import json
 import logging
@@ -42,6 +40,9 @@ import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 import tenacity
+from charms.tls_certificates_interface.v4.tls_certificates import (
+    CertificateRequestAttributes,
+)
 from lightkube.core.client import (
     Client,
 )
@@ -68,11 +69,15 @@ from ops.model import (
 
 logger = logging.getLogger(__name__)
 OCTAVIA_API_CONTAINER = "octavia-api"
-OCTAVIA_DRIVER_AGENT_CONTAINER = "octavia-driver-agent"
-OCTAVIA_HOUSEKEEPING_CONTAINER = "octavia-housekeeping"
-OCTAVIA_HEALTH_MANAGER_CONTAINER = "octavia-health-manager"
-OCTAVIA_WORKER_CONTAINER = "octavia-worker"
+OCTAVIA_CONTROLLER_CONTAINER = "octavia-controller"
 OCTAVIA_AGENT_SOCKET_DIR = "/var/run/octavia"
+# Services within octavia-controller that are always running
+_CONTROLLER_ALWAYS_ON_SERVICES = (
+    "octavia-driver-agent",
+    "octavia-housekeeping",
+)
+# Services within octavia-controller that only run when Amphora is configured
+_CONTROLLER_AMPHORA_SERVICES = ("octavia-health-manager", "octavia-worker")
 OCTAVIA_HEALTH_MANAGER_PORT = 5555
 OCTAVIA_HEARTBEAT_KEY = "heartbeat-key"
 
@@ -86,18 +91,29 @@ _VALID_LOG_PROTOCOL = frozenset({"UDP", "TCP"})
 
 
 @sunbeam_tracing.trace_type
-class OctaviaDriverAgentPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
-    """Pebble handler for Octavia Driver Agent."""
+class OctaviaControllerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+    """Pebble handler for octavia-controller container.
+
+    Runs all four controller services in a single container:
+      - octavia-driver-agent   (always on)
+      - octavia-housekeeping   (always on)
+      - octavia-health-manager (Amphora only, startup: disabled)
+      - octavia-worker         (Amphora only, startup: disabled)
+
+    The Amphora services are started/stopped by
+    ``_reconcile_amphora_containers`` based on the
+    ``amphora-network-attachment`` config option.
+    """
 
     def get_layer(self) -> dict:
-        """Octavia Driver Agent service layer.
+        """Octavia controller services layer.
 
-        :returns: pebble layer configuration for driver agent service
+        :returns: pebble layer configuration for all controller services
         :rtype: dict
         """
         return {
-            "summary": "octavia driver agent layer",
-            "description": "pebble configuration for octavia-driver-agent service",
+            "summary": "octavia controller layer",
+            "description": "pebble configuration for octavia controller services",
             "services": {
                 "octavia-driver-agent": {
                     "override": "replace",
@@ -106,25 +122,7 @@ class OctaviaDriverAgentPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "startup": "enabled",
                     "user": self.charm.service_user,
                     "group": self.charm.service_group,
-                }
-            },
-        }
-
-
-@sunbeam_tracing.trace_type
-class OctaviaHousekeepingPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
-    """Pebble handler for Octavia Housekeeping."""
-
-    def get_layer(self) -> dict:
-        """Octavia Housekeeping service layer.
-
-        :returns: pebble layer configuration for housekeeping service
-        :rtype: dict
-        """
-        return {
-            "summary": "octavia housekeeping layer",
-            "description": "pebble configuration for octavia-housekeeping service",
-            "services": {
+                },
                 "octavia-housekeeping": {
                     "override": "replace",
                     "summary": "Octavia Housekeeping",
@@ -132,114 +130,96 @@ class OctaviaHousekeepingPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "startup": "enabled",
                     "user": self.charm.service_user,
                     "group": self.charm.service_group,
-                }
-            },
-        }
-
-
-@sunbeam_tracing.trace_type
-class OctaviaHealthManagerPebbleHandler(
-    sunbeam_chandlers.ServicePebbleHandler
-):
-    """Pebble handler for Octavia Health manager."""
-
-    def get_layer(self) -> dict:
-        """Octavia Health manager service layer.
-
-        :returns: pebble layer configuration for health manager service
-        :rtype: dict
-        """
-        return {
-            "summary": "octavia health manager layer",
-            "description": "pebble configuration for octavia-health-manager service",
-            "services": {
+                },
                 "octavia-health-manager": {
                     "override": "replace",
-                    "summary": "Octavia Health manager",
+                    "summary": "Octavia Health Manager",
                     "command": "octavia-health-manager",
-                    # startup: disabled — this service is optional and only
-                    # started by _reconcile_amphora_containers when
-                    # amphora-network-attachment is configured.  Using
-                    # 'disabled' prevents pebble from auto-starting it on
-                    # pod restarts when Amphora is not in use.
+                    # startup: disabled — only started by
+                    # _reconcile_amphora_containers when
+                    # amphora-network-attachment is configured.
                     "startup": "disabled",
                     "user": self.charm.service_user,
                     "group": self.charm.service_group,
-                }
-            },
-        }
-
-    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
-        """Write config files but defer service start to _reconcile_amphora_containers.
-
-        When Amphora is not configured we still write config files so that
-        octavia.conf is always up to date, but we do not start the service.
-        """
-        if not self.charm.config.get("amphora-network-attachment"):
-            self.configure_container(context)
-            self.status.set(ops.ActiveStatus(""))
-            return
-        super().init_service(context)
-
-    @property
-    def service_ready(self) -> bool:
-        """Whether the service is ready.
-
-        When amphora-network-attachment is not configured the container
-        is not required, so it is treated as always ready to avoid
-        blocking the unit on an optional service.
-        """
-        if not self.charm.config.get("amphora-network-attachment"):
-            return True
-        return super().service_ready
-
-
-@sunbeam_tracing.trace_type
-class OctaviaWorkerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
-    """Pebble handler for Octavia Worker."""
-
-    def get_layer(self) -> dict:
-        """Octavia Worker service layer.
-
-        :returns: pebble layer configuration for worker service
-        :rtype: dict
-        """
-        return {
-            "summary": "octavia worker layer",
-            "description": "pebble configuration for octavia-worker service",
-            "services": {
+                },
                 "octavia-worker": {
                     "override": "replace",
                     "summary": "Octavia Worker",
                     "command": "octavia-worker",
-                    # startup: disabled — see OctaviaHealthManagerPebbleHandler
-                    # for rationale.
+                    # startup: disabled — see octavia-health-manager comment.
                     "startup": "disabled",
                     "user": self.charm.service_user,
                     "group": self.charm.service_group,
-                }
+                },
             },
         }
 
-    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
-        """Write config files but defer service start to _reconcile_amphora_containers."""
-        if not self.charm.config.get("amphora-network-attachment"):
-            self.configure_container(context)
-            self.status.set(ops.ActiveStatus(""))
-            return
-        super().init_service(context)
-
     @property
     def service_ready(self) -> bool:
-        """Whether the service is ready.
+        """Service is ready when the always-on services are running.
 
-        When amphora-network-attachment is not configured the container
-        is not required, so it is treated as always ready to avoid
-        blocking the unit on an optional service.
+        health-manager and worker are amphora-conditional; their absence
+        does not block readiness when amphora-network-attachment is unset.
         """
-        if not self.charm.config.get("amphora-network-attachment"):
-            return True
-        return super().service_ready
+        if not self.pebble_ready:
+            return False
+        container = self.charm.unit.get_container(self.container_name)
+        services = container.get_services()
+        # Guard against checking before the layer has been added (services
+        # will be empty if add_layer has not yet been called).
+        if not services:
+            return False
+        return all(
+            name in services and services[name].is_running()
+            for name in _CONTROLLER_ALWAYS_ON_SERVICES
+        )
+
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Configure container and start always-on services.
+
+        health-manager and worker have startup: disabled and are only
+        started/stopped by _reconcile_amphora_containers when
+        amphora-network-attachment is configured.
+        """
+        self.configure_container(context)
+        restart = bool(self._files_changed)
+        container = self.charm.unit.get_container(self.container_name)
+        # Add the layer so pebble knows about all four services.  Using
+        # combine=True makes this idempotent when _on_service_pebble_ready
+        # has already added it.
+        container.add_layer(self.service_name, self.get_layer(), combine=True)
+        for svc_name in _CONTROLLER_ALWAYS_ON_SERVICES:
+            svcs = container.get_services(svc_name)
+            svc = svcs.get(svc_name)
+            if svc is None:
+                continue
+            if not svc.is_running():
+                container.start(svc_name)
+            elif restart:
+                container.restart(svc_name)
+        self._reset_files_changed()
+        self.status.set(ops.ActiveStatus(""))
+
+    def start_amphora_services(self) -> None:
+        """Start health-manager and worker services."""
+        if not self.pebble_ready:
+            return
+        container = self.charm.unit.get_container(self.container_name)
+        for svc_name in _CONTROLLER_AMPHORA_SERVICES:
+            svcs = container.get_services(svc_name)
+            svc = svcs.get(svc_name)
+            if svc and not svc.is_running():
+                container.start(svc_name)
+
+    def stop_amphora_services(self) -> None:
+        """Stop health-manager and worker services."""
+        if not self.pebble_ready:
+            return
+        container = self.charm.unit.get_container(self.container_name)
+        svcs = container.get_services(*_CONTROLLER_AMPHORA_SERVICES)
+        running = [name for name, svc in svcs.items() if svc.is_running()]
+        if running:
+            container.stop(*running)
 
 
 @sunbeam_tracing.trace_type
@@ -290,42 +270,100 @@ class AmphoraHealthManagerContext(sunbeam_config_contexts.ConfigContext):
 
 
 @sunbeam_tracing.trace_type
+class AmphoraTlsCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
+    """TLS certificates handler for Amphora-specific relations.
+
+    Extends TlsCertificatesHandler to support arbitrary relation names
+    instead of the default 'certificates' relation that the base class
+    hardcodes in setup_event_handler.
+    """
+
+    def setup_event_handler(self) -> ops.Object:
+        """Configure event handlers using self.relation_name."""
+        logger.debug(
+            "Setting up certificates event handler for %s", self.relation_name
+        )
+        # Local import: tls_certificates is an optional dependency that may
+        # not be installed when the rest of the charm is imported (e.g. in
+        # unit tests that stub out this handler).
+        from charms.tls_certificates_interface.v4.tls_certificates import (
+            Mode,
+            TLSCertificatesRequiresV4,
+        )
+
+        mode = Mode.APP if self.app_managed_certificates else Mode.UNIT
+        self.certificates = sunbeam_tracing.trace_type(
+            TLSCertificatesRequiresV4
+        )(self.charm, self.relation_name, self.certificate_requests, mode)
+
+        self.framework.observe(
+            self.certificates.on.certificate_available,
+            self._on_certificate_available,
+        )
+        return self.certificates
+
+    def update_relation_data(self) -> None:
+        """No-op: skip cert.sync() to prevent re-entrancy into configure_charm.
+
+        The base class calls self.certificates.sync() here, which synchronously
+        emits certificate_available if certs are already present. That event
+        re-enters configure_charm() while the outer call is still inside
+        update_relations(), causing a full duplicate configure_unit() run
+        (including ~50 pebble pull() RPCs) before the outer run even starts.
+        Cert data is read directly from the relation in context() on every hook,
+        so skipping sync() here loses nothing.
+        """
+
+
+@sunbeam_tracing.trace_type
 class AmphoraCertificatesContext(sunbeam_config_contexts.ConfigContext):
     """Amphora Certificates configuration context.
 
-    Decodes base64-encoded certificate config options before passing
-    to templates.
+    Reads certificate material from the amphora-issuing-ca and
+    amphora-controller-cert tls-certificates relations.  The context
+    keys are intentionally identical to the old config-option-based keys
+    so that all Jinja2 templates (issuing_ca.pem.j2, controller_cert.pem.j2,
+    etc.) work without modification.
     """
-
-    def _decode_cert(self, config_key: str) -> str | None:
-        """Decode a single base64-encoded certificate config option.
-
-        :param config_key: The charm config key to read and decode.
-        :returns: Decoded PEM string, or None if unset or invalid.
-        :rtype: str | None
-        """
-        value = self.charm.config.get(config_key)
-        if not value:
-            return None
-        try:
-            return base64.b64decode(value).decode("utf-8")
-        except (ValueError, binascii.Error) as e:
-            logger.error(f"Failed to decode {config_key}: {e}")
-            return None
 
     def context(self) -> dict:
         """Configuration context for Amphora certificates."""
-        cert_keys = {
-            "lb_mgmt_controller_cacert": "lb-mgmt-controller-cacert",
-            "lb_mgmt_issuing_cacert": "lb-mgmt-issuing-cacert",
-            "lb_mgmt_issuing_ca_private_key": "lb-mgmt-issuing-ca-private-key",
-            "lb_mgmt_controller_cert": "lb-mgmt-controller-cert",
-        }
-        return {
-            ctx_key: decoded
-            for ctx_key, config_key in cert_keys.items()
-            if (decoded := self._decode_cert(config_key)) is not None
-        }
+        ctxt = {}
+
+        # Issuing CA cert + private key from the amphora-issuing-ca relation.
+        issuing_handler = getattr(self.charm, "amphora_issuing_ca", None)
+        if issuing_handler and issuing_handler.ready:
+            for _cn, cert in issuing_handler.get_certs():
+                if cert is not None:
+                    ctxt["lb_mgmt_issuing_cacert"] = str(cert.certificate)
+                    ctxt["lb_mgmt_issuing_ca_private_key"] = (
+                        issuing_handler.get_private_key() or ""
+                    )
+                    # cert.ca is the signing CA that issued the issuing CA
+                    # certificate (may be an intermediate or root CA).
+                    # Appended to issuing_ca.pem so OpenSSL can verify the
+                    # full chain when validating per-Amphora certs.
+                    if cert.ca:
+                        ctxt["lb_mgmt_issuing_ca_root"] = str(cert.ca)
+                    break
+
+        # Controller cert + CA from the amphora-controller-cert relation.
+        # The controller cert file is a PEM bundle: cert || private-key,
+        # matching the format expected by Octavia's haproxy_amphora section.
+        controller_handler = getattr(
+            self.charm, "amphora_controller_cert", None
+        )
+        if controller_handler and controller_handler.ready:
+            for _cn, cert in controller_handler.get_certs():
+                if cert is not None:
+                    ctxt["lb_mgmt_controller_cacert"] = str(cert.ca)
+                    private_key = controller_handler.get_private_key() or ""
+                    ctxt["lb_mgmt_controller_cert"] = (
+                        str(cert.certificate).rstrip("\n") + "\n" + private_key
+                    )
+                    break
+
+        return ctxt
 
 
 @sunbeam_tracing.trace_type
@@ -683,40 +721,16 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self,
                 OCTAVIA_API_CONTAINER,
                 self.service_name,
-                self.default_container_configs(),
+                self._api_container_configs(),
                 self.template_dir,
                 self.configure_charm,
                 f"wsgi-{self.service_name}",
             ),
-            OctaviaHousekeepingPebbleHandler(
+            OctaviaControllerPebbleHandler(
                 self,
-                OCTAVIA_HOUSEKEEPING_CONTAINER,
-                "octavia-housekeeping",
-                self.default_container_configs(),
-                self.template_dir,
-                self.configure_charm,
-            ),
-            OctaviaDriverAgentPebbleHandler(
-                self,
-                OCTAVIA_DRIVER_AGENT_CONTAINER,
-                "octavia-driver-agent",
-                self.default_container_configs(),
-                self.template_dir,
-                self.configure_charm,
-            ),
-            OctaviaHealthManagerPebbleHandler(
-                self,
-                OCTAVIA_HEALTH_MANAGER_CONTAINER,
-                "octavia-health-manager",
-                self.default_container_configs(),
-                self.template_dir,
-                self.configure_charm,
-            ),
-            OctaviaWorkerPebbleHandler(
-                self,
-                OCTAVIA_WORKER_CONTAINER,
-                "octavia-worker",
-                self.default_container_configs(),
+                OCTAVIA_CONTROLLER_CONTAINER,
+                "octavia-controller",
+                self._controller_container_configs(),
                 self.template_dir,
                 self.configure_charm,
             ),
@@ -754,22 +768,43 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 )
             )
             handlers.append(self.barbican_svc)
+        if self.can_add_handler("amphora-issuing-ca", handlers):
+            self.amphora_issuing_ca = AmphoraTlsCertificatesHandler(
+                self,
+                "amphora-issuing-ca",
+                self.configure_charm,
+                certificate_requests=[
+                    CertificateRequestAttributes(
+                        common_name="octavia-amphora-issuing-ca",
+                        is_ca=True,
+                    )
+                ],
+                mandatory=False,
+            )
+            handlers.append(self.amphora_issuing_ca)
+        if self.can_add_handler("amphora-controller-cert", handlers):
+            self.amphora_controller_cert = AmphoraTlsCertificatesHandler(
+                self,
+                "amphora-controller-cert",
+                self.configure_charm,
+                certificate_requests=[
+                    CertificateRequestAttributes(
+                        common_name=f"{self.app.name}-controller",
+                    )
+                ],
+                mandatory=False,
+            )
+            handlers.append(self.amphora_controller_cert)
         handlers = super().get_relation_handlers(handlers)
         return handlers
 
-    def default_container_configs(
+    def _common_container_configs(
         self,
     ) -> List[sunbeam_core.ContainerConfigFile]:
-        """Container configurations for handler."""
+        """Config files shared by all Octavia containers."""
         return [
             sunbeam_core.ContainerConfigFile(
                 "/etc/octavia/octavia.conf",
-                self.service_user,
-                self.service_group,
-                0o640,
-            ),
-            sunbeam_core.ContainerConfigFile(
-                "/etc/octavia/api_audit_map.conf",
                 self.service_user,
                 self.service_group,
                 0o640,
@@ -780,12 +815,13 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.service_group,
                 0o640,
             ),
-            sunbeam_core.ContainerConfigFile(
-                "/etc/octavia/certs/controller_ca.pem",
-                self.service_user,
-                self.service_group,
-                0o640,
-            ),
+        ]
+
+    def _amphora_cert_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
+        """Amphora mTLS cert files used by worker, housekeeping and health-manager."""
+        return [
             sunbeam_core.ContainerConfigFile(
                 "/etc/octavia/certs/issuing_ca.pem",
                 self.service_user,
@@ -804,6 +840,13 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.service_group,
                 0o640,
             ),
+        ]
+
+    def _ovn_cert_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
+        """OVN TLS cert files used only by octavia-driver-agent."""
+        return [
             sunbeam_core.ContainerConfigFile(
                 "/etc/octavia/ovn_private_key.pem",
                 self.service_user,
@@ -823,6 +866,59 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 0o640,
             ),
         ]
+
+    def _api_container_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
+        """Config files for octavia-api (WSGI) container.
+
+        octavia-api loads the OVN provider driver on startup to validate
+        provider names in API requests, so it needs the OVN TLS certs even
+        though it does not run the driver-agent service.
+        """
+        return (
+            self._common_container_configs()
+            + self._ovn_cert_configs()
+            + [
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/octavia/api_audit_map.conf",
+                    self.service_user,
+                    self.service_group,
+                    0o640,
+                ),
+            ]
+        )
+
+    def _controller_container_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
+        """Config files for octavia-controller container.
+
+        The controller container runs driver-agent (needs OVN certs),
+        housekeeping (needs Amphora certs), health-manager (needs
+        controller_ca + issuing_ca + controller_cert), and worker (needs
+        controller_ca + Amphora certs).  The union of all four sets is:
+        common configs + OVN certs + controller_ca + Amphora certs.
+        """
+        return (
+            self._common_container_configs()
+            + self._ovn_cert_configs()
+            + [
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/octavia/certs/controller_ca.pem",
+                    self.service_user,
+                    self.service_group,
+                    0o640,
+                ),
+            ]
+            + self._amphora_cert_configs()
+        )
+
+    def default_container_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
+        """Not used directly — each handler uses its own per-container config list."""
+        return self._common_container_configs()
 
     def handle_keystone_ops(self, event: ops.EventBase) -> None:
         """Event handler for identity ops."""
@@ -892,9 +988,8 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Handle the upgrade charm event."""
         logger.info("Handling upgrade-charm event")
         self.certs.validate_and_regenerate_certificates_if_needed()
-        # Re-detect the management network IP in case the pod was recreated.
-        self._set_lbmgmt_ip()
         # ops-sunbeam doesn't wire upgrade_charm -> configure_charm by default.
+        # configure_charm -> configure_unit -> _set_lbmgmt_ip re-detects the IP.
         self.configure_charm(event)
 
     def _read_pod_network_status(self, pod_name: str) -> list | None:
@@ -1013,8 +1108,24 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         network_attachment = self.config.get("amphora-network-attachment", "")
         lbmgmt_ip = self._get_lbmgmt_ip_from_network_status()
         if lbmgmt_ip:
-            self.peers.set_unit_data({"lbmgmt-ip": lbmgmt_ip})
-            logger.info(f"Set lbmgmt-ip to {lbmgmt_ip}")
+            # Read existing value via the peers relation handler, consistent
+            # with AmphoraHealthManagerContext and other peers data access.
+            try:
+                peers_rel = self.peers.interface.peers_rel
+            except AttributeError:
+                peers_rel = None
+            current_ip = (
+                peers_rel.data[self.model.unit].get("lbmgmt-ip")
+                if peers_rel
+                else None
+            )
+            if lbmgmt_ip != current_ip:
+                self.peers.set_unit_data({"lbmgmt-ip": lbmgmt_ip})
+                logger.info(f"Set lbmgmt-ip to {lbmgmt_ip}")
+            else:
+                logger.debug(
+                    f"lbmgmt-ip already set to {lbmgmt_ip}, skipping write"
+                )
             self.amphora_net_status.set(ops.ActiveStatus(""))
         elif network_attachment:
             # The operator has configured a network attachment but the
@@ -1146,41 +1257,19 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 + ", ".join(sorted(_VALID_LOG_PROTOCOL))
             )
         if self.config.get("amphora-network-attachment"):
-            required_certs = [
-                "lb-mgmt-issuing-cacert",
-                "lb-mgmt-issuing-ca-private-key",
-                "lb-mgmt-issuing-ca-key-passphrase",
-                "lb-mgmt-controller-cacert",
-                "lb-mgmt-controller-cert",
-            ]
-            missing = [c for c in required_certs if not self.config.get(c)]
-            if missing:
+            # Require both Amphora TLS cert relations to be connected.
+            if not self.model.relations.get("amphora-issuing-ca"):
                 errors.append(
-                    "Amphora certificates not configured: "
-                    + ", ".join(missing)
+                    "amphora-issuing-ca relation required for Amphora: "
+                    "relate to self-signed-certificates or "
+                    "manual-tls-certificates"
                 )
-            else:
-                # All cert values are present — validate that the base64-
-                # encoded ones are actually decodable so we surface a clear
-                # BlockedStatus rather than silently writing empty cert files.
-                b64_certs = [
-                    "lb-mgmt-issuing-cacert",
-                    "lb-mgmt-issuing-ca-private-key",
-                    "lb-mgmt-controller-cacert",
-                    "lb-mgmt-controller-cert",
-                ]
-                invalid = []
-                for key in b64_certs:
-                    value = self.config.get(key, "")
-                    try:
-                        base64.b64decode(value)
-                    except (ValueError, binascii.Error):
-                        invalid.append(key)
-                if invalid:
-                    errors.append(
-                        "Amphora certificates contain invalid base64: "
-                        + ", ".join(invalid)
-                    )
+            if not self.model.relations.get("amphora-controller-cert"):
+                errors.append(
+                    "amphora-controller-cert relation required for Amphora: "
+                    "relate to self-signed-certificates or "
+                    "manual-tls-certificates"
+                )
         return errors
 
     def configure_charm(self, event: ops.framework.EventBase) -> None:
@@ -1205,6 +1294,26 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             if not self.barbican_svc.ready:
                 self.config_status.set(
                     ops.WaitingStatus("Waiting for barbican-service")
+                )
+                return
+            if (
+                not getattr(self, "amphora_issuing_ca", None)
+                or not self.amphora_issuing_ca.ready
+            ):
+                self.config_status.set(
+                    ops.WaitingStatus(
+                        "Waiting for Amphora issuing CA certificate"
+                    )
+                )
+                return
+            if (
+                not getattr(self, "amphora_controller_cert", None)
+                or not self.amphora_controller_cert.ready
+            ):
+                self.config_status.set(
+                    ops.WaitingStatus(
+                        "Waiting for Amphora controller certificate"
+                    )
                 )
                 return
         self.config_status.set(ops.ActiveStatus(""))
@@ -1428,7 +1537,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self.check_pebble_handlers_ready()
         for container in [
             OCTAVIA_API_CONTAINER,
-            OCTAVIA_DRIVER_AGENT_CONTAINER,
+            OCTAVIA_CONTROLLER_CONTAINER,
         ]:
             ph = self.get_named_pebble_handler(container)
             ph.execute(
@@ -1443,24 +1552,19 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self._state.unit_bootstrapped = True
 
     def _reconcile_amphora_containers(self) -> None:
-        """Start or stop Amphora containers based on config.
+        """Start or stop Amphora services in octavia-controller based on config.
 
-        When amphora-network-attachment is set the health-manager and worker
-        containers are started. When it is unset they are stopped so they do
-        not consume resources unnecessarily.
+        When amphora-network-attachment is set, the health-manager and worker
+        pebble services are started inside octavia-controller.  When it is
+        unset they are stopped so they do not consume resources unnecessarily.
         """
-        amphora_enabled = bool(self.config.get("amphora-network-attachment"))
-        for container_name in [
-            OCTAVIA_HEALTH_MANAGER_CONTAINER,
-            OCTAVIA_WORKER_CONTAINER,
-        ]:
-            ph = self.get_named_pebble_handler(container_name)
-            if not ph.pebble_ready:
-                continue
-            if amphora_enabled:
-                ph.start_all()
-            else:
-                ph.stop_all()
+        ph = self.get_named_pebble_handler(OCTAVIA_CONTROLLER_CONTAINER)
+        if not ph.pebble_ready:
+            return
+        if bool(self.config.get("amphora-network-attachment")):
+            ph.start_amphora_services()
+        else:
+            ph.stop_amphora_services()
 
     def configure_app_leader(self, event: ops.framework.EventBase) -> None:
         """Run global app setup.
