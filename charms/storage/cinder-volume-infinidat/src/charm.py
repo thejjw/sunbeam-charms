@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 #
 # Copyright 2026 Canonical Ltd.
 #
@@ -15,17 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Cinder infinidat Operator Charm.
+"""Cinder Infinidat Operator Charm."""
 
-This charm provide Cinder <-> infinidat integration as part
-of an OpenStack deployment
-"""
-
-import ipaddress
+import functools
 import logging
-from enum import (
-    StrEnum,
-)
 import typing
 
 import ops
@@ -37,61 +29,78 @@ import pydantic
 logger = logging.getLogger(__name__)
 
 
-class Protocol(StrEnum):
-    """Enumeration of valid storage protocol types."""
-
-    ISCSI = "iscsi"
-    FC = "fc"
-
-
-def ip_network_list_validator(value: str) -> list[pydantic.IPvAnyNetwork]:
-    if not value:
-        raise ValueError("Value cannot be empty")
-    try:
-        return [ipaddress.ip_network(ip.strip()) for ip in value.split(",")]
-    except ValueError as e:
-        raise ValueError(f"Invalid IP network: {e}")
-
-
-def list_serializer(value: list) -> str:
-    return ",".join(str(v) for v in value)
-
-
-CIDR_LIST_TYPING = typing.Annotated[
-    list[pydantic.IPvAnyNetwork] | None,
-    pydantic.BeforeValidator(ip_network_list_validator),
-    pydantic.PlainSerializer(list_serializer, return_type=str),
-]
-
-
 @sunbeam_tracing.trace_sunbeam_charm
-class CinderVolumeInfinidatOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
+class CinderVolumeInfinidatOperatorCharm(
+    charm.OSCinderVolumeDriverOperatorCharm
+):
     """Cinder/Infinidat Operator charm."""
 
     service_name = "cinder-volume-infinidat"
 
     @property
     def backend_key(self) -> str:
-        """Return the Cinder backend section key for INFINIDAT."""
+        """Return the backend key."""
         return "infinidat." + self.model.app.name
 
+    @functools.cached_property
+    def configuration_class(self) -> type[pydantic.BaseModel]:
+        """Configuration class with Infinidat-specific validation."""
+        base_class = super().configuration_class
+
+        class InfinidatConfigModel(base_class):
+            """Infinidat configuration model."""
+
+            @pydantic.model_validator(mode="after")
+            def validate_iscsi_netspaces(self) -> "InfinidatConfigModel":
+                """Require iSCSI netspaces when the iSCSI protocol is selected."""
+                if (
+                    self.protocol == "iscsi"
+                    and not self.infinidat_iscsi_netspaces
+                ):
+                    raise ValueError(
+                        "infinidat-iscsi-netspaces is required "
+                        "when protocol is 'iscsi'"
+                    )
+                return self
+
+        return InfinidatConfigModel
+
     def _configuration_type_overrides(self) -> dict[str, typing.Any]:
+        """Configuration type overrides for pydantic model generation."""
         overrides = super()._configuration_type_overrides()
-        overrides.pop("driver-ssl-cert", None)
         overrides.update(
             {
-                "infinidat-storage-protocol": typing.Annotated[
-                    typing.Literal["iscsi", "fc"], sunbeam_storage.Required
-                ],
                 "san-login": typing.Annotated[
                     str,
-                    pydantic.BeforeValidator(sunbeam_storage.secret_validator("san-login")),
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("san-login")
+                    ),
                     sunbeam_storage.Required,
                 ],
                 "san-password": typing.Annotated[
                     str,
-                    pydantic.BeforeValidator(sunbeam_storage.secret_validator("san-password")),
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("san-password")
+                    ),
                     sunbeam_storage.Required,
+                ],
+                "infinidat-pool-name": typing.Annotated[
+                    str, sunbeam_storage.Required
+                ],
+                "protocol": typing.Literal["fc", "iscsi"],
+                "chap-username": typing.Annotated[
+                    str,
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("chap-username")
+                    ),
+                    sunbeam_storage.RequiredIfGroup("chap-authentication"),
+                ],
+                "chap-password": typing.Annotated[
+                    str,
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("chap-password")
+                    ),
+                    sunbeam_storage.RequiredIfGroup("chap-authentication"),
                 ],
             }
         )
