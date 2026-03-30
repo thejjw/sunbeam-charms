@@ -58,61 +58,6 @@ config:
         Glance image tag for selection of Amphorae image to boot load
         balancer instances.
       type: string
-    lb-mgmt-issuing-cacert:
-      description: |
-        Certificate Authority Certificate used to issue new certificates stored
-        on the Amphora load balancer instances. The Amphorae use them to
-        authenticate themselves to the Octavia controller services.
-
-        Note due to security concerns it is important not use the same CA
-        certificate for both lb-mgmt-issuing-cacert and
-        lb-mgmt-controller-cacert configuration options. Failing to keep
-        them separate may lead to abuse of certificate data to gain access to
-        other Amphora instances in the event one of them is compromised.
-
-        Note that these certificates are not used for any load balancer payload
-        data.
-      type: string
-    lb-mgmt-issuing-ca-private-key:
-      description: |
-        Private key for the Certificate Authority set in lb-mgmt-issuing-cacert.
-
-        Note that these certificates are not used for any load balancer payload
-        data.
-      type: string
-    lb-mgmt-issuing-ca-key-passphrase:
-      description: |
-        Passphrase for the key set in lb-mgmt-issuing-ca-private-key.
-
-        NOTE: As of this writing Octavia requires the private key to be protected
-        with a passphrase.
-
-        Note that these certificates are not used for any load balancer payload
-        data.
-      type: string
-    lb-mgmt-controller-cacert:
-      description: |
-        Certificate Authority Certificate installed on Amphorae with the
-        purpose of the Amphora agent using it to authenticate connections
-        from Octavia controller services.
-
-        Note due to security concerns it is important not use the same CA
-        certificate for both lb-mgmt-issuing-cacert and
-        lb-mgmt-controller-cacert configuration options. Failing to keep
-        them separate may lead to abuse of certificate data to gain access to
-        other Amphora instances in the event one of them is compromised.
-
-        Note that these certificates are not used for any load balancer payload
-        data.
-      type: string
-    lb-mgmt-controller-cert:
-      description: |
-        Certificate used by the Octavia controller to authenticate itself to
-        its Amphorae.
-
-        Note that these certificates are not used for any load balancer payload
-        data.
-      type: string
     loadbalancer-topology:
       default: SINGLE
       description: |
@@ -352,6 +297,14 @@ requires:
   barbican-service:
     interface: service-ready
     optional: true
+  amphora-issuing-ca:
+    interface: tls-certificates
+    optional: true
+    limit: 1
+  amphora-controller-cert:
+    interface: tls-certificates
+    optional: true
+    limit: 1
 
 peers:
   peers:
