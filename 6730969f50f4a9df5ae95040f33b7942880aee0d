@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "16d4b244_ebc9390f",
+        "filename": "charms/octavia-k8s/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-31T12:58:59Z",
+      "side": 1,
+      "message": "is this why the `amphora_issuing_ca` is handled this way later?\n\nI think we should get rid of the if. We\u0027re always getting the metadata handler from now on.\n\nAnd if we\u0027re, we should fail instead of silently skip like this.\n\nIt makes handing this \"handler\" much easier later on.",
+      "revId": "6730969f50f4a9df5ae95040f33b7942880aee0d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3b04d70d_2c3a1083",
+        "filename": "charms/octavia-k8s/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1302,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-31T12:58:59Z",
+      "side": 1,
+      "message": "this is getting ugly a bit no? Why would the amphora_issuing_ca be none? It should just be unready",
+      "range": {
+        "startLine": 1300,
+        "startChar": 20,
+        "endLine": 1302,
+        "endChar": 14
+      },
+      "revId": "6730969f50f4a9df5ae95040f33b7942880aee0d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95dd927e_18530061",
+        "filename": "charms/octavia-k8s/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1310,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-03-31T12:58:59Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "6730969f50f4a9df5ae95040f33b7942880aee0d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
