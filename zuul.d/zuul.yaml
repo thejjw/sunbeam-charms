@@ -44,6 +44,7 @@
         cinder-volume-dellsc: 2025.1/edge
         cinder-volume-purestorage: 2025.1/edge
         cinder-volume-hitachi: 2025.1/edge
+        cinder-volume-hpe3par: 2025.1/edge
         horizon-k8s: 2025.1/edge
         heat-k8s: 2025.1/edge
         ironic-k8s: 2025.1/edge
