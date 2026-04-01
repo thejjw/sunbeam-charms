@@ -16,6 +16,23 @@
       "message": "LGTM",
       "revId": "128f4ed5b3c330879ad781bf206f91a828c0836b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "33f55736_74e206ff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-04-01T05:18:14Z",
+      "side": 1,
+      "message": "Enrico, Can you add zuul jobs similar to https://opendev.org/openstack/sunbeam-charms/commit/2087829a3d7079d0ea1f258a0bd5dbea87e379ad",
+      "revId": "128f4ed5b3c330879ad781bf206f91a828c0836b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
