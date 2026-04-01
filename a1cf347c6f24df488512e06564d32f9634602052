@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e10c72d_9a65891e",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-04-01T10:49:55Z",
+      "side": 1,
+      "message": "Is the rename mandatory? What happens on refresh of the charm?\n\nIf there\u0027s already a request, will it get cleaned from the legacy point of view? Adopted? Translated?\n\nI think ovs-dpdk-hugepages makes a lot of sense because it\u0027s specifically about configure ovs resources, so it can be transparently shared with microovn when microovn is the one managing ovs.",
+      "range": {
+        "startLine": 97,
+        "startChar": 37,
+        "endLine": 97,
+        "endChar": 57
+      },
+      "revId": "a1cf347c6f24df488512e06564d32f9634602052",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
