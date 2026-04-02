@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "169cd0be_616f0dcb",
+        "filename": "charms/storage/cinder-volume-hpe3par/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-04-02T05:29:32Z",
+      "side": 1,
+      "message": "can we do such validation with Pydantic’s validation",
+      "revId": "0e9733f28681e3076ed85cc50b15af3c4c572118",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5d4120da_201c24cd",
+        "filename": "charms/storage/cinder-volume-hpe3par/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-04-02T05:29:32Z",
+      "side": 1,
+      "message": "extract this as constant",
+      "revId": "0e9733f28681e3076ed85cc50b15af3c4c572118",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
