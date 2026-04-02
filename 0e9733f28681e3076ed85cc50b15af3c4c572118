@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "beb5a3d6_c41565eb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-04-02T07:09:41Z",
+      "side": 1,
+      "message": "If there\u0027s still any concern, this should come as a new CR on main, then backported to stable/2024.1. (this is a cherry-pick after all)",
+      "revId": "0e9733f28681e3076ed85cc50b15af3c4c572118",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "169cd0be_616f0dcb",
@@ -20,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6001058a_b20108bb",
+        "filename": "charms/storage/cinder-volume-hpe3par/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-04-02T07:09:41Z",
+      "side": 1,
+      "message": "This is applied L58 as a pydantic validator.\n\nThere\u0027s no ip list validator by default in pydantic afaik",
+      "parentUuid": "169cd0be_616f0dcb",
+      "revId": "0e9733f28681e3076ed85cc50b15af3c4c572118",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "5d4120da_201c24cd",
         "filename": "charms/storage/cinder-volume-hpe3par/src/charm.py",
         "patchSetId": 1
@@ -31,6 +66,24 @@
       "writtenOn": "2026-04-02T05:29:32Z",
       "side": 1,
       "message": "extract this as constant",
+      "revId": "0e9733f28681e3076ed85cc50b15af3c4c572118",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "61bea212_8a17f20e",
+        "filename": "charms/storage/cinder-volume-hpe3par/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-04-02T07:09:41Z",
+      "side": 1,
+      "message": "This is following the patterns of the other storage charms, and I don\u0027t believe extracting a property as constant is giving value, as I\u0027d expect consumers to use property instead of constant.",
+      "parentUuid": "5d4120da_201c24cd",
       "revId": "0e9733f28681e3076ed85cc50b15af3c4c572118",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
