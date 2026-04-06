@@ -22,6 +22,30 @@
       },
       "revId": "285bab454a020fe61ab28f2361049c7941f90acb",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a9986ef_4e34ec9e",
+        "filename": "charms/nova-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-04-06T03:16:52Z",
+      "side": 1,
+      "message": "Yes this resulted in crashloopbackoff until the placement is active\n\nnova           error       1  nova-k8s  2025.1/edge  235  10.152.183.180  no       crash loop backoff: back-off 5m0s restarting failed container\u003dnova-conductor pod\u003dnova-0_zaza-c06a7fdd33a8(1f0ea015-6f...\n\nI will think about this and fix in subsequent PR or revert this PR.",
+      "parentUuid": "270dad5e_8de50d6d",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 67
+      },
+      "revId": "285bab454a020fe61ab28f2361049c7941f90acb",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
