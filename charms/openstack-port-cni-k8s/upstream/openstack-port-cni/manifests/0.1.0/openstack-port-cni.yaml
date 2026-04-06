@@ -75,7 +75,7 @@ spec:
         # Copies the thin CNI binary to the host CNI bin directory so that
         # kubelet can invoke it when pods request openstack-port networks.
         # image: ghcr.io/canonical/openstack-port-cni:0.1.0-7e56263-bare_edge
-        image: ghcr.io/canonical/openstack-port-cni:0.1.0-7b7467d-24.04-bare_edge
+        image: ghcr.io/canonical/openstack-port-cni:0.1.0-127cdfa-24.04-bare_edge
         command: ["/bin/sh", "-c"]
         args:
           - cp /opt/cni/bin/openstack-port-cni /host/opt/cni/bin/openstack-port-cni
@@ -91,7 +91,7 @@ spec:
           mountPath: /host/opt/cni/bin
       containers:
       - name: openstack-port-daemon
-        image: ghcr.io/canonical/openstack-port-cni:0.1.0-7b7467d-24.04-bare_edge
+        image: ghcr.io/canonical/openstack-port-cni:0.1.0-127cdfa-24.04-bare_edge
         command: ["/bin/openstack-port-daemon"]
         imagePullPolicy: IfNotPresent
         securityContext:
