@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "771319d0_57ae22ac",
+        "filename": "charms/octavia-k8s/src/charm.py",
+        "patchSetId": 10
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-04-06T13:08:37Z",
+      "side": 1,
+      "message": "We are introducing quite the complex changes around the amphora, and I would expect more unit tests around these edge cases. We need to ensure we\u0027ve locked down the behavior of the amphora.",
+      "revId": "3f91e771d9d04b38be3e0b94882aa9e3ba921b8f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
