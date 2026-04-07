@@ -2,7 +2,7 @@
 # See LICENSE file for licensing details.
 
 [project]
-name = "cinder-volume-dellpowerstore"
+name = "cinder-volume-dellpowermax"
 version = "2025.1"
 requires-python = "~=3.12.0"
 
@@ -10,11 +10,11 @@ dependencies = [
     "cryptography",
     "jinja2",
     "pydantic",
+    "lightkube",
+    "lightkube-models",
     "requests",
     "ops",
-    "cosl",
-    "opentelemetry-exporter-otlp-proto-http",
     "netifaces",
-    "tenacity", # From ops_sunbeam
-    "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
+    "tenacity",
+    "opentelemetry-api~=1.21.0",
 ]
