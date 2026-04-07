@@ -1,0 +1,228 @@
+type: charm
+name: cinder-volume-dellpowermax
+summary: OpenStack volume service - Dell PowerMax backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with Dell PowerMax storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    protocol:
+      description: |
+        Protocol selector: fc, iscsi.
+      type: string
+      enum: [fc, iscsi]
+    interval:
+      default: 3
+      description: |
+        Use this value to specify length of the interval in seconds.
+      type: int
+    retries:
+      default: 200
+      description: |
+        Use this value to specify number of retries.
+      type: int
+    initiator-check:
+      default: false
+      description: |
+        Use this value to enable the initiator_check.
+      type: boolean
+    vmax-workload:
+      default: null
+      description: |
+        Workload, setting this as an extra spec in pool_name is preferable.
+      type: string
+    u4p-failover-timeout:
+      default: 20
+      description: |
+        How long to wait for the server to send data before giving up.
+      type: int
+    u4p-failover-retries:
+      default: 3
+      description: |
+        The maximum number of retries each connection should attempt.
+      type: int
+    u4p-failover-backoff-factor:
+      default: 1
+      description: |
+        A backoff factor to apply between attempts after the second try.
+      type: int
+    u4p-failover-autofailback:
+      default: true
+      description: |
+        If the driver should automatically failback to the primary instance of Unisphere.
+      type: boolean
+    u4p-failover-target:
+      default: null
+      description: |
+        Dictionary of Unisphere failover target info.
+      type: string
+    powermax-array:
+      default: null
+      description: |
+        Serial number of the array to connect to.
+      type: string
+    powermax-srp:
+      default: null
+      description: |
+        Storage resource pool on array to use for provisioning.
+      type: string
+    powermax-service-level:
+      default: null
+      description: |
+        Service level to use for provisioning storage.
+      type: string
+    powermax-port-groups:
+      default: null
+      description: |
+        List of port groups containing frontend ports configured prior for server connection.
+      type: string
+    powermax-array-tag-list:
+      default: null
+      description: |
+        List of user assigned name for storage array.
+      type: string
+    powermax-short-host-name-template:
+      default: shortHostName
+      description: |
+        User defined override for short host name.
+      type: string
+    powermax-port-group-name-template:
+      default: portGroupName
+      description: |
+        User defined override for port group name.
+      type: string
+    load-balance:
+      default: false
+      description: |
+        Enable/disable load balancing for a PowerMax backend.
+      type: boolean
+    load-balance-real-time:
+      default: false
+      description: |
+        Enable/disable real-time performance metrics for Port level load balancing for a PowerMax backend.
+      type: boolean
+    load-data-format:
+      default: Avg
+      description: |
+        Performance data format, not applicable for real-time metrics.
+      type: string
+    load-look-back:
+      default: 60
+      description: |
+        How far in minutes to look back for diagnostic performance metrics in load calculation.
+      type: int
+    load-look-back-real-time:
+      default: 1
+      description: |
+        How far in minutes to look back for real-time performance metrics in load calculation.
+      type: int
+    port-group-load-metric:
+      default: PercentBusy
+      description: |
+        Metric used for port group load calculation.
+      type: string
+    port-load-metric:
+      default: PercentBusy
+      description: |
+        Metric used for port load calculation.
+      type: string
+    rest-api-connect-timeout:
+      default: 30
+      description: |
+        Use this value to specify connect timeout value (in seconds) for rest call.
+      type: int
+    rest-api-read-timeout:
+      default: 30
+      description: |
+        Use this value to specify read timeout value (in seconds) for rest call.
+      type: int
+    snapvx-unlink-symforce:
+      default: false
+      description: |
+        Enable SnapVx unlink symforce, which forces the operation to execute when normally it is rejected.
+      type: boolean
+    san-thin-provision:
+      default: true
+      description: |
+        Use thin provisioning for SAN volumes?
+      type: boolean
+    san-ip:
+      description: |
+        IP address of SAN controller
+      type: string
+    san-login:
+      description: |
+        Username for SAN controller
+      type: secret
+    san-password:
+      description: |
+        Password for SAN controller
+      type: secret
+    use-multipath-for-image-xfer:
+      default: true
+      description: |
+        Enable multipathing for image transfer operations.
+      type: boolean
+
+provides:
+  storage-backend:
+    interface: cinder-backend
+    scope: container
+    limit: 1
+requires:
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
