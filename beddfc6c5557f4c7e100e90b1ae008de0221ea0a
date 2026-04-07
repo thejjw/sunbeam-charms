@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b9b5677_2b52fdc9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-04-07T06:56:57Z",
+      "side": 1,
+      "message": "recheck job was success; but failed in installing sosreport...",
+      "revId": "beddfc6c5557f4c7e100e90b1ae008de0221ea0a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
