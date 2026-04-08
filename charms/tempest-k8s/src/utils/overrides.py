@@ -99,7 +99,7 @@ def _parse_roles_config(config_roles: str) -> Set[str]:
         if role.strip()
     }
 
-    valid_roles = {"compute", "control", "storage"}
+    valid_roles = {"compute", "control", "storage", "network"}
 
     invalid_user_roles = parsed_user_roles - valid_roles
     if invalid_user_roles:
