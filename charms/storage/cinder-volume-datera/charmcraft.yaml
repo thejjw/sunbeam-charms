@@ -1,0 +1,152 @@
+type: charm
+name: cinder-volume-datera
+summary: OpenStack volume service - Datera backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with Datera storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    san-ip:
+      description: |
+        IP address of SAN controller
+      type: string
+    san-login:
+      description: |
+        Username for SAN controller
+      type: secret
+    san-password:
+      description: |
+        Password for SAN controller
+      type: secret
+    datera-ldap-server:
+      default: null
+      description: |
+        LDAP authentication server
+      type: string
+    datera-503-timeout:
+      default: null
+      description: |
+        Timeout for HTTP 503 retry messages
+      type: int
+    datera-503-interval:
+      default: null
+      description: |
+        Interval between 503 retries
+      type: int
+    datera-debug:
+      default: false
+      description: |
+        True to set function arg and return logging
+      type: boolean
+    datera-debug-replica-count-override:
+      default: false
+      description: |
+        ONLY FOR DEBUG/TESTING PURPOSES True to set replica_count to 1
+      type: boolean
+    datera-tenant-id:
+      default: null
+      description: |
+        If set to 'Map' --> OpenStack project ID will be mapped implicitly to Datera tenant ID
+      type: string
+    datera-enable-image-cache:
+      default: false
+      description: |
+        Set to True to enable Datera backend image caching
+      type: boolean
+    datera-image-cache-volume-type-id:
+      default: null
+      description: |
+        Cinder volume type id to use for cached volumes
+      type: string
+    datera-disable-profiler:
+      default: false
+      description: |
+        Set to True to disable profiling in the Datera driver
+      type: boolean
+    datera-disable-extended-metadata:
+      default: false
+      description: |
+        Set to True to disable sending additional metadata to the Datera backend
+      type: boolean
+    datera-disable-template-override:
+      default: false
+      description: |
+        Set to True to disable automatic template override of the size attribute when creating from a template
+      type: boolean
+    datera-volume-type-defaults:
+      default: null
+      description: |
+        Settings here will be used as volume-type defaults if the volume-type setting is not provided.
+      type: string
+    san-thin-provision:
+      default: true
+      description: |
+        Use thin provisioning for SAN volumes?
+      type: boolean
+    use-multipath-for-image-xfer:
+      default: true
+      description: |
+        Enable multipathing for image transfer operations.
+      type: boolean
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
