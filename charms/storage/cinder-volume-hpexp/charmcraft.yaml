@@ -1,0 +1,258 @@
+type: charm
+name: cinder-volume-hpexp
+summary: OpenStack volume service - HPE XP backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with HPE XP storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    san-ip:
+      description: |
+        Storage array management IP address or hostname.
+      type: string
+    protocol:
+      description: |
+        Protocol selector: fc, iscsi.
+      type: string
+    hpexp-storage-id:
+      default: null
+      description: |
+        Product number of the storage system.
+      type: string
+    hpexp-pools:
+      default: null
+      description: |
+        Pool number[s] or pool name[s] of the THP pool.
+      type: string
+    hpexp-snap-pool:
+      default: null
+      description: |
+        Pool number or pool name of the snapshot pool.
+      type: string
+    hpexp-ldev-range:
+      default: null
+      description: |
+        Range of the LDEV numbers in the format of 'xxxx-yyyy' that can be used by the driver.
+      type: string
+    hpexp-target-ports:
+      default: null
+      description: |
+        IDs of the storage ports used to attach volumes to the controller node.
+      type: string
+    hpexp-compute-target-ports:
+      default: null
+      description: |
+        IDs of the storage ports used to attach volumes to compute nodes.
+      type: string
+    hpexp-group-create:
+      default: false
+      description: |
+        If True, the driver will create host groups or iSCSI targets on storage ports as needed.
+      type: boolean
+    hpexp-group-delete:
+      default: false
+      description: |
+        If True, the driver will delete host groups or iSCSI targets on storage ports as needed.
+      type: boolean
+    hpexp-copy-speed:
+      default: 3
+      description: |
+        Copy speed of storage system. 1 or 2 indicates low speed, 3 indicates middle speed, and a value between 4 and 15 indicates high speed.
+      type: int
+    hpexp-copy-check-interval:
+      default: 3
+      description: |
+        Interval in seconds to check copy
+      type: int
+    hpexp-async-copy-check-interval:
+      default: 10
+      description: |
+        Interval in seconds to check copy asynchronously
+      type: int
+    hpexp-manage-drs-volumes:
+      default: false
+      description: |
+        If true, the driver will create a driver managed vClone parent for each non-cloned DRS volume it creates.
+      type: boolean
+    hpexp-rest-disable-io-wait:
+      default: true
+      description: |
+        It may take some time to detach volume after I/O. This option will allow detaching volume to complete immediately.
+      type: boolean
+    hpexp-rest-tcp-keepalive:
+      default: true
+      description: |
+        Enables or disables use of REST API tcp keepalive
+      type: boolean
+    hpexp-discard-zero-page:
+      default: true
+      description: |
+        Enable or disable zero page reclamation in a THP V-VOL.
+      type: boolean
+    hpexp-lun-timeout:
+      default: null
+      description: |
+        Maximum wait time in seconds for adding a LUN to complete.
+      type: int
+    hpexp-lun-retry-interval:
+      default: null
+      description: |
+        Retry interval in seconds for REST API adding a LUN.
+      type: int
+    hpexp-restore-timeout:
+      default: null
+      description: |
+        Maximum wait time in seconds for the restore operation to complete.
+      type: int
+    hpexp-state-transition-timeout:
+      default: null
+      description: |
+        Maximum wait time in seconds for a volume transition to complete.
+      type: int
+    hpexp-lock-timeout:
+      default: null
+      description: |
+        Maximum wait time in seconds for storage to be unlocked.
+      type: int
+    hpexp-rest-timeout:
+      default: null
+      description: |
+        Maximum wait time in seconds for REST API execution to complete.
+      type: int
+    hpexp-extend-timeout:
+      default: null
+      description: |
+        Maximum wait time in seconds for a volume extention to complete.
+      type: int
+    hpexp-exec-retry-interval:
+      default: null
+      description: |
+        Retry interval in seconds for REST API execution.
+      type: int
+    hpexp-rest-connect-timeout:
+      default: null
+      description: |
+        Maximum wait time in seconds for REST API connection to complete.
+      type: int
+    hpexp-rest-job-api-response-timeout:
+      default: null
+      description: |
+        Maximum wait time in seconds for a response from REST API.
+      type: int
+    hpexp-rest-get-api-response-timeout:
+      default: null
+      description: |
+        Maximum wait time in seconds for a response against GET method of REST API.
+      type: int
+    hpexp-rest-server-busy-timeout:
+      default: null
+      description: |
+        Maximum wait time in seconds when REST API returns busy.
+      type: int
+    hpexp-rest-keep-session-loop-interval:
+      default: null
+      description: |
+        Loop interval in seconds for keeping REST API session.
+      type: int
+    hpexp-rest-another-ldev-mapped-retry-timeout:
+      default: null
+      description: |
+        Retry time in seconds when new LUN allocation request fails.
+      type: int
+    hpexp-rest-tcp-keepidle:
+      default: null
+      description: |
+        Wait time in seconds for sending a first TCP keepalive packet.
+      type: int
+    hpexp-rest-tcp-keepintvl:
+      default: null
+      description: |
+        Interval of transmissions in seconds for TCP keepalive packet.
+      type: int
+    hpexp-rest-tcp-keepcnt:
+      default: null
+      description: |
+        Maximum number of transmissions for TCP keepalive packet.
+      type: int
+    hpexp-host-mode-options:
+      default: null
+      description: |
+        Host mode option for host group or iSCSI target.
+      type: string
+    hpexp-rest-use-object-caching:
+      default: true
+      description: |
+        Set True to enable object caching of certain REST objects for better performance.
+      type: boolean
+    hpexp-rest-max-request-workers:
+      default: 16
+      description: |
+        The maximum number of workers for concurrent requests.
+      type: int
+    hpexp-zoning-request:
+      default: false
+      description: |
+        If True, the driver will configure FC zoning between the server and the storage system provided that FC zoning manager is enabled.
+      type: boolean
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
