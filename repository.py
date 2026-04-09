@@ -4,6 +4,7 @@ import logging
 import argparse
 import dataclasses
 import pathlib
+import re
 import shutil
 import subprocess
 
@@ -17,6 +18,8 @@ UTILITY_FILES = [
     ROOT_DIR / ".jujuignore",
 ]
 STORAGE_DIR = "storage"
+SKIP_CHARMS = {"sunbeam-libs"}
+BUILD_INFRA_FILES = {"repository.py", "watchtower.yaml", ".jujuignore"}
 
 
 logger = logging.getLogger(__name__)
@@ -89,8 +92,7 @@ def load_external_libraries() -> dict[str, pathlib.Path]:
     """Load the external libraries."""
     path = EXTERNAL_LIB_DIR
     return {
-        str(p.relative_to(path))[:-3].replace("/", "."): p
-        for p in path.glob("**/*.py")
+        str(p.relative_to(path))[:-3].replace("/", "."): p for p in path.glob("**/*.py")
     }
 
 
@@ -124,7 +126,11 @@ def list_charms() -> list[str]:
         p.name
         for p in (ROOT_DIR / "charms").iterdir()
         if p.is_dir() and p.name != STORAGE_DIR
-    ] + [STORAGE_DIR + "/" + p.name for p in (ROOT_DIR / "charms" / STORAGE_DIR).iterdir() if p.is_dir()]
+    ] + [
+        STORAGE_DIR + "/" + p.name
+        for p in (ROOT_DIR / "charms" / STORAGE_DIR).iterdir()
+        if p.is_dir()
+    ]
 
 
 def load_charm(charm: str) -> SunbeamBuild:
@@ -230,24 +236,172 @@ def clean_charm(
 
 
 ###############################################
+# Affected charm detection
+###############################################
+def _plain_charm_name(charm: str) -> str:
+    """Strip storage/ prefix to get plain charm name."""
+    if charm.startswith(STORAGE_DIR + "/"):
+        return charm[len(STORAGE_DIR) + 1 :]
+    return charm
+
+
+def _all_plain_charm_names(sunbeam_charms: list[str]) -> list[str]:
+    """Return sorted plain charm names, excluding skipped charms."""
+    return sorted(
+        _plain_charm_name(c)
+        for c in sunbeam_charms
+        if _plain_charm_name(c) not in SKIP_CHARMS
+    )
+
+
+def _build_reverse_dependency_index(
+    sunbeam_charms: list[str],
+) -> tuple[dict[str, set[str]], dict[str, set[str]], dict[str, set[str]]]:
+    """Build reverse indexes: library/template -> set of charms that depend on it.
+
+    Returns (external_lib_to_charms, internal_lib_to_charms, template_to_charms).
+    """
+    ext_rev: dict[str, set[str]] = {}
+    int_rev: dict[str, set[str]] = {}
+    tpl_rev: dict[str, set[str]] = {}
+
+    for charm in sunbeam_charms:
+        plain = _plain_charm_name(charm)
+        if plain in SKIP_CHARMS:
+            continue
+        try:
+            build = load_charm(charm)
+        except (ValueError, FileNotFoundError):
+            continue
+        for lib in build.external_libraries:
+            ext_rev.setdefault(lib, set()).add(plain)
+        for lib in build.internal_libraries:
+            int_rev.setdefault(lib, set()).add(plain)
+        for tpl in build.templates:
+            tpl_rev.setdefault(tpl, set()).add(plain)
+
+    return ext_rev, int_rev, tpl_rev
+
+
+def _changed_file_to_external_lib(path: str) -> str | None:
+    """Map a changed file path under libs/external/lib/ to a library name.
+
+    E.g. libs/external/lib/charms/data_platform_libs/v0/data_interfaces.py
+         -> charms.data_platform_libs.v0.data_interfaces
+    """
+    prefix = "libs/external/lib/"
+    if not path.startswith(prefix):
+        return None
+    rel = path[len(prefix) :]
+    if not rel.endswith(".py"):
+        return None
+    return rel[:-3].replace("/", ".")
+
+
+def _changed_file_to_internal_lib(path: str) -> str | None:
+    """Map a changed file path to an internal library name.
+
+    E.g. charms/keystone-k8s/lib/charms/keystone_k8s/v0/identity_credentials.py
+         -> charms.keystone_k8s.v0.identity_credentials
+    """
+    m = re.match(r"charms/(?:storage/)?[^/]+/lib/(charms/[^/]+/.+\.py)$", path)
+    if not m:
+        return None
+    return m.group(1)[:-3].replace("/", ".")
+
+
+def _changed_file_to_template(path: str) -> str | None:
+    """Map a changed file path under templates/ to a template name."""
+    prefix = "templates/"
+    if not path.startswith(prefix):
+        return None
+    return path[len(prefix) :]
+
+
+def affected_charms(
+    base: str,
+    sunbeam_charms: list[str],
+) -> list[str]:
+    """Determine which charms are affected by changes since base ref."""
+    result = subprocess.run(
+        ["git", "diff", "--name-only", f"{base}..HEAD"],
+        capture_output=True,
+        text=True,
+        cwd=ROOT_DIR,
+        check=True,
+    )
+    changed_files = [f for f in result.stdout.strip().split("\n") if f]
+    if not changed_files:
+        return []
+
+    all_names = _all_plain_charm_names(sunbeam_charms)
+
+    # Check for "rebuild everything" triggers
+    for f in changed_files:
+        if f == "rebuild":
+            return all_names
+        if f.startswith("ops-sunbeam/ops_sunbeam/"):
+            return all_names
+        if f in BUILD_INFRA_FILES:
+            return all_names
+
+    # Build reverse dependency indexes
+    ext_rev, int_rev, tpl_rev = _build_reverse_dependency_index(sunbeam_charms)
+
+    affected: set[str] = set()
+
+    for f in changed_files:
+        # Direct charm changes
+        m = re.match(r"charms/storage/([^/]+)/", f)
+        if m:
+            name = m.group(1)
+            if name not in SKIP_CHARMS:
+                affected.add(name)
+            # Also check if this is an internal library depended on by other charms
+            ilib = _changed_file_to_internal_lib(f)
+            if ilib and ilib in int_rev:
+                affected.update(int_rev[ilib])
+            continue
+
+        m = re.match(r"charms/([^/]+)/", f)
+        if m:
+            name = m.group(1)
+            if name != STORAGE_DIR and name not in SKIP_CHARMS:
+                affected.add(name)
+            # Also check if this is an internal library depended on by other charms
+            ilib = _changed_file_to_internal_lib(f)
+            if ilib and ilib in int_rev:
+                affected.update(int_rev[ilib])
+            continue
+
+        # External library changes
+        lib = _changed_file_to_external_lib(f)
+        if lib and lib in ext_rev:
+            affected.update(ext_rev[lib])
+            continue
+
+        # Template changes
+        tpl = _changed_file_to_template(f)
+        if tpl and tpl in tpl_rev:
+            affected.update(tpl_rev[tpl])
+            continue
+
+    return sorted(affected)
+
+
+###############################################
 # Cli Definitions
 ###############################################
 def _add_charm_argument(parser: argparse.ArgumentParser):
-    parser.add_argument(
-        "charm", type=str, nargs="*", help="The charm to operate on."
-    )
+    parser.add_argument("charm", type=str, nargs="*", help="The charm to operate on.")
 
 
 def main_cli():
-    main_parser = argparse.ArgumentParser(
-        description="Sunbeam Repository utilities."
-    )
+    main_parser = argparse.ArgumentParser(description="Sunbeam Repository utilities.")
     main_parser.add_argument(
         "-v", "--verbose", action="store_true", help="Enable verbose logging."
     )
-    subparsers = main_parser.add_subparsers(
-        required=True, help="sub-command help"
-    )
+    subparsers = main_parser.add_subparsers(required=True, help="sub-command help")
 
     prepare_parser = subparsers.add_parser("prepare", help="Prepare charm(s).")
     _add_charm_argument(prepare_parser)
@@ -269,9 +423,7 @@ def main_cli():
     )
     clean_parser.set_defaults(func=clean_cli)
 
-    validate_parser = subparsers.add_parser(
-        "validate", help="Validate charm(s)."
-    )
+    validate_parser = subparsers.add_parser("validate", help="Validate charm(s).")
     _add_charm_argument(validate_parser)
     validate_parser.set_defaults(func=validate_cli)
 
@@ -287,6 +439,17 @@ def main_cli():
         "libraries", type=str, nargs="*", help="Libraries to fetch."
     )
     fetch_lib_parser.set_defaults(func=fetch_lib_cli)
+
+    affected_parser = subparsers.add_parser(
+        "affected", help="List charms affected by changes since a base ref."
+    )
+    affected_parser.add_argument(
+        "--base",
+        type=str,
+        default="HEAD~1",
+        help="Git ref to diff against (default: HEAD~1).",
+    )
+    affected_parser.set_defaults(func=affected_cli)
 
     list_parser = subparsers.add_parser("list", help="List all charms.")
     list_parser.set_defaults(func=list_cli)
@@ -388,9 +551,17 @@ def fetch_lib_cli(
     for library in libraries_set:
         logging.info(f"Fetching {library}")
         # Fetch the library
-        subprocess.run(
-            ["charmcraft", "fetch-lib", library], cwd=cwd, check=True
-        )
+        subprocess.run(["charmcraft", "fetch-lib", library], cwd=cwd, check=True)
+
+
+def affected_cli(
+    sunbeam_charms: list[str],
+    base: str = "HEAD~1",
+    **kwargs,
+):
+    """List charms affected by changes since base ref."""
+    for charm in affected_charms(base, sunbeam_charms):
+        print(charm)
 
 
 def list_cli(sunbeam_charms: list[str], **kwargs):
