@@ -5,17 +5,14 @@
 # generated every time a new charm is added to the repository (or when it is
 # expired).
 
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 if ! command -v charmcraft &> /dev/null
 then
     echo "charmcraft could not be found"
     echo "Install it with: snap install charmcraft --classic"
-    exit 1
-fi
-
-if ! command -v zuul-client &> /dev/null
-then
-    echo "zuul-client could not be found"
-    echo "Install it with: pip install zuul-client"
     exit 1
 fi
 
@@ -41,20 +38,11 @@ charmcraft login --export=sunbeam-charms.auth \
     --permission=package-view-revisions \
     --ttl=7776000
 
-# Fetch project public key
-[ ! -f "sunbeam-charms.pub" ] && curl  https://zuul.opendev.org/api/tenant/openstack/key/opendev.org/openstack/sunbeam-charms.pub -o sunbeam-charms.pub
-
-zuul-client --zuul-url https://zuul.opendev.org encrypt \
-  --public-key sunbeam-charms.pub \
-  --tenant openstack \
-  --project opendev.org/openstack/sunbeam-charms \
-  --secret-name charmhub_token \
-  --field-name value \
-  --infile sunbeam-charms.auth \
-  --outfile sunbeam-charms.charmhub.token
-
-generated="\      # Generated on $(date --iso-8601=seconds --utc) with 90 days ttl"
-sed '1d' < sunbeam-charms.charmhub.token | sed "4 i $generated" > zuul.d/secrets.yaml
+"${SCRIPT_DIR}/encrypt_secret.sh" \
+    --secret-name charmhub_token \
+    --field-name value \
+    --infile sunbeam-charms.auth \
+    --generated "with 90 days ttl"
 
 # Clean the created files
-rm sunbeam-charms.*
+rm sunbeam-charms.auth
