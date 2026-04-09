@@ -1,0 +1,111 @@
+- name: snapd is installed
+  apt:
+    name: snapd
+  become: true
+
+- name: sunbeam-watchtower is installed
+  snap:
+    name: sunbeam-watchtower
+    channel: "{{ watchtower_channel }}"
+  become: true
+
+- name: sunbeam-watchtower ssh-keys interface is connected
+  command: snap connect sunbeam-watchtower:ssh-keys
+  become: true
+
+- name: .ssh directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    mode: '0700'
+
+- name: SSH private key is written
+  copy:
+    content: "{{ utb_ssh_key.value }}"
+    dest: "{{ ansible_env.HOME }}/.ssh/id_utb"
+    mode: '0600'
+  no_log: true
+
+- name: git.launchpad.net is in known_hosts
+  known_hosts:
+    name: git.launchpad.net
+    key: "{{ lookup('pipe', 'ssh-keyscan git.launchpad.net') }}"
+    state: present
+
+- name: Launchpad credentials directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/snap/sunbeam-watchtower/common/.config/sunbeam-watchtower"
+    state: directory
+    mode: '0700'
+
+- name: Launchpad credentials are written
+  copy:
+    content: "{{ utb_launchpad_oauth.value }}"
+    dest: "{{ ansible_env.HOME }}/snap/sunbeam-watchtower/common/.config/sunbeam-watchtower/credentials.json"
+    mode: '0600'
+  no_log: true
+
+- name: git user is configured
+  command: "{{ item }}"
+  loop:
+    - git config user.email "openstack-testing-bot@ubuntu.com"
+    - git config user.name "Ubuntu Openstack Testing Bot"
+  args:
+    chdir: "{{ zuul.project.src_dir }}"
+
+- name: affected charms are detected
+  command: python3 repository.py affected --base HEAD~1
+  args:
+    chdir: "{{ zuul.project.src_dir }}"
+  register: affected_charms
+
+- name: end play if no charms affected
+  meta: end_play
+  when: affected_charms.stdout == ""
+
+- name: charms are built via watchtower
+  command: >
+    sunbeam-watchtower --verbose --no-color --config ./watchtower.yaml
+    build trigger sunbeam-charms
+    --local-path {{ zuul.project.src_dir }}
+    --prefix tmp-opendev-ci-{{ zuul.change }}-{{ zuul.patchset }}
+    --wait --timeout 2h --download
+    {{ affected_charms.stdout_lines | join(' ') }}
+  args:
+    chdir: "{{ zuul.project.src_dir }}"
+  environment:
+    WATCHTOWER_SSH_KEY: "{{ ansible_env.HOME }}/.ssh/id_utb"
+
+- name: find downloaded charm files
+  find:
+    paths: "{{ zuul.project.src_dir }}/artifacts"
+    patterns: "*.charm"
+    recurse: true
+  register: charm_files
+
+- name: flatten charm files into staging directory
+  copy:
+    src: "{{ item.path }}"
+    dest: "{{ zuul.project.src_dir }}/artifacts/flat/{{ item.path | basename }}"
+    remote_src: true
+  loop: "{{ charm_files.files }}"
+
+- name: charm artifacts are packed into tarball
+  command: tar czf {{ zuul.project.src_dir }}/charms.tar.gz -C {{ zuul.project.src_dir }}/artifacts/flat .
+
+- name: tarball is fetched to executor log root
+  fetch:
+    src: "{{ zuul.project.src_dir }}/charms.tar.gz"
+    dest: "{{ zuul.executor.log_root }}/"
+    flat: true
+  become: true
+
+- name: artifact is registered
+  zuul_return:
+    data:
+      zuul:
+        artifacts:
+          - name: charms
+            url: charms.tar.gz
+            metadata:
+              type: charm_archive
