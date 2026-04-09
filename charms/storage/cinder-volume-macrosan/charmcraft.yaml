@@ -1,0 +1,167 @@
+type: charm
+name: cinder-volume-macrosan
+summary: OpenStack volume service - MacroSAN iSCSI backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with MacroSAN iSCSI storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    san-ip:
+      description: |
+        Storage array management IP address or hostname.
+      type: string
+    protocol:
+      description: |
+        Protocol selector: iscsi, fc.
+      type: string
+      enum: [iscsi, fc]
+    macrosan-sdas-ipaddrs:
+      default: null
+      description: |
+        MacroSAN sdas devices' ip addresses
+      type: string
+    macrosan-sdas-username:
+      default: null
+      description: |
+        MacroSAN sdas devices' username
+      type: string
+    macrosan-sdas-password:
+      description: |
+        MacroSAN sdas devices' password
+      type: secret
+    macrosan-replication-ipaddrs:
+      default: null
+      description: |
+        MacroSAN replication devices' ip addresses
+      type: string
+    macrosan-replication-username:
+      default: null
+      description: |
+        MacroSAN replication devices' username
+      type: string
+    macrosan-replication-password:
+      description: |
+        MacroSAN replication devices' password
+      type: secret
+    macrosan-replication-destination-ports:
+      default: null
+      description: |
+        Slave device
+      type: string
+    macrosan-pool:
+      default: null
+      description: |
+        Pool to use for volume creation
+      type: string
+    macrosan-thin-lun-extent-size:
+      default: 8
+      description: |
+        Set the thin lun's extent size
+      type: int
+    macrosan-thin-lun-low-watermark:
+      default: 5
+      description: |
+        Set the thin lun's low watermark
+      type: int
+    macrosan-thin-lun-high-watermark:
+      default: 20
+      description: |
+        Set the thin lun's high watermark
+      type: int
+    macrosan-force-unmap-itl:
+      default: true
+      description: |
+        Force disconnect while deleting volume
+      type: boolean
+    macrosan-snapshot-resource-ratio:
+      default: "1.0"
+      description: |
+        Set snapshot's resource ratio
+      type: string
+    macrosan-log-timing:
+      default: true
+      description: |
+        Whether enable log timing
+      type: boolean
+    macrosan-fc-use-sp-port-nr:
+      default: 1
+      description: |
+        The use_sp_port_nr parameter is the number of online FC ports used by the single-ended memory when the FC connection is established in the switch non-all-pass mode. The maximum is 4
+      type: int
+    macrosan-fc-keep-mapped-ports:
+      default: true
+      description: |
+        In the case of an FC connection, the configuration item associated with the port is maintained.
+      type: boolean
+    macrosan-client:
+      default: null
+      description: |
+        Macrosan iscsi_clients list. You can configure multiple clients. You can configure it in this format: (host; client_name; sp1_iscsi_port; sp2_iscsi_port), (host; client_name; sp1_iscsi_port; sp2_iscsi_port) Important warning, Client_name has the following requirements: [a-zA-Z0-9.-_:], the maximum number of characters is 31 E.g: (controller1; device1; eth-1:0; eth-2:0), (controller2; device2; eth-1:0/eth-1:1; eth-2:0/eth-2:1),
+      type: string
+    macrosan-client-default:
+      default: null
+      description: |
+        This is the default connection ports' name for iscsi. This default configuration is used when no host related information is obtained.E.g: eth-1:0/eth-1:1; eth-2:0/eth-2:1
+      type: string
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
