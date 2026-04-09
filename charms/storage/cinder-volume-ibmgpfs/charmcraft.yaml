@@ -1,0 +1,159 @@
+type: charm
+name: cinder-volume-ibmgpfs
+summary: OpenStack volume service - GPFS backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with GPFS storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    gpfs-mount-point-base:
+      default: null
+      description: |
+        Specifies the path of the GPFS directory where Block Storage volume and snapshot files are stored.
+      type: string
+    gpfs-images-dir:
+      default: null
+      description: |
+        Specifies the path of the Image service repository in GPFS. Leave undefined if not storing images in GPFS.
+      type: string
+    gpfs-images-share-mode:
+      default: null
+      description: |
+        Specifies the type of image copy to be used.
+      type: string
+    gpfs-max-clone-depth:
+      default: 0
+      description: |
+        Specifies an upper limit on the number of indirections required to reach a specific block due to snapshots or clones.
+      type: int
+    gpfs-sparse-volumes:
+      default: true
+      description: |
+        Specifies that volumes are created as sparse files which initially consume no space.
+      type: boolean
+    gpfs-storage-pool:
+      default: system
+      description: |
+        Specifies the storage pool that volumes are assigned to. By default, the system storage pool is used.
+      type: string
+    gpfs-hosts:
+      default: null
+      description: |
+        Comma-separated list of IP address or hostnames of GPFS nodes.
+      type: string
+    gpfs-user-login:
+      default: root
+      description: |
+        Username for GPFS nodes.
+      type: string
+    gpfs-user-password:
+      default: null
+      description: |
+        Password for GPFS node user.
+      type: secret
+    gpfs-private-key:
+      default: null
+      description: |
+        Filename of private key to use for SSH authentication.
+      type: string
+    gpfs-ssh-port:
+      default: 22
+      description: |
+        SSH port to use.
+      type: int
+    gpfs-hosts-key-file:
+      default: $state_path/ssh_known_hosts
+      description: |
+        File containing SSH host keys for the gpfs nodes with which driver needs to communicate.
+      type: string
+    gpfs-strict-host-key-policy:
+      default: false
+      description: |
+        Option to enable strict gpfs host key checking while connecting to gpfs nodes.
+      type: boolean
+    san-thin-provision:
+      default: true
+      description: |
+        Use thin provisioning for SAN volumes?
+      type: boolean
+    san-ip:
+      description: |
+        IP address of SAN controller
+      type: string
+    san-login:
+      default: null
+      description: |
+        Username for SAN controller
+      type: secret
+    san-password:
+      default: null
+      description: |
+        Password for SAN controller
+      type: secret
+    use-multipath-for-image-xfer:
+      default: true
+      description: |
+        Enable multipathing for image transfer operations.
+      type: boolean
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
