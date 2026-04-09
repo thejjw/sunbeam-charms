@@ -1,0 +1,7 @@
+projects:
+  - name: sunbeam-charms
+    artifact_type: charm
+    build:
+      prepare_command: ./repository.py prepare --clean
+      skip_artifacts:
+        - sunbeam-libs

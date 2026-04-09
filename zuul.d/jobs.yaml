@@ -1,4 +1,36 @@
 - job:
+    name: charm-build-watchtower
+    description: Build affected sunbeam charms via Launchpad (sunbeam-watchtower)
+    run: playbooks/charm/watchtower-build.yaml
+    timeout: 7500
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/
+      - libs/
+      - templates/
+      - rebuild
+      - watchtower.yaml
+      - repository.py
+      - .jujuignore
+    secrets:
+      - name: utb_ssh_key
+        secret: utb-ssh-key
+      - name: utb_launchpad_oauth
+        secret: utb-launchpad-oauth
+
+- job:
+    name: charm-cleanup-watchtower
+    description: Clean up temporary Launchpad build recipes after promote
+    run: playbooks/charm/watchtower-cleanup.yaml
+    timeout: 600
+    secrets:
+      - name: utb_ssh_key
+        secret: utb-ssh-key
+      - name: utb_launchpad_oauth
+        secret: utb-launchpad-oauth
+
+- job:
     name: charm-build-keystone-k8s
     description: Build sunbeam keystone-k8s charm
     run: playbooks/charm/build.yaml
