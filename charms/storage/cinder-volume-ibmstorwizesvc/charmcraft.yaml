@@ -1,0 +1,231 @@
+type: charm
+name: cinder-volume-ibmstorwizesvc
+summary: OpenStack volume service - StorwizeSVC FC backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with StorwizeSVC FC storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    protocol:
+      description: |
+        Protocol selector: fc, iscsi.
+      type: string
+    storwize-svc-volpool-name:
+      default: volpool
+      description: |
+        Comma separated list of storage system storage pools for volumes.
+      type: string
+    storwize-svc-vol-rsize:
+      default: 2
+      description: |
+        Storage system space-efficiency parameter for volumes (percentage)
+      type: int
+    storwize-svc-vol-warning:
+      default: 0
+      description: |
+        Storage system threshold for volume capacity warnings (percentage)
+      type: int
+    storwize-svc-vol-autoexpand:
+      default: true
+      description: |
+        Storage system autoexpand parameter for volumes (True/False)
+      type: boolean
+    storwize-svc-vol-grainsize:
+      default: 256
+      description: |
+        Storage system grain size parameter for volumes (8/32/64/128/256)
+      type: int
+    storwize-svc-vol-compression:
+      default: false
+      description: |
+        Storage system compression option for volumes
+      type: boolean
+    storwize-svc-vol-easytier:
+      default: true
+      description: |
+        Enable Easy Tier for volumes
+      type: boolean
+    storwize-svc-vol-iogrp:
+      default: "0"
+      description: |
+        The I/O group in which to allocate volumes. It can be a comma-separated list in which case the driver will select an io_group based on least number of volumes associated with the io_group.
+      type: string
+    storwize-svc-flashcopy-timeout:
+      default: 120
+      description: |
+        Maximum number of seconds to wait for FlashCopy to be prepared.
+      type: int
+    storwize-svc-allow-tenant-qos:
+      default: false
+      description: |
+        Allow tenants to specify QOS on create
+      type: boolean
+    storwize-svc-stretched-cluster-partner:
+      default: null
+      description: |
+        If operating in stretched cluster mode, specify the name of the pool in which mirrored copies are stored.
+      type: string
+    storwize-san-secondary-ip:
+      default: null
+      description: |
+        Specifies secondary management IP or hostname to be used if san_ip is invalid or becomes inaccessible.
+      type: string
+    storwize-svc-vol-nofmtdisk:
+      default: false
+      description: |
+        Specifies that the volume not be formatted during creation.
+      type: boolean
+    storwize-svc-flashcopy-rate:
+      default: 50
+      description: |
+        Specifies the Storwize FlashCopy copy rate to be used when creating a full volume copy. The default is rate is 50, and the valid rates are 1-150.
+      type: int
+    storwize-svc-clean-rate:
+      default: 50
+      description: |
+        Specifies the Storwize cleaning rate for the mapping. The default rate is 50, and the valid rates are 0-150.
+      type: int
+    storwize-svc-mirror-pool:
+      default: null
+      description: |
+        Specifies the name of the pool in which mirrored copy is stored. Example: "pool2"
+      type: string
+    storwize-svc-aux-mirror-pool:
+      default: null
+      description: |
+        Specifies the name of the pool in which mirrored copy is stored for aux volume. Example: "pool2"
+      type: string
+    storwize-portset:
+      default: null
+      description: |
+        Specifies the name of the portset in which the host is to be created.
+      type: string
+    storwize-svc-src-child-pool:
+      default: null
+      description: |
+        Specifies the name of the source child pool in which global mirror source change volume is stored.
+      type: string
+    storwize-svc-target-child-pool:
+      default: null
+      description: |
+        Specifies the name of the target child pool in which global mirror auxiliary change volume is stored.
+      type: string
+    storwize-peer-pool:
+      default: null
+      description: |
+        Specifies the name of the peer pool for hyperswap volume, the peer pool must exist on the other site.
+      type: string
+    storwize-preferred-host-site:
+      default: null
+      description: |
+        Specifies the site information for host. One WWPN or multi WWPNs used in the host can be specified. For example: storwize_preferred_host_site=site1:wwpn1,site2:wwpn2&wwpn3 or storwize_preferred_host_site=site1:iqn1,site2:iqn2
+      type: string
+    cycle-period-seconds:
+      default: 300
+      description: |
+        This defines an optional cycle period that applies to Global Mirror relationships with a cycling mode of multi. A Global Mirror relationship using the multi cycling_mode performs a complete cycle at most once each period. The default is 300 seconds, and the valid seconds are 60-86400.
+      type: int
+    storwize-svc-retain-aux-volume:
+      default: false
+      description: |
+        Enable or disable retaining of aux volume on secondary storage during delete of the volume on primary storage or moving the primary volume from mirror to non-mirror with replication enabled. This option is valid for Storage Virtualize Family.
+      type: boolean
+    migrate-from-flashcopy:
+      default: true
+      description: |
+        Parameter to allow or prevent volumes with legacy FlashCopy mappings to be part of volume_group_enabled and temporary_volume_group_enabled groups.
+      type: boolean
+    storwize-svc-multipath-enabled:
+      default: false
+      description: |
+        Connect with multipath (FC only; iSCSI multipath is controlled by Nova)
+      type: boolean
+    storwize-svc-iscsi-chap-enabled:
+      default: true
+      description: |
+        Configure CHAP authentication for iSCSI connections (Default: Enabled)
+      type: boolean
+    san-thin-provision:
+      default: true
+      description: |
+        Use thin provisioning for SAN volumes?
+      type: boolean
+    san-ip:
+      description: |
+        IP address of SAN controller
+      type: string
+    san-login:
+      description: |
+        Username for SAN controller
+      type: secret
+    san-password:
+      description: |
+        Password for SAN controller
+      type: secret
+    use-multipath-for-image-xfer:
+      default: true
+      description: |
+        Enable multipathing for image transfer operations.
+      type: boolean
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
