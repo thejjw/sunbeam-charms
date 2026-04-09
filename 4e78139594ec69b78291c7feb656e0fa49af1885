@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "011cc5c3_d18fa35f",
+        "filename": "charms/heat-k8s/src/templates/heat-api-cfn.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-04-09T09:43:25Z",
+      "side": 1,
+      "message": "Should we conditionally template that?",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 56
+      },
+      "revId": "4e78139594ec69b78291c7feb656e0fa49af1885",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
