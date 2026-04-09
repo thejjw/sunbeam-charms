@@ -25,6 +25,7 @@ Assumption: All build charms will be in sunbeam-charms folder.
 """
 
 import glob
+import re
 from pathlib import (
     Path,
 )
@@ -36,9 +37,11 @@ from jinja2 import (
 
 test_directories = [dir_.name for dir_ in list(Path("tests").glob('*')) if dir_.name != "local"]
 built_charms = glob.glob("*.charm")
-context = {
-    charm.replace(".charm", "").replace("-", "_"): True for charm in built_charms
-}
+context = {}
+for charm in built_charms:
+    # Strip arch suffix (e.g. keystone-k8s_amd64.charm -> keystone-k8s)
+    name = re.sub(r"_[^.]+\.charm$", "", charm).replace("-", "_")
+    context[name] = True
 print(f"Using context: {context}")
 
 for test_dir in test_directories:
