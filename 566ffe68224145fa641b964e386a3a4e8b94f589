@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f6e217a_ee7d2ff2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-04-09T12:29:17Z",
+      "side": 1,
+      "message": "recheck Connectivity to opendev.org failure",
+      "revId": "566ffe68224145fa641b964e386a3a4e8b94f589",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
