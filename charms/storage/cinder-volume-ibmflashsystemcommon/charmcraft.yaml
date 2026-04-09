@@ -1,0 +1,107 @@
+type: charm
+name: cinder-volume-ibmflashsystemcommon
+summary: OpenStack volume service - Ibmflashsystemcommon backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with Ibmflashsystemcommon storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    enable-unsupported-driver:
+      default: true
+      description: |
+        Enable unsupported driver.
+      type: boolean
+    san-ip:
+      description: |
+        IP address of SAN controller
+      type: string
+    san-login:
+      description: |
+        Username for SAN controller
+      type: secret
+    san-password:
+      description: |
+        Password for SAN controller
+      type: secret
+    flashsystem-connection-protocol:
+      default: FC
+      description: |
+        Connection protocol should be FC. (Default is FC.)
+      type: string
+    flashsystem-multihostmap-enabled:
+      default: true
+      description: |
+        Allows vdisk to multi host mapping. (Default is True)
+      type: boolean
+    san-thin-provision:
+      default: true
+      description: |
+        Use thin provisioning for SAN volumes?
+      type: boolean
+    use-multipath-for-image-xfer:
+      default: true
+      description: |
+        Enable multipathing for image transfer operations.
+      type: boolean
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
