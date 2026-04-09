@@ -1,0 +1,57 @@
+- name: snapd is installed
+  apt:
+    name: snapd
+  become: true
+
+- name: sunbeam-watchtower is installed
+  snap:
+    name: sunbeam-watchtower
+    channel: "{{ watchtower_channel | default('latest/candidate') }}"
+  become: true
+
+- name: sunbeam-watchtower ssh-keys interface is connected
+  command: snap connect sunbeam-watchtower:ssh-keys
+  become: true
+
+- name: .ssh directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.ssh"
+    state: directory
+    mode: '0700'
+
+- name: SSH private key is written
+  copy:
+    content: "{{ utb_ssh_key.value }}"
+    dest: "{{ ansible_env.HOME }}/.ssh/id_utb"
+    mode: '0600'
+  no_log: true
+
+- name: git.launchpad.net is in known_hosts
+  known_hosts:
+    name: git.launchpad.net
+    key: "{{ lookup('pipe', 'ssh-keyscan git.launchpad.net') }}"
+    state: present
+
+- name: Launchpad credentials directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/snap/sunbeam-watchtower/common/.config/sunbeam-watchtower"
+    state: directory
+    mode: '0700'
+
+- name: Launchpad credentials are written
+  copy:
+    content: "{{ utb_launchpad_oauth.value }}"
+    dest: "{{ ansible_env.HOME }}/snap/sunbeam-watchtower/common/.config/sunbeam-watchtower/credentials.json"
+    mode: '0600'
+  no_log: true
+
+- name: cleanup launchpad recipes
+  command: >
+    sunbeam-watchtower --verbose --no-color --config ./watchtower.yaml
+    build cleanup sunbeam-charms
+    --owner openstack-ubuntu-testing-bot
+    --prefix tmp-opendev-ci-{{ zuul.change }}
+  args:
+    chdir: "{{ zuul.project.src_dir }}"
+  environment:
+    WATCHTOWER_SSH_KEY: "{{ ansible_env.HOME }}/.ssh/id_utb"
