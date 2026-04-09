@@ -1,0 +1,221 @@
+type: charm
+name: cinder-volume-necv
+summary: OpenStack volume service - VStorage FC backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with VStorage FC storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    # RULES for vendor-specific options:
+    # 1. Secret fields MUST use `type: secret` (NOT `type: string`)
+    # 2. Required fields (like san-ip) should NOT have `default: null` - omit the default key entirely
+    # 3. Optional fields use `default: null` or their explicit default from the spec
+    # CRITICAL: ALL config options from the driver spec MUST appear here, including:
+    #   - driver-ssl-cert (always required unless explicitly in remove_base_config)
+    #   - san-ip (for SAN-based drivers)
+    #   - Every vendor-specific option — do not omit any
+    san-ip:
+      description: Storage array management IP address or hostname.
+      type: string
+    protocol:
+      description: "Protocol selector: fc, iscsi."
+      type: string
+      default: fc
+    nec-v-storage-id:
+      description: Product number of the storage system.
+      type: string
+      default: null
+    nec-v-pools:
+      description: Pool number[s] or pool name[s] of the DP pool.
+      type: string
+      default: null
+    nec-v-snap-pool:
+      description: Pool number or pool name of the snapshot pool.
+      type: string
+      default: null
+    nec-v-ldev-range:
+      description: Range of the LDEV numbers in the format of 'xxxx-yyyy' that can be used by the driver.
+      type: string
+      default: null
+    nec-v-target-ports:
+      description: IDs of the storage ports used to attach volumes to the controller node.
+      type: string
+      default: null
+    nec-v-compute-target-ports:
+      description: IDs of the storage ports used to attach volumes to compute nodes.
+      type: string
+      default: null
+    nec-v-group-create:
+      description: If True, the driver will create host groups or iSCSI targets on storage ports as needed.
+      type: boolean
+      default: false
+    nec-v-group-delete:
+      description: If True, the driver will delete host groups or iSCSI targets on storage ports as needed.
+      type: boolean
+      default: false
+    nec-v-copy-speed:
+      description: Copy speed of storage system. 1 or 2 indicates low speed, 3 indicates middle speed, and a value between 4 and 15 indicates high speed.
+      type: int
+      default: 3
+    nec-v-copy-check-interval:
+      description: Interval in seconds to check copying status during a volume copy.
+      type: int
+      default: 3
+    nec-v-async-copy-check-interval:
+      description: Interval in seconds to check asynchronous copying status during a copy pair deletion or data restoration.
+      type: int
+      default: 10
+    nec-v-manage-drs-volumes:
+      description: If true, the driver will create a driver managed vClone parent for each non-cloned DRS volume it creates.
+      type: boolean
+      default: false
+    nec-v-rest-disable-io-wait:
+      description: It may take some time to detach volume after I/O. This option will allow detaching volume to complete immediately.
+      type: boolean
+      default: true
+    nec-v-rest-tcp-keepalive:
+      description: Enables or disables use of REST API tcp keepalive
+      type: boolean
+      default: true
+    nec-v-discard-zero-page:
+      description: Enable or disable zero page reclamation in a DP-VOL.
+      type: boolean
+      default: true
+    nec-v-lun-timeout:
+      description: Maximum wait time in seconds for adding a LUN to complete.
+      type: int
+      default: null
+    nec-v-lun-retry-interval:
+      description: Retry interval in seconds for REST API adding a LUN.
+      type: int
+      default: null
+    nec-v-restore-timeout:
+      description: Maximum wait time in seconds for the restore operation to complete.
+      type: int
+      default: null
+    nec-v-state-transition-timeout:
+      description: Maximum wait time in seconds for a volume transition to complete.
+      type: int
+      default: null
+    nec-v-lock-timeout:
+      description: Maximum wait time in seconds for storage to be unlocked.
+      type: int
+      default: null
+    nec-v-rest-timeout:
+      description: Maximum wait time in seconds for REST API execution to complete.
+      type: int
+      default: null
+    nec-v-extend-timeout:
+      description: Maximum wait time in seconds for a volume extention to complete.
+      type: int
+      default: null
+    nec-v-exec-retry-interval:
+      description: Retry interval in seconds for REST API execution.
+      type: int
+      default: null
+    nec-v-rest-connect-timeout:
+      description: Maximum wait time in seconds for REST API connection to complete.
+      type: int
+      default: null
+    nec-v-rest-job-api-response-timeout:
+      description: Maximum wait time in seconds for a response from REST API.
+      type: int
+      default: null
+    nec-v-rest-get-api-response-timeout:
+      description: Maximum wait time in seconds for a response against GET method of REST API.
+      type: int
+      default: null
+    nec-v-rest-server-busy-timeout:
+      description: Maximum wait time in seconds when REST API returns busy.
+      type: int
+      default: null
+    nec-v-rest-keep-session-loop-interval:
+      description: Loop interval in seconds for keeping REST API session.
+      type: int
+      default: null
+    nec-v-rest-another-ldev-mapped-retry-timeout:
+      description: Retry time in seconds when new LUN allocation request fails.
+      type: int
+      default: null
+    nec-v-rest-tcp-keepidle:
+      description: Wait time in seconds for sending a first TCP keepalive packet.
+      type: int
+      default: null
+    nec-v-rest-tcp-keepintvl:
+      description: Interval of transmissions in seconds for TCP keepalive packet.
+      type: int
+      default: null
+    nec-v-rest-tcp-keepcnt:
+      description: Maximum number of transmissions for TCP keepalive packet.
+      type: int
+      default: null
+    nec-v-host-mode-options:
+      description: Host mode option for host group or iSCSI target
+      type: string
+      default: null
+    nec-v-zoning-request:
+      description: If True, the driver will configure FC zoning between the server and the storage system provided that FC zoning manager is enabled.
+      type: boolean
+      default: false
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
