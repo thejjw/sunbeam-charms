@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ef4b688b_de262383",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-04-09T22:25:43Z",
+      "side": 1,
+      "message": "Keeping project templates, until we can properly backport to stable/2024.1 and get rid of them...",
+      "revId": "7593c602a45010b06d4eb3e7878ad0a434c90225",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
