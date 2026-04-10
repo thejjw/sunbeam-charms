@@ -10,6 +10,7 @@ base: ubuntu@24.04
 subordinate: true
 platforms:
   amd64:
+  arm64:
 config:
   options:
     snap-name:
