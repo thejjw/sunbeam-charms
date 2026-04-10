@@ -84,6 +84,16 @@ _CONTROLLER_AMPHORA_SERVICES = ("octavia-health-manager", "octavia-worker")
 OCTAVIA_HEALTH_MANAGER_PORT = 5555
 OCTAVIA_HEARTBEAT_KEY = "heartbeat-key"
 
+# Peer app-databag keys used to share Amphora cert material with non-leader units.
+# Public cert data (PEM strings) is stored directly in the databag; private
+# keys are stored in a Juju app secret whose ID is kept in the databag.
+AMPHORA_ISSUING_CACERT_PEER_KEY = "amphora-issuing-cacert"
+AMPHORA_ISSUING_CA_ROOT_PEER_KEY = "amphora-issuing-ca-root"
+AMPHORA_CONTROLLER_CACERT_PEER_KEY = "amphora-controller-cacert"
+AMPHORA_CONTROLLER_CERT_PEER_KEY = "amphora-controller-cert"
+AMPHORA_CERTS_PRIVATE_KEYS_SECRET_ID_KEY = "amphora-certs-pk-secret-id"
+AMPHORA_CERTS_PRIVATE_KEYS_LABEL = "octavia-amphora-certs-private-keys"
+
 _VALID_TOPOLOGY = frozenset({"SINGLE", "ACTIVE_STANDBY"})
 # "auto" is a charm-internal value: it maps to soft-anti-affinity for
 # ACTIVE_STANDBY and disables anti-affinity for SINGLE topology.
@@ -376,9 +386,18 @@ class AmphoraCertificatesContext(sunbeam_config_contexts.ConfigContext):
 
     def context(self) -> dict:
         """Configuration context for Amphora certificates."""
-        ctxt = {}
+        if self.charm.unit.is_leader():
+            return self._leader_context()
+        return self._non_leader_context()
 
-        # Issuing CA cert + private key from the amphora-issuing-ca relation.
+    def _leader_context(self) -> dict:
+        """Build the cert context on the leader unit.
+
+        Reads directly from the TLS certificate relation handlers.
+        The tls_certificates_interface library allows only the leader to
+        retrieve CSRs (and thus assigned certs) when mode is Mode.APP.
+        """
+        ctxt = {}
         issuing_handler = self.charm.amphora_issuing_ca
         if issuing_handler.ready:
             for _cn, cert in issuing_handler.get_certs():
@@ -394,7 +413,6 @@ class AmphoraCertificatesContext(sunbeam_config_contexts.ConfigContext):
                     if cert.ca:
                         ctxt["lb_mgmt_issuing_ca_root"] = str(cert.ca)
                     break
-
         # Controller cert + CA from the amphora-controller-cert relation.
         # The controller cert file is a PEM bundle: cert || private-key,
         # matching the format expected by Octavia's haproxy_amphora section.
@@ -408,7 +426,73 @@ class AmphoraCertificatesContext(sunbeam_config_contexts.ConfigContext):
                         str(cert.certificate).rstrip("\n") + "\n" + private_key
                     )
                     break
+        return ctxt
 
+    def _non_leader_context(self) -> dict:
+        """Build the cert context on non-leader units.
+
+        Non-leader units cannot read from tls-certificates relations directly
+        when mode is Mode.APP (the library skips non-leader units).  Instead
+        they read cert material from the peer app databag that the leader
+        populates in _sync_amphora_certs_to_peer_databag().
+        """
+        ctxt = {}
+        try:
+            peer_data = {
+                "issuing_cacert": self.charm.peers.get_app_data(
+                    AMPHORA_ISSUING_CACERT_PEER_KEY
+                ),
+                "issuing_ca_root": self.charm.peers.get_app_data(
+                    AMPHORA_ISSUING_CA_ROOT_PEER_KEY
+                ),
+                "controller_cacert": self.charm.peers.get_app_data(
+                    AMPHORA_CONTROLLER_CACERT_PEER_KEY
+                ),
+                "controller_cert_pem": self.charm.peers.get_app_data(
+                    AMPHORA_CONTROLLER_CERT_PEER_KEY
+                ),
+                "secret_id": self.charm.peers.get_app_data(
+                    AMPHORA_CERTS_PRIVATE_KEYS_SECRET_ID_KEY
+                ),
+            }
+        except Exception as e:
+            logger.debug(
+                "Could not read Amphora cert data from peer databag: %s", e
+            )
+            return ctxt
+        if not all(
+            [
+                peer_data["issuing_cacert"],
+                peer_data["controller_cacert"],
+                peer_data["controller_cert_pem"],
+                peer_data["secret_id"],
+            ]
+        ):
+            logger.debug(
+                "Amphora cert data not yet available in peer app databag; "
+                "waiting for leader to populate it"
+            )
+            return ctxt
+        try:
+            secret = self.charm.model.get_secret(id=peer_data["secret_id"])
+            pk_content = secret.get_content(refresh=True)
+        except ModelError as e:
+            logger.error(
+                "Failed to read Amphora cert private-keys secret: %s", e
+            )
+            return ctxt
+        ctxt["lb_mgmt_issuing_cacert"] = peer_data["issuing_cacert"]
+        ctxt["lb_mgmt_issuing_ca_private_key"] = pk_content.get(
+            "issuing-ca-private-key", ""
+        )
+        if peer_data["issuing_ca_root"]:
+            ctxt["lb_mgmt_issuing_ca_root"] = peer_data["issuing_ca_root"]
+        ctxt["lb_mgmt_controller_cacert"] = peer_data["controller_cacert"]
+        ctxt["lb_mgmt_controller_cert"] = (
+            peer_data["controller_cert_pem"].rstrip("\n")
+            + "\n"
+            + pk_content.get("controller-cert-private-key", "")
+        )
         return ctxt
 
 
@@ -1720,6 +1804,88 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         else:
             ph.stop_amphora_services()
 
+    @staticmethod
+    def _get_first_cert(handler):
+        """Return the first non-None certificate from a TLS handler, or None."""
+        for _cn, cert in handler.get_certs():
+            if cert is not None:
+                return cert
+        return None
+
+    def _store_amphora_certs_secret(self, content: dict) -> None:
+        """Create or update the Juju app secret holding Amphora private keys.
+
+        Raises ModelError on failure so the caller can decide whether to abort.
+        """
+        secret_id = self.peers.get_app_data(
+            AMPHORA_CERTS_PRIVATE_KEYS_SECRET_ID_KEY
+        )
+        if secret_id:
+            secret = self.model.get_secret(id=secret_id)
+            secret.set_content(content)
+        else:
+            secret = self.model.app.add_secret(
+                content, label=AMPHORA_CERTS_PRIVATE_KEYS_LABEL
+            )
+            self.peers.set_app_data(
+                {AMPHORA_CERTS_PRIVATE_KEYS_SECRET_ID_KEY: secret.id}
+            )
+
+    def _sync_amphora_certs_to_peer_databag(self) -> None:
+        """Share Amphora cert material to the peer app databag for non-leader units.
+
+        Called on every configure_app_leader() invocation (leader only).  Reads
+        certificate data from the TLS handlers and writes:
+          - Public cert PEM strings to the peer app databag.
+          - Private keys to a Juju app secret whose ID is also stored in the
+            peer app databag.
+
+        Non-leader units read this data from AmphoraCertificatesContext.context()
+        so their pebble containers receive the same certificate files as the leader.
+
+        If either cert relation has not yet delivered certificates, this method
+        returns without writing anything—non-leader contexts will return an
+        empty dict until the leader populates the databag.
+        """
+        issuing_cert = self._get_first_cert(self.amphora_issuing_ca)
+        controller_cert = self._get_first_cert(self.amphora_controller_cert)
+
+        if issuing_cert is None or controller_cert is None:
+            logger.debug(
+                "Amphora certs not yet available; skipping peer databag sync"
+            )
+            return
+
+        private_keys_content = {
+            "issuing-ca-private-key": self.amphora_issuing_ca.get_private_key()
+            or "",
+            "controller-cert-private-key": self.amphora_controller_cert.get_private_key()
+            or "",
+        }
+        try:
+            self._store_amphora_certs_secret(private_keys_content)
+        except ModelError as e:
+            logger.error(
+                "Failed to store Amphora cert private-keys secret: %s", e
+            )
+            return
+
+        self.peers.set_app_data(
+            {
+                AMPHORA_ISSUING_CACERT_PEER_KEY: str(issuing_cert.certificate),
+                AMPHORA_ISSUING_CA_ROOT_PEER_KEY: (
+                    str(issuing_cert.ca) if issuing_cert.ca else ""
+                ),
+                AMPHORA_CONTROLLER_CACERT_PEER_KEY: (
+                    str(controller_cert.ca) if controller_cert.ca else ""
+                ),
+                AMPHORA_CONTROLLER_CERT_PEER_KEY: str(
+                    controller_cert.certificate
+                ),
+            }
+        )
+        logger.debug("Synced Amphora cert data to peer app databag")
+
     def configure_app_leader(self, event: ops.framework.EventBase) -> None:
         """Run global app setup.
 
@@ -1729,6 +1895,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         super().configure_app_leader(event)
         if self.config.get("amphora-network-attachment"):
             self.generate_heartbeat_key()
+        self._sync_amphora_certs_to_peer_databag()
 
 
 if __name__ == "__main__":  # pragma: nocover
