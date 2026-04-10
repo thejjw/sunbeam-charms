@@ -69,14 +69,14 @@ class CinderVolumeHpethreeparOperatorCharm(charm.OSCinderVolumeDriverOperatorCha
     @property
     def backend_key(self) -> str:
         """Return the backend key."""
-        return "hpe3par." + self.model.app.name
+        return "hpethreepar." + self.model.app.name
 
     def _configuration_type_overrides(self) -> dict[str, typing.Any]:
         """Configuration type overrides for pydantic model generation."""
         overrides = super()._configuration_type_overrides()
         overrides.update(
             {
-                "san-ip": pydantic.IPvAnyNetwork | None,
+                "san-ip": pydantic.IPvAnyAddress | None,
                 "san-login": typing.Annotated[
                     str,
                     pydantic.BeforeValidator(sunbeam_storage.secret_validator("san-login")),
@@ -87,7 +87,7 @@ class CinderVolumeHpethreeparOperatorCharm(charm.OSCinderVolumeDriverOperatorCha
                     pydantic.BeforeValidator(sunbeam_storage.secret_validator("san-password")),
                     sunbeam_storage.Required,
                 ],
-                "ḧpe3par-api-url": pydantic.HttpUrl | None,
+                "hpe3par-api-url": pydantic.HttpUrl | None,
                 "hpe3par-username": typing.Annotated[
                     str,
                     pydantic.BeforeValidator(sunbeam_storage.secret_validator("hpe3par-username")),
