@@ -3377,6 +3377,376 @@ class TestCertRelationReadiness:
 
 
 # ---------------------------------------------------------------------------
+# Non-leader unit scenarios
+# ---------------------------------------------------------------------------
+
+
+class TestNonLeaderUnit:
+    """Non-leader units must reach Active once the leader has bootstrapped.
+
+    Every scenario that the leader handles should also be exercised on a
+    non-leader to verify:
+    - The unit does NOT attempt leader-only operations (DB sync, StatefulSet
+      patch, keystone ops, heartbeat-key creation).
+    - The unit DOES configure its local containers and reach Active status
+      once the leader has set ``leader_ready`` in the peer app databag.
+    - Amphora cert material is sourced from the peer app databag (not from
+      the TLS relation, which is inaccessible to non-leaders in Mode.APP).
+
+    Helper: ``_ready_leader_peer_rel`` builds a PeerRelation that already has
+    ``leader_ready=true`` in the app databag so the non-leader passes the
+    is_leader_ready() gate.
+    """
+
+    @staticmethod
+    def _ready_leader_peer_rel(**extra_app_data):
+        """Build a PeerRelation whose app data signals that the leader is ready."""
+        import json
+
+        app_data = {"leader_ready": json.dumps(True)}
+        app_data.update(extra_app_data)
+        return testing.PeerRelation(
+            endpoint="peers",
+            local_app_data=app_data,
+        )
+
+    def test_non_leader_reaches_active_with_ready_leader(
+        self,
+        ctx,
+        complete_relations,
+        complete_secrets,
+        all_containers,
+    ):
+        """Non-leader with ready leader and all relations → ActiveStatus."""
+        peer_rel = self._ready_leader_peer_rel()
+        relations = [
+            r for r in complete_relations if r.endpoint != "peers"
+        ] + [peer_rel]
+        state_in = testing.State(
+            leader=False,
+            relations=relations,
+            containers=all_containers,
+            secrets=complete_secrets,
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        assert state_out.unit_status == testing.ActiveStatus("")
+
+    def test_non_leader_config_file_written(
+        self,
+        ctx,
+        complete_relations,
+        complete_secrets,
+        all_containers,
+    ):
+        """Non-leader writes octavia.conf to its containers."""
+        peer_rel = self._ready_leader_peer_rel()
+        relations = [
+            r for r in complete_relations if r.endpoint != "peers"
+        ] + [peer_rel]
+        state_in = testing.State(
+            leader=False,
+            relations=relations,
+            containers=all_containers,
+            secrets=complete_secrets,
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        container = state_out.get_container("octavia-api")
+        stored = container.get_filesystem(ctx)
+        assert (stored / "etc/octavia/octavia.conf").exists()
+
+    def test_non_leader_skips_db_sync(
+        self,
+        ctx,
+        complete_relations,
+        complete_secrets,
+        all_containers,
+    ):
+        """Non-leader must not execute DB sync commands (leader-only operation).
+
+        run_db_sync() itself is called by ops-sunbeam on every unit, but it
+        contains an ``if not self.unit.is_leader(): return`` guard.  We verify
+        that the underlying _exec_db_sync() — the method that actually runs
+        ``octavia-db-manage`` — is never invoked on a non-leader.
+        """
+        peer_rel = self._ready_leader_peer_rel()
+        relations = [
+            r for r in complete_relations if r.endpoint != "peers"
+        ] + [peer_rel]
+        state_in = testing.State(
+            leader=False,
+            relations=relations,
+            containers=all_containers,
+            secrets=complete_secrets,
+        )
+        with mock.patch.object(
+            charm.OctaviaOperatorCharm, "_exec_db_sync"
+        ) as mock_exec_db_sync:
+            ctx.run(ctx.on.config_changed(), state_in)
+        mock_exec_db_sync.assert_not_called()
+
+    def test_non_leader_skips_statefulset_patch(
+        self,
+        ctx,
+        complete_relations,
+        complete_secrets,
+        all_containers,
+        mock_lightkube_client,
+    ):
+        """Non-leader must not patch the StatefulSet (leader-only)."""
+        peer_rel = self._ready_leader_peer_rel()
+        relations = [
+            r for r in complete_relations if r.endpoint != "peers"
+        ] + [peer_rel]
+        state_in = testing.State(
+            leader=False,
+            relations=relations,
+            containers=all_containers,
+            secrets=complete_secrets,
+        )
+        ctx.run(ctx.on.config_changed(), state_in)
+        mock_lightkube_client.patch.assert_not_called()
+
+    def test_non_leader_amphora_cert_context_from_peer_databag(
+        self,
+        ctx,
+        complete_relations_with_barbican,
+        complete_secrets,
+        all_containers,
+        mock_amphora_certs_ready,
+    ):
+        """Non-leader reads amphora cert material from peer app databag.
+
+        When the peer app databag contains cert PEMs and a secret-id
+        pointing to a Juju app secret that holds private keys,
+        AmphoraCertificatesContext._non_leader_context() must assemble
+        the same context dict that the leader would build from the TLS
+        handlers and write the cert files to pebble.
+        """
+        # Juju app secret containing the private keys (owned by the app,
+        # readable by all units).
+        pk_secret = testing.Secret(
+            {
+                "issuing-ca-private-key": "FAKE_ISSUING_KEY",
+                "controller-cert-private-key": "FAKE_CTRL_KEY",
+            },
+            id="secret:amphora-pk-001",
+            label=charm.AMPHORA_CERTS_PRIVATE_KEYS_LABEL,
+        )
+        peer_rel = self._ready_leader_peer_rel(
+            **{
+                charm.AMPHORA_ISSUING_CACERT_PEER_KEY: "FAKE_ISSUING_CA",
+                charm.AMPHORA_ISSUING_CA_ROOT_PEER_KEY: "FAKE_ROOT_CA",
+                charm.AMPHORA_CONTROLLER_CACERT_PEER_KEY: "FAKE_CTRL_CA",
+                charm.AMPHORA_CONTROLLER_CERT_PEER_KEY: "FAKE_CTRL_CERT",
+                charm.AMPHORA_CERTS_PRIVATE_KEYS_SECRET_ID_KEY: "secret:amphora-pk-001",
+            }
+        )
+        relations = [
+            r
+            for r in complete_relations_with_barbican
+            if r.endpoint != "peers"
+        ] + [peer_rel]
+        state_in = testing.State(
+            leader=False,
+            relations=relations,
+            containers=all_containers,
+            secrets=complete_secrets + [pk_secret],
+            config={"amphora-network-attachment": "octavia-mgmt"},
+        )
+        with mock.patch.object(
+            charm.OctaviaOperatorCharm,
+            "_get_lbmgmt_ip_from_network_status",
+            return_value="10.10.0.5",
+        ):
+            state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        # Cert files live in the octavia-controller container (not api).
+        # See _controller_container_configs() in charm.py.
+        container = state_out.get_container("octavia-controller")
+        stored = container.get_filesystem(ctx)
+        assert (
+            stored / "etc/octavia/certs/issuing_ca.pem"
+        ).exists(), "issuing_ca.pem not written on non-leader"
+        assert (
+            stored / "etc/octavia/certs/controller_cert.pem"
+        ).exists(), "controller_cert.pem not written on non-leader"
+        assert (
+            stored / "etc/octavia/certs/controller_ca.pem"
+        ).exists(), "controller_ca.pem not written on non-leader"
+
+    def test_non_leader_amphora_cert_context_empty_when_no_peer_data(
+        self,
+        ctx,
+        complete_relations_with_barbican,
+        complete_secrets,
+        all_containers,
+        mock_amphora_certs_ready,
+    ):
+        """Non-leader returns empty cert context when peer databag not yet populated.
+
+        Before the leader has written cert data to the peer databag, the
+        non-leader context() must return {} so no stale/partial cert files
+        are written to pebble.
+        """
+        # Peer app data has leader_ready but NO cert keys yet.
+        peer_rel = self._ready_leader_peer_rel()
+        relations = [
+            r
+            for r in complete_relations_with_barbican
+            if r.endpoint != "peers"
+        ] + [peer_rel]
+        state_in = testing.State(
+            leader=False,
+            relations=relations,
+            containers=all_containers,
+            secrets=complete_secrets,
+            config={"amphora-network-attachment": "octavia-mgmt"},
+        )
+        with mock.patch.object(
+            charm.OctaviaOperatorCharm,
+            "_get_lbmgmt_ip_from_network_status",
+            return_value="10.10.0.5",
+        ):
+            state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        # Without cert data in peer databag the cert template renders an empty
+        # file.  Verify the file has no cert content (not that it doesn't exist
+        # — ops-sunbeam writes all registered ContainerConfigFiles regardless).
+        container = state_out.get_container("octavia-controller")
+        stored = container.get_filesystem(ctx)
+        issuing_ca_path = stored / "etc/octavia/certs/issuing_ca.pem"
+        content = (
+            issuing_ca_path.read_text() if issuing_ca_path.exists() else ""
+        )
+        assert (
+            "FAKE" not in content
+        ), "issuing_ca.pem must be empty when peer cert data is absent"
+
+    def test_leader_syncs_certs_to_peer_databag(
+        self,
+        ctx,
+        complete_relations_with_barbican,
+        complete_secrets,
+        all_containers,
+        mock_amphora_certs_ready,
+    ):
+        """Leader writes cert PEMs and a private-key secret to peer app databag.
+
+        After configure_app_leader() the peer relation's app data must contain
+        all six amphora cert keys and a secret must exist for the private keys.
+        """
+        # Mock get_certs() to return fake cert objects for both handlers.
+        fake_cert = mock.MagicMock()
+        fake_cert.certificate = "FAKE_CERT_PEM"
+        fake_cert.ca = "FAKE_CA_PEM"
+
+        peer_rel = self._ready_leader_peer_rel()
+        relations = [
+            r
+            for r in complete_relations_with_barbican
+            if r.endpoint != "peers"
+        ] + [peer_rel]
+        state_in = testing.State(
+            leader=True,
+            relations=relations,
+            containers=all_containers,
+            secrets=complete_secrets,
+            config={"amphora-network-attachment": "octavia-mgmt"},
+        )
+
+        with mock.patch.object(
+            charm.OctaviaOperatorCharm,
+            "_get_lbmgmt_ip_from_network_status",
+            return_value="10.0.0.1",
+        ), mock.patch.object(
+            charm.AmphoraTlsCertificatesHandler,
+            "get_certs",
+            return_value=[("cn", fake_cert)],
+        ), mock.patch.object(
+            charm.AmphoraTlsCertificatesHandler,
+            "get_private_key",
+            return_value="FAKE_PRIVATE_KEY",
+        ):
+            state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        # Check the peer app databag got the cert keys.
+        peer_out = state_out.get_relation(peer_rel.id)
+        assert charm.AMPHORA_ISSUING_CACERT_PEER_KEY in peer_out.local_app_data
+        assert (
+            charm.AMPHORA_CONTROLLER_CACERT_PEER_KEY in peer_out.local_app_data
+        )
+        assert (
+            charm.AMPHORA_CONTROLLER_CERT_PEER_KEY in peer_out.local_app_data
+        )
+        assert (
+            charm.AMPHORA_CERTS_PRIVATE_KEYS_SECRET_ID_KEY
+            in peer_out.local_app_data
+        )
+
+        # Check that a private-keys secret was created.
+        pk_secrets = [
+            s
+            for s in state_out.secrets
+            if s.label == charm.AMPHORA_CERTS_PRIVATE_KEYS_LABEL
+        ]
+        assert (
+            pk_secrets
+        ), "Private-key Juju secret must be created by the leader"
+        content = pk_secrets[0].tracked_content or {}
+        assert "issuing-ca-private-key" in content
+        assert "controller-cert-private-key" in content
+
+    def test_non_leader_pebble_ready_reaches_active(
+        self,
+        ctx,
+        complete_relations,
+        complete_secrets,
+        all_containers,
+    ):
+        """pebble-ready on non-leader with ready leader → Active."""
+        peer_rel = self._ready_leader_peer_rel()
+        relations = [
+            r for r in complete_relations if r.endpoint != "peers"
+        ] + [peer_rel]
+        state_in = testing.State(
+            leader=False,
+            relations=relations,
+            containers=all_containers,
+            secrets=complete_secrets,
+        )
+        api_container = state_in.get_container("octavia-api")
+        state_out = ctx.run(ctx.on.pebble_ready(api_container), state_in)
+        assert state_out.unit_status == testing.ActiveStatus("")
+
+    def test_non_leader_relation_broken_waits_or_blocks(
+        self,
+        ctx,
+        complete_relations,
+        complete_secrets,
+        all_containers,
+    ):
+        """Breaking a mandatory relation on a non-leader → blocked/waiting."""
+        from ops_sunbeam.test_utils_scenario import (
+            assert_relation_broken_causes_blocked_or_waiting,
+        )
+
+        peer_rel = self._ready_leader_peer_rel()
+        relations = [
+            r for r in complete_relations if r.endpoint != "peers"
+        ] + [peer_rel]
+        complete_non_leader_state = testing.State(
+            leader=False,
+            relations=relations,
+            containers=all_containers,
+            secrets=complete_secrets,
+        )
+        # Use the "database" endpoint as a representative mandatory relation.
+        assert_relation_broken_causes_blocked_or_waiting(
+            ctx, complete_non_leader_state, "database"
+        )
+
+
+# ---------------------------------------------------------------------------
 # Upgrade charm
 # ---------------------------------------------------------------------------
 
