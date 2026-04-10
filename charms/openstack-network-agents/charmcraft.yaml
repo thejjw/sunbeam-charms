@@ -12,6 +12,7 @@ subordinate: true
 
 platforms:
   amd64:
+  arm64:
 
 requires:
   juju-info:
