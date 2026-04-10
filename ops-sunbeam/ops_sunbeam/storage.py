@@ -23,6 +23,7 @@ storage backend certificates and other security-related configurations.
 import dataclasses
 import datetime
 import logging
+import re
 import typing
 from functools import (
     cache,
@@ -36,7 +37,6 @@ import ops
 import ops_sunbeam.config_contexts as config_contexts
 import ops_sunbeam.tracing as sunbeam_tracing
 import pydantic
-import pydantic.alias_generators
 import pydantic_core
 from cryptography import (
     x509,
@@ -54,9 +54,27 @@ logger = logging.getLogger(__name__)
 Required = pydantic.Field(...)
 
 
+def to_snake(value: str) -> str:
+    """Convert a string to snake_case.
+
+    Same as pydantic.alias_generators.to_snake except letter-to-digit and
+    digit-to-letter transitions do NOT insert underscores. This preserves
+    product names like 'hpe3par' (pydantic would turn it into 'hpe_3par').
+    """
+    # Handle sequences of uppercase letters followed by a lowercase letter
+    # e.g. 'APIUrl' -> 'API_Url'
+    value = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", value)
+    # Insert underscore between a lowercase letter and an uppercase letter
+    # e.g. 'myField' -> 'my_Field'
+    value = re.sub(r"([a-z])([A-Z])", r"\1_\2", value)
+    # Replace hyphens with underscores to handle kebab-case
+    value = value.replace("-", "_")
+    return value.lower()
+
+
 def to_kebab(value: str) -> str:
     """Convert a string to kebab-case."""
-    return pydantic.alias_generators.to_snake(value).replace("_", "-")
+    return to_snake(value).replace("_", "-")
 
 
 def certificate_validator(value: str | None) -> str | None:
@@ -216,7 +234,7 @@ def to_pydantic_class(
     groups: dict[str, list[str]] = {}
 
     for name, meta in config_definition.items():
-        snake_name = pydantic.alias_generators.to_snake(name)
+        snake_name = to_snake(name)
         field_type, field_info = _to_pydantic_field(name, meta, override)
 
         if typing.get_origin(field_type) is Annotated:
