@@ -32,6 +32,12 @@ config:
       description: |
         Availability zone to associate with this backend.
       type: string
+    driver-ssl-cert:
+      default: null
+      description: |
+        PEM-encoded SSL certificate to use for HTTPS connections to the
+        storage array. If unset, SSL verification is not performed.
+      type: string
     protocol:
       default: fc
       description: |

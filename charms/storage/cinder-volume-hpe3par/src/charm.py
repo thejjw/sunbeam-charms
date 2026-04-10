@@ -87,7 +87,7 @@ class CinderVolumeHpethreeparOperatorCharm(charm.OSCinderVolumeDriverOperatorCha
                     pydantic.BeforeValidator(sunbeam_storage.secret_validator("san-password")),
                     sunbeam_storage.Required,
                 ],
-                "ḧpe3par-api-url": pydantic.HttpUrl | None,
+                "hpe3par-api-url": pydantic.HttpUrl | None,
                 "hpe3par-username": typing.Annotated[
                     str,
                     pydantic.BeforeValidator(sunbeam_storage.secret_validator("hpe3par-username")),
