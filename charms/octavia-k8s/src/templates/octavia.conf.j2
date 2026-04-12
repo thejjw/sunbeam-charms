@@ -121,7 +121,10 @@ volume_type = {{ options.volume_type }}
 region_name = {{ options.region }}
 {% endif -%}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.pem
+# get_user_neutron_client() in octavia uses this cafile
+# for ssl communication with neutron
+# https://review.opendev.org/c/openstack/octavia/+/939323
+cafile = /usr/local/share/ca-certificates/ca-bundle.pem
 {% endif -%}
 
 [glance]
