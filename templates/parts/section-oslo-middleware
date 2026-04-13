@@ -1,5 +1,3 @@
 [oslo_middleware]
-
-# Bug #1758675
 enable_proxy_headers_parsing = true
 

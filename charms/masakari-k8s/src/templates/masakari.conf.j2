@@ -41,5 +41,7 @@ wait_period_after_service_update = {{ options.evacuation_delay }}
 [host_failure]
 evacuate_all_instances = {{ options.evacuate_all_instances }}
 
+{% include "parts/section-oslo-middleware" %}
+
 [audit_middleware_notifications]
 driver = log

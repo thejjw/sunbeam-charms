@@ -119,6 +119,7 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         that service is ready for us.
         """
         self.execute(["a2enmod", "proxy_http"], exception_on_error=True)
+        self.execute(["a2enmod", "headers"], exception_on_error=True)
         return super().init_service(context)
 
 

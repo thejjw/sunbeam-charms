@@ -42,6 +42,8 @@ auth_section = keystone_authtoken
 [oslo_concurrency]
 lock_path = /var/lib/cinder/tmp
 
+{% include "parts/section-oslo-middleware" %}
+
 {% include "parts/section-oslo-messaging-rabbit" %}
 
 [audit_middleware_notifications]
