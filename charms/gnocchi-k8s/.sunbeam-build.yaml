@@ -10,6 +10,7 @@ external-libraries:
 internal-libraries:
   - charms.keystone_k8s.v1.identity_service
 templates:
+  - parts/section-oslo-middleware
   - parts/database-connection
   - parts/section-identity
   - parts/identity-data

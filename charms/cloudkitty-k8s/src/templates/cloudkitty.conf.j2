@@ -17,6 +17,8 @@ auth_strategy = keystone
 [oslo_concurrency]
 lock_path = /var/lib/cloudkitty/tmp
 
+{% include "parts/section-oslo-middleware" %}
+
 {% include "parts/section-oslo-messaging-rabbit" %}
 
 [audit_middleware_notifications]

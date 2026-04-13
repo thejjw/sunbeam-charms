@@ -16,6 +16,7 @@ templates:
   - parts/client-endpoint-type-admin
   - parts/section-identity
   - parts/identity-data
+  - parts/section-oslo-middleware
   - parts/section-oslo-messaging-rabbit
   - parts/section-service-user
   - parts/section-trust
