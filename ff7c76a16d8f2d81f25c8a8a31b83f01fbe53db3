@@ -16,6 +16,24 @@
       "message": "Is the linked patch available in ubuntu Caracal octavia package? https://review.opendev.org/c/openstack/octavia/+/939323",
       "revId": "ff7c76a16d8f2d81f25c8a8a31b83f01fbe53db3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "84985549_b19897df",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-04-13T08:01:21Z",
+      "side": 1,
+      "message": "No, but this PR is just to use right config options instead of deprecated ones which should be available from Bobcat release",
+      "parentUuid": "dd294228_26619a1d",
+      "revId": "ff7c76a16d8f2d81f25c8a8a31b83f01fbe53db3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
