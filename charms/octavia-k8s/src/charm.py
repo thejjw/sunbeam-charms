@@ -102,6 +102,67 @@ _VALID_ANTI_AFFINITY = frozenset(
 )
 _VALID_LOG_PROTOCOL = frozenset({"UDP", "TCP"})
 
+_CA_BUNDLE_PEM = "/usr/local/share/ca-certificates/ca-bundle.pem"
+_CA_BUNDLE_CRT = "/usr/local/share/ca-certificates/ca-bundle.crt"
+
+
+def _push_ca_bundle_and_update(
+    container: ops.Container, content: bytes
+) -> None:
+    """Push ca-bundle.crt and run update-ca-certificates if content changed."""
+    try:
+        existing = container.pull(_CA_BUNDLE_CRT, encoding=None).read()
+    except ops.pebble.PathError:
+        existing = None
+    if existing == content:
+        logger.debug(
+            "ca-bundle.crt is up to date; skipping update-ca-certificates"
+        )
+        return
+    container.push(_CA_BUNDLE_CRT, content, make_dirs=True)
+    process = container.exec(["update-ca-certificates"], timeout=60)
+    out, warnings = process.wait_output()
+    if out:
+        logger.debug("update-ca-certificates: %s", out.strip())
+    if warnings:
+        for line in warnings.splitlines():
+            logger.warning("update-ca-certificates warn: %s", line.strip())
+
+
+def _run_update_ca_certificates(container: ops.Container) -> None:
+    """Copy ca-bundle.pem to ca-bundle.crt and run update-ca-certificates.
+
+    Workaround for LP: #2147695 — update-ca-certificates only processes
+    .crt files, so the .pem bundle written by the charm is not picked up
+    by the system trust store until it is also present as a .crt file.
+
+    Only runs when ca-bundle.pem is present (i.e. receive-ca-cert relation
+    has provided a CA bundle).
+
+    TODO (hemanth): This workaround is required only for Ubuntu Octavia Caracal
+    package with version < 14.0.1. Once the Ubuntu Octavia package is updated
+    to 14.0.1 the workaround can be removed.
+    """
+    try:
+        files = container.list_files(
+            "/usr/local/share/ca-certificates", pattern="ca-bundle.pem"
+        )
+    except ops.pebble.APIError:
+        logger.debug(
+            "Could not list ca-certificates directory; skipping update-ca-certificates"
+        )
+        return
+    if not files:
+        logger.debug(
+            "ca-bundle.pem not present; skipping update-ca-certificates"
+        )
+        return
+    try:
+        content = container.pull(_CA_BUNDLE_PEM, encoding=None).read()
+        _push_ca_bundle_and_update(container, content)
+    except ops.pebble.ExecError:
+        logger.exception("Failed to run update-ca-certificates")
+
 
 @sunbeam_tracing.trace_type
 class OctaviaWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
@@ -113,6 +174,15 @@ class OctaviaWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     init_container_services() is invoked, so both of those calls are
     duplicates.  Overriding here avoids ~2× the pebble pull() RPCs.
     """
+
+    def configure_container(
+        self, context: sunbeam_core.OPSCharmContexts
+    ) -> None:
+        """Write configuration files and update CA certificates."""
+        super().configure_container(context)
+        if self.pebble_ready:
+            container = self.charm.unit.get_container(self.container_name)
+            _run_update_ca_certificates(container)
 
     def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
         """Enable and start WSGI service, restarting only if config changed.
@@ -155,6 +225,15 @@ class OctaviaControllerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     ``_reconcile_amphora_containers`` based on the
     ``amphora-network-attachment`` config option.
     """
+
+    def configure_container(
+        self, context: sunbeam_core.OPSCharmContexts
+    ) -> None:
+        """Write configuration files and update CA certificates."""
+        super().configure_container(context)
+        if self.pebble_ready:
+            container = self.charm.unit.get_container(self.container_name)
+            _run_update_ca_certificates(container)
 
     def get_layer(self) -> dict:
         """Octavia controller services layer.

@@ -127,6 +127,9 @@ def api_container():
         extra_execs=[
             testing.Exec(command_prefix=["chown"], return_code=0),
             testing.Exec(command_prefix=["octavia-db-manage"], return_code=0),
+            testing.Exec(
+                command_prefix=["update-ca-certificates"], return_code=0
+            ),
         ],
     )
 
@@ -136,7 +139,12 @@ def controller_container():
     """A connectable octavia-controller container."""
     return k8s_container(
         "octavia-controller",
-        execs=[testing.Exec(command_prefix=["chown"], return_code=0)],
+        execs=[
+            testing.Exec(command_prefix=["chown"], return_code=0),
+            testing.Exec(
+                command_prefix=["update-ca-certificates"], return_code=0
+            ),
+        ],
     )
 
 
