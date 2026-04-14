@@ -1,0 +1,284 @@
+type: charm
+name: cinder-volume-nexenta
+summary: OpenStack volume service - Nexenta iSCSI backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with Nexenta storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    nexenta-nbd-symlinks-dir:
+      default: /dev/disk/by-path
+      description: |
+        NexentaEdge logical path of directory to store symbolic links to NBDs
+      type: string
+    nexenta-rest-user:
+      default: admin
+      description: |
+        User name to connect to NexentaEdge.
+      type: string
+    nexenta-rest-password:
+      description: |
+        Password to connect to NexentaEdge.
+      type: secret
+    nexenta-lun-container:
+      default: null
+      description: |
+        NexentaEdge logical path of bucket for LUNs
+      type: string
+    nexenta-iscsi-service:
+      default: null
+      description: |
+        NexentaEdge iSCSI service name
+      type: string
+    nexenta-iops-limit:
+      default: 0
+      description: |
+        NexentaEdge iSCSI LUN object IOPS limit
+      type: int
+    nexenta-chunksize:
+      default: 32768
+      description: |
+        NexentaEdge iSCSI LUN object chunk size
+      type: int
+    nexenta-replication-count:
+      default: 3
+      description: |
+        NexentaEdge iSCSI LUN object replication count.
+      type: int
+    nexenta-host:
+      default: null
+      description: |
+        IP address of NexentaStor Appliance
+      type: string
+    nexenta-rest-protocol:
+      default: auto
+      description: |
+        Use http or https for NexentaStor management REST API connection (default auto)
+      type: string
+    nexenta-rest-connect-timeout:
+      default: "30"
+      description: |
+        Specifies the time limit (in seconds), within which the connection to NexentaStor management REST API server must be established
+      type: string
+    nexenta-rest-read-timeout:
+      default: "300"
+      description: |
+        Specifies the time limit (in seconds), within which NexentaStor management REST API server must send a response
+      type: string
+    nexenta-rest-backoff-factor:
+      default: "0.5"
+      description: |
+        Specifies the backoff factor to apply between connection attempts to NexentaStor management REST API server
+      type: string
+    nexenta-rest-retry-count:
+      default: 3
+      description: |
+        Specifies the number of times to repeat NexentaStor management REST API call in case of connection errors and NexentaStor appliance EBUSY or ENOENT errors
+      type: int
+    nexenta-use-https:
+      default: true
+      description: |
+        Use HTTP secure protocol for NexentaStor management REST API connections
+      type: boolean
+    nexenta-lu-writebackcache-disabled:
+      default: false
+      description: |
+        Postponed write to backing store or not
+      type: boolean
+    nexenta-iscsi-target-portal-groups:
+      default: null
+      description: |
+        NexentaStor target portal groups
+      type: string
+    nexenta-iscsi-target-portals:
+      default: null
+      description: |
+        Comma separated list of portals for NexentaStor5, in format of IP1:port1,IP2:port2. Port is optional, default=3260. Example: 10.10.10.1:3267,10.10.1.2
+      type: string
+    nexenta-iscsi-target-host-group:
+      default: all
+      description: |
+        Group of hosts which are allowed to access volumes
+      type: string
+    nexenta-iscsi-target-portal-port:
+      default: 3260
+      description: |
+        Nexenta appliance iSCSI target portal port
+      type: int
+    nexenta-luns-per-target:
+      default: 100
+      description: |
+        Amount of LUNs per iSCSI target
+      type: int
+    nexenta-volume:
+      default: cinder
+      description: |
+        NexentaStor pool name that holds all volumes
+      type: string
+    nexenta-target-prefix:
+      default: iqn.1986-03.com.sun:02:cinder
+      description: |
+        iqn prefix for NexentaStor iSCSI targets
+      type: string
+    nexenta-target-group-prefix:
+      default: cinder
+      description: |
+        Prefix for iSCSI target groups on NexentaStor
+      type: string
+    nexenta-host-group-prefix:
+      default: cinder
+      description: |
+        Prefix for iSCSI host groups on NexentaStor
+      type: string
+    nexenta-volume-group:
+      default: iscsi
+      description: |
+        Volume group for NexentaStor5 iSCSI
+      type: string
+    nexenta-shares-config:
+      default: /etc/cinder/nfs_shares
+      description: |
+        File with the list of available nfs shares
+      type: string
+    nexenta-mount-point-base:
+      default: $state_path/mnt
+      description: |
+        Base directory that contains NFS share mount points
+      type: string
+    nexenta-sparsed-volumes:
+      default: true
+      description: |
+        Enables or disables the creation of volumes as sparsed files that take no space. If disabled (False), volume is created as a regular file, which takes a long time.
+      type: boolean
+    nexenta-qcow2-volumes:
+      default: false
+      description: |
+        Create volumes as QCOW2 files rather than raw files
+      type: boolean
+    nexenta-nms-cache-volroot:
+      default: true
+      description: |
+        If set True cache NexentaStor appliance volroot option value.
+      type: boolean
+    nexenta-dataset-compression:
+      default: "on"
+      description: |
+        Compression value for new ZFS folders.
+      type: string
+    nexenta-dataset-dedup:
+      default: "off"
+      description: |
+        Deduplication value for new ZFS folders.
+      type: string
+    nexenta-folder:
+      default: null
+      description: |
+        A folder where cinder created datasets will reside.
+      type: string
+    nexenta-dataset-description:
+      default: null
+      description: |
+        Human-readable description for the folder.
+      type: string
+    nexenta-blocksize:
+      default: 4096
+      description: |
+        Block size for datasets
+      type: int
+    nexenta-ns5-blocksize:
+      default: 32
+      description: |
+        Block size for datasets
+      type: int
+    nexenta-sparse:
+      default: false
+      description: |
+        Enables or disables the creation of sparse datasets
+      type: boolean
+    nexenta-origin-snapshot-template:
+      default: origin-snapshot-%s
+      description: |
+        Template string to generate origin name of clone
+      type: string
+    nexenta-group-snapshot-template:
+      default: group-snapshot-%s
+      description: |
+        Template string to generate group snapshot name
+      type: string
+    nexenta-rrmgr-compression:
+      default: 0
+      description: |
+        Enable stream compression, level 1..9. 1 - gives best speed; 9 - gives best compression.
+      type: int
+    nexenta-rrmgr-tcp-buf-size:
+      default: 4096
+      description: |
+        TCP Buffer size in KiloBytes.
+      type: int
+    nexenta-rrmgr-connections:
+      default: 2
+      description: |
+        Number of TCP connections.
+      type: int
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
