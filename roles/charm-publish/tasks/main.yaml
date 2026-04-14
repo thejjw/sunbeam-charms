@@ -4,7 +4,7 @@
   register: build_output
   vars:
     download_artifact_api: "https://zuul.opendev.org/api/tenant/{{ zuul.tenant }}"
-    download_artifact_query: "change={{ zuul.change }}&patchset={{ zuul.patchset }}&pipeline=gate"
+    download_artifact_query: "change={{ zuul.change }}&patchset={{ zuul.patchset }}&pipeline=gate&limit=200"
 
 - name: Set charm name fact
   set_fact:
