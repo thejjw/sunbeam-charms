@@ -65,20 +65,23 @@
     "Charm packed ok" in res.stdout
   failed_when: '"Failed instance creation" in res.stdout'
 
-- name: built charm is available in the zuul log root for auto artifact upload
-  fetch:
-    src: "{{ zuul.project.src_dir }}/charms/{{ charm_pathed }}/{{ charm_build_name }}.charm"
-    dest: "{{ zuul.executor.log_root }}/"
-    flat: true
-  become: true
+- name: Publish built charm as zuul artifact (check pipeline only)
+  when: zuul.pipeline == 'check'
+  block:
+    - name: built charm is available in the zuul log root for auto artifact upload
+      fetch:
+        src: "{{ zuul.project.src_dir }}/charms/{{ charm_pathed }}/{{ charm_build_name }}.charm"
+        dest: "{{ zuul.executor.log_root }}/"
+        flat: true
+      become: true
 
-- name: Upload artifacts
-  zuul_return:
-    data:
-      zuul:
-        artifacts:
-          - name: charm
-            url: "{{ charm_build_name }}.charm"
-            metadata:
-              type: charm
-              name: "{{ charm_build_name }}"
+    - name: Upload artifacts
+      zuul_return:
+        data:
+          zuul:
+            artifacts:
+              - name: charm
+                url: "{{ charm_build_name }}.charm"
+                metadata:
+                  type: charm
+                  name: "{{ charm_build_name }}"
