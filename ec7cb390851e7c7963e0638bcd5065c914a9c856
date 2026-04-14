@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c3e33ea_f80e9898",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-04-14T05:55:54Z",
+      "side": 1,
+      "message": "Moving to WIP as https://review.opendev.org/c/openstack/sunbeam-charms/+/984006 should do build on all charms",
+      "revId": "ec7cb390851e7c7963e0638bcd5065c914a9c856",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
