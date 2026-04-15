@@ -739,7 +739,7 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
             "max_header_size": "38",
             "ovn_l3_scheduler": "leastloaded",
             "ovn_metadata_enabled": "True",
-            "dns_servers": "",
+            "dns_servers": self.charm.config.get("dns-servers", ""),
             "dhcp_default_lease_time": "43200",
             "ovn_dhcp4_global_options": "",
             "ovn_dhcp6_global_options": "",
