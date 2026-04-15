@@ -116,6 +116,12 @@ config:
         Enable or disable distributed floating IP functionality in OVN.
         When enabled, floating IPs are managed by distributed routers.
       type: boolean
+    dns-servers:
+      description: |
+        Comma separated list of DNS servers to use as forwarders if subnet's
+        dns_nameservers is not set. If not set, DNS resolvers of the host
+        running neutron server will be used.
+      type: string
 
 containers:
   neutron-server:
