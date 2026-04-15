@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16aa4479_dda19d9c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-04-15T08:44:48Z",
+      "side": 1,
+      "message": "Can we move creation of tracks as well from this repo? Ok to have the script here but the input to the script should not be coming from zuul.d/zuu.yaml::publish_channels and get rid of publish_channels in this repo",
+      "revId": "28bbfbf89708decf0dd3b9b7c807e5415bafb4bf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
