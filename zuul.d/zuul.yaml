@@ -3,7 +3,6 @@
       - openstack-python3-sunbeam-jobs
       - openstack-cover-jobs
       - openstack-sunbeam-charm-build-jobs
-      - charm-publish-jobs
     check:
       jobs:
         - func-test-openstack:
@@ -26,7 +25,6 @@
       k8s_classic_mode: true
       # TODO: Change it to 4.x/stable once it is available
       charmcraft_channel: latest/stable
-      publish_charm: true
       publish_channels:
         keystone-k8s: 2025.1/edge
         glance-k8s: 2025.1/edge
