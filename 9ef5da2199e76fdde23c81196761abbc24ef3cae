@@ -50,6 +50,23 @@
       "message": "recheck",
       "revId": "9ef5da2199e76fdde23c81196761abbc24ef3cae",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9316af1d_b942df48",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-04-16T17:22:59Z",
+      "side": 1,
+      "message": "recheck Ubuntu archive connectivity",
+      "revId": "9ef5da2199e76fdde23c81196761abbc24ef3cae",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
