@@ -246,6 +246,12 @@ class MasakariHostMonitorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         """Container configurations for handler."""
         return [
             sunbeam_core.ContainerConfigFile(
+                path="/usr/local/share/ca-certificates/ca-bundle.pem",
+                user="root",
+                group=self.charm.service_group,
+                permissions=0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
                 "/etc/masakari/masakarimonitors.conf",
                 self.charm.service_user,
                 self.charm.service_group,
