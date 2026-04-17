@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1b7cf0e5_1c13c1ea",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-04-17T13:48:49Z",
+      "side": 1,
+      "message": "please, redo the cherry-pick passing the `-x` flag.",
+      "revId": "decc2cd69debc7d1e4c3dcd9851f6f15d9277c6b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
