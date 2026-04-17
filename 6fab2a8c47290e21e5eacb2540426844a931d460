@@ -16,6 +16,23 @@
       "message": "recheck vault-k8s idempotent issue",
       "revId": "6fab2a8c47290e21e5eacb2540426844a931d460",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ce9b663_a30ad1fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-04-17T10:35:03Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "6fab2a8c47290e21e5eacb2540426844a931d460",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
