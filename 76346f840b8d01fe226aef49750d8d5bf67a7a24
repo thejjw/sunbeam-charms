@@ -1,5 +1,23 @@
 {
-  "comments": [],
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe00b2a2_3717b020",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2026-04-20T14:30:46Z",
+      "side": 1,
+      "message": "I think this backport brought a regression:\nhttps://bugs.launchpad.net/sunbeam-charms/+bug/2148796\n\n\u003e func-test-tempest https://zuul.opendev.org/t/openstack/build/0f256f3d082f492187bcd059de7cffd6 : TIMED_OUT in 1h 03m 10s (non-voting)\n\nI don\u0027t see a proof of the successful tempest run in this particular review either.",
+      "revId": "76346f840b8d01fe226aef49750d8d5bf67a7a24",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ],
   "submitRequirementResults": [
     {
       "submitRequirement": {
@@ -19,10 +37,10 @@
         "allowOverrideInChildProjects": false
       },
       "applicabilityExpressionResult": {
-        "value": {"expression":{"expressionString":"is:false"},"status":"FAIL","errorMessage":{"value":null},"passingAtoms":[],"failingAtoms":["is:false"]}
+        "value": {"expression":{"expressionString":"is:false"},"status":"FAIL","errorMessage":{"value":null},"passingAtoms":[],"failingAtoms":["is:false"],"atomExplanations":{"value":null}}
       },
       "submittabilityExpressionResult": {
-        "value": {"expression":{"expressionString":"is:true"},"status":"NOT_EVALUATED","errorMessage":{"value":null},"passingAtoms":[],"failingAtoms":[]}
+        "value": {"expression":{"expressionString":"is:true"},"status":"NOT_EVALUATED","errorMessage":{"value":null},"passingAtoms":[],"failingAtoms":[],"atomExplanations":{"value":null}}
       },
       "overrideExpressionResult": {},
       "patchSetCommitId": "76346f840b8d01fe226aef49750d8d5bf67a7a24",
@@ -47,7 +65,7 @@
       },
       "applicabilityExpressionResult": {},
       "submittabilityExpressionResult": {
-        "value": {"expression":{"expressionString":"label:Code-Review=MAX AND -label:Code-Review=MIN"},"status":"PASS","errorMessage":{"value":null},"passingAtoms":["label:Code-Review=MAX"],"failingAtoms":["label:Code-Review=MIN"]}
+        "value": {"expression":{"expressionString":"label:Code-Review=MAX AND -label:Code-Review=MIN"},"status":"PASS","errorMessage":{"value":null},"passingAtoms":["label:Code-Review=MAX"],"failingAtoms":["label:Code-Review=MIN"],"atomExplanations":{"value":null}}
       },
       "overrideExpressionResult": {},
       "patchSetCommitId": "76346f840b8d01fe226aef49750d8d5bf67a7a24",
@@ -72,7 +90,7 @@
       },
       "applicabilityExpressionResult": {},
       "submittabilityExpressionResult": {
-        "value": {"expression":{"expressionString":"label:Verified=MAX AND -label:Verified=MIN"},"status":"PASS","errorMessage":{"value":null},"passingAtoms":["label:Verified=MAX"],"failingAtoms":["label:Verified=MIN"]}
+        "value": {"expression":{"expressionString":"label:Verified=MAX AND -label:Verified=MIN"},"status":"PASS","errorMessage":{"value":null},"passingAtoms":["label:Verified=MAX"],"failingAtoms":["label:Verified=MIN"],"atomExplanations":{"value":null}}
       },
       "overrideExpressionResult": {},
       "patchSetCommitId": "76346f840b8d01fe226aef49750d8d5bf67a7a24",
@@ -97,7 +115,7 @@
       },
       "applicabilityExpressionResult": {},
       "submittabilityExpressionResult": {
-        "value": {"expression":{"expressionString":"label:Workflow=MAX AND -label:Workflow=MIN"},"status":"PASS","errorMessage":{"value":null},"passingAtoms":["label:Workflow=MAX"],"failingAtoms":["label:Workflow=MIN"]}
+        "value": {"expression":{"expressionString":"label:Workflow=MAX AND -label:Workflow=MIN"},"status":"PASS","errorMessage":{"value":null},"passingAtoms":["label:Workflow=MAX"],"failingAtoms":["label:Workflow=MIN"],"atomExplanations":{"value":null}}
       },
       "overrideExpressionResult": {},
       "patchSetCommitId": "76346f840b8d01fe226aef49750d8d5bf67a7a24",
