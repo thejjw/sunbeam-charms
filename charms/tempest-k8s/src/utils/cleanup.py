@@ -67,11 +67,7 @@ def _get_exclusion_resources(account_file: str) -> dict[str, set[str]]:
             parsed_file = yaml.safe_load(file)
 
         return {
-            "projects": {
-                account["project_name"]
-                for account in parsed_file
-                if "project_name" in account
-            },
+            "projects": {account["project_name"] for account in parsed_file},
             "users": {account["username"] for account in parsed_file},
         }
     except FileNotFoundError as e:
