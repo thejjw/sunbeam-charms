@@ -1,6 +1,23 @@
 {
   "comments": [
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8ab12f52_dd2be543",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-04-22T06:05:49Z",
+      "side": 1,
+      "message": "I am merging this PR.\n\nThere are 2 changes that are required in all storage charms raised\n* Adding arm64 to charmcraft.yaml build\n* Update zuul jobs to include charm build in check and gate jobs",
+      "revId": "21a9d0420a126adcf585e50285e2e8261004e666",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c4758a9_76e629ed",
