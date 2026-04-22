@@ -1,0 +1,114 @@
+type: charm
+name: cinder-volume-datacore
+summary: OpenStack volume service - DataCoreVolume backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with DataCoreVolume storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    san-ip:
+      description: |
+        Storage array management IP address or hostname.
+      type: string
+    datacore-disk-type:
+      default: single
+      description: |
+        DataCore virtual disk type (single/mirrored). Mirrored virtual disks require two storage servers in the server group.
+      type: string
+    datacore-storage-profile:
+      default: null
+      description: |
+        DataCore virtual disk storage profile.
+      type: string
+    datacore-disk-pools:
+      default: null
+      description: |
+        List of DataCore disk pools that can be used by volume driver.
+      type: string
+    datacore-api-timeout:
+      default: 300
+      description: |
+        Seconds to wait for a response from a DataCore API call.
+      type: int
+    datacore-disk-failed-delay:
+      default: 300
+      description: |
+        Seconds to wait for DataCore virtual disk to come out of the "Failed" state.
+      type: int
+    datacore-fc-unallowed-targets:
+      default: null
+      description: |
+        List of FC targets that cannot be used to attach volume.
+      type: string
+    datacore-iscsi-unallowed-targets:
+      default: null
+      description: |
+        List of iSCSI targets that cannot be used to attach volume.
+      type: string
+    datacore-iscsi-chap-storage:
+      default: $state_path/.datacore_chap
+      description: |
+        Fully qualified file name where dynamically generated iSCSI CHAP secrets are stored.
+      type: string
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
