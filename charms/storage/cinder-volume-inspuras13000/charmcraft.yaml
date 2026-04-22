@@ -1,0 +1,106 @@
+type: charm
+name: cinder-volume-inspuras13000
+summary: OpenStack volume service - AS13000 backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with AS13000 storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    as13000-ipsan-pools:
+      default: Pool0
+      description: |
+        The Storage Pools Cinder should use, a comma separated list.
+      type: string
+    as13000-token-available-time:
+      description: |
+        The effective time of token validity in seconds.
+      type: secret
+    as13000-meta-pool:
+      default: null
+      description: |
+        The pool which is used as a meta pool when creating a volume.
+      type: string
+    san-thin-provision:
+      default: true
+      description: |
+        Use thin provisioning for SAN volumes?
+      type: boolean
+    san-ip:
+      description: |
+        IP address of SAN controller
+      type: string
+    san-login:
+      description: |
+        Username for SAN controller
+      type: secret
+    san-password:
+      description: |
+        Password for SAN controller
+      type: secret
+    use-multipath-for-image-xfer:
+      default: true
+      description: |
+        Enable multipathing for image transfer operations.
+      type: boolean
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
