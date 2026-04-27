@@ -19,10 +19,22 @@
 from pathlib import (
     Path,
 )
+from unittest import (
+    mock,
+)
+from unittest.mock import (
+    MagicMock,
+)
 
 import pytest
+from charms.cinder_k8s.v0.storage_backend import (
+    StorageBackendProvides,
+)
 from ops import (
     testing,
+)
+from ops.model import (
+    ModelError,
 )
 from ops_sunbeam.test_utils_scenario import (
     assert_config_file_contains,
@@ -241,3 +253,42 @@ class TestRelationBrokenBlocksOrWaits:
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
         )
+
+
+class TestStorageBackendProvidesRemoteReady:
+    """Tests for StorageBackendProvides.remote_ready handling."""
+
+    @pytest.fixture()
+    def provider(self):
+        """Create a StorageBackendProvides with minimal mocked attributes."""
+        obj = StorageBackendProvides.__new__(StorageBackendProvides)
+        obj.relation_name = "storage-backend"
+        obj.framework = MagicMock()
+        return obj
+
+    def test_remote_ready_returns_true(self, provider):
+        """remote_ready returns True when remote app sets ready='true'."""
+        relation = MagicMock()
+        relation.data = {relation.app: {"ready": "true"}}
+        provider.framework.model.get_relation.return_value = relation
+
+        assert provider.remote_ready() is True
+
+    def test_remote_ready_no_relation(self, provider):
+        """remote_ready returns False when no relation exists."""
+        provider.framework.model.get_relation.return_value = None
+
+        assert provider.remote_ready() is False
+
+    def test_remote_ready_returns_false_on_model_error(self, provider):
+        """remote_ready returns False when get_relation raises ModelError."""
+        provider.framework.model.get_relation.side_effect = ModelError(
+            "ERROR permission denied"
+        )
+
+        with mock.patch("logging.debug") as mock_debug:
+            assert provider.remote_ready() is False
+
+            # Check logging of the ModelError
+            mock_debug.assert_called_once()
+            assert "storage-backend" in mock_debug.call_args[0][1]
