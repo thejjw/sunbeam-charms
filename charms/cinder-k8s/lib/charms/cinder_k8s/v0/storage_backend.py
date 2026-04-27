@@ -27,7 +27,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 import json
 import logging
@@ -41,7 +41,7 @@ from ops.framework import (
     Object,
 )
 
-from ops.model import Relation
+from ops.model import Relation, ModelError
 
 from typing import List
 
@@ -171,10 +171,15 @@ class StorageBackendProvides(Object):
         logging.debug("StorageBackendProvides on_joined")
 
     def remote_ready(self):
-        relation = self.framework.model.get_relation(self.relation_name)
-        if relation:
-            ready = relation.data[relation.app].get("ready")
-            return ready and json.loads(ready)
+        """Check if the remote StorageBackend is ready."""
+        try:
+            relation = self.framework.model.get_relation(self.relation_name)
+            if relation:
+                ready = relation.data[relation.app].get("ready")
+                return ready and json.loads(ready)
+        except ModelError as e:
+            logging.debug("Remote relation %s: %r", self.relation_name, e)
+
         return False
 
     def _on_storage_backend_relation_changed(self, event):
