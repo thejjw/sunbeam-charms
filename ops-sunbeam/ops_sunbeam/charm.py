@@ -33,6 +33,7 @@ import functools
 import ipaddress
 import logging
 import re
+import socket
 import typing
 import urllib
 import urllib.parse
@@ -644,6 +645,31 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
     def service_dns(self) -> str:
         """Dns name for the service."""
         return f"{self.app.name}.{self.model.name}.svc"
+
+    def get_sans_ips(self) -> FrozenSet[str]:
+        """Return IPs for certificate SANs.
+
+        bind_address returned by model.get_binding() is stale right after
+        pod restarts, use the pod's actual current IP via socket.
+        """
+        try:
+            pod_ip = socket.gethostbyname(socket.gethostname())
+        except OSError:
+            logger.debug(
+                "Could not determine pod IP via socket, using bindings only"
+            )
+            return super().get_sans_ips()
+
+        ingress_ips: set[str] = set()
+        for relation_name in self.meta.relations.keys():
+            binding = self.model.get_binding(relation_name)
+            if binding is None or binding.network is None:
+                continue
+            if isinstance(
+                binding.network.ingress_address, ipaddress.IPv4Address
+            ):
+                ingress_ips.add(str(binding.network.ingress_address))
+        return frozenset(ingress_ips | {pod_ip})
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the operator."""
