@@ -25,7 +25,7 @@ from typing import (
     Optional,
 )
 
-import netifaces
+import netifaces  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 
@@ -72,12 +72,12 @@ def _get_default_gw_iface_fallback() -> Optional[str]:
         # will have destination and mask set to 0x00, will be up and is noted as a
         # gateway.
         for entry in entries:
-            if int(entry.get("destination", 0xFF), 16) != 0:
+            if int(entry.get("destination", "0xFF"), 16) != 0:  # type: ignore[arg-type]
                 continue
-            if int(entry.get("mask", 0xFF), 16) != 0:
+            if int(entry.get("mask", "0xFF"), 16) != 0:  # type: ignore[arg-type]
                 continue
-            flags = entry.get("flags", 0x00)
-            if is_up(flags) and is_gateway(flags):
+            flags = entry.get("flags", "0x00")  # type: ignore[arg-type]
+            if is_up(str(flags)) and is_gateway(str(flags)):
                 iface = entry.get("iface", None)
                 break
 
@@ -193,3 +193,4 @@ def get_systemd_unit_status(unit_name: str) -> dict[str, str] | None:
             "active_state": unit_info["active"],
             "substate": unit_info["sub"],
         }
+    return None

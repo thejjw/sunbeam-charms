@@ -26,15 +26,19 @@ from typing import (
     Mapping,
 )
 
-import charms.ceph_nfs_client.v0.ceph_nfs_client as ceph_nfs_client
-import charms.manila_k8s.v0.manila as manila_k8s
+import charms.ceph_nfs_client.v0.ceph_nfs_client as ceph_nfs_client  # type: ignore[import-untyped]  # type: ignore[import-untyped]
+import charms.manila_k8s.v0.manila as manila_k8s  # type: ignore[import-untyped]  # type: ignore[import-untyped]
 import ops
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops.pebble import (
+    LayerDict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +54,7 @@ class CephfsConfigurationContext(sunbeam_ctxts.ConfigContext):
 
     def context(self) -> dict:
         """Generate configuration information for cephfs config."""
-        ctxt = self.charm.get_cephfs_config()
+        ctxt = self.charm.get_cephfs_config()  # type: ignore[attr-defined]
         return ctxt
 
 
@@ -62,7 +66,7 @@ class CephNfsRequiresHandler(sunbeam_rhandlers.RelationHandler):
 
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: sunbeam_charm.OSBaseOperatorCharm,
         relation_name: str,
         callback_f: Callable,
     ):
@@ -122,7 +126,7 @@ class CephNfsRequiresHandler(sunbeam_rhandlers.RelationHandler):
 class ManilaSharePebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Manila Share."""
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Manila Share service layer.
 
         :returns: pebble layer configuration for manila-share service
@@ -198,7 +202,7 @@ class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     service_name = "manila-share"
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = super().get_relation_handlers(handlers or [])
@@ -291,7 +295,7 @@ class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 self.configure_charm,
             ),
         ]
-        return pebble_handlers
+        return pebble_handlers  # type: ignore[return-value]
 
     @property
     def service_user(self) -> str:

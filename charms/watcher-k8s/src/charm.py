@@ -18,13 +18,20 @@ This charm provide watcher services as part of an OpenStack deployment
 """
 
 import logging
+from typing import (
+    cast,
+)
 
 import ops
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops.pebble import (
+    LayerDict,
+)
 
 logger = logging.getLogger(__name__)
 WATCHER_API_CONTAINER = "watcher-api"
@@ -42,11 +49,11 @@ class WatcherDecisionEnginePebbleHandler(
         super().__init__(*args, **kwargs)
         self.enable_service_check = True
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Watcher decision engine service layer.
 
         :returns: pebble layer configuration for watcher decision engine service
-        :rtype: dict
+        :rtype: LayerDict
         """
         return {
             "summary": "watcher decision engine layer",
@@ -56,8 +63,8 @@ class WatcherDecisionEnginePebbleHandler(
                     "override": "replace",
                     "summary": "Watcher decision engine",
                     "command": "watcher-decision-engine",
-                    "user": self.charm.service_user,
-                    "group": self.charm.service_group,
+                    "user": self.charm.service_user,  # type: ignore[attr-defined]
+                    "group": self.charm.service_group,  # type: ignore[attr-defined]
                 }
             },
         }
@@ -81,11 +88,11 @@ class WatcherApplierPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         super().__init__(*args, **kwargs)
         self.enable_service_check = True
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Watcher applier service layer.
 
         :returns: pebble layer configuration for watcher applier service
-        :rtype: dict
+        :rtype: LayerDict
         """
         return {
             "summary": "watcher applier layer",
@@ -95,8 +102,8 @@ class WatcherApplierPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "override": "replace",
                     "summary": "Watcher applier",
                     "command": "watcher-applier",
-                    "user": self.charm.service_user,
-                    "group": self.charm.service_group,
+                    "user": self.charm.service_user,  # type: ignore[attr-defined]
+                    "group": self.charm.service_group,  # type: ignore[attr-defined]
                 }
             },
         }
@@ -188,7 +195,7 @@ class WatcherOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def get_pebble_handlers(
         self,
-    ) -> list[sunbeam_chandlers.ServicePebbleHandler]:
+    ) -> list[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for operator."""
         pebble_handlers = super().get_pebble_handlers()
         pebble_handlers.extend(
@@ -214,7 +221,7 @@ class WatcherOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return pebble_handlers
 
     def get_relation_handlers(
-        self, handlers: list[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> list[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
@@ -233,12 +240,14 @@ class WatcherOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Callback handler for watcher operator configuration."""
         # Do not run service check for watcher decision engine and watcher
         # applier as it is broken until db migrations have run.
-        decision_engine_handler = self.get_named_pebble_handler(
-            WATCHER_DECISION_ENGINE_CONTAINER
+        decision_engine_handler = cast(
+            WatcherDecisionEnginePebbleHandler,
+            self.get_named_pebble_handler(WATCHER_DECISION_ENGINE_CONTAINER),
         )
         decision_engine_handler.enable_service_check = False
-        applier_handler = self.get_named_pebble_handler(
-            WATCHER_APPLIER_CONTAINER
+        applier_handler = cast(
+            WatcherApplierPebbleHandler,
+            self.get_named_pebble_handler(WATCHER_APPLIER_CONTAINER),
         )
         applier_handler.enable_service_check = False
 

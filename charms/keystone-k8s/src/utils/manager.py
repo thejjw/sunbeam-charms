@@ -29,13 +29,13 @@ from keystoneauth1 import (
 from keystoneauth1.identity import (
     v3,
 )
-from keystoneclient.v3 import (
+from keystoneclient.v3 import (  # type: ignore[import-untyped]
     client,
 )
 from ops.model import (
     MaintenanceStatus,
 )
-from utils.client import (
+from utils.client import (  # type: ignore[import-untyped]
     KeystoneClient,
     KeystoneExceptionError,
 )
@@ -214,8 +214,8 @@ class KeystoneManager:
 
     def write_combined_ca(self) -> None:
         """Write the combined CA to the container."""
-        ca_contents = self.charm.get_ca_and_chain()
-        oauth_ca_certs = self.charm.get_ca_bundles_from_fid_relations()
+        ca_contents = self.charm.get_ca_and_chain()  # type: ignore[attr-defined]
+        oauth_ca_certs = self.charm.get_ca_bundles_from_fid_relations()  # type: ignore[attr-defined]
         container = self.charm.unit.get_container(self.container_name)
         if not ca_contents and not oauth_ca_certs:
             logger.debug(
@@ -344,7 +344,7 @@ class KeystoneManager:
         if app:
             target = self.charm.app
         else:
-            target = self.charm.unit
+            target = self.charm.unit  # type: ignore[assignment]
 
         target.status = MaintenanceStatus(status)
 
@@ -571,7 +571,7 @@ class KeystoneManager:
         if not domain:
             domain = "service_domain"
         if not project:
-            project = self.charm.service_project
+            project = self.charm.service_project  # type: ignore[attr-defined]
 
         service_user = self.ksclient.create_user(
             name=username,
@@ -581,7 +581,7 @@ class KeystoneManager:
         # NOTE(gboutry): Remove admin role when services support working with
         # service role only.
         self.ksclient.grant_role(
-            role=self.charm.admin_role,
+            role=self.charm.admin_role,  # type: ignore[attr-defined]
             project=project,
             user=service_user.get("name"),
             project_domain="service_domain",

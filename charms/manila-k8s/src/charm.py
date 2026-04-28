@@ -27,14 +27,18 @@ from typing import (
     Mapping,
 )
 
-import charms.manila_k8s.v0.manila as manila_k8s
+import charms.manila_k8s.v0.manila as manila_k8s  # type: ignore[import-untyped]  # type: ignore[import-untyped]
 import ops
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops.pebble import (
+    LayerDict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +54,7 @@ class ManilaConfigurationContext(sunbeam_ctxts.ConfigContext):
 
     def context(self) -> dict:
         """Generate configuration information for manila config."""
-        share_protocols = self.charm.manila_share.interface.share_protocols
+        share_protocols = self.charm.manila_share.interface.share_protocols  # type: ignore[attr-defined]
         ctxt = {
             "enabled_share_protocols": ",".join(share_protocols),
         }
@@ -62,7 +66,7 @@ class ManilaConfigurationContext(sunbeam_ctxts.ConfigContext):
 class ManilaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Manila Scheduler."""
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Manila Scheduler service layer.
 
         :returns: pebble layer configuration for scheduler service
@@ -108,7 +112,7 @@ class ManilaRequiresHandler(sunbeam_rhandlers.RelationHandler):
 
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: sunbeam_charm.OSBaseOperatorCharm,
         relation_name: str,
         region: str,
         callback_f: Callable,
@@ -245,7 +249,7 @@ class ManilaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def get_pebble_handlers(
         self,
-    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+    ) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the operator."""
         pebble_handlers = [
             sunbeam_chandlers.WSGIPebbleHandler(
@@ -269,7 +273,7 @@ class ManilaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return pebble_handlers
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the operator."""
         handlers = super().get_relation_handlers(handlers or [])
@@ -277,7 +281,7 @@ class ManilaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self.manila_share = ManilaRequiresHandler(
                 self,
                 MANILA_RELATION_NAME,
-                self.model.config["region"],
+                str(self.model.config["region"]),
                 self.configure_charm,
             )
             handlers.append(self.manila_share)

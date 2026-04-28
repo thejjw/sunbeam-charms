@@ -31,6 +31,7 @@ from typing import (
 import api_utils
 import lightkube.models.core_v1 as core_v1
 import ops
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
@@ -40,6 +41,9 @@ import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 from ops.charm import (
     RelationChangedEvent,
+)
+from ops.pebble import (
+    LayerDict,
 )
 from ops_sunbeam.k8s_resource_handlers import (
     KubernetesLoadBalancerHandler,
@@ -147,7 +151,7 @@ class IronicConductorConfigurationContext(sunbeam_ctxts.ConfigContext):
         ctxt = {
             "hardware_type_cfg": self._get_hardware_types_config(),
             "temp_url_secret": self.charm.leader_get("temp_url_secret"),
-            "loadbalancer_ip": self.charm.loadbalancer_ip,
+            "loadbalancer_ip": self.charm.loadbalancer_ip,  # type: ignore[attr-defined]
         }
 
         return ctxt
@@ -217,7 +221,7 @@ class IronicConductorPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             ),
         ]
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Ironic Conductor service layer.
 
         :returns: pebble layer configuration for the ironic-conductor service
@@ -318,11 +322,11 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
     def get_pebble_handlers(
         self,
-    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+    ) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the operator."""
         pebble_handlers = [
             IronicConductorPebbleHandler(
-                self,
+                self,  # type: ignore[arg-type]
                 IRONIC_CONDUCTOR_CONTAINER,
                 IRONIC_CONDUCTOR_CONTAINER,
                 self.container_configs,
@@ -331,10 +335,10 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 wsgi_service_name="wsgi-ironic-conductor",
             ),
         ]
-        return pebble_handlers
+        return pebble_handlers  # type: ignore[return-value]
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the operator."""
         handlers = super().get_relation_handlers(handlers or [])
@@ -409,7 +413,7 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     @property
     def loadbalancer_ip(self) -> str:
         """Kubernetes LoadBalancer IP for the ironic-conductor services."""
-        return self.lb_handler.get_loadbalancer_ip()
+        return self.lb_handler.get_loadbalancer_ip()  # type: ignore[return-value]
 
     def _ensure_loadbalancer_ip(self):
         if not self.loadbalancer_ip:
@@ -459,15 +463,17 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     @property
     def enabled_network_interfaces(self) -> List[str]:
         """Returns list of onfigured enabled-network-interfaces."""
-        network_interfaces = self.config.get(
-            "enabled-network-interfaces", ""
+        network_interfaces = str(
+            self.config.get("enabled-network-interfaces", "")
         ).replace(" ", "")
         return network_interfaces.split(",")
 
     @property
     def enabled_hw_types(self) -> List[str]:
         """Returns list of onfigured enabled-hw-types."""
-        hw_types = self.config.get("enabled-hw-types", "ipmi").replace(" ", "")
+        hw_types = str(self.config.get("enabled-hw-types", "ipmi")).replace(
+            " ", ""
+        )
         return hw_types.split(",")
 
     def _on_peer_relation_changed(self, event: RelationChangedEvent):

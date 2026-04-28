@@ -23,7 +23,7 @@ from functools import (
     lru_cache,
 )
 
-from croniter import (
+from croniter import (  # type: ignore[import-untyped]
     CroniterBadDateError,
     croniter,
 )

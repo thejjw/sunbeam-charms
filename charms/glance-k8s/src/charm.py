@@ -27,6 +27,7 @@ import re
 from typing import (
     Callable,
     List,
+    Optional,
 )
 
 import ops
@@ -135,12 +136,12 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
 
     def __init__(
         self,
-        charm: CharmBase,
+        charm: sunbeam_charm.OSBaseOperatorCharm,
         relation_name: str,
         callback_f: Callable,
         allow_ec_overwrites: bool = True,
-        app_name: str = None,
-        juju_storage_name: str = None,
+        app_name: Optional[str] = None,
+        juju_storage_name: Optional[str] = None,
     ) -> None:
         """Run constructor."""
         super().__init__(
@@ -160,8 +161,8 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
         falls back to local storage if the ceph relation isn't found.
         """
         if (
-            not self.charm.has_ceph_relation()
-            and not self.charm.has_local_storage()
+            not self.charm.has_ceph_relation()  # type: ignore[attr-defined]
+            and not self.charm.has_local_storage()  # type: ignore[attr-defined]
         ):
             status.set(
                 BlockedStatus(
@@ -188,12 +189,12 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
 
         :return: True if the storage is ready, False otherwise.
         """
-        if self.charm.has_ceph_relation():
+        if self.charm.has_ceph_relation():  # type: ignore[attr-defined]
             logger.debug("ceph relation is connected, deferring to parent")
             return super().ready
 
         # Check to see if the storage is satisfied
-        if self.charm.has_local_storage():
+        if self.charm.has_local_storage():  # type: ignore[attr-defined]
             logger.debug(f"Storage {self.juju_storage_name} is attached")
             return True
 
@@ -208,7 +209,7 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
 
         :return:
         """
-        if self.charm.has_ceph_relation():
+        if self.charm.has_ceph_relation():  # type: ignore[attr-defined]
             return super().context()
         return {}
 
@@ -237,7 +238,7 @@ class GlanceConfigContext(sunbeam_ctxts.ConfigContext):
 
         return {
             "enabled_backends": ",".join(enabled_backends),
-            "image_size_cap": bytes_from_string(image_size_cap),
+            "image_size_cap": bytes_from_string(str(image_size_cap)),
             "image_import_plugins": json.dumps(
                 ["image_conversion"]
                 if self.charm.config["image-conversion"]
@@ -319,7 +320,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         )
 
     def _describe_status_action(self, event: EventBase) -> None:
-        event.set_results({"output": self.status_pool.summarise()})
+        event.set_results({"output": self.status_pool.summarise()})  # type: ignore[attr-defined]
 
     @property
     def config_contexts(self) -> List[sunbeam_ctxts.ConfigContext]:
@@ -398,9 +399,11 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             )
         return _cconfigs
 
-    def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
-        handlers = super().get_relation_handlers()
+        handlers = super().get_relation_handlers(handlers)
         self.ceph = GlanceStorageRelationHandler(
             self,
             "ceph",
@@ -506,11 +509,11 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             return
 
         ph = self.get_named_pebble_handler("glance-api")
-        if ph.pebble_ready:
+        if ph.pebble_ready:  # type: ignore[union-attr]
             if self.has_ceph_relation() and self.ceph.key:
                 # The code for managing ceph client config should move to
                 # a shared lib as it is common across clients
-                ph.execute(
+                ph.execute(  # type: ignore[union-attr]
                     [
                         "ceph-authtool",
                         f"/etc/ceph/ceph.client.{self.app.name}.keyring",
@@ -520,7 +523,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                     ],
                     exception_on_error=True,
                 )
-                ph.execute(
+                ph.execute(  # type: ignore[union-attr]
                     [
                         "chown",
                         f"{self.service_user}:{self.service_group}",
@@ -529,7 +532,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                     ],
                     exception_on_error=True,
                 )
-                ph.execute(
+                ph.execute(  # type: ignore[union-attr]
                     [
                         "chmod",
                         "640",
@@ -543,7 +546,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
             # filestore is enabled for both storage backends,
             # so this step required irrespective of storage backend
-            ph.execute(
+            ph.execute(  # type: ignore[union-attr]
                 [
                     "chown",
                     f"{self.service_user}:{self.service_group}",
@@ -551,7 +554,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 ]
             )
 
-            ph.init_service(self.contexts())
+            ph.init_service(self.contexts())  # type: ignore[union-attr]
 
         super().configure_charm(event)
         if self.bootstrapped():

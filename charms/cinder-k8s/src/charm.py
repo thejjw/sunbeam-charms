@@ -28,7 +28,7 @@ from typing import (
     Mapping,
 )
 
-import charms.cinder_k8s.v0.storage_backend as sunbeam_storage_backend  # noqa
+import charms.cinder_k8s.v0.storage_backend as sunbeam_storage_backend  # noqa # type: ignore[import-untyped]  # type: ignore[import-untyped]
 import ops
 import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
@@ -36,6 +36,9 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops.pebble import (
+    LayerDict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +71,7 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             # appears to work properly.
         self.start_wsgi()
 
-    def get_healthcheck_layer(self) -> dict:
+    def get_healthcheck_layer(self) -> LayerDict:
         """Health check pebble layer.
 
         :returns: pebble health check layer configuration for cinder-api
@@ -85,7 +88,9 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             }
         }
 
-    def default_container_configs(self) -> List[Dict]:
+    def default_container_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
         """Generate default configuration files for container."""
         return [
             sunbeam_core.ContainerConfigFile(self.wsgi_conf, "root", "root"),
@@ -108,7 +113,7 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
 class CinderSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Cinder Scheduler services."""
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Cinder Scheduler service.
 
         :returns: pebble layer configuration for wsgi services
@@ -128,7 +133,9 @@ class CinderSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             },
         }
 
-    def default_container_configs(self) -> List[Dict]:
+    def default_container_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
         """Generate default configuration files for container."""
         return [
             sunbeam_core.ContainerConfigFile(
@@ -214,7 +221,7 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return handlers
 
     @property
-    def service_endpoints(self) -> List[Dict]:
+    def service_endpoints(self) -> list[dict]:
         """Service endpoints for the Cinder API services."""
         return [
             {

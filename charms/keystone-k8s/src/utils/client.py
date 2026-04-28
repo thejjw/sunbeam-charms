@@ -20,25 +20,25 @@ from typing import (
     Union,
 )
 
-from keystoneclient.v3.client import (
+from keystoneclient.v3.client import (  # type: ignore[import-untyped]
     Client,
 )
-from keystoneclient.v3.domains import (
+from keystoneclient.v3.domains import (  # type: ignore[import-untyped]
     Domain,
 )
-from keystoneclient.v3.endpoints import (
+from keystoneclient.v3.endpoints import (  # type: ignore[import-untyped]
     Endpoint,
 )
-from keystoneclient.v3.projects import (
+from keystoneclient.v3.projects import (  # type: ignore[import-untyped]
     Project,
 )
-from keystoneclient.v3.roles import (
+from keystoneclient.v3.roles import (  # type: ignore[import-untyped]
     Role,
 )
-from keystoneclient.v3.services import (
+from keystoneclient.v3.services import (  # type: ignore[import-untyped]
     Service,
 )
-from keystoneclient.v3.users import (
+from keystoneclient.v3.users import (  # type: ignore[import-untyped]
     User,
 )
 
@@ -150,7 +150,7 @@ class KeystoneClient:
             return None
 
         if not isinstance(domain, Domain):
-            domain = self.get_domain_object(domain)
+            domain = self.get_domain_object(domain)  # type: ignore[arg-type]
 
         projects = self.api.projects.list(domain=domain)
         logger.debug(f"Projects list in domain {domain}: {projects}")
@@ -204,18 +204,18 @@ class KeystoneClient:
             return None
 
         if not isinstance(domain, Domain):
-            domain = self.get_domain_object(domain)
+            domain = self.get_domain_object(domain)  # type: ignore[arg-type]
 
         if not isinstance(project, Project):
             # Do we need to differentiate project domain and user domain here??
-            project = self.get_project_object(project, domain)
+            project = self.get_project_object(project, domain)  # type: ignore[arg-type]
 
         users = self.api.users.list(domain=domain, default_project=project)
         logger.debug(
             f"Users list in domain {domain}, project {project}: {users}"
         )
         if users is None:
-            return
+            return None  # type: ignore[return-value]
         users_list = [
             user
             for user in users
@@ -254,7 +254,7 @@ class KeystoneClient:
             return None
 
         if not isinstance(domain, Domain):
-            domain = self.get_domain_object(domain)
+            domain = self.get_domain_object(domain)  # type: ignore[arg-type]
 
         roles = self.api.roles.list(domain=domain)
         logger.debug(f"Roles list in domain {domain}: {roles}")
@@ -467,7 +467,7 @@ class KeystoneClient:
             logger.debug(f"Domain for name {name}: {domains[0]}")
             return domains[0]
 
-        return None
+        return None  # type: ignore[return-value]
 
     def create_domain(
         self,
@@ -502,7 +502,7 @@ class KeystoneClient:
         """
         logger.debug(f"CLIENT: create_domain: name {name}")
         if may_exist:
-            domain = self.get_domain_object(name)
+            domain = self.get_domain_object(name)  # type: ignore[arg-type]
             if domain:
                 logger.debug(
                     f"Domain {name} already exists with id {domain.id}"
@@ -545,7 +545,7 @@ class KeystoneClient:
         :raises: KeystoneExceptionError
         """
         logger.debug(f"CLIENT: update_domain: domain {domain}, name {name}")
-        domain_object = self.get_domain_object(domain)
+        domain_object = self.get_domain_object(domain)  # type: ignore[arg-type]
         if not domain_object:
             raise KeystoneExceptionError(f"Domain {domain} does not exist")
 
@@ -585,7 +585,7 @@ class KeystoneClient:
         :param type: str
         :rtype: list
         """
-        domain = self.get_domain_object(domain)
+        domain = self.get_domain_object(domain)  # type: ignore[arg-type]
         projects = self.api.projects.list(domain=domain)
         project_list = [
             self._convert_project_to_dict(project) for project in projects
@@ -613,12 +613,12 @@ class KeystoneClient:
         :param type: str
         :rtype: dict
         """
-        project = self.get_project_object(name, domain)
+        project = self.get_project_object(name, domain)  # type: ignore[arg-type]
         if project:
             logger.debug(f"Project {name} on domain {domain}: {project}")
             return self._convert_project_to_dict(project)
 
-        return None
+        return None  # type: ignore[return-value]
 
     def create_project(
         self,
@@ -656,14 +656,14 @@ class KeystoneClient:
         """
         logger.debug(f"CLIENT: create_project: name {name}, domain: {domain}")
         if may_exist:
-            project = self.get_project_object(name, domain)
+            project = self.get_project_object(name, domain)  # type: ignore[arg-type]
             if project:
                 logger.debug(
                     f"Project {name} already exists with id {project.id}"
                 )
                 return self._convert_project_to_dict(project)
 
-        domain = self.get_domain_object(domain)
+        domain = self.get_domain_object(domain)  # type: ignore[arg-type]
         project = self.api.projects.create(
             name=name, description=description, domain=domain
         )
@@ -704,11 +704,11 @@ class KeystoneClient:
         :rtype: dict
         :raises: KeystoneExceptionError
         """
-        project_object = self.get_project_object(project, domain)
+        project_object = self.get_project_object(project, domain)  # type: ignore[arg-type]
         if not project_object:
             raise KeystoneExceptionError(f"Project {project} does not exist")
 
-        domain_object = self.get_domain_object(domain)
+        domain_object = self.get_domain_object(domain)  # type: ignore[arg-type]
         updated_project = self.api.projects.update(
             project_object,
             name=name,
@@ -728,7 +728,7 @@ class KeystoneClient:
         :type name: str
         :raises: KeystoneExceptionError
         """
-        project_object = self.get_project_object(name, domain)
+        project_object = self.get_project_object(name, domain)  # type: ignore[arg-type]
         if not project_object:
             raise KeystoneExceptionError(f"Project {name} does not exist")
 
@@ -761,8 +761,8 @@ class KeystoneClient:
         :param type: str
         :rtype: list
         """
-        domain = self.get_domain_object(domain)
-        project = self.get_project_object(project, domain)
+        domain = self.get_domain_object(domain)  # type: ignore[arg-type]
+        project = self.get_project_object(project, domain)  # type: ignore[arg-type]
         users = self.api.users.list(domain=domain, default_project=project)
         users_list = [self._convert_user_to_dict(project) for user in users]
 
@@ -800,18 +800,18 @@ class KeystoneClient:
         :rtype: dict
         """
         try:
-            project = self.get_project_object(project, domain)
+            project = self.get_project_object(project, domain)  # type: ignore[arg-type]
         except KeystoneExceptionError as e:
             logger.debug(f"Exception in getting project object: {str(e)}")
             if "More than one project with same name" in str(e):
-                project = self.get_project_object(project, project_domain)
+                project = self.get_project_object(project, project_domain)  # type: ignore[arg-type]
 
-        user = self.get_user_object(name, domain=domain, project=project)
+        user = self.get_user_object(name, domain=domain, project=project)  # type: ignore[arg-type]
         if user:
             logger.debug(f"User {name} details: {user}")
             return self._convert_user_to_dict(user)
 
-        return None
+        return None  # type: ignore[return-value]
 
     def create_user(
         self,
@@ -859,18 +859,18 @@ class KeystoneClient:
         """
         if may_exist:
             try:
-                project = self.get_project_object(project, domain)
+                project = self.get_project_object(project, domain)  # type: ignore[arg-type]
             except KeystoneExceptionError as e:
                 logger.debug(f"Exception in getting project object: {str(e)}")
                 if "More than one project with same name" in str(e):
-                    project = self.get_project_object(project, project_domain)
+                    project = self.get_project_object(project, project_domain)  # type: ignore[arg-type]
 
-            user = self.get_user_object(name, domain=domain, project=project)
+            user = self.get_user_object(name, domain=domain, project=project)  # type: ignore[arg-type]
             if user:
                 logger.debug(f"User {name} already exists with id {user.id}.")
                 return self._convert_user_to_dict(user)
 
-        domain = self.get_domain_object(domain)
+        domain = self.get_domain_object(domain)  # type: ignore[arg-type]
         user = self.api.users.create(
             name=name,
             domain=domain,
@@ -930,19 +930,19 @@ class KeystoneClient:
         :raises: keystoneauth1.exceptions.http.Conflict, KeystoneExceptionError
         """
         try:
-            project = self.get_project_object(name, domain)
+            project = self.get_project_object(name, domain)  # type: ignore[arg-type]
         except KeystoneExceptionError as e:
             logger.debug(f"Exception in getting project object: {str(e)}")
             if "More than one project with same name" in str(e):
-                project = self.get_project_object(name, project_domain)
+                project = self.get_project_object(name, project_domain)  # type: ignore[arg-type]
 
-        user_object = self.get_user_object(
-            name, domain=domain, project=project
+        user_object = self.get_user_object(  # type: ignore[arg-type]
+            name, domain=domain, project=project  # type: ignore[arg-type]
         )
         if not user_object:
             raise KeystoneExceptionError(f"User {user} does not exist")
 
-        domain_object = self.get_domain_object(domain)
+        domain_object = self.get_domain_object(domain)  # type: ignore[arg-type]
         updated_user = self.api.users.update(
             user_object,
             name=name,
@@ -969,7 +969,7 @@ class KeystoneClient:
         :param type: str | None
         :rtype: dict
         """
-        user = self.get_user_object(name, domain=domain)
+        user = self.get_user_object(name, domain=domain)  # type: ignore[arg-type]
         self.api.users.delete(user)
         logger.debug("Deleted user {user}")
         # Return deleted users name
@@ -991,7 +991,7 @@ class KeystoneClient:
         :param type: str
         :rtype: list
         """
-        domain_object = self.get_domain_object(domain)
+        domain_object = self.get_domain_object(domain)  # type: ignore[arg-type]
         roles = self.api.roles.list(domain=domain_object)
         role_list = [self._convert_role_to_dict(role) for role in roles]
         logger.debug(f"Roles list: {role_list}")
@@ -1023,12 +1023,12 @@ class KeystoneClient:
         """
         logger.debug(f"CLIENT: create_role: name {name}, domain {domain}")
         if may_exist:
-            role = self.get_role_object(name, domain=domain)
+            role = self.get_role_object(name, domain=domain)  # type: ignore[arg-type]
             if role:
                 logger.debug(f"Role {name} already exists with id {role.id}")
                 return self._convert_role_to_dict(role)
 
-        domain_object = self.get_domain_object(domain)
+        domain_object = self.get_domain_object(domain)  # type: ignore[arg-type]
         role = self.api.roles.create(name=name, domain=domain_object)
         logger.debug(f"Created role {name} with id {role.id}.")
         return self._convert_role_to_dict(role)
@@ -1058,7 +1058,7 @@ class KeystoneClient:
         :rtype: dict
         """
         logger.debug(f"CLIENT: update_role: name {name} domain {domain}")
-        role_object = self.get_role_object(name, domain=domain)
+        role_object = self.get_role_object(name, domain=domain)  # type: ignore[arg-type]
         if not role_object:
             raise KeystoneExceptionError(f"Role {role} does not exist")
 
@@ -1078,7 +1078,7 @@ class KeystoneClient:
         :param domain: Domain name
         :param type: str | None
         """
-        role = self.get_role_object(name, domain=domain)
+        role = self.get_role_object(name, domain=domain)  # type: ignore[arg-type]
         self.api.roles.delete(role)
         logger.debug(f"Deleted role {name}")
 
@@ -1123,11 +1123,11 @@ class KeystoneClient:
         if not project and not domain:
             raise ValueError("Project or domain must be specified")
 
-        role_object = self.get_role_object(role, domain=role_domain)
-        user_object = self.get_user_object(user, domain=user_domain)
-        domain_object = self.get_domain_object(domain)
-        project_object = self.get_project_object(
-            project, domain=project_domain
+        role_object = self.get_role_object(role, domain=role_domain)  # type: ignore[arg-type]
+        user_object = self.get_user_object(user, domain=user_domain)  # type: ignore[arg-type]
+        domain_object = self.get_domain_object(domain)  # type: ignore[arg-type]
+        project_object = self.get_project_object(  # type: ignore[arg-type]
+            project, domain=project_domain  # type: ignore[arg-type]
         )
         self.api.roles.grant(
             role=role_object,

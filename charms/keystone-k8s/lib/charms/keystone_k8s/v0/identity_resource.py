@@ -383,7 +383,7 @@ class IdentityResourceProvides(Object):
 
         logger.debug("Update response from keystone")
         _identity_resource_rel = self.charm.model.get_relation(
-            relation_name, relation_id
+            relation_name, int(relation_id)
         )
         if not _identity_resource_rel:
             # Relation has disappeared so skip send of data

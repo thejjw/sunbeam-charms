@@ -41,9 +41,9 @@ from typing import (
     Set,
 )
 
-import charms.operator_libs_linux.v2.snap as snap
+import charms.operator_libs_linux.v2.snap as snap  # type: ignore[import-untyped]  # type: ignore[import-untyped]
 import epa_client
-import jsonschema
+import jsonschema  # type: ignore[import-untyped]
 import ops
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
@@ -55,17 +55,17 @@ import ops_sunbeam.tracing as sunbeam_tracing
 import schemas
 import utils
 import yaml
-from charms.ceilometer_k8s.v0.ceilometer_service import (
+from charms.ceilometer_k8s.v0.ceilometer_service import (  # type: ignore[import-untyped]
     CeilometerConfigChangedEvent,
     CeilometerServiceGoneAwayEvent,
 )
-from charms.consul_client.v0.consul_notify import (
+from charms.consul_client.v0.consul_notify import (  # type: ignore[import-untyped]
     ConsulNotifyRequirer,
 )
-from charms.grafana_agent.v0.cos_agent import (
+from charms.grafana_agent.v0.cos_agent import (  # type: ignore[import-untyped]
     COSAgentProvider,
 )
-from charms.nova_k8s.v0.nova_service import (
+from charms.nova_k8s.v0.nova_service import (  # type: ignore[import-untyped]
     NovaConfigChangedEvent,
     NovaServiceGoneAwayEvent,
 )
@@ -293,7 +293,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def get_tls_certificate_requests(self) -> list:
         """Get TLS certificate requests for the service."""
-        from charms.tls_certificates_interface.v4.tls_certificates import (
+        from charms.tls_certificates_interface.v4.tls_certificates import (  # type: ignore[import-untyped]
             CertificateRequestAttributes,
         )
 
@@ -321,7 +321,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         return certificate_requests
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
@@ -580,9 +580,9 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def metadata_secret(self) -> str:
         """Retrieve or set self.METADATA_SECRET_KEY."""
-        if self._state.metadata_secret:
+        if self._state.metadata_secret:  # type: ignore[truthy-function]
             logging.debug("Found metadata secret in local db")
-            return self._state.metadata_secret
+            return self._state.metadata_secret  # type: ignore[return-value]
         else:
             logging.debug("Generating new metadata secret")
             secret = self.generate_metadata_secret()
@@ -908,7 +908,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         try:
             contexts = self.contexts()
             sb_connection_strs = list(
-                contexts.ovsdb_cms.db_ingress_sb_connection_strs
+                contexts.ovsdb_cms.db_ingress_sb_connection_strs  # type: ignore[attr-defined]
             )
             if not sb_connection_strs:
                 raise AttributeError(name="ovsdb southbound ingress string")
@@ -918,13 +918,13 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "compute.spice-proxy-address": config("ip-address")
                 or local_ip,
                 "compute.cacert": base64.b64encode(
-                    contexts.certificates.ca_cert.encode()
+                    contexts.certificates.ca_cert.encode()  # type: ignore[attr-defined]
                 ).decode(),
                 "compute.cert": base64.b64encode(
-                    contexts.certificates.cert.encode()
+                    contexts.certificates.cert.encode()  # type: ignore[attr-defined]
                 ).decode(),
                 "compute.key": base64.b64encode(
-                    contexts.certificates.key.encode()
+                    contexts.certificates.key.encode()  # type: ignore[attr-defined]
                 ).decode(),
                 "compute.migration-address": self.migration_address
                 or config("ip-address")
@@ -932,17 +932,17 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "compute.resume-on-boot": config("resume-on-boot"),
                 "compute.pci-device-specs": config("pci-device-specs"),
                 "credentials.ovn-metadata-proxy-shared-secret": self.metadata_secret(),
-                "identity.admin-role": contexts.identity_credentials.admin_role,
-                "identity.auth-url": contexts.identity_credentials.internal_endpoint,
-                "identity.password": contexts.identity_credentials.password,
-                "identity.project-domain-id": contexts.identity_credentials.project_domain_id,
-                "identity.project-domain-name": contexts.identity_credentials.project_domain_name,
-                "identity.project-id": contexts.identity_credentials.project_id,
-                "identity.project-name": contexts.identity_credentials.project_name,
-                "identity.region-name": contexts.identity_credentials.region,
-                "identity.user-domain-id": contexts.identity_credentials.user_domain_id,
-                "identity.user-domain-name": contexts.identity_credentials.user_domain_name,
-                "identity.username": contexts.identity_credentials.username,
+                "identity.admin-role": contexts.identity_credentials.admin_role,  # type: ignore[attr-defined]
+                "identity.auth-url": contexts.identity_credentials.internal_endpoint,  # type: ignore[attr-defined]
+                "identity.password": contexts.identity_credentials.password,  # type: ignore[attr-defined]
+                "identity.project-domain-id": contexts.identity_credentials.project_domain_id,  # type: ignore[attr-defined]
+                "identity.project-domain-name": contexts.identity_credentials.project_domain_name,  # type: ignore[attr-defined]
+                "identity.project-id": contexts.identity_credentials.project_id,  # type: ignore[attr-defined]
+                "identity.project-name": contexts.identity_credentials.project_name,  # type: ignore[attr-defined]
+                "identity.region-name": contexts.identity_credentials.region,  # type: ignore[attr-defined]
+                "identity.user-domain-id": contexts.identity_credentials.user_domain_id,  # type: ignore[attr-defined]
+                "identity.user-domain-name": contexts.identity_credentials.user_domain_name,  # type: ignore[attr-defined]
+                "identity.username": contexts.identity_credentials.username,  # type: ignore[attr-defined]
                 "logging.debug": config("debug"),
                 "network.dns-servers": config("dns-servers"),
                 "network.external-bridge": config("external-bridge"),
@@ -955,19 +955,19 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 or config("ip-address")
                 or local_ip,
                 "network.ovn-key": base64.b64encode(
-                    contexts.certificates.key.encode()
+                    contexts.certificates.key.encode()  # type: ignore[attr-defined]
                 ).decode(),
                 "network.ovn-cert": base64.b64encode(
-                    contexts.certificates.cert.encode()
+                    contexts.certificates.cert.encode()  # type: ignore[attr-defined]
                 ).decode(),
                 "network.ovn-cacert": base64.b64encode(
-                    contexts.certificates.ca_with_chain.encode()
+                    contexts.certificates.ca_with_chain.encode()  # type: ignore[attr-defined]
                 ).decode(),
                 "network.ovn-sb-connection": sb_connection_strs[0],
                 "network.physnet-name": config("physnet-name"),
                 "node.fqdn": socket.getfqdn(),
                 "node.ip-address": config("ip-address") or local_ip,
-                "rabbitmq.url": contexts.amqp.transport_url,
+                "rabbitmq.url": contexts.amqp.transport_url,  # type: ignore[attr-defined]
                 "monitoring.enable": self.enable_monitoring,
                 "sev.reserved-host-memory-mb": config(
                     "reserved-host-memory-mb-for-sev"
@@ -998,11 +998,11 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         self, contexts: sunbeam_core.OPSCharmContexts
     ) -> dict:
         try:
-            if contexts.ceph_access.uuid:
+            if contexts.ceph_access.uuid:  # type: ignore[attr-defined]
                 return {
                     "compute.rbd-user": "nova",
-                    "compute.rbd-secret-uuid": contexts.ceph_access.uuid,
-                    "compute.rbd-key": contexts.ceph_access.key,
+                    "compute.rbd-secret-uuid": contexts.ceph_access.uuid,  # type: ignore[attr-defined]
+                    "compute.rbd-key": contexts.ceph_access.key,  # type: ignore[attr-defined]
                 }
         except AttributeError:
             # If the relation has been removed it is probably less disruptive to leave the
@@ -1015,10 +1015,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         self, contexts: sunbeam_core.OPSCharmContexts
     ) -> dict:
         try:
-            if contexts.ceilometer_service.telemetry_secret:
+            if contexts.ceilometer_service.telemetry_secret:  # type: ignore[attr-defined]
                 return {
                     "telemetry.enable": self.enable_telemetry,
-                    "telemetry.publisher-secret": contexts.ceilometer_service.telemetry_secret,
+                    "telemetry.publisher-secret": contexts.ceilometer_service.telemetry_secret,  # type: ignore[attr-defined]
                 }
             else:
                 return {"telemetry.enable": self.enable_telemetry}
@@ -1031,23 +1031,23 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     ) -> dict:
         config = {}
         try:
-            if contexts.nova_service.nova_spiceproxy_url:
+            if contexts.nova_service.nova_spiceproxy_url:  # type: ignore[attr-defined]
                 config["compute.spice-proxy-url"] = (
-                    contexts.nova_service.nova_spiceproxy_url
+                    contexts.nova_service.nova_spiceproxy_url  # type: ignore[attr-defined]
                 )
-            if getattr(contexts.nova_service, "pci_aliases", None):
+            if getattr(contexts.nova_service, "pci_aliases", None):  # type: ignore[attr-defined]
                 config["compute.pci-aliases"] = (
-                    contexts.nova_service.pci_aliases
+                    contexts.nova_service.pci_aliases  # type: ignore[attr-defined]
                 )
-            if getattr(contexts.nova_service, "region", None):
+            if getattr(contexts.nova_service, "region", None):  # type: ignore[attr-defined]
                 # Keystone will run in a separate region in multi-region environments.
                 # We'll fetch the Nova region from the Nova relation data
                 # (also used for non-Keystone API services) and the Keystone region
                 # from the identity relation.
-                config["identity.region-name"] = contexts.nova_service.region
+                config["identity.region-name"] = contexts.nova_service.region  # type: ignore[attr-defined]
                 config["identity.keystone-region-name"] = (
-                    contexts.identity_credentials.region
-                    or contexts.nova_service.region
+                    contexts.identity_credentials.region  # type: ignore[attr-defined]
+                    or contexts.nova_service.region  # type: ignore[attr-defined]
                 )
         except AttributeError as e:
             logger.debug(f"Nova service relation not integrated: {str(e)}")
@@ -1058,7 +1058,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         self, contexts: sunbeam_core.OPSCharmContexts
     ) -> dict:
         try:
-            return {"masakari.enable": contexts.masakari_service.service_ready}
+            return {"masakari.enable": contexts.masakari_service.service_ready}  # type: ignore[attr-defined]
         except AttributeError:
             logger.info("masakari_service relation not integrated")
             return {"masakari.enable": False}
@@ -1069,7 +1069,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         try:
             return {
                 "compute.key-manager-enabled": (
-                    contexts.barbican_service.service_ready
+                    contexts.barbican_service.service_ready  # type: ignore[attr-defined]
                 )
             }
         except AttributeError:
@@ -1080,12 +1080,12 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         self, context: sunbeam_core.OPSCharmContexts
     ) -> dict:
         if (
-            hasattr(context.receive_ca_cert, "ca_bundle")
-            and context.receive_ca_cert.ca_bundle
+            hasattr(context.receive_ca_cert, "ca_bundle")  # type: ignore[attr-defined]
+            and context.receive_ca_cert.ca_bundle  # type: ignore[attr-defined]
         ):
             return {
                 "ca.bundle": base64.b64encode(
-                    context.receive_ca_cert.ca_bundle.encode()
+                    context.receive_ca_cert.ca_bundle.encode()  # type: ignore[attr-defined]
                 ).decode()
             }
 
@@ -1392,10 +1392,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         ):
             self.configure_charm(event)
 
-    def stop_services(self, relation: Optional[Set[str]]) -> None:
+    def stop_services(self, relation: Optional[Set[str]]) -> None:  # type: ignore[override]
         """Stop services based on relation goneaway event."""
-        snap_data = {}
-        for relation_ in relation:
+        snap_data: dict[str, str | None] = {}
+        for relation_ in relation:  # type: ignore[union-attr]
             logger.info(f"In stop_services for relation {relation_}")
             if relation_ == "amqp":
                 logger.debug("Resetting rabbitmq url")

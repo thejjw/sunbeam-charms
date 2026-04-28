@@ -32,6 +32,9 @@ import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
 )
+from ops.pebble import (
+    LayerDict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -60,11 +63,11 @@ class AODHWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
 class AODHEvaluatorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for AODH Evaluator."""
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """AODH Evaluator service layer.
 
         :returns: pebble layer configuration for scheduler service
-        :rtype: dict
+        :rtype: LayerDict
         """
         return {
             "summary": "aodh evaluator layer",
@@ -320,7 +323,7 @@ class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def get_pebble_handlers(
         self,
-    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+    ) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for operator."""
         #        if self.config.get("alarm-history-time-to-live") > 0:
         #            enable_expirer = True

@@ -43,6 +43,9 @@ import tenacity
 from ops.framework import (
     StoredState,
 )
+from ops.pebble import (
+    LayerDict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -113,11 +116,11 @@ class OVNNorthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         )
         return _cc
 
-    def get_healthcheck_layer(self) -> dict:
+    def get_healthcheck_layer(self) -> LayerDict:
         """Health check pebble layer.
 
         :returns: pebble health check layer configuration for OVN NB DB
-        :rtype: dict
+        :rtype: LayerDict
         """
         return {
             "checks": {
@@ -161,11 +164,11 @@ class OVNSouthBDBPebbleHandler(ovn_chandlers.OVNPebbleHandler):
         )
         return _cc
 
-    def get_healthcheck_layer(self) -> dict:
+    def get_healthcheck_layer(self) -> LayerDict:
         """Health check pebble layer.
 
         :returns: pebble health check layer configuration for OVN SB DB
-        :rtype: dict
+        :rtype: LayerDict
         """
         return {
             "checks": {

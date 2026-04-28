@@ -27,7 +27,7 @@ from typing import (
     List,
 )
 
-import charms.neutron_k8s.v0.switch_config as switch_config
+import charms.neutron_k8s.v0.switch_config as switch_config  # type: ignore[import-untyped]  # type: ignore[import-untyped]
 import ops
 import ops_sunbeam.guard as sunbeam_guard
 
@@ -120,7 +120,7 @@ class NeutronBaremetalSwitchConfigCharm(ops.CharmBase):
             )
 
         all_secrets = []
-        for secret_id in secret_ids.split(","):
+        for secret_id in str(secret_ids).split(","):
             try:
                 secret = self.model.get_secret(id=secret_id)
                 all_secrets.append(secret)
@@ -132,7 +132,7 @@ class NeutronBaremetalSwitchConfigCharm(ops.CharmBase):
         return all_secrets
 
     def _validate_configs(self, secrets: List[ops.model.Secret]):
-        all_configs = {}
+        all_configs: dict[str, str] = {}
         for secret in secrets:
             try:
                 content = secret.get_content()
@@ -184,7 +184,7 @@ class NeutronBaremetalSwitchConfigCharm(ops.CharmBase):
                         f"Missing '{filename}' additional file from secret '{secret.id}'"
                     )
 
-            all_configs.update(config)
+            all_configs.update(config)  # type: ignore[arg-type]
 
     def _validate_section(self, secret_id, section_name, section):
         section_keys = set(section.keys())

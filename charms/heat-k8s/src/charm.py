@@ -42,6 +42,9 @@ from ops.framework import (
 from ops.model import (
     ModelError,
 )
+from ops.pebble import (
+    LayerDict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +81,7 @@ class HeatAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             },
         }
 
-    def get_healthcheck_layer(self) -> dict:
+    def get_healthcheck_layer(self) -> LayerDict:
         """Health check pebble layer.
 
         :returns: pebble health check layer configuration for heat service
@@ -120,7 +123,7 @@ class HeatCfnAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             },
         }
 
-    def get_healthcheck_layer(self) -> dict:
+    def get_healthcheck_layer(self) -> LayerDict:
         """Health check pebble layer.
 
         :returns: pebble health check layer configuration for heat service
@@ -171,22 +174,22 @@ class HeatConfigurationContext(sunbeam_config_contexts.ConfigContext):
     def ready(self) -> bool:
         """Whether the context has all the data is needs."""
         return (
-            self.charm.user_id_ops.ready
-            and self.charm.get_heat_auth_encryption_key() is not None
+            self.charm.user_id_ops.ready  # type: ignore[attr-defined]
+            and self.charm.get_heat_auth_encryption_key() is not None  # type: ignore[attr-defined]
         )
 
     def context(self) -> dict:
         """Heat configuration context."""
-        credentials = self.charm.user_id_ops.get_config_credentials()
-        heat_auth_encryption_key = self.charm.get_heat_auth_encryption_key()
+        credentials = self.charm.user_id_ops.get_config_credentials()  # type: ignore[attr-defined]
+        heat_auth_encryption_key = self.charm.get_heat_auth_encryption_key()  # type: ignore[attr-defined]
         if credentials is None or heat_auth_encryption_key is None:
             return {}
         username, password = credentials
         return {
-            "stack_domain_name": self.charm.stack_domain_name,
+            "stack_domain_name": self.charm.stack_domain_name,  # type: ignore[attr-defined]
             "stack_domain_admin_user": username,
             "stack_domain_admin_password": password,
-            "auth_encryption_key": self.charm.get_heat_auth_encryption_key(),
+            "auth_encryption_key": self.charm.get_heat_auth_encryption_key(),  # type: ignore[attr-defined]
             "ingress_path": f"/{self.charm.model.name}-{HEAT_API_INGRESS_NAME}",
             "cfn_ingress_path": f"/{self.charm.model.name}-{HEAT_API_CFN_INGRESS_NAME}",
         }
@@ -226,9 +229,11 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Return the sha1 of the requested ops."""
         return hashlib.sha1(json.dumps(ops).encode()).hexdigest()
 
-    def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
-        handlers = super().get_relation_handlers()
+        handlers = super().get_relation_handlers(handlers)
         self.user_id_ops = (
             sunbeam_rhandlers.UserIdentityResourceRequiresHandler(
                 self,
@@ -264,7 +269,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def get_pebble_handlers(
         self,
-    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+    ) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for operator."""
         pebble_handlers = [
             HeatAPIPebbleHandler(
@@ -292,7 +297,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.configure_charm,
             ),
         ]
-        return pebble_handlers
+        return pebble_handlers  # type: ignore[return-value]
 
     def get_heat_auth_encryption_key_secret(self) -> Optional[str]:
         """Return the auth encryption key secret id."""
@@ -449,7 +454,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         }
 
     @property
-    def service_name(self) -> str:
+    def service_name(self) -> str:  # type: ignore[override]
         """Service name."""
         return "heat"
 

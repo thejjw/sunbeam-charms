@@ -32,7 +32,7 @@ import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 import yaml
-from charms.consul_k8s.v0.consul_cluster import (
+from charms.consul_k8s.v0.consul_cluster import (  # type: ignore[import-untyped]
     ConsulEndpointsRequirer,
 )
 from ops import (
@@ -123,9 +123,9 @@ class MasakariConfigurationContext(config_contexts.ConfigContext):
         """Construct Consul matrix yaml."""
         agent_handlers_map = OrderedDict(
             {
-                "manage": self.charm.consul_management.ready,
-                "tenant": self.charm.consul_tenant.ready,
-                "storage": self.charm.consul_storage.ready,
+                "manage": self.charm.consul_management.ready,  # type: ignore[attr-defined]
+                "tenant": self.charm.consul_tenant.ready,  # type: ignore[attr-defined]
+                "storage": self.charm.consul_storage.ready,  # type: ignore[attr-defined]
             }
         )
         sequence = [k for k, v in agent_handlers_map.items() if v]
@@ -248,18 +248,18 @@ class MasakariHostMonitorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             sunbeam_core.ContainerConfigFile(
                 path="/usr/local/share/ca-certificates/ca-bundle.pem",
                 user="root",
-                group=self.charm.service_group,
+                group=self.charm.service_group,  # type: ignore[attr-defined]
                 permissions=0o640,
             ),
             sunbeam_core.ContainerConfigFile(
                 "/etc/masakari/masakarimonitors.conf",
-                self.charm.service_user,
-                self.charm.service_group,
+                self.charm.service_user,  # type: ignore[attr-defined]
+                self.charm.service_group,  # type: ignore[attr-defined]
             ),
             sunbeam_core.ContainerConfigFile(
                 "/etc/masakari/matrix.yaml",
-                self.charm.service_user,
-                self.charm.service_group,
+                self.charm.service_user,  # type: ignore[attr-defined]
+                self.charm.service_group,  # type: ignore[attr-defined]
             ),
         ]
 

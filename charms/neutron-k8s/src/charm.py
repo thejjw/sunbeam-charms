@@ -26,8 +26,8 @@ from typing import (
     List,
 )
 
-import charms.designate_k8s.v0.designate_service as designate_svc
-import charms.neutron_k8s.v0.switch_config as switch_config
+import charms.designate_k8s.v0.designate_service as designate_svc  # type: ignore[import-untyped]  # type: ignore[import-untyped]
+import charms.neutron_k8s.v0.switch_config as switch_config  # type: ignore[import-untyped]  # type: ignore[import-untyped]
 import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
@@ -44,6 +44,9 @@ from ops.framework import (
 )
 from ops.model import (
     BlockedStatus,
+)
+from ops.pebble import (
+    LayerDict,
 )
 
 logger = logging.getLogger(__name__)
@@ -68,7 +71,7 @@ class ML2Context(sunbeam_ctxts.ConfigContext):
     def context(self) -> dict:
         """Configuration context."""
         return {
-            "mechanism_drivers": ",".join(self.charm.mechanism_drivers),
+            "mechanism_drivers": ",".join(self.charm.mechanism_drivers),  # type: ignore[attr-defined]
         }
 
 
@@ -81,7 +84,7 @@ class BaremetalConfigContext(sunbeam_ctxts.ConfigContext):
         configs = []
         enabled_devices = []
         additional_files = {}
-        for config in self.charm.baremetal_config.interface.switch_configs:
+        for config in self.charm.baremetal_config.interface.switch_configs:  # type: ignore[attr-defined]
             conf = config.get("conf", "")
             configs.append(conf)
 
@@ -126,7 +129,7 @@ class GenericConfigContext(sunbeam_ctxts.ConfigContext):
         """Generate configuration information for generic config."""
         configs = []
         additional_files = {}
-        for config in self.charm.generic_config.interface.switch_configs:
+        for config in self.charm.generic_config.interface.switch_configs:  # type: ignore[attr-defined]
             conf = config.get("conf", "")
             configs.append(conf)
 
@@ -271,9 +274,9 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             "--config-file",
             "/etc/neutron/plugins/ml2/ml2_conf.ini",
         ]
-        if self.charm.baremetal_config.ready:
+        if self.charm.baremetal_config.ready:  # type: ignore[attr-defined]
             neutron_command.extend(["--config-file", ML2_BAREMETAL_CONF])
-        if self.charm.generic_config.ready:
+        if self.charm.generic_config.ready:  # type: ignore[attr-defined]
             neutron_command.extend(["--config-file", ML2_GENERIC_CONF])
 
         return {
@@ -297,7 +300,7 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             },
         }
 
-    def get_healthcheck_layer(self) -> dict:
+    def get_healthcheck_layer(self) -> LayerDict:
         """Health check pebble layer.
 
         :returns: pebble health check layer configuration for neutron server
@@ -309,7 +312,7 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "online": {
                     "override": "replace",
                     "level": "ready",
-                    "http": {"url": self.charm.healthcheck_http_url},
+                    "http": {"url": self.charm.healthcheck_http_url},  # type: ignore[attr-defined,typeddict-item]
                 },
             }
         }
@@ -368,10 +371,10 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             logger.debug("Container not ready")
             return []
 
-        baremetal_context = context.baremetal.context()
+        baremetal_context = context.baremetal.context()  # type: ignore[attr-defined]
         additional_files = baremetal_context.get("additional_files", {})
 
-        generic_context = context.generic.context()
+        generic_context = context.generic.context()  # type: ignore[attr-defined]
         additional_files.update(generic_context.get("additional_files", {}))
 
         updated_files = []
@@ -445,7 +448,7 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
         for service_name in service_names:
             service = services.get(service_name)
-            if not service.is_running():
+            if not service.is_running():  # type: ignore[union-attr]
                 logger.debug(
                     f"Starting {service_name} in {self.container_name}"
                 )
@@ -476,7 +479,7 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         if not ironic_rel and IRONIC_AGENT in service_names:
             service_names.remove(IRONIC_AGENT)
 
-        return all(services.get(name).is_running() for name in service_names)
+        return all(services.get(name).is_running() for name in service_names)  # type: ignore[union-attr]
 
 
 class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
@@ -593,7 +596,7 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return super().configure_unit(event)
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
@@ -607,22 +610,22 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             handlers.append(self.external_dns)
 
         if self.can_add_handler(BAREMETAL_SWITCH_CONFIG_RELATION, handlers):
-            self.baremetal_config = SwitchConfigRequiresHandler(
+            self.baremetal_config = SwitchConfigRequiresHandler(  # type: ignore[attr-defined]
                 self,
                 BAREMETAL_SWITCH_CONFIG_RELATION,
                 self.configure_charm,
                 BAREMETAL_SWITCH_CONFIG_RELATION in self.mandatory_relations,
             )
-            handlers.append(self.baremetal_config)
+            handlers.append(self.baremetal_config)  # type: ignore[attr-defined]
 
         if self.can_add_handler(GENERIC_SWITCH_CONFIG_RELATION, handlers):
-            self.generic_config = SwitchConfigRequiresHandler(
+            self.generic_config = SwitchConfigRequiresHandler(  # type: ignore[attr-defined]
                 self,
                 GENERIC_SWITCH_CONFIG_RELATION,
                 self.configure_charm,
                 GENERIC_SWITCH_CONFIG_RELATION in self.mandatory_relations,
             )
-            handlers.append(self.generic_config)
+            handlers.append(self.generic_config)  # type: ignore[attr-defined]
 
         if self.can_add_handler(IRONIC_API_RELATION, handlers):
             self.ironic_svc = (
@@ -704,7 +707,7 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return contexts
 
     @property
-    def mechanism_drivers(self) -> List[str]:
+    def mechanism_drivers(self) -> List[str]:  # type: ignore[attr-defined]
         """Returns the list of ML2 mechanism drivers used."""
         ironic_rel = self.model.relations[IRONIC_API_RELATION]
         if ironic_rel:
@@ -857,7 +860,7 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
         # ensure this is only run once.
         handler = self.get_named_pebble_handler("neutron-server")
         logger.debug("Restarting neutron-server after db sync")
-        handler.start_all(restart=True)
+        handler.start_all(restart=True)  # type: ignore[union-attr]
 
     @sunbeam_job_ctrl.run_once_per_unit("db-sync")
     def run_db_sync(self) -> None:
@@ -872,9 +875,9 @@ class NeutronOVNOperatorCharm(NeutronOperatorCharm):
         self._post_db_sync_restart()
 
     @property
-    def mechanism_drivers(self) -> List[str]:
+    def mechanism_drivers(self) -> List[str]:  # type: ignore[attr-defined]
         """Returns the list of ML2 mechanism drivers used."""
-        drivers = super().mechanism_drivers
+        drivers = super().mechanism_drivers  # type: ignore[attr-defined]
         drivers.extend(["sriovnicswitch", "ovn"])
         return drivers
 

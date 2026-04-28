@@ -31,14 +31,18 @@ from typing import (
     Optional,
 )
 
-import charms.grafana_k8s.v0.grafana_dashboard as grafana_dashboard
-import charms.loki_k8s.v1.loki_push_api as loki_push_api
+import charms.grafana_k8s.v0.grafana_dashboard as grafana_dashboard  # type: ignore[import-untyped]
+import charms.loki_k8s.v1.loki_push_api as loki_push_api  # type: ignore[import-untyped]
 import ops
 import ops.model
 import ops.pebble
+import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops.pebble import (
+    LayerDict,
+)
 from utils.alert_rules import (
     ALERT_RULES_PATH,
 )
@@ -81,7 +85,7 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         super().__init__(*args, **kwargs)
         self.container = self.charm.unit.get_container(self.container_name)
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Pebble configuration layer for the container."""
         return {
             "summary": "Periodic cloud validation service",
@@ -283,7 +287,7 @@ class TempestPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             raise RuntimeError(
                 "Error during test execution.\n"
                 "For more information, copy log file from container by running:\n"
-                + self.charm.get_copy_log_cmd()
+                + self.charm.get_copy_log_cmd()  # type: ignore[attr-defined]
             )
 
         return summary
@@ -357,14 +361,14 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
 
     def __init__(
         self,
-        charm: ops.CharmBase,
+        charm: sunbeam_charm.OSBaseOperatorCharm,
         relation_name: str,
         callback_f: Callable,
         mandatory: bool,
         region: str,
     ):
         super().__init__(charm, relation_name, callback_f, mandatory)
-        self.charm = charm
+        self.charm = charm  # type: ignore[assignment]
         self.region = region
 
     @property
@@ -386,7 +390,7 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
 
     def setup_event_handler(self) -> ops.Object:
         """Configure event handlers for the relation."""
-        import charms.keystone_k8s.v0.identity_resource as id_ops
+        import charms.keystone_k8s.v0.identity_resource as id_ops  # type: ignore[import-untyped]
 
         logger.debug("Setting up Identity Resource event handler")
         ops_svc = sunbeam_tracing.trace_type(id_ops.IdentityResourceRequires)(
@@ -460,8 +464,8 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
             entries,
             label=self.label,
         )
-        self.charm.leader_set({self.label: credential_secret.id})
-        return credential_secret.id
+        self.charm.leader_set({self.label: credential_secret.id})  # type: ignore[dict-item]
+        return credential_secret.id  # type: ignore[return-value]
 
     def _delete_secret(self):
         """Delete the credentials secret if exists.
@@ -610,7 +614,7 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
 
         # Mark tempest as not ready,
         # so that the tempest environment is definitely re-inited on rejoin.
-        self.charm.set_tempest_ready(False)
+        self.charm.set_tempest_ready(False)  # type: ignore[attr-defined]
 
         self.callback_f(event)
 
@@ -637,13 +641,13 @@ class TempestUserIdentityRelationHandler(sunbeam_rhandlers.RelationHandler):
 
         # If the relation is going away, then tempest is no longer ready,
         # and the environment should be inited again if rejoined.
-        self.charm.set_tempest_ready(False)
+        self.charm.set_tempest_ready(False)  # type: ignore[attr-defined]
 
         # Do an extensive clean-up upon identity relation removal if credential
         # exists.
-        env = self.charm._get_cleanup_env()
+        env = self.charm._get_cleanup_env()  # type: ignore[attr-defined]
         if env and env.get("OS_AUTH_URL"):
-            pebble = self.charm.pebble_handler()
+            pebble = self.charm.pebble_handler()  # type: ignore[attr-defined]
             pebble.run_extensive_cleanup(env)
 
         # Delete the stored keystone credentials,

@@ -11,7 +11,7 @@ pass-through data flow.
 
 import logging
 
-import charms.ovn_central_k8s.v0.ovsdb as ovsdb
+import charms.ovn_central_k8s.v0.ovsdb as ovsdb  # type: ignore[import-untyped]
 import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers

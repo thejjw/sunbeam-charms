@@ -168,14 +168,14 @@ class CinderVolumeCephOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
         try:
             contexts = self.contexts()
             return {
-                "volume-backend-name": contexts.cinder_ceph.backend_name,
-                "backend-availability-zone": contexts.cinder_ceph.backend_availability_zone,
-                "mon-hosts": contexts.ceph.mon_hosts,
-                "rbd-pool": contexts.cinder_ceph.rbd_pool,
-                "rbd-user": contexts.cinder_ceph.rbd_user,
-                "rbd-secret-uuid": contexts.cinder_ceph.secret_uuid,
-                "rbd-key": contexts.ceph.key,
-                "auth": contexts.ceph.auth,
+                "volume-backend-name": contexts.cinder_ceph.backend_name,  # type: ignore[attr-defined]
+                "backend-availability-zone": contexts.cinder_ceph.backend_availability_zone,  # type: ignore[attr-defined]
+                "mon-hosts": contexts.ceph.mon_hosts,  # type: ignore[attr-defined]
+                "rbd-pool": contexts.cinder_ceph.rbd_pool,  # type: ignore[attr-defined]
+                "rbd-user": contexts.cinder_ceph.rbd_user,  # type: ignore[attr-defined]
+                "rbd-secret-uuid": contexts.cinder_ceph.secret_uuid,  # type: ignore[attr-defined]
+                "rbd-key": contexts.ceph.key,  # type: ignore[attr-defined]
+                "auth": contexts.ceph.auth,  # type: ignore[attr-defined]
             }
         except AttributeError as e:
             raise sunbeam_guard.WaitingExceptionError(
@@ -216,13 +216,13 @@ class CinderVolumeCephOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
             )
             self.peers.set_app_data(
                 {
-                    self.client_secret_key: secret.id,
+                    self.client_secret_key: secret.id,  # type: ignore[dict-item]
                 }
             )
         if "relation" in scope:
             secret.grant(scope["relation"])
 
-        return secret.id
+        return secret.id  # type: ignore[return-value]
 
     def get_secret_uuid(self) -> str | None:
         """Get the secret uuid."""
@@ -241,7 +241,7 @@ class CinderVolumeCephOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
         the leader runs them.
         """
         if self.ceph.ready:
-            self._set_or_update_rbd_secret(self.ceph.key)
+            self._set_or_update_rbd_secret(self.ceph.key or "")
             self.set_leader_ready()
             self.broadcast_ceph_access_credentials()
         else:
@@ -267,16 +267,16 @@ class CinderVolumeCephOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
         rbd_secret_uuid_id = self.peers.get_app_data(self.client_secret_key)
         secret = self.model.get_secret(id=rbd_secret_uuid_id)
         secret.grant(relation)
-        self.ceph_access.interface.set_ceph_access_credentials(
+        self.ceph_access.interface.set_ceph_access_credentials(  # type: ignore[attr-defined]
             self.ceph_access_relation_name, relation.id, rbd_secret_uuid_id
         )
 
-    def process_ceph_access_client_event(self, event: ops.framework.EventBase):
+    def process_ceph_access_client_event(self, event: ops.RelationEvent):
         """Inform a single client of the access data."""
         self.broadcast_ceph_access_credentials(relation_id=event.relation.id)
 
     def broadcast_ceph_access_credentials(
-        self, relation_id: str | None = None
+        self, relation_id: int | None = None
     ) -> None:
         """Send ceph access data to clients."""
         logger.debug("Checking for outstanding client requests")

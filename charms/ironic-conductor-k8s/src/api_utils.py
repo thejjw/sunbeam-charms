@@ -17,10 +17,14 @@
 This module contains methods needed by charm.
 """
 
-import charms.keystone_k8s.v0.identity_credentials as identity_creds
-import glanceclient
-import keystoneclient
-import swiftclient
+from typing import (
+    Any,
+)
+
+import charms.keystone_k8s.v0.identity_credentials as identity_creds  # type: ignore[import-untyped]
+import glanceclient  # type: ignore[import-untyped]
+import keystoneclient  # type: ignore[import-untyped]
+import swiftclient  # type: ignore[import-untyped]
 from keystoneauth1 import exceptions as ks_exc
 from keystoneauth1 import (
     loading,
@@ -48,7 +52,7 @@ def create_keystone_session(
         plugin_args["project_domain_name"] = keystone.project_domain_name
         plugin_args["user_domain_name"] = keystone.user_domain_name
 
-    loader = loading.get_plugin_loader(plugin_name)
+    loader: Any = loading.get_plugin_loader(plugin_name)
     auth = loader.load_from_options(**plugin_args)
     return ks_session.Session(auth=auth, verify=SYSTEM_CA_BUNDLE)
 

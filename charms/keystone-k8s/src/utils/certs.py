@@ -42,13 +42,13 @@ logger = logging.getLogger(__name__)
 def cert_and_key_match(certificate: bytes, key: bytes) -> bool:
     """Checks if the supplied cert is derived from the supplied key."""
     crt = x509.load_pem_x509_certificate(certificate, default_backend())
-    cert_pub_key = crt.public_key()
+    cert_pub_key = crt.public_key()  # type: ignore[union-attr]
 
     private_key = serialization.load_pem_private_key(
         key, password=None, backend=default_backend()
     )
-    private_public_key = private_key.public_key()
-    return cert_pub_key.public_numbers() == private_public_key.public_numbers()
+    private_public_key = private_key.public_key()  # type: ignore[union-attr]
+    return cert_pub_key.public_numbers() == private_public_key.public_numbers()  # type: ignore[union-attr]
 
 
 def certificate_is_valid(certificate: bytes) -> bool:
@@ -115,11 +115,13 @@ def ca_chain_is_valid(ca_chain: List[str]) -> bool:
 
         # Check if the chain is in correct order
         for i in range(len(ca_chain) - 1):
-            cert = x509.load_pem_x509_certificate(ca_chain[i].encode("utf-8"))
-            issuer = x509.load_pem_x509_certificate(
+            cert_obj = x509.load_pem_x509_certificate(
+                ca_chain[i].encode("utf-8")
+            )
+            issuer_obj = x509.load_pem_x509_certificate(
                 ca_chain[i + 1].encode("utf-8")
             )
-            cert.verify_directly_issued_by(issuer)
+            cert_obj.verify_directly_issued_by(issuer_obj)
     except (ValueError, TypeError, InvalidSignature) as e:
         logger.warning("Invalid CA chain: %s", e)
         return False

@@ -98,8 +98,8 @@ class TempestConfigurationContext(ConfigContext):
         """Tempest context."""
         return {
             "schedule": (
-                self.charm.get_schedule().value
-                if self.charm.is_schedule_ready()
+                self.charm.get_schedule().value  # type: ignore[attr-defined]
+                if self.charm.is_schedule_ready()  # type: ignore[attr-defined]
                 else ""
             ),
         }
@@ -165,7 +165,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         and pre-requisites for periodic checks are ready.
         """
         schedule = self.get_schedule()
-        return (
+        return bool(
             schedule.valid
             and schedule.value
             and self.is_tempest_ready()
@@ -197,7 +197,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Relation handlers for the service."""
         handlers = handlers or []
         # Ensure the logging relation is before the one setup by the base class
-        self.logging = LoggingRelationHandler(
+        self.logging = LoggingRelationHandler(  # type: ignore[assignment]
             self,
             LOKI_RELATION_NAME,
             self.configure_charm,
@@ -217,7 +217,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "identity-ops",
             self.configure_charm,
             mandatory="identity-ops" in self.mandatory_relations,
-            region=self.config["region"],
+            region=str(self.config["region"]),
         )
         handlers.append(self.user_id_ops)
         return handlers
@@ -254,7 +254,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 get_compute_overrides(),
                 get_ironic_overrides(),
                 get_manila_overrides(),
-                get_role_based_overrides(self.config["roles"]),
+                get_role_based_overrides(str(self.config["roles"])),
             )
         ).strip()
 
@@ -266,7 +266,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         To be used with pebble commands that run tempest discover, etc.
         """
         logger.debug("Retrieving OpenStack credentials")
-        credential = self.user_id_ops.get_user_credential()
+        credential = self.user_id_ops.get_user_credential() or {}
         tempest_env = {
             "OS_REGION_NAME": self.config["region"],
             "OS_IDENTITY_API_VERSION": "3",
@@ -282,7 +282,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "OS_USER_DOMAIN_ID": credential.get("domain-id"),
             "OS_PROJECT_DOMAIN_ID": credential.get("domain-id"),
             "TEMPEST_CONCURRENCY": get_tempest_concurrency(
-                self.config.get("tempest-concurrency")
+                self.config.get("tempest-concurrency")  # type: ignore[arg-type]
             ),
             "TEMPEST_ACCOUNTS_COUNT": str(
                 self.config.get("tempest-accounts-count")
@@ -299,7 +299,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         }
         tempest_env.update(self._get_proxy_environment())
         tempest_env.update(self._get_os_cacert_environment())
-        return tempest_env
+        return tempest_env  # type: ignore[return-value]
 
     def _get_cleanup_env(self) -> Dict[str, str]:
         """Return a dictionary of environment variables.
@@ -307,7 +307,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         To be used with tempest resource cleanup functions.
         """
         logger.debug("Retrieving OpenStack credentials")
-        credential = self.user_id_ops.get_user_credential()
+        credential = self.user_id_ops.get_user_credential() or {}
         cleanup_env = {
             "OS_AUTH_URL": credential.get("auth-url"),
             "OS_USERNAME": credential.get("username"),
@@ -319,11 +319,11 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         }
         cleanup_env.update(self._get_proxy_environment())
         cleanup_env.update(self._get_os_cacert_environment())
-        return cleanup_env
+        return cleanup_env  # type: ignore[return-value]
 
     def get_unit_data(self, key: str) -> Optional[str]:
         """Retrieve a value set for this unit on the peer relation."""
-        return self.peers.interface.peers_rel.data[self.unit].get(key)
+        return self.peers.interface.peers_rel.data[self.unit].get(key)  # type: ignore[union-attr]
 
     def is_tempest_ready(self) -> bool:
         """Check if the tempest environment has been set up by the charm."""
@@ -414,9 +414,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
     def pebble_handler(self) -> TempestPebbleHandler:
         """Get the pebble handler."""
-        return self.get_named_pebble_handler(CONTAINER)
+        return self.get_named_pebble_handler(CONTAINER)  # type: ignore[return-value]
 
-    def _on_start(self, event: ops.charm.StartEvent) -> None:
+    def _on_start(self, event: ops.charm.StartEvent) -> None:  # type: ignore[override]
         """Called on charm start."""
         # Mark tempest as being unready when it is started or rebooted. This is
         # because peer relation data `tempest-ready` persists across a reboot
@@ -492,7 +492,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def _current_config_hash(self) -> str:
         data = self._get_relevant_tempest_config_values()
         blob = json.dumps(data, sort_keys=True).encode()
-        logger.info(f"Hashing config data: {blob}")
+        logger.info(f"Hashing config data: {blob!r}")  # type: ignore[str-bytes-safe]
         return hashlib.sha256(blob).hexdigest()
 
 

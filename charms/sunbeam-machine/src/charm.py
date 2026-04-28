@@ -37,7 +37,7 @@ import ops_sunbeam.tracing as sunbeam_tracing
 from charmlibs import (
     apt,
 )
-from charms.operator_libs_linux.v0 import (
+from charms.operator_libs_linux.v0 import (  # type: ignore[import-untyped]
     sysctl,
 )
 
@@ -110,7 +110,7 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
             file.write(content)
             file.truncate()
 
-    def _on_config_changed(self, event: ops.ConfigChangedEvent):
+    def _on_config_changed(self, event: ops.EventBase):
         self.configure_charm(event)
         with open(ETC_ENVIRONMENT, mode="r", encoding="utf-8") as file:
             current_env = dict(
@@ -133,7 +133,7 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
 
         # Capitalise proxy keys and update env
         proxy_in_caps = {k.upper(): v for k, v in proxy.items()}
-        current_env.update(proxy_in_caps)
+        current_env.update(proxy_in_caps)  # type: ignore[arg-type]
 
         with open(ETC_ENVIRONMENT, mode="w", encoding="utf-8") as file:
             file.write("\n".join([f"{k}={v}" for k, v in current_env.items()]))

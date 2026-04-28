@@ -32,7 +32,7 @@ import ops_sunbeam.config_contexts as sunbeam_config_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.tracing as sunbeam_tracing
-from charms.keystone_k8s.v1.identity_service import (
+from charms.keystone_k8s.v1.identity_service import (  # type: ignore[import-untyped]
     IdentityServiceRequires,
 )
 
@@ -66,11 +66,13 @@ class SyncCharmConfigContext(sunbeam_config_contexts.CharmConfigContext):
         return {
             **self.charm.config,
             "architecture": "|".join(
-                self.charm.config["architecture"].split()
+                str(self.charm.config["architecture"]).split()
             ),
-            "release": "|".join(self.charm.config["release"].split()),
+            "release": "|".join(str(self.charm.config["release"]).split()),
             "region": self.charm.config["region"],
-            "frequency": _frequency_to_seconds(self.charm.config["frequency"]),
+            "frequency": _frequency_to_seconds(
+                str(self.charm.config["frequency"])
+            ),
         }
 
 

@@ -27,8 +27,9 @@ from typing import (
     List,
 )
 
-import charms.keystone_k8s.v0.identity_resource as identity_resource
+import charms.keystone_k8s.v0.identity_resource as identity_resource  # type: ignore[import-untyped]
 import ops
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.compound_status as compound_status
 import ops_sunbeam.config_contexts as sunbeam_config_contexts
@@ -40,7 +41,7 @@ import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 import tenacity
-from charms.tls_certificates_interface.v4.tls_certificates import (
+from charms.tls_certificates_interface.v4.tls_certificates import (  # type: ignore[import-untyped]
     CertificateRequestAttributes,
     Mode,
     TLSCertificatesRequiresV4,
@@ -68,6 +69,9 @@ from ops.framework import (
 )
 from ops.model import (
     ModelError,
+)
+from ops.pebble import (
+    LayerDict,
 )
 
 logger = logging.getLogger(__name__)
@@ -156,7 +160,7 @@ class OctaviaControllerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     ``amphora-network-attachment`` config option.
     """
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Octavia controller services layer.
 
         :returns: pebble layer configuration for all controller services
@@ -171,16 +175,16 @@ class OctaviaControllerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "summary": "Octavia Driver Agent",
                     "command": "octavia-driver-agent",
                     "startup": "enabled",
-                    "user": self.charm.service_user,
-                    "group": self.charm.service_group,
+                    "user": self.charm.service_user,  # type: ignore[attr-defined]
+                    "group": self.charm.service_group,  # type: ignore[attr-defined]
                 },
                 "octavia-housekeeping": {
                     "override": "replace",
                     "summary": "Octavia Housekeeping",
                     "command": "octavia-housekeeping",
                     "startup": "enabled",
-                    "user": self.charm.service_user,
-                    "group": self.charm.service_group,
+                    "user": self.charm.service_user,  # type: ignore[attr-defined]
+                    "group": self.charm.service_group,  # type: ignore[attr-defined]
                 },
                 "octavia-health-manager": {
                     "override": "replace",
@@ -190,8 +194,8 @@ class OctaviaControllerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     # _reconcile_amphora_containers when
                     # amphora-network-attachment is configured.
                     "startup": "disabled",
-                    "user": self.charm.service_user,
-                    "group": self.charm.service_group,
+                    "user": self.charm.service_user,  # type: ignore[attr-defined]
+                    "group": self.charm.service_group,  # type: ignore[attr-defined]
                 },
                 "octavia-worker": {
                     "override": "replace",
@@ -199,8 +203,8 @@ class OctaviaControllerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "command": "octavia-worker",
                     # startup: disabled — see octavia-health-manager comment.
                     "startup": "disabled",
-                    "user": self.charm.service_user,
-                    "group": self.charm.service_group,
+                    "user": self.charm.service_user,  # type: ignore[attr-defined]
+                    "group": self.charm.service_group,  # type: ignore[attr-defined]
                 },
             },
         }
@@ -328,7 +332,7 @@ class AmphoraHealthManagerContext(sunbeam_config_contexts.ConfigContext):
                 )
 
         if hasattr(self.charm, "peers"):
-            heartbeat_key = self.charm.get_heartbeat_key()
+            heartbeat_key = self.charm.get_heartbeat_key()  # type: ignore[attr-defined]
             if heartbeat_key:
                 ctxt["heartbeat_key"] = heartbeat_key
 
@@ -398,7 +402,7 @@ class AmphoraCertificatesContext(sunbeam_config_contexts.ConfigContext):
         retrieve CSRs (and thus assigned certs) when mode is Mode.APP.
         """
         ctxt = {}
-        issuing_handler = self.charm.amphora_issuing_ca
+        issuing_handler = self.charm.amphora_issuing_ca  # type: ignore[attr-defined]
         if issuing_handler.ready:
             for _cn, cert in issuing_handler.get_certs():
                 if cert is not None:
@@ -416,7 +420,7 @@ class AmphoraCertificatesContext(sunbeam_config_contexts.ConfigContext):
         # Controller cert + CA from the amphora-controller-cert relation.
         # The controller cert file is a PEM bundle: cert || private-key,
         # matching the format expected by Octavia's haproxy_amphora section.
-        controller_handler = self.charm.amphora_controller_cert
+        controller_handler = self.charm.amphora_controller_cert  # type: ignore[attr-defined]
         if controller_handler.ready:
             for _cn, cert in controller_handler.get_certs():
                 if cert is not None:
@@ -436,7 +440,7 @@ class AmphoraCertificatesContext(sunbeam_config_contexts.ConfigContext):
         they read cert material from the peer app databag that the leader
         populates in _sync_amphora_certs_to_peer_databag().
         """
-        ctxt = {}
+        ctxt: dict = {}
         try:
             peer_data = {
                 "issuing_cacert": self.charm.peers.get_app_data(
@@ -489,7 +493,7 @@ class AmphoraCertificatesContext(sunbeam_config_contexts.ConfigContext):
             ctxt["lb_mgmt_issuing_ca_root"] = peer_data["issuing_ca_root"]
         ctxt["lb_mgmt_controller_cacert"] = peer_data["controller_cacert"]
         ctxt["lb_mgmt_controller_cert"] = (
-            peer_data["controller_cert_pem"].rstrip("\n")
+            (peer_data["controller_cert_pem"] or "").rstrip("\n")
             + "\n"
             + pk_content.get("controller-cert-private-key", "")
         )
@@ -661,13 +665,13 @@ class KubernetesPodAnnotationPatcher(KubernetesResourcePatcher):
             return True
 
         # Get current annotations
-        current_annotations = {}
+        current_annotations: dict = {}
         if (
-            hasattr(statefulset.spec.template.metadata, "annotations")
-            and statefulset.spec.template.metadata.annotations
+            hasattr(statefulset.spec.template.metadata, "annotations")  # type: ignore[union-attr]
+            and statefulset.spec.template.metadata.annotations  # type: ignore[union-attr]
         ):
             current_annotations = (
-                statefulset.spec.template.metadata.annotations
+                statefulset.spec.template.metadata.annotations  # type: ignore[union-attr]
             )
 
         # Check if all desired annotations are present with correct values
@@ -793,13 +797,13 @@ class OctaviaNetworkAnnotationPatcher(KubernetesPodAnnotationPatcher):
         network_config = self.charm.config.get("amphora-network-attachment")
         annotation_key = "k8s.v1.cni.cncf.io/networks"
 
-        current_annotations = {}
+        current_annotations: dict = {}
         if (
-            hasattr(statefulset.spec.template.metadata, "annotations")
-            and statefulset.spec.template.metadata.annotations
+            hasattr(statefulset.spec.template.metadata, "annotations")  # type: ignore[union-attr]
+            and statefulset.spec.template.metadata.annotations  # type: ignore[union-attr]
         ):
             current_annotations = (
-                statefulset.spec.template.metadata.annotations
+                statefulset.spec.template.metadata.annotations  # type: ignore[union-attr]
             )
 
         if not network_config:
@@ -909,7 +913,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def get_pebble_handlers(
         self,
-    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+    ) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for operator."""
         return [
             OctaviaWSGIPebbleHandler(
@@ -932,7 +936,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ]
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
@@ -1293,7 +1297,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if entries is None:
             return None
 
-        return self._ip_from_network_status_entries(entries, nad_name)
+        return self._ip_from_network_status_entries(entries, str(nad_name))
 
     def _set_lbmgmt_ip(self) -> None:
         """Set lbmgmt-ip in peer unit data.
@@ -1404,7 +1408,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 label=OCTAVIA_HEARTBEAT_KEY,
             )
             self.peers.set_app_data(
-                {OCTAVIA_HEARTBEAT_KEY: heartbeat_secret.id}
+                {OCTAVIA_HEARTBEAT_KEY: heartbeat_secret.id or ""}  # type: ignore[dict-item]
             )
             logger.info(
                 "Generated and stored Amphora heartbeat key as Juju secret"
@@ -1772,7 +1776,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             OCTAVIA_CONTROLLER_CONTAINER,
         ]:
             ph = self.get_named_pebble_handler(container)
-            ph.execute(
+            ph.execute(  # type: ignore[union-attr]
                 [
                     "chown",
                     f"{self.service_user}:{self.service_group}",
@@ -1792,7 +1796,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         are stopped so they do not crash-loop on missing cert files.
         """
         ph = self.get_named_pebble_handler(OCTAVIA_CONTROLLER_CONTAINER)
-        if not ph.pebble_ready:
+        if not ph.pebble_ready:  # type: ignore[union-attr]
             return
         amphora_ready = (
             bool(self.config.get("amphora-network-attachment"))
@@ -1800,9 +1804,9 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             and self.amphora_controller_cert.ready
         )
         if amphora_ready:
-            ph.start_amphora_services()
+            ph.start_amphora_services()  # type: ignore[union-attr]
         else:
-            ph.stop_amphora_services()
+            ph.stop_amphora_services()  # type: ignore[union-attr]
 
     @staticmethod
     def _get_first_cert(handler):
@@ -1828,7 +1832,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 content, label=AMPHORA_CERTS_PRIVATE_KEYS_LABEL
             )
             self.peers.set_app_data(
-                {AMPHORA_CERTS_PRIVATE_KEYS_SECRET_ID_KEY: secret.id}
+                {AMPHORA_CERTS_PRIVATE_KEYS_SECRET_ID_KEY: secret.id or ""}  # type: ignore[dict-item]
             )
 
     def _sync_amphora_certs_to_peer_databag(self) -> None:

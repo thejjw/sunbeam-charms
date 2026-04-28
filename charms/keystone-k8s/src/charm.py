@@ -54,7 +54,7 @@ import charms.keystone_k8s.v0.identity_credentials as sunbeam_cc_svc
 import charms.keystone_k8s.v0.identity_endpoints as sunbeam_endpoints_svc
 import charms.keystone_k8s.v0.identity_resource as sunbeam_ops_svc
 import charms.keystone_k8s.v1.identity_service as sunbeam_id_svc
-import charms.kratos_external_idp_integrator.v0.kratos_external_provider as external_idp
+import charms.kratos_external_idp_integrator.v0.kratos_external_provider as external_idp  # type: ignore[import-untyped]  # type: ignore[import-untyped]
 import jinja2
 import keystoneauth1.exceptions
 import ops
@@ -68,19 +68,19 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
-import pwgen
-import requests
-from charms.certificate_transfer_interface.v0.certificate_transfer import (
+import pwgen  # type: ignore[import-untyped]
+import requests  # type: ignore[import-untyped]
+from charms.certificate_transfer_interface.v0.certificate_transfer import (  # type: ignore[import-untyped]
     CertificateTransferProvides,
 )
-from charms.horizon_k8s.v0 import (
+from charms.horizon_k8s.v0 import (  # type: ignore[import-untyped]
     trusted_dashboard,
 )
-from charms.hydra.v0.oauth import (
+from charms.hydra.v0.oauth import (  # type: ignore[import-untyped]
     ClientConfig,
     OAuthRequirer,
 )
-from charms.keystone_saml_k8s.v1.keystone_saml import (
+from charms.keystone_saml_k8s.v1.keystone_saml import (  # type: ignore[import-untyped]
     KeystoneSAMLRequirer,
 )
 from ops.charm import (
@@ -97,7 +97,7 @@ from ops.model import (
     SecretNotFoundError,
     SecretRotate,
 )
-from utils import (
+from utils import (  # type: ignore[import-untyped]
     certs,
     manager,
 )
@@ -264,7 +264,7 @@ class DomainConfigHandler(sunbeam_rhandlers.RelationHandler):
         )
         return self.dc
 
-    def _on_dc_config_changed(self, event) -> Dict:
+    def _on_dc_config_changed(self, event) -> None:
         """Handles relation data changed events."""
         self.callback_f(event)
 
@@ -390,7 +390,7 @@ class _BaseIDPHandler(sunbeam_rhandlers.RelationHandler):
         self, metadata_url, additional_chain: List[str] = []
     ):
         try:
-            chains = self.charm._get_all_ca_bundles(additional_chain)
+            chains = self.charm._get_all_ca_bundles(additional_chain)  # type: ignore[attr-defined]
             with tempfile.NamedTemporaryFile() as fd:
                 fd.write(chains.encode())
                 fd.flush()
@@ -624,7 +624,7 @@ class KeystoneSAML2RequiresHandler(sunbeam_rhandlers.RelationHandler):
     def _get_sp_url(self, provider: Mapping[str, str]):
         provider_name = provider["name"]
         sp_url = (
-            f"{self.charm.public_endpoint}/OS-FEDERATION/"
+            f"{self.charm.public_endpoint}/OS-FEDERATION/"  # type: ignore[attr-defined]
             f"identity_providers/{provider_name}/protocols/"
             "saml2/auth/mellon"
         )
@@ -648,7 +648,7 @@ class KeystoneSAML2RequiresHandler(sunbeam_rhandlers.RelationHandler):
         sp_file_path = f"{manager.SAML_PROVIDER_FOLDER}/{sp_meta}"
         idp_file_path = f"{manager.SAML_PROVIDER_FOLDER}/{idp_meta}"
 
-        cert = self.charm._get_certificate_body(sp_k_c["cert"])
+        cert = self.charm._get_certificate_body(sp_k_c["cert"])  # type: ignore[attr-defined]
         if not cert:
             logger.warning("could not extract keystone SP certificate body")
             return {}
@@ -1050,7 +1050,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if not any([oauth_providers, external_providers, saml_providers]):
             logger.debug("No OAuth relations found, skipping update")
             return
-        data = {"federated-providers": []}
+        data: dict = {"federated-providers": []}
         if oauth_providers:
             data["federated-providers"].extend(
                 oauth_providers.get("federated-providers", [])
@@ -1099,13 +1099,13 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         )
         self.peers.set_app_data(
             {
-                label: credentials_secret.id,
+                label: credentials_secret.id or "",  # type: ignore[dict-item]
             }
         )
         if "relation" in scope:
             credentials_secret.grant(scope["relation"])
 
-        return credentials_secret.id
+        return credentials_secret.id  # type: ignore[return-value]
 
     def get_ca_and_chain(self):
         """Get CA and chain from peer data."""
@@ -1296,7 +1296,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 )
             return {}
         try:
-            cert_secret = self.model.get_secret(id=cert_secret_id)
+            cert_secret = self.model.get_secret(id=str(cert_secret_id))
         except SecretNotFoundError:
             raise sunbeam_guard.BlockedExceptionError(
                 f"Could not find saml2 secret with id {cert_secret_id}"
@@ -1320,7 +1320,9 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "Both key and certificate keys are required for "
                 "saml-x509-keypair secret."
             )
-        if not certs.cert_and_key_match(cert.encode(), key.encode()):
+        if not certs.cert_and_key_match(
+            (cert or "").encode(), (key or "").encode()
+        ):
             raise sunbeam_guard.BlockedExceptionError(
                 "The supplied x509 certificate in the saml-x509-keypair secret "
                 "is not derived from the supplied key."
@@ -1334,8 +1336,8 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
         self.keystone_manager.ensure_saml_cert_and_key_state(cert, key)
         return {
-            "cert": cert,
-            "key": key,
+            "cert": cert or "",  # type: ignore[dict-item]
+            "key": key or "",  # type: ignore[dict-item]
         }
 
     def get_oidc_secret(self):
@@ -1498,7 +1500,7 @@ export OS_AUTH_VERSION=3
         chain_certs = None
 
         try:
-            ca_bytes = base64.b64decode(ca)
+            ca_bytes = base64.b64decode(ca)  # type: ignore[arg-type]
             ca_cert = ca_bytes.decode()
             if not certs.certificate_is_valid(ca_bytes):
                 event.fail("Invalid CA certificate")
@@ -1577,7 +1579,7 @@ export OS_AUTH_VERSION=3
 
     def _on_peer_data_changed(self, event: RelationChangedEvent):
         """Process fernet updates if possible."""
-        if self._state.unit_bootstrapped and self.is_leader_ready():
+        if self._state.unit_bootstrapped and self.is_leader_ready():  # type: ignore[truthy-function]
             self.update_fernet_keys_from_peer()
         else:
             logger.debug(
@@ -1837,7 +1839,7 @@ export OS_AUTH_VERSION=3
         """Relation handlers for the service."""
         handlers = handlers or []
         if self.can_add_handler(self.IDSVC_RELATION_NAME, handlers):
-            self.id_svc = IdentityServiceProvidesHandler(
+            self.id_svc = IdentityServiceProvidesHandler(  # type: ignore[assignment]
                 self,
                 self.IDSVC_RELATION_NAME,
                 self.register_service_from_event,
@@ -1996,7 +1998,7 @@ export OS_AUTH_VERSION=3
                         f"{relation.app.name} {relation.name}/{relation.id}"
                     )
                     self.register_service(
-                        relation.id,
+                        str(relation.id),
                         relation.name,
                         json.loads(app_data["service-endpoints"]),
                         app_data["region"],
@@ -2036,7 +2038,7 @@ export OS_AUTH_VERSION=3
                         f"{relation.app.name} {relation.name}/{relation.id}"
                     )
                     self.add_credentials(
-                        relation.id, relation.name, app_data["username"]
+                        str(relation.id), relation.name, app_data["username"]
                     )
                 else:
                     logger.debug(
@@ -2100,7 +2102,7 @@ export OS_AUTH_VERSION=3
                 container.push(
                     domain_config_file,
                     domain_config["config-contents"],
-                    **{
+                    **{  # type: ignore[arg-type]
                         "user": "keystone",
                         "group": "keystone",
                         "permissions": 0o600,
@@ -2116,7 +2118,7 @@ export OS_AUTH_VERSION=3
                     container.push(
                         domain_ca_file,
                         domain_config["ca"],
-                        **{
+                        **{  # type: ignore[arg-type]
                             "user": "keystone",
                             "group": "keystone",
                             "permissions": 0o644,
@@ -2126,7 +2128,9 @@ export OS_AUTH_VERSION=3
 
         return updated_domains
 
-    def configure_domains(self, event: ops.framework.EventBase = None) -> None:
+    def configure_domains(
+        self, event: ops.framework.EventBase | None = None
+    ) -> None:
         """Configure LDAP backed domains."""
         if isinstance(event, sunbeam_dc_svc.DomainConfigGoneAwayEvent):
             exclude = [event.relation]
@@ -2141,7 +2145,7 @@ export OS_AUTH_VERSION=3
         updated_domains = self.update_domain_config(domain_configs, container)
         if removed_domains or updated_domains:
             ph = self.get_named_pebble_handler(KEYSTONE_CONTAINER)
-            ph.start_all(restart=True)
+            ph.start_all(restart=True)  # type: ignore[union-attr]
 
     def check_outstanding_identity_ops_requests(self) -> None:
         """Check requests from identity ops relation."""
@@ -2152,9 +2156,9 @@ export OS_AUTH_VERSION=3
             request = {}
             response = {}
             if app_data.get("request"):
-                request = json.loads(app_data.get("request"))
+                request = json.loads(app_data.get("request") or "")  # type: ignore[arg-type]
             if relation.data[self.app].get("response"):
-                response = json.loads(relation.data[self.app].get("response"))
+                response = json.loads(relation.data[self.app].get("response") or "")  # type: ignore[arg-type]
 
             request_id = request.get("id")
             if request_id != response.get("id"):
@@ -2163,7 +2167,9 @@ export OS_AUTH_VERSION=3
                     f"{relation.app.name} {relation.name}/{relation.id}"
                     f" for request id {request_id}"
                 )
-                self.handle_op_request(relation.id, relation.name, request)
+                self.handle_op_request(
+                    str(relation.id), relation.name, request
+                )
 
     def check_outstanding_identity_endpoints_requests(self, force=False):
         """Check requests from identity endpoints relation.
@@ -2190,7 +2196,7 @@ export OS_AUTH_VERSION=3
                     relation.app.name,
                 )
 
-    def check_outstanding_requests(self) -> bool:
+    def check_outstanding_requests(self) -> None:
         """Process any outstanding client requests."""
         logger.debug("Checking for outstanding client requests")
         if not self.can_service_requests():
@@ -2261,8 +2267,8 @@ export OS_AUTH_VERSION=3
     ):
         """Register service in keystone."""
         logger.debug(f"Registering service requested by {client_app_name}")
-        relation = self.model.get_relation(relation_name, relation_id)
-        binding = self.framework.model.get_binding(relation)
+        relation = self.model.get_relation(relation_name, int(relation_id))  # type: ignore[arg-type]
+        binding = self.framework.model.get_binding(relation)  # type: ignore[arg-type]
         ingress_address = str(binding.network.ingress_address)
 
         service_domain = self.keystone_manager.ksclient.show_domain(
@@ -2289,7 +2295,7 @@ export OS_AUTH_VERSION=3
                 client_app_name.replace("-", "_")
             )
             event_relation = self.model.get_relation(
-                relation_name, relation_id
+                relation_name, int(relation_id)  # type: ignore[arg-type]
             )
             scope = {"relation": event_relation}
             service_credentials = None
@@ -2302,9 +2308,11 @@ export OS_AUTH_VERSION=3
                     add_suffix_to_username=True,
                 )
                 credentials = self.model.get_secret(id=service_credentials)
-                credentials = credentials.get_content(refresh=True)
-                service_username = credentials.get("username")
-                service_password = credentials.get("password")
+                cred_content = credentials.get_content(refresh=True)
+                service_username = (
+                    cred_content.get("username") or service_username
+                )
+                service_password = cred_content.get("password")
             except SecretNotFoundError:
                 logger.warning(f"Secret for {service_username} not found")
 
@@ -2316,16 +2324,16 @@ export OS_AUTH_VERSION=3
             )
 
             service = self.keystone_manager.ksclient.create_service(
-                name=ep_data["service_name"],
-                service_type=ep_data["type"],
-                description=ep_data["description"],
+                name=ep_data["service_name"],  # type: ignore[index]
+                service_type=ep_data["type"],  # type: ignore[index]
+                description=ep_data["description"],  # type: ignore[index]
                 may_exist=True,
             )
             for interface in ["admin", "internal", "public"]:
                 self.keystone_manager.ksclient.create_endpoint(
                     service=service,
                     interface=interface,
-                    url=ep_data[f"{interface}_url"],
+                    url=ep_data[f"{interface}_url"],  # type: ignore[index]
                     region=region,
                     may_exist=True,
                 )
@@ -2335,7 +2343,7 @@ export OS_AUTH_VERSION=3
             internal_port = parsed_internal_endpoint.port
             if not internal_port:
                 internal_port = 80 if internal_protocol == "http" else 443
-            self.id_svc.interface.set_identity_service_credentials(
+            self.id_svc.interface.set_identity_service_credentials(  # type: ignore[attr-defined]
                 relation_name,
                 relation_id,
                 "v3",
@@ -2384,10 +2392,10 @@ export OS_AUTH_VERSION=3
         :return:
         """
         logger.debug("Processing credentials request")
-        relation = self.model.get_relation(relation_name, relation_id)
-        binding = self.framework.model.get_binding(relation)
+        relation = self.model.get_relation(relation_name, int(relation_id))  # type: ignore[arg-type]
+        binding = self.framework.model.get_binding(relation)  # type: ignore[arg-type]
         ingress_address = str(binding.network.ingress_address)
-        event_relation = self.model.get_relation(relation_name, relation_id)
+        event_relation = self.model.get_relation(relation_name, int(relation_id))  # type: ignore[arg-type]
         scope = {"relation": event_relation}
         user_password = None
         try:
@@ -2459,11 +2467,11 @@ export OS_AUTH_VERSION=3
         try:
             credentials_id = self._retrieve_or_set_secret(self.admin_user)
             credentials = self.model.get_secret(id=credentials_id)
-            return credentials.get_content(refresh=True).get("password")
+            return credentials.get_content(refresh=True).get("password")  # type: ignore[return-value]
         except SecretNotFoundError:
             logger.warning("Secret for admin credentials not found")
 
-        return None
+        return None  # type: ignore[return-value]
 
     @property
     def admin_user(self):
@@ -2490,11 +2498,11 @@ export OS_AUTH_VERSION=3
         try:
             credentials_id = self._retrieve_or_set_secret(self.charm_user)
             credentials = self.model.get_secret(id=credentials_id)
-            return credentials.get_content(refresh=True).get("password")
+            return credentials.get_content(refresh=True).get("password")  # type: ignore[return-value]
         except SecretNotFoundError:
             logger.warning("Secret for charm credentials not found")
 
-        return None
+        return None  # type: ignore[return-value]
 
     @property
     def service_project(self):
@@ -2604,7 +2612,7 @@ export OS_AUTH_VERSION=3
                 rotate=SecretRotate("daily"),
             )
             logger.info(f"Fernet keys secret created: {fernet_secret.id}")
-            self.peers.set_app_data({"fernet-secret-id": fernet_secret.id})
+            self.peers.set_app_data({"fernet-secret-id": fernet_secret.id or ""})  # type: ignore[dict-item]
             return
 
     def _create_credential_keys_secret(self) -> None:
@@ -2651,11 +2659,11 @@ export OS_AUTH_VERSION=3
                 f"Credential keys secret created: {credential_keys_secret.id}"
             )
             self.peers.set_app_data(
-                {"credential-keys-secret-id": credential_keys_secret.id}
+                {"credential-keys-secret-id": credential_keys_secret.id or ""}  # type: ignore[dict-item]
             )
 
     @sunbeam_job_ctrl.run_once_per_unit("keystone_bootstrap")
-    def keystone_bootstrap(self) -> bool:
+    def keystone_bootstrap(self) -> None:
         """Starts the appropriate services in the order they are needed.
 
         If the service has not yet been bootstrapped, then this will
@@ -2818,7 +2826,7 @@ export OS_AUTH_VERSION=3
             {"name": op.get("name"), "return-code": -2, "value": None}
             for op in request.get("ops", [])
         ]
-        context = defaultdict(list)
+        context: dict = defaultdict(list)
 
         request = self._sanitize_secrets(request)
         for idx, op in enumerate(request.get("ops", [])):
@@ -2837,12 +2845,12 @@ export OS_AUTH_VERSION=3
                         )
                         computed_params[key] = templated_value
                 result = func(**computed_params)
-                response["ops"][idx]["return-code"] = 0
-                response["ops"][idx]["value"] = result
+                response["ops"][idx]["return-code"] = 0  # type: ignore[index]
+                response["ops"][idx]["value"] = result  # type: ignore[index]
             except Exception as e:
-                response["ops"][idx]["return-code"] = -1
-                response["ops"][idx]["value"] = repr(e)
-            context[func_name].append(response["ops"][idx]["value"])
+                response["ops"][idx]["return-code"] = -1  # type: ignore[index]
+                response["ops"][idx]["value"] = repr(e)  # type: ignore[index]
+            context[func_name].append(response["ops"][idx]["value"])  # type: ignore[index]
 
         logger.debug(f"handle_op_request: Sending response {response}")
         self.ops_svc.interface.set_ops_response(

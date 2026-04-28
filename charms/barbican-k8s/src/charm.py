@@ -27,16 +27,17 @@ from typing import (
     Optional,
 )
 
-import charms.keystone_k8s.v0.identity_resource as identity_resource
+import charms.keystone_k8s.v0.identity_resource as identity_resource  # type: ignore[import-untyped]
 import ops
 import ops.framework
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
-from charms.vault_k8s.v0 import (
+from charms.vault_k8s.v0 import (  # type: ignore[import-untyped]
     vault_kv,
 )
 from ops import (
@@ -46,6 +47,9 @@ from ops import (
 )
 from ops.charm import (
     RelationEvent,
+)
+from ops.pebble import (
+    LayerDict,
 )
 
 logger = logging.getLogger(__name__)
@@ -71,8 +75,8 @@ class WSGIBarbicanAdminConfigContext(sunbeam_ctxts.ConfigContext):
         return {
             "name": self.charm.service_name,
             "public_port": 9312,
-            "user": self.charm.service_user,
-            "group": self.charm.service_group,
+            "user": self.charm.service_user,  # type: ignore[attr-defined]
+            "group": self.charm.service_group,  # type: ignore[attr-defined]
             "wsgi_admin_script": "/usr/bin/barbican-wsgi-api",
             "wsgi_public_script": "/usr/bin/barbican-wsgi-api",
             "error_log": "/dev/stdout",
@@ -203,7 +207,7 @@ class BarbicanWorkerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         super().__init__(*args, **kwargs)
         self.enable_service_check = True
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Barbican worker service layer.
 
         :returns: pebble layer configuration for worker service
@@ -425,7 +429,7 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def get_pebble_handlers(
         self,
-    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+    ) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for operator."""
         pebble_handlers = super().get_pebble_handlers()
         pebble_handlers.extend(

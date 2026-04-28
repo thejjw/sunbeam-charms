@@ -31,10 +31,11 @@ from typing import (
     Union,
 )
 
-import charms.designate_bind_k8s.v0.bind_rndc as bind_rndc
+import charms.designate_bind_k8s.v0.bind_rndc as bind_rndc  # type: ignore[import-untyped]  # type: ignore[import-untyped]
 import lightkube.models.core_v1 as core_v1
 import ops
 import ops.charm
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
@@ -42,6 +43,9 @@ import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
     StoredState,
+)
+from ops.pebble import (
+    LayerDict,
 )
 from ops_sunbeam.k8s_resource_handlers import (
     KubernetesLoadBalancerHandler,
@@ -59,7 +63,7 @@ RNDC_STORE_KEY = "rndc-store"
 class BindPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for designate-bind service."""
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Pebble layer for bind 9 service."""
         return {
             "summary": "designate-bind layer",
@@ -385,11 +389,8 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
     def new_rndc_revision(self) -> str:
         """Compute new revision for rndc keys."""
-        revision = self.leader_get(RNDC_REVISION_KEY)
-        if revision is None:
-            revision = 0
-        else:
-            revision = int(revision)
+        revision_str = self.leader_get(RNDC_REVISION_KEY)
+        revision = int(revision_str) if revision_str is not None else 0
         return str(revision + 1)
 
     def register_rndc_client(
@@ -466,7 +467,7 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Set rndc key in peer relation."""
         if not self.unit.is_leader():
             logger.debug("Not leader, skipping new_rndc_key")
-            return
+            return None
         label = RNDC_SECRET_PREFIX + client
         store = self._load_store()
         relation_store = store.setdefault(self.store_key(relation), {})

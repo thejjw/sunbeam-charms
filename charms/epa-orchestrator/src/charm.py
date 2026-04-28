@@ -24,7 +24,7 @@ from typing import (
     List,
 )
 
-import charms.operator_libs_linux.v2.snap as snap
+import charms.operator_libs_linux.v2.snap as snap  # type: ignore[import-untyped]  # type: ignore[import-untyped]
 import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
@@ -118,7 +118,7 @@ class EpaOrchestratorCharm(sunbeam_charm.OSBaseOperatorCharmSnap):
         self.status.set(ActiveStatus(""))
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []

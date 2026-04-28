@@ -519,7 +519,7 @@ class IdentityServiceProvides(Object):
         logging.debug("Setting identity_service connection information.")
         _identity_service_rel = None
         for relation in self.framework.model.relations[relation_name]:
-            if relation.id == relation_id:
+            if relation.id == int(relation_id):
                 _identity_service_rel = relation
         if not _identity_service_rel:
             # Relation has disappeared so skip send of data

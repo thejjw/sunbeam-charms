@@ -78,8 +78,8 @@ class ManilaDataOperatorCharm(charm.OSBaseOperatorCharmSnap):
         try:
             contexts = self.contexts()
             snap_data = {
-                "rabbitmq.url": contexts.amqp.transport_url,
-                "database.url": contexts.database.connection,
+                "rabbitmq.url": contexts.amqp.transport_url,  # type: ignore[attr-defined]
+                "database.url": contexts.database.connection,  # type: ignore[attr-defined]
                 "settings.debug": config("debug"),
                 "settings.enable-telemetry-notifications": config(
                     "enable-telemetry-notifications"

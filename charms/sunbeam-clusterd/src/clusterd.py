@@ -23,9 +23,9 @@ from urllib.parse import (
     quote,
 )
 
-import requests
-import requests_unixsocket
-from requests_unixsocket import (
+import requests  # type: ignore[import-untyped]
+import requests_unixsocket  # type: ignore[import-untyped]
+from requests_unixsocket import (  # type: ignore[import-untyped]
     DEFAULT_SCHEME,
 )
 

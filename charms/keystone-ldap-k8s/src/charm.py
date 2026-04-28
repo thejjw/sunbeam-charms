@@ -29,7 +29,7 @@ from typing import (
     Mapping,
 )
 
-import charms.keystone_k8s.v0.domain_config as sunbeam_dc_svc
+import charms.keystone_k8s.v0.domain_config as sunbeam_dc_svc  # type: ignore[import-untyped]
 import jinja2
 import ops
 import ops.charm
@@ -52,7 +52,7 @@ class LDAPConfigContext(config_contexts.ConfigContext):
         raw_config_flags = self.charm.model.config["ldap-config-flags"]
         if raw_config_flags:
             try:
-                config = json.loads(raw_config_flags)
+                config = json.loads(str(raw_config_flags))
             except json.decoder.JSONDecodeError:
                 logger.error("JSON Error, cannot load config flags")
         return {"config": config}

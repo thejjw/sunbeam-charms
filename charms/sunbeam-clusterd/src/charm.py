@@ -35,9 +35,9 @@ import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
-import requests
+import requests  # type: ignore[import-untyped]
 import tenacity
-from charms.operator_libs_linux.v2 import (
+from charms.operator_libs_linux.v2 import (  # type: ignore[import-untyped]
     snap,
 )
 from cryptography import (
@@ -120,7 +120,7 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def get_tls_certificate_requests(self) -> list:
         """Get TLS certificate requests for the service."""
-        from charms.tls_certificates_interface.v4.tls_certificates import (
+        from charms.tls_certificates_interface.v4.tls_certificates import (  # type: ignore[import-untyped]
             CertificateRequestAttributes,
         )
 
@@ -170,7 +170,7 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         """Return domain name sans."""
         return [socket.gethostname()]
 
-    def get_sans_ips(self) -> list[str]:
+    def get_sans_ips(self) -> list[str]:  # type: ignore[override]
         """Return Subject Alternate Names to use in cert for service."""
         return ["127.0.0.1"]
 
@@ -205,7 +205,7 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def _on_get_credentials_action(self, event: ops.ActionEvent) -> None:
         """Handle get-credentials action."""
-        if not self.peers.interface.state.joined:
+        if not self.peers.interface.state.joined:  # type: ignore[truthy-function]
             event.fail("Clusterd not joined yet")
             return
 
@@ -532,7 +532,7 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             logger.warning("No token found for unit %s", self.unit.name)
             return
         member = self.unit.name.replace("/", "-")
-        if not self.peers.interface.state.joined:
+        if not self.peers.interface.state.joined:  # type: ignore[truthy-function]
             self._clusterd.join(
                 member,
                 self._binding_address() + ":" + str(self.clusterd_port),

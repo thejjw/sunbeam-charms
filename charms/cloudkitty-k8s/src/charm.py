@@ -35,6 +35,9 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops.pebble import (
+    LayerDict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -79,7 +82,7 @@ class CloudkittyWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             # appears to work properly.
         self.start_wsgi()
 
-    def get_healthcheck_layer(self) -> dict:
+    def get_healthcheck_layer(self) -> LayerDict:
         """Health check pebble layer.
 
         :returns: pebble health check layer configuration for cloudkitty service
@@ -95,7 +98,9 @@ class CloudkittyWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             }
         }
 
-    def default_container_configs(self) -> List[Dict]:
+    def default_container_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
         """Generate default configuration files for container."""
         return [
             sunbeam_core.ContainerConfigFile(self.wsgi_conf, "root", "root"),
@@ -121,7 +126,7 @@ class CloudkittyWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
 class CloudkittyProcessorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Cloudkitty Processor services."""
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Cloudkitty Processor service.
 
         :returns: pebble layer configuration for wsgi services
@@ -141,7 +146,9 @@ class CloudkittyProcessorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             },
         }
 
-    def default_container_configs(self) -> List[Dict]:
+    def default_container_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
         """Generate default configuration files for container."""
         return [
             sunbeam_core.ContainerConfigFile(
@@ -171,7 +178,7 @@ class CloudkittyOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     ]
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
@@ -187,7 +194,7 @@ class CloudkittyOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return super().get_relation_handlers(handlers)
 
     @property
-    def service_endpoints(self) -> List[Dict]:
+    def service_endpoints(self) -> list[dict]:
         """Service endpoints for the Cloudkitty API services."""
         return [
             {
@@ -262,12 +269,12 @@ class CloudkittyOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def service_ready(self) -> bool:
         """Determine whether the service the container provides is running."""
-        if self.enable_service_check:
+        if self.enable_service_check:  # type: ignore[attr-defined]
             logging.debug("Service checks enabled for cloudkitty worker")
-            return super().service_ready
+            return super().service_ready  # type: ignore[misc]
         else:
             logging.debug("Service checks disabled for cloudkitty worker")
-            return self.pebble_ready
+            return self.pebble_ready  # type: ignore[attr-defined]
 
 
 if __name__ == "__main__":  # pragma: nocover

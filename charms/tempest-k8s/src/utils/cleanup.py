@@ -85,7 +85,7 @@ def _get_test_projects_in_domain(
     """
     return [
         project.id
-        for project in conn.identity.projects(domain_id=domain_id)
+        for project in conn.identity.projects(domain_id=domain_id)  # type: ignore[union-attr]
         if project.name.startswith(RESOURCE_PREFIX)
         and project.name not in exclude_projects
     ]
@@ -184,17 +184,17 @@ def _cleanup_users(
 
     If exclude_users is specified, users in exclude_users will not be removed.
     """
-    for user in conn.identity.users(domain_id=domain_id):
+    for user in conn.identity.users(domain_id=domain_id):  # type: ignore[union-attr]
         if (
             user.name.startswith(RESOURCE_PREFIX)
             and user.name not in exclude_users
         ):
-            conn.identity.delete_user(user.id)
+            conn.identity.delete_user(user.id)  # type: ignore[union-attr]
 
 
 def _cleanup_project(conn: Connection, project_id: str) -> None:
     """Delete a project given its id."""
-    conn.identity.delete_project(project_id)
+    conn.identity.delete_project(project_id)  # type: ignore[union-attr]
 
 
 def _run_cleanup_functions(

@@ -28,11 +28,15 @@ from typing import (
 )
 
 import ops
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops.pebble import (
+    LayerDict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +48,7 @@ NOVA_NOVNCPROXY_INGRESS_NAME = "nova-novncproxy"
 class NovaIronicPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for nova-ironic."""
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """nova-ironic service layer.
 
         :returns: pebble layer configuration for the nova-ironic services
@@ -106,7 +110,7 @@ class NovaIronicOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
     def get_pebble_handlers(
         self,
-    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+    ) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the operator."""
         pebble_handlers = [
             NovaIronicPebbleHandler(
@@ -118,10 +122,10 @@ class NovaIronicOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 self.configure_charm,
             ),
         ]
-        return pebble_handlers
+        return pebble_handlers  # type: ignore[return-value]
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for operator."""
         handlers = super().get_relation_handlers(handlers or [])

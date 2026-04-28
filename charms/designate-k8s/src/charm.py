@@ -31,9 +31,10 @@ from typing import (
     Optional,
 )
 
-import charms.designate_bind_k8s.v0.bind_rndc as bind_rndc
+import charms.designate_bind_k8s.v0.bind_rndc as bind_rndc  # type: ignore[import-untyped]
 import ops
 import ops.charm
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
@@ -44,6 +45,9 @@ import tenacity
 from charms.designate_k8s.v0.designate_service import (
     DesignateEndpointRequestEvent,
     DesignateServiceProvides,
+)
+from ops.pebble import (
+    LayerDict,
 )
 
 logger = logging.getLogger(__name__)
@@ -72,7 +76,7 @@ class DesignatePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
 
     def __init__(
         self,
-        charm: ops.CharmBase,
+        charm: sunbeam_charm.OSBaseOperatorAPICharm,
         container_name: str,
         template_dir: str,
         callback_f: Callable,
@@ -93,7 +97,7 @@ class DesignatePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
         """Location of WSGI config file."""
         return f"/etc/apache2/sites-available/{self.wsgi_service_name}.conf"
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Designate service layer."""
         layer = super().get_layer()
 
@@ -104,22 +108,22 @@ class DesignatePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
                 "designate-central": {
                     "summary": "designate central",
                     "command": "designate-central",
-                    **self._common_service_config,
+                    **self._common_service_config,  # type: ignore[typeddict-item]
                 },
                 "designate-worker": {
                     "summary": "designate worker",
                     "command": "designate-worker",
-                    **self._common_service_config,
+                    **self._common_service_config,  # type: ignore[typeddict-item]
                 },
                 "designate-producer": {
                     "summary": "designate producer",
                     "command": "designate-producer",
-                    **self._common_service_config,
+                    **self._common_service_config,  # type: ignore[typeddict-item]
                 },
                 "designate-mdns": {
                     "summary": "designate mdns",
                     "command": "designate-mdns",
-                    **self._common_service_config,
+                    **self._common_service_config,  # type: ignore[typeddict-item]
                 },
             }
         )
@@ -254,7 +258,7 @@ class BindRndcRequiresRelationHandler(sunbeam_rhandlers.RelationHandler):
     def _on_bind_rndc_connected(self, event: bind_rndc.BindRndcConnectedEvent):
         """Handle bind rndc connected event."""
         relation = self.model.get_relation(
-            event.relation_name, event.relation_id
+            event.relation_name, event.relation_id  # type: ignore[attr-defined]
         )
         if relation is not None:
             self.request_rndc_key(self.interface, relation)
@@ -482,7 +486,7 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         nameservers = self.config.get("nameservers")
         if nameservers is None:
             return []
-        return nameservers.split(" ")
+        return str(nameservers).split(" ")
 
     @tenacity.retry(
         stop=tenacity.stop_after_attempt(3),
@@ -545,7 +549,7 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Set endpoint in relation data."""
         if self.internal_url:
             self.dnsaas.interface.set_endpoint(
-                relation=event.relation, endpoint=self.internal_url
+                relation=event.relation, endpoint=self.internal_url  # type: ignore[attr-defined]
             )
         else:
             logging.debug("DNS Endpoint not yet set, not sending config")

@@ -24,16 +24,20 @@ from typing import (
     Optional,
 )
 
-import charms.grafana_k8s.v0.grafana_dashboard as grafana_dashboard
-import charms.prometheus_k8s.v0.prometheus_scrape as prometheus_scrape
+import charms.grafana_k8s.v0.grafana_dashboard as grafana_dashboard  # type: ignore[import-untyped]
+import charms.prometheus_k8s.v0.prometheus_scrape as prometheus_scrape  # type: ignore[import-untyped]
 import ops
 import ops.charm
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_config_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops.pebble import (
+    LayerDict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +82,7 @@ class OSExporterConfigurationContext(sunbeam_config_contexts.ConfigContext):
 class OSExporterPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for the container."""
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Pebble configuration layer for the container."""
         return {
             "summary": "openstack-exporter service",
@@ -267,9 +271,11 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         super().open_ports()
         self.unit.open_port("tcp", self.default_public_ingress_port)
 
-    def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
-        handlers = super().get_relation_handlers()
+        handlers = super().get_relation_handlers(handlers)
         self.user_id_ops = (
             sunbeam_rhandlers.UserIdentityResourceRequiresHandler(
                 self,
@@ -356,10 +362,10 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         )
         self.leader_set(
             {
-                label: credentials_secret.id,
+                label: credentials_secret.id,  # type: ignore[dict-item]
             }
         )
-        return credentials_secret.id
+        return credentials_secret.id  # type: ignore[return-value]
 
     def _handle_list_endpoint_response(
         self, event: ops.EventBase, response: dict

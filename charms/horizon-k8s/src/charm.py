@@ -29,7 +29,7 @@ from urllib import (
     parse,
 )
 
-import charms.keystone_k8s.v0.identity_endpoints as identity_endpoints
+import charms.keystone_k8s.v0.identity_endpoints as identity_endpoints  # type: ignore[import-untyped]
 import ops
 import ops.framework
 import ops.model
@@ -239,7 +239,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def federated_providers(self) -> List[Mapping[str, str]]:
         """List of federated identity providers."""
-        return self.trusted_dashboard.federated_providers
+        return self.trusted_dashboard.federated_providers  # type: ignore[attr-defined]
 
     @property
     def default_public_ingress_port(self):
@@ -338,7 +338,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def configure_plugins(self, event: ops.framework.EventBase) -> None:
         """Configure plugins for horizon."""
-        plugins = sorted(json.loads(self.config.get("plugins", "[]")))
+        plugins = sorted(json.loads(str(self.config.get("plugins", "[]"))))
         container = self.model.unit.get_container(self.service_name)
         if not container.can_connect():
             logger.debug("Container not ready, skipping plugin configuration")

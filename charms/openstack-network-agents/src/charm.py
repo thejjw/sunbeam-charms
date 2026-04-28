@@ -27,7 +27,7 @@ from __future__ import (
 import logging
 import subprocess
 
-import charms.operator_libs_linux.v2.snap as snap
+import charms.operator_libs_linux.v2.snap as snap  # type: ignore[import-untyped]  # type: ignore[import-untyped]
 import ops
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.guard as sunbeam_guard

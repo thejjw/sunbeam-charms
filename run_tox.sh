@@ -184,7 +184,24 @@ then
     popd || exit 1
     python3 repository.py -v clean $charm || exit 1
 
+elif [[ $1 == "mypy" ]];
+then
+    # Run mypy on ops-sunbeam
+    if should_test_ops_sunbeam $2; then
+        ops_sunbeam_src_path="ops-sunbeam/ops_sunbeam"
+        PYTHONPATH=$(python3 ./repository.py pythonpath) mypy ${ops_sunbeam_src_path} || exit 1
+    fi
+
+    # Run mypy on sunbeam charms
+    for charm in $(get_charms_to_test $2); do
+        python3 repository.py -v prepare --clean $charm || exit 1
+        pushd charms/$charm
+        PYTHONPATH=./src:./lib mypy src/ || exit 1
+        popd
+        python3 repository.py -v clean $charm || exit 1
+    done
+
 else
-    echo "tox argument should be one of pep8, py3, py310, py312, cover";
+    echo "tox argument should be one of pep8, py3, py310, py312, cover, mypy";
     exit 1
 fi

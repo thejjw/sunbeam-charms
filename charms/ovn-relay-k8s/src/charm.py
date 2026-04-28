@@ -115,7 +115,7 @@ class OVNRelayOperatorCharm(ovn_charm.OSBaseOVNOperatorCharm):
         self.certs.validate_and_regenerate_certificates_if_needed()
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []

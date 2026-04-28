@@ -29,12 +29,12 @@ from typing import (
 )
 
 import ops
-import requests
+import requests  # type: ignore[import-untyped]
 from certs import (
     is_valid_chain,
     parse_cert_chain,
 )
-from charms.keystone_saml_k8s.v1.keystone_saml import (
+from charms.keystone_saml_k8s.v1.keystone_saml import (  # type: ignore[import-untyped]
     KeystoneSAMLProvider,
     KeystoneSAMLProviderChangedEvent,
 )
@@ -103,7 +103,7 @@ class KeystoneSamlK8SCharm(ops.CharmBase):
         if not chain:
             # not having a ca-chain is valid
             return True
-        return is_valid_chain(chain)
+        return is_valid_chain(str(chain))
 
     def _get_idp_metadata(self) -> str:
         metadata_url = self.config.get("metadata-url", "")
@@ -111,11 +111,11 @@ class KeystoneSamlK8SCharm(ops.CharmBase):
             return ""
 
         with tempfile.NamedTemporaryFile() as fd:
-            verify = True
+            verify: bool | str = True
             cachain = self.config.get("ca-chain", "")
             if cachain:
                 verify = fd.name
-                data = base64.b64decode(cachain)
+                data = base64.b64decode(str(cachain))
                 fd.write(data)
                 fd.flush()
             metadata = requests.get(metadata_url, verify=verify)
@@ -146,7 +146,7 @@ class KeystoneSamlK8SCharm(ops.CharmBase):
             config_chain = self.config.get("ca-chain", "")
             if config_chain:
                 ca_chain = parse_cert_chain(
-                    base64.b64decode(config_chain).decode()
+                    base64.b64decode(str(config_chain)).decode()
                 )
         except Exception as e:
             logger.error(f"failed to parse ca chain: {e}")

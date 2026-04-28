@@ -28,9 +28,10 @@ from typing import (
     Mapping,
 )
 
-import charms.sunbeam_nova_compute_operator.v0.cloud_compute as cloud_compute
+import charms.sunbeam_nova_compute_operator.v0.cloud_compute as cloud_compute  # type: ignore[import-untyped]  # type: ignore[import-untyped]
 import ops
 import ops.framework
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
@@ -43,6 +44,7 @@ from charms.nova_k8s.v0.nova_service import (
 )
 from ops.pebble import (
     ExecError,
+    LayerDict,
 )
 
 logger = logging.getLogger(__name__)
@@ -65,8 +67,8 @@ class WSGINovaMetadataConfigContext(sunbeam_ctxts.ConfigContext):
         return {
             "name": self.charm.service_name,
             "public_port": 8775,
-            "user": self.charm.service_user,
-            "group": self.charm.service_group,
+            "user": self.charm.service_user,  # type: ignore[attr-defined]
+            "group": self.charm.service_group,  # type: ignore[attr-defined]
             "wsgi_admin_script": "/usr/bin/nova-metadata-wsgi",
             "wsgi_public_script": "/usr/bin/nova-metadata-wsgi",
             "error_log": "/dev/stdout",
@@ -83,7 +85,7 @@ class NovaConfigContext(sunbeam_ctxts.ConfigContext):
         config = self.charm.model.config
         ctxt = {}
 
-        aliases = json.loads(config.get("pci-aliases") or "[]")
+        aliases = json.loads(str(config.get("pci-aliases") or "[]"))
         ctxt["pci_aliases"] = [
             json.dumps(alias, sort_keys=True) for alias in aliases
         ]
@@ -99,7 +101,7 @@ class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         super().__init__(*args, **kwargs)
         self.enable_service_check = True
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Nova Scheduler service layer.
 
         :returns: pebble layer configuration for scheduler service
@@ -210,7 +212,7 @@ class NovaSpiceProxyPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         super().__init__(*args, **kwargs)
         self.enable_service_check = True
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Nova Scheduler service layer.
 
         :returns: pebble layer configuration for scheduler service
@@ -266,7 +268,7 @@ class CloudComputeRequiresHandler(sunbeam_rhandlers.RelationHandler):
 
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: sunbeam_charm.OSBaseOperatorCharm,
         relation_name: str,
         region: str,
         callback_f: Callable,
@@ -499,7 +501,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def get_pebble_handlers(
         self,
-    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+    ) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for operator."""
         pebble_handlers = [
             sunbeam_chandlers.WSGIPebbleHandler(
@@ -539,7 +541,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return pebble_handlers
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for operator."""
         handlers = super().get_relation_handlers(handlers or [])
@@ -547,7 +549,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             self.compute_nodes = CloudComputeRequiresHandler(
                 self,
                 "cloud-compute",
-                self.model.config["region"],
+                str(self.model.config["region"]),
                 self.register_compute_nodes,
             )
             handlers.append(self.compute_nodes)
@@ -762,7 +764,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 cell1_uuid,
                 "--verbose",
             ]
-            handler.execute(cmd, exception_on_error=True)
+            handler.execute(cmd, exception_on_error=True)  # type: ignore[union-attr]
         except ExecError:
             logger.exception("Failed to discover hosts for cell1")
             raise
@@ -824,7 +826,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         cmd = ["sudo", "nova-manage", "cell_v2", "list_cells", "--verbose"]
         handler = self.get_named_pebble_handler(NOVA_CONDUCTOR_CONTAINER)
         try:
-            out = handler.execute(cmd, exception_on_error=True)
+            out = handler.execute(cmd, exception_on_error=True)  # type: ignore[union-attr]
         except ExecError:
             logger.exception("list_cells failed")
             raise
@@ -870,7 +872,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def set_config_from_event(self, event: ops.framework.EventBase) -> None:
         """Set config in relation data."""
         self.config_svc.interface.set_config(
-            relation=event.relation,
+            relation=event.relation,  # type: ignore[attr-defined]
             nova_spiceproxy_url=self.nova_spiceproxy_public_url,
             pci_aliases=self.model.config.get("pci-aliases") or "[]",
             region=self.model.config.get("region") or "RegionOne",

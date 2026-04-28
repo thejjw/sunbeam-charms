@@ -493,16 +493,16 @@ class OpenstackPortCniCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def _list_resources(self, event) -> None:
         resources = event.params.get("resources", "")
-        self.collector.list_resources(event, resources=resources)
+        self.collector.list_resources(event, resources=resources)  # type: ignore[call-arg]
 
     def _scrub_resources(self, event) -> None:
         resources = event.params.get("resources", "")
-        self.collector.scrub_resources(event, resources=resources)
+        self.collector.scrub_resources(event, resources=resources)  # type: ignore[call-arg]
 
     def _sync_resources(self, event) -> None:
         resources = event.params.get("resources", "")
         try:
-            self.collector.apply_missing_resources(event, resources=resources)
+            self.collector.apply_missing_resources(event, resources=resources)  # type: ignore[call-arg]
         except ManifestClientError as exc:
             msg = "Failed to sync missing resources: " + " -> ".join(
                 map(str, exc.args)

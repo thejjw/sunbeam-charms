@@ -56,7 +56,7 @@ class S3RelationHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for the s3-credentials relation."""
         logger.debug("Setting up S3 credentials event handler")
-        from charms.data_platform_libs.v0.s3 import (
+        from charms.data_platform_libs.v0.s3 import (  # type: ignore[import-untyped]
             S3Requirer,
         )
 
@@ -171,7 +171,7 @@ class GnocchiWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
                 ),
             ]
         )
-        _cconfigs.extend(self.charm.default_container_configs())
+        _cconfigs.extend(self.charm.default_container_configs())  # type: ignore[attr-defined]
         return _cconfigs
 
 
@@ -206,7 +206,7 @@ class GnocchiMetricdPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     ) -> List[sunbeam_core.ContainerConfigFile]:
         """Container configurations for handler."""
         _cconfigs = super().default_container_configs()
-        _cconfigs.extend(self.charm.default_container_configs())
+        _cconfigs.extend(self.charm.default_container_configs())  # type: ignore[attr-defined]
         return _cconfigs
 
 
@@ -266,9 +266,11 @@ class GnocchiOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             f"http://localhost:{self.default_public_ingress_port}/healthcheck"
         )
 
-    def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
-        handlers = super().get_relation_handlers()
+        handlers = super().get_relation_handlers(handlers)
         self.svc_ready_handler = GnocchiServiceProvidesHandler(
             self,
             "gnocchi-service",
@@ -280,7 +282,7 @@ class GnocchiOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def get_pebble_handlers(
         self,
-    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+    ) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for operator."""
         pebble_handlers = [
             GnocchiWSGIPebbleHandler(
@@ -362,9 +364,11 @@ class GnocchiCephOperatorCharm(GnocchiOperatorCharm):
         )
         return contexts
 
-    def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
-        handlers = super().get_relation_handlers()
+        handlers = super().get_relation_handlers(handlers)
         self.ceph = sunbeam_rhandlers.CephClientHandler(
             self,
             "ceph",

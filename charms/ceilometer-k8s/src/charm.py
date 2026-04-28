@@ -27,6 +27,7 @@ from typing import (
 import ops
 import ops.charm
 import ops.framework
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
@@ -35,6 +36,9 @@ import ops_sunbeam.tracing as sunbeam_tracing
 from charms.ceilometer_k8s.v0.ceilometer_service import (
     CeilometerConfigRequestEvent,
     CeilometerServiceProvides,
+)
+from ops.pebble import (
+    LayerDict,
 )
 
 logger = logging.getLogger(__name__)
@@ -74,7 +78,7 @@ class CeilometerServiceProvidesHandler(sunbeam_rhandlers.RelationHandler):
 class CeilometerCentralPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for ceilometer-central service."""
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """ceilometer-central service pebble layer.
 
         :returns: pebble layer configuration for ceilometer-central service
@@ -103,7 +107,7 @@ class CeilometerCentralPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         :returns: Container configuration files
         :rtype: List[ContainerConfigFile]
         """
-        return self.charm.container_configs
+        return self.charm.container_configs  # type: ignore[attr-defined]
 
 
 @sunbeam_tracing.trace_type
@@ -112,7 +116,7 @@ class CeilometerNotificationPebbleHandler(
 ):
     """Pebble handler for ceilometer-notification service."""
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """ceilometer-notification service pebble layer.
 
         :returns: pebble layer configuration for ceilometer-notification service
@@ -141,19 +145,19 @@ class CeilometerNotificationPebbleHandler(
         :returns: Container configuration files
         :rtype: List[ContainerConfigFile]
         """
-        _cconfigs = self.charm.container_configs
+        _cconfigs = self.charm.container_configs  # type: ignore[attr-defined]
         _cconfigs.extend(
             [
                 sunbeam_core.ContainerConfigFile(
                     "/etc/ceilometer/pipeline.yaml",
-                    self.charm.service_user,
-                    self.charm.service_group,
+                    self.charm.service_user,  # type: ignore[attr-defined]
+                    self.charm.service_group,  # type: ignore[attr-defined]
                     0o640,
                 ),
                 sunbeam_core.ContainerConfigFile(
                     "/etc/ceilometer/event_pipeline.yaml",
-                    self.charm.service_user,
-                    self.charm.service_group,
+                    self.charm.service_user,  # type: ignore[attr-defined]
+                    self.charm.service_group,  # type: ignore[attr-defined]
                     0o640,
                 ),
             ]
@@ -251,7 +255,7 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         ]
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
@@ -278,7 +282,7 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         telemetry_secret = self.get_shared_meteringsecret()
         if telemetry_secret:
             self.config_svc.interface.set_config(
-                relation=event.relation, telemetry_secret=telemetry_secret
+                relation=event.relation, telemetry_secret=telemetry_secret  # type: ignore[attr-defined]
             )
         else:
             logging.debug("Telemetry secret not yet set, not sending config")

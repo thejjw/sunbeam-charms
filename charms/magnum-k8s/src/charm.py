@@ -28,6 +28,7 @@ from typing import (
 )
 
 import ops
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_config_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
@@ -42,6 +43,9 @@ from ops.framework import (
 from ops.model import (
     ModelError,
     SecretNotFoundError,
+)
+from ops.pebble import (
+    LayerDict,
 )
 
 logger = logging.getLogger(__name__)
@@ -86,7 +90,7 @@ class MagnumConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
         super().__init__(*args, **kwargs)
         self.enable_service_check = True
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Magnum conductor service layer.
 
         :returns: pebble layer configuration for worker service
@@ -103,7 +107,7 @@ class MagnumConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "user": "magnum",
                     "group": "magnum",
                     "environment": {
-                        **self.charm.proxy_env(),
+                        **self.charm.proxy_env(),  # type: ignore[attr-defined]
                     },
                 }
             },
@@ -215,9 +219,11 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         _cadapters.extend([MagnumConfigurationContext(self, "magnum")])
         return _cadapters
 
-    def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
+    def get_relation_handlers(
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
+    ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
-        handlers = super().get_relation_handlers()
+        handlers = super().get_relation_handlers(handlers)
         self.user_id_ops = (
             sunbeam_rhandlers.UserIdentityResourceRequiresHandler(
                 self,
@@ -318,11 +324,14 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def kubeconfig(self) -> str | None:
         """Kubeconfig content to connect to k8s management cluster."""
         try:
+            kubeconfig_id = self.config.get("kubeconfig")
             kubeconfig_secret = self.model.get_secret(
-                id=self.config.get("kubeconfig")
+                id=str(kubeconfig_id) if kubeconfig_id is not None else None
             )
             kubeconfig_secret_content = kubeconfig_secret.get_content()
             kubeconfig_string = kubeconfig_secret_content.get("kubeconfig")
+            if kubeconfig_string is None:
+                return None
             kubeconfig = yaml.safe_load(kubeconfig_string)
             return yaml.dump(kubeconfig)
         except (SecretNotFoundError, ModelError, yaml.YAMLError) as e:

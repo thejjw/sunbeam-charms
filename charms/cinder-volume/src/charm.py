@@ -29,9 +29,9 @@ from typing import (
     Mapping,
 )
 
-import charms.cinder_k8s.v0.storage_backend as sunbeam_storage_backend  # noqa
+import charms.cinder_k8s.v0.storage_backend as sunbeam_storage_backend  # type: ignore
 import charms.cinder_volume.v0.cinder_volume as sunbeam_cinder_volume  # noqa
-import charms.operator_libs_linux.v2.snap as snap
+import charms.operator_libs_linux.v2.snap as snap  # type: ignore[import-untyped]  # type: ignore[import-untyped]
 import ops
 import ops.charm
 import ops_sunbeam.charm as charm
@@ -235,10 +235,10 @@ class CinderVolumeOperatorCharm(charm.OSBaseOperatorCharmSnap):
         try:
             contexts = self.contexts()
             snap_data = {
-                "rabbitmq.url": contexts.amqp.transport_url,
-                "database.url": contexts.database.connection,
-                "cinder.project-id": contexts.identity_credentials.project_id,
-                "cinder.user-id": contexts.identity_credentials.username,
+                "rabbitmq.url": contexts.amqp.transport_url,  # type: ignore[attr-defined]
+                "database.url": contexts.database.connection,  # type: ignore[attr-defined]
+                "cinder.project-id": contexts.identity_credentials.project_id,  # type: ignore[attr-defined]
+                "cinder.user-id": contexts.identity_credentials.username,  # type: ignore[attr-defined]
                 "cinder.cluster": self.app.name,
                 "cinder.image-volume-cache-enabled": config(
                     "image-volume-cache-enabled"

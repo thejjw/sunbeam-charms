@@ -72,10 +72,10 @@ class ClusterdPeers(sunbeam_interfaces.OperatorPeers):
             **kwargs,
         )
 
-    def on_created(self, event: ops.RelationCreatedEvent) -> None:
+    def on_created(self, event: ops.RelationCreatedEvent) -> None:  # type: ignore[override]
         """Handle relation created event."""
 
-    def on_changed(self, event: ops.RelationChangedEvent) -> None:
+    def on_changed(self, event: ops.RelationChangedEvent) -> None:  # type: ignore[override]
         """Handle relation changed event."""
         keys = [
             key
@@ -88,15 +88,15 @@ class ClusterdPeers(sunbeam_interfaces.OperatorPeers):
                 # The seed node is implicitly joined, so there's no need to emit an event.
                 self.state.joined = True
 
-            if f"{event.unit.name}.join_token" in keys:
-                logger.debug(f"Already added {event.unit.name} to the cluster")
+            if f"{event.unit.name}.join_token" in keys:  # type: ignore[union-attr]
+                logger.debug(f"Already added {event.unit.name} to the cluster")  # type: ignore[union-attr]
                 return
 
             logger.debug("Emitting add_node event")
             self.on.add_node.emit(**self._event_args(event))
         else:
             # Node already joined as member of cluster
-            if self.state.joined:
+            if self.state.joined:  # type: ignore[truthy-function]
                 logger.debug(f"Node {self.model.unit.name} already joined")
                 return
 
@@ -114,7 +114,7 @@ class ClusterdPeers(sunbeam_interfaces.OperatorPeers):
             event_args["unit"] = self.model.unit
             self.on.node_added.emit(**event_args)
 
-    def on_joined(self, event: ops.RelationChangedEvent) -> None:
+    def on_joined(self, event: ops.RelationChangedEvent) -> None:  # type: ignore[override]
         """Handle relation joined event."""
         # Do nothing or raise an event to charm?
         pass
@@ -142,7 +142,7 @@ class ClusterdPeerHandler(sunbeam_rhandlers.BasePeerHandler):
 
     def __init__(
         self,
-        charm: ops.charm.CharmBase,
+        charm: sunbeam_charm.OSBaseOperatorCharm,
         relation_name: str,
         callback_f: Callable,
         mandatory: bool = False,
@@ -176,7 +176,7 @@ class ClusterdPeerHandler(sunbeam_rhandlers.BasePeerHandler):
         self.callback_f(event)
 
     def _on_node_added(self, event: ClusterdNodeAddedEvent):
-        if self.model.unit.name != event.unit.name:
+        if self.model.unit.name != event.unit.name:  # type: ignore[union-attr]
             logger.debug(
                 "Ignoring Node Added event, event received on other node"
             )

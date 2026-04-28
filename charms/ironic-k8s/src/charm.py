@@ -29,6 +29,7 @@ from typing import (
 )
 
 import ops
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.config_contexts as sunbeam_ctxts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
@@ -37,6 +38,9 @@ import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 from ops.charm import (
     RelationEvent,
+)
+from ops.pebble import (
+    LayerDict,
 )
 
 logger = logging.getLogger(__name__)
@@ -55,7 +59,7 @@ class IronicConfigurationContext(sunbeam_ctxts.ConfigContext):
     def context(self) -> dict:
         """Generate configuration information for ironic config."""
         ctxt = {
-            "public_url": self.charm.public_url,
+            "public_url": self.charm.public_url,  # type: ignore[attr-defined]
         }
         return ctxt
 
@@ -64,7 +68,7 @@ class IronicConfigurationContext(sunbeam_ctxts.ConfigContext):
 class IronicNoVNCProxyPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Ironic noVNC Proxy."""
 
-    def get_layer(self) -> dict:
+    def get_layer(self) -> LayerDict:
         """Ironic noVNC Proxy service layer.
 
         :returns: pebble layer configuration for the ironic-novncproxy service
@@ -186,7 +190,7 @@ class IronicOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def get_pebble_handlers(
         self,
-    ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
+    ) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the operator."""
         pebble_handlers = [
             sunbeam_chandlers.WSGIPebbleHandler(
@@ -268,7 +272,7 @@ class IronicOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return IRONIC_API_CONTAINER
 
     def get_relation_handlers(
-        self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
+        self, handlers: List[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for operator."""
         handlers = super().get_relation_handlers(handlers or [])
