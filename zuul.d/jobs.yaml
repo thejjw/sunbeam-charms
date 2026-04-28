@@ -574,6 +574,454 @@
       charm: openstack-port-cni-k8s
 
 - job:
+    name: charm-build-cinder-volume-datacore
+    description: Build sunbeam cinder-volume-datacore charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-datacore/
+      - rebuild
+    vars:
+      charm: cinder-volume-datacore
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-datera
+    description: Build sunbeam cinder-volume-datera charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-datera/
+      - rebuild
+    vars:
+      charm: cinder-volume-datera
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-dellpowermax
+    description: Build sunbeam cinder-volume-dellpowermax charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-dellpowermax/
+      - rebuild
+    vars:
+      charm: cinder-volume-dellpowermax
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-dellpowervault
+    description: Build sunbeam cinder-volume-dellpowervault charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-dellpowervault/
+      - rebuild
+    vars:
+      charm: cinder-volume-dellpowervault
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-fujitsueternusdx
+    description: Build sunbeam cinder-volume-fujitsueternusdx charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-fujitsueternusdx/
+      - rebuild
+    vars:
+      charm: cinder-volume-fujitsueternusdx
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-hpexp
+    description: Build sunbeam cinder-volume-hpexp charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-hpexp/
+      - rebuild
+    vars:
+      charm: cinder-volume-hpexp
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-ibmflashsystemcommon
+    description: Build sunbeam cinder-volume-ibmflashsystemcommon charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-ibmflashsystemcommon/
+      - rebuild
+    vars:
+      charm: cinder-volume-ibmflashsystemcommon
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-ibmflashsystemiscsi
+    description: Build sunbeam cinder-volume-ibmflashsystemiscsi charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-ibmflashsystemiscsi/
+      - rebuild
+    vars:
+      charm: cinder-volume-ibmflashsystemiscsi
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-ibmgpfs
+    description: Build sunbeam cinder-volume-ibmgpfs charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-ibmgpfs/
+      - rebuild
+    vars:
+      charm: cinder-volume-ibmgpfs
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-ibmibmstorage
+    description: Build sunbeam cinder-volume-ibmibmstorage charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-ibmibmstorage/
+      - rebuild
+    vars:
+      charm: cinder-volume-ibmibmstorage
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-ibmstorwizesvc
+    description: Build sunbeam cinder-volume-ibmstorwizesvc charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-ibmstorwizesvc/
+      - rebuild
+    vars:
+      charm: cinder-volume-ibmstorwizesvc
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-infinidat
+    description: Build sunbeam cinder-volume-infinidat charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-infinidat/
+      - rebuild
+    vars:
+      charm: cinder-volume-infinidat
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-inspuras13000
+    description: Build sunbeam cinder-volume-inspuras13000 charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-inspuras13000/
+      - rebuild
+    vars:
+      charm: cinder-volume-inspuras13000
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-inspurinstorage
+    description: Build sunbeam cinder-volume-inspurinstorage charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-inspurinstorage/
+      - rebuild
+    vars:
+      charm: cinder-volume-inspurinstorage
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-kaminario
+    description: Build sunbeam cinder-volume-kaminario charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-kaminario/
+      - rebuild
+    vars:
+      charm: cinder-volume-kaminario
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-linstor
+    description: Build sunbeam cinder-volume-linstor charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-linstor/
+      - rebuild
+    vars:
+      charm: cinder-volume-linstor
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-macrosan
+    description: Build sunbeam cinder-volume-macrosan charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-macrosan/
+      - rebuild
+    vars:
+      charm: cinder-volume-macrosan
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-necv
+    description: Build sunbeam cinder-volume-necv charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-necv/
+      - rebuild
+    vars:
+      charm: cinder-volume-necv
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-netapp
+    description: Build sunbeam cinder-volume-netapp charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-netapp/
+      - rebuild
+    vars:
+      charm: cinder-volume-netapp
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-nexenta
+    description: Build sunbeam cinder-volume-nexenta charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-nexenta/
+      - rebuild
+    vars:
+      charm: cinder-volume-nexenta
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-nimble
+    description: Build sunbeam cinder-volume-nimble charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-nimble/
+      - rebuild
+    vars:
+      charm: cinder-volume-nimble
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-opene
+    description: Build sunbeam cinder-volume-opene charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-opene/
+      - rebuild
+    vars:
+      charm: cinder-volume-opene
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-prophetstor
+    description: Build sunbeam cinder-volume-prophetstor charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-prophetstor/
+      - rebuild
+    vars:
+      charm: cinder-volume-prophetstor
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-qnap
+    description: Build sunbeam cinder-volume-qnap charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-qnap/
+      - rebuild
+    vars:
+      charm: cinder-volume-qnap
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-sandstone
+    description: Build sunbeam cinder-volume-sandstone charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-sandstone/
+      - rebuild
+    vars:
+      charm: cinder-volume-sandstone
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-solidfire
+    description: Build sunbeam cinder-volume-solidfire charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-solidfire/
+      - rebuild
+    vars:
+      charm: cinder-volume-solidfire
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-stx
+    description: Build sunbeam cinder-volume-stx charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-stx/
+      - rebuild
+    vars:
+      charm: cinder-volume-stx
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-synology
+    description: Build sunbeam cinder-volume-synology charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-synology/
+      - rebuild
+    vars:
+      charm: cinder-volume-synology
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-toyouacs5000
+    description: Build sunbeam cinder-volume-toyouacs5000 charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-toyouacs5000/
+      - rebuild
+    vars:
+      charm: cinder-volume-toyouacs5000
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-veritasaccess
+    description: Build sunbeam cinder-volume-veritasaccess charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-veritasaccess/
+      - rebuild
+    vars:
+      charm: cinder-volume-veritasaccess
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-yadro
+    description: Build sunbeam cinder-volume-yadro charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-yadro/
+      - rebuild
+    vars:
+      charm: cinder-volume-yadro
+      storage: true
+
+- job:
+    name: charm-build-cinder-volume-zadara
+    description: Build sunbeam cinder-volume-zadara charm
+    run: playbooks/charm/build.yaml
+    timeout: 3600
+    match-on-config-updates: false
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-zadara/
+      - rebuild
+    vars:
+      charm: cinder-volume-zadara
+      storage: true
+
+- job:
     name: func-test-core
     description: |
       Zaza smoke test for all the core sunbeam charms.

@@ -82,6 +82,70 @@
             nodeset: ubuntu-noble
         - charm-build-cinder-volume-hpe3par:
             nodeset: ubuntu-noble
+        - charm-build-cinder-volume-datacore:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-datera:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-dellpowermax:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-dellpowervault:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-fujitsueternusdx:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-hpexp:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-ibmflashsystemcommon:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-ibmflashsystemiscsi:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-ibmgpfs:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-ibmibmstorage:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-ibmstorwizesvc:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-infinidat:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-inspuras13000:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-inspurinstorage:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-kaminario:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-linstor:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-macrosan:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-necv:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-netapp:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-nexenta:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-nimble:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-opene:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-prophetstor:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-qnap:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-sandstone:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-solidfire:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-stx:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-synology:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-toyouacs5000:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-veritasaccess:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-yadro:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-zadara:
+            nodeset: ubuntu-noble
         - charm-build-epa-orchestrator:
             nodeset: ubuntu-noble
         - charm-build-horizon-k8s:
@@ -178,6 +242,70 @@
         - charm-build-cinder-volume-hitachi:
             nodeset: ubuntu-noble
         - charm-build-cinder-volume-hpe3par:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-datacore:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-datera:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-dellpowermax:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-dellpowervault:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-fujitsueternusdx:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-hpexp:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-ibmflashsystemcommon:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-ibmflashsystemiscsi:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-ibmgpfs:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-ibmibmstorage:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-ibmstorwizesvc:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-infinidat:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-inspuras13000:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-inspurinstorage:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-kaminario:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-linstor:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-macrosan:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-necv:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-netapp:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-nexenta:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-nimble:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-opene:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-prophetstor:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-qnap:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-sandstone:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-solidfire:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-stx:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-synology:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-toyouacs5000:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-veritasaccess:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-yadro:
+            nodeset: ubuntu-noble
+        - charm-build-cinder-volume-zadara:
             nodeset: ubuntu-noble
         - charm-build-epa-orchestrator:
             nodeset: ubuntu-noble
