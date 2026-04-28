@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a63debc4_1ae33559",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-04-28T12:16:30Z",
+      "side": 1,
+      "message": "We don\u0027t publish charms from the opendev ci anymore.",
+      "revId": "5854371bdf5fd78c87e88d488c79a588acf7a32c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
