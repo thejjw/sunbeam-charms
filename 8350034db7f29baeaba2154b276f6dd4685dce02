@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2f7dbef6_e3a8974b",
+        "filename": "charms/cinder-k8s/lib/charms/cinder_k8s/v0/storage_backend.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-04-28T06:36:55Z",
+      "side": 1,
+      "message": "You need to update libpatch when making changes to relation libs.",
+      "revId": "8350034db7f29baeaba2154b276f6dd4685dce02",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
