@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74b4a708_b9e55b4f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-04-28T14:22:27Z",
+      "side": 1,
+      "message": "The changes and commit message looks different",
+      "revId": "16398c276c19e60c1a8c7296e91874fa7e5371b8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bbce81dd_3bd20e42",
+        "filename": "tox.ini",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-04-28T14:22:27Z",
+      "side": 1,
+      "message": "why cant we use linters? isnt it linters run mypy? Or remove linters and keep it as mypy.",
+      "revId": "16398c276c19e60c1a8c7296e91874fa7e5371b8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
