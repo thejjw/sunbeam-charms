@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "917b7a2e9d0acfd92d373467961e7d06c34b6b7f",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9caa6c7b_643b76ca",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-04-29T16:09:12Z",
+      "side": 1,
+      "message": "Can you make it WIP as the PRs with storage charm changes are not backported.\nIf we merge this PR then any PR with changes in ops-sunbeam will fail looking for storage charm builds.",
+      "revId": "917b7a2e9d0acfd92d373467961e7d06c34b6b7f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
