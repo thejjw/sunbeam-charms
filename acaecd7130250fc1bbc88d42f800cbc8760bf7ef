@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b621b5f3_6aaac209",
+        "filename": "zuul.d/zuul.yaml",
+        "patchSetId": 20
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-04-29T15:12:17Z",
+      "side": 0,
+      "message": "Do we want to drop all the storage charms for 2026.1? (guess not)",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 77,
+        "endChar": 41
+      },
+      "revId": "acaecd7130250fc1bbc88d42f800cbc8760bf7ef",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
