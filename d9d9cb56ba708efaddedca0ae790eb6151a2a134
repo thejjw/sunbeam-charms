@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc183648_3e73163b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-04-29T06:57:28Z",
+      "side": 1,
+      "message": "I\u0027m really not a fan of using raw socket calls in k8s charms (we will if necessary). Did you raise a bug on Juju for that?",
+      "revId": "d9d9cb56ba708efaddedca0ae790eb6151a2a134",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
