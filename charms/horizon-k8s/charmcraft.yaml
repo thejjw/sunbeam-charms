@@ -29,7 +29,7 @@ config:
     session-timeout:
       type: int
       default: 3600
-      description:
+      description: |
         A method to supersede the token timeout with a shorter dashboard
         session timeout in seconds. For example, if your token expires in 60 minutes,
         a value of 1800 will log users out after 30 minutes.
@@ -190,6 +190,39 @@ config:
       description: |
         This option can be used to enable plugins for Horizon. The value should be a
         JSON formatted list of plugin names.
+    include-default-themes:
+      type: boolean 
+      default: true 
+      description: | 
+        This option can be used to disable the inclusion of upstream default horizon themes
+        (default + material).
+    include-ubuntu-theme:
+      type: boolean 
+      default: true
+      description: |
+        This option can be used to disable the inclusion of the default Ubuntu theme.
+    default-theme:
+      type: string
+      default: "ubuntu"
+      description: |
+        This option allows you to set the default theme for horizon.
+        Value should be the themes name (ubuntu, default, material or <custom-theme-name>).
+    custom-theme-name:
+      type: string
+      default: null 
+      description: |
+        This option can be used to specify a custom theme name.
+        This will specify the name that appears in the UI for your custom theme.
+        Requires custom-theme-archive to be set as well.
+    custom-theme-archive:
+      type: string
+      default: null
+      description: |
+       This option can be used to provide a custom horizon theme.
+       Option custom-theme-name must also be set.
+       Value should be a base64 encoded .tar.gz of the theme folder;
+       f.e. `tar -czf theme.tar.gz -C /path/to/your/custom_theme`, then 
+       `base64 -w 0 theme.tar.gz`.
 
 actions:
   get-dashboard-url:
