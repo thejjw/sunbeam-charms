@@ -19,6 +19,7 @@ This charm provide Horizon services as part of an OpenStack
 deployment
 """
 
+import base64
 import json
 import logging
 from typing import (
@@ -215,6 +216,25 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Retrieve the URL for the Horizon OpenStack Dashboard."""
         event.set_results({"url": self.public_url})
 
+    def _extract_custom_theme(self) -> None:
+        """Extract custom theme into the container and update assets."""
+        container = self.unit.get_container(self.service_name)
+        if not container.can_connect():
+            return
+
+        theme_name = self.config.get("custom-theme-name")
+        theme_archive = self.config.get("custom-theme-archive")
+
+        if theme_name and theme_archive:
+            archive_path = "/tmp/custom_theme.tar.gz"
+            theme_dir = f"/usr/share/openstack-dashboard/openstack_dashboard/themes/{theme_name}"
+
+            container.push(archive_path, base64.b64decode(theme_archive))
+            container.exec(["mkdir", "-p", theme_dir]).wait_output()
+            container.exec(["tar", "-xzf", archive_path, "-C", theme_dir]).wait_output()
+            container.exec(["rm", archive_path]).wait_output()
+            update_horizon_assets(container)
+
     @property
     def _websso_url(self) -> str:
         # remove redundant port if it exists. If we include the port,
@@ -329,6 +349,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Run configuration on this unit."""
         self.check_leader_ready()
         self.check_relation_handlers_ready(event)
+        self._extract_custom_theme()
         self.configure_containers()
         self.run_db_sync()
         self.init_container_services()
