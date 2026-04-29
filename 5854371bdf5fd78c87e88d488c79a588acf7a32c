@@ -16,6 +16,24 @@
       "message": "We don\u0027t publish charms from the opendev ci anymore.",
       "revId": "5854371bdf5fd78c87e88d488c79a588acf7a32c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "094f7acf_8f95ca82",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-04-29T05:29:17Z",
+      "side": 1,
+      "message": "Where do we add new token now and please share the new workflow. I don\u0027t find it under snap-openstack https://github.com/canonical/snap-openstack/actions/workflows/pr-python.yml or https://github.com/canonical/sunbeam-charms",
+      "parentUuid": "a63debc4_1ae33559",
+      "revId": "5854371bdf5fd78c87e88d488c79a588acf7a32c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
