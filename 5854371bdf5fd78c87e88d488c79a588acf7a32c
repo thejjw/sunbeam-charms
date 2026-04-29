@@ -34,6 +34,24 @@
       "parentUuid": "a63debc4_1ae33559",
       "revId": "5854371bdf5fd78c87e88d488c79a588acf7a32c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36934a5d_ecbe36c0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-04-29T05:38:52Z",
+      "side": 1,
+      "message": "nvm, i will add it to CHARMHUB_TOKEN IN https://github.com/canonical/sunbeam-charms-publisher",
+      "parentUuid": "094f7acf_8f95ca82",
+      "revId": "5854371bdf5fd78c87e88d488c79a588acf7a32c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
