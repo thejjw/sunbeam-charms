@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5bbc3ff_855c295a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-02T03:15:24Z",
+      "side": 1,
+      "message": "Please ensure this will be updated in all the storage charms",
+      "revId": "fd041f4e89eb02e330b1a1e4af7070ccadca67fb",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f99ef9c_112497ac",
+        "filename": "charms/storage/cinder-volume-zadara/pyproject.toml",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-02T03:15:24Z",
+      "side": 1,
+      "message": "Should be 2024.1 and regenerate uv.lock since this will be reflected in uv.lock file as well",
+      "revId": "fd041f4e89eb02e330b1a1e4af7070ccadca67fb",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
