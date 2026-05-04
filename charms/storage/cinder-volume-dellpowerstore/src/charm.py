@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #
-# Copyright 2025 Canonical Ltd.
+# Copyright 2026 Canonical Ltd.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ of an OpenStack deployment
 
 import logging
 import typing
-from typing import Optional, List
+from typing import (
+    Optional,
+)
 
 import ops
 import ops_sunbeam.charm as charm
@@ -35,7 +37,9 @@ logger = logging.getLogger(__name__)
 
 
 @sunbeam_tracing.trace_sunbeam_charm
-class CinderVolumeDellPowerStoreOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
+class CinderVolumeDellPowerStoreOperatorCharm(
+    charm.OSCinderVolumeDriverOperatorCharm
+):
     """Cinder/Dell PowerStore Operator charm."""
 
     service_name = "cinder-volume-dellpowerstore"
@@ -59,7 +63,6 @@ class CinderVolumeDellPowerStoreOperatorCharm(charm.OSCinderVolumeDriverOperator
             return []
 
         return [p.strip() for p in raw_ports.split(",") if p.strip()]
-
 
     def _configuration_type_overrides(self) -> dict[str, typing.Any]:
         """Configuration type overrides for pydantic model generation."""
@@ -90,7 +93,9 @@ class CinderVolumeDellPowerStoreOperatorCharm(charm.OSCinderVolumeDriverOperator
                 ],
                 "protocol": typing.Annotated[
                     typing.Optional[typing.Literal["fc", "iscsi"]],
-                    pydantic.BeforeValidator(lambda v: None if v is None else str(v).lower()),
+                    pydantic.BeforeValidator(
+                        lambda v: None if v is None else str(v).lower()
+                    ),
                 ],
                 "powerstore-nvme": Optional[bool],
                 "powerstore-ports": typing.Annotated[
