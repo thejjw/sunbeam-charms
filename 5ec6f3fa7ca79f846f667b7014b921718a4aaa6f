@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91328e41_9f062463",
+        "filename": "charms/aodh-k8s/pyproject.toml",
+        "patchSetId": 26
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-04T03:19:33Z",
+      "side": 1,
+      "message": "Can you change the version in pyproject.toml and uv.lock as well (for all the charms)\nAre you regenerating uv.lock file or updating it. I prefer to regenerate uv.lock file.",
+      "revId": "5ec6f3fa7ca79f846f667b7014b921718a4aaa6f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
