@@ -1,0 +1,130 @@
+type: charm
+name: cinder-volume-yadro
+summary: OpenStack volume service - Tatlin FCVolume backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with Tatlin FCVolume storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    protocol:
+      description: |
+        Protocol selector: fc, iscsi.
+      type: string
+      enum: [fc, iscsi]
+    pool-name:
+      default: null
+      description: |
+        storage pool name
+      type: string
+    api-port:
+      default: 443
+      description: |
+        Port to use to access the Tatlin API
+      type: int
+    export-ports:
+      default: null
+      description: |
+        Ports to export Tatlin resource through
+      type: string
+    host-group:
+      default: null
+      description: |
+        Tatlin host group name
+      type: string
+    max-resource-count:
+      default: 500
+      description: |
+        Max resource count allowed for Tatlin
+      type: int
+    pool-max-resource-count:
+      default: 250
+      description: |
+        Max resource count allowed for single pool
+      type: int
+    tat-api-retry-count:
+      default: 10
+      description: |
+        Number of retry on Tatlin API
+      type: int
+    auth-method:
+      default: CHAP
+      description: |
+        Authentication method for iSCSI (CHAP)
+      type: string
+    lba-format:
+      default: 512e
+      description: |
+        LBA Format for new volume
+      type: string
+    wait-retry-count:
+      default: 15
+      description: |
+        Number of checks for a lengthy operation to finish
+      type: int
+    wait-interval:
+      default: 30
+      description: |
+        Wait number of seconds before re-checking
+      type: int
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
