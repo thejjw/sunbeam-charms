@@ -1,0 +1,107 @@
+type: charm
+name: cinder-volume-synology
+summary: OpenStack volume service - Syno iSCSI backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with Syno iSCSI storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    san-ip:
+      description: |
+        Storage array management IP address or hostname.
+      type: string
+    synology-pool-name:
+      default: null
+      description: |
+        Volume on Synology storage to be used for creating lun.
+      type: string
+    synology-admin-port:
+      default: 5000
+      description: |
+        Management port for Synology storage.
+      type: int
+    synology-username:
+      default: admin
+      description: |
+        Administrator of Synology storage.
+      type: string
+    synology-password:
+      description: |
+        Password of administrator for logging in Synology storage.
+      type: secret
+    synology-ssl-verify:
+      default: true
+      description: |
+        Do certificate validation or not if $driver_use_ssl is True
+      type: boolean
+    synology-one-time-pass:
+      description: |
+        One time password of administrator for logging in Synology storage if OTP is enabled.
+      type: secret
+    synology-device-id:
+      default: null
+      description: |
+        Device id for skip one time password check for logging in Synology storage if OTP is enabled.
+      type: string
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
