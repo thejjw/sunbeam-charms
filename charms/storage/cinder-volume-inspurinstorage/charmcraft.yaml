@@ -1,0 +1,161 @@
+type: charm
+name: cinder-volume-inspurinstorage
+summary: OpenStack volume service - InStorageMCS FC backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with InStorageMCS FC storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    protocol:
+      description: |
+        Protocol selector: fc, iscsi.
+      type: string
+    san-ip:
+      description: |
+        IP address of SAN controller
+      type: string
+    san-login:
+      description: |
+        Username for SAN controller
+      type: secret
+    san-password:
+      description: |
+        Password for SAN controller
+      type: secret
+    instorage-mcs-vol-autoexpand:
+      default: true
+      description: |
+        Storage system autoexpand parameter for volumes (True/False)
+      type: boolean
+    instorage-mcs-vol-compression:
+      default: false
+      description: |
+        Storage system compression option for volumes
+      type: boolean
+    instorage-mcs-vol-intier:
+      default: true
+      description: |
+        Enable InTier for volumes
+      type: boolean
+    instorage-mcs-allow-tenant-qos:
+      default: false
+      description: |
+        Allow tenants to specify QOS on create
+      type: boolean
+    instorage-mcs-vol-grainsize:
+      default: 256
+      description: |
+        Storage system grain size parameter for volumes (32/64/128/256)
+      type: int
+    instorage-mcs-vol-rsize:
+      default: 2
+      description: |
+        Storage system space-efficiency parameter for volumes (percentage)
+      type: int
+    instorage-mcs-vol-warning:
+      default: 0
+      description: |
+        Storage system threshold for volume capacity warnings (percentage)
+      type: int
+    instorage-mcs-localcopy-timeout:
+      default: 120
+      description: |
+        Maximum number of seconds to wait for LocalCopy to be prepared.
+      type: int
+    instorage-mcs-localcopy-rate:
+      default: 50
+      description: |
+        Specifies the InStorage LocalCopy copy rate to be used when creating a full volume copy.
+      type: int
+    instorage-mcs-vol-iogrp:
+      default: "0"
+      description: |
+        The I/O group in which to allocate volumes.
+      type: string
+    instorage-san-secondary-ip:
+      default: null
+      description: |
+        Specifies secondary management IP or hostname to be used if san_ip is invalid or becomes inaccessible.
+      type: string
+    instorage-mcs-volpool-name:
+      default: volpool
+      description: |
+        Comma separated list of storage system storage pools for volumes.
+      type: string
+    instorage-mcs-iscsi-chap-enabled:
+      default: true
+      description: |
+        Configure CHAP authentication for iSCSI connections (Default: Enabled)
+      type: boolean
+    san-thin-provision:
+      default: true
+      description: |
+        Use thin provisioning for SAN volumes?
+      type: boolean
+    use-multipath-for-image-xfer:
+      default: true
+      description: |
+        Enable multipathing for image transfer operations.
+      type: boolean
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
