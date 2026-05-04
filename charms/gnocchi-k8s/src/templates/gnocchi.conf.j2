@@ -24,6 +24,7 @@ driver = ceph
 ceph_pool = gnocchi
 ceph_username = gnocchi
 ceph_conffile = /etc/ceph/ceph.conf
+ceph_timeout = {{ options.ceph_timeout }}
 {% endif %}
 
 [metricd]
