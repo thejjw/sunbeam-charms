@@ -1,0 +1,244 @@
+type: charm
+name: cinder-volume-netapp
+summary: OpenStack volume service - NetApp ONTAP backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with NetApp ONTAP storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    # RULES for vendor-specific options:
+    # 1. Secret fields MUST use `type: secret` (NOT `type: string`)
+    # 2. Required fields (like san-ip) should NOT have `default: null` - omit the default key entirely
+    # 3. Optional fields use `default: null` or their explicit default from the spec
+    # CRITICAL: ALL config options from the driver spec MUST appear here, including:
+    #   - driver-ssl-cert (always required unless explicitly in remove_base_config)
+    #   - san-ip (for SAN-based drivers)
+    #   - Every vendor-specific option — do not omit any
+    san-ip:
+      description: Storage array management IP address or hostname.
+      type: string
+    protocol:
+      description: "Protocol selector: iscsi, nvme."
+      type: string
+      enum:
+        - iscsi
+        - nvme
+    netapp-storage-family:
+      description: The storage family type used on the storage system; the only valid value is ontap_cluster for using clustered Data ONTAP.
+      type: string
+      default: ontap_cluster
+    netapp-storage-protocol:
+      description: The storage protocol to be used on the data path with the storage system.
+      type: string
+      enum:
+        - iscsi
+        - fc
+        - nfs
+        - nvme
+    netapp-server-hostname:
+      description: The hostname (or IP address) for the storage system or proxy server.
+      type: string
+      default: null
+    netapp-server-port:
+      description: The TCP port to use for communication with the storage system or proxy server.
+      type: int
+      default: null
+    netapp-use-legacy-client:
+      description: Select which ONTAP client to use for retrieving and modifying data on the storage.
+      type: boolean
+      default: true
+    netapp-async-rest-timeout:
+      description: The maximum time in seconds to wait for completing a REST asynchronous operation.
+      type: int
+      default: 60
+    netapp-transport-type:
+      description: The transport protocol used when communicating with the storage system or proxy server.
+      type: string
+      default: http
+      enum:
+        - http
+        - https
+    netapp-ssl-cert-path:
+      description: The path to a CA_BUNDLE file or directory with certificates of trusted CA.
+      type: string
+      default: null
+    netapp-login:
+      description: Administrative user account name used to access the storage system or proxy server.
+      type: string
+      default: null
+    netapp-password:
+      description: Password for the administrative user account specified in the netapp_login option.
+      type: secret
+      default: null
+    netapp-private-key-file:
+      description: Absolute path to the file containing the private key associated with the certificate.
+      type: secret
+      default: null
+    netapp-certificate-file:
+      description: Absolute path to the file containing the digital certificate.
+      type: secret
+      default: null
+    netapp-ca-certificate-file:
+      description: Absolute path to the file containing the public key certificate of the trusted CA.
+      type: secret
+    netapp-certificate-host-validation:
+      description: Enable certificate verification for host validation.
+      type: boolean
+      default: false
+    netapp-size-multiplier:
+      description: Multiplier for requested volume size to ensure enough space.
+      type: string
+      default: null
+    netapp-lun-space-reservation:
+      description: Determines if storage space is reserved for LUN allocation.
+      type: string
+      default: enabled
+      enum:
+        - enabled
+        - disabled
+    netapp-driver-reports-provisioned-capacity:
+      description: Enable querying of storage system to calculate volumes provisioned size.
+      type: boolean
+      default: false
+    netapp-vserver:
+      description: Virtual storage server (Vserver) name on the storage cluster.
+      type: string
+      default: null
+    netapp-disaggregated-platform:
+      description: Enable ASA r2 workflows for NetApp disaggregated platform.
+      type: boolean
+      default: false
+    netapp-nfs-image-cache-cleanup-interval:
+      description: Time in seconds between NFS image cache cleanup tasks.
+      type: int
+      default: 600
+    thres-avl-size-perc-start:
+      description: Percentage of available space for an NFS share to trigger cache cleaning.
+      type: int
+      default: 20
+    thres-avl-size-perc-stop:
+      description: Percentage of available space on an NFS share to stop cache cleaning.
+      type: int
+      default: 60
+    expiry-thres-minutes:
+      description: Threshold for last access time for images in the NFS image cache.
+      type: int
+      default: 720
+    netapp-lun-ostype:
+      description: Type of operating system that will access a LUN exported from Data ONTAP.
+      type: string
+      default: null
+    netapp-namespace-ostype:
+      description: Type of operating system that will access a namespace exported from Data ONTAP.
+      type: string
+      default: null
+    netapp-host-type:
+      description: Type of operating system for all initiators that can access a LUN.
+      type: string
+      default: null
+    netapp-pool-name-search-pattern:
+      description: Regular expression to restrict provisioning to specified pools.
+      type: string
+      default: (.+)
+    netapp-lun-clone-busy-timeout:
+      description: Maximum time to retry LUN clone operation when device busy error occurs.
+      type: int
+      default: 30
+    netapp-lun-clone-busy-interval:
+      description: Time interval to retry LUN clone operation when device busy error occurs.
+      type: int
+      default: 3
+    netapp-dedupe-cache-expiry-duration:
+      description: Time interval between updates of netapp_dedupe_used_percent for ONTAP backend pools.
+      type: int
+      default: 600
+    netapp-performance-cache-expiry-duration:
+      description: Time interval between updates of performance utilization for ONTAP backend pools.
+      type: int
+      default: 300
+    netapp-replication-aggregate-map:
+      description: Aggregate mapping between source and destination back ends for replication.
+      type: string
+      default: null
+    netapp-snapmirror-quiesce-timeout:
+      description: Maximum time to wait for existing SnapMirror transfers to complete before aborting.
+      type: int
+      default: 3600
+    netapp-replication-volume-online-timeout:
+      description: Time to wait for a replication volume create to complete and go online.
+      type: int
+      default: 360
+    netapp-replication-policy:
+      description: Replication policy to be used while creating snapmirror relationship.
+      type: string
+      default: MirrorAllSnapshots
+    netapp-api-trace-pattern:
+      description: Regular expression to limit the API tracing.
+      type: string
+      default: (.*)
+    netapp-migrate-volume-timeout:
+      description: Time to wait for storage assisted volume migration to complete.
+      type: int
+      default: 3600
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
