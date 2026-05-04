@@ -40,6 +40,15 @@ config:
         rbd pool has been created, changing this value will not have any
         effect (although it can be changed in ceph by manually configuring
         your ceph cluster).
+    ceph-timeout:
+      type: int
+      default: 30
+      description: |
+        Timeout in seconds for Ceph client operations. This value controls
+        how long the Ceph client will wait for OSD operations, monitor
+        operations, and the initial cluster connection before raising a
+        timeout error. This only applies when using Ceph as a storage
+        backend.
     ceph-pool-weight:
       type: int
       default: 20
