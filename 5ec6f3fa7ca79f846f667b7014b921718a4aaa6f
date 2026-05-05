@@ -18,6 +18,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f4d5b879_9dd5571c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 26
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2026-05-05T14:47:45Z",
+      "side": 1,
+      "message": "Done. Thanks Hemanth.",
+      "parentUuid": "964e4010_889583bf",
+      "revId": "5ec6f3fa7ca79f846f667b7014b921718a4aaa6f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "91328e41_9f062463",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-05-04T03:19:33Z",
       "side": 1,
       "message": "Can you change the version in pyproject.toml and uv.lock as well (for all the charms)\nAre you regenerating uv.lock file or updating it. I prefer to regenerate uv.lock file.",
+      "revId": "5ec6f3fa7ca79f846f667b7014b921718a4aaa6f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "72f5769b_ce488e6c",
+        "filename": "charms/aodh-k8s/pyproject.toml",
+        "patchSetId": 26
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2026-05-05T14:47:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91328e41_9f062463",
       "revId": "5ec6f3fa7ca79f846f667b7014b921718a4aaa6f",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
