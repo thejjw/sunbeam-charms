@@ -33,6 +33,23 @@
       "message": "I see https://review.opendev.org/c/openstack/sunbeam-charms/+/980079 is getting closer, will rebase once that merges",
       "revId": "764f9f5bbacc8350c321eb1b8de5bfcfd178263d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f321df64_f1e9705c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1131
+      },
+      "writtenOn": "2026-05-05T20:48:14Z",
+      "side": 1,
+      "message": "recheck make sure still works",
+      "revId": "764f9f5bbacc8350c321eb1b8de5bfcfd178263d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
