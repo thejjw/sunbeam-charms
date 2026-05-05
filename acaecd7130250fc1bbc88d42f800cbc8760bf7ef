@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ccb1f072_4d380fae",
+        "filename": "charms/horizon-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-05T09:03:25Z",
+      "side": 0,
+      "message": "Can we not have unrelated change as part of this review?",
+      "revId": "acaecd7130250fc1bbc88d42f800cbc8760bf7ef",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2d78f93b_931b34af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-05T09:03:25Z",
+      "side": 1,
+      "message": "Thanks for the contribution,\n\nWe need to managed this with a named resource, mainly for:\n- traceability\n- ensure that the pod keeps the file. (refreshing the charm for example, will drop the temporary archive)\n\nPlease take as an example:\nhttps://documentation.ubuntu.com/ops/latest/howto/manage-resources/",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3e01f1ad_0b69fd71",
+        "filename": "charms/horizon-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-05T09:03:25Z",
+      "side": 1,
+      "message": "Same",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4a87e53_d4303255",
+        "filename": "charms/horizon-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-05T09:03:25Z",
+      "side": 1,
+      "message": "Is there a specific reason we want to disable the ubuntu theme for being selectable?",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 202,
+        "endChar": 84
+      },
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6381c429_a3edade8",
+        "filename": "charms/horizon-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-05T09:03:25Z",
+      "side": 1,
+      "message": "How do you expect to get this file into the container then?",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
