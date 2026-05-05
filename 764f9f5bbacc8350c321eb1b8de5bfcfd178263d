@@ -16,6 +16,23 @@
       "message": "sunbeam-charms are not yet published to 2026.1/edge and  main publishes charms to 2025.1/edge. Deferring review until sunbeam-charms start publishing to 2026.1",
       "revId": "764f9f5bbacc8350c321eb1b8de5bfcfd178263d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdbc3d77_dbfd8bc2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1131
+      },
+      "writtenOn": "2026-05-05T20:47:51Z",
+      "side": 1,
+      "message": "I see https://review.opendev.org/c/openstack/sunbeam-charms/+/980079 is getting closer, will rebase once that merges",
+      "revId": "764f9f5bbacc8350c321eb1b8de5bfcfd178263d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
