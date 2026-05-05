@@ -73,6 +73,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c1ceb4eb_0671a98c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-05T12:29:33Z",
+      "side": 1,
+      "message": "That would essentially force in sunbeam to:\nresource_id\u003d$(juju attach-resource..)\nthen terraform apply -var\u003ddashboard-theme-resource\u003d$resource_id\n\n(this is just high level description)",
+      "parentUuid": "3f016b9e_71e2dd3b",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3e01f1ad_0b69fd71",
         "filename": "charms/horizon-k8s/charmcraft.yaml",
         "patchSetId": 3
