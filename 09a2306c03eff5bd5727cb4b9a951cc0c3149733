@@ -20,6 +20,41 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "68b588e2_29b4be26",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-05-05T12:08:40Z",
+      "side": 1,
+      "message": "My choice to not use a managed resource was deliberate. As brought up by you in the product feedback jira ticket, the juju terraform provider does not have support for local file path resources. It does support managed resources but only pulling from charmhub or oci-container registries. Since this resource would not be an oci image you would need to upload the theme you wanted to use to charmhub beforehand in order for it to integrate with the terraform provider. This eliminates the core purpose of this feature by gating what themes can be used in the terraform provider (and thus sunbeam) to what is uploaded by the charmhub maintainers for this charm. It is possible I misunderstand who has upload permission for managed resources to a charm on charmhub, but regardless, I do not think end-users would want to expose every and all theme they us to all of charmhub.\n\nI do agree that my solution is hacky when compared to the intended way to manage files and it would not be needed if the intent was for people to define the resource path at deploy time (where local file paths WOULD be supported). However, since the whole purpose of this feature is to integrate with sunbeam we cannot use managed resources due to the terraform provider restrictions.\n\nMaybe my understanding of the interaction between the juju terraform provider and managed resources is incorrect, in which case I would be open to advice as I am somewhat of a novice when it comes to terraform.\n\n------------------------\n\nAs for the comment on refresh reverting the change, I would need to test this as I am not sure of the interaction. Does `configure_unit` not get called on refresh? I am not sure of the answer but claude seems convinced that it is in the codepath of every reconciliation that could happen to a charm (config_changed, pebble_ready, **upgrade_charm**, etc.) That fact that it should be in the codepath of pebble_ready event means that the file should exist even if the pod in k8s is manually destroyed and automatically reconciled from the Deployment (if my understanding of k8s+juju interaction is correct). If my understanding is missing something feel free to correct and advise on next steps.",
+      "parentUuid": "2d78f93b_931b34af",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "698aef75_d15eb640",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-05-05T12:08:40Z",
+      "side": 1,
+      "message": "Thank you for your feedback, I have responded with rational for all decisions questioned and look forward to your advise on how to proceed.",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3e01f1ad_0b69fd71",
         "filename": "charms/horizon-k8s/charmcraft.yaml",
         "patchSetId": 3
@@ -31,6 +66,24 @@
       "writtenOn": "2026-05-05T09:03:25Z",
       "side": 1,
       "message": "Same",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "845347f2_1710e2be",
+        "filename": "charms/horizon-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-05-05T12:08:40Z",
+      "side": 1,
+      "message": "Same as above",
+      "parentUuid": "3e01f1ad_0b69fd71",
       "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -60,6 +113,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a33e5a90_7bc92344",
+        "filename": "charms/horizon-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-05-05T12:08:40Z",
+      "side": 1,
+      "message": "For completeness. The purpose of custom themeing is for end-users who will be handing off access to their openstack instances to their own clients and do not want any branding affiliated with canonical/ubuntu. They may not want the ubuntu theme selectable to them.\n\nEven with that rational aside, it is an easy toggle to enable; why not give the end-user more control?",
+      "parentUuid": "d4a87e53_d4303255",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 202,
+        "endChar": 84
+      },
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6381c429_a3edade8",
         "filename": "charms/horizon-k8s/src/charm.py",
         "patchSetId": 3
@@ -71,6 +148,24 @@
       "writtenOn": "2026-05-05T09:03:25Z",
       "side": 1,
       "message": "How do you expect to get this file into the container then?",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "68c3184e_c0e6e6d4",
+        "filename": "charms/horizon-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-05-05T12:08:40Z",
+      "side": 1,
+      "message": "I am not sure what the question here is. This code calls `container.push` to upload the archive and then uses `container.exec` to extract it inside of the container. The file is at no point on the host/controller system. It gets decoded straight from base64 stored as config option into the container at configure time.",
+      "parentUuid": "6381c429_a3edade8",
       "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }

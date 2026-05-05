@@ -16,6 +16,24 @@
       "message": "Can we not have unrelated change as part of this review?",
       "revId": "acaecd7130250fc1bbc88d42f800cbc8760bf7ef",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36f4686f_5a6bd735",
+        "filename": "charms/horizon-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-05-05T12:08:40Z",
+      "side": 0,
+      "message": "Must have been my auto-format on file save. Will remove on next patchset after path forward is decided.",
+      "parentUuid": "ccb1f072_4d380fae",
+      "revId": "acaecd7130250fc1bbc88d42f800cbc8760bf7ef",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
