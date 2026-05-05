@@ -91,6 +91,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "37bf13a9_888f7c16",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-05-05T13:55:39Z",
+      "side": 1,
+      "message": "Your explanation seems cromulent enough for me and my little knowledge of terraform. I will re implement with managed resource when I get the time.",
+      "parentUuid": "c1ceb4eb_0671a98c",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3e01f1ad_0b69fd71",
         "filename": "charms/horizon-k8s/charmcraft.yaml",
         "patchSetId": 3
