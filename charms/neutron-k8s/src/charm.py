@@ -723,7 +723,7 @@ class OVNContext(sunbeam_ctxts.ConfigContext):
     def context(self) -> dict:
         """Configuration context."""
         return {
-            "extension_drivers": "port_security,qos,dns_domain_ports,port_forwarding,uplink_status_propagation",
+            "extension_drivers": "port_security,qos,dns_domain_ports,port_forwarding,uplink_status_propagation,port_numa_affinity_policy,port_hardware_offload_type",
             "type_drivers": "geneve,vlan,flat",
             "tenant_network_types": "geneve,vlan,flat",
             # Limiting defaults to 2**16 -1 even though geneve vni max is 2**24-1
