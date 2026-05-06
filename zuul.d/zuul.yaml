@@ -44,6 +44,38 @@
         cinder-volume-purestorage: 2024.1/edge
         cinder-volume-hitachi: 2024.1/edge
         cinder-volume-hpe3par: 2024.1/edge
+        cinder-volume-datacore: 2024.1/edge
+        cinder-volume-datera: 2024.1/edge
+        cinder-volume-dellpowermax: 2024.1/edge
+        cinder-volume-dellpowervault: 2024.1/edge
+        cinder-volume-fujitsueternusdx: 2024.1/edge
+        cinder-volume-hpexp: 2024.1/edge
+        cinder-volume-ibmflashsystemcommon: 2024.1/edge
+        cinder-volume-ibmflashsystemiscsi: 2024.1/edge
+        cinder-volume-ibmgpfs: 2024.1/edge
+        cinder-volume-ibmibmstorage: 2024.1/edge
+        cinder-volume-ibmstorwizesvc: 2024.1/edge
+        cinder-volume-infinidat: 2024.1/edge
+        cinder-volume-inspuras13000: 2024.1/edge
+        cinder-volume-inspurinstorage: 2024.1/edge
+        cinder-volume-kaminario: 2024.1/edge
+        cinder-volume-linstor: 2024.1/edge
+        cinder-volume-macrosan: 2024.1/edge
+        cinder-volume-necv: 2024.1/edge
+        cinder-volume-netapp: 2024.1/edge
+        cinder-volume-nexenta: 2024.1/edge
+        cinder-volume-nimble: 2024.1/edge
+        cinder-volume-opene: 2024.1/edge
+        cinder-volume-prophetstor: 2024.1/edge
+        cinder-volume-qnap: 2024.1/edge
+        cinder-volume-sandstone: 2024.1/edge
+        cinder-volume-solidfire: 2024.1/edge
+        cinder-volume-stx: 2024.1/edge
+        cinder-volume-synology: 2024.1/edge
+        cinder-volume-toyouacs5000: 2024.1/edge
+        cinder-volume-veritasaccess: 2024.1/edge
+        cinder-volume-yadro: 2024.1/edge
+        cinder-volume-zadara: 2024.1/edge
         horizon-k8s: 2024.1/edge
         heat-k8s: 2024.1/edge
         ironic-k8s: 2024.1/edge
