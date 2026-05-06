@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a52b663b_881bd16e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 30
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-06T02:17:37Z",
+      "side": 1,
+      "message": "Myles, seems like something to look into further\n\nhypervisor                 blocked      1  openstack-hypervisor                  0  no       (workload) Error in charm (see logs): snap change \u0027configure-snap\u0027 id 89 failed with status Error",
+      "revId": "eb57219b1c60d072e73b7b96baa346677a52ed6e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
