@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Unit tests for Cinder infinidat operator charm."""
+"""Unit tests for Cinder Infinidat operator charm."""
 
 from unittest.mock import (
     MagicMock,
@@ -25,6 +25,8 @@ from unittest.mock import (
 import charm
 import ops.testing
 import ops_sunbeam.test_utils as test_utils
+import pydantic
+import pytest
 
 
 class _CinderVolumeInfinidatOperatorCharm(charm.CinderVolumeInfinidatOperatorCharm):
@@ -79,15 +81,22 @@ class TestCinderInfinidatOperatorCharm(test_utils.CharmTestCase):
     def test_all_relations(self):
         """Test charm in context of full set of relations."""
         self.harness.begin_with_initial_hooks()
-        # Add secret for the secret-type config field
         secret_login = self.harness.add_user_secret({"san-login": "test-login"})
-        secret_password = self.harness.add_user_secret({"san-password": "test-password"})
+        secret_password = self.harness.add_user_secret(
+            {"san-password": "test-password"}
+        )
         add_complete_cinder_volume_relation(self.harness)
         self.harness.grant_secret(secret_login, self.harness.charm.app)
         self.harness.grant_secret(secret_password, self.harness.charm.app)
-        # Update config with required fields and the secret reference
         self.harness.update_config(
-            {"san-ip": "10.20.20.3", "san-login": secret_login, "san-password": secret_password}
+            {
+                "san-ip": "10.20.20.3",
+                "san-login": secret_login,
+                "san-password": secret_password,
+                "infinidat-pool-name": "pool1",
+                "protocol": "iscsi",
+                "infinidat-iscsi-netspaces": "netspace1",
+            }
         )
         self.harness.evaluate_status()
         self.assertSetEqual(
@@ -96,3 +105,147 @@ class TestCinderInfinidatOperatorCharm(test_utils.CharmTestCase):
             ),
             set(),
         )
+
+
+class TestInfinidatConfigValidation(test_utils.CharmTestCase):
+    """Test cases for Infinidat configuration validation."""
+
+    PATCHES = []
+
+    def setUp(self):
+        """Setup fixtures ready for testing."""
+        super().setUp(charm, self.PATCHES)
+        self.snap = Mock()
+        snap_patch = patch.object(
+            _CinderVolumeInfinidatOperatorCharm,
+            "_import_snap",
+            Mock(return_value=self.snap),
+        )
+        snap_patch.start()
+        self.harness = test_utils.get_harness(
+            _CinderVolumeInfinidatOperatorCharm,
+            container_calls=self.container_calls,
+        )
+        self.addCleanup(snap_patch.stop)
+        self.addCleanup(self.harness.cleanup)
+        self.harness.begin_with_initial_hooks()
+
+    def _get_config_class(self):
+        """Return the configuration class from the charm."""
+        return self.harness.charm.configuration_class
+
+    def _mock_secret(self, data):
+        """Create a mock ops.Secret that returns the given data."""
+        secret = Mock()
+        secret.get_content.return_value = data
+        return secret
+
+    def test_iscsi_requires_netspaces(self):
+        """Validation fails when protocol is iscsi without netspaces."""
+        config_class = self._get_config_class()
+        with pytest.raises(
+            pydantic.ValidationError, match="infinidat-iscsi-netspaces"
+        ):
+            config_class(
+                san_ip="10.20.20.3",
+                san_login=self._mock_secret({"san-login": "admin"}),
+                san_password=self._mock_secret({"san-password": "secret123"}),
+                infinidat_pool_name="pool1",
+                protocol="iscsi",
+            )
+
+    def test_iscsi_with_netspaces_passes(self):
+        """Validation passes when protocol is iscsi with netspaces set."""
+        config_class = self._get_config_class()
+        config = config_class(
+            san_ip="10.20.20.3",
+            san_login=self._mock_secret({"san-login": "admin"}),
+            san_password=self._mock_secret({"san-password": "secret123"}),
+            infinidat_pool_name="pool1",
+            protocol="iscsi",
+            infinidat_iscsi_netspaces="netspace1",
+        )
+        self.assertEqual(config.protocol, "iscsi")
+        self.assertEqual(config.infinidat_iscsi_netspaces, "netspace1")
+
+    def test_fc_without_netspaces_passes(self):
+        """Validation passes when protocol is fc without netspaces."""
+        config_class = self._get_config_class()
+        config = config_class(
+            san_ip="10.20.20.3",
+            san_login=self._mock_secret({"san-login": "admin"}),
+            san_password=self._mock_secret({"san-password": "secret123"}),
+            infinidat_pool_name="pool1",
+            protocol="fc",
+        )
+        self.assertEqual(config.protocol, "fc")
+        self.assertIsNone(config.infinidat_iscsi_netspaces)
+
+    def test_protocol_defaults_to_iscsi(self):
+        """Protocol should default to iscsi from charm config metadata."""
+        config_class = self._get_config_class()
+        config = config_class(
+            san_ip="10.20.20.3",
+            san_login=self._mock_secret({"san-login": "admin"}),
+            san_password=self._mock_secret({"san-password": "secret123"}),
+            infinidat_pool_name="pool1",
+            infinidat_iscsi_netspaces="netspace1",
+        )
+        self.assertEqual(config.protocol, "iscsi")
+
+    def test_use_chap_auth_defaults_true(self):
+        """CHAP auth should default to true from charm config metadata."""
+        config_class = self._get_config_class()
+        config = config_class(
+            san_ip="10.20.20.3",
+            san_login=self._mock_secret({"san-login": "admin"}),
+            san_password=self._mock_secret({"san-password": "secret123"}),
+            infinidat_pool_name="pool1",
+            protocol="fc",
+        )
+        self.assertTrue(config.use_chap_auth)
+
+    def test_chap_username_requires_password(self):
+        """Setting a CHAP username without a password fails validation."""
+        config_class = self._get_config_class()
+        with pytest.raises(pydantic.ValidationError, match="chap_password"):
+            config_class(
+                san_ip="10.20.20.3",
+                san_login=self._mock_secret({"san-login": "admin"}),
+                san_password=self._mock_secret({"san-password": "secret123"}),
+                infinidat_pool_name="pool1",
+                protocol="fc",
+                chap_username=self._mock_secret(
+                    {"chap-username": "chap-user"}
+                ),
+            )
+
+    def test_chap_password_requires_username(self):
+        """Setting a CHAP password without a username fails validation."""
+        config_class = self._get_config_class()
+        with pytest.raises(pydantic.ValidationError, match="chap_username"):
+            config_class(
+                san_ip="10.20.20.3",
+                san_login=self._mock_secret({"san-login": "admin"}),
+                san_password=self._mock_secret({"san-password": "secret123"}),
+                infinidat_pool_name="pool1",
+                protocol="fc",
+                chap_password=self._mock_secret(
+                    {"chap-password": "chap-pass"}
+                ),
+            )
+
+    def test_chap_credentials_pair_passes(self):
+        """Supplying both CHAP credentials passes validation."""
+        config_class = self._get_config_class()
+        config = config_class(
+            san_ip="10.20.20.3",
+            san_login=self._mock_secret({"san-login": "admin"}),
+            san_password=self._mock_secret({"san-password": "secret123"}),
+            infinidat_pool_name="pool1",
+            protocol="fc",
+            chap_username=self._mock_secret({"chap-username": "chap-user"}),
+            chap_password=self._mock_secret({"chap-password": "chap-pass"}),
+        )
+        self.assertEqual(config.chap_username, "chap-user")
+        self.assertEqual(config.chap_password, "chap-pass")
