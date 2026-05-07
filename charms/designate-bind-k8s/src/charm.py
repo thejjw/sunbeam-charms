@@ -23,6 +23,7 @@ import hmac
 import json
 import logging
 import secrets
+import socket
 from typing import (
     Dict,
     Iterable,
@@ -110,21 +111,28 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
         self.callback_f(event)
 
     def refresh_address(self):
-        """Refresh address on every instance of the relation."""
-        if not self.charm.unit.is_leader():
-            logger.debug("Not leader, skipping refresh_address")
-            return
+        """Refresh address on every instance of the relation.
+
+        The leader publishes the ClusterIP as the app-level `host`.
+        Every unit publishes its own headless service DNS
+        address as unit-level `host`.
+        """
+        unit_host = socket.getfqdn()
         for relation in self._relations:
-            binding = self.model.get_binding(relation)
-            if binding is None:
-                logger.warning(
-                    "No binding found for relation '%s:%d'",
-                    relation.name,
-                    relation.id,
-                )
-                continue
-            address = binding.network.ingress_address
-            self.interface.set_host(relation, str(address))
+            if self.charm.unit.is_leader():
+                binding = self.model.get_binding(relation)
+                if binding is None:
+                    logger.warning(
+                        "No binding found for relation '%s:%d'",
+                        relation.name,
+                        relation.id,
+                    )
+                    continue
+                address = binding.network.ingress_address
+                self.interface.set_host(relation, str(address))
+
+            if unit_host:
+                self.interface.set_unit_host(relation, unit_host)
 
     @property
     def _relations(self) -> List[ops.Relation]:
