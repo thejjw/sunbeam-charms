@@ -76,7 +76,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 1
+LIBPATCH = 2
 
 
 class BindRndcConnectedEvent(ops.EventBase):
@@ -197,6 +197,24 @@ class BindRndcRequires(ops.Object):
             return None
         return relation.data[relation.app].get("host")
 
+    def get_all_hosts(self, relation: ops.Relation) -> List[str]:
+        """Return all per-unit hosts from provider unit data.
+
+        Each bind unit publishes its own address in unit-level relation
+        data under the key `host`.  If no unit-level hosts are found,
+        fall back to the app-level `host` for backwards compatibility.
+        """
+        hosts: List[str] = []
+        for unit in relation.units:
+            unit_host = relation.data[unit].get("host")
+            if unit_host:
+                hosts.append(unit_host)
+        if not hosts:
+            app_host = self.host(relation)
+            if app_host:
+                hosts.append(app_host)
+        return hosts
+
     def nonce(self, relation: ops.Relation) -> Optional[str]:
         """Return nonce from relation."""
         return relation.data[self.charm.unit].get("nonce")
@@ -313,6 +331,13 @@ class BindRndcProvides(ops.Object):
             logger.debug("Not leader, skipping set_host")
             return
         relation.data[self.charm.app]["host"] = host
+
+    def set_unit_host(self, relation: ops.Relation, host: str):
+        """Set per-unit host on the relation.
+
+        Each unit publishes its own address.
+        """
+        relation.data[self.charm.unit]["host"] = host
 
     def get_rndc_keys(self, relation: ops.Relation) -> dict:
         """Get rndc keys."""

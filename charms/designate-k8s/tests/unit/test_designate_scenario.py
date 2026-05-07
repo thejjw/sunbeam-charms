@@ -25,6 +25,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    assert_config_file_contains,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
@@ -156,3 +157,35 @@ class TestRelationBrokenBlocksOrWaits:
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
         )
+
+
+class TestPoolsYamlMultiTarget:
+    """pools.yaml renders one target per bind unit in HA mode."""
+
+    def test_pools_yaml_ha_three_targets(self, ctx, complete_state_ha):
+        """With 3 bind units, pools.yaml should contain one target per bind pod."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state_ha)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "designate",
+            "/etc/designate/pools.yaml",
+            [
+                "bind-0.bind-endpoints.openstack.svc.cluster.local",
+                "bind-1.bind-endpoints.openstack.svc.cluster.local",
+                "bind-2.bind-endpoints.openstack.svc.cluster.local",
+            ],
+        )
+
+    def test_pools_yaml_single_unit_fallback(self, ctx, complete_state):
+        """With 1 bind unit, falls back to ClusterIP."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        file_path = assert_config_file_exists(
+            state_out, ctx, "designate", "/etc/designate/pools.yaml"
+        )
+        content = file_path.read_text()
+        assert (
+            content.count("type: bind9") == 1
+        ), f"Expected 1 bind9 target, got {content.count('type: bind9')}"
+        expected_host = "10.20.20.20"
+        assert expected_host in content

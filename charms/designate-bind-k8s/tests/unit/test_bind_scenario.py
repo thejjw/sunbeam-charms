@@ -103,3 +103,26 @@ class TestBlockedWithoutContainer:
             "blocked",
             "waiting",
         ), f"Expected blocked/waiting, got {state_out.unit_status}"
+
+
+class TestHeadlessHostname:
+    """Verify headless hostname publication for units."""
+
+    def test_headless_hostname_format(
+        self, ctx, complete_state_with_dns_backend
+    ):
+        """Headless hostname follows <pod>.<svc>.<ns>.svc.cluster.local."""
+        state_out = ctx.run(
+            ctx.on.config_changed(), complete_state_with_dns_backend
+        )
+        dns_rels = [
+            r for r in state_out.relations if r.endpoint == "dns-backend"
+        ]
+        assert dns_rels
+        host = dns_rels[0].local_unit_data.get("host", "")
+        parts = host.split(".")
+        assert len(parts) == 6
+        assert parts[1].endswith("-endpoints")
+        assert parts[3] == "svc"
+        assert parts[4] == "cluster"
+        assert parts[5] == "local"

@@ -80,6 +80,29 @@ def dns_backend_relation_complete(
     )
 
 
+def dns_backend_relation_ha(
+    nonce: str = NONCE,
+    rndc_secret_id: str = RNDC_SECRET_ID,
+) -> testing.Relation:
+    """dns-backend relation with 3 bind units publishing per-unit hosts."""
+    return testing.Relation(
+        endpoint="dns-backend",
+        remote_app_name="bind9",
+        remote_app_data={
+            "host": "10.20.20.20",
+            "rndc_keys": json.dumps(
+                {nonce: {"algorithm": "hmac-256", "secret": rndc_secret_id}}
+            ),
+        },
+        local_unit_data={"nonce": nonce},
+        remote_units_data={
+            0: {"host": "bind-0.bind-endpoints.openstack.svc.cluster.local"},
+            1: {"host": "bind-1.bind-endpoints.openstack.svc.cluster.local"},
+            2: {"host": "bind-2.bind-endpoints.openstack.svc.cluster.local"},
+        },
+    )
+
+
 def nonce_secret() -> testing.Secret:
     """Unit secret for bind-rndc nonce."""
     return testing.Secret(
@@ -120,6 +143,20 @@ def complete_relations():
 
 
 @pytest.fixture()
+def complete_relations_ha():
+    """All relations with 3-unit bind backend for HA testing."""
+    return [
+        db_relation_complete(),
+        identity_service_relation_complete(),
+        ingress_internal_relation_complete(),
+        ingress_public_relation_complete(),
+        amqp_relation_complete(),
+        dns_backend_relation_ha(),
+        peer_relation(),
+    ]
+
+
+@pytest.fixture()
 def complete_secrets():
     """All secrets needed by complete relations."""
     return [
@@ -142,6 +179,17 @@ def complete_state(complete_relations, complete_secrets, container):
     return testing.State(
         leader=True,
         relations=complete_relations,
+        containers=[container],
+        secrets=complete_secrets,
+    )
+
+
+@pytest.fixture()
+def complete_state_ha(complete_relations_ha, complete_secrets, container):
+    """Full state with leader, HA bind backend, secrets, and container."""
+    return testing.State(
+        leader=True,
+        relations=complete_relations_ha,
         containers=[container],
         secrets=complete_secrets,
     )

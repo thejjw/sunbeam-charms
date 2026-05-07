@@ -65,3 +65,23 @@ def complete_state(container):
         relations=[peer_relation()],
         containers=[container],
     )
+
+
+def dns_backend_relation() -> testing.Relation:
+    """dns-backend relation (bind is the provider side)."""
+    return testing.Relation(
+        endpoint="dns-backend",
+        remote_app_name="designate",
+        remote_app_data={},
+        remote_units_data={0: {}},
+    )
+
+
+@pytest.fixture()
+def complete_state_with_dns_backend(container):
+    """State with leader, peer, dns-backend relation, and container."""
+    return testing.State(
+        leader=True,
+        relations=[peer_relation(), dns_backend_relation()],
+        containers=[container],
+    )

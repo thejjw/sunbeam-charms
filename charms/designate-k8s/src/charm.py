@@ -333,11 +333,17 @@ class BindRndcRequiresRelationHandler(sunbeam_rhandlers.RelationHandler):
             raise Exception("Binding not found")
         return str(binding.network.ingress_address)
 
+    @property
+    def all_bind_hosts(self) -> list[str]:
+        """Return all per-unit bind hosts from the relation."""
+        return self.interface.get_all_hosts(self._relation)
+
     def context(self) -> dict:
         """Render context needed for jinja templating."""
         return {
             "rndc_key": self.rndc_key,
             "host": self.bind_host,
+            "all_hosts": self.all_bind_hosts,
             "mdns_ip": self.mdns_ip,
             "rndc_file_key": "/etc/designate/rndc.key",
             "ns_records": self.charm.ns_records,

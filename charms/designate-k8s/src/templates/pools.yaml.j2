@@ -15,13 +15,15 @@
        port: 53
 
   targets:
+{%- for bind_host in dns_backend.all_hosts %}
     - type: bind9
       masters:
         - host: {{ dns_backend.mdns_ip }}
           port: 5354
       options:
-        host: {{ dns_backend.host }}
+        host: {{ bind_host }}
         port: 53
-        rndc_host: {{ dns_backend.host }}
+        rndc_host: {{ bind_host }}
         rndc_port: 953
         rndc_key_file: {{ dns_backend.rndc_file_key }}
+{%- endfor %}
