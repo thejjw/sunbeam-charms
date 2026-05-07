@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ab1a18b_35e544ae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-07T23:23:43Z",
+      "side": 1,
+      "message": "Thank you for the contribution!\n\nSome inline comments.\nWhat happens when the designate-bind is scaled down? Will it update the designate configuration?",
+      "revId": "1cad1a4bf7bf14e6676291911ef82c21a722b236",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b6acf25_92beee68",
+        "filename": "charms/designate-bind-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-07T23:23:43Z",
+      "side": 1,
+      "message": "Can you remove Optional as string is always returned",
+      "revId": "1cad1a4bf7bf14e6676291911ef82c21a722b236",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4cea540a_768a8d91",
+        "filename": "charms/designate-bind-k8s/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-07T23:23:43Z",
+      "side": 1,
+      "message": "Hardcoding cluster.local may break in future if we allow users to set cluster domain in k8s",
+      "revId": "1cad1a4bf7bf14e6676291911ef82c21a722b236",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
