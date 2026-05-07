@@ -2,7 +2,7 @@
     OIDCClaimPrefix "OIDC-"
     OIDCClaimDelimiter ";"
     OIDCResponseType code
-    OIDCScope "openid email profile"
+    OIDCScope "{{ fid.oidc_scope }}"
     OIDCStateInputHeaders none
     OIDCXForwardedHeaders X-Forwarded-Proto X-Forwarded-Host X-Forwarded-Port
     OIDCSessionType client-cookie:persistent
