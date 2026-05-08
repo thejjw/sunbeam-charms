@@ -24,11 +24,15 @@ scenario events and inspecting mock side-effects.
 import base64
 import dataclasses
 import json
+from pathlib import (
+    Path,
+)
 from unittest.mock import (
     MagicMock,
 )
 
 import charm
+import jinja2
 import keystoneauth1.exceptions
 import pytest
 from ops import (
@@ -137,6 +141,140 @@ class TestGetIdpFileNameFromIssuerUrl:
         issuer_url = "https://172.16.1.207/iam-hydra/"
         result = handler._get_idp_file_name_from_issuer_url(issuer_url)
         assert result == "172.16.1.207%2Fiam-hydra"
+
+    @pytest.mark.parametrize(
+        "host",
+        [
+            "sso-int.example.com",
+            "token.example.com",
+            "provider.example.com",
+            "hydra.example.com",
+        ],
+    )
+    def test_does_not_strip_scheme_characters_from_host(self, host):
+        """Hosts starting with scheme characters are preserved."""
+        from charm import (
+            _BaseIDPHandler,
+        )
+
+        handler = _BaseIDPHandler.__new__(_BaseIDPHandler)
+        result = handler._get_idp_file_name_from_issuer_url(
+            f"https://{host}/iam-hydra/"
+        )
+        assert result == f"{host}%2Fiam-hydra"
+
+    def test_preserves_host_with_port_over_http(self):
+        """Regress the original bug.
+
+        An http URL with a port and an s-prefixed host must keep all
+        characters and percent-encode the port separator.
+        """
+        from charm import (
+            _BaseIDPHandler,
+        )
+
+        handler = _BaseIDPHandler.__new__(_BaseIDPHandler)
+        result = handler._get_idp_file_name_from_issuer_url(
+            "http://sso-int.k8s-model.svc.cluster.local:8080"
+        )
+        assert result == "sso-int.k8s-model.svc.cluster.local%3A8080"
+
+    def test_preserves_host_with_port_over_https(self):
+        """Encode the port colon and keep the host intact for an https URL."""
+        from charm import (
+            _BaseIDPHandler,
+        )
+
+        handler = _BaseIDPHandler.__new__(_BaseIDPHandler)
+        result = handler._get_idp_file_name_from_issuer_url(
+            "https://hydra.example.com:8443/iam-hydra/"
+        )
+        assert result == "hydra.example.com%3A8443%2Fiam-hydra"
+
+    def test_preserves_nested_path_segments(self):
+        """Deeper paths are preserved and trailing slash is removed."""
+        from charm import (
+            _BaseIDPHandler,
+        )
+
+        handler = _BaseIDPHandler.__new__(_BaseIDPHandler)
+        result = handler._get_idp_file_name_from_issuer_url(
+            "https://sso.example.com/iam-hydra/sub/"
+        )
+        assert result == "sso.example.com%2Fiam-hydra%2Fsub"
+
+    def test_falls_back_when_url_has_no_netloc(self):
+        """Fall through to the raw-string branch when there is no netloc.
+
+        Inputs without a parseable scheme://netloc must still be sanitised
+        using the raw string fallback.
+        """
+        from charm import (
+            _BaseIDPHandler,
+        )
+
+        handler = _BaseIDPHandler.__new__(_BaseIDPHandler)
+        result = handler._get_idp_file_name_from_issuer_url(
+            "sso.example.com/iam-hydra/"
+        )
+        assert result == "sso.example.com%2Fiam-hydra"
+
+
+class TestOIDCScope:
+    """Test OIDC scope helpers and template rendering."""
+
+    def test_external_idp_scope_intersects_discovery_supported_scopes(self):
+        """Provider scope is reduced to values supported by discovery."""
+        from charm import (
+            _BaseIDPHandler,
+        )
+
+        handler = _BaseIDPHandler.__new__(_BaseIDPHandler)
+        scope = handler._get_supported_oidc_scope(
+            "openid email profile phone",
+            {"scopes_supported": ["openid"]},
+        )
+        assert scope == "openid"
+
+    def test_common_scope_uses_all_provider_compatible_values(self):
+        """Merged OIDC context chooses a scope common to all providers."""
+        keystone = charm.KeystoneOperatorCharm.__new__(
+            charm.KeystoneOperatorCharm
+        )
+        providers = [
+            {"scope": "openid email profile phone"},
+            {"scope": "openid"},
+        ]
+        assert keystone._get_common_oidc_scope(providers) == "openid"
+
+    def test_apache_template_renders_context_scope(self):
+        """Render OIDCScope from fid.oidc_scope."""
+        template_dir = Path(charm.__file__).parent / "templates"
+        template = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(str(template_dir))
+        ).get_template("apache2-oidc-params")
+
+        rendered = template.render(
+            fid={
+                "oidc_scope": "openid",
+                "oidc_crypto_passphrase": "secret",
+                "oidc_redirect_uri": "https://keystone.example/redirect",
+                "oidc_redirect_uri_path": "/redirect",
+                "public_url_path": "/v3",
+                "oidc_providers": [
+                    {
+                        "name": "hydra",
+                        "protocol": "openid",
+                        "issuer_url": "https://hydra.example",
+                        "jwks_endpoint": "https://hydra.example/jwks",
+                        "encoded_issuer_url": "https%3A%2F%2Fhydra.example",
+                    },
+                ],
+            }
+        )
+
+        assert 'OIDCScope "openid"' in rendered
+        assert 'OIDCScope "openid email profile"' not in rendered
 
 
 # ---------------------------------------------------------------------------
