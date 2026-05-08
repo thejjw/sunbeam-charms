@@ -16,6 +16,24 @@
       "message": "Myles, seems like something to look into further\n\nhypervisor                 blocked      1  openstack-hypervisor                  0  no       (workload) Error in charm (see logs): snap change \u0027configure-snap\u0027 id 89 failed with status Error",
       "revId": "eb57219b1c60d072e73b7b96baa346677a52ed6e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf9824a9_a0e81fc9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 30
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2026-05-08T14:40:01Z",
+      "side": 1,
+      "message": "I should have a fix up for that now. It seemed to be related to libvirt 12 behaviour being different. https://github.com/canonical/snap-openstack-hypervisor/pull/181",
+      "parentUuid": "a52b663b_881bd16e",
+      "revId": "eb57219b1c60d072e73b7b96baa346677a52ed6e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
