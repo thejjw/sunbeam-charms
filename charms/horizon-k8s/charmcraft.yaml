@@ -1,7 +1,7 @@
 type: charm
 name: horizon-k8s
 summary: OpenStack Horizon service
-description: |
+description:
   OpenStack Horizon provides an HTTP service for managing, selecting,
   and claiming providers of classes of inventory representing available
   resources in a cloud.
@@ -29,7 +29,7 @@ config:
     session-timeout:
       type: int
       default: 3600
-      description:
+      description: |
         A method to supersede the token timeout with a shorter dashboard
         session timeout in seconds. For example, if your token expires in 60 minutes,
         a value of 1800 will log users out after 30 minutes.
@@ -190,6 +190,30 @@ config:
       description: |
         This option can be used to enable plugins for Horizon. The value should be a
         JSON formatted list of plugin names.
+    include-default-themes:
+      type: boolean 
+      default: true 
+      description: | 
+        This option can be used to disable the inclusion of upstream default horizon themes
+        (default + material).
+    include-ubuntu-theme:
+      type: boolean 
+      default: true
+      description: |
+        This option can be used to disable the inclusion of the default Ubuntu theme.
+    default-theme:
+      type: string
+      default: "ubuntu"
+      description: |
+        This option allows you to set the default theme for horizon.
+        Value should be the themes name (ubuntu, default, material or <custom-theme-name>).
+    custom-theme-name:
+      type: string
+      default: null 
+      description: |
+        This option can be used to specify a custom theme name.
+        This will specify the name that appears in the UI for your custom theme.
+        Requires custom-theme to be set as well.
 
 actions:
   get-dashboard-url:
@@ -204,6 +228,13 @@ resources:
     type: oci-image
     description: OCI image for Horizon
     upstream-source: ghcr.io/canonical/horizon:2025.1-24.04_edge
+  custom-theme:
+    type: file
+    filename: theme.tar.gz
+    description: |
+      A tarball containg that custom theme assets to be used for the dashboard.
+      The tarball should be formed at the root of the theme folder, f.e. 
+      `tar -czf theme.tar.gz -C /path/to/your/custom_theme`.
 
 requires:
   database:
