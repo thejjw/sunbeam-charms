@@ -16,6 +16,24 @@
       "message": "do we know if keystone can work when the scope is not this?, like if the scope offered by the IdP was \"openid\" ... is that enough for keystone to work?",
       "revId": "9dd0f186c1ffb4be1d940ab214238b69175f9d36",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ea12fc6_95192d4f",
+        "filename": "charms/keystone-k8s/src/templates/apache2-oidc-params",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2026-05-08T21:24:38Z",
+      "side": 0,
+      "message": "`openid` is enough for what this charm needs from Keystone. The only OIDC-specific config Keystone gets is `remote_id_attribute \u003d HTTP_OIDC_ISS`, and the `iss` claim is mandatory in every OIDC ID token. The `sub` claim is also mandatory. Anything beyond that (email, profile) is only relevant if an operator\u0027s mapping rules reference it.\n\nI confirmed this in a test deployment where the IdP advertises only [\"openid\"]: rendered `OIDCScope \"openid\"`, `apache2ctl -t` clean, and the flow no longer fails with invalid_scope.",
+      "parentUuid": "65201936_69d43fed",
+      "revId": "9dd0f186c1ffb4be1d940ab214238b69175f9d36",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
