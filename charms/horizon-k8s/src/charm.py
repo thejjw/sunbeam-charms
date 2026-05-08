@@ -215,6 +215,35 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Retrieve the URL for the Horizon OpenStack Dashboard."""
         event.set_results({"url": self.public_url})
 
+    def upload_custom_theme(self) -> None:
+        """Upload custom theme into the container and update assets."""
+        container = self.unit.get_container(self.service_name)
+        if not container.can_connect():
+            return
+
+        theme_name = self.config.get("custom-theme-name")
+
+        try:
+            theme_path = self.model.resources.fetch("custom-theme")
+        except ops.ModelError as e:
+            logger.warning("Could not fetch custom theme resource")
+            logger.error(e)
+            return
+
+        if theme_path.stat().st_size == 0:
+            logger.debug("No custom theme resource provided")
+            return
+
+        if theme_name and theme_path:
+            archive_path = "/tmp/custom_theme.tar.gz"
+            theme_dir = f"/usr/share/openstack-dashboard/openstack_dashboard/themes/{theme_name}"
+            with open(theme_path, "rb") as theme:
+                container.push(archive_path, theme)
+            container.exec(["mkdir", "-p", theme_dir]).wait_output()
+            container.exec(["tar", "-xzf", archive_path, "-C", theme_dir]).wait_output()
+            container.exec(["rm", archive_path]).wait_output()
+            update_horizon_assets(container)
+
     @property
     def _websso_url(self) -> str:
         # remove redundant port if it exists. If we include the port,
@@ -329,6 +358,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Run configuration on this unit."""
         self.check_leader_ready()
         self.check_relation_handlers_ready(event)
+        self.upload_custom_theme()
         self.configure_containers()
         self.run_db_sync()
         self.init_container_services()
