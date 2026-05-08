@@ -205,6 +205,31 @@ class TestInfinidatConfigValidation(test_utils.CharmTestCase):
         )
         self.assertTrue(config.use_chap_auth)
 
+    def test_driver_use_ssl_defaults_false(self):
+        """HTTPS should be opt-in for the Infinidat management API."""
+        config_class = self._get_config_class()
+        config = config_class(
+            san_ip="10.20.20.3",
+            san_login=self._mock_secret({"san-login": "admin"}),
+            san_password=self._mock_secret({"san-password": "secret123"}),
+            infinidat_pool_name="pool1",
+            protocol="fc",
+        )
+        self.assertFalse(config.driver_use_ssl)
+
+    def test_driver_use_ssl_accepts_true(self):
+        """HTTPS can be enabled for InfiniBox API connectivity."""
+        config_class = self._get_config_class()
+        config = config_class(
+            san_ip="10.20.20.3",
+            san_login=self._mock_secret({"san-login": "admin"}),
+            san_password=self._mock_secret({"san-password": "secret123"}),
+            infinidat_pool_name="pool1",
+            protocol="fc",
+            driver_use_ssl=True,
+        )
+        self.assertTrue(config.driver_use_ssl)
+
     def test_chap_username_requires_password(self):
         """Setting a CHAP username without a password fails validation."""
         config_class = self._get_config_class()
