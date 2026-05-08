@@ -22,6 +22,30 @@
       },
       "revId": "8c21cf774aeb944f93044dcf9fb0d3e6c0309388",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2d2a084_8947eeb2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-05-08T20:34:35Z",
+      "side": 1,
+      "message": "I just noticed this is a cherry-pick, so this ship already sailed, marking this as resolved.",
+      "parentUuid": "7f474bdf_eab219f9",
+      "range": {
+        "startLine": 35,
+        "startChar": 0,
+        "endLine": 35,
+        "endChar": 11
+      },
+      "revId": "8c21cf774aeb944f93044dcf9fb0d3e6c0309388",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
