@@ -40,6 +40,11 @@ config:
         InfiniBox management interface. If unset, SSL verification is
         not performed.
       type: string
+    driver-use-ssl:
+      default: false
+      description: |
+        Use HTTPS for connections to the InfiniBox management interface.
+      type: boolean
     san-ip:
       description: |
         IP address or hostname of the InfiniBox management interface.
