@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "65201936_69d43fed",
+        "filename": "charms/keystone-k8s/src/templates/apache2-oidc-params",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-05-08T20:32:00Z",
+      "side": 0,
+      "message": "do we know if keystone can work when the scope is not this?, like if the scope offered by the IdP was \"openid\" ... is that enough for keystone to work?",
+      "revId": "9dd0f186c1ffb4be1d940ab214238b69175f9d36",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
