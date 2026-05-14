@@ -35,7 +35,7 @@ auth_section = service_user
 [barbican]
 auth_section = keystone_authtoken
 {% set client_region = options.region -%}
-{% set client_ca_key = "cafile" -%}
+{% set client_ca_key = "verify_ssl_path" -%}
 {% include "parts/client-interface-admin" %}
 
 {% include "parts/section-service-user" %}
