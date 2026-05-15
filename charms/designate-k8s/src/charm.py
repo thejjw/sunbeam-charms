@@ -388,6 +388,7 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Register ports in underlying cloud."""
         super().open_ports()
         self.unit.open_port("tcp", 5354)  # mdns port
+        self.unit.open_port("udp", 5354)  # mdns port
 
     def get_pebble_handlers(
         self,
