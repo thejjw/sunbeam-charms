@@ -16,6 +16,21 @@
 
 """Pure unit tests for octavia-k8s (no ops.testing scenario machinery)."""
 
+from unittest import (
+    mock,
+)
+
+import charm as octavia_charm
+from lightkube.core.exceptions import (
+    ApiError,
+)
+from lightkube.resources.apps_v1 import (
+    StatefulSet,
+)
+from lightkube.types import (
+    PatchType,
+)
+
 # ---------------------------------------------------------------------------
 # IP extraction from k8s network-status annotation
 # ---------------------------------------------------------------------------
@@ -126,3 +141,127 @@ class TestNetworkStatusIPExtraction:
             }
         ]
         assert self._extract(entries, "octavia-mgmt") is None
+
+
+# ---------------------------------------------------------------------------
+# _remove_legacy_containers
+# ---------------------------------------------------------------------------
+
+
+def _make_api_error(status_code: int = 403) -> ApiError:
+    """Build a real ApiError instance suitable for use as a side_effect."""
+    response = mock.MagicMock()
+    response.status_code = status_code
+    response.text = "Forbidden"
+    return ApiError(response=response)
+
+
+def _fake_charm(container_names: list[str]) -> mock.MagicMock:
+    """Return a minimal MagicMock standing in for OctaviaOperatorCharm.
+
+    Sets up model.name, app.name and network_patcher.lightkube_client so that
+    _remove_legacy_containers() can be called as an unbound method:
+
+        octavia_charm.OctaviaOperatorCharm._remove_legacy_containers(fake)
+    """
+    fake = mock.MagicMock()
+    fake.model.name = "openstack"
+    fake.app.name = "octavia"
+
+    containers = []
+    for n in container_names:
+        c = mock.MagicMock()
+        c.name = n
+        containers.append(c)
+
+    fake_sts = mock.MagicMock()
+    fake_sts.spec.template.spec.containers = containers
+    fake.network_patcher.lightkube_client.get.return_value = fake_sts
+    return fake
+
+
+class TestRemoveLegacyContainers:
+    """Unit tests for OctaviaOperatorCharm._remove_legacy_containers.
+
+    The method is exercised by calling it as an unbound function with a
+    minimal MagicMock standing in for ``self``, keeping tests fast and free of
+    the full charm/ops harness machinery.
+    """
+
+    def test_removes_legacy_containers_when_present(self):
+        """JSON Patch is sent for every legacy container found."""
+        fake = _fake_charm(
+            [
+                "charm",
+                "octavia-api",
+                "octavia-driver-agent",
+                "octavia-housekeeping",
+            ]
+        )
+        client = fake.network_patcher.lightkube_client
+
+        octavia_charm.OctaviaOperatorCharm._remove_legacy_containers(fake)
+
+        client.patch.assert_called_once()
+        kw = client.patch.call_args.kwargs
+        assert kw["patch_type"] == PatchType.JSON
+        assert kw["name"] == "octavia"
+        assert kw["namespace"] == "openstack"
+        # Indices 2 (octavia-driver-agent) and 3 (octavia-housekeeping) must
+        # be removed highest-first to avoid index shifting.
+        assert kw["obj"] == [
+            {"op": "remove", "path": "/spec/template/spec/containers/3"},
+            {"op": "remove", "path": "/spec/template/spec/containers/2"},
+        ]
+
+    def test_no_patch_when_no_legacy_containers(self):
+        """patch() is never called when no legacy containers exist."""
+        fake = _fake_charm(["charm", "octavia-api", "octavia-controller"])
+        client = fake.network_patcher.lightkube_client
+
+        octavia_charm.OctaviaOperatorCharm._remove_legacy_containers(fake)
+
+        client.patch.assert_not_called()
+
+    def test_removes_single_legacy_container(self):
+        """Only one legacy container present — correct single-op patch sent."""
+        fake = _fake_charm(["charm", "octavia-api", "octavia-driver-agent"])
+        client = fake.network_patcher.lightkube_client
+
+        octavia_charm.OctaviaOperatorCharm._remove_legacy_containers(fake)
+
+        kw = client.patch.call_args.kwargs
+        assert kw["obj"] == [
+            {"op": "remove", "path": "/spec/template/spec/containers/2"}
+        ]
+
+    def test_get_api_error_logs_warning_and_does_not_raise(self):
+        """When get() raises ApiError, patch() is never attempted."""
+        fake = _fake_charm([])
+        client = fake.network_patcher.lightkube_client
+        client.get.side_effect = _make_api_error(403)
+
+        # Must not raise
+        octavia_charm.OctaviaOperatorCharm._remove_legacy_containers(fake)
+
+        client.patch.assert_not_called()
+
+    def test_patch_api_error_logs_warning_and_does_not_raise(self):
+        """When patch() raises ApiError, the method returns gracefully."""
+        fake = _fake_charm(["charm", "octavia-driver-agent"])
+        client = fake.network_patcher.lightkube_client
+        client.patch.side_effect = _make_api_error(403)
+
+        # Must not raise
+        octavia_charm.OctaviaOperatorCharm._remove_legacy_containers(fake)
+
+    def test_get_called_with_correct_resource_and_namespace(self):
+        """Lightkube get() is called with StatefulSet, correct name and namespace."""
+        fake = _fake_charm(["charm"])
+        client = fake.network_patcher.lightkube_client
+
+        octavia_charm.OctaviaOperatorCharm._remove_legacy_containers(fake)
+
+        client.get.assert_called_once_with(
+            StatefulSet, name="octavia", namespace="openstack"
+        )
