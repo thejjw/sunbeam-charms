@@ -127,6 +127,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "b4da174f_51d1ce99",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-05-18T16:57:28Z",
+      "side": 1,
+      "message": "IMPORTANT\nI started working on an implementation of consuming this revision in snap-openstack and by implementing this as a resource the default case of the user providing no custom-theme resource will break things.\n\nJuju has no way to make a resource optional so a theme filepath MUST be included ALWAYS. My code checks for a 0-byte file and just returns in that case so we can just attach a zero-byte file when the user wants no custom theme. \n\nHowever, in terraform there is no way to specify a resource to use in the default plans so it will be important to publish the charm with a 0-byte file included as the default resource for this charm to prevent the charm from failing to refresh in existing deployments to a new revision with this feature included.\n\nThis would not be an issue when implemented using a config option, but since managed resource seems to be a hard requirement here there will need to be some work at publish time to ensure continuity.",
+      "parentUuid": "4b7dcde9_21b57d23",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3e01f1ad_0b69fd71",
         "filename": "charms/horizon-k8s/charmcraft.yaml",
         "patchSetId": 3
