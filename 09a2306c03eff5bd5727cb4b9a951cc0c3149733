@@ -145,6 +145,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d0159b9e_9e293c84",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-19T08:24:48Z",
+      "side": 1,
+      "message": "\u003e This would not be an issue when implemented using a config option\n\nI don\u0027t see how this is true in any way.\n\nThen how do you manage getting the file into the container using only config option? Not using config option would lead to other problems, that are harder to manage on day 2 vs ensuring a 0 file byte is released when a new track of the charm.\n\nWe prefer to keep this kind of complexity on us (on our release pipeline / automated), rather than on day 2 ops.",
+      "parentUuid": "b4da174f_51d1ce99",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "3e01f1ad_0b69fd71",
         "filename": "charms/horizon-k8s/charmcraft.yaml",
         "patchSetId": 3

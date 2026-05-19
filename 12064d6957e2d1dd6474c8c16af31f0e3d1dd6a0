@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cdef599e_f2bef560",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 9
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-19T08:24:48Z",
+      "side": 1,
+      "message": "Last nits. I\u0027ll take this PR for a spin and see how it behaves with terraform before EOW.",
+      "revId": "12064d6957e2d1dd6474c8c16af31f0e3d1dd6a0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f18f548a_10ab7df1",
+        "filename": "charms/horizon-k8s/charmcraft.yaml",
+        "patchSetId": 9
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-19T08:24:48Z",
+      "side": 1,
+      "message": "White space",
+      "range": {
+        "startLine": 236,
+        "startChar": 72,
+        "endLine": 236,
+        "endChar": 73
+      },
+      "revId": "12064d6957e2d1dd6474c8c16af31f0e3d1dd6a0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
