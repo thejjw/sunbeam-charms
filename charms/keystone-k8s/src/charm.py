@@ -383,8 +383,43 @@ class _BaseIDPHandler(sunbeam_rhandlers.RelationHandler):
 
           https://172.16.1.207/iam-hydra/.well-known/openid-configuration
         """
-        sanitized = issuer_url.lstrip("https://").lstrip("http://").rstrip("/")
+        parsed = urlparse(issuer_url)
+        sanitized = (
+            f"{parsed.netloc}{parsed.path}".rstrip("/")
+            if parsed.netloc
+            else issuer_url.rstrip("/")
+        )
         return quote(sanitized, safe="")
+
+    def _normalize_oidc_scope(self, scope):
+        """Normalize an OIDC scope value into a space-delimited string."""
+        if isinstance(scope, str):
+            scopes = scope.split()
+        elif isinstance(scope, list):
+            scopes = scope
+        else:
+            scopes = OAUTH_SCOPES.split()
+
+        normalized = []
+        for item in scopes:
+            if item and item not in normalized:
+                normalized.append(item)
+
+        if "openid" not in normalized:
+            normalized.insert(0, "openid")
+        return " ".join(normalized)
+
+    def _get_supported_oidc_scope(self, requested_scope, metadata):
+        """Return a provider scope compatible with discovery metadata."""
+        requested = self._normalize_oidc_scope(requested_scope).split()
+        supported = metadata.get("scopes_supported") if metadata else None
+        if not supported:
+            return " ".join(requested)
+
+        scope = [item for item in requested if item in supported]
+        if "openid" not in scope and "openid" in supported:
+            scope.insert(0, "openid")
+        return " ".join(scope or ["openid"])
 
     def _get_oidc_metadata(
         self, metadata_url, additional_chain: List[str] = []
@@ -496,6 +531,7 @@ class OAuthRequiresHandler(_BaseIDPHandler):
                 "client_id": provider_info.client_id,
                 "client_secret": provider_info.client_secret,
                 "ca_chain": provider_info.ca_chain,
+                "scope": self._normalize_oidc_scope(provider_info.scope),
             }
             info.append(provider)
         return info
@@ -794,6 +830,9 @@ class ExternalIDPRequiresHandler(_BaseIDPHandler):
                 "client_secret": provider.client_secret,
                 "ca_chain": [],
                 "oidc_metadata": metadata,
+                "scope": self._get_supported_oidc_scope(
+                    provider.scope, metadata
+                ),
             }
             info.append(provider)
         return info
@@ -1029,9 +1068,28 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if saml_ctx:
             ctx.update(saml_ctx)
 
+        ctx["oidc_scope"] = self._get_common_oidc_scope(ctx["oidc_providers"])
         ctx["public_url_path"] = urlparse(self.public_endpoint).path
         ctx["public_endpoint"] = self.public_endpoint
         return ctx
+
+    def _get_common_oidc_scope(self, providers):
+        """Return one OIDC scope value that works for every provider."""
+        provider_scopes = [
+            (provider.get("scope") or OAUTH_SCOPES).split()
+            for provider in providers
+        ]
+        if not provider_scopes:
+            return OAUTH_SCOPES
+
+        common = [
+            scope
+            for scope in provider_scopes[0]
+            if all(scope in scopes for scopes in provider_scopes)
+        ]
+        if "openid" not in common:
+            common.insert(0, "openid")
+        return " ".join(common)
 
     def _handle_trusted_dashboard_changed(self, event: RelationChangedEvent):
         self._handle_update_trusted_dashboard(event)
