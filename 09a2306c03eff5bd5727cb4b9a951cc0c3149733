@@ -161,6 +161,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2340cb39_11575b56",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-05-19T14:46:01Z",
+      "side": 1,
+      "message": "Both revisions I have made (config + resource) are both equally functional. I fear we are going to continue to disagree on this point and continued discourse is not productive at this point since resource is your mandate.\n\nAs long as the 0-byte file is handled by the CI then I am happy. Comment was just to make you (sunbeam team) aware of this caveat.",
+      "parentUuid": "d0159b9e_9e293c84",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3e01f1ad_0b69fd71",
@@ -274,6 +292,24 @@
       "side": 1,
       "message": "I am not sure what the question here is. This code calls `container.push` to upload the archive and then uses `container.exec` to extract it inside of the container. The file is at no point on the host/controller system. It gets decoded straight from base64 stored as config option into the container at configure time.",
       "parentUuid": "6381c429_a3edade8",
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75b8c33a_2b8235cd",
+        "filename": "charms/horizon-k8s/src/charm.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-05-19T14:46:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "68c3184e_c0e6e6d4",
       "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a351b4a3_e662cfa8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-05-19T14:46:01Z",
+      "side": 1,
+      "message": "Pushed (hopefully) final patchset to address remaining comments. Will continue working on accompanying snap-openstack patch and will look for your updates regarding terraform interoperability.",
+      "revId": "0275a100acb6db009a74dc45e5c50168e94e0aaf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
