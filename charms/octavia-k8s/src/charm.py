@@ -1184,10 +1184,73 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def _on_upgrade_charm(self, event: ops.framework.EventBase):
         """Handle the upgrade charm event."""
         logger.info("Handling upgrade-charm event")
+        # juju does not remove old containers and this is a workaround to remove
+        # old containers directly on k8s statefulset
+        # https://github.com/juju/juju/issues/22433
+        # This change should not be affected by juju reconciliation as juju looks
+        # for statefulset in k8s during reconciliation
+        self._remove_legacy_containers()
         self.certs.validate_and_regenerate_certificates_if_needed()
         # ops-sunbeam doesn't wire upgrade_charm -> configure_charm by default.
         # configure_charm -> configure_unit -> _set_lbmgmt_ip re-detects the IP.
         self.configure_charm(event)
+
+    def _remove_legacy_containers(self) -> None:
+        """Remove legacy k8s containers left over from older charm revisions.
+
+        Juju's strategic-merge patch preserves containers that are no longer
+        declared in the charm metadata when the StatefulSet is updated during
+        a charm upgrade.  This method detects and removes those stale containers
+        so they don't conflict with the new ones (e.g. pebble port collision).
+
+        Containers removed:
+          - octavia-driver-agent  (split out into pebble services inside
+            octavia-controller as of the 2024.1/candidate revision)
+          - octavia-housekeeping  (same refactor)
+        """
+        legacy_containers = {"octavia-driver-agent", "octavia-housekeeping"}
+        namespace = self.model.name
+        sts_name = self.app.name
+        try:
+            client = self.network_patcher.lightkube_client
+            sts = client.get(StatefulSet, name=sts_name, namespace=namespace)
+        except ApiError as e:
+            logger.warning(
+                f"Could not fetch StatefulSet {sts_name} to clean up "
+                f"legacy containers: {e}"
+            )
+            return
+
+        containers = sts.spec.template.spec.containers or []
+        legacy_indices = [
+            i for i, c in enumerate(containers) if c.name in legacy_containers
+        ]
+        if not legacy_indices:
+            logger.debug("No legacy containers found; nothing to clean up")
+            return
+
+        # JSON Patch removes items by index, highest-first to avoid index shift.
+        patch = [
+            {"op": "remove", "path": f"/spec/template/spec/containers/{i}"}
+            for i in sorted(legacy_indices, reverse=True)
+        ]
+        try:
+            client.patch(
+                StatefulSet,
+                name=sts_name,
+                obj=patch,
+                patch_type=PatchType.JSON,
+                namespace=namespace,
+            )
+            logger.info(
+                f"Removed legacy containers {legacy_containers} from "
+                f"StatefulSet {sts_name}"
+            )
+        except ApiError as e:
+            logger.warning(
+                f"Failed to remove legacy containers from StatefulSet "
+                f"{sts_name}: {e}"
+            )
 
     def _read_pod_network_status(self, pod_name: str) -> list | None:
         """Fetch and parse k8s.v1.cni.cncf.io/network-status from the pod.

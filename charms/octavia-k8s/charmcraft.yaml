@@ -229,12 +229,17 @@ resources:
     description: OCI image for OpenStack octavia
     upstream-source: ghcr.io/canonical/octavia-consolidated:2025.1-24.04_edge
 
+# Juju deos not refresh on storage description update, so leaving old
+# description https://github.com/juju/juju/issues/22432
+# Description to be updated once juju fixes the bug:
+# Storage for the location of agent sockets shared between octavia-api
+# and octavia-controller (for octavia-driver-agent service)
 storage:
   agent-sockets:
     type: filesystem
     description: |
       Storage for the location of agent sockets shared between octavia-api
-      and octavia-controller (for octavia-driver-agent service)
+      and octavia-driver-agent
     minimum-size: 100M
 
 requires:
