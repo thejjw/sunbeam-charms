@@ -16,6 +16,23 @@
       "message": "recheck\n\njuju failed transiant scope...",
       "revId": "4fc5107152560eba471e349dfd055a56fe1fbf0a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "780921cb_197acc6b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-20T08:25:47Z",
+      "side": 1,
+      "message": "recheck\n\ntimed out on downloading controller charm\n\nnet/http: TLS handshake timeout",
+      "revId": "4fc5107152560eba471e349dfd055a56fe1fbf0a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
