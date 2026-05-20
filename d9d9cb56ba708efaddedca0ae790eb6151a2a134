@@ -68,6 +68,24 @@
       "message": "I\u0027m on the fence for this fix. As we need this to get unblocked, but we use certificates for security reasons. By allowing this to be a frozenset of relation ips + the pod ip. We might potentially have (at least for a time), the old IP as a SAN IP for the certificate, which would be wrong.",
       "revId": "d9d9cb56ba708efaddedca0ae790eb6151a2a134",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8da6f4ad_d6558bfc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-05-20T21:02:27Z",
+      "side": 1,
+      "message": "To clarify your concern for this workaround, are you worried that the relation ingress_adress could be stale?",
+      "parentUuid": "f92a04c3_337eaf0a",
+      "revId": "d9d9cb56ba708efaddedca0ae790eb6151a2a134",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
