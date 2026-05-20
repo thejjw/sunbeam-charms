@@ -21,6 +21,7 @@ Deploy machine applications and integrations using jubilant.
 """
 
 import concurrent.futures
+import ipaddress
 import logging
 import re
 import subprocess
@@ -35,6 +36,7 @@ from pathlib import (
 )
 
 import jubilant
+import yaml
 import zaza.charm_lifecycle.utils as lc_utils
 import zaza.model
 
@@ -42,6 +44,8 @@ MACHINE_MODEL = "controller"
 MACHINE_MODEL_WITH_OWNER = f"admin/{MACHINE_MODEL}"
 MACHINE_BUNDLE_FILE = "./tests/openstack/bundles/machines.yaml"
 MACHINE_MICROOVN_BUNDLE_FILE = "./tests/openstack-microovn/bundles/machines.yaml"
+CILIUM_INTERFACE = "cilium_host"
+CILIUM_SPACE = "k8s-subnet"
 K8S_WAIT_TIMEOUT = (
     3600  # 1 hour for k8s model wait (covers full pods provisioning)
 )
@@ -72,6 +76,95 @@ def _integrate(juju, k8s_model, k8s_endpoint, machine_offer):
     except jubilant.CLIError as e:
         if "already exists" not in e.stderr:
             raise e
+
+
+def _cli_ignore_already_exists(juju, *args):
+    """Run a Juju CLI command, ignoring already-exists errors."""
+    try:
+        return juju.cli(*args)
+    except jubilant.CLIError as e:
+        if "already exists" not in e.stderr:
+            raise e
+    return None
+
+
+def _get_machine_zero(juju):
+    """Return the controller model's machine 0 details."""
+    raw_machine = juju.cli("show-machine", "0", "--format=yaml")
+    machine_data = yaml.safe_load(raw_machine) or {}
+    return machine_data.get("machines", {}).get("0", {})
+
+
+def _get_spaces(juju):
+    """Return Juju spaces data for the controller model."""
+    raw_spaces = juju.cli("spaces", "--format=yaml")
+    spaces_data = yaml.safe_load(raw_spaces) or {}
+    return spaces_data.get("spaces", [])
+
+
+def _space_subnets(spaces, space_name):
+    """Return CIDRs assigned to a Juju space."""
+    for space in spaces:
+        if space.get("name") == space_name:
+            return set((space.get("subnets") or {}).keys())
+    return set()
+
+
+def _find_subnet_containing_ip(spaces, address):
+    """Return the Juju subnet CIDR containing address, if present."""
+    ip_address = ipaddress.ip_address(address)
+    for space in spaces:
+        for cidr in (space.get("subnets") or {}).keys():
+            if ip_address in ipaddress.ip_network(cidr, strict=False):
+                return cidr
+    return None
+
+
+def _prepare_controller_model_spaces(juju):
+    """Move the Cilium host subnet out of the controller default space.
+
+    Juju relation bindings in the controller model use the default space
+    when applications do not specify endpoint bindings. Keeping cilium_host
+    in that default space can make machine charms select the Cilium address
+    for relation and certificate SAN data.
+    """
+    machine = _get_machine_zero(juju)
+    cilium_interface = (
+        machine.get("network-interfaces", {}).get(CILIUM_INTERFACE) or {}
+    )
+    cilium_addresses = cilium_interface.get("ip-addresses") or []
+    if not cilium_addresses:
+        logging.info(
+            "No %s interface found in %s model",
+            CILIUM_INTERFACE,
+            MACHINE_MODEL,
+        )
+        return
+
+    if cilium_interface.get("space") == CILIUM_SPACE:
+        logging.info("%s is already in %s", CILIUM_INTERFACE, CILIUM_SPACE)
+        return
+
+    spaces = _get_spaces(juju)
+    cilium_cidr = _find_subnet_containing_ip(spaces, cilium_addresses[0])
+    if cilium_cidr is None:
+        logging.warning(
+            "No Juju subnet found for %s address %s",
+            CILIUM_INTERFACE,
+            cilium_addresses[0],
+        )
+        return
+
+    logging.info(
+        "Moving %s subnet %s to %s",
+        CILIUM_INTERFACE,
+        cilium_cidr,
+        CILIUM_SPACE,
+    )
+    _cli_ignore_already_exists(juju, "add-space", CILIUM_SPACE)
+    target_subnets = _space_subnets(spaces, CILIUM_SPACE)
+    target_subnets.add(cilium_cidr)
+    juju.cli("move-to-space", CILIUM_SPACE, *sorted(target_subnets))
 
 
 def _perform_common_cross_model_integrations(juju, k8s_model):
@@ -303,6 +396,7 @@ def deploy_machine_applications():
 
     logging.info(bundle)
     juju_machine = jubilant.Juju(model=MACHINE_MODEL)
+    _prepare_controller_model_spaces(juju_machine)
     juju_machine.cli("deploy", str(bundle), "--map-machines=existing,0=0")
 
     juju_k8s = jubilant.Juju(model=k8s_model)
@@ -371,6 +465,7 @@ def deploy_machine_applications_microovn():
 
     logging.info(bundle)
     juju_machine = jubilant.Juju(model=MACHINE_MODEL)
+    _prepare_controller_model_spaces(juju_machine)
     juju_machine.cli("deploy", str(bundle), "--map-machines=existing,0=0")
 
     juju_k8s = jubilant.Juju(model=k8s_model)
