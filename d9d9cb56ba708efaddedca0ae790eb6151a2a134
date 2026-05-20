@@ -34,6 +34,23 @@
       "parentUuid": "cc183648_3e73163b",
       "revId": "d9d9cb56ba708efaddedca0ae790eb6151a2a134",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6f71868e_faf57916",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-20T12:05:15Z",
+      "side": 1,
+      "message": "Documenting, juju raised bug: https://github.com/juju/juju/issues/22367",
+      "revId": "d9d9cb56ba708efaddedca0ae790eb6151a2a134",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
