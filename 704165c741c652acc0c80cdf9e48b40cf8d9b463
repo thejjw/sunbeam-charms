@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3931c899_c0bb1f67",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 32
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-22T20:57:10Z",
+      "side": 1,
+      "message": "depends on https://github.com/canonical/snap-openstack-hypervisor/pull/183",
+      "revId": "704165c741c652acc0c80cdf9e48b40cf8d9b463",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
