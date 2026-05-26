@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5dfb40ae_a79a256a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 33
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-26T07:07:32Z",
+      "side": 1,
+      "message": "recheck\n\nAnsible module failed to install LXD snap",
+      "revId": "f41f47c9668628baa11443d9b296d13be714a1d9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
