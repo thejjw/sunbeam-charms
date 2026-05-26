@@ -50,13 +50,21 @@
     classic: true
   become: true
 
-- name: Set Build Name
+- name: Set legacy charm build path
   set_fact:
     charm_pathed: '{{ "storage/" + charm_build_name if is_storage else charm_build_name }}'
+  when: charm_builds is not defined
 
-- name: charm is packed
+- name: Set legacy charm build list
+  set_fact:
+    charm_builds:
+      - name: "{{ charm_build_name }}"
+        path: "{{ charm_pathed }}"
+  when: charm_builds is not defined
+
+- name: charms are packed
   command:
-    cmd: "{{ tox_executable }} -e build -- {{ charm_pathed }}"
+    cmd: "{{ tox_executable }} -e build -- {{ item.path }}"
     chdir: "{{ zuul.project.src_dir }}"
   register: res
   retries: 3
@@ -64,21 +72,43 @@
   until: >
     "Charm packed ok" in res.stdout
   failed_when: '"Failed instance creation" in res.stdout'
+  loop: "{{ charm_builds }}"
+  loop_control:
+    label: "{{ item.path }}"
 
-- name: built charm is available in the zuul log root for auto artifact upload
-  fetch:
-    src: "{{ zuul.project.src_dir }}/charms/{{ charm_pathed }}/{{ charm_build_name }}.charm"
-    dest: "{{ zuul.executor.log_root }}/"
-    flat: true
-  become: true
+- name: Publish built charm as zuul artifact (check pipeline only)
+  when: zuul.pipeline == 'check'
+  block:
+    - name: Reset charm artifact metadata
+      set_fact:
+        charm_artifacts: []
 
-- name: Upload artifacts
-  zuul_return:
-    data:
-      zuul:
-        artifacts:
-          - name: charm
-            url: "{{ charm_build_name }}.charm"
-            metadata:
-              type: charm
-              name: "{{ charm_build_name }}"
+    - name: built charm is available in the zuul log root for auto artifact upload
+      fetch:
+        src: "{{ zuul.project.src_dir }}/charms/{{ item.path }}/{{ item.name }}.charm"
+        dest: "{{ zuul.executor.log_root }}/"
+        flat: true
+      become: true
+      loop: "{{ charm_builds }}"
+      loop_control:
+        label: "{{ item.path }}"
+
+    - name: Build charm artifact metadata
+      set_fact:
+        charm_artifacts: "{{ charm_artifacts | default([]) + [artifact] }}"
+      vars:
+        artifact:
+          name: charm
+          url: "{{ item.name }}.charm"
+          metadata:
+            type: charm
+            name: "{{ item.name }}"
+      loop: "{{ charm_builds }}"
+      loop_control:
+        label: "{{ item.path }}"
+
+    - name: Upload artifacts
+      zuul_return:
+        data:
+          zuul:
+            artifacts: "{{ charm_artifacts }}"
