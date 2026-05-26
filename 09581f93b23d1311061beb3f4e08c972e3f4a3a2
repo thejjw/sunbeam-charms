@@ -16,6 +16,23 @@
       "message": "LGTM",
       "revId": "09581f93b23d1311061beb3f4e08c972e3f4a3a2",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6207d5c1_5fad335b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-26T13:25:06Z",
+      "side": 1,
+      "message": "dropped the rebuild file",
+      "revId": "09581f93b23d1311061beb3f4e08c972e3f4a3a2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
