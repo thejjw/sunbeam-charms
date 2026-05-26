@@ -3,5 +3,5 @@
     - ensure-tox
     - role: charm-build
       vars:
-        charm_build_name: "{{ charm }}"
+        charm_build_name: "{{ charm | default('') }}"
         is_storage: "{{ storage | default(false) }}"
