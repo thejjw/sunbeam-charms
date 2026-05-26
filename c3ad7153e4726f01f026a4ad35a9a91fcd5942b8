@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5ce560a2_48bc5363",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 36
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-26T15:31:50Z",
+      "side": 1,
+      "message": "recheck\n\ntimed out because of very slow snap hooks",
+      "revId": "c3ad7153e4726f01f026a4ad35a9a91fcd5942b8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
