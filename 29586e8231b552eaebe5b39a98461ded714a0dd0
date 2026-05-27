@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "29586e8231b552eaebe5b39a98461ded714a0dd0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f04677cb_38de007e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-27T14:41:18Z",
+      "side": 1,
+      "message": "recheck timeout on hypervisor",
+      "revId": "29586e8231b552eaebe5b39a98461ded714a0dd0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
