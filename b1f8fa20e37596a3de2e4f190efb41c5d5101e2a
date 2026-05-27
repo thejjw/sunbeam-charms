@@ -16,6 +16,40 @@
       "message": "recheck",
       "revId": "b1f8fa20e37596a3de2e4f190efb41c5d5101e2a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "16475233_a6c4b1fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 38
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1131
+      },
+      "writtenOn": "2026-05-27T19:40:48Z",
+      "side": 1,
+      "message": "There\u0027s no action required for my comments here, just finally went through this change and reminded me of a few things.",
+      "revId": "b1f8fa20e37596a3de2e4f190efb41c5d5101e2a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd6b4285_2afbe845",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 38
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 1131
+      },
+      "writtenOn": "2026-05-27T19:40:48Z",
+      "side": 1,
+      "message": "I was starting to create a doc to highlight some of the neutron things that might need some updating for 2026.1, this is one of those things.\n\nJust an FYI that we should be migrating to the ovn-agent with the metadata extension from this agent, as it is deprecated upstream and will be removed in 2026.2 (before our next LTS).\n\nMost of the ini is the same as the existing agent, this would be the new section:\n\n[agent]\n\n#\n# From neutron.ml2.ovn.agent\n#\n\n# Extensions list to use (list value)\nextensions \u003d metadata\n\n\nRunning \u0027tox -e genconfig\u0027 in the neutron repo will generate all the sample ini files like neutron/plugins/ml2/ovn_agent.ini.sample\n\nI\u0027ll start working on the file so you can include items on your planning radar.",
+      "revId": "b1f8fa20e37596a3de2e4f190efb41c5d5101e2a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
