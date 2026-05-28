@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6dff5820_643078de",
+        "filename": "charms/designate-bind-k8s/lib/charms/designate_bind_k8s/v0/bind_rndc.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-05-28T20:50:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "35ab2fd9_46100418",
+      "revId": "09f8ed57f57a5a7ce6cb59ec452a40bf2b2bd6b7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "85a03391_436117a7",
@@ -52,6 +70,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c1bdc88e_bea91a79",
+        "filename": "charms/designate-bind-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-05-28T20:50:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "85a03391_436117a7",
+      "revId": "09f8ed57f57a5a7ce6cb59ec452a40bf2b2bd6b7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "18129b67_12d93b52",
@@ -65,6 +101,24 @@
       "writtenOn": "2026-05-28T08:27:57Z",
       "side": 1,
       "message": "Can you check the possibility of scale down test cases",
+      "revId": "09f8ed57f57a5a7ce6cb59ec452a40bf2b2bd6b7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4501c12b_68a8f928",
+        "filename": "charms/designate-k8s/tests/unit/test_designate_scenario.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-05-28T20:50:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "18129b67_12d93b52",
       "revId": "09f8ed57f57a5a7ce6cb59ec452a40bf2b2bd6b7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
