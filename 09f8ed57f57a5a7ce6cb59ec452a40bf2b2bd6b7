@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "52288d46_c3b3ad9b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-28T08:27:57Z",
+      "side": 1,
+      "message": "Overall looks good, one minor comment and ask for additional test case",
+      "revId": "09f8ed57f57a5a7ce6cb59ec452a40bf2b2bd6b7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35ab2fd9_46100418",
+        "filename": "charms/designate-bind-k8s/lib/charms/designate_bind_k8s/v0/bind_rndc.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-28T08:27:57Z",
+      "side": 1,
+      "message": "Can you change the event type yo ops.RelationChangedEvent (not the problem with your PR)",
+      "revId": "09f8ed57f57a5a7ce6cb59ec452a40bf2b2bd6b7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "85a03391_436117a7",
+        "filename": "charms/designate-bind-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-28T08:27:57Z",
+      "side": 1,
+      "message": "If binding is None, leader does not execute L#135 `self.interface.set_unit_host(relation, unit_host`) .. is this intended?",
+      "revId": "09f8ed57f57a5a7ce6cb59ec452a40bf2b2bd6b7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18129b67_12d93b52",
+        "filename": "charms/designate-k8s/tests/unit/test_designate_scenario.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-28T08:27:57Z",
+      "side": 1,
+      "message": "Can you check the possibility of scale down test cases",
+      "revId": "09f8ed57f57a5a7ce6cb59ec452a40bf2b2bd6b7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
