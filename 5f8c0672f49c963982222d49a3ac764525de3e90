@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "5f8c0672f49c963982222d49a3ac764525de3e90",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "24a1dacb_6ed3b6c4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-28T09:23:36Z",
+      "side": 1,
+      "message": "we need to wait for the edge charms to be published",
+      "revId": "5f8c0672f49c963982222d49a3ac764525de3e90",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
