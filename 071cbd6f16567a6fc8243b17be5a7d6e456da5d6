@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5cfc8ba_88fb454a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-28T07:41:46Z",
+      "side": 1,
+      "message": "LGTM, need to be backported to 2025.1/stable",
+      "revId": "071cbd6f16567a6fc8243b17be5a7d6e456da5d6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
