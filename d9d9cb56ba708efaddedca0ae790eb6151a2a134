@@ -86,6 +86,24 @@
       "parentUuid": "f92a04c3_337eaf0a",
       "revId": "d9d9cb56ba708efaddedca0ae790eb6151a2a134",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3d622999_36042d6c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-05-28T13:04:49Z",
+      "side": 1,
+      "message": "My concern is that, because of how Juju works, as per the bug, there\u0027s gonna be a stale IP on the CSR for some time.\n\nThis is gonna bring:\n- unnecessary churn when the IPs do finally get updated\n- security concerns, as we\u0027re exposing an endpoint with a stale IP address, allowing other vectors of attack.\n\nIt\u0027s not a `could be stale?`, it\u0027s gonna be stale on any restart or else.",
+      "parentUuid": "8da6f4ad_d6558bfc",
+      "revId": "d9d9cb56ba708efaddedca0ae790eb6151a2a134",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
