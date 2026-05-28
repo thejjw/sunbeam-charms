@@ -546,10 +546,19 @@ POLICY_FILES = {
 # Change this patch to the appropriate list of tuples containing
 # a key, label and static directory containing two files:
 # _variables.scss and _styles.scss
-#AVAILABLE_THEMES = [
-#    ('default', 'Default', 'themes/default'),
-#    ('material', 'Material', 'themes/material'),
-#]
+{% if extra_config.custom_theme %}
+AVAILABLE_THEMES = [
+  ('{{ extra_config.custom_theme }}', '{{ extra_config.custom_theme }}', 'themes/{{ extra_config.custom_theme }}'),
+]
+DEFAULT_THEME = '{{ extra_config.custom_theme }}'
+{% else %}
+AVAILABLE_THEMES = [
+  ('default', 'default', 'themes/default'),
+  ('material', 'material', 'themes/material'),
+  ('ubuntu', 'ubuntu', 'themes/ubuntu'),
+]
+DEFAULT_THEME = 'ubuntu'
+{% endif %}
 
 LOGGING = {
     'version': 1,
