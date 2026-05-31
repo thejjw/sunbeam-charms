@@ -50,6 +50,23 @@
       "message": "recheck edge charms published",
       "revId": "5f8c0672f49c963982222d49a3ac764525de3e90",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc253aab_1b332b22",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-05-31T04:59:07Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "5f8c0672f49c963982222d49a3ac764525de3e90",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
