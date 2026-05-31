@@ -1,1066 +1,372 @@
 - job:
-    name: charm-build-keystone-k8s
-    description: Build sunbeam keystone-k8s charm
+    name: charm-build-bin
+    abstract: true
+    description: Build a bin of Sunbeam charms
     run: playbooks/charm/build.yaml
-    timeout: 3600
+    timeout: 7200
+    nodeset: ubuntu-noble
     match-on-config-updates: false
+- job:
+    name: charm-build-bin-core-identity
+    parent: charm-build-bin
+    description: Build a bin of Sunbeam charms
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-k8s/
-      - rebuild
-    vars:
-      charm: keystone-k8s
-- job:
-    name: charm-build-tempest-k8s
-    description: Build sunbeam tempest-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/tempest-k8s/
-      - rebuild
-    vars:
-      charm: tempest-k8s
-- job:
-    name: charm-build-glance-k8s
-    description: Build sunbeam glance-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/glance-k8s/
-      - rebuild
-    vars:
-      charm: glance-k8s
-- job:
-    name: charm-build-nova-k8s
-    description: Build sunbeam nova-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/nova-k8s/
-      - rebuild
-    vars:
-      charm: nova-k8s
-- job:
-    name: charm-build-placement-k8s
-    description: Build sunbeam placement-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/placement-k8s/
-      - rebuild
-    vars:
-      charm: placement-k8s
-- job:
-    name: charm-build-neutron-k8s
-    description: Build sunbeam neutron-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/neutron-k8s/
-      - rebuild
-    vars:
-      charm: neutron-k8s
-- job:
-    name: charm-build-neutron-baremetal-switch-config-k8s
-    description: Build sunbeam neutron-baremetal-switch-config-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/neutron-baremetal-switch-config-k8s/
-      - rebuild
-    vars:
-      charm: neutron-baremetal-switch-config-k8s
-- job:
-    name: charm-build-neutron-generic-switch-config-k8s
-    description: Build sunbeam neutron-generic-switch-config-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/neutron-generic-switch-config-k8s/
-      - rebuild
-    vars:
-      charm: neutron-generic-switch-config-k8s
-- job:
-    name: charm-build-ovn-central-k8s
-    description: Build sunbeam ovn-central-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/ovn-central-k8s/
-      - rebuild
-    vars:
-      charm: ovn-central-k8s
-- job:
-    name: charm-build-ovn-relay-k8s
-    description: Build sunbeam ovn-relay-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/ovn-relay-k8s/
-      - rebuild
-    vars:
-      charm: ovn-relay-k8s
-- job:
-    name: charm-build-cinder-k8s
-    description: Build sunbeam cinder-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/cinder-k8s/
-      - rebuild
-    vars:
-      charm: cinder-k8s
-- job:
-    name: charm-build-cinder-volume
-    description: Build sunbeam cinder-volume charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/cinder-volume/
-      - rebuild
-    vars:
-      charm: cinder-volume
-- job:
-    name: charm-build-cinder-volume-dellpowerstore
-    description: Build sunbeam cinder-volume-dellpowerstore charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/storage/cinder-volume-dellpowerstore/
-      - rebuild
-    vars:
-      charm: cinder-volume-dellpowerstore
-      storage: true
-- job:
-    name: charm-build-cinder-volume-dellsc
-    description: Build sunbeam cinder-volume-dellsc charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/storage/cinder-volume-dellsc/
-      - rebuild
-    vars:
-      charm: cinder-volume-dellsc
-      storage: true
-- job:
-    name: charm-build-cinder-volume-ceph
-    description: Build sunbeam cinder-volume-ceph charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/storage/cinder-volume-ceph/
-      - rebuild
-    vars:
-      charm: cinder-volume-ceph
-      storage: true
-- job:
-    name: charm-build-cinder-volume-purestorage
-    description: Build sunbeam cinder-volume-purestorage charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/storage/cinder-volume-purestorage/
-      - rebuild
-    vars:
-      charm: cinder-volume-purestorage
-      storage: true
-- job:
-    name: charm-build-cinder-volume-hitachi
-    description: Build sunbeam cinder-volume-hitachi charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/storage/cinder-volume-hitachi/
-      - rebuild
-    vars:
-      charm: cinder-volume-hitachi
-      storage: true
-- job:
-    name: charm-build-cinder-volume-hpe3par
-    description: Build sunbeam cinder-volume-hpe3par charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/storage/cinder-volume-hpe3par/
-      - rebuild
-    vars:
-      charm: cinder-volume-hpe3par
-      storage: true
-- job:
-    name: charm-build-epa-orchestrator
-    description: Build sunbeam epa-orchestrator charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/*
-      - charms/epa-orchestrator/*
-      - rebuild
-    vars:
-      charm: epa-orchestrator
-- job:
-    name: charm-build-horizon-k8s
-    description: Build sunbeam horizon-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/horizon-k8s/
-      - rebuild
-    vars:
-      charm: horizon-k8s
-- job:
-    name: charm-build-heat-k8s
-    description: Build sunbeam heat-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/heat-k8s/
-      - rebuild
-    vars:
-      charm: heat-k8s
-- job:
-    name: charm-build-ironic-k8s
-    description: Build sunbeam ironic-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/ironic-k8s/
-      - rebuild
-    vars:
-      charm: ironic-k8s
-- job:
-    name: charm-build-ironic-conductor-k8s
-    description: Build sunbeam ironic-conductor-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/ironic-conductor-k8s/
-      - rebuild
-    vars:
-      charm: ironic-conductor-k8s
-- job:
-    name: charm-build-nova-ironic-k8s
-    description: Build sunbeam nova-ironic-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/nova-ironic-k8s/
-      - rebuild
-    vars:
-      charm: nova-ironic-k8s
-- job:
-    name: charm-build-octavia-k8s
-    description: Build sunbeam octavia-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/octavia-k8s/
-      - rebuild
-    vars:
-      charm: octavia-k8s
-- job:
-    name: charm-build-aodh-k8s
-    description: Build sunbeam aodh-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/aodh-k8s/
-      - rebuild
-    vars:
-      charm: aodh-k8s
-- job:
-    name: charm-build-ceilometer-k8s
-    description: Build sunbeam ceilometer-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/ceilometer-k8s/
-      - rebuild
-    vars:
-      charm: ceilometer-k8s
-- job:
-    name: charm-build-gnocchi-k8s
-    description: Build sunbeam gnocchi-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/gnocchi-k8s/
-      - rebuild
-    vars:
-      charm: gnocchi-k8s
-- job:
-    name: charm-build-barbican-k8s
-    description: Build sunbeam barbican-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/barbican-k8s/
-      - rebuild
-    vars:
-      charm: barbican-k8s
-- job:
-    name: charm-build-magnum-k8s
-    description: Build sunbeam magnum-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/magnum-k8s/
-      - rebuild
-    vars:
-      charm: magnum-k8s
-- job:
-    name: charm-build-manila-k8s
-    description: Build sunbeam manila-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/manila-k8s/
-      - rebuild
-    vars:
-      charm: manila-k8s
-- job:
-    name: charm-build-manila-cephfs-k8s
-    description: Build sunbeam manila-cephfs-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/manila-cephfs-k8s/
-      - rebuild
-    vars:
-      charm: manila-cephfs-k8s
-- job:
-    name: charm-build-manila-data
-    description: Build sunbeam manila-data charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/manila-data/
-      - rebuild
-    vars:
-      charm: manila-data
-- job:
-    name: charm-build-designate-k8s
-    description: Build sunbeam designate-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/designate-k8s/
-      - rebuild
-    vars:
-      charm: designate-k8s
-- job:
-    name: charm-build-designate-bind-k8s
-    description: Build sunbeam designate-bind-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/designate-bind-k8s/
-      - rebuild
-    vars:
-      charm: designate-bind-k8s
-- job:
-    name: charm-build-keystone-ldap-k8s
-    description: Build sunbeam keystone-ldap-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/keystone-ldap-k8s/
-      - rebuild
-    vars:
-      charm: keystone-ldap-k8s
-- job:
-    name: charm-build-keystone-saml-k8s
-    description: Build sunbeam keystone-saml-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/keystone-saml-k8s/
-      - rebuild
-    vars:
-      charm: keystone-saml-k8s
-- job:
-    name: charm-build-openstack-exporter-k8s
-    description: Build sunbeam openstack-exporter-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
+      - charms/horizon-k8s/
       - charms/openstack-exporter-k8s/
       - rebuild
     vars:
-      charm: openstack-exporter-k8s
+      charm_builds:
+        - name: keystone-k8s
+          path: keystone-k8s
+        - name: keystone-ldap-k8s
+          path: keystone-ldap-k8s
+        - name: keystone-saml-k8s
+          path: keystone-saml-k8s
+        - name: horizon-k8s
+          path: horizon-k8s
+        - name: openstack-exporter-k8s
+          path: openstack-exporter-k8s
 - job:
-    name: charm-build-openstack-hypervisor
-    description: Build sunbeam openstack-hypervisor charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
+    name: charm-build-bin-core-compute
+    parent: charm-build-bin
+    description: Build a bin of Sunbeam charms
     files:
       - ops-sunbeam/ops_sunbeam/
+      - charms/glance-k8s/
+      - charms/nova-k8s/
+      - charms/placement-k8s/
+      - charms/neutron-k8s/
+      - charms/neutron-baremetal-switch-config-k8s/
+      - charms/neutron-generic-switch-config-k8s/
+      - charms/openstack-images-sync-k8s/
+      - charms/tempest-k8s/
+      - rebuild
+    vars:
+      charm_builds:
+        - name: glance-k8s
+          path: glance-k8s
+        - name: nova-k8s
+          path: nova-k8s
+        - name: placement-k8s
+          path: placement-k8s
+        - name: neutron-k8s
+          path: neutron-k8s
+        - name: neutron-baremetal-switch-config-k8s
+          path: neutron-baremetal-switch-config-k8s
+        - name: neutron-generic-switch-config-k8s
+          path: neutron-generic-switch-config-k8s
+        - name: openstack-images-sync-k8s
+          path: openstack-images-sync-k8s
+        - name: tempest-k8s
+          path: tempest-k8s
+- job:
+    name: charm-build-bin-core-ovn
+    parent: charm-build-bin
+    description: Build a bin of Sunbeam charms
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/ovn-central-k8s/
+      - charms/ovn-relay-k8s/
+      - rebuild
+    vars:
+      charm_builds:
+        - name: ovn-central-k8s
+          path: ovn-central-k8s
+        - name: ovn-relay-k8s
+          path: ovn-relay-k8s
+- job:
+    name: charm-build-bin-core-storage
+    parent: charm-build-bin
+    description: Build a bin of Sunbeam charms
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/cinder-k8s/
+      - charms/cinder-volume/
+      - charms/storage/cinder-volume-ceph/
+      - charms/manila-k8s/
+      - charms/manila-cephfs-k8s/
+      - charms/manila-data/
+      - rebuild
+    vars:
+      charm_builds:
+        - name: cinder-k8s
+          path: cinder-k8s
+        - name: cinder-volume
+          path: cinder-volume
+        - name: cinder-volume-ceph
+          path: storage/cinder-volume-ceph
+        - name: manila-k8s
+          path: manila-k8s
+        - name: manila-cephfs-k8s
+          path: manila-cephfs-k8s
+        - name: manila-data
+          path: manila-data
+- job:
+    name: charm-build-bin-services-a
+    parent: charm-build-bin
+    description: Build a bin of Sunbeam charms
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/aodh-k8s/
+      - charms/ceilometer-k8s/
+      - charms/gnocchi-k8s/
+      - charms/heat-k8s/
+      - charms/barbican-k8s/
+      - charms/watcher-k8s/
+      - charms/cloudkitty-k8s/
+      - charms/designate-k8s/
+      - charms/designate-bind-k8s/
+      - rebuild
+    vars:
+      charm_builds:
+        - name: aodh-k8s
+          path: aodh-k8s
+        - name: ceilometer-k8s
+          path: ceilometer-k8s
+        - name: gnocchi-k8s
+          path: gnocchi-k8s
+        - name: heat-k8s
+          path: heat-k8s
+        - name: barbican-k8s
+          path: barbican-k8s
+        - name: watcher-k8s
+          path: watcher-k8s
+        - name: cloudkitty-k8s
+          path: cloudkitty-k8s
+        - name: designate-k8s
+          path: designate-k8s
+        - name: designate-bind-k8s
+          path: designate-bind-k8s
+- job:
+    name: charm-build-bin-services-b
+    parent: charm-build-bin
+    description: Build a bin of Sunbeam charms
+    files:
+      - ops-sunbeam/ops_sunbeam/
+      - charms/ironic-k8s/
+      - charms/ironic-conductor-k8s/
+      - charms/nova-ironic-k8s/
+      - charms/octavia-k8s/
+      - charms/magnum-k8s/
+      - charms/masakari-k8s/
       - charms/openstack-hypervisor/
       - rebuild
     vars:
-      charm: openstack-hypervisor
+      charm_builds:
+        - name: ironic-k8s
+          path: ironic-k8s
+        - name: ironic-conductor-k8s
+          path: ironic-conductor-k8s
+        - name: nova-ironic-k8s
+          path: nova-ironic-k8s
+        - name: octavia-k8s
+          path: octavia-k8s
+        - name: magnum-k8s
+          path: magnum-k8s
+        - name: masakari-k8s
+          path: masakari-k8s
+        - name: openstack-hypervisor
+          path: openstack-hypervisor
 - job:
-    name: charm-build-openstack-images-sync-k8s
-    description: Build sunbeam openstack-images-sync-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/openstack-images-sync-k8s/
-      - rebuild
-    vars:
-      charm: openstack-images-sync-k8s
-- job:
-    name: charm-build-sunbeam-machine
-    description: Build sunbeam-machine charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/sunbeam-machine/
-      - rebuild
-    vars:
-      charm: sunbeam-machine
-- job:
-    name: charm-build-sunbeam-clusterd
-    description: Build sunbeam-clusterd charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/sunbeam-clusterd/
-      - rebuild
-    vars:
-      charm: sunbeam-clusterd
-- job:
-    name: charm-build-watcher-k8s
-    description: Build sunbeam watcher-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/watcher-k8s/
-      - rebuild
-    vars:
-      charm: watcher-k8s
-
-- job:
-    name: charm-build-masakari-k8s
-    description: Build sunbeam masakari-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/masakari-k8s/
-      - rebuild
-    vars:
-      charm: masakari-k8s
-
-- job:
-    name: charm-build-cloudkitty-k8s
-    description: Build sunbeam cloudkitty-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/cloudkitty-k8s/
-      - rebuild
-    vars:
-      charm: cloudkitty-k8s
-
-- job:
-    name: charm-build-openstack-network-agents
-    description: Build sunbeam openstack-network-agents charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
+    name: charm-build-bin-infra
+    parent: charm-build-bin
+    description: Build a bin of Sunbeam charms
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/openstack-network-agents/
-      - rebuild
-    vars:
-      charm: openstack-network-agents
-
-- job:
-    name: charm-build-sunbeam-ovn-proxy
-    description: Build sunbeam ovn-proxy charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/sunbeam-ovn-proxy/
-      - rebuild
-    vars:
-      charm: sunbeam-ovn-proxy
-
-- job:
-    name: charm-build-openstack-port-cni-k8s
-    description: Build openstack-port-cni-k8s charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/openstack-port-cni-k8s/
+      - charms/sunbeam-machine/
+      - charms/sunbeam-clusterd/
+      - charms/epa-orchestrator/
       - rebuild
     vars:
-      charm: openstack-port-cni-k8s
-
+      charm_builds:
+        - name: openstack-network-agents
+          path: openstack-network-agents
+        - name: sunbeam-ovn-proxy
+          path: sunbeam-ovn-proxy
+        - name: openstack-port-cni-k8s
+          path: openstack-port-cni-k8s
+        - name: sunbeam-machine
+          path: sunbeam-machine
+        - name: sunbeam-clusterd
+          path: sunbeam-clusterd
+        - name: epa-orchestrator
+          path: epa-orchestrator
 - job:
-    name: charm-build-cinder-volume-datacore
-    description: Build sunbeam cinder-volume-datacore charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
+    name: charm-build-bin-storage-a
+    parent: charm-build-bin
+    description: Build a bin of Sunbeam charms
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-datacore/
-      - rebuild
-    vars:
-      charm: cinder-volume-datacore
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-datera
-    description: Build sunbeam cinder-volume-datera charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-datera/
-      - rebuild
-    vars:
-      charm: cinder-volume-datera
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-dellpowermax
-    description: Build sunbeam cinder-volume-dellpowermax charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-dellpowermax/
-      - rebuild
-    vars:
-      charm: cinder-volume-dellpowermax
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-dellpowervault
-    description: Build sunbeam cinder-volume-dellpowervault charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-dellpowerstore/
       - charms/storage/cinder-volume-dellpowervault/
-      - rebuild
-    vars:
-      charm: cinder-volume-dellpowervault
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-fujitsueternusdx
-    description: Build sunbeam cinder-volume-fujitsueternusdx charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-dellsc/
       - charms/storage/cinder-volume-fujitsueternusdx/
-      - rebuild
-    vars:
-      charm: cinder-volume-fujitsueternusdx
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-hpexp
-    description: Build sunbeam cinder-volume-hpexp charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-hpexp/
       - rebuild
     vars:
-      charm: cinder-volume-hpexp
-      storage: true
-
+      charm_builds:
+        - name: cinder-volume-datacore
+          path: storage/cinder-volume-datacore
+        - name: cinder-volume-datera
+          path: storage/cinder-volume-datera
+        - name: cinder-volume-dellpowermax
+          path: storage/cinder-volume-dellpowermax
+        - name: cinder-volume-dellpowerstore
+          path: storage/cinder-volume-dellpowerstore
+        - name: cinder-volume-dellpowervault
+          path: storage/cinder-volume-dellpowervault
+        - name: cinder-volume-dellsc
+          path: storage/cinder-volume-dellsc
+        - name: cinder-volume-fujitsueternusdx
+          path: storage/cinder-volume-fujitsueternusdx
+        - name: cinder-volume-hpexp
+          path: storage/cinder-volume-hpexp
 - job:
-    name: charm-build-cinder-volume-ibmflashsystemcommon
-    description: Build sunbeam cinder-volume-ibmflashsystemcommon charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
+    name: charm-build-bin-storage-b
+    parent: charm-build-bin
+    description: Build a bin of Sunbeam charms
     files:
       - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-hitachi/
+      - charms/storage/cinder-volume-hpe3par/
       - charms/storage/cinder-volume-ibmflashsystemcommon/
-      - rebuild
-    vars:
-      charm: cinder-volume-ibmflashsystemcommon
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-ibmflashsystemiscsi
-    description: Build sunbeam cinder-volume-ibmflashsystemiscsi charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-ibmflashsystemiscsi/
-      - rebuild
-    vars:
-      charm: cinder-volume-ibmflashsystemiscsi
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-ibmgpfs
-    description: Build sunbeam cinder-volume-ibmgpfs charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-ibmgpfs/
-      - rebuild
-    vars:
-      charm: cinder-volume-ibmgpfs
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-ibmibmstorage
-    description: Build sunbeam cinder-volume-ibmibmstorage charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-ibmibmstorage/
-      - rebuild
-    vars:
-      charm: cinder-volume-ibmibmstorage
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-ibmstorwizesvc
-    description: Build sunbeam cinder-volume-ibmstorwizesvc charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-ibmstorwizesvc/
-      - rebuild
-    vars:
-      charm: cinder-volume-ibmstorwizesvc
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-infinidat
-    description: Build sunbeam cinder-volume-infinidat charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-infinidat/
       - rebuild
     vars:
-      charm: cinder-volume-infinidat
-      storage: true
-
+      charm_builds:
+        - name: cinder-volume-hitachi
+          path: storage/cinder-volume-hitachi
+        - name: cinder-volume-hpe3par
+          path: storage/cinder-volume-hpe3par
+        - name: cinder-volume-ibmflashsystemcommon
+          path: storage/cinder-volume-ibmflashsystemcommon
+        - name: cinder-volume-ibmflashsystemiscsi
+          path: storage/cinder-volume-ibmflashsystemiscsi
+        - name: cinder-volume-ibmgpfs
+          path: storage/cinder-volume-ibmgpfs
+        - name: cinder-volume-ibmibmstorage
+          path: storage/cinder-volume-ibmibmstorage
+        - name: cinder-volume-ibmstorwizesvc
+          path: storage/cinder-volume-ibmstorwizesvc
+        - name: cinder-volume-infinidat
+          path: storage/cinder-volume-infinidat
 - job:
-    name: charm-build-cinder-volume-inspuras13000
-    description: Build sunbeam cinder-volume-inspuras13000 charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
+    name: charm-build-bin-storage-c
+    parent: charm-build-bin
+    description: Build a bin of Sunbeam charms
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-inspuras13000/
-      - rebuild
-    vars:
-      charm: cinder-volume-inspuras13000
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-inspurinstorage
-    description: Build sunbeam cinder-volume-inspurinstorage charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-inspurinstorage/
-      - rebuild
-    vars:
-      charm: cinder-volume-inspurinstorage
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-kaminario
-    description: Build sunbeam cinder-volume-kaminario charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-kaminario/
-      - rebuild
-    vars:
-      charm: cinder-volume-kaminario
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-linstor
-    description: Build sunbeam cinder-volume-linstor charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-linstor/
-      - rebuild
-    vars:
-      charm: cinder-volume-linstor
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-macrosan
-    description: Build sunbeam cinder-volume-macrosan charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-macrosan/
-      - rebuild
-    vars:
-      charm: cinder-volume-macrosan
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-necv
-    description: Build sunbeam cinder-volume-necv charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-necv/
-      - rebuild
-    vars:
-      charm: cinder-volume-necv
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-netapp
-    description: Build sunbeam cinder-volume-netapp charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-netapp/
-      - rebuild
-    vars:
-      charm: cinder-volume-netapp
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-nexenta
-    description: Build sunbeam cinder-volume-nexenta charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-nexenta/
       - rebuild
     vars:
-      charm: cinder-volume-nexenta
-      storage: true
-
+      charm_builds:
+        - name: cinder-volume-inspuras13000
+          path: storage/cinder-volume-inspuras13000
+        - name: cinder-volume-inspurinstorage
+          path: storage/cinder-volume-inspurinstorage
+        - name: cinder-volume-kaminario
+          path: storage/cinder-volume-kaminario
+        - name: cinder-volume-linstor
+          path: storage/cinder-volume-linstor
+        - name: cinder-volume-macrosan
+          path: storage/cinder-volume-macrosan
+        - name: cinder-volume-necv
+          path: storage/cinder-volume-necv
+        - name: cinder-volume-netapp
+          path: storage/cinder-volume-netapp
+        - name: cinder-volume-nexenta
+          path: storage/cinder-volume-nexenta
 - job:
-    name: charm-build-cinder-volume-nimble
-    description: Build sunbeam cinder-volume-nimble charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
+    name: charm-build-bin-storage-d
+    parent: charm-build-bin
+    description: Build a bin of Sunbeam charms
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-nimble/
-      - rebuild
-    vars:
-      charm: cinder-volume-nimble
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-opene
-    description: Build sunbeam cinder-volume-opene charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-opene/
-      - rebuild
-    vars:
-      charm: cinder-volume-opene
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-prophetstor
-    description: Build sunbeam cinder-volume-prophetstor charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-prophetstor/
-      - rebuild
-    vars:
-      charm: cinder-volume-prophetstor
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-qnap
-    description: Build sunbeam cinder-volume-qnap charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
+      - charms/storage/cinder-volume-purestorage/
       - charms/storage/cinder-volume-qnap/
-      - rebuild
-    vars:
-      charm: cinder-volume-qnap
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-sandstone
-    description: Build sunbeam cinder-volume-sandstone charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-sandstone/
-      - rebuild
-    vars:
-      charm: cinder-volume-sandstone
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-solidfire
-    description: Build sunbeam cinder-volume-solidfire charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-solidfire/
-      - rebuild
-    vars:
-      charm: cinder-volume-solidfire
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-stx
-    description: Build sunbeam cinder-volume-stx charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-stx/
       - rebuild
     vars:
-      charm: cinder-volume-stx
-      storage: true
-
+      charm_builds:
+        - name: cinder-volume-nimble
+          path: storage/cinder-volume-nimble
+        - name: cinder-volume-opene
+          path: storage/cinder-volume-opene
+        - name: cinder-volume-prophetstor
+          path: storage/cinder-volume-prophetstor
+        - name: cinder-volume-purestorage
+          path: storage/cinder-volume-purestorage
+        - name: cinder-volume-qnap
+          path: storage/cinder-volume-qnap
+        - name: cinder-volume-sandstone
+          path: storage/cinder-volume-sandstone
+        - name: cinder-volume-solidfire
+          path: storage/cinder-volume-solidfire
+        - name: cinder-volume-stx
+          path: storage/cinder-volume-stx
 - job:
-    name: charm-build-cinder-volume-synology
-    description: Build sunbeam cinder-volume-synology charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
+    name: charm-build-bin-storage-e
+    parent: charm-build-bin
+    description: Build a bin of Sunbeam charms
     files:
       - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-synology/
-      - rebuild
-    vars:
-      charm: cinder-volume-synology
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-toyouacs5000
-    description: Build sunbeam cinder-volume-toyouacs5000 charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-toyouacs5000/
-      - rebuild
-    vars:
-      charm: cinder-volume-toyouacs5000
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-veritasaccess
-    description: Build sunbeam cinder-volume-veritasaccess charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-veritasaccess/
-      - rebuild
-    vars:
-      charm: cinder-volume-veritasaccess
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-yadro
-    description: Build sunbeam cinder-volume-yadro charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-yadro/
-      - rebuild
-    vars:
-      charm: cinder-volume-yadro
-      storage: true
-
-- job:
-    name: charm-build-cinder-volume-zadara
-    description: Build sunbeam cinder-volume-zadara charm
-    run: playbooks/charm/build.yaml
-    timeout: 3600
-    match-on-config-updates: false
-    files:
-      - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-zadara/
       - rebuild
     vars:
-      charm: cinder-volume-zadara
-      storage: true
-
-# This test set may be unstable, and more tests need to be added for the tempest-k8s charm,
-# so it is only trigger by changes in the tempest-k8s charm and associated tests for now.
-# It has been copied from the tests/core charm bundle.
+      charm_builds:
+        - name: cinder-volume-synology
+          path: storage/cinder-volume-synology
+        - name: cinder-volume-toyouacs5000
+          path: storage/cinder-volume-toyouacs5000
+        - name: cinder-volume-veritasaccess
+          path: storage/cinder-volume-veritasaccess
+        - name: cinder-volume-yadro
+          path: storage/cinder-volume-yadro
+        - name: cinder-volume-zadara
+          path: storage/cinder-volume-zadara
 - job:
     name: func-test-tempest
-    description: |
-      Zaza tests for the tempest-k8s charm.
+    description: Zaza tests for the tempest-k8s charm.
     timeout: 3600
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml
     post-run: playbooks/collect-run-data.yaml
     dependencies:
-      - name: charm-build-keystone-k8s
+      - name: charm-build-bin-core-identity
         soft: true
-      - name: charm-build-glance-k8s
+      - name: charm-build-bin-core-compute
         soft: true
-      - name: charm-build-nova-k8s
-        soft: true
-      - name: charm-build-placement-k8s
-        soft: true
-      - name: charm-build-neutron-k8s
-        soft: true
-      - name: charm-build-ovn-central-k8s
-        soft: true
-      - name: charm-build-ovn-relay-k8s
-        soft: true
-      - name: charm-build-tempest-k8s
+      - name: charm-build-bin-core-ovn
         soft: true
     files:
       - ops-sunbeam/ops_sunbeam/
@@ -1068,17 +374,10 @@
       - tests/local/zaza/sunbeam/charm_tests/tempest_k8s/
       - rebuild
     vars:
-      # Artifacts will be downloaded from below charm jobs
       charm_jobs:
-        - charm-build-keystone-k8s
-        - charm-build-glance-k8s
-        - charm-build-nova-k8s
-        - charm-build-placement-k8s
-        - charm-build-neutron-k8s
-        - charm-build-ovn-central-k8s
-        - charm-build-ovn-relay-k8s
-        - charm-build-tempest-k8s
-      # test_dir relative to project src dir
+        - charm-build-bin-core-identity
+        - charm-build-bin-core-compute
+        - charm-build-bin-core-ovn
       test_dir: tests/tempest
 - job:
     name: func-test-identity
@@ -1090,11 +389,7 @@
     run: playbooks/zaza-func-test.yaml
     post-run: playbooks/collect-run-data.yaml
     dependencies:
-      - name: charm-build-keystone-k8s
-        soft: true
-      - name: charm-build-horizon-k8s
-        soft: true
-      - name: charm-build-keystone-saml-k8s
+      - name: charm-build-bin-core-identity
         soft: true
     files:
       - ops-sunbeam/ops_sunbeam/
@@ -1104,24 +399,17 @@
       - rebuild
     vars:
       charm_jobs:
-        - charm-build-keystone-saml-k8s
-        - charm-build-keystone-k8s
-        - charm-build-horizon-k8s
+        - charm-build-bin-core-identity
       test_dir: tests/identity
 - job:
     name: func-test-machine
-    description: |
-      Zaza smoke test for sunbeam-machine, sunbeam-clusterd charms.
+    description: Zaza smoke test for sunbeam-machine, sunbeam-clusterd charms.
     timeout: 3600
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml
     post-run: playbooks/collect-run-data.yaml
     dependencies:
-      - name: charm-build-sunbeam-machine
-        soft: true
-      - name: charm-build-sunbeam-clusterd
-        soft: true
-      - name: charm-build-epa-orchestrator
+      - name: charm-build-bin-infra
         soft: true
     files:
       - ops-sunbeam/ops_sunbeam/
@@ -1132,93 +420,29 @@
     vars:
       env_type: lxd
       charm_jobs:
-        - charm-build-sunbeam-machine
-        - charm-build-sunbeam-clusterd
-        - charm-build-epa-orchestrator
+        - charm-build-bin-infra
       test_dir: tests/machine
-
 - job:
     name: func-test-openstack
-    description: |
-      Zaza smoke test for all the k8s sunbeam charms.
+    description: Zaza smoke test for all the k8s sunbeam charms.
     timeout: 7200
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml
     post-run: playbooks/collect-run-data.yaml
     dependencies:
-      - name: charm-build-keystone-k8s
+      - name: charm-build-bin-core-identity
         soft: true
-      - name: charm-build-glance-k8s
+      - name: charm-build-bin-core-compute
         soft: true
-      - name: charm-build-nova-k8s
+      - name: charm-build-bin-core-ovn
         soft: true
-      - name: charm-build-placement-k8s
+      - name: charm-build-bin-core-storage
         soft: true
-      - name: charm-build-neutron-k8s
+      - name: charm-build-bin-services-a
         soft: true
-      - name: charm-build-neutron-baremetal-switch-config-k8s
+      - name: charm-build-bin-services-b
         soft: true
-      - name: charm-build-neutron-generic-switch-config-k8s
-        soft: true
-      - name: charm-build-openstack-images-sync-k8s
-        soft: true
-      - name: charm-build-ovn-central-k8s
-        soft: true
-      - name: charm-build-ovn-relay-k8s
-        soft: true
-      - name: charm-build-cinder-k8s
-        soft: true
-      - name: charm-build-gnocchi-k8s
-        soft: true
-      - name: charm-build-ceilometer-k8s
-        soft: true
-      - name: charm-build-aodh-k8s
-        soft: true
-      - name: charm-build-watcher-k8s
-        soft: true
-      - name: charm-build-heat-k8s
-        soft: true
-      - name: charm-build-ironic-k8s
-        soft: true
-      - name: charm-build-ironic-conductor-k8s
-        soft: true
-      - name: charm-build-nova-ironic-k8s
-        soft: true
-      - name: charm-build-octavia-k8s
-        soft: true
-      - name: charm-build-barbican-k8s
-        soft: true
-      - name: charm-build-magnum-k8s
-        soft: true
-      - name: charm-build-manila-k8s
-        soft: true
-      - name: charm-build-manila-cephfs-k8s
-        soft: true
-      - name: charm-build-manila-data
-        soft: true
-      - name: charm-build-designate-k8s
-        soft: true
-      - name: charm-build-designate-bind-k8s
-        soft: true
-      - name: charm-build-keystone-ldap-k8s
-        soft: true
-      - name: charm-build-openstack-exporter-k8s
-        soft: true
-      - name: charm-build-horizon-k8s
-        soft: true
-      - name: charm-build-masakari-k8s
-        soft: true
-      - name: charm-build-cloudkitty-k8s
-        soft: true
-      - name: charm-build-openstack-hypervisor
-        soft: true
-      - name: charm-build-cinder-volume
-        soft: true
-      - name: charm-build-cinder-volume-ceph
-        soft: true
-      - name: charm-build-epa-orchestrator
-        soft: true
-      - name: charm-build-sunbeam-machine
+      - name: charm-build-bin-infra
         soft: true
     files:
       - ops-sunbeam/ops_sunbeam/
@@ -1262,46 +486,14 @@
       - tests/openstack/
       - rebuild
     vars:
-      # Artifacts will be downloaded from below charm jobs
       charm_jobs:
-        - charm-build-keystone-k8s
-        - charm-build-glance-k8s
-        - charm-build-nova-k8s
-        - charm-build-placement-k8s
-        - charm-build-neutron-k8s
-        - charm-build-neutron-baremetal-switch-config-k8s
-        - charm-build-neutron-generic-switch-config-k8s
-        - charm-build-openstack-images-sync-k8s
-        - charm-build-ovn-central-k8s
-        - charm-build-ovn-relay-k8s
-        - charm-build-cinder-k8s
-        - charm-build-gnocchi-k8s
-        - charm-build-ceilometer-k8s
-        - charm-build-aodh-k8s
-        - charm-build-watcher-k8s
-        - charm-build-heat-k8s
-        - charm-build-ironic-k8s
-        - charm-build-ironic-conductor-k8s
-        - charm-build-nova-ironic-k8s
-        - charm-build-octavia-k8s
-        - charm-build-barbican-k8s
-        - charm-build-magnum-k8s
-        - charm-build-manila-k8s
-        - charm-build-manila-cephfs-k8s
-        - charm-build-manila-data
-        - charm-build-designate-k8s
-        - charm-build-designate-bind-k8s
-        - charm-build-keystone-ldap-k8s
-        - charm-build-openstack-exporter-k8s
-        - charm-build-horizon-k8s
-        - charm-build-masakari-k8s
-        - charm-build-cloudkitty-k8s
-        - charm-build-openstack-hypervisor
-        - charm-build-cinder-volume
-        - charm-build-cinder-volume-ceph
-        - charm-build-epa-orchestrator
-        - charm-build-sunbeam-machine
-      # test_dir relative to project src dir
+        - charm-build-bin-core-identity
+        - charm-build-bin-core-compute
+        - charm-build-bin-core-ovn
+        - charm-build-bin-core-storage
+        - charm-build-bin-services-a
+        - charm-build-bin-services-b
+        - charm-build-bin-infra
       test_dir: tests/openstack
 - job:
     name: func-test-openstack-microovn
@@ -1317,75 +509,17 @@
     run: playbooks/zaza-func-test.yaml
     post-run: playbooks/collect-run-data.yaml
     dependencies:
-      - name: charm-build-keystone-k8s
+      - name: charm-build-bin-core-identity
         soft: true
-      - name: charm-build-glance-k8s
+      - name: charm-build-bin-core-compute
         soft: true
-      - name: charm-build-nova-k8s
+      - name: charm-build-bin-core-storage
         soft: true
-      - name: charm-build-placement-k8s
+      - name: charm-build-bin-services-a
         soft: true
-      - name: charm-build-neutron-k8s
+      - name: charm-build-bin-services-b
         soft: true
-      - name: charm-build-neutron-baremetal-switch-config-k8s
-        soft: true
-      - name: charm-build-neutron-generic-switch-config-k8s
-        soft: true
-      - name: charm-build-openstack-images-sync-k8s
-        soft: true
-      - name: charm-build-cinder-k8s
-        soft: true
-      - name: charm-build-gnocchi-k8s
-        soft: true
-      - name: charm-build-ceilometer-k8s
-        soft: true
-      - name: charm-build-aodh-k8s
-        soft: true
-      - name: charm-build-watcher-k8s
-        soft: true
-      - name: charm-build-heat-k8s
-        soft: true
-      - name: charm-build-ironic-k8s
-        soft: true
-      - name: charm-build-ironic-conductor-k8s
-        soft: true
-      - name: charm-build-nova-ironic-k8s
-        soft: true
-      - name: charm-build-octavia-k8s
-        soft: true
-      - name: charm-build-barbican-k8s
-        soft: true
-      - name: charm-build-magnum-k8s
-        soft: true
-      - name: charm-build-manila-k8s
-        soft: true
-      - name: charm-build-manila-cephfs-k8s
-        soft: true
-      - name: charm-build-manila-data
-        soft: true
-      - name: charm-build-designate-k8s
-        soft: true
-      - name: charm-build-designate-bind-k8s
-        soft: true
-      - name: charm-build-keystone-ldap-k8s
-        soft: true
-      - name: charm-build-openstack-exporter-k8s
-        soft: true
-      - name: charm-build-horizon-k8s
-        soft: true
-      - name: charm-build-masakari-k8s
-        soft: true
-      - name: charm-build-cloudkitty-k8s
-        soft: true
-      - name: charm-build-openstack-hypervisor
-        soft: true
-      - name: charm-build-cinder-volume
-        soft: true
-      - name: charm-build-cinder-volume-ceph
-        soft: true
-      - name: charm-build-sunbeam-ovn-proxy
-        soft: true
-      - name: charm-build-openstack-network-agents
+      - name: charm-build-bin-infra
         soft: true
     files:
       - ops-sunbeam/ops_sunbeam/
@@ -1426,42 +560,11 @@
       - charms/openstack-network-agents/
       - rebuild
     vars:
-      # Artifacts will be downloaded from below charm jobs
       charm_jobs:
-        - charm-build-keystone-k8s
-        - charm-build-glance-k8s
-        - charm-build-nova-k8s
-        - charm-build-placement-k8s
-        - charm-build-neutron-k8s
-        - charm-build-neutron-baremetal-switch-config-k8s
-        - charm-build-neutron-generic-switch-config-k8s
-        - charm-build-openstack-images-sync-k8s
-        - charm-build-cinder-k8s
-        - charm-build-gnocchi-k8s
-        - charm-build-ceilometer-k8s
-        - charm-build-aodh-k8s
-        - charm-build-watcher-k8s
-        - charm-build-heat-k8s
-        - charm-build-ironic-k8s
-        - charm-build-ironic-conductor-k8s
-        - charm-build-nova-ironic-k8s
-        - charm-build-octavia-k8s
-        - charm-build-barbican-k8s
-        - charm-build-magnum-k8s
-        - charm-build-manila-k8s
-        - charm-build-manila-cephfs-k8s
-        - charm-build-manila-data
-        - charm-build-designate-k8s
-        - charm-build-designate-bind-k8s
-        - charm-build-keystone-ldap-k8s
-        - charm-build-openstack-exporter-k8s
-        - charm-build-horizon-k8s
-        - charm-build-masakari-k8s
-        - charm-build-cloudkitty-k8s
-        - charm-build-openstack-hypervisor
-        - charm-build-cinder-volume
-        - charm-build-cinder-volume-ceph
-        - charm-build-sunbeam-ovn-proxy
-        - charm-build-openstack-network-agents
-      # test_dir relative to project src dir
+        - charm-build-bin-core-identity
+        - charm-build-bin-core-compute
+        - charm-build-bin-core-storage
+        - charm-build-bin-services-a
+        - charm-build-bin-services-b
+        - charm-build-bin-infra
       test_dir: tests/openstack-microovn
