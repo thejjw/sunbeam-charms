@@ -16,6 +16,10 @@
 
 """Scenario (ops.testing state-transition) tests for designate-bind-k8s."""
 
+from unittest.mock import (
+    patch,
+)
+
 from ops import (
     testing,
 )
@@ -103,3 +107,47 @@ class TestBlockedWithoutContainer:
             "blocked",
             "waiting",
         ), f"Expected blocked/waiting, got {state_out.unit_status}"
+
+
+class TestPerUnitHostPublication:
+    """Headless hostname publication on dns-backend relation."""
+
+    FAKE_FQDN = "bind-0.bind-endpoints.openstack.svc.cluster.local"
+
+    def test_leader_publishes_unit_host(
+        self, ctx, complete_state_with_dns_backend
+    ):
+        """Leader unit publishes headless hostname."""
+        with patch("socket.getfqdn", return_value=self.FAKE_FQDN):
+            state_out = ctx.run(
+                ctx.on.config_changed(),
+                complete_state_with_dns_backend,
+            )
+
+        relation = next(
+            r for r in state_out.relations if r.endpoint == "dns-backend"
+        )
+
+        assert relation.local_unit_data["host"] == self.FAKE_FQDN
+
+    def test_non_leader_publishes_unit_host(
+        self, ctx, non_leader_state_with_dns_backend
+    ):
+        """Non-leader unit publishes headless hostname."""
+        relation = next(
+            r
+            for r in non_leader_state_with_dns_backend.relations
+            if r.endpoint == "dns-backend"
+        )
+
+        with patch("socket.getfqdn", return_value=self.FAKE_FQDN):
+            state_out = ctx.run(
+                ctx.on.relation_changed(relation),
+                non_leader_state_with_dns_backend,
+            )
+
+        out_relation = next(
+            r for r in state_out.relations if r.endpoint == "dns-backend"
+        )
+
+        assert out_relation.local_unit_data["host"] == self.FAKE_FQDN
