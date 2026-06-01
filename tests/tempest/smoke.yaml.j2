@@ -38,27 +38,27 @@ applications:
     charm: ../../../ovn-central-k8s.charm
     {% else -%}
     charm: ch:ovn-central-k8s
-    channel: 25.03/edge
+    channel: 26.03/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:25.03-24.04_edge
-      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:25.03-24.04_edge
-      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:25.03-24.04_edge
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:26.03-24.04_edge
+      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:26.03-24.04_edge
+      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:26.03-24.04_edge
   ovn-relay:
     {% if ovn_relay_k8s is defined and ovn_relay_k8s is sameas true -%}
     charm: ../../../ovn-relay-k8s.charm
     {% else -%}
     charm: ch:ovn-relay-k8s
-    channel: 25.03/edge
+    channel: 26.03/edge
     {% endif -%}
     base: ubuntu@24.04
     scale: 1
     trust: true
     resources:
-      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:25.03-24.04_edge
+      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:26.03-24.04_edge
   keystone:
     {% if keystone_k8s is defined and keystone_k8s is sameas true -%}
     charm: ../../../keystone-k8s.charm
