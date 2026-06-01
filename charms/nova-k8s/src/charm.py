@@ -889,6 +889,11 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def grant_shared_metadatasecret(self, relation: ops.Relation) -> None:
         """Grant the shared metadata secret to a relation."""
+        if not self.unit.is_leader():
+            logger.debug(
+                "Unit is not leader, cannot grant access to metadata secret"
+            )
+            return
         secret_id = self.get_shared_metadatasecret_id()
         if not secret_id:
             return
