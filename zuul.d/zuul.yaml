@@ -47,8 +47,10 @@
         cinder-volume-datera: 2026.1/edge
         cinder-volume-dellpowermax: 2026.1/edge
         cinder-volume-dellpowervault: 2026.1/edge
+        cinder-volume-dellunity: 2026.1/edge
         cinder-volume-fujitsueternusdx: 2026.1/edge
         cinder-volume-hpexp: 2026.1/edge
+        cinder-volume-huawei: 2026.1/edge
         cinder-volume-ibmflashsystemcommon: 2026.1/edge
         cinder-volume-ibmflashsystemiscsi: 2026.1/edge
         cinder-volume-ibmgpfs: 2026.1/edge
