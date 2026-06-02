@@ -1,0 +1,121 @@
+type: charm
+name: cinder-volume-huawei
+summary: OpenStack volume service - Huawei OceanStor Dorado backend
+description: |
+  Cinder is the OpenStack project that provides volume management for
+  instances.  This charm provides integration with Huawei OceanStor Dorado storage backends.
+assumes:
+  - juju >= 3.3
+links:
+  source:
+    - https://opendev.org/openstack/sunbeam-charms
+  issues:
+    - https://bugs.launchpad.net/sunbeam-charms
+
+base: ubuntu@24.04
+platforms:
+  amd64:
+
+subordinate: true
+
+config:
+  options:
+    volume-backend-name:
+      default: null
+      description: |
+        Name that Cinder will report for this backend.
+      type: string
+    backend-availability-zone:
+      default: null
+      description: |
+        Availability zone to associate with this backend.
+      type: string
+    protocol:
+      description: |
+        Protocol selector: iscsi, fc.
+      type: string
+    san-ip:
+      description: |
+        IP address or hostname of the Huawei OceanStor storage array
+      type: string
+    san-login:
+      description: |
+        Username for Huawei storage array REST API
+      type: secret
+    san-password:
+      description: |
+        Password for Huawei storage array REST API
+      type: secret
+    cinder-huawei-conf-file:
+      default: /etc/cinder/cinder_huawei_conf.xml
+      description: |
+        The configuration file for the Cinder Huawei driver.
+      type: string
+    hypermetro-devices:
+      default: null
+      description: |
+        The remote device hypermetro will use.
+      type: string
+    metro-san-user:
+      default: null
+      description: |
+        The remote metro device san user.
+      type: string
+    metro-san-password:
+      default: null
+      description: |
+        The remote metro device san password (only needed for HyperMetro replication).
+      type: secret
+    metro-domain-name:
+      default: null
+      description: |
+        The remote metro device domain name.
+      type: string
+    metro-san-address:
+      default: null
+      description: |
+        The remote metro device request url.
+      type: string
+    metro-storage-pools:
+      default: null
+      description: |
+        The remote metro device pool names.
+      type: string
+
+requires:
+  cinder-volume:
+    interface: cinder-volume
+    scope: container
+    limit: 1
+  tracing:
+    interface: tracing
+    optional: true
+    limit: 1
+
+parts:
+  update-certificates:
+    plugin: nil
+    override-build: |
+      apt update
+      apt install -y ca-certificates
+      update-ca-certificates
+  charm:
+    after:
+      - update-certificates
+    build-packages:
+      - git
+      - libffi-dev
+      - libssl-dev
+      - pkg-config
+      - rustc-1.80
+      - cargo-1.80
+    charm-binary-python-packages:
+      - cryptography
+      - jsonschema
+      - pydantic
+      - jinja2
+    build-snaps: [astral-uv]
+    override-build: |
+      uv export --frozen --no-hashes --format=requirements-txt -o requirements.txt
+      craftctl default
+    charm-requirements: [requirements.txt]
