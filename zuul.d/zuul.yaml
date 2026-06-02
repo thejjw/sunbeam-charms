@@ -26,6 +26,7 @@
       # TODO: Change it to 4.x/stable once it is available
       charmcraft_channel: latest/stable
       publish_channels:
+<<<<<<< HEAD   (37056c5fae7dee9b0c2406e15586d7c8cead650a Merge "openstack-hypervisor: provide sb addresses as a comma)
         keystone-k8s: 2025.1/edge
         glance-k8s: 2025.1/edge
         nova-k8s: 2025.1/edge
@@ -86,6 +87,70 @@
         gnocchi-k8s: 2025.1/edge
         barbican-k8s: 2025.1/edge
         designate-k8s: 2025.1/edge
+=======
+        keystone-k8s: 2026.1/edge
+        glance-k8s: 2026.1/edge
+        nova-k8s: 2026.1/edge
+        placement-k8s: 2026.1/edge
+        neutron-k8s: 2026.1/edge
+        neutron-baremetal-switch-config-k8s: 2026.1/edge
+        neutron-generic-switch-config-k8s: 2026.1/edge
+        ovn-central-k8s: 26.03/edge
+        ovn-relay-k8s: 26.03/edge
+        cinder-k8s: 2026.1/edge
+        cinder-volume: 2026.1/edge
+        cinder-volume-ceph: 2026.1/edge
+        cinder-volume-dellpowerstore: 2026.1/edge
+        cinder-volume-dellsc: 2026.1/edge
+        cinder-volume-purestorage: 2026.1/edge
+        cinder-volume-hitachi: 2026.1/edge
+        cinder-volume-hpe3par: 2026.1/edge
+        cinder-volume-datacore: 2026.1/edge
+        cinder-volume-datera: 2026.1/edge
+        cinder-volume-dellpowermax: 2026.1/edge
+        cinder-volume-dellpowervault: 2026.1/edge
+        cinder-volume-dellunity: 2026.1/edge
+        cinder-volume-fujitsueternusdx: 2026.1/edge
+        cinder-volume-hpexp: 2026.1/edge
+        cinder-volume-huawei: 2026.1/edge
+        cinder-volume-ibmflashsystemcommon: 2026.1/edge
+        cinder-volume-ibmflashsystemiscsi: 2026.1/edge
+        cinder-volume-ibmgpfs: 2026.1/edge
+        cinder-volume-ibmibmstorage: 2026.1/edge
+        cinder-volume-ibmstorwizesvc: 2026.1/edge
+        cinder-volume-infinidat: 2026.1/edge
+        cinder-volume-inspuras13000: 2026.1/edge
+        cinder-volume-inspurinstorage: 2026.1/edge
+        cinder-volume-kaminario: 2026.1/edge
+        cinder-volume-linstor: 2026.1/edge
+        cinder-volume-macrosan: 2026.1/edge
+        cinder-volume-necv: 2026.1/edge
+        cinder-volume-netapp: 2026.1/edge
+        cinder-volume-nexenta: 2026.1/edge
+        cinder-volume-nimble: 2026.1/edge
+        cinder-volume-opene: 2026.1/edge
+        cinder-volume-prophetstor: 2026.1/edge
+        cinder-volume-qnap: 2026.1/edge
+        cinder-volume-sandstone: 2026.1/edge
+        cinder-volume-solidfire: 2026.1/edge
+        cinder-volume-stx: 2026.1/edge
+        cinder-volume-synology: 2026.1/edge
+        cinder-volume-toyouacs5000: 2026.1/edge
+        cinder-volume-veritasaccess: 2026.1/edge
+        cinder-volume-yadro: 2026.1/edge
+        cinder-volume-zadara: 2026.1/edge
+        horizon-k8s: 2026.1/edge
+        heat-k8s: 2026.1/edge
+        ironic-k8s: 2026.1/edge
+        ironic-conductor-k8s: 2026.1/edge
+        nova-ironic-k8s: 2026.1/edge
+        octavia-k8s: 2026.1/edge
+        aodh-k8s: 2026.1/edge
+        ceilometer-k8s: 2026.1/edge
+        gnocchi-k8s: 2026.1/edge
+        barbican-k8s: 2026.1/edge
+        designate-k8s: 2026.1/edge
+>>>>>>> CHANGE (6d565a8c390907e2f30db9cd119bd4459899e0f6 Add cinder-volume-dellunity and cinder-volume-huawei charms)
         designate-bind-k8s: 9/edge
         magnum-k8s: 2025.1/edge
         manila-k8s: 2025.1/edge
