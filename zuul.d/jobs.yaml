@@ -207,6 +207,7 @@
       - charms/storage/cinder-volume-dellpowerstore/
       - charms/storage/cinder-volume-dellpowervault/
       - charms/storage/cinder-volume-dellsc/
+      - charms/storage/cinder-volume-dellunity/
       - charms/storage/cinder-volume-fujitsueternusdx/
       - charms/storage/cinder-volume-hpexp/
       - rebuild
@@ -224,6 +225,8 @@
           path: storage/cinder-volume-dellpowervault
         - name: cinder-volume-dellsc
           path: storage/cinder-volume-dellsc
+        - name: cinder-volume-dellunity
+          path: storage/cinder-volume-dellunity
         - name: cinder-volume-fujitsueternusdx
           path: storage/cinder-volume-fujitsueternusdx
         - name: cinder-volume-hpexp
@@ -236,6 +239,7 @@
       - ops-sunbeam/ops_sunbeam/
       - charms/storage/cinder-volume-hitachi/
       - charms/storage/cinder-volume-hpe3par/
+      - charms/storage/cinder-volume-huawei/
       - charms/storage/cinder-volume-ibmflashsystemcommon/
       - charms/storage/cinder-volume-ibmflashsystemiscsi/
       - charms/storage/cinder-volume-ibmgpfs/
@@ -249,6 +253,8 @@
           path: storage/cinder-volume-hitachi
         - name: cinder-volume-hpe3par
           path: storage/cinder-volume-hpe3par
+        - name: cinder-volume-huawei
+          path: storage/cinder-volume-huawei
         - name: cinder-volume-ibmflashsystemcommon
           path: storage/cinder-volume-ibmflashsystemcommon
         - name: cinder-volume-ibmflashsystemiscsi
