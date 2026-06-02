@@ -104,6 +104,23 @@
       "parentUuid": "8da6f4ad_d6558bfc",
       "revId": "d9d9cb56ba708efaddedca0ae790eb6151a2a134",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3a202e0_95185f95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-06-02T15:20:35Z",
+      "side": 1,
+      "message": "This request should get the ClusterIP from ingress address as Raven reminded me on Element. This should not change on pod re-creation.\n\nThis should be backported on 2024.1 and 2025.1",
+      "revId": "d9d9cb56ba708efaddedca0ae790eb6151a2a134",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
