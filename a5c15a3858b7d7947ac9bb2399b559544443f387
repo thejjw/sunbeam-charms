@@ -16,6 +16,23 @@
       "message": "recheck functional test timeout",
       "revId": "a5c15a3858b7d7947ac9bb2399b559544443f387",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82e73696_35d1259f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-06-03T19:47:38Z",
+      "side": 1,
+      "message": "recheck functional test timeout",
+      "revId": "a5c15a3858b7d7947ac9bb2399b559544443f387",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
