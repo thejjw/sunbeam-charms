@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "35edab329ea6e04fb4da9d00151397b8120783df",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8490ea6e_8c5c481b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-06-03T14:46:03Z",
+      "side": 1,
+      "message": "recheck\n\nThe juju failed to download controller charm\n\u003e net/http: TLS handshake timeout",
+      "revId": "35edab329ea6e04fb4da9d00151397b8120783df",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
