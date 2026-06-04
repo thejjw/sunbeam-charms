@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "11e09e03_1d64217e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-06-04T19:21:47Z",
+      "side": 1,
+      "message": "Func test failures have nothing to do with this change. They appear to be in nova.",
+      "revId": "90777945a81239ffaac4b66f9267cb7fa9ad32a9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
