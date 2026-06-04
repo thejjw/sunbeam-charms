@@ -33,6 +33,23 @@
       "message": "recheck functional test timeout",
       "revId": "a5c15a3858b7d7947ac9bb2399b559544443f387",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4e5713a_5901e2ff",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-06-04T03:22:02Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "a5c15a3858b7d7947ac9bb2399b559544443f387",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
