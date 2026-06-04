@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "689ea87d_22e9c85e",
+        "filename": "charms/horizon-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-06-04T08:41:33Z",
+      "side": 1,
+      "message": "Is regeneration of horizon assets for every event OK? Or do we need a mechanism to check if custom theme tar is not changed, do not run this step?",
+      "revId": "2be973d3659b5512b7f4740c7459f920d05894ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6758bbc7_3cd7277b",
+        "filename": "charms/horizon-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-06-04T08:41:33Z",
+      "side": 1,
+      "message": "Can you catch ops.pebble.ExecError for container.exec calls",
+      "revId": "2be973d3659b5512b7f4740c7459f920d05894ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
