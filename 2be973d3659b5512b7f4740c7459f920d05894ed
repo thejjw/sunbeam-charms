@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "65721c0d_c3c0df6a",
+        "filename": "charms/horizon-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-06-04T16:31:43Z",
+      "side": 1,
+      "message": "Why would this not be OK? In my testing this takes little time to run. Juju hooks are reactive by nature. If the configure container method is being fired than something changed, something that could have affected the state of the container resources. I would much rather be safe than sorry when it comes to ensuring that the assets are up to date.\n\nAdditionally, implementing this kind of check would require a method for determining the current state of the assets *in* the container (not just what juju assumes that state is). Since this is a k8s pod any number of operations could have occurred that caused the pod to be destroyed and re-instantiated (this would trigger the configure container method and thus this work ensuring that despite a completely new container it is up to date with the correct resources). \n\nThe extra work to query the running container and somehow compare the existing state to the expected not only seems against the design philosophy of reactive charms, but hardly worth the pay-off (potentially cutting a negligible amount of time from *some* hook runs) for the added complexity and opportunity for accidental state drift.",
+      "parentUuid": "689ea87d_22e9c85e",
+      "revId": "2be973d3659b5512b7f4740c7459f920d05894ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "6758bbc7_3cd7277b",
         "filename": "charms/horizon-k8s/src/charm.py",
         "patchSetId": 11
@@ -31,6 +49,24 @@
       "writtenOn": "2026-06-04T08:41:33Z",
       "side": 1,
       "message": "Can you catch ops.pebble.ExecError for container.exec calls",
+      "revId": "2be973d3659b5512b7f4740c7459f920d05894ed",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d070556a_7bdb31af",
+        "filename": "charms/horizon-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-06-04T16:31:43Z",
+      "side": 1,
+      "message": "I did you one better and used y\u0027all\u0027s `exec` method which handles the errors internally. Why I was not already doing this, I do not know; that would be a question for me a month ago.",
+      "parentUuid": "6758bbc7_3cd7277b",
       "revId": "2be973d3659b5512b7f4740c7459f920d05894ed",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
