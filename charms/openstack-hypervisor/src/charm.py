@@ -47,6 +47,7 @@ import jsonschema
 import ops
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.compound_status as compound_status
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.ovn.relation_handlers as ovn_relation_handlers
@@ -192,6 +193,12 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
         self._epa_client = epa_client.EPAClient()
 
+        self._nova_compute_status = compound_status.Status(
+            "nova-compute", priority=10
+        )
+        self.status_pool.add(self._nova_compute_status)
+        self.framework.observe(self.on.update_status, self._on_update_status)
+
         self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
 
     def _on_install(self, _: ops.InstallEvent):
@@ -271,6 +278,20 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         self.certs.validate_and_regenerate_certificates_if_needed(
             self.get_tls_certificate_requests()
         )
+
+    def _on_update_status(self, event: ops.UpdateStatusEvent) -> None:
+        hypervisor_snap = self.get_snap_cache()[HYPERVISOR_SNAP_NAME]
+        if hypervisor_snap.services["nova-compute"].get("active"):
+            self._nova_compute_status.set(ops.ActiveStatus())
+        else:
+            logger.error(
+                "nova-compute is not running. Check logs at "
+                "/var/snap/openstack-hypervisor/common/"
+                "nova-compute-openstack-hypervisor.log"
+            )
+            self._nova_compute_status.set(
+                ops.BlockedStatus("nova-compute not running, see juju debug-log")
+            )
 
     def get_domain_name_sans(self) -> list[str]:
         """Get Domain names for service."""
