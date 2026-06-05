@@ -16,6 +16,23 @@
       "message": "Func test failures have nothing to do with this change. They appear to be in nova.",
       "revId": "90777945a81239ffaac4b66f9267cb7fa9ad32a9",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7e93a481_6c4616cb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-06-05T07:16:58Z",
+      "side": 1,
+      "message": "@gunnar.hovik@canonical.com the functest failures are because main is now on 2026.1-26.04 artifacts and there are some compatibility issues. I\u0027m working to resolve those.",
+      "revId": "90777945a81239ffaac4b66f9267cb7fa9ad32a9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
