@@ -33,6 +33,23 @@
       "message": "recheck functional test timeout keystone entered blocked state with HTTP 500",
       "revId": "fb0157faf083dfbc89726fc5a1189e99a1d64392",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc7d6569_5153bed2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-06-05T19:19:21Z",
+      "side": 1,
+      "message": "recheck functional test timeout",
+      "revId": "fb0157faf083dfbc89726fc5a1189e99a1d64392",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
