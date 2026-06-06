@@ -16,6 +16,23 @@
       "message": "recheck\n\nnew rocks published",
       "revId": "1f0f13f218be2fc43053eaf1f22d2adcaf0d44c8",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e15cb9f_80260dae",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-06-06T03:17:22Z",
+      "side": 1,
+      "message": "LGTM\n\nCI func-test-openstack-microovn is waiting for microovn 26.03 charms",
+      "revId": "1f0f13f218be2fc43053eaf1f22d2adcaf0d44c8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
