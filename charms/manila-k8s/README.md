@@ -61,8 +61,8 @@ The following relations are optional:
 
 The charm by default uses following images:
 
-- `ghcr.io/canonical/manila-api:2026.1-26.04_edge`
-- `ghcr.io/canonical/manila-scheduler:2026.1-26.04_edge`
+- `ghcr.io/canonical/manila-api:2026.1-24.04_edge`
+- `ghcr.io/canonical/manila-scheduler:2026.1-24.04_edge`
 
 ## Contributing
 
