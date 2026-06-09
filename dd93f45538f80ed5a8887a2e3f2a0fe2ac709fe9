@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07fa3847_5082171e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-06-09T16:23:05Z",
+      "side": 1,
+      "message": "Latest patchset implements the feature as just the resource and analyzes the uploaded archive to determine all other values.\n\nIt also adds some checks that the theme is in a plausible format as well as book-keeping to ensure not re-updating the theme when assets are already up to date in the container since we are running analysis on the files to extract the needed information already.",
+      "revId": "dd93f45538f80ed5a8887a2e3f2a0fe2ac709fe9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}

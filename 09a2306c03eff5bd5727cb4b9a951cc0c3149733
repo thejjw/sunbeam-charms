@@ -261,6 +261,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "279fe8b2_81634551",
+        "filename": "charms/horizon-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-06-09T16:23:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a33e5a90_7bc92344",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 202,
+        "endChar": 84
+      },
+      "revId": "09a2306c03eff5bd5727cb4b9a951cc0c3149733",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6381c429_a3edade8",
