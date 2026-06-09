@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "58129955_8284dac4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2026-06-09T21:27:43Z",
+      "side": 1,
+      "message": "Thank you for resolving all concerns raised @gunnar.hovik@canonical.com",
+      "revId": "9cdf6564f3979c5f4667f3f14651b994959c174b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
