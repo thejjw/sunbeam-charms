@@ -252,7 +252,7 @@ class NovaSchedulerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "nova",
                 0o640,
@@ -315,7 +315,7 @@ class NovaConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "nova",
                 0o640,
@@ -363,7 +363,7 @@ class NovaSpiceProxyPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "nova",
                 0o640,
@@ -769,7 +769,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "nova",
                 0o640,

@@ -170,7 +170,7 @@ class OSExporterOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 "_daemon_",
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "_daemon_",
                 "_daemon_",
                 0o640,

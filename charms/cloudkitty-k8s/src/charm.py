@@ -109,7 +109,7 @@ class CloudkittyWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "cloudkitty",
                 0o640,
@@ -148,7 +148,7 @@ class CloudkittyProcessorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "/etc/cloudkitty/cloudkitty.conf", "root", "cloudkitty", 0o640
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "cloudkitty",
                 0o640,

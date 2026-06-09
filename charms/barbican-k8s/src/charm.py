@@ -232,7 +232,7 @@ class BarbicanWorkerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "/etc/barbican/barbican.conf", "barbican", "barbican"
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "barbican",
                 0o640,
@@ -533,7 +533,7 @@ class BarbicanVaultOperatorCharm(BarbicanOperatorCharm):
                     self.ca_crt_file, "barbican", "barbican"
                 ),
                 sunbeam_core.ContainerConfigFile(
-                    "/usr/local/share/ca-certificates/ca-bundle.pem",
+                    "/usr/local/share/ca-certificates/ca-bundle.crt",
                     "root",
                     "barbican",
                     0o640,

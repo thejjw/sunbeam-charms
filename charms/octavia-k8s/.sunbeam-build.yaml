@@ -21,4 +21,4 @@ templates:
   - parts/identity-data
   - parts/section-oslo-messaging-rabbit
   - parts/section-oslo-notifications
-  - ca-bundle.pem.j2
+  - ca-bundle.crt.j2

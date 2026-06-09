@@ -88,7 +88,7 @@ volume_driver = volume_cinder_driver
 region_name = {{ options.region }}
 {% endif -%}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.pem
+ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.crt
 {% endif -%}
 {%- if options.loadbalancer_topology == "SINGLE" or options.anti_affinity_policy == "disable" %}
 enable_anti_affinity = False
@@ -107,7 +107,7 @@ anti_affinity_policy = {{ options.anti_affinity_policy }}
 region_name = {{ options.region }}
 {% endif -%}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.pem
+ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.crt
 {% endif -%}
 {% if options.enable_volume_based_amphora -%}
 volume_size = {{ options.volume_size }}
@@ -124,7 +124,7 @@ region_name = {{ options.region }}
 # get_user_neutron_client() in octavia uses this cafile
 # for ssl communication with neutron
 # https://review.opendev.org/c/openstack/octavia/+/939323
-cafile = /usr/local/share/ca-certificates/ca-bundle.pem
+cafile = /usr/local/share/ca-certificates/ca-bundle.crt
 {% endif -%}
 
 [glance]
@@ -132,7 +132,7 @@ cafile = /usr/local/share/ca-certificates/ca-bundle.pem
 region_name = {{ options.region }}
 {% endif -%}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.pem
+ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.crt
 {% endif -%}
 
 [certificates]
@@ -158,7 +158,7 @@ region_name = {{ options.region }}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
 # CA bundle used to validate TLS connections to Keystone and Barbican
 # when the deployment uses TLS-everywhere.
-ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.pem
+ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.crt
 {% endif %}
 
 [haproxy_amphora]

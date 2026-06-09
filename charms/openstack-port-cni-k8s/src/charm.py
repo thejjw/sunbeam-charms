@@ -55,8 +55,8 @@ _CREDS_SECRET_NAMESPACE = "kube-system"
 
 # Kubernetes Secret that holds the CA bundle for the OpenStack endpoints.
 _CA_BUNDLE_SECRET_NAME = "openstack-port-cni-ca-bundle"
-_CA_BUNDLE_KEY = "ca-bundle.pem"
-_CA_BUNDLE_PATH = "/etc/openstack-port-cni/ca-bundle.pem"
+_CA_BUNDLE_KEY = "ca-bundle.crt"
+_CA_BUNDLE_PATH = "/etc/openstack-port-cni/ca-bundle.crt"
 
 # DaemonSet managed by this charm.
 _DAEMON_DAEMONSET_NAME = "openstack-port-daemon"

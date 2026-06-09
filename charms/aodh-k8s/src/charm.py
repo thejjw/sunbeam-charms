@@ -93,7 +93,7 @@ class AODHEvaluatorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "aodh",
                 0o640,
@@ -138,7 +138,7 @@ class AODHNotifierPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "aodh",
                 0o640,
@@ -183,7 +183,7 @@ class AODHListenerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "aodh",
                 0o640,
@@ -230,7 +230,7 @@ class AODHExpirerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "aodh",
                 0o640,
@@ -311,7 +311,7 @@ class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "aodh",
                 0o640,

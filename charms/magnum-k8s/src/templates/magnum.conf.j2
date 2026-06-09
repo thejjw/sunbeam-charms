@@ -74,7 +74,7 @@ driver = log
 
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
 [drivers]
-openstack_ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
+openstack_ca_file = /usr/local/share/ca-certificates/ca-bundle.crt
 {% endif -%}
 
 [cluster_template]

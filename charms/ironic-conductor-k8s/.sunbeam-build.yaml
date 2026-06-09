@@ -14,4 +14,4 @@ templates:
   - parts/database-connection-settings
   - parts/section-oslo-messaging-rabbit
   - parts/section-service-credentials-from-identity-service
-  - ca-bundle.pem.j2
+  - ca-bundle.crt.j2

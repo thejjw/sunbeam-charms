@@ -15,4 +15,4 @@ templates:
   - parts/section-identity
   - parts/identity-data
   - parts/section-service-user
-  - ca-bundle.pem.j2
+  - ca-bundle.crt.j2

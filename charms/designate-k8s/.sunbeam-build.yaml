@@ -17,4 +17,4 @@ templates:
   - parts/section-oslo-middleware
   - parts/section-oslo-messaging-rabbit
   - parts/section-service-user
-  - ca-bundle.pem.j2
+  - ca-bundle.crt.j2

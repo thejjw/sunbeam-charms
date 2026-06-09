@@ -18,6 +18,6 @@ password = {{ identity_service.service_password }}
 region_name = {{ identity_service.region_name }}
 {% endif -%}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-cafile = /usr/local/share/ca-certificates/ca-bundle.pem
+cafile = /usr/local/share/ca-certificates/ca-bundle.crt
 {% endif -%}
 {% endif -%}

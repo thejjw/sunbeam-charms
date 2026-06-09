@@ -14,4 +14,4 @@ templates:
   - parts/database-connection
   - parts/section-identity
   - parts/identity-data
-  - ca-bundle.pem.j2
+  - ca-bundle.crt.j2

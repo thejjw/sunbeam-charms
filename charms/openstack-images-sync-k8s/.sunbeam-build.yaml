@@ -7,4 +7,4 @@ external-libraries:
 internal-libraries:
   - charms.keystone_k8s.v1.identity_service
 templates:
-  - ca-bundle.pem.j2
+  - ca-bundle.crt.j2

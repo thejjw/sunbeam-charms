@@ -21,7 +21,7 @@ service_name = glance
 valid_interfaces = admin
 region_name = {{ options.region }}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-cafile = /usr/local/share/ca-certificates/ca-bundle.pem
+cafile = /usr/local/share/ca-certificates/ca-bundle.crt
 {% endif -%}
 
 {% include "parts/section-identity" %}
@@ -40,7 +40,7 @@ region_name = {{ options.region }}
 catalog_info = volumev3:cinderv3:adminURL
 os_region_name = {{ options.region }}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-cafile = /usr/local/share/ca-certificates/ca-bundle.pem
+cafile = /usr/local/share/ca-certificates/ca-bundle.crt
 {% endif -%}
 
 {% include "parts/section-service-user" %}

@@ -204,7 +204,7 @@ OPENSTACK_API_VERSIONS = { "identity": 3, }
 OPENSTACK_KEYSTONE_MULTIDOMAIN_SUPPORT = True
 OPENSTACK_KEYSTONE_DEFAULT_DOMAIN = "{{ options.default_domain or identity_credentials.project_domain_id }}"
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-OPENSTACK_SSL_CACERT = "/usr/local/share/ca-certificates/ca-bundle.pem"
+OPENSTACK_SSL_CACERT = "/usr/local/share/ca-certificates/ca-bundle.crt"
 {% endif -%}
 
 {% if trusted_dashboard and trusted_dashboard.fid_providers -%}

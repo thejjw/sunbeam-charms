@@ -130,7 +130,7 @@ class MagnumConductorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "magnum",
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "magnum",
                 0o640,
@@ -262,7 +262,7 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                     "magnum",
                 ),
                 sunbeam_core.ContainerConfigFile(
-                    "/usr/local/share/ca-certificates/ca-bundle.pem",
+                    "/usr/local/share/ca-certificates/ca-bundle.crt",
                     "root",
                     "magnum",
                     0o640,

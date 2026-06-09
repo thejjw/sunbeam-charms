@@ -10,4 +10,4 @@ internal-libraries:
   - charms.keystone_k8s.v0.identity_credentials
   - charms.keystone_k8s.v0.identity_endpoints
 templates:
-  - ca-bundle.pem.j2
+  - ca-bundle.crt.j2

@@ -391,7 +391,7 @@ class NeutronServerPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
                     "/etc/neutron/api_audit_map.conf", "root", "neutron"
                 ),
                 sunbeam_core.ContainerConfigFile(
-                    "/usr/local/share/ca-certificates/ca-bundle.pem",
+                    "/usr/local/share/ca-certificates/ca-bundle.crt",
                     "root",
                     "neutron",
                     0o640,
@@ -859,7 +859,7 @@ class NeutronServerOVNPebbleHandler(NeutronServerPebbleHandler):
                 "/etc/neutron/api_audit_map.conf", "root", "neutron", 0o640
             ),
             sunbeam_core.ContainerConfigFile(
-                "/usr/local/share/ca-certificates/ca-bundle.pem",
+                "/usr/local/share/ca-certificates/ca-bundle.crt",
                 "root",
                 "neutron",
                 0o640,

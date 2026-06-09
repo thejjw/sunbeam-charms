@@ -282,7 +282,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         _cconfigs.extend(
             [
                 sunbeam_core.ContainerConfigFile(
-                    "/usr/local/share/ca-certificates/ca-bundle.pem",
+                    "/usr/local/share/ca-certificates/ca-bundle.crt",
                     "root",
                     self.service_group,
                     0o640,

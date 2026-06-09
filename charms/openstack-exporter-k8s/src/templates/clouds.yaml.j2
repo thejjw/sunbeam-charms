@@ -11,7 +11,7 @@ clouds:
       user_domain_name: {{ os_exporter.domain_name }}
       auth_url: {{ os_exporter.auth_url }}
 {%- if receive_ca_cert and receive_ca_cert.ca_bundle %}
-    cacert: /usr/local/share/ca-certificates/ca-bundle.pem
+    cacert: /usr/local/share/ca-certificates/ca-bundle.crt
 {%- else %}
     verify: false
 {%- endif %}

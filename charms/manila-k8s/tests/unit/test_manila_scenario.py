@@ -68,7 +68,7 @@ class TestCABundle:
             state_out,
             ctx,
             "manila-api",
-            "/usr/local/share/ca-certificates/ca-bundle.pem",
+            "/usr/local/share/ca-certificates/ca-bundle.crt",
         )
 
     def test_ca_bundle_written_scheduler(self, ctx, complete_state_with_ca):
@@ -78,7 +78,7 @@ class TestCABundle:
             state_out,
             ctx,
             "manila-scheduler",
-            "/usr/local/share/ca-certificates/ca-bundle.pem",
+            "/usr/local/share/ca-certificates/ca-bundle.crt",
         )
 
 

@@ -148,7 +148,7 @@ class DesignatePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
                     "designate",
                 ),
                 sunbeam_core.ContainerConfigFile(
-                    "/usr/local/share/ca-certificates/ca-bundle.pem",
+                    "/usr/local/share/ca-certificates/ca-bundle.crt",
                     "root",
                     "designate",
                     0o640,

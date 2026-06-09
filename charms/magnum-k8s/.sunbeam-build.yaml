@@ -20,4 +20,4 @@ templates:
   - parts/section-oslo-messaging-rabbit
   - parts/section-service-user
   - parts/section-trust
-  - ca-bundle.pem.j2
+  - ca-bundle.crt.j2

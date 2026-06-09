@@ -20,7 +20,7 @@ os_user_domain_name = {{ identity_service.service_domain_name }}
 os_project_domain_name = {{ identity_service.service_domain_name }}
 os_region_name = {{ options.region }}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
-nova_ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.pem
+nova_ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.crt
 {% endif -%}
 
 graceful_shutdown_timeout = 5

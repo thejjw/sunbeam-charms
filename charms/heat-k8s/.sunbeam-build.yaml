@@ -18,4 +18,4 @@ templates:
   - parts/section-trustee
   - parts/section-oslo-middleware
   - parts/section-oslo-messaging-rabbit
-  - ca-bundle.pem.j2
+  - ca-bundle.crt.j2
