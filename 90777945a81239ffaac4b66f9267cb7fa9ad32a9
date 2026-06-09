@@ -33,6 +33,23 @@
       "message": "@gunnar.hovik@canonical.com the functest failures are because main is now on 2026.1-26.04 artifacts and there are some compatibility issues. I\u0027m working to resolve those.",
       "revId": "90777945a81239ffaac4b66f9267cb7fa9ad32a9",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8ca92d25_1e046d5f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2026-06-09T02:03:22Z",
+      "side": 1,
+      "message": "A couple of things after talking with @gunnar.hovik@canonical.com about this. It\u0027s tempting to add a bunch of config options in order to be able to allow users maximum flexibility, but it can also lead to confusion and place some of the mental burden on the user or the code that is managing the configuration. This is a scenario where it should Just Work (TM).\n\nWe should take an opinion - when a user uploads a new theme as a resource, the theme should contain enough information to fill everything out for the user. It is necessary to peek inside the tarball in order to do this, and I know it was intentionally avoided to do reads of the tarball, but the code was already doing unnecessary I/O by expanding a tarball that was already deployed.\n\nWhen the user uploads a custom theme, I think that the intent is clear that this is the theme the user wants to use. I find it unlikely that the user would want other themes to be available to the end user - as it often includes branding that is relevant and interesting to the user/organization that deployed it. Therefore, we should make the charm behave this way. User uploads a custom theme, that is the theme that is presented to the user - the only theme available in the system. If a user uploads another 0-length file, then that is the equivalent of removing the custom theme and restoring the default behavior.",
+      "revId": "90777945a81239ffaac4b66f9267cb7fa9ad32a9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
