@@ -176,13 +176,19 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self.on.cos_agent_relation_departed,
             self._on_cos_agent_relation_departed,
         )
+
+        metrics_endpoints = [
+                {"path": "/metrics", "port": 9177},  # libvirt exporter
+        ]
+        # If using MicroOVN, OVS exporter shouldn't be used, MicroOVN charm has
+        # its own endpoints to COS
+        if not self._is_microovn_present():
+            metrics_endpoints.append(
+                {"path": "/metrics", "port": 9475} # ovs exporter
+        )
         self._grafana_agent = COSAgentProvider(
             self,
-            metrics_endpoints=[
-                {"path": "/metrics", "port": 9177},  # libvirt exporter
-                {"path": "/metrics", "port": 9475},  # ovs exporter
-                {"path": "/metrics", "port": 12345},  # node exporter
-            ],
+            metrics_endpoints=metrics_endpoints
         )
 
         self.consul_notify = ConsulNotifyRequirer(self, "consul-notify")
