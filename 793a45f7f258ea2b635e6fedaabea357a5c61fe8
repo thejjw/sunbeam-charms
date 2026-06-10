@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a2e7916_6a96dd7d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-06-10T12:26:40Z",
+      "side": 1,
+      "message": "As per Wallaby relesae notes - https://docs.openstack.org/releasenotes/barbican/wallaby.html \"The current policy only allows users with the key-manager:service-admin role to list, get, add, update or delete project quotas. The new policy allows system readers to list quotas and get quotas for specific projects and system admins (role:admin and system_scope:all) to add, update and delete project quotas.\" \n\nI dont think we should follow this approach",
+      "revId": "793a45f7f258ea2b635e6fedaabea357a5c61fe8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
