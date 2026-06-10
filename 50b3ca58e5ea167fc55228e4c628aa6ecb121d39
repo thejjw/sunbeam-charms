@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "99fe96b5_007cb2f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-06-10T07:53:42Z",
+      "side": 1,
+      "message": "can u update rebuild file with new uuid for the charms that requires this change",
+      "revId": "50b3ca58e5ea167fc55228e4c628aa6ecb121d39",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
