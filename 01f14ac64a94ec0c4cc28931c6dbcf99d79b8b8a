@@ -38,6 +38,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "2a0d6c97_3d28a5f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-06-10T12:31:33Z",
+      "side": 1,
+      "message": "To also be referenced on launchpad, launchpad bug needs to be associated to `sunbeam-charms` project.",
+      "parentUuid": "030de79e_dda64ef3",
+      "revId": "01f14ac64a94ec0c4cc28931c6dbcf99d79b8b8a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "be1ca91f_f8ae7830",
         "filename": "charms/openstack-hypervisor/src/charm.py",
         "patchSetId": 3
