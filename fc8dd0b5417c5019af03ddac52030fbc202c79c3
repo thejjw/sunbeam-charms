@@ -33,6 +33,24 @@
       "message": "main branch is now 2026.1",
       "revId": "fc8dd0b5417c5019af03ddac52030fbc202c79c3",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1471d4b_fd2e13de",
+        "filename": "charms/storage/cinder-volume-dellunity/pyproject.toml",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-06-10T12:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c70b13a0_1783d625",
+      "revId": "fc8dd0b5417c5019af03ddac52030fbc202c79c3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
