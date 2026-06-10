@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d043cbcd_22bd6dc8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-06-10T07:41:27Z",
+      "side": 1,
+      "message": "This change is a bit far-reaching, while it\u0027s not specifically wrong to do. I wonder if this will actually solve: https://bugs.launchpad.net/sunbeam-charms/+bug/2155190\n\nSince containers won\u0027t run update-ca-certificates, this will provide little effective change.\n\nI believe the initial assessment of the issue is incorrect, leading to this change.",
+      "revId": "ec6ae807ef2a0660c0e83cc45a5f176313dcbc2c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
