@@ -16,6 +16,23 @@
       "message": "recheck JUJU_TRANSIENT_SCOPE_ERROR",
       "revId": "3a94c31d8ca3f36af4a52e029cf56f2378e0869d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "30a11ee5_487dcd3f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2026-06-10T22:37:41Z",
+      "side": 1,
+      "message": "recheck timeout",
+      "revId": "3a94c31d8ca3f36af4a52e029cf56f2378e0869d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
