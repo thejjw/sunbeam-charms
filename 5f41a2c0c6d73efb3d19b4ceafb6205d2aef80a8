@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9012b339_746109f1",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2026-06-11T03:39:10Z",
+      "side": 1,
+      "message": "I recommend also dynamically load ovs related alert rules",
+      "revId": "5f41a2c0c6d73efb3d19b4ceafb6205d2aef80a8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
