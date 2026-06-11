@@ -16,6 +16,24 @@
       "message": "I recommend also dynamically load ovs related alert rules",
       "revId": "5f41a2c0c6d73efb3d19b4ceafb6205d2aef80a8",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4c65cb6c_d8d4dfda",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 35007
+      },
+      "writtenOn": "2026-06-11T08:07:50Z",
+      "side": 1,
+      "message": "Logic LGTM\n\nnit: \n\n```python3\nmetrics_rule_dir \u003d \"./src/prometheus_alert_rules\"\nmetrics_endpoints \u003d [{\"path\": \"/metrics\", \"port\": 9177}]  # libvirt exporter\n\nif not self._is_microovn_present():\n  metrics_rule_dir \u003d \"./src/prometheus_alert_rules_with_ovs\"\n  metrics_endpoints.append({\"path\": \"/metrics\", \"port\": 9475})  # ovs exporter\n  \nself._grafana_agent \u003d COSAgentProvider(\n  metrics_endpoints \u003d metrics_endpoints,\n  metrics_rules_dir \u003d metrics_rule_dir,\n)\n```",
+      "parentUuid": "9012b339_746109f1",
+      "revId": "5f41a2c0c6d73efb3d19b4ceafb6205d2aef80a8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
