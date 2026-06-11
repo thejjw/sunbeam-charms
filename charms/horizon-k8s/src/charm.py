@@ -21,6 +21,13 @@ deployment
 
 import json
 import logging
+import tarfile
+from hashlib import (
+    sha384,
+)
+from pathlib import (
+    Path,
+)
 from typing import (
     List,
     Mapping,
@@ -138,6 +145,7 @@ class AdditionalConfigAdapter(sunbeam_contexts.ConfigContext):
             "internal_endpoint": f"{parsed_int_url.scheme}://{parsed_int_url.netloc}",
             "ssl_enabled": parsed_pub_url.scheme == "https",
             "regions": list(regions),
+            "custom_theme": self.charm._state.theme_name,
         }
 
 
@@ -206,6 +214,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def __init__(self, framework):
         super().__init__(framework)
         self._state.set_default(plugins=[])
+        self._state.set_default(theme_name=None)
         self.framework.observe(
             self.on.get_dashboard_url_action,
             self._get_dashboard_url_action,
@@ -305,6 +314,82 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             )
         ]
 
+    def validate_custom_theme(self, theme_path: Path) -> str:
+        """Validate custom theme archive and return theme name."""
+        if not tarfile.is_tarfile(theme_path):
+            raise sunbeam_guard.BlockedExceptionError(
+                "Theme archive must be a tarfile"
+            )
+
+        with tarfile.open(theme_path) as theme:
+            tlds = {
+                n.removeprefix("./").split("/", 1)[0] for n in theme.getnames()
+            }
+            if len(tlds) != 1:
+                raise sunbeam_guard.BlockedExceptionError(
+                    "Theme archive must have a single top level directory"
+                )
+            if not any(
+                n.endswith("/_variables.scss") for n in theme.getnames()
+            ):
+                raise sunbeam_guard.BlockedExceptionError(
+                    "Theme archive must contain _variables.scss"
+                )
+            if not any(n.endswith("/_styles.scss") for n in theme.getnames()):
+                raise sunbeam_guard.BlockedExceptionError(
+                    ("Theme archive must contain _styles.scss")
+                )
+
+        return tlds.pop()
+
+    def configure_custom_theme(self) -> None:
+        """Upload custom theme into the container and update assets."""
+        self._state.theme_name = None
+
+        themes_dir = (
+            "/usr/share/openstack-dashboard/openstack_dashboard/themes"
+        )
+        container = self.unit.get_container(self.service_name)
+        if not container.can_connect():
+            return
+
+        try:
+            theme_path = self.model.resources.fetch("custom-theme")
+        except (ops.ModelError, RuntimeError) as e:
+            logger.warning(f"Could not fetch custom theme resource: {e}")
+            return
+
+        if theme_path.stat().st_size == 0:
+            logger.info("No custom theme resource provided")
+            return
+
+        theme_name = self.validate_custom_theme(theme_path)
+        try:
+            current_hash = container.pull(f"{themes_dir}/.hash").read().strip()
+        except ops.pebble.PathError:
+            logger.info("No previous custom theme found")
+            current_hash = None
+
+        with open(theme_path, "rb") as theme:
+            new_hash = sha384(theme.read()).hexdigest()
+
+        if current_hash and current_hash == new_hash:
+            logger.info("Theme did not change since last config update")
+            self._state.theme_name = theme_name
+            return
+
+        archive_path = "/tmp/custom_theme.tar.gz"
+        with open(theme_path, "rb") as theme:
+            container.push(archive_path, theme)
+        exec(container, f"mkdir -p {themes_dir}/{theme_name}")
+        exec(container, f"tar -xzf {archive_path} -C {themes_dir}")
+        exec(container, f"rm {archive_path}")
+        container.push(f"{themes_dir}/.hash", new_hash)
+
+        logger.info(f"Theme applied: {theme_name}:{new_hash}")
+        self._state.theme_name = theme_name
+        update_horizon_assets(container)
+
     def configure_charm(self, event: ops.framework.EventBase) -> None:
         """Configure charm services."""
         super().configure_charm(event)
@@ -329,6 +414,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Run configuration on this unit."""
         self.check_leader_ready()
         self.check_relation_handlers_ready(event)
+        self.configure_custom_theme()
         self.configure_containers()
         self.run_db_sync()
         self.init_container_services()
