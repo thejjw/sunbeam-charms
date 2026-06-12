@@ -986,6 +986,7 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ]
     ]
     IDSVC_RELATION_NAME = "identity-service"
+    IDSVC_PROCESSED_EXTRA_ROLES_KEY = "processed-extra-roles"
     IDCREDS_RELATION_NAME = "identity-credentials"
     IDOPS_RELATION_NAME = "identity-ops"
     IDENDP_RELATION_NAME = "identity-endpoints"
@@ -2038,10 +2039,16 @@ export OS_AUTH_VERSION=3
             self.IDSVC_RELATION_NAME
         ]:
             app_data = relation.data[relation.app]
+            extra_roles = self._identity_service_extra_roles(app_data)
+            processed_extra_roles = relation.data[self.app].get(
+                self.IDSVC_PROCESSED_EXTRA_ROLES_KEY
+            )
+            requested_extra_roles = self._extra_roles_marker(extra_roles)
             if (
                 not force
                 and relation.data[self.app].get("service-credentials")
                 and relation.data[self.app].get("admin-role")
+                and processed_extra_roles == requested_extra_roles
             ):
                 logger.debug(
                     "Identity service request already processed for "
@@ -2059,12 +2066,33 @@ export OS_AUTH_VERSION=3
                         json.loads(app_data["service-endpoints"]),
                         app_data["region"],
                         relation.app.name,
+                        extra_roles,
                     )
                 else:
                     logger.debug(
                         "Cannot process client request, 'service-endpoints' "
                         "not supplied"
                     )
+
+    @staticmethod
+    def _extra_roles_marker(extra_roles: List[str]) -> str:
+        """Return a stable marker for processed identity-service roles."""
+        return json.dumps(sorted(set(extra_roles)))
+
+    @staticmethod
+    def _identity_service_extra_roles(
+        app_data: Mapping[str, str],
+    ) -> List[str]:
+        """Return validated extra roles from identity-service app data."""
+        raw_extra_roles = app_data.get("extra-roles")
+        if not raw_extra_roles:
+            return []
+        extra_roles = json.loads(raw_extra_roles)
+        if not isinstance(extra_roles, list) or not all(
+            isinstance(role, str) and role for role in extra_roles
+        ):
+            raise ValueError("extra-roles must be a JSON list of strings")
+        return extra_roles
 
     def check_outstanding_identity_credentials_requests(
         self, force: bool = False
@@ -2307,6 +2335,7 @@ export OS_AUTH_VERSION=3
                 event.service_endpoints,
                 event.region,
                 event.client_app_name,
+                event.extra_roles,
             )
 
     def register_service(
@@ -2316,6 +2345,7 @@ export OS_AUTH_VERSION=3
         service_endpoints: str,
         region: str,
         client_app_name: str,
+        extra_roles: List[str] | None = None,
     ):
         """Register service in keystone."""
         logger.debug(f"Registering service requested by {client_app_name}")
@@ -2371,6 +2401,7 @@ export OS_AUTH_VERSION=3
                 password=service_password,
                 project=service_project.get("name"),
                 domain=service_domain.get("name"),
+                extra_roles=extra_roles or [],
             )
 
             service = self.keystone_manager.ksclient.create_service(
@@ -2421,6 +2452,9 @@ export OS_AUTH_VERSION=3
             )
 
         self.notify_identity_endpoint_relations()
+        relation.data[self.app][self.IDSVC_PROCESSED_EXTRA_ROLES_KEY] = (
+            self._extra_roles_marker(extra_roles or [])
+        )
 
     def add_credentials_from_event(self, event):
         """Process service request event.

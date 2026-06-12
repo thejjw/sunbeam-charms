@@ -29,18 +29,22 @@ from pathlib import (
 )
 from unittest.mock import (
     MagicMock,
+    call,
 )
 
 import charm
 import jinja2
 import keystoneauth1.exceptions
 import pytest
+import utils.manager as manager
 from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
     cleanup_database_requires_events,
 )
+
+KEYSTONE_MANAGER = manager.KeystoneManager
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -104,21 +108,26 @@ def _new_ctx():
     )
 
 
-def _identity_service_relation():
+def _identity_service_relation(extra_roles=None, local_app_data=None):
     """Create an identity-service relation with cinder."""
+    remote_app_data = {
+        "region": "RegionOne",
+        "service-endpoints": (
+            '[{"service_name": "cinderv3", "type": "volumev3",'
+            ' "description": "Cinder",'
+            ' "internal_url": "http://10.0.0.1:8776/v3/$(tenant_id)s",'
+            ' "public_url": "http://10.0.0.1:8776/v3/$(tenant_id)s",'
+            ' "admin_url": "http://10.0.0.1:8776/v3/$(tenant_id)s"}]'
+        ),
+    }
+    if extra_roles is not None:
+        remote_app_data["extra-roles"] = json.dumps(extra_roles)
+
     return testing.Relation(
         endpoint="identity-service",
         remote_app_name="cinder",
-        remote_app_data={
-            "region": "RegionOne",
-            "service-endpoints": (
-                '[{"service_name": "cinderv3", "type": "volumev3",'
-                ' "description": "Cinder",'
-                ' "internal_url": "http://10.0.0.1:8776/v3/$(tenant_id)s",'
-                ' "public_url": "http://10.0.0.1:8776/v3/$(tenant_id)s",'
-                ' "admin_url": "http://10.0.0.1:8776/v3/$(tenant_id)s"}]'
-            ),
-        },
+        remote_app_data=remote_app_data,
+        local_app_data=local_app_data or {},
         remote_units_data={0: {}},
     )
 
@@ -807,6 +816,54 @@ class TestIdentityServiceSecretRotation:
         ctx2 = _new_ctx()
         with pytest.raises(UncaughtCharmError):
             ctx2.run(ctx2.on.secret_rotate(creds_secret), state_mid)
+
+
+class TestCreateServiceAccount:
+    """Test service account creation."""
+
+    def test_extra_roles_are_created_and_granted(self):
+        """Requested extra roles are created and granted to service user."""
+        charm_mock = MagicMock()
+        charm_mock.admin_role = "admin"
+        charm_mock.service_project = "services"
+        km = KEYSTONE_MANAGER.__new__(KEYSTONE_MANAGER)
+        km.charm = charm_mock
+        km._ksclient = MagicMock()
+        km.ksclient.create_user.return_value = {"name": "svc_cinder"}
+
+        km.create_service_account(
+            username="svc_cinder",
+            password="secret",
+            project="services",
+            domain="service_domain",
+            extra_roles=["reader", "load-balancer_observer"],
+        )
+
+        km.ksclient.create_role.assert_has_calls(
+            [
+                call(name="reader", may_exist=True),
+                call(name="load-balancer_observer", may_exist=True),
+            ]
+        )
+        km.ksclient.grant_role.assert_has_calls(
+            [
+                call(
+                    role="reader",
+                    project="services",
+                    user="svc_cinder",
+                    project_domain="service_domain",
+                    user_domain="service_domain",
+                ),
+                call(
+                    role="load-balancer_observer",
+                    project="services",
+                    user="svc_cinder",
+                    project_domain="service_domain",
+                    user_domain="service_domain",
+                ),
+            ],
+            any_order=True,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -2459,6 +2516,67 @@ class TestCheckOutstandingIdentityOpsRequests:
         with ctx2(ctx2.on.config_changed(), state_with_ops) as mgr:
             mgr.charm.check_outstanding_identity_ops_requests()
             km.ksclient.create_domain.assert_not_called()
+
+
+class TestCheckOutstandingIdentityServiceRequests:
+    """Test check_outstanding_identity_service_requests dispatches requests."""
+
+    def test_extra_roles_without_marker_are_processed(
+        self, ctx, complete_state
+    ):
+        """An existing credentials response does not skip unprocessed roles."""
+        state_mid = _bootstrap(ctx, complete_state)
+        km = charm.manager.KeystoneManager.return_value
+        km.create_service_account.reset_mock()
+
+        id_svc_rel = _identity_service_relation(
+            extra_roles=["reader"],
+            local_app_data={
+                "service-credentials": "secret://some-id",
+                "admin-role": "admin",
+            },
+        )
+        state_with_id_svc = dataclasses.replace(
+            state_mid,
+            relations=[*state_mid.relations, id_svc_rel],
+        )
+
+        ctx2 = _new_ctx()
+        with ctx2(ctx2.on.config_changed(), state_with_id_svc) as mgr:
+            mgr.charm.check_outstanding_identity_service_requests()
+
+        km.create_service_account.assert_called()
+        call_kwargs = km.create_service_account.call_args[1]
+        assert call_kwargs["extra_roles"] == ["reader"]
+
+    def test_extra_roles_marker_is_order_insensitive(
+        self, ctx, complete_state
+    ):
+        """Existing credentials are skipped when role sets already match."""
+        state_mid = _bootstrap(ctx, complete_state)
+        km = charm.manager.KeystoneManager.return_value
+        km.create_service_account.reset_mock()
+
+        id_svc_rel = _identity_service_relation(
+            extra_roles=["reader", "load-balancer_observer"],
+            local_app_data={
+                "service-credentials": "secret://some-id",
+                "admin-role": "admin",
+                "processed-extra-roles": json.dumps(
+                    ["load-balancer_observer", "reader"]
+                ),
+            },
+        )
+        state_with_id_svc = dataclasses.replace(
+            state_mid,
+            relations=[*state_mid.relations, id_svc_rel],
+        )
+
+        ctx2 = _new_ctx()
+        with ctx2(ctx2.on.config_changed(), state_with_id_svc) as mgr:
+            mgr.charm.check_outstanding_identity_service_requests()
+
+        km.create_service_account.assert_not_called()
 
 
 # ---------------------------------------------------------------------------
