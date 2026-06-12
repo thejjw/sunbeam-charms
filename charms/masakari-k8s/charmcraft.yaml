@@ -41,6 +41,14 @@ config:
         If set to true, evacuate all instances.
         if set to false, evacuate only instances that have HA_Enabled=True
         metadata key.
+    enable-secret-access:
+      type: boolean
+      default: true
+      description: |
+        Whether to request access to decrypt Barbican secrets for encrypted
+        instance evacuation.
+        Toggling this value will allow the Masakari service user to decrypt user
+        secrets.
     monitoring-samples:
       type: int
       default: 3
