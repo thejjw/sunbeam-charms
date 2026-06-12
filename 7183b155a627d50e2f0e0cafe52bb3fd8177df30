@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "70ffc375_f938bdf3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-06-12T15:50:59Z",
+      "side": 1,
+      "message": "This change should not be backported as is, as we\u0027ll need to enable this in Barbican.\n```\n[oslo_policy]\nenforce_scope \u003d true\nenforce_new_defaults \u003d true\n```\n\nThese configs options have been removed in 2025.2, hence why it\u0027s not part of this change remove.",
+      "revId": "7183b155a627d50e2f0e0cafe52bb3fd8177df30",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
