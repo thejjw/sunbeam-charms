@@ -222,6 +222,8 @@
           path: storage/cinder-volume-datacore
         - name: cinder-volume-datera
           path: storage/cinder-volume-datera
+        - name: cinder-volume-dellpowerflex
+          path: storage/cinder-volume-dellpowerflex
         - name: cinder-volume-dellpowermax
           path: storage/cinder-volume-dellpowermax
         - name: cinder-volume-dellpowerstore
