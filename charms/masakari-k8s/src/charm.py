@@ -436,6 +436,13 @@ class MasakariOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return "masakari"
 
     @property
+    def identity_service_extra_roles(self) -> list[str]:
+        """Extra roles to grant to the identity-service service user."""
+        if not self.model.config["enable-secret-access"]:
+            return []
+        return ["secret-decrypter"]
+
+    @property
     def service_endpoints(self):
         """Return masakari service endpoints."""
         return [

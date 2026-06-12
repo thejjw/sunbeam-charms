@@ -1,0 +1,1 @@
+"secret:decrypt": "True:%(enforce_new_defaults)s and (rule:secret_project_admin or (rule:secret_project_member and rule:secret_owner) or (rule:secret_project_member and rule:secret_is_not_private) or rule:secret_acl_read or (project_id:{{ identity_service.service_project_id }} and role:secret-decrypter))"
