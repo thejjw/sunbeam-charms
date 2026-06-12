@@ -16,6 +16,8 @@
 
 """Scenario (ops.testing state-transition) tests for masakari-k8s."""
 
+import dataclasses
+import json
 from pathlib import (
     Path,
 )
@@ -78,6 +80,26 @@ class TestAllRelations:
         assert_config_file_exists(
             state_out, ctx, "masakari-api", "/etc/masakari/masakari.conf"
         )
+
+    def test_identity_service_extra_roles_requested(self, ctx, complete_state):
+        """Masakari requests the Barbican secret decrypter role."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        identity_service = state_out.get_relations("identity-service")[0]
+
+        assert json.loads(identity_service.local_app_data["extra-roles"]) == [
+            "secret-decrypter"
+        ]
+
+    def test_identity_service_extra_roles_disabled(self, ctx, complete_state):
+        """Masakari does not request secret access when disabled."""
+        state_in = dataclasses.replace(
+            complete_state,
+            config={"enable-secret-access": False},
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        identity_service = state_out.get_relations("identity-service")[0]
+
+        assert "extra-roles" not in identity_service.local_app_data
 
 
 class TestPebbleReady:

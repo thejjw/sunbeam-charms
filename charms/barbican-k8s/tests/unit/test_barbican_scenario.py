@@ -25,6 +25,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    assert_config_file_contains,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
@@ -55,6 +56,46 @@ class TestAllRelations:
         state_out = ctx.run(ctx.on.config_changed(), complete_state)
         assert_config_file_exists(
             state_out, ctx, "barbican-api", "/etc/barbican/barbican.conf"
+        )
+
+    def test_policy_file_configured(self, ctx, complete_state):
+        """All relations present → barbican.conf points to policy.yaml."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "barbican-api",
+            "/etc/barbican/barbican.conf",
+            [
+                "[oslo_policy]",
+                "policy_file = /etc/barbican/policy.yaml",
+            ],
+        )
+
+    def test_secret_decrypt_policy_file_written(self, ctx, complete_state):
+        """All relations present → secret:decrypt policy override is rendered."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        expected = [
+            '"secret:decrypt":',
+            "rule:secret_project_admin",
+            "rule:secret_project_member and rule:secret_owner",
+            "rule:secret_project_member and rule:secret_is_not_private",
+            "rule:secret_acl_read",
+            "project_id:svcprojid1 and role:secret-decrypter",
+        ]
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "barbican-api",
+            "/etc/barbican/policy.yaml",
+            expected,
+        )
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "barbican-worker",
+            "/etc/barbican/policy.yaml",
+            expected,
         )
 
 
