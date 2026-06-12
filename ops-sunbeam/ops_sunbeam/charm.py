@@ -900,6 +900,11 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
         return []
 
     @property
+    def identity_service_extra_roles(self) -> list[str]:
+        """Extra roles to grant to the identity-service service user."""
+        return []
+
+    @property
     def ingress_healthcheck_path(self):
         """Default ingress healthcheck path.
 
@@ -974,6 +979,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
                 self.service_endpoints,
                 str(self.model.config["region"]),
                 "identity-service" in self.mandatory_relations,
+                self.identity_service_extra_roles,
             )
             handlers.append(self.id_svc)
         return super().get_relation_handlers(handlers)
