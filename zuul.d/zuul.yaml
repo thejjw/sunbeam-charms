@@ -45,6 +45,7 @@
         cinder-volume-hpe3par: 2026.1/edge
         cinder-volume-datacore: 2026.1/edge
         cinder-volume-datera: 2026.1/edge
+        cinder-volume-dellpowerflex: 2026.1/edge
         cinder-volume-dellpowermax: 2026.1/edge
         cinder-volume-dellpowervault: 2026.1/edge
         cinder-volume-dellunity: 2026.1/edge
