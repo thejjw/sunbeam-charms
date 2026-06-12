@@ -316,6 +316,15 @@ class MyAPICharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return "5s"
 
 
+class MyAPICharmWithIdentityExtraRoles(MyAPICharm):
+    """Test API charm requesting additional identity-service roles."""
+
+    @property
+    def identity_service_extra_roles(self) -> List[str]:
+        """Extra roles to grant to the service user."""
+        return ["reader", "load-balancer_observer"]
+
+
 class MultiSvcPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Test pebble handler for multi service charm."""
 
