@@ -698,10 +698,16 @@ class TestIdentityServiceSecretRotation:
     """Test secret rotation for identity-service credentials."""
 
     def _bootstrap_with_identity(
-        self, ctx, complete_relations, complete_secrets, container, storages
+        self,
+        ctx,
+        complete_relations,
+        complete_secrets,
+        container,
+        storages,
+        extra_roles=None,
     ):
         """Bootstrap with an identity-service relation."""
-        id_rel = _identity_service_relation()
+        id_rel = _identity_service_relation(extra_roles=extra_roles)
         state_in = testing.State(
             leader=True,
             relations=[*complete_relations, id_rel],
@@ -763,6 +769,39 @@ class TestIdentityServiceSecretRotation:
         ctx2.run(ctx2.on.secret_rotate(creds_secret), state_mid)
 
         assert km.create_service_account.call_count == 2
+
+    def test_leader_rotation_preserves_extra_roles_after_connect_failure(
+        self, ctx, complete_relations, complete_secrets, container, storages
+    ):
+        """Rotated identity-service credentials keep requested extra roles."""
+        km = charm.manager.KeystoneManager.return_value
+        extra_roles = ["reader", "load-balancer_observer"]
+
+        state_mid = self._bootstrap_with_identity(
+            ctx,
+            complete_relations,
+            complete_secrets,
+            container,
+            storages,
+            extra_roles=extra_roles,
+        )
+
+        creds_secret = self._find_creds_secret(state_mid)
+        if creds_secret is None:
+            pytest.skip("No identity service credentials secret found")
+
+        km.create_service_account.reset_mock()
+        km.create_service_account.side_effect = [
+            keystoneauth1.exceptions.ConnectFailure("Failed"),
+            {"name": "cinder"},
+        ]
+
+        ctx2 = _new_ctx()
+        ctx2.run(ctx2.on.secret_rotate(creds_secret), state_mid)
+
+        assert km.create_service_account.call_count == 2
+        for create_call in km.create_service_account.call_args_list:
+            assert create_call.kwargs["extra_roles"] == extra_roles
 
     def test_leader_rotation_fails_twice_raises(
         self, ctx, complete_relations, complete_secrets, container, storages
