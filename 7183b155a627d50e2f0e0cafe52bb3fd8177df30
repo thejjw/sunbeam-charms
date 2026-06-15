@@ -34,6 +34,23 @@
       "parentUuid": "70ffc375_f938bdf3",
       "revId": "7183b155a627d50e2f0e0cafe52bb3fd8177df30",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "070b2275_e342882d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-06-15T17:35:46Z",
+      "side": 1,
+      "message": "recheck\n\nDependant change was merged without re-submit, failures were due to postfailures.",
+      "revId": "7183b155a627d50e2f0e0cafe52bb3fd8177df30",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
