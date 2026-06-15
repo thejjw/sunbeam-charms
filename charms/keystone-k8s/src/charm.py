@@ -1782,11 +1782,12 @@ export OS_AUTH_VERSION=3
         # Secret labels in identity-service relation are
         # based on remote app name. So generate labels for
         # all the remote apps related to identity-service.
-        identity_labels = [
-            f"{CREDENTIALS_SECRET_PREFIX}svc_{relation.app.name}"
+        identity_relations = {
+            f"{CREDENTIALS_SECRET_PREFIX}svc_{relation.app.name}": relation
             for relation in self.model.relations[self.IDSVC_RELATION_NAME]
-        ]
-        if event.secret.label in identity_labels:
+        }
+        identity_relation = identity_relations.get(event.secret.label)
+        if identity_relation:
             suffix = pwgen.pwgen(6)
             username = event.secret.label[
                 event.secret.label.startswith(CREDENTIALS_SECRET_PREFIX)
@@ -1794,9 +1795,14 @@ export OS_AUTH_VERSION=3
             ]
             username = f"{username}-{suffix}"
             password = str(pwgen.pwgen(12))
+            extra_roles = self._identity_service_extra_roles(
+                identity_relation.data[identity_relation.app]
+            )
 
             logger.info(f"Creating service account with username {username}")
-            self._create_service_account_with_retry(event, username, password)
+            self._create_service_account_with_retry(
+                event, username, password, extra_roles
+            )
             olduser = event.secret.get_content(refresh=True).get("username")
             event.secret.set_content(
                 {"username": username, "password": password}
@@ -1812,12 +1818,16 @@ export OS_AUTH_VERSION=3
                 )
 
     def _create_service_account_with_retry(
-        self, event: ops.EventBase, username: str, password: str
+        self,
+        event: ops.EventBase,
+        username: str,
+        password: str,
+        extra_roles: List[str] | None = None,
     ) -> dict:
         """Create a service account, tries to configure the charm if connection fails."""
         try:
             return self.keystone_manager.create_service_account(
-                username, password
+                username, password, extra_roles=extra_roles or []
             )
         except keystoneauth1.exceptions.ConnectFailure:
             logger.debug("Failed to connect to keystone", exc_info=True)
@@ -1832,7 +1842,9 @@ export OS_AUTH_VERSION=3
         # note(gboutry): If successfully configured, retry the service account creation
         # let bubble up this exception, if it fails again,
         # this hook should be retried again in the future.
-        return self.keystone_manager.create_service_account(username, password)
+        return self.keystone_manager.create_service_account(
+            username, password, extra_roles=extra_roles or []
+        )
 
     def _on_secret_remove(self, event: ops.charm.SecretRemoveEvent):
         logger.info(f"secret-remove triggered for label {event.secret.label}")
