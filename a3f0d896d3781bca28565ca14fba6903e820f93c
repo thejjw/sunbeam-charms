@@ -33,6 +33,23 @@
       "message": "recheck infra failure",
       "revId": "a3f0d896d3781bca28565ca14fba6903e820f93c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca01d3a2_566107a3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-06-15T12:16:38Z",
+      "side": 1,
+      "message": "recheck network failure",
+      "revId": "a3f0d896d3781bca28565ca14fba6903e820f93c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
