@@ -1,0 +1,11 @@
+Verified+2: Zuul
+Backport-Candidate+2: Ahmad Hassan <ahmad.hassan@canonical.com>
+Workflow+1: Ahmad Hassan <ahmad.hassan@canonical.com>
+Backport-Candidate+2: Guillaume Boutry <guillaume.boutry@canonical.com>
+Code-Review+2: Ahmad Hassan <ahmad.hassan@canonical.com>
+Submitted-by: Zuul
+Submitted-at: Mon, 15 Jun 2026 20:34:37 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/993142
+Comments-Total: 3
+Project: openstack/sunbeam-charms
+Branch: refs/heads/main
