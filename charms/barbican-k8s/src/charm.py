@@ -232,6 +232,9 @@ class BarbicanWorkerPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "/etc/barbican/barbican.conf", "barbican", "barbican"
             ),
             sunbeam_core.ContainerConfigFile(
+                "/etc/barbican/policy.yaml", "barbican", "barbican"
+            ),
+            sunbeam_core.ContainerConfigFile(
                 "/usr/local/share/ca-certificates/ca-bundle.pem",
                 "root",
                 "barbican",
@@ -398,6 +401,11 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 ),
                 sunbeam_core.ContainerConfigFile(
                     "/etc/barbican/barbican-api-paste.ini",
+                    self.service_user,
+                    self.service_group,
+                ),
+                sunbeam_core.ContainerConfigFile(
+                    "/etc/barbican/policy.yaml",
                     self.service_user,
                     self.service_group,
                 ),
