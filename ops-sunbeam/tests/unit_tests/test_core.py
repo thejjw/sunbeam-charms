@@ -14,6 +14,7 @@
 
 """Test aso."""
 
+import json
 import os
 import sys
 from unittest.mock import (
@@ -553,6 +554,32 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
         self.assertEqual(
             self.harness.charm.public_url,
             self.harness.charm.internal_url,
+        )
+
+
+class TestOSBaseOperatorAPICharmIdentityExtraRoles(
+    _TestOSBaseOperatorAPICharm
+):
+    """Test identity-service extra-role requests."""
+
+    def setUp(self) -> None:
+        """Run test class setup."""
+        super().setUp(test_charms.MyAPICharmWithIdentityExtraRoles)
+
+    def test_identity_service_request_includes_extra_roles(self) -> None:
+        """Charm-declared extra roles are published on identity-service."""
+        self.harness.set_leader()
+
+        identity_rel_id = test_utils.add_base_identity_service_relation(
+            self.harness
+        )
+        local_data = self.harness.get_relation_data(
+            identity_rel_id, self.harness.charm.app
+        )
+
+        self.assertEqual(
+            json.loads(local_data["extra-roles"]),
+            ["reader", "load-balancer_observer"],
         )
 
 

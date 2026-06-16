@@ -566,6 +566,7 @@ class KeystoneManager:
         password: str,
         project: Optional[str] = None,
         domain: Optional[str] = None,
+        extra_roles: Optional[list[str]] = None,
     ) -> dict:
         """Helper function to create service account."""
         if not domain:
@@ -595,6 +596,15 @@ class KeystoneManager:
             project_domain="service_domain",
             user_domain="service_domain",
         )
+        for role in extra_roles or []:
+            self.ksclient.create_role(name=role, may_exist=True)
+            self.ksclient.grant_role(
+                role=role,
+                project=project,
+                user=service_user.get("name"),
+                project_domain=domain,
+                user_domain=domain,
+            )
         return service_user
 
     def update_service_catalog_for_keystone(self):
