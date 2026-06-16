@@ -287,6 +287,7 @@ dependencies = [
     { name = "jsonschema" },
     { name = "lightkube" },
     { name = "netifaces" },
+    { name = "object-storage-charmlib" },
     { name = "opentelemetry-api" },
     { name = "opentelemetry-exporter-otlp-proto-http" },
     { name = "ops" },
@@ -304,6 +305,7 @@ requires-dist = [
     { name = "jsonschema" },
     { name = "lightkube" },
     { name = "netifaces" },
+    { name = "object-storage-charmlib", specifier = "~=1.0" },
     { name = "opentelemetry-api", specifier = "~=1.21.0" },
     { name = "opentelemetry-exporter-otlp-proto-http" },
     { name = "ops" },
@@ -574,6 +576,18 @@ name = "netifaces"
 version = "0.11.0"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a6/91/86a6eac449ddfae239e93ffc1918cf33fd9bab35c04d1e963b311e347a73/netifaces-0.11.0.tar.gz", hash = "sha256:043a79146eb2907edf439899f262b3dfe41717d34124298ed281139a8b93ca32", size = 30106, upload-time = "2021-05-31T08:33:02.506Z" }
+
+[[package]]
+name = "object-storage-charmlib"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "ops" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/bf/82/dcdb48f2c04d789fa7b2ca8a9c704646283e1998891c9d1c25f5c945501f/object_storage_charmlib-1.0.0.tar.gz", hash = "sha256:7bb853f9d1d14273e8bc603964e8582b93ea635aff0619612f7c8b6bce6da900", size = 30561, upload-time = "2026-04-02T03:35:02.903Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ad/b5/e791aa2ae783a419f728be6bb090606285142b267f172437965e769ce7d5/object_storage_charmlib-1.0.0-py3-none-any.whl", hash = "sha256:17e95686ddeac3dd83dc6f9276d75f967fdd84b5658e3660d6ef1fe72b3ad56e", size = 33694, upload-time = "2026-04-02T03:35:01.728Z" },
+]
 
 [[package]]
 name = "opentelemetry-api"
