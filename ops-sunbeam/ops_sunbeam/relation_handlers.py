@@ -595,11 +595,13 @@ class IdentityServiceRequiresHandler(RelationHandler):
         service_endpoints: list[dict],
         region: str,
         mandatory: bool = False,
+        extra_roles: list[str] | None = None,
     ) -> None:
         """Run constructor."""
         super().__init__(charm, relation_name, callback_f, mandatory)
         self.service_endpoints = service_endpoints
         self.region = region
+        self.extra_roles = extra_roles or []
 
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for an Identity service relation."""
@@ -607,7 +609,11 @@ class IdentityServiceRequiresHandler(RelationHandler):
         import charms.keystone_k8s.v1.identity_service as sun_id
 
         id_svc = sunbeam_tracing.trace_type(sun_id.IdentityServiceRequires)(
-            self.charm, self.relation_name, self.service_endpoints, self.region
+            self.charm,
+            self.relation_name,
+            self.service_endpoints,
+            self.region,
+            self.extra_roles,
         )
         self.framework.observe(
             id_svc.on.ready, self._on_identity_service_ready
@@ -639,13 +645,15 @@ class IdentityServiceRequiresHandler(RelationHandler):
         """Update relation outside of relation context."""
         if self.model.get_relation(self.relation_name):
             self.interface.register_services(
-                self.service_endpoints, self.region
+                self.service_endpoints, self.region, self.extra_roles
             )
 
     def update_service_endpoints(self, service_endpoints: list[dict]) -> None:
         """Update service endpoints on the relation."""
         self.service_endpoints = service_endpoints
-        self.interface.register_services(service_endpoints, self.region)
+        self.interface.register_services(
+            service_endpoints, self.region, self.extra_roles
+        )
 
     @property
     def ready(self) -> bool:
