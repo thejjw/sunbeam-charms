@@ -20,6 +20,7 @@ base: ubuntu@24.04
 platforms:
   amd64:
   arm64:
+  s390x:
 
 config:
   options:
@@ -87,3 +88,8 @@ parts:
       - astral-uv
     build-packages:
       - git
+      # s390x: build cryptography (openssl-sys/Rust) from source
+      - libssl-dev
+      - pkg-config
+      - rustc
+      - cargo

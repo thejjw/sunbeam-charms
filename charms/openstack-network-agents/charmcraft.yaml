@@ -13,6 +13,7 @@ subordinate: true
 platforms:
   amd64:
   arm64:
+  s390x:
 
 requires:
   juju-info:
@@ -93,3 +94,8 @@ parts:
       - astral-uv
     build-packages:
       - git
+      # s390x: build cryptography (openssl-sys/Rust) from source
+      - libssl-dev
+      - pkg-config
+      - rustc
+      - cargo
