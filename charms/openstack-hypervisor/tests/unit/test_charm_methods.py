@@ -100,6 +100,7 @@ def harness(_mock_heavy_externals, monkeypatch):
 def charm_instance(harness):
     """Return the charm after ``harness.begin()``."""
     harness.begin()
+    harness.charm.get_snap_cache.cache_clear()
     return harness.charm
 
 
@@ -114,6 +115,7 @@ class TestActions:
     def test_openstack_hypervisor_snap_not_installed(self, harness):
         """Raise SnapNotFoundError when snap cache raises."""
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         charm.snap.SnapCache.side_effect = snap.SnapNotFoundError
         with pytest.raises(snap.SnapNotFoundError):
             harness.run_action("list-nics")
@@ -121,6 +123,7 @@ class TestActions:
     def test_list_nics_snap_not_installed(self, harness):
         """Raise ActionFailed when hypervisor snap is not present."""
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = False
         epa_orchestrator_snap_mock = MagicMock()
@@ -137,6 +140,7 @@ class TestActions:
     def test_list_nics(self, harness):
         """Action returns nics on success."""
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = True
         epa_orchestrator_snap_mock = MagicMock()
@@ -159,6 +163,7 @@ class TestActions:
     def test_list_nics_error(self, harness):
         """Raise ActionFailed when subprocess returns non-zero."""
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = True
         epa_orchestrator_snap_mock = MagicMock()
@@ -178,6 +183,7 @@ class TestActions:
     def test_list_gpus(self, harness):
         """Action returns gpus on success."""
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = True
         epa_orchestrator_snap_mock = MagicMock()
@@ -210,6 +216,7 @@ class TestActions:
     def test_list_gpus_error(self, harness):
         """Raise ActionFailed when subprocess returns non-zero for list-gpus."""
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = True
         epa_orchestrator_snap_mock = MagicMock()
@@ -230,6 +237,7 @@ class TestActions:
         """Action returns flavors from snap config."""
         flavors = "flavor1,flavor2"
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = True
         epa_orchestrator_snap_mock = MagicMock()
@@ -917,12 +925,14 @@ class TestOVSProvider:
         """ovs-provider=microovn always returns True regardless of snap state."""
         harness.update_config({"ovs-provider": "microovn"})
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         assert harness.charm._is_microovn_present() is True
 
     def test_is_microovn_present_config_hypervisor(self, harness):
         """ovs-provider=hypervisor always returns False regardless of snap state."""
         harness.update_config({"ovs-provider": "hypervisor"})
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         # Even when microovn snap is reported as present, config wins.
         microovn_snap_mock = MagicMock()
         microovn_snap_mock.present = True
@@ -936,6 +946,7 @@ class TestOVSProvider:
         """ovs-provider=auto returns True when microovn snap is present."""
         harness.update_config({"ovs-provider": "auto"})
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         microovn_snap_mock = MagicMock()
         microovn_snap_mock.present = True
         charm.snap.SnapCache.return_value = {
@@ -948,6 +959,7 @@ class TestOVSProvider:
         """ovs-provider=auto returns False when microovn snap is not present."""
         harness.update_config({"ovs-provider": "auto"})
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         microovn_snap_mock = MagicMock()
         microovn_snap_mock.present = False
         charm.snap.SnapCache.return_value = {
@@ -970,6 +982,7 @@ class TestOVSProvider:
         """Same ovs-provider value after initial config does not raise."""
         harness.update_config({"ovs-provider": "microovn"})
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         harness.charm._state.ovs_provider = "microovn"
         # Should not raise.
         harness.charm._check_ovs_provider_immutable()
@@ -990,6 +1003,7 @@ class TestOVSProvider:
         """Valid ovs-provider values do not raise."""
         harness.update_config({"ovs-provider": value})
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         harness.charm._validate_ovs_provider()  # must not raise
 
     def test_validate_ovs_provider_invalid_raises(self, harness):
@@ -1028,6 +1042,7 @@ class TestOVSProvider:
         """ensure_snap_present sets network.ovs-managed-by on the snap."""
         harness.update_config({"ovs-provider": "microovn"})
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = False
         charm.snap.SnapCache.return_value = {
@@ -1050,6 +1065,7 @@ class TestOVSProvider:
         """ensure_snap_present falls back to auto for an invalid ovs-provider."""
         harness.update_config({"ovs-provider": "bad-value"})
         harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = False
         charm.snap.SnapCache.return_value = {
