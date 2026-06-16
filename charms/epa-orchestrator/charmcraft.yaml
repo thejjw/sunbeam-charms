@@ -11,6 +11,7 @@ subordinate: true
 platforms:
   amd64:
   arm64:
+  s390x:
 config:
   options:
     snap-name:
@@ -46,3 +47,8 @@ parts:
       - astral-uv
     build-packages:
       - git
+      # s390x: build cryptography (openssl-sys/Rust) from source
+      - libssl-dev
+      - pkg-config
+      - rustc-1.82
+      - cargo-1.82

@@ -22,6 +22,7 @@ base: ubuntu@24.04
 platforms:
   amd64:
   arm64:
+  s390x:
 
 assumes:
   - k8s-api
@@ -112,6 +113,11 @@ parts:
       - astral-uv
     build-packages:
       - git
+      # s390x: build cryptography (openssl-sys/Rust) from source
+      - libssl-dev
+      - pkg-config
+      - rustc-1.82
+      - cargo-1.82
   manifests:
     # Bundle the upstream manifest trees into the charm so that
     # ops.manifests can locate them at runtime under upstream/.

@@ -17,6 +17,7 @@ base: ubuntu@24.04
 platforms:
   amd64:
   arm64:
+  s390x:
 
 subordinate: true
 
@@ -201,3 +202,8 @@ parts:
       - git
       - gcc
       - python3-dev
+      # s390x: build cryptography (openssl-sys/Rust) from source
+      - libssl-dev
+      - pkg-config
+      - rustc-1.82
+      - cargo-1.82
