@@ -65,6 +65,7 @@ logger = logging.getLogger(__name__)
 IMAGES_DIR = "/var/lib/glance/images"
 STORAGE_NAME = "local-repository"
 CEPH_RGW_RELATION = "ceph-rgw-ready"
+CORS_ORIGIN_RELATION_NAME = "cors-origin"
 
 # Use Apache to translate /<model-name> to /.  This should be possible
 # adding rules to the api-paste.ini but this does not seem to work
@@ -418,6 +419,14 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             CEPH_RGW_RELATION in self.mandatory_relations,
         )
         handlers.append(self.ceph_rgw)
+
+        self.cors_origin = sunbeam_rhandlers.CORSOriginRequiresHandler(
+            self,
+            CORS_ORIGIN_RELATION_NAME,
+            self.configure_charm,
+            CORS_ORIGIN_RELATION_NAME in self.mandatory_relations,
+        )
+        handlers.append(self.cors_origin)
 
         return handlers
 
