@@ -63,18 +63,11 @@
   when: charm_builds is not defined
 
 - name: charms are packed
-  command:
-    cmd: "{{ tox_executable }} -e build -- {{ item.path }}"
-    chdir: "{{ zuul.project.src_dir }}"
-  register: res
-  retries: 3
-  delay: 30
-  until: >
-    "Charm packed ok" in res.stdout
-  failed_when: '"Failed instance creation" in res.stdout'
+  include_tasks: build-one.yaml
   loop: "{{ charm_builds }}"
   loop_control:
-    label: "{{ item.path }}"
+    loop_var: charm_build
+    label: "{{ charm_build.path }}"
 
 - name: Publish built charm as zuul artifact (check pipeline only)
   when: zuul.pipeline == 'check'
