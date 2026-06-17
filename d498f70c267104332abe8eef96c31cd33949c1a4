@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "693b9069_4e1a9dfb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-06-17T19:15:38Z",
+      "side": 1,
+      "message": "Testing notes:\n\n- Tested on single region sunbeam. Large file uploads succeed after the fix. \n- Tested on a multi-region deployment and confirmed CORS was an issue. Integrating the relation between glance and horizon in this patch fixes the CORS issue.",
+      "revId": "d498f70c267104332abe8eef96c31cd33949c1a4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
