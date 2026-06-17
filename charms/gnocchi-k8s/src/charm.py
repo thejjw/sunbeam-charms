@@ -56,20 +56,22 @@ class S3RelationHandler(sunbeam_rhandlers.RelationHandler):
     def setup_event_handler(self) -> ops.framework.Object:
         """Configure event handlers for the s3-credentials relation."""
         logger.debug("Setting up S3 credentials event handler")
-        from charms.data_platform_libs.v0.s3 import (
+        from object_storage import (
             S3Requirer,
         )
 
         s3 = sunbeam_tracing.trace_type(S3Requirer)(
             self.charm,
             self.relation_name,
-            bucket_name="gnocchi",
+            bucket="gnocchi",
         )
         self.framework.observe(
-            s3.on.credentials_changed, self._on_credentials_changed
+            s3.on.storage_connection_info_changed,
+            self._on_credentials_changed,
         )
         self.framework.observe(
-            s3.on.credentials_gone, self._on_credentials_gone
+            s3.on.storage_connection_info_gone,
+            self._on_credentials_gone,
         )
         return s3
 
@@ -84,14 +86,14 @@ class S3RelationHandler(sunbeam_rhandlers.RelationHandler):
     @property
     def ready(self) -> bool:
         """Report if S3 relation is ready."""
-        info = self.interface.get_s3_connection_info()
+        info = self.interface.get_storage_connection_info()
         return bool(info.get("access-key") and info.get("secret-key"))
 
     def context(self) -> dict:
         """Return S3 context for template rendering."""
         if not self.ready:
             return {}
-        info = self.interface.get_s3_connection_info()
+        info = self.interface.get_storage_connection_info()
         return {
             "s3_endpoint": info.get("endpoint", ""),
             "s3_access_key_id": info.get("access-key", ""),
