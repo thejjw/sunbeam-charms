@@ -247,6 +247,8 @@ provides:
   trusted-dashboard:
     interface: trusted-dashboard
     limit: 1
+  cors-origin:
+    interface: cors-origin
 
 peers:
   peers:

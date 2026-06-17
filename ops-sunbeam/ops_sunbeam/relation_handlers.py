@@ -58,6 +58,7 @@ if typing.TYPE_CHECKING:
     import charms.cinder_volume_ceph.v0.ceph_access as ceph_access
     import charms.data_platform_libs.v0.data_interfaces as data_interfaces
     import charms.gnocchi_k8s.v0.gnocchi_service as gnocchi_service
+    import charms.horizon_k8s.v0.cors_origin as cors_origin
     import charms.horizon_k8s.v0.trusted_dashboard as trusted_dashboard
     import charms.keystone_k8s.v0.identity_credentials as identity_credentials
     import charms.keystone_k8s.v0.identity_endpoints as identity_endpoints
@@ -2560,3 +2561,71 @@ class TrustedDashboardProvidesHandler(RelationHandler):
         return {
             "fid_providers": self.interface.fid_providers,
         }
+
+
+@sunbeam_tracing.trace_type
+class CORSOriginProvidesHandler(RelationHandler):
+    """Handler for the cors-origin relation on the provider side."""
+
+    interface: "cors_origin.CORSOriginProvider"
+
+    def setup_event_handler(self):
+        """Configure event handlers for the cors-origin relation."""
+        logger.debug("Setting up cors-origin event handler")
+        import charms.horizon_k8s.v0.cors_origin as cors_origin
+
+        cors = cors_origin.CORSOriginProvider(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            self.charm.on[self.relation_name].relation_joined,
+            self._on_cors_origin_joined,
+        )
+        return cors
+
+    def _on_cors_origin_joined(self, event) -> None:
+        self.callback_f(event)
+
+    def set_provider_info(self, origin: str) -> None:
+        """Publish the public origin to the cors-origin relation."""
+        self.interface.set_provider_info(origin)
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return True
+
+
+@sunbeam_tracing.trace_type
+class CORSOriginRequiresHandler(RelationHandler):
+    """Handler for the cors-origin relation on the requirer side."""
+
+    interface: "cors_origin.CORSOriginRequirer"
+
+    def setup_event_handler(self):
+        """Configure event handlers for the cors-origin relation."""
+        logger.debug("Setting up cors-origin event handler")
+        import charms.horizon_k8s.v0.cors_origin as cors_origin
+
+        cors = cors_origin.CORSOriginRequirer(
+            self.charm,
+            self.relation_name,
+        )
+        self.framework.observe(
+            cors.on.cors_origin_changed,
+            self._on_cors_origin_changed,
+        )
+        return cors
+
+    def _on_cors_origin_changed(self, event) -> None:
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if relation is ready."""
+        return True
+
+    def context(self) -> dict:
+        """Return context for rendering the cors section in template."""
+        return {"allowed_origin": self.interface.get_horizon_origin() or ""}
