@@ -9,6 +9,7 @@ external-libraries:
 internal-libraries:
   - charms.keystone_k8s.v1.identity_service
   - charms.sunbeam_libs.v0.service_readiness
+  - charms.horizon_k8s.v0.cors_origin
 templates:
   - parts/section-database
   - parts/database-connection
