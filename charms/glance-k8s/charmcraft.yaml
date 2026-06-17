@@ -345,6 +345,9 @@ requires:
     interface: tracing
     optional: true
     limit: 1
+  cors-origin:
+    interface: cors-origin
+    optional: true
 
 provides:
   image-service:

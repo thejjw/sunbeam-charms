@@ -54,6 +54,11 @@ flavor = keystone
 
 {% include "parts/section-oslo-middleware" %}
 
+{% if cors_origin and cors_origin.allowed_origin %}
+[cors]
+allowed_origin = {{ cors_origin.allowed_origin }}
+{% endif %}
+
 {% include "parts/section-oslo-messaging-rabbit" %}
 
 [audit_middleware_notifications]
