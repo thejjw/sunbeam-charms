@@ -103,6 +103,24 @@
       "parentUuid": "72f4b822_0dd03653",
       "revId": "d498f70c267104332abe8eef96c31cd33949c1a4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "079827e1_bcf0e938",
+        "filename": "charms/glance-k8s/charmcraft.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2026-06-18T15:20:55Z",
+      "side": 1,
+      "message": "Clear. Thanks for the explanation.",
+      "parentUuid": "df7c119b_67258f72",
+      "revId": "d498f70c267104332abe8eef96c31cd33949c1a4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
