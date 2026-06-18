@@ -50,6 +50,23 @@
       "message": "Overall LGTM\n\nCan you add the new relation in tests/openstack/smoke.yaml.j2 and in other functional tests if applicable",
       "revId": "d498f70c267104332abe8eef96c31cd33949c1a4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "72f4b822_0dd03653",
+        "filename": "charms/glance-k8s/charmcraft.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2026-06-18T02:35:47Z",
+      "side": 1,
+      "message": "I might be super naive here, but we already know the origin, don\u0027t we? I mean in the current \"multi-region\" design in Sunbeam, Horizon and Keystone are assured to be co-located in the same region. And the Glance in the secondary region already knows the keystone endpoints, which is the same origin as the horizon endpoint.\n\nhttps://canonical-openstack.readthedocs-hosted.com/en/latest/how-to/misc/multiregion-deployments/\n\u003e Shared services such as Keystone and Horizon will be omitted from secondary regions. These services will be provided by the region controllers and consumed through cross-controller Juju relations.\n...\n\u003e juju integrate keystone-endpoints glance:identity-service\n\n\ni.e. it could be something similar to the following (using an existing variable + a bit of logic in the template or the code):\n\n```\n[cors]\n# set the keystone origin as horizon origin since it\u0027s the same thing in the current design\nallowed_origin \u003d {{ identity_service.public_auth_url | \"logic to extract the origin\" }}\n```",
+      "revId": "d498f70c267104332abe8eef96c31cd33949c1a4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
