@@ -33,6 +33,23 @@
       "message": "Related terraform change: https://github.com/canonical/sunbeam-terraform/pull/149",
       "revId": "d498f70c267104332abe8eef96c31cd33949c1a4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "364f9185_f0f421dd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-06-18T00:29:05Z",
+      "side": 1,
+      "message": "Overall LGTM\n\nCan you add the new relation in tests/openstack/smoke.yaml.j2 and in other functional tests if applicable",
+      "revId": "d498f70c267104332abe8eef96c31cd33949c1a4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
