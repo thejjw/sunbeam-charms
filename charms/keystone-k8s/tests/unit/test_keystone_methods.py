@@ -2312,8 +2312,8 @@ class TestGetCertificateBody:
         with ctx2(ctx2.on.config_changed(), state_mid) as mgr:
             body = mgr.charm._get_certificate_body(cert_pem)
             assert body != ""
-            assert "BEGIN" not in body
-            assert "END" not in body
+            assert "-----BEGIN CERTIFICATE-----" not in body
+            assert "-----END CERTIFICATE-----" not in body
 
     def test_garbage_data_returns_empty(self, ctx, complete_state):
         """Non-PEM data → returns empty string."""
