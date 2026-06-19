@@ -33,6 +33,23 @@
       "message": "recheck hypervisor is not idle",
       "revId": "484f118665feb78551eada290c44b5e436fd9687",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5e088d25_2c1fdcc3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-06-19T08:17:25Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "484f118665feb78551eada290c44b5e436fd9687",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
