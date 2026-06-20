@@ -218,6 +218,136 @@ class TestEnabledBackends:
             ), f"{expected!r} not in 01-swift.conf"
 
 
+class TestS3Backend:
+    """External S3 backend: charm reaches active and renders S3 store config."""
+
+    def test_active_with_s3_credentials(self, ctx, complete_state_s3):
+        """Config-changed with S3 relation (no ceph) → ActiveStatus."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state_s3)
+        assert state_out.unit_status == testing.ActiveStatus("")
+
+    def test_enabled_backends_with_s3(self, ctx, complete_state_s3):
+        """With S3 relation, enabled_backends includes s3 and it is default."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state_s3)
+        container_out = state_out.get_container("glance-api")
+        fs = container_out.get_filesystem(ctx)
+        content = (fs / "etc/glance/glance-api.conf").read_text()
+
+        for expected in [
+            "enabled_backends = filestore:file,s3:s3\n",
+            "default_backend = s3",
+            "[s3]",
+            "s3_store_host = http://s3.example.com:9000",
+            "s3_store_access_key = test-access-key",
+            "s3_store_secret_key = test-secret-key",
+            "s3_store_bucket = glance",
+            "s3_store_create_bucket_on_put = True",
+            "s3_store_bucket_url_format = path",
+        ]:
+            assert expected in content, f"{expected!r} not in glance-api.conf"
+
+        assert "default_backend = ceph" not in content
+
+
+class TestStorageBackendLossWarning:
+    """Losing connection to previous storage backend indicates a warning."""
+
+    # S3 backend
+
+    def test_s3_loss_shows_warning(
+        self,
+        ctx,
+        complete_relations_s3,
+        complete_secrets,
+        container,
+    ):
+        """S3 previously configured, now gone → Active with warning."""
+        relations_without_s3 = [
+            r for r in complete_relations_s3 if r.endpoint != "s3-credentials"
+        ]
+        charm_state = testing.StoredState(
+            name="_state",
+            owner_path="GlanceOperatorCharm",
+            content={
+                "s3_previously_configured": True,
+                "ceph_previously_configured": False,
+                "unit_bootstrapped": True,
+            },
+        )
+        state_in = testing.State(
+            leader=True,
+            relations=relations_without_s3,
+            containers=[container],
+            secrets=complete_secrets,
+            storages=[testing.Storage("local-repository")],
+            stored_states=[charm_state],
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        assert state_out.unit_status.name == "active"
+        assert "S3 integration lost" in state_out.unit_status.message
+        assert "using local storage" in state_out.unit_status.message
+
+    def test_s3_active_sets_previously_configured_flag(
+        self,
+        ctx,
+        complete_state_s3,
+    ):
+        """With S3 relation active, s3_previously_configured is set in state."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state_s3)
+        charm_ss = [
+            ss
+            for ss in state_out.stored_states
+            if ss.owner_path == "GlanceOperatorCharm"
+        ]
+        assert charm_ss, "No GlanceOperatorCharm stored state found"
+        assert charm_ss[0].content.get("s3_previously_configured") is True
+
+    def test_s3_active_no_warning(self, ctx, complete_state_s3):
+        """With S3 relation active, no degradation warning is shown."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state_s3)
+        assert state_out.unit_status == testing.ActiveStatus("")
+
+    # Ceph backend
+
+    def test_ceph_loss_shows_warning(
+        self,
+        ctx,
+        complete_relations,
+        complete_secrets,
+        container,
+    ):
+        """Ceph previously configured, now gone → Active with warning."""
+        relations_without_ceph = [
+            r for r in complete_relations if r.endpoint != "ceph"
+        ]
+        charm_state = testing.StoredState(
+            name="_state",
+            owner_path="GlanceOperatorCharm",
+            content={
+                "s3_previously_configured": False,
+                "ceph_previously_configured": True,
+                "unit_bootstrapped": True,
+            },
+        )
+        state_in = testing.State(
+            leader=True,
+            relations=relations_without_ceph,
+            containers=[container],
+            secrets=complete_secrets,
+            storages=[testing.Storage("local-repository")],
+            stored_states=[charm_state],
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        assert state_out.unit_status.name == "active"
+        assert "Ceph integration lost" in state_out.unit_status.message
+        assert "using local storage" in state_out.unit_status.message
+
+    def test_ceph_active_no_warning(self, ctx, complete_state):
+        """With Ceph relation active, no degradation warning is shown."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert state_out.unit_status == testing.ActiveStatus("")
+
+
 class TestWaitingNonLeader:
     """Non-leader with all relations should wait for leader readiness."""
 

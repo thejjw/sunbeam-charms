@@ -66,6 +66,7 @@ IMAGES_DIR = "/var/lib/glance/images"
 STORAGE_NAME = "local-repository"
 CEPH_RGW_RELATION = "ceph-rgw-ready"
 CORS_ORIGIN_RELATION_NAME = "cors-origin"
+S3_CREDENTIALS_RELATION = "s3-credentials"
 
 # Use Apache to translate /<model-name> to /.  This should be possible
 # adding rules to the api-paste.ini but this does not seem to work
@@ -125,8 +126,8 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
 
 
 @sunbeam_tracing.trace_type
-class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
-    """A relation handler for optional glance storage relations.
+class GlanceCephRelationHandler(sunbeam_rhandlers.CephClientHandler):
+    """A relation handler for optional glance Ceph storage relations.
 
     This will claim ready if there is local storage that is available in
     order to configure the glance local registry. If there is a ceph
@@ -153,6 +154,28 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
             mandatory=True,
         )
         self.juju_storage_name = juju_storage_name
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for the ceph-client interface.
+
+        Extends the parent class to also observe relation-broken, so the
+        charm is reconfigured immediately when Ceph is removed (mirroring
+        how the S3 handler reacts to storage_connection_info_gone).
+        """
+        ceph = super().setup_event_handler()
+        self.framework.observe(
+            self.charm.on[self.relation_name].relation_broken,
+            self._on_ceph_relation_broken,
+        )
+        return ceph
+
+    def _on_ceph_relation_broken(self, event: ops.framework.EventBase) -> None:
+        """Handle ceph relation broken event."""
+        logger.warning(
+            "Ceph relation broken; Ceph-backed images will be unavailable "
+            "until relation is re-established"
+        )
+        self.callback_f(event)
 
     def set_status(self, status: compound_status.Status) -> None:
         """Override the base set_status.
@@ -199,8 +222,7 @@ class GlanceStorageRelationHandler(sunbeam_rhandlers.CephClientHandler):
             return True
 
         logger.debug(
-            "Ceph relation does not exist and no local storage is "
-            "available."
+            "Ceph relation does not exist and no local storage is available."
         )
         return False
 
@@ -224,8 +246,8 @@ class GlanceConfigContext(sunbeam_ctxts.ConfigContext):
         """Context used when rendering templates."""
         image_size_cap = self.charm.config.get("image-size-cap")
         if not image_size_cap:
-            # Defaults to 30G for ceph storage and 1G for local storage
-            if self.charm.has_ceph_relation():
+            # Defaults to 30G for ceph/s3 storage and 1G for local storage
+            if self.charm.has_ceph_relation() or self.charm.has_s3_relation():
                 image_size_cap = "30G"
             else:
                 image_size_cap = "1G"
@@ -235,6 +257,8 @@ class GlanceConfigContext(sunbeam_ctxts.ConfigContext):
             enabled_backends.append("ceph:rbd")
         if self.charm.ceph_rgw.ready:
             enabled_backends.append("swift:swift")
+        if self.charm.has_s3_relation() and self.charm.s3.ready:
+            enabled_backends.append("s3:s3")
 
         return {
             "enabled_backends": ",".join(enabled_backends),
@@ -315,6 +339,10 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self._state.set_default(
+            s3_previously_configured=False,
+            ceph_previously_configured=False,
+        )
         self.framework.observe(
             self.on.describe_status_action, self._describe_status_action
         )
@@ -402,7 +430,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def get_relation_handlers(self) -> List[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = super().get_relation_handlers()
-        self.ceph = GlanceStorageRelationHandler(
+        self.ceph = GlanceCephRelationHandler(
             self,
             "ceph",
             self.configure_charm,
@@ -427,6 +455,16 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             CORS_ORIGIN_RELATION_NAME in self.mandatory_relations,
         )
         handlers.append(self.cors_origin)
+
+        # Handler for external S3-compatible storage (via s3-integrator)
+        self.s3 = sunbeam_rhandlers.S3RelationHandler(
+            self,
+            S3_CREDENTIALS_RELATION,
+            self.configure_charm,
+            bucket="glance",
+            mandatory=S3_CREDENTIALS_RELATION in self.mandatory_relations,
+        )
+        handlers.append(self.s3)
 
         return handlers
 
@@ -490,6 +528,75 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """
         return self.model.get_relation("ceph") is not None
 
+    def has_s3_relation(self) -> bool:
+        """Returns whether the application has been related to an S3 store.
+
+        :return: True if the s3-credentials relation has been made, False
+            otherwise.
+        """
+        return self.model.get_relation(S3_CREDENTIALS_RELATION) is not None
+
+    def _resolve_storage_backend(self) -> bool:
+        """Resolve the active storage backend (S3, Ceph, or local).
+
+        Returns True if a backend is ready, False if waiting or blocked.
+        """
+        if self.has_s3_relation():
+            if not self.s3.ready:
+                logger.debug("S3 relation is not yet ready, waiting.")
+                self.status.set(WaitingStatus("s3 relation not ready yet"))
+                return False
+            self._state.s3_previously_configured = True
+            return True
+        if self.has_ceph_relation():
+            if not self.ceph.key:
+                logger.debug("Ceph key is not yet present, waiting.")
+                self.status.set(WaitingStatus("ceph key not present yet"))
+                return False
+            self._state.ceph_previously_configured = True
+            return True
+        if self.has_local_storage():
+            logger.debug("Local storage is configured, using that.")
+            return True
+        logger.debug("Neither local storage nor ceph relation exists.")
+        self.status.set(
+            BlockedStatus(
+                "Missing storage. Relate to Ceph, S3, or add local storage to continue."
+            )
+        )
+        return False
+
+    def _setup_ceph_keyring(self, ph) -> None:  # noqa: D401
+        """Write the Ceph keyring and set permissions inside the container."""
+        ph.execute(
+            [
+                "ceph-authtool",
+                f"/etc/ceph/ceph.client.{self.app.name}.keyring",
+                "--create-keyring",
+                f"--name=client.{self.app.name}",
+                f"--add-key={self.ceph.key}",
+            ],
+            exception_on_error=True,
+        )
+        ph.execute(
+            [
+                "chown",
+                f"{self.service_user}:{self.service_group}",
+                f"/etc/ceph/ceph.client.{self.app.name}.keyring",
+                "/etc/ceph/rbdmap",
+            ],
+            exception_on_error=True,
+        )
+        ph.execute(
+            [
+                "chmod",
+                "640",
+                f"/etc/ceph/ceph.client.{self.app.name}.keyring",
+                "/etc/ceph/rbdmap",
+            ],
+            exception_on_error=True,
+        )
+
     def configure_charm(self, event) -> None:
         """Catchall handler to configure charm services."""
         not_ready_relations = self.get_mandatory_relations_not_ready(event)
@@ -497,56 +604,13 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             logger.debug("Deferring configuration, charm relations not ready")
             return
 
-        if self.has_ceph_relation():
-            if not self.ceph.key:
-                logger.debug("Ceph key is not yet present, waiting.")
-                self.status.set(WaitingStatus("ceph key not present yet"))
-                return
-        elif self.has_local_storage():
-            logger.debug("Local storage is configured, using that.")
-        else:
-            logger.debug("Neither local storage nor ceph relation exists.")
-            self.status.set(
-                BlockedStatus(
-                    "Missing storage. Relate to Ceph "
-                    "or add local storage to continue."
-                )
-            )
+        if not self._resolve_storage_backend():
             return
 
         ph = self.get_named_pebble_handler("glance-api")
         if ph.pebble_ready:
             if self.has_ceph_relation() and self.ceph.key:
-                # The code for managing ceph client config should move to
-                # a shared lib as it is common across clients
-                ph.execute(
-                    [
-                        "ceph-authtool",
-                        f"/etc/ceph/ceph.client.{self.app.name}.keyring",
-                        "--create-keyring",
-                        f"--name=client.{self.app.name}",
-                        f"--add-key={self.ceph.key}",
-                    ],
-                    exception_on_error=True,
-                )
-                ph.execute(
-                    [
-                        "chown",
-                        f"{self.service_user}:{self.service_group}",
-                        f"/etc/ceph/ceph.client.{self.app.name}.keyring",
-                        "/etc/ceph/rbdmap",
-                    ],
-                    exception_on_error=True,
-                )
-                ph.execute(
-                    [
-                        "chmod",
-                        "640",
-                        f"/etc/ceph/ceph.client.{self.app.name}.keyring",
-                        "/etc/ceph/rbdmap",
-                    ],
-                    exception_on_error=True,
-                )
+                self._setup_ceph_keyring(ph)
             else:
                 logger.debug("Using local storage")
 
@@ -566,6 +630,35 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if self.bootstrapped():
             for handler in self.pebble_handlers:
                 handler.start_service()
+            self._set_active_status()
+
+    def _set_active_status(self) -> None:
+        """Set active status, surfacing a warning if a storage backend was lost.
+
+        When S3 or Ceph was previously configured and the relation has since
+        been removed, the charm falls back to local storage.
+
+        Images stored in the lost backend become unavailable (zero-byte files)
+        while the relation is gone.
+        """
+        if self._state.s3_previously_configured and not self.has_s3_relation():
+            self.status.set(
+                ActiveStatus(
+                    "S3 integration lost; S3-backed images unavailable, "
+                    "using local storage"
+                )
+            )
+        elif (
+            self._state.ceph_previously_configured
+            and not self.has_ceph_relation()
+        ):
+            self.status.set(
+                ActiveStatus(
+                    "Ceph integration lost; Ceph-backed images unavailable, "
+                    "using local storage"
+                )
+            )
+        else:
             self.status.set(ActiveStatus(""))
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
@@ -611,9 +704,15 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "image-size-cap must be a number or a number followed by "
                 "KG, MG, GB, TB, or PB"
             ) from e
+
         if self.has_ceph_relation():
             logger.debug("ceph relation exists, skipping PVC size check")
             return
+
+        if self.has_s3_relation():
+            logger.debug("s3 relation exists, skipping PVC size check")
+            return
+
         pvc_size = self._fetch_volume_size()
         if pvc_size < image_cap_size:
             raise ValueError(

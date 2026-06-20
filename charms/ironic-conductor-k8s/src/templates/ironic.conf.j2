@@ -83,22 +83,24 @@ provisioning_network = {{ options.provisioning_network }}
 
 [glance]
 {% include "parts/ironic-identity-data-id-creds" %}
-{% if identity_credentials.region -%}
+{%- if identity_credentials.region %}
 region_name = {{ identity_credentials.region }}
-{% endif -%}
+{%- endif %}
+{%- if not ironic_config.s3_backend %}
 swift_container = glance
-{% if ironic_config.temp_url_secret -%}
+{%- if ironic_config.temp_url_secret %}
 swift_temp_url_key = {{ ironic_config.temp_url_secret }}
-{% endif %}
+{%- endif %}
 {%- if options.swift_temp_url_duration and options.swift_temp_url_duration > 0 %}
 swift_temp_url_duration = {{ options.swift_temp_url_duration }}
 {%- endif %}
 
 [swift]
 {% include "parts/ironic-identity-data-id-creds" %}
-{% if identity_credentials.region -%}
+{%- if identity_credentials.region %}
 region_name = {{ identity_credentials.region }}
-{% endif -%}
+{%- endif %}
+{%- endif %}
 
 [cinder]
 {% include "parts/ironic-identity-data-id-creds" %}
