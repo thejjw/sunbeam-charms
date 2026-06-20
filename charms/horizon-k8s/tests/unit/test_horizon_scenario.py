@@ -25,6 +25,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    assert_config_file_contains,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
@@ -196,3 +197,43 @@ class TestRelationBrokenBlocksOrWaits:
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
         )
+
+
+class TestDirectUploadMode:
+    """Horizon uses direct image upload mode."""
+
+    def test_direct_upload_mode_in_config(self, ctx, complete_state):
+        """local_settings.py should set HORIZON_IMAGES_UPLOAD_MODE to direct."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "horizon",
+            "/etc/openstack-dashboard/local_settings.py",
+            ["HORIZON_IMAGES_UPLOAD_MODE = 'direct'"],
+        )
+
+
+class TestCORSOriginRelation:
+    """Horizon publishes its public origin over the cors-origin relation."""
+
+    def test_origin_published_on_relation_joined(
+        self, ctx, complete_relations, complete_secrets, container
+    ):
+        """When a requirer joins, Horizon writes its origin to the relation databag."""
+        cors_relation = testing.Relation(
+            endpoint="cors-origin",
+            remote_app_name="glance",
+        )
+        state_in = testing.State(
+            leader=True,
+            relations=complete_relations + [cors_relation],
+            containers=[container],
+            secrets=complete_secrets,
+        )
+        state_out = ctx.run(ctx.on.relation_joined(cors_relation), state_in)
+
+        out_relation = state_out.get_relation(cors_relation.id)
+        origin = out_relation.local_app_data.get("origin")
+        assert origin is not None
+        assert origin.startswith("http")

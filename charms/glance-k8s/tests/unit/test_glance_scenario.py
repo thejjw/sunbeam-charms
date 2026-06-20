@@ -25,7 +25,9 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    assert_config_file_contains,
     assert_config_file_exists,
+    assert_config_file_not_contains,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
     assert_unit_status,
@@ -262,4 +264,87 @@ class TestRelationBrokenBlocksOrWaits:
         """Charm should block/wait when a mandatory relation is broken."""
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
+        )
+
+
+class TestCORSOriginRelation:
+    """Glance renders the [cors] section based on the cors-origin relation."""
+
+    def _cors_relation(
+        self, origin: str = "http://172.16.1.205"
+    ) -> testing.Relation:
+        """A complete cors-origin relation with origin data from Horizon."""
+        return testing.Relation(
+            endpoint="cors-origin",
+            remote_app_name="horizon",
+            remote_app_data={"origin": origin},
+        )
+
+    def test_cors_section_rendered_when_relation_present(
+        self,
+        ctx,
+        complete_relations,
+        complete_secrets,
+        container,
+        ceph_stored_state,
+    ):
+        """When cors-origin relation has origin data, glance-api.conf gets a [cors] section."""
+        state_in = testing.State(
+            leader=True,
+            relations=complete_relations + [self._cors_relation()],
+            containers=[container],
+            secrets=complete_secrets,
+            stored_states=[ceph_stored_state],
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "glance-api",
+            "/etc/glance/glance-api.conf",
+            [
+                "[cors]",
+                "allowed_origin = http://172.16.1.205",
+            ],
+        )
+
+    def test_cors_section_absent_without_relation(self, ctx, complete_state):
+        """Without the cors-origin relation, [cors] shouldn't appear in glance-api.conf."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_not_contains(
+            state_out,
+            ctx,
+            "glance-api",
+            "/etc/glance/glance-api.conf",
+            ["[cors]"],
+        )
+
+    def test_cors_section_absent_when_origin_empty(
+        self,
+        ctx,
+        complete_relations,
+        complete_secrets,
+        container,
+        ceph_stored_state,
+    ):
+        """A cors-origin relation with no origin data should not render [cors]."""
+        empty_cors_relation = testing.Relation(
+            endpoint="cors-origin",
+            remote_app_name="horizon",
+            remote_app_data={},
+        )
+        state_in = testing.State(
+            leader=True,
+            relations=complete_relations + [empty_cors_relation],
+            containers=[container],
+            secrets=complete_secrets,
+            stored_states=[ceph_stored_state],
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        assert_config_file_not_contains(
+            state_out,
+            ctx,
+            "glance-api",
+            "/etc/glance/glance-api.conf",
+            ["[cors]"],
         )

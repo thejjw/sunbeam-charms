@@ -53,6 +53,7 @@ logger = logging.getLogger(__name__)
 
 HORIZON = "horizon"
 TRUSTED_DASHBOARD_RELATION_NAME = "trusted-dashboard"
+CORS_ORIGIN_RELATION_NAME = "cors-origin"
 
 
 def exec(container: ops.model.Container, cmd: str):
@@ -245,6 +246,14 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             trusted_dashboard=self._websso_url
         )
 
+    def _publish_cors_origin(self) -> None:
+        """Publish the public origin to all cors-origin relations."""
+        if not self.model.unit.is_leader():
+            return
+        parsed = parse.urlparse(_remove_redundant_port(self.public_url))
+        origin = f"{parsed.scheme}://{parsed.netloc}"
+        self.cors_origin.set_provider_info(origin)
+
     @property
     def federated_providers(self) -> List[Mapping[str, str]]:
         """List of federated identity providers."""
@@ -397,6 +406,7 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             # Handle the case where TLS is enabled/external hostname is changed
             # and we need to update the trusted dashboard URL in keystone.
             self._on_trusted_dashboard_providers_changed(event)
+            self._publish_cors_origin()
             self.status.set(ops.model.ActiveStatus(""))
             if self.model.unit.is_leader():
                 if self.ingress_public.url:
@@ -461,6 +471,14 @@ class HorizonOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 )
             )
             handlers.append(self.trusted_dashboard)
+
+        if self.can_add_handler(CORS_ORIGIN_RELATION_NAME, handlers):
+            self.cors_origin = sunbeam_rhandlers.CORSOriginProvidesHandler(
+                self,
+                CORS_ORIGIN_RELATION_NAME,
+                self.configure_charm,
+            )
+            handlers.append(self.cors_origin)
 
         if self.can_add_handler("identity-endpoints", handlers):
             self.id_endpoints = (
