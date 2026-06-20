@@ -16,7 +16,7 @@ pytest-interface-tester    # barbican-k8s
 pydantic                   # traefik-k8s ingress lib
 netifaces                  # cinder-volume-ceph
 cosl                       # openstack-exporter
-object-storage-charmlib    # gnocchi-k8s s3
+object-storage-charmlib    # gnocchi-k8s, glance-k8s s3
 git+https://github.com/juju/charm-helpers.git#egg=charmhelpers                               # glance-k8s,gnocchi-k8s
 git+https://opendev.org/openstack/charm-ops-interface-ceph-client#egg=interface_ceph_client  # cinder-volume-ceph
 requests-unixsocket # sunbeam-clusterd
