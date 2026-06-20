@@ -73,6 +73,7 @@ if typing.TYPE_CHECKING:
     import charms.traefik_k8s.v0.traefik_route as traefik_route
     import charms.traefik_k8s.v2.ingress as ingress
     import interface_ceph_client.ceph_client as ceph_client  # type: ignore [import-untyped]
+    import object_storage  # type: ignore[import-not-found]
     from ops_sunbeam.charm import (
         OSBaseOperatorCharm,
     )
@@ -2631,3 +2632,85 @@ class CORSOriginRequiresHandler(RelationHandler):
     def context(self) -> dict:
         """Return context for rendering the cors section in template."""
         return {"allowed_origin": self.interface.get_horizon_origin() or ""}
+
+
+@sunbeam_tracing.trace_type
+class S3RelationHandler(RelationHandler):
+    """Handler for the s3-credentials relation.
+
+    Provides an external S3-compatible object store backend (via the
+    s3-integrator charm) as an alternative to internal Ceph.
+    """
+
+    interface: "object_storage.S3Requirer"
+
+    def __init__(
+        self,
+        charm: "OSBaseOperatorCharm",
+        relation_name: str,
+        callback_f: Callable,
+        bucket: str,
+        mandatory: bool = False,
+    ) -> None:
+        """Run constructor."""
+        super().__init__(charm, relation_name, callback_f, mandatory)
+        self.bucket = bucket
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for the s3-credentials relation."""
+        logger.debug("Setting up S3 credentials event handler")
+        # Lazy import to ensure this lib is only required if the charm
+        # has this relation.
+        from object_storage import (
+            S3Requirer,
+        )
+
+        s3 = sunbeam_tracing.trace_type(S3Requirer)(
+            self.charm,
+            self.relation_name,
+            bucket=self.bucket,
+        )
+        self.framework.observe(
+            s3.on.storage_connection_info_changed,
+            self._on_credentials_changed,
+        )
+        self.framework.observe(
+            s3.on.storage_connection_info_gone,
+            self._on_credentials_gone,
+        )
+        return s3
+
+    def _on_credentials_changed(self, event: ops.framework.EventBase) -> None:
+        """Handle credentials changed event."""
+        self.callback_f(event)
+
+    def _on_credentials_gone(self, event: ops.framework.EventBase) -> None:
+        """Handle credentials gone event."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if the S3 relation is ready."""
+        info = self.interface.get_storage_connection_info()
+        return bool(info.get("access-key") and info.get("secret-key"))
+
+    def context(self) -> dict:
+        """Return the S3 context for template rendering."""
+        if not self.ready:
+            return {}
+        info = self.interface.get_storage_connection_info()
+
+        # boto3 quirk for the us-east-1 region
+        # It must be treated as the default (LocationConstraint omitted)
+        # rather than explicitly  set, otherwise S3 bucket creation fails.
+        # https://docs.aws.amazon.com/boto3/latest/guide/s3-example-creating-buckets.html#create-an-amazon-s3-bucket
+        region: str | None = info.get("region", "us-east-1")
+        region = None if region == "us-east-1" else region
+
+        return {
+            "s3_endpoint": info.get("endpoint", ""),
+            "s3_access_key_id": info.get("access-key", ""),
+            "s3_secret_access_key": info.get("secret-key", ""),
+            "s3_bucket": info.get("bucket", self.bucket),
+            "s3_region": region,
+        }

@@ -111,3 +111,50 @@ def complete_state(
         secrets=complete_secrets,
         stored_states=[ceph_stored_state],
     )
+
+
+def s3_credentials_relation_complete(
+    endpoint: str = "s3-credentials",
+) -> testing.Relation:
+    """S3 credentials relation with access-key, secret-key, and endpoint set."""
+    return testing.Relation(
+        endpoint=endpoint,
+        remote_app_name="s3-integrator",
+        remote_app_data={
+            "access-key": "test-access-key",
+            "secret-key": "test-secret-key",
+            "endpoint": "http://s3.example.com:9000",
+            "bucket": "glance",
+            "region": "us-east-1",
+        },
+        remote_units_data={},
+    )
+
+
+@pytest.fixture()
+def complete_relations_s3():
+    """Relations to reach active status using an external S3 backend.
+
+    Ceph is intentionally absent; Glance falls back to local storage for the
+    filestore backend and uses S3 as the default image backend.
+    """
+    return [
+        db_relation_complete(),
+        identity_service_relation_complete(),
+        ingress_internal_relation_complete(),
+        ingress_public_relation_complete(),
+        s3_credentials_relation_complete(),
+        peer_relation(),
+    ]
+
+
+@pytest.fixture()
+def complete_state_s3(complete_relations_s3, complete_secrets, container):
+    """Full state with leader, S3 relations, local storage, and container."""
+    return testing.State(
+        leader=True,
+        relations=complete_relations_s3,
+        containers=[container],
+        secrets=complete_secrets,
+        storages=[testing.Storage("local-repository")],
+    )
