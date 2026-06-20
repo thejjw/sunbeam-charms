@@ -4,4 +4,8 @@ deploy_logs_storage_backend = {{ options.deploy_logs_storage_backend }}
 deploy_logs_local_path = {{ options.deploy_logs_local_path }}
 deploy_logs_swift_container = {{ options.deploy_logs_swift_container }}
 deploy_logs_swift_days_to_expire = {{ options.deploy_logs_swift_days_to_expire }}
+{% if ironic_config.s3_backend -%}
+image_download_source = local
+{% else -%}
 image_download_source = swift
+{% endif -%}

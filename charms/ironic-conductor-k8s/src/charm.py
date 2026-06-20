@@ -48,6 +48,7 @@ from ops_sunbeam.k8s_resource_handlers import (
 logger = logging.getLogger(__name__)
 
 CEPH_RGW_RELATION = "ceph-rgw-ready"
+S3_CREDENTIALS_RELATION = "s3-credentials"
 IRONIC_CONDUCTOR_CONTAINER = "ironic-conductor"
 IRONIC_CONDUCTOR_HTTP_PORT = 8080
 IRONIC_CONDUCTOR_TFTP_PORT = 69
@@ -139,6 +140,66 @@ _HW_TYPES_MAP = {
 
 
 @sunbeam_tracing.trace_type
+class S3RelationHandler(sunbeam_rhandlers.RelationHandler):
+    """Handler for the s3-credentials relation.
+
+    Signals that Glance uses an external S3-compatible object store (via the
+    s3-integrator charm). When present, Ironic serves deploy images from
+    Glance's S3 backend through the conductor's local HTTP server instead of
+    relying on a Ceph RadosGW Swift store.
+    """
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for the s3-credentials relation."""
+        logger.debug("Setting up S3 credentials event handler")
+        from object_storage import (
+            S3Requirer,
+        )
+
+        s3 = sunbeam_tracing.trace_type(S3Requirer)(
+            self.charm,
+            self.relation_name,
+            bucket="glance",
+        )
+        self.framework.observe(
+            s3.on.storage_connection_info_changed,
+            self._on_credentials_changed,
+        )
+        self.framework.observe(
+            s3.on.storage_connection_info_gone,
+            self._on_credentials_gone,
+        )
+        return s3
+
+    def _on_credentials_changed(self, event: ops.framework.EventBase) -> None:
+        """Handle credentials changed event."""
+        self.callback_f(event)
+
+    def _on_credentials_gone(self, event: ops.framework.EventBase) -> None:
+        """Handle credentials gone event."""
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Report if the S3 relation is ready."""
+        info = self.interface.get_storage_connection_info()
+        return bool(info.get("access-key") and info.get("secret-key"))
+
+    def context(self) -> dict:
+        """Return the S3 context for template rendering."""
+        if not self.ready:
+            return {}
+        info = self.interface.get_storage_connection_info()
+        return {
+            "s3_endpoint": info.get("endpoint", ""),
+            "s3_access_key_id": info.get("access-key", ""),
+            "s3_secret_access_key": info.get("secret-key", ""),
+            "s3_bucket": info.get("bucket", "glance"),
+            "s3_region": info.get("region", "us-east-1"),
+        }
+
+
+@sunbeam_tracing.trace_type
 class IronicConductorConfigurationContext(sunbeam_ctxts.ConfigContext):
     """Configuration context to set ironic parameters."""
 
@@ -148,6 +209,7 @@ class IronicConductorConfigurationContext(sunbeam_ctxts.ConfigContext):
             "hardware_type_cfg": self._get_hardware_types_config(),
             "temp_url_secret": self.charm.leader_get("temp_url_secret"),
             "loadbalancer_ip": self.charm.loadbalancer_ip,
+            "s3_backend": self.charm.s3_backend,
         }
 
         return ctxt
@@ -348,6 +410,15 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             )
             handlers.append(self.ceph_rgw)
 
+        if self.can_add_handler(S3_CREDENTIALS_RELATION, handlers):
+            self.s3 = S3RelationHandler(
+                self,
+                S3_CREDENTIALS_RELATION,
+                self.configure_charm,
+                mandatory=S3_CREDENTIALS_RELATION in self.mandatory_relations,
+            )
+            handlers.append(self.s3)
+
         return handlers
 
     @property
@@ -411,6 +482,25 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Kubernetes LoadBalancer IP for the ironic-conductor services."""
         return self.lb_handler.get_loadbalancer_ip()
 
+    def has_s3_relation(self) -> bool:
+        """Whether the application has been related to an external S3 store.
+
+        :return: True if the s3-credentials relation has been made, False
+            otherwise.
+        """
+        return self.model.get_relation(S3_CREDENTIALS_RELATION) is not None
+
+    @property
+    def s3_backend(self) -> bool:
+        """Whether Glance is backed by an external S3 object store.
+
+        When True, Ironic downloads deploy images from Glance (served from its
+        S3 backend) and exposes them over the conductor's local HTTP server,
+        so no Ceph RadosGW Swift store or temp-url secret is required.
+        """
+        s3 = getattr(self, "s3", None)
+        return bool(s3 is not None and s3.ready)
+
     def _ensure_loadbalancer_ip(self):
         if not self.loadbalancer_ip:
             raise sunbeam_guard.BlockedExceptionError(
@@ -449,6 +539,11 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             )
 
     def _validate_temp_url_secret(self):
+        if self.s3_backend:
+            # Glance uses an external S3 backend: deploy images are downloaded
+            # from Glance and served by the conductor's local HTTP server, so
+            # no Swift temp URL secret is required.
+            return
         temp_url_secret = self.leader_get("temp_url_secret")
         if not temp_url_secret:
             raise sunbeam_guard.BlockedExceptionError(

@@ -30,5 +30,9 @@ uefi_pxe_config_template=$pybasedir/drivers/modules/ipxe_config.template
 # the ironic-conductor node and served over its local HTTP
 # server. Applicable only when 'ipxe_enabled' option is set to
 # true. (boolean value)
+{% if ironic_config.s3_backend -%}
+ipxe_use_swift = false
+{% else -%}
 ipxe_use_swift = true
+{% endif -%}
 {% endif -%}
