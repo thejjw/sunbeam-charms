@@ -885,6 +885,188 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
         self.handler.interface.sync.assert_called_once()
 
 
+class TestS3RelationHandler(test_utils.CharmTestCase):
+    """Tests for the S3RelationHandler class."""
+
+    PATCHES = []
+
+    def setUp(self) -> None:
+        """Set up the test environment."""
+        super().setUp(test_utils, self.PATCHES)
+
+        self.mock_charm = MagicMock()
+
+        # Patch setup_event_handler and __post_init__ to avoid constructing
+        # the real S3Requirer interface during __init__.
+        with patch.object(
+            sunbeam_rhandlers.S3RelationHandler,
+            "setup_event_handler",
+            return_value=MagicMock(),
+        ), patch.object(
+            sunbeam_rhandlers.S3RelationHandler,
+            "__post_init__",
+            return_value=None,
+        ):
+            self.handler = sunbeam_rhandlers.S3RelationHandler(
+                charm=self.mock_charm,
+                relation_name="s3-credentials",
+                callback_f=MagicMock(),
+                bucket="glance",
+                mandatory=True,
+            )
+        self.handler.interface = MagicMock()
+
+    def test_bucket_stored(self) -> None:
+        """Test that the bucket is stored on the handler."""
+        self.assertEqual(self.handler.bucket, "glance")
+
+    def test_setup_event_handler_passes_bucket(self) -> None:
+        """Test that setup_event_handler forwards bucket to S3Requirer."""
+        fake_module = MagicMock()
+        with patch.dict("sys.modules", {"object_storage": fake_module}), patch(
+            "ops_sunbeam.tracing.trace_type", side_effect=lambda cls: cls
+        ):
+            result = self.handler.setup_event_handler()
+
+        fake_requirer = fake_module.S3Requirer
+        fake_requirer.assert_called_once_with(
+            self.mock_charm,
+            "s3-credentials",
+            bucket="glance",
+        )
+        self.assertIs(result, fake_requirer.return_value)
+
+    def test_setup_event_handler_observes_events(self) -> None:
+        """Test that setup_event_handler observes the S3 change/gone events."""
+        fake_module = MagicMock()
+        with patch.dict("sys.modules", {"object_storage": fake_module}), patch(
+            "ops_sunbeam.tracing.trace_type", side_effect=lambda cls: cls
+        ):
+            s3 = self.handler.setup_event_handler()
+
+        observe = self.handler.framework.observe
+        observe.assert_any_call(
+            s3.on.storage_connection_info_changed,
+            self.handler._on_credentials_changed,
+        )
+        observe.assert_any_call(
+            s3.on.storage_connection_info_gone,
+            self.handler._on_credentials_gone,
+        )
+
+    def test_ready_when_credentials_present(self) -> None:
+        """Test ready is True when access-key and secret-key are present."""
+        self.handler.interface.get_storage_connection_info.return_value = {
+            "access-key": "myaccesskey",
+            "secret-key": "mysecretkey",
+        }
+        self.assertTrue(self.handler.ready)
+
+    def test_ready_when_credentials_missing(self) -> None:
+        """Test ready is False when access-key or secret-key is missing."""
+        self.handler.interface.get_storage_connection_info.return_value = {
+            "access-key": "myaccesskey",
+        }
+        self.assertFalse(self.handler.ready)
+
+    def test_ready_when_credentials_empty(self) -> None:
+        """Test ready is False when access-key and secret-key are empty."""
+        self.handler.interface.get_storage_connection_info.return_value = {
+            "access-key": "",
+            "secret-key": "",
+        }
+        self.assertFalse(self.handler.ready)
+
+    def test_context_when_ready(self) -> None:
+        """Test context returns the S3 connection details when ready."""
+        self.handler.interface.get_storage_connection_info.return_value = {
+            "endpoint": "https://s3.example.com",
+            "access-key": "myaccesskey",
+            "secret-key": "mysecretkey",
+            "bucket": "glance",
+            "region": "us-east-2",
+        }
+        self.assertEqual(
+            self.handler.context(),
+            {
+                "s3_endpoint": "https://s3.example.com",
+                "s3_access_key_id": "myaccesskey",
+                "s3_secret_access_key": "mysecretkey",
+                "s3_bucket": "glance",
+                "s3_region": "us-east-2",
+            },
+        )
+
+    def test_context_when_not_ready(self) -> None:
+        """Test context returns an empty dict when the relation is not ready."""
+        self.handler.interface.get_storage_connection_info.return_value = {
+            "access-key": "",
+            "secret-key": "",
+        }
+        self.assertEqual(self.handler.context(), {})
+
+    def test_context_uses_handler_bucket_as_fallback(self) -> None:
+        """Test context falls back to the handler bucket when relation omits it."""
+        self.handler.interface.get_storage_connection_info.return_value = {
+            "endpoint": "https://s3.example.com",
+            "access-key": "myaccesskey",
+            "secret-key": "mysecretkey",
+            "region": "us-east-2",
+        }
+        self.assertEqual(
+            self.handler.context()["s3_bucket"],
+            "glance",
+        )
+
+    def test_context_omitted_region_is_none(self) -> None:
+        """Test context returns None for region when none is provided.
+
+        The omitted region defaults to us-east-1, which boto3 treats as the
+        default region and must not be rendered explicitly.
+        """
+        self.handler.interface.get_storage_connection_info.return_value = {
+            "endpoint": "https://s3.example.com",
+            "access-key": "myaccesskey",
+            "secret-key": "mysecretkey",
+            "bucket": "glance",
+        }
+        self.assertIsNone(self.handler.context()["s3_region"])
+
+    def test_context_us_east_1_region_is_none(self) -> None:
+        """Test context returns None for the us-east-1 region (boto3 quirk)."""
+        self.handler.interface.get_storage_connection_info.return_value = {
+            "endpoint": "https://s3.example.com",
+            "access-key": "myaccesskey",
+            "secret-key": "mysecretkey",
+            "bucket": "glance",
+            "region": "us-east-1",
+        }
+        self.assertIsNone(self.handler.context()["s3_region"])
+
+    def test_context_non_default_region_is_passed_through(self) -> None:
+        """Test context returns non-default regions verbatim."""
+        self.handler.interface.get_storage_connection_info.return_value = {
+            "endpoint": "https://s3.example.com",
+            "access-key": "myaccesskey",
+            "secret-key": "mysecretkey",
+            "bucket": "glance",
+            "region": "us-east-2",
+        }
+        self.assertEqual(self.handler.context()["s3_region"], "us-east-2")
+
+    def test_on_credentials_changed_invokes_callback(self) -> None:
+        """Test that _on_credentials_changed forwards the event to callback_f."""
+        event = MagicMock()
+        self.handler._on_credentials_changed(event)
+        self.handler.callback_f.assert_called_once_with(event)
+
+    def test_on_credentials_gone_invokes_callback(self) -> None:
+        """Test that _on_credentials_gone forwards the event to callback_f."""
+        event = MagicMock()
+        self.handler._on_credentials_gone(event)
+        self.handler.callback_f.assert_called_once_with(event)
+
+
 if __name__ == "__main__":
     import unittest
 

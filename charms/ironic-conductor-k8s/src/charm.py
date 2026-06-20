@@ -148,6 +148,7 @@ class IronicConductorConfigurationContext(sunbeam_ctxts.ConfigContext):
             "hardware_type_cfg": self._get_hardware_types_config(),
             "temp_url_secret": self.charm.leader_get("temp_url_secret"),
             "loadbalancer_ip": self.charm.loadbalancer_ip,
+            "s3_backend": self.charm.s3_backend,
         }
 
         return ctxt
@@ -255,6 +256,7 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run the constructor."""
         super().__init__(framework)
+        self._glance_s3_backend = False
         self.framework.observe(
             self.on.set_temp_url_secret_action,
             self._on_set_temp_url_secret_action,
@@ -398,6 +400,7 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             self._validate_default_net_interface()
             self._validate_network_interfaces()
             self._validate_enabled_hw_type()
+            self._detect_glance_s3_backend()
             self._validate_temp_url_secret()
             validated = True
 
@@ -410,6 +413,46 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     def loadbalancer_ip(self) -> str:
         """Kubernetes LoadBalancer IP for the ironic-conductor services."""
         return self.lb_handler.get_loadbalancer_ip()
+
+    @property
+    def s3_backend(self) -> bool:
+        """Whether Glance exposes an S3 backend for its images.
+
+        When Glance is using S3 backend, Ironic downloads deploy images from
+        the S3 backend directly, without having to use a Ceph RadosGW Swift
+        store or temp-url secret.
+
+        The value is populated by :meth:`_detect_glance_s3_backend` during
+        ``configure_charm`` and defaults to ``False`` until Glance has been
+        queried.
+        """
+        return self._glance_s3_backend
+
+    def _detect_glance_s3_backend(self):
+        """Query Glance to determine whether it exposes an S3 backend.
+
+        Discovers Glance's configured stores through the Glance API.
+        When an ``s3`` store is present, deploy images are served from Glance's
+        S3 backend and no Swift temp-url secret is needed.
+
+        If Glance is unavailable or the query fails, the S3 backend is assumed
+        to be unchanged from the last successful query.
+        """
+        try:
+            keystone_session = api_utils.create_keystone_session(
+                self.ccreds.interface
+            )
+            os_cli = api_utils.OSClients(keystone_session)
+
+            if not os_cli.has_glance():
+                # Glance is not available, assume S3 backend status is unchanged
+                return
+
+            self._glance_s3_backend = "s3" in os_cli.glance_stores
+        except Exception:
+            logger.debug(
+                "Could not query glance stores to detect an S3 backend",
+            )
 
     def _ensure_loadbalancer_ip(self):
         if not self.loadbalancer_ip:
@@ -449,6 +492,10 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             )
 
     def _validate_temp_url_secret(self):
+        # If Glance is using an S3 backend, we don't need a temp-url secret.
+        if self._glance_s3_backend:
+            return
+
         temp_url_secret = self.leader_get("temp_url_secret")
         if not temp_url_secret:
             raise sunbeam_guard.BlockedExceptionError(
@@ -458,7 +505,7 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
     @property
     def enabled_network_interfaces(self) -> List[str]:
-        """Returns list of onfigured enabled-network-interfaces."""
+        """Returns list of configured enabled-network-interfaces."""
         network_interfaces = self.config.get(
             "enabled-network-interfaces", ""
         ).replace(" ", "")
@@ -466,7 +513,7 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
 
     @property
     def enabled_hw_types(self) -> List[str]:
-        """Returns list of onfigured enabled-hw-types."""
+        """Returns list of configured enabled-hw-types."""
         hw_types = self.config.get("enabled-hw-types", "ipmi").replace(" ", "")
         return hw_types.split(",")
 

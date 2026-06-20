@@ -23,7 +23,9 @@ enabled_backends = {{ glance_config.enabled_backends }}
 {% include "parts/section-oslo-notifications" %}
 
 [glance_store]
-{% if ceph.auth %}
+{% if 's3:s3' in glance_config.enabled_backends %}
+default_backend = s3
+{% elif ceph.auth %}
 default_backend = ceph
 {% else %}
 default_backend = filestore
@@ -39,6 +41,19 @@ rbd_store_pool = glance
 rbd_store_user = glance
 rados_connect_timeout = 0
 rbd_store_ceph_conf = /etc/ceph/ceph.conf
+{% endif %}
+
+{% if 's3:s3' in glance_config.enabled_backends %}
+[s3]
+s3_store_host = {{ s3_credentials.s3_endpoint }}
+s3_store_access_key = {{ s3_credentials.s3_access_key_id }}
+s3_store_secret_key = {{ s3_credentials.s3_secret_access_key }}
+s3_store_bucket = {{ s3_credentials.s3_bucket }}
+{% if s3_credentials.s3_region %}
+s3_region_name = {{ s3_credentials.s3_region }}
+{% endif %}
+s3_store_create_bucket_on_put = True
+s3_store_bucket_url_format = path
 {% endif %}
 
 {% if 'swift:swift' in glance_config.enabled_backends %}

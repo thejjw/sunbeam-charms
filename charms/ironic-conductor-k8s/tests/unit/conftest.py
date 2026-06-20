@@ -67,6 +67,18 @@ def _mock_lightkube():
         yield mock_client
 
 
+@pytest.fixture(autouse=True)
+def _mock_api_utils(monkeypatch):
+    """Mock OSAPI utils so _detect_glance_s3_backend makes no network calls."""
+    os_cli = mock.MagicMock()
+    os_cli.has_glance.return_value = False
+    monkeypatch.setattr(
+        "api_utils.create_keystone_session", lambda *a, **k: None
+    )
+    monkeypatch.setattr("api_utils.OSClients", lambda *a, **k: os_cli)
+    return os_cli
+
+
 @pytest.fixture()
 def ctx():
     """Create a testing.Context for IronicConductorOperatorCharm."""
@@ -82,6 +94,16 @@ def _peer_relation_with_leader_data() -> testing.PeerRelation:
         local_app_data={
             "leader_ready": json.dumps(True),
             "temp_url_secret": "fake-temp-url-secret",
+        },
+    )
+
+
+def _peer_relation_leader_no_secret() -> testing.PeerRelation:
+    """Peer relation with leader_ready but no temp_url_secret."""
+    return testing.PeerRelation(
+        endpoint="peers",
+        local_app_data={
+            "leader_ready": json.dumps(True),
         },
     )
 
@@ -124,3 +146,33 @@ def complete_state(complete_relations, complete_secrets, container):
         containers=[container],
         secrets=complete_secrets,
     )
+
+
+@pytest.fixture()
+def complete_relations_s3():
+    """Relations for a Glance backed by an external S3 object store."""
+    return [
+        db_relation_complete(),
+        amqp_relation_complete(),
+        identity_credentials_relation_complete(),
+        _peer_relation_leader_no_secret(),
+    ]
+
+
+@pytest.fixture()
+def complete_state_s3(complete_relations_s3, complete_secrets, container):
+    """Full state with leader, S3 relations, secrets, and container."""
+    return testing.State(
+        leader=True,
+        relations=complete_relations_s3,
+        containers=[container],
+        secrets=complete_secrets,
+    )
+
+
+@pytest.fixture()
+def glance_s3_backend(_mock_api_utils, monkeypatch):
+    """Mock Ironic's Glance query reports for an S3 backend."""
+    _mock_api_utils.has_glance.return_value = True
+    _mock_api_utils.glance_stores = ["s3"]
+    return _mock_api_utils
