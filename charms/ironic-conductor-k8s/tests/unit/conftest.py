@@ -86,6 +86,32 @@ def _peer_relation_with_leader_data() -> testing.PeerRelation:
     )
 
 
+def _peer_relation_leader_no_secret() -> testing.PeerRelation:
+    """Peer relation with leader_ready but no temp_url_secret."""
+    return testing.PeerRelation(
+        endpoint="peers",
+        local_app_data={
+            "leader_ready": json.dumps(True),
+        },
+    )
+
+
+def _s3_credentials_relation_complete() -> testing.Relation:
+    """s3-credentials relation populated by an s3-integrator provider."""
+    return testing.Relation(
+        endpoint="s3-credentials",
+        remote_app_name="s3-integrator",
+        remote_app_data={
+            "access-key": "test-access-key",
+            "secret-key": "test-secret-key",
+            "endpoint": "http://s3.example.com:9000",
+            "bucket": "glance",
+            "region": "us-east-1",
+        },
+        remote_units_data={},
+    )
+
+
 @pytest.fixture()
 def complete_relations():
     """All relations needed to reach active status."""
@@ -121,6 +147,33 @@ def complete_state(complete_relations, complete_secrets, container):
     return testing.State(
         leader=True,
         relations=complete_relations,
+        containers=[container],
+        secrets=complete_secrets,
+    )
+
+
+@pytest.fixture()
+def complete_relations_s3():
+    """Relations to reach active status using an external S3 Glance backend.
+
+    No ceph-rgw-ready relation and no temp_url_secret are present; the S3
+    relation drives Ironic to serve deploy images from its local HTTP server.
+    """
+    return [
+        db_relation_complete(),
+        amqp_relation_complete(),
+        identity_credentials_relation_complete(),
+        _peer_relation_leader_no_secret(),
+        _s3_credentials_relation_complete(),
+    ]
+
+
+@pytest.fixture()
+def complete_state_s3(complete_relations_s3, complete_secrets, container):
+    """Full state with leader, S3 relations, secrets, and container."""
+    return testing.State(
+        leader=True,
+        relations=complete_relations_s3,
         containers=[container],
         secrets=complete_secrets,
     )

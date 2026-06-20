@@ -75,6 +75,42 @@ class TestAllRelations:
         )
 
 
+class TestS3Backend:
+    """External S3 Glance backend: active without Swift/temp-url and serves locally."""
+
+    def test_active_with_s3_no_temp_url(self, ctx, complete_state_s3):
+        """S3 relation present, no temp-url secret/ceph-rgw → ActiveStatus."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state_s3)
+        assert state_out.unit_status == testing.ActiveStatus("")
+
+    def test_image_download_source_local(self, ctx, complete_state_s3):
+        """With S3 backend, the agent downloads images locally (not swift)."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state_s3)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "ironic-conductor",
+            "/etc/ironic/ironic.conf",
+            ["image_download_source = local"],
+        )
+        container = state_out.get_container("ironic-conductor")
+        fs = container.get_filesystem(ctx)
+        content = (fs / "etc/ironic/ironic.conf").read_text()
+        assert "image_download_source = swift" not in content
+        assert "swift_temp_url_key" not in content
+
+    def test_ipxe_use_swift_disabled(self, ctx, complete_state_s3):
+        """With S3 backend and iPXE, deploy images are not pulled from swift."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state_s3)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "ironic-conductor",
+            "/etc/ironic/ironic.conf",
+            ["ipxe_use_swift = false"],
+        )
+
+
 class TestPebbleReady:
     """Pebble-ready event with all relations → container configured."""
 
