@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "fb9616fae1ebbd9d57702b3214e8e75d6a1fa64c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e799c2c7_20ccae70",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-06-22T04:48:17Z",
+      "side": 1,
+      "message": "recheck deployment failure",
+      "revId": "fb9616fae1ebbd9d57702b3214e8e75d6a1fa64c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
