@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5ac4c0c_d9d7fcdb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 36966
+      },
+      "writtenOn": "2026-06-23T15:14:23Z",
+      "side": 1,
+      "message": "recheck\nJuju timeout: ERROR cannot acquire lock file to get the current controller name: timeout acquiring mutex",
+      "revId": "67baa7d1e6ae3ce16f43bce25b800a2d925bb49b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
