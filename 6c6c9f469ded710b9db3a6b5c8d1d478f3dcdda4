@@ -16,6 +16,23 @@
       "message": "recheck\n\npost failure",
       "revId": "6c6c9f469ded710b9db3a6b5c8d1d478f3dcdda4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a132538_a93e6e0d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-06-26T12:05:24Z",
+      "side": 1,
+      "message": "recheck\n\nFailed to install juju snap + post failure",
+      "revId": "6c6c9f469ded710b9db3a6b5c8d1d478f3dcdda4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
