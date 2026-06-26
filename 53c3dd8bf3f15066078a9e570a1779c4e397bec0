@@ -16,6 +16,23 @@
       "message": "recheck\n\npipeline failed to install LXD snap",
       "revId": "53c3dd8bf3f15066078a9e570a1779c4e397bec0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1b93251_c22fef95",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-06-26T01:30:22Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "53c3dd8bf3f15066078a9e570a1779c4e397bec0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
