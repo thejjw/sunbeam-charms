@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb58b8c7_58334064",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-06-26T08:42:03Z",
+      "side": 1,
+      "message": "recheck\n\nfailed to install lxd snap",
+      "revId": "672ecce4d9ddf7dba3ef117e2e6deafbd66cd233",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
