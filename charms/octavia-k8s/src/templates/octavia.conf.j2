@@ -192,6 +192,8 @@ topic = octavia
 
 {% if amphora_health.bind_ip or amphora_health.heartbeat_key -%}
 [health_manager]
+health_update_threads = 2
+stats_update_threads = 2
 {% if amphora_health.bind_ip -%}
 bind_ip = {{ amphora_health.bind_ip }}
 {% endif -%}
