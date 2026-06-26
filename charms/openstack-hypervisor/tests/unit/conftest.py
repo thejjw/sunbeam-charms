@@ -14,6 +14,7 @@
 
 """Shared fixtures for openstack-hypervisor unit tests (ops.testing)."""
 
+import os
 from pathlib import (
     Path,
 )
@@ -33,6 +34,11 @@ from ops_sunbeam.test_utils_scenario import (
 )
 
 CHARM_ROOT = Path(__file__).parents[2]
+_REAL_PATH_EXISTS = os.path.exists
+_ABSENT_HOST_PATHS = {
+    "/usr/bin/ovs-dpctl",
+    charm.DPDK_CONFIG_OVERRIDE_PATH,
+}
 
 # ---- relation / secret builders for hypervisor-specific endpoints ----
 
@@ -140,7 +146,13 @@ def _mock_heavy_externals(monkeypatch):
 
     # os.system / os.path.exists used for OVS cleanup
     monkeypatch.setattr(charm.os, "system", lambda *a, **kw: 0)
-    monkeypatch.setattr(charm.os.path, "exists", lambda p: False)
+
+    def path_exists(path):
+        if os.fspath(path) in _ABSENT_HOST_PATHS:
+            return False
+        return _REAL_PATH_EXISTS(path)
+
+    monkeypatch.setattr(charm.os.path, "exists", path_exists)
 
 
 @pytest.fixture()
