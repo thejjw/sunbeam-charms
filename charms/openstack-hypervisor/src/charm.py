@@ -997,7 +997,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "network.ovn-cacert": base64.b64encode(
                     contexts.certificates.ca_with_chain.encode()
                 ).decode(),
-                "network.ovn-sb-connection": sb_connection_strs[0],
+                "network.ovn-sb-connection": ",".join(sb_connection_strs),
                 "network.physnet-name": config("physnet-name"),
                 "node.fqdn": socket.getfqdn(),
                 "node.ip-address": config("ip-address") or local_ip,
