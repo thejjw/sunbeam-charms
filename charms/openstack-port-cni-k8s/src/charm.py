@@ -383,6 +383,18 @@ class OpenstackPortCniCharm(sunbeam_charm.OSBaseOperatorCharm):
         if self.unit.is_leader():
             self._delete_openstack_credentials_secret()
 
+    def _on_start(self, event: ops.StartEvent) -> None:
+        """Re-bootstrap on pod restart.
+
+        Local unit storage (``unit_bootstrapped``) is lost when the pod is
+        replaced, so a node restart leaves the charm in
+        ``maintenance (bootstrap) Service not bootstrapped`` with no
+        relation/config event to re-trigger ``configure_charm``. Run the
+        standard configure path here to reconcile the bootstrap status.
+        """
+        super()._on_start(event)
+        self.configure_charm(event)
+
     def _on_update_status(self, event: ops.UpdateStatusEvent) -> None:
         """Re-check DaemonSet readiness and update the status pool entry."""
         waiting = self._daemonset_waiting()
