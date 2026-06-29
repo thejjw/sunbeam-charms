@@ -163,3 +163,76 @@ class TestOptionalRelations:
         )
         state_out = ctx.run(ctx.on.config_changed(), state_in)
         assert state_out.unit_status.name == "active"
+
+
+# ---------------------------------------------------------------------------
+# TestPodRestart
+# ---------------------------------------------------------------------------
+
+
+def _bootstrapped_state() -> testing.StoredState:
+    """Return StoredState for OpenstackPortCniCharm with unit_bootstrapped=True.
+
+    Mirrors the charm's ``_state`` after a successful bootstrap. On a pod
+    replace local unit storage is lost, so the charm sees
+    ``unit_bootstrapped=False`` again (the default).
+    """
+    return testing.StoredState(
+        name="_state",
+        owner_path="OpenstackPortCniCharm",
+        content={"unit_bootstrapped": True},
+    )
+
+
+class TestPodRestart:
+    """A pod restart drops local unit storage and must not leave the unit stuck.
+
+    On K8s, ``unit_bootstrapped`` lives in local unit storage (on the pod
+    filesystem). When the pod is replaced (e.g. a node restart reschedules
+    it), that storage is lost and the flag reverts to False, so the charm
+    re-enters ``maintenance (bootstrap) Service not bootstrapped``. After the
+    restart juju only fires ``start``; no relation/config event is emitted
+    unless relation data actually changes. ``_on_start`` must therefore
+    re-run ``configure_charm`` to reconcile the bootstrap status.
+    """
+
+    def test_start_after_pod_restart_rebootstraps(self, ctx, complete_state):
+        """Start with lost unit_bootstrapped → active (re-bootstrap)."""
+        # Simulate the post-restart state: relations/secrets intact, but local
+        # unit storage (unit_bootstrapped) lost back to its default of False.
+        state_in = dataclasses.replace(
+            complete_state,
+            stored_states={
+                testing.StoredState(
+                    name="_state",
+                    owner_path="OpenstackPortCniCharm",
+                    content={"unit_bootstrapped": False},
+                )
+            },
+        )
+        state_out = ctx.run(ctx.on.start(), state_in)
+        assert (
+            state_out.unit_status.name == "active"
+        ), f"Expected active after start re-bootstrap, got {state_out.unit_status}"
+
+    def test_start_preserves_bootstrapped_state(self, ctx, complete_state):
+        """Start on an already-bootstrapped unit → stays active."""
+        state_in = dataclasses.replace(
+            complete_state,
+            stored_states={_bootstrapped_state()},
+        )
+        state_out = ctx.run(ctx.on.start(), state_in)
+        assert (
+            state_out.unit_status.name == "active"
+        ), f"Expected active, got {state_out.unit_status}"
+
+    def test_config_changed_bootstraps_unit(self, ctx, complete_state):
+        """Config-changed sets unit_bootstrapped=True on a fresh unit."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert state_out.unit_status.name == "active"
+        state = next(
+            s
+            for s in state_out.stored_states
+            if s.owner_path == "OpenstackPortCniCharm" and s.name == "_state"
+        )
+        assert state.content.get("unit_bootstrapped") is True
