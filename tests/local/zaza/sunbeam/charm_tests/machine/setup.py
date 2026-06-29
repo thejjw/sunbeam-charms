@@ -45,7 +45,7 @@ MACHINE_MICROOVN_BUNDLE_FILE = "./tests/openstack-microovn/bundles/machines.yaml
 K8S_WAIT_TIMEOUT = (
     3600  # 1 hour for k8s model wait (covers full pods provisioning)
 )
-POST_CMR_WAIT_TIMEOUT = 1800  # 30 minutes for post-CMR parallel wait
+POST_CMR_WAIT_TIMEOUT = 3600  # 60 minutes for post-CMR parallel wait
 
 
 def replace_model_in_bundle(bundle: Path, words_to_replace: dict):
