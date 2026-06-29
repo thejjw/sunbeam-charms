@@ -564,6 +564,7 @@
       - charms/storage/cinder-volume-ceph/
       - charms/sunbeam-ovn-proxy/
       - charms/openstack-network-agents/
+      - charms/openstack-port-cni-k8s/
       - rebuild
     vars:
       charm_jobs:
