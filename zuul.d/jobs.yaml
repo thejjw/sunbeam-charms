@@ -6,6 +6,8 @@
     timeout: 7200
     nodeset: ubuntu-noble
     match-on-config-updates: false
+    irrelevant-files:
+      - ops-sunbeam/ops_sunbeam/test_.*\.py
 - job:
     name: charm-build-bin-core-identity
     parent: charm-build-bin
@@ -373,6 +375,8 @@
       - charms/tempest-k8s/
       - tests/local/zaza/sunbeam/charm_tests/tempest_k8s/
       - rebuild
+    irrelevant-files:
+      - ops-sunbeam/ops_sunbeam/test_.*\.py
     vars:
       charm_jobs:
         - charm-build-bin-core-identity
@@ -397,6 +401,8 @@
       - charms/keystone-k8s/
       - charms/keystone-saml-k8s/
       - rebuild
+    irrelevant-files:
+      - ops-sunbeam/ops_sunbeam/test_.*\.py
     vars:
       charm_jobs:
         - charm-build-bin-core-identity
@@ -417,6 +423,8 @@
       - charms/sunbeam-clusterd/
       - charms/epa-orchestrator/
       - rebuild
+    irrelevant-files:
+      - ops-sunbeam/ops_sunbeam/test_.*\.py
     vars:
       env_type: lxd
       charm_jobs:
@@ -481,6 +489,8 @@
       - charms/storage/cinder-volume-ceph/
       - tests/openstack/
       - rebuild
+    irrelevant-files:
+      - ops-sunbeam/ops_sunbeam/test_.*\.py
     vars:
       charm_jobs:
         - charm-build-bin-core-identity
@@ -554,6 +564,8 @@
       - charms/sunbeam-ovn-proxy/
       - charms/openstack-network-agents/
       - rebuild
+    irrelevant-files:
+      - ops-sunbeam/ops_sunbeam/test_.*\.py
     vars:
       charm_jobs:
         - charm-build-bin-core-identity
