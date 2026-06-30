@@ -8,7 +8,7 @@
       version 3 releases designated for testing the latest release.
     check:
       jobs:
-        # - openstack-tox-linters
+        - openstack-tox-linters
         - openstack-tox-pep8
         - openstack-tox-py310:
             branches:
@@ -20,7 +20,7 @@
               - stable/2024.1
     gate:
       jobs:
-        # - openstack-tox-linters
+        - openstack-tox-linters
         - openstack-tox-pep8
         - openstack-tox-py310:
             branches:

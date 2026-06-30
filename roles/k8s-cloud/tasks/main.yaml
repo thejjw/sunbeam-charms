@@ -3,11 +3,16 @@
     name: k8s
 
 - name: Juju is installed
-  communityu.general.snap:
-    name: juju
-    classic: "{{ juju_classic_mode | default(false) }}"
-    channel: "{{ juju_channel | default('latest/stable') }}"
+  ansible.builtin.command: snap install juju --channel={{ juju_channel | default('latest/stable') }}
   become: true
+  register: juju_snap_result
+  changed_when: "'already installed' not in juju_snap_result.stderr"
+  failed_when: >
+    juju_snap_result.rc != 0 and
+    'already installed' not in juju_snap_result.stderr
+  retries: 5
+  delay: 15
+  until: not juju_snap_result.failed
 
 - name: Ensure ~/.local/share directory exist
   ansible.builtin.file:
