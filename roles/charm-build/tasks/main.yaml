@@ -19,10 +19,16 @@
   when: ansible_distribution_release in ('jammy', 'noble')
 
 - name: lxd snap is installed
-  snap:
-    name: lxd
-    channel: latest/stable
+  ansible.builtin.command: snap install lxd --channel=latest/stable
   become: true
+  register: lxd_snap_result
+  changed_when: "'already installed' not in lxd_snap_result.stderr"
+  failed_when: >
+    lxd_snap_result.rc != 0 and
+    'already installed' not in lxd_snap_result.stderr
+  retries: 5
+  delay: 15
+  until: not lxd_snap_result.failed
 
 - name: lxd is initialised
   command: lxd init --auto
@@ -44,11 +50,16 @@
   meta: reset_connection
 
 - name: charmcraft is installed
-  snap:
-    name: charmcraft
-    channel: "{{ charmcraft_channel | default('latest/stable') }}"
-    classic: true
+  ansible.builtin.command: snap install charmcraft --classic --channel={{ charmcraft_channel | default('latest/stable') }}
   become: true
+  register: charmcraft_snap_result
+  changed_when: "'already installed' not in charmcraft_snap_result.stderr"
+  failed_when: >
+    charmcraft_snap_result.rc != 0 and
+    'already installed' not in charmcraft_snap_result.stderr
+  retries: 5
+  delay: 15
+  until: not charmcraft_snap_result.failed
 
 - name: Set legacy charm build path
   set_fact:
