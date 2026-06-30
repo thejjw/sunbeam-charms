@@ -4,11 +4,16 @@
       - jq
   become: true
 - name: Install sosreport
-  community.general.snap:
-    name: sosreport
-    channel: '{{ sosreport_channel }}'
-    classic: '{{ sosreport_classic_mode }}'
+  ansible.builtin.command: "snap install sosreport --channel={{ sosreport_channel }}{% if sosreport_classic_mode | default(true) | bool %} --classic{% endif %}"
   become: true
+  register: sosreport_snap_result
+  changed_when: "'already installed' not in sosreport_snap_result.stderr"
+  failed_when: >
+    sosreport_snap_result.rc != 0 and
+    'already installed' not in sosreport_snap_result.stderr
+  retries: 5
+  delay: 15
+  until: not sosreport_snap_result.failed
 - name: Create destination for logs
   file:
     path: "{{ zuul.project.src_dir }}/log"
