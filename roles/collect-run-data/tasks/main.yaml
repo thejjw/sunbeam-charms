@@ -9,6 +9,10 @@
     channel: '{{ sosreport_channel }}'
     classic: '{{ sosreport_classic_mode }}'
   become: true
+  retries: 5
+  delay: 15
+  register: sosreport_snap_result
+  until: not sosreport_snap_result.failed
 - name: Create destination for logs
   file:
     path: "{{ zuul.project.src_dir }}/log"
