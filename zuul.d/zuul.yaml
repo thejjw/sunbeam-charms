@@ -16,6 +16,9 @@
         - func-test-identity:
             nodeset: charms-ubuntu-noble-32GB
             voting: false
+        - func-test-machine:
+            nodeset: charms-ubuntu-noble-32GB
+            voting: false
     vars:
       ensure_tox_version: ==4.47.3
       juju_channel: 3.6/stable
