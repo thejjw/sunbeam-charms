@@ -848,7 +848,7 @@ def assert_blocked_when_relation_missing(
         remaining = [
             r for r in all_complete_relations if r.endpoint != rel_name
         ]
-        state = dataclasses.replace(base_state, relations=remaining)
+        state = dataclasses.replace(base_state, relations=frozenset(remaining))
         out = ctx.run(ctx.on.config_changed(), state)
         assert out.unit_status.name in (
             "blocked",
@@ -876,7 +876,9 @@ def assert_waiting_when_container_not_ready(
         dataclasses.replace(c, can_connect=False)
         for c in complete_state.containers
     ]
-    state = dataclasses.replace(complete_state, containers=disconnected)
+    state = dataclasses.replace(
+        complete_state, containers=frozenset(disconnected)
+    )
     out = ctx.run(ctx.on.config_changed(), state)
     assert out.unit_status.name in (
         "blocked",
@@ -937,8 +939,8 @@ def assert_relation_ordering_invariance(
 
             state = dataclasses.replace(
                 base_state,
-                relations=all_rels,
-                secrets=complete_secrets,
+                relations=frozenset(all_rels),
+                secrets=frozenset(complete_secrets),
             )
             out = ctx.run(ctx.on.config_changed(), state)
 
@@ -985,8 +987,8 @@ def assert_each_relation_missing_blocks(
         remaining = [r for r in complete_relations if r.endpoint != rel_name]
         state = dataclasses.replace(
             base_state,
-            relations=remaining,
-            secrets=complete_secrets,
+            relations=frozenset(remaining),
+            secrets=frozenset(complete_secrets),
         )
         out = ctx.run(ctx.on.config_changed(), state)
         assert out.unit_status.name in (
