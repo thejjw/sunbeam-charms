@@ -73,6 +73,35 @@
         path: "{{ charm_pathed }}"
   when: charm_builds is not defined
 
+- name: Detect files changed in this change
+  command: "git diff --name-only origin/{{ zuul.branch }}...HEAD"
+  args:
+    chdir: "{{ zuul.project.src_dir }}"
+  register: changed_files
+
+- name: Determine whether ops-sunbeam or rebuild was touched
+  set_fact:
+    rebuild_all: >-
+      {{
+        changed_files.stdout_lines | select('match', '^ops-sunbeam/ops_sunbeam/') | list | length > 0
+      }}
+
+- name: Filter charm_builds to only modified charms
+  set_fact:
+    charm_builds: >-
+      {%- set ns = namespace(modified=[]) -%}
+      {%- for cb in charm_builds -%}
+        {%- if changed_files.stdout_lines | select('match', '^charms/' ~ cb.path ~ '/') | list | length > 0 -%}
+          {%- set ns.modified = ns.modified + [cb] -%}
+        {%- endif -%}
+      {%- endfor -%}
+      {{ ns.modified }}
+  when: not rebuild_all
+
+- name: Show charms to be built
+  debug:
+    msg: "Building: {{ charm_builds | map(attribute='name') | list }}"
+
 - name: charms are packed
   command:
     cmd: "{{ tox_executable }} -e build -- {{ item.path }}"
