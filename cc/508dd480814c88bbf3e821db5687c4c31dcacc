@@ -1,0 +1,11 @@
+Code-Review+2: Billy Olsen <billy.olsen@canonical.com>
+Workflow+1: Billy Olsen <billy.olsen@canonical.com>
+Code-Review+2: Guillaume Boutry <guillaume.boutry@canonical.com>
+Backport-Candidate+2: Guillaume Boutry <guillaume.boutry@canonical.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Wed, 01 Jul 2026 01:17:56 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/995366
+Comments-Total: 1
+Project: openstack/sunbeam-charms
+Branch: refs/heads/main
