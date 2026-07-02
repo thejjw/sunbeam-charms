@@ -761,6 +761,69 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             logger.debug("microovn snap not found in snap cache.")
             return False
 
+    def _get_hypervisor_snap_channel_revision(self, snap_client) -> str | None:
+        """Return the revision published to the configured snap channel."""
+        channel = self.model.config.get("snap-channel")
+        info = snap_client.get_snap_information(HYPERVISOR_SNAP_NAME)
+        try:
+            revision = info["channels"][channel]["revision"]
+        except (KeyError, TypeError):
+            logger.debug(
+                "Unable to determine target revision for snap %s on channel %s",
+                HYPERVISOR_SNAP_NAME,
+                channel,
+            )
+            return None
+        if revision is None:
+            logger.debug(
+                "No target revision reported for snap %s on channel %s",
+                HYPERVISOR_SNAP_NAME,
+                channel,
+            )
+            return None
+        logger.debug(
+            "Target revision for snap %s on channel %s is %s",
+            HYPERVISOR_SNAP_NAME,
+            channel,
+            revision,
+        )
+        return str(revision)
+
+    def _block_invalid_hypervisor_snap_confinement(
+        self,
+        hypervisor: "snap.Snap",
+        is_devmode: bool,
+        want_devmode: bool,
+        target_revision: str | None,
+    ) -> None:
+        """Block when the requested confinement change is unsafe."""
+        channel = self.model.config.get("snap-channel")
+        current_confinement = "devmode" if is_devmode else "strict"
+        requested_confinement = "devmode" if want_devmode else "strict"
+        if target_revision is None:
+            revision_detail = (
+                f"and the target revision for channel {channel} "
+                "could not be determined"
+            )
+        else:
+            revision_detail = (
+                f"and channel {channel} resolves to the same "
+                f"revision {target_revision}"
+            )
+        message = (
+            f"Invalid snap state: {HYPERVISOR_SNAP_NAME} is installed in "
+            f"{current_confinement} confinement at revision "
+            f"{hypervisor.revision} on channel {hypervisor.channel}, "
+            "but experimental-devmode requests "
+            f"{requested_confinement} confinement {revision_detail}. "
+            "This will require manual intervention to resolve. A snap cannot "
+            "be switched between devmode and strict confinement without a "
+            "revision change."
+        )
+        status_message = "Invalid snap state: see juju debug-logs"
+        logger.error(message)
+        raise sunbeam_guard.BlockedExceptionError(status_message)
+
     def ensure_snap_present(self):
         """Install snap if it is not already present."""
         config = self.model.config.get
@@ -774,11 +837,15 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         )
         snap_client = snap.SnapClient()
         installed_snaps = snap_client.get_installed_snaps()
-        is_devmode = False
-        for s in installed_snaps:
-            if s["name"] == HYPERVISOR_SNAP_NAME:
-                is_devmode = bool(s.get("devmode"))
-                break
+        installed_hypervisor = next(
+            (
+                installed_snap
+                for installed_snap in installed_snaps
+                if installed_snap["name"] == HYPERVISOR_SNAP_NAME
+            ),
+            {},
+        )
+        is_devmode = bool(installed_hypervisor.get("devmode"))
         channel: str | None = config("snap-channel")  # type: ignore
         try:
             cache = self.get_snap_cache()
@@ -794,34 +861,25 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                     "%s snap already installed and in correct confinement",
                     HYPERVISOR_SNAP_NAME,
                 )
-            # If snap needs confinement change and is already latest,
-            # must uninstall/reinstall at same revision
-            elif want_devmode != is_devmode and hypervisor.latest:
-                prev_status = self.unit.status
-                self.unit.status = ops.MaintenanceStatus("Reinstalling snap")
-                if hypervisor.channel != channel:
-                    logger.info(
-                        "Changing channel of %s from %s to %s",
-                        HYPERVISOR_SNAP_NAME,
-                        hypervisor.channel,
-                        channel,
+            elif hypervisor.present and want_devmode != is_devmode:
+                target_revision = self._get_hypervisor_snap_channel_revision(
+                    snap_client
+                )
+                if (
+                    target_revision is None
+                    or str(hypervisor.revision) == target_revision
+                ):
+                    self._block_invalid_hypervisor_snap_confinement(
+                        hypervisor,
+                        is_devmode,
+                        want_devmode,
+                        target_revision,
                     )
-                    revision = None
-                    state = snap.SnapState.Latest
-                else:
-                    revision = hypervisor.revision
-                    state = snap.SnapState.Present
-                old_config = hypervisor.get(None, typed=True)
-                hypervisor.ensure(snap.SnapState.Absent)
                 hypervisor.ensure(
-                    state,
+                    snap.SnapState.Latest,
                     channel=channel,
-                    revision=revision,
                     devmode=want_devmode,
                 )
-                # Reapply old config
-                hypervisor.set(old_config, typed=True)
-                self.unit.status = prev_status
             else:
                 # Either not present, or present but not latest
                 # In both cases, ensure Latest will work
@@ -853,6 +911,8 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 hypervisor.alias("ovs-dpctl", "ovs-dpctl")
                 hypervisor.alias("ovs-ofctl", "ovs-ofctl")
             hypervisor.hold()
+        except sunbeam_guard.BlockedExceptionError:
+            raise
         except (snap.SnapError, snap.SnapNotFoundError) as e:
             logger.error(
                 "An exception occurred when installing openstack-hypervisor. Reason: %s",
