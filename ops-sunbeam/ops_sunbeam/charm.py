@@ -1242,7 +1242,10 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
 
     def _on_install(self, _: ops.InstallEvent):
         """Run install on this unit."""
-        self.ensure_snap_present()
+        try:
+            self.ensure_snap_present()
+        except sunbeam_guard.BlockedExceptionError as e:
+            self.status.set(e.to_status())
 
     def _enable_parallel_snaps(self):
         """Enable parallel snaps support in snapd."""
@@ -1297,6 +1300,73 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         """Return snap channel."""
         raise NotImplementedError
 
+    def _snap_base_name(self) -> str:
+        """Return snap name without any parallel-instance key."""
+        if "_" not in self.snap_name:
+            return self.snap_name
+        return self.snap_name.rsplit("_", 1)[0]
+
+    def _get_snap_channel_revision(self, snap_client) -> str | None:
+        """Return the revision published to the configured snap channel."""
+        info = snap_client.get_snap_information(self._snap_base_name())
+        try:
+            revision = info["channels"][self.snap_channel]["revision"]
+        except (KeyError, TypeError):
+            logger.debug(
+                "Unable to determine target revision for snap %s on channel %s",
+                self.snap_name,
+                self.snap_channel,
+            )
+            return None
+        if revision is None:
+            logger.debug(
+                "No target revision reported for snap %s on channel %s",
+                self.snap_name,
+                self.snap_channel,
+            )
+            return None
+        logger.debug(
+            "Target revision for snap %s on channel %s is %s",
+            self.snap_name,
+            self.snap_channel,
+            revision,
+        )
+        return str(revision)
+
+    def _block_invalid_snap_confinement(
+        self,
+        snap_svc: "snap.Snap",
+        is_devmode: bool,
+        want_devmode: bool,
+        target_revision: str | None,
+    ) -> None:
+        """Block when the requested confinement change is unsafe."""
+        current_confinement = "devmode" if is_devmode else "strict"
+        requested_confinement = "devmode" if want_devmode else "strict"
+        if target_revision is None:
+            revision_detail = (
+                f"and the target revision for channel {self.snap_channel} "
+                "could not be determined"
+            )
+        else:
+            revision_detail = (
+                f"and channel {self.snap_channel} resolves to the same "
+                f"revision {target_revision}"
+            )
+        message = (
+            f"Invalid snap state: {self.snap_name} is installed in "
+            f"{current_confinement} confinement at revision "
+            f"{snap_svc.revision} on channel {snap_svc.channel}, "
+            "but experimental-devmode requests "
+            f"{requested_confinement} confinement {revision_detail}. "
+            "This will require manual intervention to resolve. A snap cannot "
+            "be switched between devmode and strict confinement without a "
+            "revision change."
+        )
+        status_message = "Invalid snap state: see juju debug-logs"
+        logger.error(message)
+        raise sunbeam_guard.BlockedExceptionError(status_message)
+
     def ensure_snap_present(self):
         """Install snap if it is not already present."""
         self._enable_parallel_snaps()
@@ -1322,35 +1392,23 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
                     "%s snap already installed and in correct confinement",
                     self.snap_name,
                 )
-            elif want_devmode != is_devmode and snap_svc.latest:
-                # If snap needs confinement change and is already latest,
-                # must uninstall/reinstall at same revision.
-                # If there was a channel change, then we just install latest
-                prev_status = self.unit.status
-                self.unit.status = MaintenanceStatus("Reinstalling snap")
-                if snap_svc.channel != self.snap_channel:
-                    logger.info(
-                        "Changing channel of %s from %s to %s",
-                        self.snap_name,
-                        snap_svc.channel,
-                        self.snap_channel,
+            elif snap_svc.present and want_devmode != is_devmode:
+                target_revision = self._get_snap_channel_revision(snap_client)
+                if (
+                    target_revision is None
+                    or str(snap_svc.revision) == target_revision
+                ):
+                    self._block_invalid_snap_confinement(
+                        snap_svc,
+                        is_devmode,
+                        want_devmode,
+                        target_revision,
                     )
-                    revision = None
-                    state = self.snap_module.SnapState.Latest
-                else:
-                    revision = snap_svc.revision
-                    state = self.snap_module.SnapState.Present
-                old_config = snap_svc.get(None, typed=True)
-                snap_svc.ensure(self.snap_module.SnapState.Absent)
                 snap_svc.ensure(
-                    state,
+                    self.snap_module.SnapState.Latest,
                     channel=self.snap_channel,
-                    revision=revision,
                     devmode=want_devmode,
                 )
-                # Reapply old config
-                snap_svc.set(old_config, typed=True)
-                self.unit.status = prev_status
             else:
                 # Either not present, or present but not latest
                 # In both cases, ensure Latest will work
