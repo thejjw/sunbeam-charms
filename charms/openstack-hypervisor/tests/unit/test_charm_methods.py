@@ -273,6 +273,28 @@ class TestActions:
         action_output = harness.run_action("list-flavors")
         assert action_output.results["result"] == flavors
 
+    def test_refresh_snap_preserves_configured_devmode(self, harness):
+        """Refresh action uses configured devmode confinement."""
+        harness.begin()
+        harness.update_config({"experimental-devmode": True})
+        harness.charm.get_snap_cache.cache_clear()
+        hypervisor_snap_mock = MagicMock()
+        epa_orchestrator_snap_mock = MagicMock()
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": epa_orchestrator_snap_mock,
+        }
+
+        harness.run_action("refresh-snap")
+
+        hypervisor_snap_mock.unhold.assert_called_once_with()
+        hypervisor_snap_mock.ensure.assert_called_once_with(
+            charm.snap.SnapState.Latest,
+            channel="2026.1/edge",
+            devmode=True,
+        )
+        hypervisor_snap_mock.hold.assert_called_once_with()
+
 
 # ---------------------------------------------------------------------------
 # Consul tests
