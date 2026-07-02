@@ -1,0 +1,9 @@
+Backport-Candidate+2: Guillaume Boutry <guillaume.boutry@canonical.com>
+Verified+2: Zuul
+Workflow+1: Guillaume Boutry <guillaume.boutry@canonical.com>
+Code-Review+2: Guillaume Boutry <guillaume.boutry@canonical.com>
+Submitted-by: Zuul
+Submitted-at: Thu, 02 Jul 2026 07:33:55 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/995776
+Project: openstack/sunbeam-charms
+Branch: refs/heads/main
