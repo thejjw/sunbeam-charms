@@ -889,3 +889,22 @@ refresh-snap:
         # Config should be preserved
         snap.get.assert_called_once_with(None, typed=True)
         snap.set.assert_called_once_with({"settings.debug": True}, typed=True)
+
+    def test_refresh_snap_action_preserves_configured_devmode(self) -> None:
+        """Test refresh-snap action uses configured devmode confinement."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": True})
+
+        charm._on_refresh_snap_action(self.mock_event)
+
+        snap.unhold.assert_called_once_with()
+        snap.ensure.assert_called_once_with(
+            charm.snap_module.SnapState.Latest,
+            channel="latest/stable",
+            devmode=True,
+        )
+        snap.hold.assert_called_once_with()

@@ -1416,12 +1416,16 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
 
     def _on_refresh_snap_action(self, event: ops.ActionEvent) -> None:
         """Refresh snap to the latest revision on the configured channel."""
+        want_devmode = bool(
+            self.model.config.get("experimental-devmode", False)
+        )
         try:
             snap_svc = self.get_snap()
             snap_svc.unhold()
             snap_svc.ensure(
                 self.snap_module.SnapState.Latest,
                 channel=self.snap_channel,
+                devmode=want_devmode,
             )
             snap_svc.hold()
             event.set_results(
