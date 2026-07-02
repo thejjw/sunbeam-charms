@@ -9,10 +9,11 @@ transport_url = {{ amqp.transport_url }}
 {% if ovn -%}
 {% if options.amphora_network_attachment -%}
 enabled_provider_drivers = amphora:The Octavia Amphora driver,ovn:Octavia OVN driver
+default_provider_driver = amphora
 {% else -%}
 enabled_provider_drivers = ovn:Octavia OVN driver
-{% endif -%}
 default_provider_driver = ovn
+{% endif -%}
 {% else -%}
 enabled_provider_drivers = amphora:The Octavia Amphora driver
 default_provider_driver = amphora
