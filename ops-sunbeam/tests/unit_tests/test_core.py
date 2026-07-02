@@ -769,6 +769,9 @@ refresh-snap:
         snap_client.get_installed_snaps.return_value = [
             {"name": "mysnap", "devmode": False}
         ]
+        snap_client.get_snap_information.return_value = {
+            "channels": {"latest/stable": {"revision": "124"}}
+        }
         charm.snap_module.SnapClient.return_value = snap_client
 
         # Request devmode
@@ -786,7 +789,7 @@ refresh-snap:
         )
 
     def test_ensure_snap_present_confinement_change_is_latest(self) -> None:
-        """Test ensure_snap_present when confinement changes and snap is already latest."""
+        """Test ensure_snap_present blocks on latest confinement change."""
         charm = self.harness.charm
         snap = charm.mock_snap
         snap.reset_mock()
@@ -803,6 +806,9 @@ refresh-snap:
         snap_client.get_installed_snaps.return_value = [
             {"name": "mysnap", "devmode": False}
         ]
+        snap_client.get_snap_information.return_value = {
+            "channels": {"latest/stable": {"revision": "456"}}
+        }
         charm.snap_module.SnapClient.return_value = snap_client
 
         # Request devmode
@@ -810,43 +816,37 @@ refresh-snap:
             self.harness.update_config({"experimental-devmode": True})
 
         snap.reset_mock()
-        charm.ensure_snap_present()
+        with self.assertLogs(sunbeam_charm.logger, level="ERROR") as logs:
+            with self.assertRaises(
+                sunbeam_charm.sunbeam_guard.BlockedExceptionError
+            ) as exc:
+                charm.ensure_snap_present()
 
-        # Snap should be reinstalled: Absent, then Present at same revision
-        calls = snap.ensure.call_args_list
-        self.assertEqual(len(calls), 2)
-
-        # First call: ensure Absent
-        self.assertEqual(calls[0], ((charm.snap_module.SnapState.Absent,), {}))
-
-        # Second call: ensure Present with same revision and devmode
         self.assertEqual(
-            calls[1],
-            (
-                (charm.snap_module.SnapState.Present,),
-                {
-                    "channel": "latest/stable",
-                    "revision": "456",
-                    "devmode": True,
-                },
-            ),
+            exc.exception.to_status(),
+            ops.model.BlockedStatus("Invalid snap state: see juju debug-logs"),
         )
+        self.assertIn("Invalid snap state", "\n".join(logs.output))
+        self.assertIn("mysnap", "\n".join(logs.output))
+        self.assertIn("revision 456", "\n".join(logs.output))
+        self.assertIn("latest/stable", "\n".join(logs.output))
 
-        # Config should be preserved
-        snap.get.assert_called_once_with(None, typed=True)
-        snap.set.assert_called_once_with({"settings.foo": "bar"}, typed=True)
+        snap.ensure.assert_not_called()
+        snap.get.assert_not_called()
+        snap.set.assert_not_called()
 
-    def test_ensure_snap_present_confinement_and_channel_change_is_latest(
+    def test_ensure_snap_present_confinement_and_channel_change_same_revision(
         self,
     ) -> None:
-        """Test ensure_snap_present when both confinement and channel change, snap is latest."""
+        """Test ensure_snap_present blocks on same-revision confinement change."""
         charm = self.harness.charm
         snap = charm.mock_snap
         snap.reset_mock()
 
-        # Setup: snap is present, is latest, both channel and devmode need to change
+        # Setup: snap is present, is latest, both channel and devmode need to
+        # change but the requested channel resolves to the installed revision.
         snap.present = True
-        snap.channel = "2024.1/stable"
+        snap.channel = "2024.1/beta"
         snap.latest = True
         snap.revision = "789"
         snap.get.return_value = {"settings.debug": True}
@@ -856,6 +856,58 @@ refresh-snap:
         snap_client.get_installed_snaps.return_value = [
             {"name": "mysnap", "devmode": False}
         ]
+        snap_client.get_snap_information.return_value = {
+            "channels": {"latest/stable": {"revision": "789"}}
+        }
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        # Request devmode
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": True})
+
+        snap.reset_mock()
+        with self.assertLogs(sunbeam_charm.logger, level="ERROR") as logs:
+            with self.assertRaises(
+                sunbeam_charm.sunbeam_guard.BlockedExceptionError
+            ) as exc:
+                charm.ensure_snap_present()
+
+        self.assertEqual(
+            exc.exception.to_status(),
+            ops.model.BlockedStatus("Invalid snap state: see juju debug-logs"),
+        )
+        self.assertIn("Invalid snap state", "\n".join(logs.output))
+        self.assertIn("mysnap", "\n".join(logs.output))
+        self.assertIn("revision 789", "\n".join(logs.output))
+        self.assertIn("2024.1/beta", "\n".join(logs.output))
+
+        snap.ensure.assert_not_called()
+        snap.get.assert_not_called()
+        snap.set.assert_not_called()
+
+    def test_ensure_snap_present_confinement_and_channel_change_new_revision(
+        self,
+    ) -> None:
+        """Test ensure_snap_present refreshes on new-revision confinement change."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        # Setup: snap is present, is latest, both channel and devmode need to
+        # change and the requested channel resolves to a different revision.
+        snap.present = True
+        snap.channel = "2024.1/beta"
+        snap.latest = True
+        snap.revision = "789"
+
+        # Mock SnapClient - snap installed in strict mode
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap", "devmode": False}
+        ]
+        snap_client.get_snap_information.return_value = {
+            "channels": {"latest/stable": {"revision": "790"}}
+        }
         charm.snap_module.SnapClient.return_value = snap_client
 
         # Request devmode
@@ -865,30 +917,55 @@ refresh-snap:
         snap.reset_mock()
         charm.ensure_snap_present()
 
-        # Snap should be reinstalled: Absent, then Latest (not Present)
-        # because channel is changing
-        calls = snap.ensure.call_args_list
-        self.assertEqual(len(calls), 2)
-
-        # First call: ensure Absent
-        self.assertEqual(calls[0], ((charm.snap_module.SnapState.Absent,), {}))
-
-        # Second call: ensure Latest with new channel and devmode
-        self.assertEqual(
-            calls[1],
-            (
-                (charm.snap_module.SnapState.Latest,),
-                {
-                    "channel": "latest/stable",
-                    "revision": None,
-                    "devmode": True,
-                },
-            ),
+        snap.ensure.assert_called_once_with(
+            charm.snap_module.SnapState.Latest,
+            channel="latest/stable",
+            devmode=True,
         )
 
-        # Config should be preserved
-        snap.get.assert_called_once_with(None, typed=True)
-        snap.set.assert_called_once_with({"settings.debug": True}, typed=True)
+    def test_ensure_snap_present_confinement_change_missing_target_revision(
+        self,
+    ) -> None:
+        """Test ensure_snap_present blocks when target revision is unknown."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        # Setup: snap is present, devmode needs to change, but snapd does not
+        # provide the requested channel revision.
+        snap.present = True
+        snap.channel = "2024.1/beta"
+        snap.latest = True
+        snap.revision = "789"
+
+        # Mock SnapClient - snap installed in strict mode
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap", "devmode": False}
+        ]
+        snap_client.get_snap_information.return_value = {
+            "channels": {"2024.1/beta": {"revision": "789"}}
+        }
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        # Request devmode
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": True})
+
+        snap.reset_mock()
+        with self.assertLogs(sunbeam_charm.logger, level="ERROR") as logs:
+            with self.assertRaises(
+                sunbeam_charm.sunbeam_guard.BlockedExceptionError
+            ) as exc:
+                charm.ensure_snap_present()
+
+        self.assertEqual(
+            exc.exception.to_status(),
+            ops.model.BlockedStatus("Invalid snap state: see juju debug-logs"),
+        )
+        self.assertIn("target revision", "\n".join(logs.output))
+
+        snap.ensure.assert_not_called()
 
     def test_refresh_snap_action_preserves_configured_devmode(self) -> None:
         """Test refresh-snap action uses configured devmode confinement."""

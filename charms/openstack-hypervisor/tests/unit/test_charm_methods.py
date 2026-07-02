@@ -311,6 +311,46 @@ class TestConsul:
 class TestSnap:
     """Tests for snap connect and microovn handling."""
 
+    def _setup_installed_hypervisor_snap(
+        self,
+        harness,
+        *,
+        channel: str,
+        revision: str,
+        devmode: bool,
+        target_channel: str,
+        target_revision: str | None,
+    ) -> MagicMock:
+        """Configure the harness with an installed hypervisor snap."""
+        harness.update_config(
+            {
+                "experimental-devmode": not devmode,
+                "snap-channel": target_channel,
+            }
+        )
+        harness.begin()
+        harness.charm.get_snap_cache.cache_clear()
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.present = True
+        hypervisor_snap_mock.channel = channel
+        hypervisor_snap_mock.revision = revision
+        hypervisor_snap_mock.latest = True
+        microovn_snap_mock = MagicMock()
+        microovn_snap_mock.present = True
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": MagicMock(),
+            "microovn": microovn_snap_mock,
+        }
+        snap_client = charm.snap.SnapClient.return_value
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "openstack-hypervisor", "devmode": devmode}
+        ]
+        snap_client.get_snap_information.return_value = {
+            "channels": {target_channel: {"revision": target_revision}}
+        }
+        return hypervisor_snap_mock
+
     def test_snap_connect_success(self, charm_instance):
         """Successful snap connect to epa-orchestrator."""
         hypervisor_snap_mock = MagicMock()
@@ -365,6 +405,78 @@ class TestSnap:
 
         with pytest.raises(snap.SnapError):
             charm_instance._connect_to_epa_orchestrator()
+
+    def test_ensure_snap_present_blocks_same_revision_confinement_change(
+        self, harness
+    ):
+        """Block when confinement changes without a revision change."""
+        hypervisor_snap_mock = self._setup_installed_hypervisor_snap(
+            harness,
+            channel="2024.1/beta",
+            revision="789",
+            devmode=False,
+            target_channel="2024.1/candidate",
+            target_revision="789",
+        )
+
+        with mock.patch.object(
+            harness.charm, "_disable_system_ovs", return_value=False
+        ):
+            with pytest.raises(sunbeam_guard.BlockedExceptionError) as exc:
+                harness.charm.ensure_snap_present()
+
+        assert exc.value.to_status() == ops.model.BlockedStatus(
+            "Invalid snap state: see juju debug-logs"
+        )
+        hypervisor_snap_mock.ensure.assert_not_called()
+        hypervisor_snap_mock.get.assert_not_called()
+        hypervisor_snap_mock.set.assert_not_called()
+
+    def test_ensure_snap_present_refreshes_new_revision_confinement_change(
+        self, harness
+    ):
+        """Refresh when confinement changes with a revision change."""
+        hypervisor_snap_mock = self._setup_installed_hypervisor_snap(
+            harness,
+            channel="2024.1/beta",
+            revision="789",
+            devmode=False,
+            target_channel="2024.1/candidate",
+            target_revision="790",
+        )
+
+        with mock.patch.object(
+            harness.charm, "_disable_system_ovs", return_value=False
+        ), mock.patch.object(harness.charm, "_connect_to_epa_orchestrator"):
+            harness.charm.ensure_snap_present()
+
+        hypervisor_snap_mock.ensure.assert_called_once_with(
+            charm.snap.SnapState.Latest,
+            channel="2024.1/candidate",
+            devmode=True,
+        )
+
+    def test_ensure_snap_present_blocks_unknown_target_revision(self, harness):
+        """Block when snapd does not report the requested channel revision."""
+        hypervisor_snap_mock = self._setup_installed_hypervisor_snap(
+            harness,
+            channel="2024.1/beta",
+            revision="789",
+            devmode=False,
+            target_channel="2024.1/candidate",
+            target_revision=None,
+        )
+
+        with mock.patch.object(
+            harness.charm, "_disable_system_ovs", return_value=False
+        ):
+            with pytest.raises(sunbeam_guard.BlockedExceptionError) as exc:
+                harness.charm.ensure_snap_present()
+
+        assert exc.value.to_status() == ops.model.BlockedStatus(
+            "Invalid snap state: see juju debug-logs"
+        )
+        hypervisor_snap_mock.ensure.assert_not_called()
 
 
 class TestRelationDerivedConfig:
