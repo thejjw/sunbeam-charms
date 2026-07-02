@@ -546,11 +546,18 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def _on_refresh_snap_action(self, event: ActionEvent) -> None:
         """Refresh openstack-hypervisor snap to latest on configured channel."""
         channel: str | None = self.model.config.get("snap-channel")  # type: ignore
+        want_devmode = bool(
+            self.model.config.get("experimental-devmode", False)
+        )
         try:
             cache = self.get_snap_cache()
             hypervisor = cache[HYPERVISOR_SNAP_NAME]
             hypervisor.unhold()
-            hypervisor.ensure(snap.SnapState.Latest, channel=channel)
+            hypervisor.ensure(
+                snap.SnapState.Latest,
+                channel=channel,
+                devmode=want_devmode,
+            )
             hypervisor.hold()
             event.set_results(
                 {
