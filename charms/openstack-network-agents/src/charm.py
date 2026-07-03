@@ -239,9 +239,33 @@ class OpenstackNetworkAgentsOperatorCharm(
             handlers.append(juju_info)
         return super().get_relation_handlers(handlers)
 
+    def _disconnect_ovn_chassis(self) -> None:
+        """Disconnect the snap ovn-chassis plug from microovn:ovn-chassis.
+
+        snapd treats ``snap connect`` as a no-op when the plug is already
+        connected, so a stale/broken sandbox link is never re-established.
+        Disconnecting first forces snapd to rebuild the connection. A
+        non-zero exit (e.g. plug not currently connected) is tolerated.
+        """
+        try:
+            subprocess.run(
+                [
+                    "snap",
+                    "disconnect",
+                    f"{self.snap_name}:{OVN_CHASSIS_PLUG}",
+                    OVN_CHASSIS_SLOT,
+                ],
+                capture_output=True,
+                check=False,
+            )
+        except FileNotFoundError as e:
+            logger.error("snap command not found: %s", e)
+            raise
+
     def _connect_ovn_chassis(self) -> None:
         """Connect the snap ovn-chassis plug to microovn:ovn-chassis."""
         openstack_network_agents = self.get_snap()
+        self._disconnect_ovn_chassis()
 
         try:
             openstack_network_agents.connect(
@@ -290,6 +314,21 @@ class OpenstackNetworkAgentsOperatorCharm(
         if data_addr:
             snap_data["network.ip-address"] = data_addr
         self.set_snap_data(snap_data)
+
+    def _on_refresh_snap_action(self, event: ops.ActionEvent) -> None:
+        """Refresh the snap, then reconnect the ovn-chassis plug.
+
+        Workaround for https://bugs.launchpad.net/snap-openstack/+bug/2147411:
+        snapd can silently break a plug/slot connection during a refresh;
+        reconnecting here heals the link.
+
+        TODO: remove once LP#2147411 is fixed in snapd.
+        """
+        try:
+            super()._on_refresh_snap_action(event)
+        except Exception:
+            raise
+        self._connect_ovn_chassis()
 
     def _agent_cli_cmd(self, cmd: str):
         """Helper to run cli commands on the snap."""
