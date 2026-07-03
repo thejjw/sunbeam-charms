@@ -33,6 +33,23 @@
       "message": "recheck all machines applications are still executing",
       "revId": "b04cfa12132894065a7cfdb4c55be57121ff3acf",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1c46e4a_3e79fee7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-07-03T05:05:27Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "b04cfa12132894065a7cfdb4c55be57121ff3acf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
