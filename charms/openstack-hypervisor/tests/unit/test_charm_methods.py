@@ -291,7 +291,12 @@ class TestActions:
             "epa-orchestrator": epa_orchestrator_snap_mock,
         }
 
-        harness.run_action("refresh-snap")
+        with mock.patch.object(
+            harness.charm, "_connect_ovn_chassis"
+        ) as mock_connect_ovn, mock.patch.object(
+            harness.charm, "_connect_to_epa_orchestrator"
+        ) as mock_connect_epa:
+            harness.run_action("refresh-snap")
 
         hypervisor_snap_mock.unhold.assert_called_once_with()
         hypervisor_snap_mock.ensure.assert_called_once_with(
@@ -300,6 +305,8 @@ class TestActions:
             devmode=True,
         )
         hypervisor_snap_mock.hold.assert_called_once_with()
+        mock_connect_ovn.assert_called_once_with()
+        mock_connect_epa.assert_called_once_with()
 
 
 # ---------------------------------------------------------------------------
@@ -375,7 +382,7 @@ class TestSnap:
         return hypervisor_snap_mock
 
     def test_snap_connect_success(self, charm_instance):
-        """Successful snap connect to epa-orchestrator."""
+        """Successful snap connect to epa-orchestrator (disconnect then connect)."""
         hypervisor_snap_mock = MagicMock()
         hypervisor_snap_mock.present = True
         epa_orchestrator_snap_mock = MagicMock()
@@ -388,6 +395,17 @@ class TestSnap:
         }
 
         charm_instance._connect_to_epa_orchestrator()
+        # disconnect ran via subprocess before connect
+        charm.subprocess.run.assert_called_once_with(
+            [
+                "snap",
+                "disconnect",
+                f"{charm.HYPERVISOR_SNAP_NAME}:{charm.EPA_INFO_PLUG}",
+                charm.EPA_INFO_SLOT,
+            ],
+            capture_output=True,
+            check=False,
+        )
         hypervisor_snap_mock.connect.assert_called_once_with(
             charm.EPA_INFO_PLUG, slot=charm.EPA_INFO_SLOT
         )
@@ -500,6 +518,54 @@ class TestSnap:
             "Invalid snap state: see juju debug-logs"
         )
         hypervisor_snap_mock.ensure.assert_not_called()
+
+    def test_connect_ovn_chassis_disconnects_then_connects(
+        self, charm_instance
+    ):
+        """_connect_ovn_chassis disconnects then connects when microovn present."""
+        hypervisor_snap_mock = MagicMock()
+        microovn_snap_mock = MagicMock()
+        microovn_snap_mock.present = True
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "microovn": microovn_snap_mock,
+        }
+        # microovn present -> _is_microovn_present returns True
+        with mock.patch.object(
+            charm_instance, "_is_microovn_present", return_value=True
+        ):
+            charm_instance._connect_ovn_chassis()
+
+        # disconnect ran via subprocess
+        charm.subprocess.run.assert_called_once_with(
+            [
+                "snap",
+                "disconnect",
+                f"{charm.HYPERVISOR_SNAP_NAME}:{charm.OVN_CHASSIS_PLUG}",
+                charm.OVN_CHASSIS_SLOT,
+            ],
+            capture_output=True,
+            check=False,
+        )
+        hypervisor_snap_mock.connect.assert_called_once_with(
+            charm.OVN_CHASSIS_PLUG, slot=charm.OVN_CHASSIS_SLOT
+        )
+
+    def test_connect_ovn_chassis_skipped_when_microovn_absent(
+        self, charm_instance
+    ):
+        """_connect_ovn_chassis is a no-op when microovn is not present."""
+        hypervisor_snap_mock = MagicMock()
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+        }
+        with mock.patch.object(
+            charm_instance, "_is_microovn_present", return_value=False
+        ):
+            charm_instance._connect_ovn_chassis()
+
+        charm.subprocess.run.assert_not_called()
+        hypervisor_snap_mock.connect.assert_not_called()
 
 
 class TestRelationDerivedConfig:
