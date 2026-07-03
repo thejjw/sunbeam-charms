@@ -89,6 +89,8 @@ HYPERVISOR_SNAP_NAME = "openstack-hypervisor"
 EVACUATION_UNIX_SOCKET_FILEPATH = "shutdown.sock"
 EPA_INFO_PLUG = "epa-info"
 EPA_INFO_SLOT = "epa-orchestrator:epa-info"
+OVN_CHASSIS_PLUG = "ovn-chassis"
+OVN_CHASSIS_SLOT = "microovn:ovn-chassis"
 
 # Allows overriding DPDK settings.
 DPDK_CONFIG_OVERRIDE_PATH = "/etc/sunbeam/dpdk.yaml"
@@ -559,6 +561,12 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 devmode=want_devmode,
             )
             hypervisor.hold()
+            # Workaround for https://bugs.launchpad.net/snap-openstack/+bug/2147411:
+            # snapd can silently break plug/slot connections during a refresh;
+            # reconnecting here heals the links.
+            # TODO: remove once LP#2147411 is fixed in snapd.
+            self._connect_ovn_chassis()
+            self._connect_to_epa_orchestrator()
             event.set_results(
                 {
                     "result": f"Snap {HYPERVISOR_SNAP_NAME} refreshed successfully"
@@ -871,6 +879,25 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                     "No OVS changes made, skipping netplan configuration."
                 )
 
+    def _disconnect_epa_info(self) -> None:
+        """Disconnect the epa-info plug from epa-orchestrator:epa-info.
+
+        snapd treats ``snap connect`` as a no-op when the plug is already
+        connected, so a stale/broken sandbox link is never re-established.
+        Disconnecting first forces snapd to rebuild the connection. A
+        non-zero exit (e.g. plug not currently connected) is tolerated.
+        """
+        subprocess.run(
+            [
+                "snap",
+                "disconnect",
+                f"{HYPERVISOR_SNAP_NAME}:{EPA_INFO_PLUG}",
+                EPA_INFO_SLOT,
+            ],
+            capture_output=True,
+            check=False,
+        )
+
     def _connect_to_epa_orchestrator(self):
         """Connect openstack-hypervisor snap plug to epa-orchestrator snap slot."""
         cache = self.get_snap_cache()
@@ -892,6 +919,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         try:
             # Temporary manual connection and hook trigger until ownership is transferred
             # to Canonical.
+            self._disconnect_epa_info()
             hypervisor.connect(EPA_INFO_PLUG, slot=EPA_INFO_SLOT)
             logger.info(
                 "Successfully connected openstack-hypervisor to epa-orchestrator"
@@ -908,6 +936,52 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             )
         except snap.SnapError as e:
             logger.error(f"Failed to connect to epa-orchestrator: {e.message}")
+            raise
+
+    def _disconnect_ovn_chassis(self) -> None:
+        """Disconnect the ovn-chassis plug from microovn:ovn-chassis.
+
+        snapd treats ``snap connect`` as a no-op when the plug is already
+        connected, so a stale/broken sandbox link is never re-established.
+        Disconnecting first forces snapd to rebuild the connection. A
+        non-zero exit (e.g. plug not currently connected) is tolerated.
+        """
+        subprocess.run(
+            [
+                "snap",
+                "disconnect",
+                f"{HYPERVISOR_SNAP_NAME}:{OVN_CHASSIS_PLUG}",
+                OVN_CHASSIS_SLOT,
+            ],
+            capture_output=True,
+            check=False,
+        )
+
+    def _connect_ovn_chassis(self) -> None:
+        """Connect openstack-hypervisor:ovn-chassis to microovn:ovn-chassis.
+
+        Only meaningful when microovn provides OVS; when ovs-provider is
+        ``hypervisor`` the plug is unused and snapd will reject the connect.
+        """
+        if not self._is_microovn_present():
+            logger.debug(
+                "microovn not present, skipping ovn-chassis connection"
+            )
+            return
+
+        cache = self.get_snap_cache()
+        hypervisor = cache[HYPERVISOR_SNAP_NAME]
+        self._disconnect_ovn_chassis()
+        try:
+            hypervisor.connect(OVN_CHASSIS_PLUG, slot=OVN_CHASSIS_SLOT)
+            logger.info(
+                "Connected microovn:ovn-chassis slot to "
+                "openstack-hypervisor:ovn-chassis plug"
+            )
+        except snap.SnapError as e:
+            logger.error(
+                f"Failed to connect to microovn:ovn-chassis: {e.message}"
+            )
             raise
 
     @functools.cache
