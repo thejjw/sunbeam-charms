@@ -1229,7 +1229,9 @@ class TlsCertificatesHandler(RelationHandler):
                 common_name (str), sans_dns (list/set), sans_ip (list/set).
         """
         if expected_cert_requests is None:
-            expected_cert_requests = self.default_certificate_requests()
+            expected_cert_requests = self.certificate_requests
+        else:
+            self.certificate_requests = expected_cert_requests
 
         # Fetch current CSRs from relation data
         relation_csrs = self.interface.get_csrs_from_requirer_relation_data()
