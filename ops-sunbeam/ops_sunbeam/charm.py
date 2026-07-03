@@ -1274,8 +1274,18 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
             raise sunbeam_guard.BlockedExceptionError(
                 f"Invalid snap name with instance key: {self.snap_name}"
             )
+        try:
+            return cache[self.snap_name]
+        except self.snap_module.SnapNotFoundError:
+            logger.debug(
+                "Snap %s not found in cache, building snap object from snapd information",
+                self.snap_name,
+            )
+
+        # This means the parallel instance is not installed yet,
+        # so return a constructed Snap object with the correct name and channel in Available state.
         info = cache._snap_client.get_snap_information(name_key[0])
-        cache._snap_map[self.snap_name] = self.snap_module.Snap(
+        return self.snap_module.Snap(
             name=self.snap_name,
             state=self.snap_module.SnapState.Available,
             channel=info["channel"],
@@ -1283,12 +1293,6 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
             confinement=info["confinement"],
             apps=None,
         )
-        # Setting snapd experimental parallel instances config to true
-        _s = cache._snap_map[self.snap_name]
-        if _s is None:
-            raise snap.SnapError("No snap exists in Snap cache") from None
-
-        return _s
 
     @property
     def snap_name(self) -> str:
