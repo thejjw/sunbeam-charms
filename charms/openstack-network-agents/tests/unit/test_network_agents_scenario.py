@@ -302,17 +302,56 @@ class TestConnectOvnChassis:
     """Test _connect_ovn_chassis method."""
 
     def test_connect_ovn_chassis_success(self, ctx, complete_state):
-        """_connect_ovn_chassis should call snap.connect."""
+        """_connect_ovn_chassis should disconnect then snap.connect."""
         with ctx(ctx.on.config_changed(), complete_state) as mgr:
             charm_instance = mgr.charm
             mock_snap = MagicMock(name="openstack-network-agents")
             charm_instance.get_snap = MagicMock(return_value=mock_snap)
+            charm_instance._check_microovn_ready = MagicMock(return_value=True)
 
             charm_instance._connect_ovn_chassis()
 
+            # disconnect must run before connect
+            charm.subprocess.run.assert_called_with(
+                [
+                    "snap",
+                    "disconnect",
+                    f"{charm_instance.snap_name}:{charm.OVN_CHASSIS_PLUG}",
+                    charm.OVN_CHASSIS_SLOT,
+                ],
+                capture_output=True,
+                check=False,
+            )
             mock_snap.connect.assert_called_once_with(
                 charm.OVN_CHASSIS_PLUG, slot=charm.OVN_CHASSIS_SLOT
             )
+
+    def test_connect_ovn_chassis_skipped_when_microovn_not_ready(
+        self, ctx, complete_state
+    ):
+        """_connect_ovn_chassis should be a no-op if microovn not ready."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            charm_instance = mgr.charm
+            mock_snap = MagicMock(name="openstack-network-agents")
+            charm_instance.get_snap = MagicMock(return_value=mock_snap)
+            charm_instance._check_microovn_ready = MagicMock(return_value=False)
+
+            charm_instance._connect_ovn_chassis()
+
+            charm.subprocess.run.assert_not_called()
+            mock_snap.connect.assert_not_called()
+
+    def test_disconnect_tolerates_nonzero_exit(self, ctx, complete_state):
+        """_disconnect_ovn_chassis should not raise on non-zero exit."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            charm_instance = mgr.charm
+            result = MagicMock()
+            result.returncode = 1
+            result.stderr = "not connected"
+            charm.subprocess.run.return_value = result
+
+            # Should not raise
+            charm_instance._disconnect_ovn_chassis()
 
     def test_connect_ovn_chassis_errors_out(self, ctx, complete_state):
         """_connect_ovn_chassis should raise when snap connect fails."""
@@ -323,9 +362,37 @@ class TestConnectOvnChassis:
             mock_snap = MagicMock(name="openstack-network-agents")
             mock_snap.connect.side_effect = Exception("boom")
             charm_instance.get_snap = MagicMock(return_value=mock_snap)
+            charm_instance._check_microovn_ready = MagicMock(return_value=True)
 
             with pytest.raises(Exception):
                 charm_instance._connect_ovn_chassis()
+
+
+# ---------------------------------------------------------------------------
+# Tests: refresh-snap action reconnects ovn-chassis
+# ---------------------------------------------------------------------------
+
+
+class TestRefreshSnapAction:
+    """Test _on_refresh_snap_action reconnects ovn-chassis after refresh."""
+
+    def test_refresh_reconnects_ovn_chassis(self, ctx, complete_state):
+        """refresh-snap action should call _connect_ovn_chassis after super."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            charm_instance = mgr.charm
+            # get_snap returns a mock so the base action's unhold/ensure/hold
+            # are no-ops; we only want to verify the reconnect runs.
+            mock_snap = MagicMock()
+            charm_instance.get_snap = MagicMock(return_value=mock_snap)
+            charm_instance._connect_ovn_chassis = MagicMock()
+
+            evt = MagicMock()
+            charm_instance._on_refresh_snap_action(evt)
+
+            mock_snap.unhold.assert_called_once()
+            mock_snap.ensure.assert_called_once()
+            mock_snap.hold.assert_called_once()
+            charm_instance._connect_ovn_chassis.assert_called_once()
 
 
 # ---------------------------------------------------------------------------
