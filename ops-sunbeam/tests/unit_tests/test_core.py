@@ -19,6 +19,7 @@ import os
 import sys
 from unittest.mock import (
     MagicMock,
+    PropertyMock,
     patch,
 )
 
@@ -666,6 +667,88 @@ refresh-snap:
             {namespace: {"key": "abc"}}, typed=True
         )
 
+    def test_get_snap_returns_installed_parallel_instance(self) -> None:
+        """Return installed parallel snap instance from SnapCache."""
+        charm = self.harness.charm
+        installed_snap = MagicMock()
+        cache = MagicMock()
+        cache.__getitem__.return_value = installed_snap
+        charm.snap_module.SnapCache.return_value = cache
+
+        with patch.object(
+            type(charm),
+            "snap_name",
+            new_callable=PropertyMock,
+            return_value="mysnap_noha",
+        ):
+            result = sunbeam_charm.OSBaseOperatorCharmSnap.get_snap(charm)
+
+        self.assertIs(result, installed_snap)
+        cache.__getitem__.assert_called_once_with("mysnap_noha")
+        cache._snap_client.get_snap_information.assert_not_called()
+        charm.snap_module.Snap.assert_not_called()
+
+    def test_get_snap_builds_available_parallel_instance_when_missing(
+        self,
+    ) -> None:
+        """Build available snap for missing parallel snap instance."""
+        charm = self.harness.charm
+
+        class SnapNotFoundError(Exception):
+            pass
+
+        charm.snap_module.SnapNotFoundError = SnapNotFoundError
+        available_snap = MagicMock()
+        charm.snap_module.Snap.return_value = available_snap
+        cache = MagicMock()
+        cache.__getitem__.side_effect = SnapNotFoundError
+        cache._snap_client.get_snap_information.return_value = {
+            "channel": "latest/stable",
+            "revision": "123",
+            "confinement": "strict",
+        }
+        charm.snap_module.SnapCache.return_value = cache
+
+        with patch.object(
+            type(charm),
+            "snap_name",
+            new_callable=PropertyMock,
+            return_value="mysnap_noha",
+        ):
+            result = sunbeam_charm.OSBaseOperatorCharmSnap.get_snap(charm)
+
+        self.assertIs(result, available_snap)
+        cache.__getitem__.assert_called_once_with("mysnap_noha")
+        cache._snap_client.get_snap_information.assert_called_once_with(
+            "mysnap"
+        )
+        charm.snap_module.Snap.assert_called_once_with(
+            name="mysnap_noha",
+            state=charm.snap_module.SnapState.Available,
+            channel="latest/stable",
+            revision="123",
+            confinement="strict",
+            apps=None,
+        )
+        self.assertNotIn("mysnap_noha", cache._snap_map)
+
+    def test_get_snap_blocks_invalid_parallel_instance_key(self) -> None:
+        """Block invalid parallel snap instance keys."""
+        charm = self.harness.charm
+
+        with patch.object(
+            type(charm),
+            "snap_name",
+            new_callable=PropertyMock,
+            return_value="mysnap_BadKey",
+        ):
+            with self.assertRaises(
+                sunbeam_charm.sunbeam_guard.BlockedExceptionError
+            ):
+                sunbeam_charm.OSBaseOperatorCharmSnap.get_snap(charm)
+
+        charm.snap_module.SnapCache.assert_called_once_with()
+
     def test_ensure_snap_present_already_installed(self) -> None:
         """Test ensure_snap_present when snap is already correctly installed."""
         charm = self.harness.charm
@@ -884,6 +967,92 @@ refresh-snap:
         snap.ensure.assert_not_called()
         snap.get.assert_not_called()
         snap.set.assert_not_called()
+
+    def test_ensure_parallel_snap_confinement_change_same_revision_blocks(
+        self,
+    ) -> None:
+        """Block parallel snap confinement change without revision change."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        snap.present = True
+        snap.channel = "2024.1/stable"
+        snap.latest = True
+        snap.revision = "116"
+
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap_noha", "devmode": True}
+        ]
+        snap_client.get_snap_information.return_value = {
+            "channels": {"latest/stable": {"revision": "116"}}
+        }
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": False})
+
+        with patch.object(
+            type(charm),
+            "snap_name",
+            new_callable=PropertyMock,
+            return_value="mysnap_noha",
+        ):
+            snap.reset_mock()
+            with self.assertLogs(sunbeam_charm.logger, level="ERROR") as logs:
+                with self.assertRaises(
+                    sunbeam_charm.sunbeam_guard.BlockedExceptionError
+                ) as exc:
+                    charm.ensure_snap_present()
+
+        self.assertEqual(
+            exc.exception.to_status(),
+            ops.model.BlockedStatus("Invalid snap state: see juju debug-logs"),
+        )
+        self.assertIn("mysnap_noha", "\n".join(logs.output))
+        self.assertIn("revision 116", "\n".join(logs.output))
+        snap.ensure.assert_not_called()
+
+    def test_ensure_parallel_snap_channel_only_same_revision_refreshes(
+        self,
+    ) -> None:
+        """Refresh parallel snap channel when confinement already matches."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        snap.present = True
+        snap.channel = "2024.1/stable"
+        snap.latest = True
+        snap.revision = "116"
+
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap_noha", "devmode": False}
+        ]
+        snap_client.get_snap_information.return_value = {
+            "channels": {"latest/stable": {"revision": "116"}}
+        }
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": False})
+
+        with patch.object(
+            type(charm),
+            "snap_name",
+            new_callable=PropertyMock,
+            return_value="mysnap_noha",
+        ):
+            snap.reset_mock()
+            charm.ensure_snap_present()
+
+        snap.ensure.assert_called_once_with(
+            charm.snap_module.SnapState.Latest,
+            channel="latest/stable",
+            devmode=False,
+        )
 
     def test_ensure_snap_present_confinement_and_channel_change_new_revision(
         self,
