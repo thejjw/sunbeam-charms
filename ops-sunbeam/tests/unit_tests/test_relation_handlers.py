@@ -752,35 +752,137 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
         )
         self.handler.interface.sync.assert_called_once()
 
-    def test_validate_and_regenerate_uses_default_requests(self) -> None:
-        """Test that default_certificate_requests is used when expected_cert_requests is None."""
+    def test_validate_without_expected_requests_uses_configured_requests(
+        self,
+    ) -> None:
+        """Test validation uses the handler's configured certificate requests."""
+        mock_configured_request = MagicMock()
+        mock_configured_request.common_name = "compute-3.example.internal"
+        mock_configured_request.sans_dns = ["compute-3.example.internal"]
+        mock_configured_request.sans_ip = ["10.0.0.13"]
+
+        mock_default_request = MagicMock()
+        mock_default_request.common_name = "openstack-hypervisor-3"
+        mock_default_request.sans_dns = ["openstack-hypervisor-3"]
+        mock_default_request.sans_ip = ["10.0.0.13"]
+
+        with patch.object(
+            sunbeam_rhandlers.TlsCertificatesHandler,
+            "setup_event_handler",
+            return_value=MagicMock(),
+        ), patch.object(
+            sunbeam_rhandlers.TlsCertificatesHandler,
+            "__post_init__",
+            return_value=None,
+        ):
+            handler = sunbeam_rhandlers.TlsCertificatesHandler(
+                charm=self.mock_charm,
+                relation_name="certificates",
+                callback_f=MagicMock(),
+                certificate_requests=[mock_configured_request],
+                mandatory=True,
+            )
+
+        handler.interface = MagicMock()
+        mock_csr = MagicMock()
+        mock_csr.common_name = "compute-3.example.internal"
+        mock_csr.sans_dns = {"compute-3.example.internal"}
+        mock_csr.sans_ip = {"10.0.0.13"}
+
+        mock_requirer_cert = MagicMock()
+        mock_requirer_cert.certificate_signing_request = mock_csr
+        handler.interface.get_csrs_from_requirer_relation_data.return_value = [
+            mock_requirer_cert
+        ]
+
+        with patch.object(
+            handler,
+            "default_certificate_requests",
+            return_value=[mock_default_request],
+        ) as mock_default_certificate_requests:
+            handler.validate_and_regenerate_certificates_if_needed()
+
+        mock_default_certificate_requests.assert_not_called()
+        handler.interface.sync.assert_not_called()
+
+    def test_validate_empty_relation_uses_configured_requests(
+        self,
+    ) -> None:
+        """Test regeneration uses configured requests when relation CSRs are empty."""
+        mock_configured_request = MagicMock()
+        mock_configured_request.common_name = "compute-3.example.internal"
+        mock_configured_request.sans_dns = ["compute-3.example.internal"]
+        mock_configured_request.sans_ip = ["10.0.0.13"]
+
+        mock_default_request = MagicMock()
+        mock_default_request.common_name = "openstack-hypervisor-3"
+        mock_default_request.sans_dns = ["openstack-hypervisor-3"]
+        mock_default_request.sans_ip = ["10.0.0.13"]
+
+        with patch.object(
+            sunbeam_rhandlers.TlsCertificatesHandler,
+            "setup_event_handler",
+            return_value=MagicMock(),
+        ), patch.object(
+            sunbeam_rhandlers.TlsCertificatesHandler,
+            "__post_init__",
+            return_value=None,
+        ):
+            handler = sunbeam_rhandlers.TlsCertificatesHandler(
+                charm=self.mock_charm,
+                relation_name="certificates",
+                callback_f=MagicMock(),
+                certificate_requests=[mock_configured_request],
+                mandatory=True,
+            )
+
+        handler.interface = MagicMock()
+        handler.interface.get_csrs_from_requirer_relation_data.return_value = (
+            []
+        )
+
+        with patch.object(
+            handler,
+            "default_certificate_requests",
+            return_value=[mock_default_request],
+        ) as mock_default_certificate_requests:
+            handler.validate_and_regenerate_certificates_if_needed()
+
+        mock_default_certificate_requests.assert_not_called()
+        self.assertEqual(
+            handler.interface.certificate_requests,
+            [mock_configured_request],
+        )
+        handler.interface.sync.assert_called_once()
+
+    def test_validate_and_regenerate_uses_configured_default_requests(
+        self,
+    ) -> None:
+        """Test validation uses configured defaults when no requests are passed."""
         mock_default_request = MagicMock()
         mock_default_request.common_name = "default-service"
         mock_default_request.sans_dns = ["default.example.com"]
         mock_default_request.sans_ip = ["10.0.0.1"]
 
+        self.handler.certificate_requests = [mock_default_request]
+        self.handler.interface.get_csrs_from_requirer_relation_data.return_value = (
+            []
+        )
+
         with patch.object(
             self.handler,
             "default_certificate_requests",
-            return_value=[mock_default_request],
-        ):
-            # Mock empty CSRs from relation
-            self.handler.interface.get_csrs_from_requirer_relation_data.return_value = (
-                []
-            )
-
-            # Call with None (should use default)
+            return_value=[],
+        ) as mock_default_certificate_requests:
             self.handler.validate_and_regenerate_certificates_if_needed(None)
 
-            # Verify default_certificate_requests was called
-            self.handler.default_certificate_requests.assert_called_once()
+        mock_default_certificate_requests.assert_not_called()
 
-            # Verify certificates were regenerated with default requests
-            self.assertEqual(
-                self.handler.interface.certificate_requests,
-                [mock_default_request],
-            )
-            self.handler.interface.sync.assert_called_once()
+        self.assertEqual(
+            self.handler.interface.certificate_requests,
+            [mock_default_request],
+        )
+        self.handler.interface.sync.assert_called_once()
 
 
 if __name__ == "__main__":
