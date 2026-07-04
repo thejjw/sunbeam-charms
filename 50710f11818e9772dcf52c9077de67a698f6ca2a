@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4a6373ed_b742449c",
+        "filename": "charms/glance-k8s/src/templates/glance-api.conf.j2",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-07-04T01:37:35Z",
+      "side": 1,
+      "message": "Any reason for s3 as default and getting priority over ceph?",
+      "revId": "50710f11818e9772dcf52c9077de67a698f6ca2a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bbbdc766_fac33fc7",
         "filename": "charms/ironic-conductor-k8s/src/charm.py",
         "patchSetId": 2
