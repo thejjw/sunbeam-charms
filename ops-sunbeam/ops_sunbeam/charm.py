@@ -359,6 +359,8 @@ class OSBaseOperatorCharm(
 
     def configure_charm(self, event: ops.framework.EventBase) -> None:
         """Catchall handler to configure charm services."""
+        # Remains false when guard handles a failure before reconciliation ends.
+        self._configure_charm_completed = False
         with sunbeam_guard.guard(self, "Bootstrapping"):
             # Publishing relation data may be dependent on something else (like
             # receiving a piece of data from the leader). To cover that
@@ -369,6 +371,7 @@ class OSBaseOperatorCharm(
             self.configure_app(event)
             self.bootstrap_status.set(ActiveStatus())
             self.post_config_setup()
+            self._configure_charm_completed = True
 
     def stop_services(self, relation: Optional[Set[str]] = None) -> None:
         """Stop all running services."""
