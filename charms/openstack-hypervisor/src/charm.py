@@ -327,7 +327,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def get_tls_certificate_requests(self) -> list:
         """Get TLS certificate requests for the service."""
-        from charms.tls_certificates_interface.v4.tls_certificates import (
+        from charmlibs.interfaces.tls_certificates import (
             CertificateRequestAttributes,
         )
 

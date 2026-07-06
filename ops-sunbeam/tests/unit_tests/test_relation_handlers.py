@@ -15,12 +15,16 @@
 """Test TestTlsCertificatesHandler for certificate renewals."""
 
 from unittest.mock import (
+    ANY,
     MagicMock,
     patch,
 )
 
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.test_utils as test_utils
+from charmlibs.interfaces.tls_certificates import (
+    Mode,
+)
 
 
 class TestTlsCertificatesHandler(test_utils.CharmTestCase):
@@ -63,7 +67,7 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
         """Test that custom certificate requests are used when provided."""
         # Mock the CertificateRequestAttributes class
         with patch(
-            "charms.tls_certificates_interface.v4.tls_certificates.CertificateRequestAttributes"
+            "charmlibs.interfaces.tls_certificates.CertificateRequestAttributes"
         ) as mock_cert_req, patch.object(
             sunbeam_rhandlers.TlsCertificatesHandler,
             "setup_event_handler",
@@ -102,7 +106,7 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
         mock_entity.name = "test/charm"
 
         with patch(
-            "charms.tls_certificates_interface.v4.tls_certificates.CertificateRequestAttributes"
+            "charmlibs.interfaces.tls_certificates.CertificateRequestAttributes"
         ) as mock_cert_req, patch.object(
             self.handler, "get_entity", return_value=mock_entity
         ):
@@ -118,6 +122,49 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
                 sans_dns=None,
                 sans_ip=None,
             )
+
+    def test_setup_event_handler_refreshes_on_update_status(self) -> None:
+        """Test TLS certificate sync runs from update-status refresh events."""
+        update_status = MagicMock()
+        self.mock_charm.on.update_status = update_status
+        certificates = MagicMock()
+
+        with patch(
+            "ops_sunbeam.relation_handlers.sunbeam_tracing.trace_type",
+            side_effect=lambda cls: cls,
+        ), patch(
+            "charmlibs.interfaces.tls_certificates.TLSCertificatesRequiresV4",
+            return_value=certificates,
+        ) as tls_requires:
+            interface = self.handler.setup_event_handler()
+
+        self.assertEqual(interface, certificates)
+        args, kwargs = tls_requires.call_args
+        self.assertEqual(args[:3], (self.mock_charm, "certificates", ANY))
+        self.assertEqual(kwargs["refresh_events"], [update_status])
+
+    def test_get_private_key_secret_uses_unit_mode(self) -> None:
+        """Test private-key secret lookup uses the configured certificate mode."""
+        secret = MagicMock()
+        secret.get_info.return_value.id = "secret-id"
+        self.mock_charm.model.get_secret.return_value = secret
+
+        self.assertEqual(self.handler.get_private_key_secret(), "secret-id")
+        self.handler.interface._get_private_key_secret_label.assert_called_once_with(
+            mode=Mode.UNIT
+        )
+
+    def test_get_private_key_secret_uses_app_mode(self) -> None:
+        """Test app-managed private-key secret lookup uses app mode."""
+        self.handler.app_managed_certificates = True
+        secret = MagicMock()
+        secret.get_info.return_value.id = "secret-id"
+        self.mock_charm.model.get_secret.return_value = secret
+
+        self.assertEqual(self.handler.get_private_key_secret(), "secret-id")
+        self.handler.interface._get_private_key_secret_label.assert_called_once_with(
+            mode=Mode.APP
+        )
 
     def test_get_entity_app_managed(self) -> None:
         """Test get_entity when app_managed_certificates=True."""
