@@ -622,7 +622,7 @@ def mock_get_assigned_certificate(harness: Harness) -> None:
         harness.charm.certs.interface.get_assigned_certificate = (
             fake_get_assigned_certificate
         )
-        from charms.tls_certificates_interface.v4.tls_certificates import (
+        from charmlibs.interfaces.tls_certificates import (
             PrivateKey,
         )
 
