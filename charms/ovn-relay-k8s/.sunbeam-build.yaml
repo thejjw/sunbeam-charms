@@ -1,5 +1,4 @@
 external-libraries:
-  - charms.tls_certificates_interface.v4.tls_certificates
   - charms.loki_k8s.v1.loki_push_api
   - charms.tempo_coordinator_k8s.v0.tracing
   - charms.tempo_coordinator_k8s.v0.charm_tracing
