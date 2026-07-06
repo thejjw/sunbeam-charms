@@ -14,13 +14,20 @@
 
 """Test TestTlsCertificatesHandler for certificate renewals."""
 
+from types import (
+    SimpleNamespace,
+)
 from unittest.mock import (
+    ANY,
     MagicMock,
     patch,
 )
 
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.test_utils as test_utils
+from charmlibs.interfaces.tls_certificates import (
+    Mode,
+)
 
 
 class TestTlsCertificatesHandler(test_utils.CharmTestCase):
@@ -59,11 +66,22 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
         self.handler.interface.get_provider_certificates.return_value = []
         self.handler.interface.private_key = "mock_private_key"
 
+        stored = SimpleNamespace(certificate_fingerprints={})
+        stored.set_default = lambda **defaults: [
+            setattr(stored, key, value)
+            for key, value in defaults.items()
+            if not hasattr(stored, key)
+        ]
+        self.handler.__dict__["_stored"] = stored
+        self.handler.callback_f.side_effect = lambda event: setattr(
+            self.mock_charm, "_configure_charm_completed", True
+        )
+
     def test_custom_certificate_requests(self) -> None:
         """Test that custom certificate requests are used when provided."""
         # Mock the CertificateRequestAttributes class
         with patch(
-            "charms.tls_certificates_interface.v4.tls_certificates.CertificateRequestAttributes"
+            "charmlibs.interfaces.tls_certificates.CertificateRequestAttributes"
         ) as mock_cert_req, patch.object(
             sunbeam_rhandlers.TlsCertificatesHandler,
             "setup_event_handler",
@@ -102,7 +120,7 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
         mock_entity.name = "test/charm"
 
         with patch(
-            "charms.tls_certificates_interface.v4.tls_certificates.CertificateRequestAttributes"
+            "charmlibs.interfaces.tls_certificates.CertificateRequestAttributes"
         ) as mock_cert_req, patch.object(
             self.handler, "get_entity", return_value=mock_entity
         ):
@@ -118,6 +136,213 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
                 sans_dns=None,
                 sans_ip=None,
             )
+
+    def test_setup_event_handler_refreshes_on_update_status(self) -> None:
+        """Test TLS certificate sync runs from update-status refresh events."""
+        update_status = MagicMock()
+        self.mock_charm.on.update_status = update_status
+        certificates = MagicMock()
+
+        with patch(
+            "ops_sunbeam.relation_handlers.sunbeam_tracing.trace_type",
+            side_effect=lambda cls: cls,
+        ), patch(
+            "charmlibs.interfaces.tls_certificates.TLSCertificatesRequiresV4",
+            return_value=certificates,
+        ) as tls_requires:
+            interface = self.handler.setup_event_handler()
+
+        self.assertEqual(interface, certificates)
+        args, kwargs = tls_requires.call_args
+        self.assertEqual(args[:3], (self.mock_charm, "certificates", ANY))
+        self.assertEqual(kwargs["refresh_events"], [update_status])
+
+    def test_certificate_available_calls_callback_for_new_bundle(self) -> None:
+        """Test a newly available certificate invokes the charm callback."""
+        event = MagicMock()
+        event.certificate = "certificate-1"
+        event.certificate_signing_request = "csr-1"
+        event.ca = "ca-1"
+        event.chain = ["intermediate-1"]
+        self.handler._stored.certificate_fingerprints = {}
+
+        self.handler._on_certificate_available(event)
+
+        self.handler.callback_f.assert_called_once_with(event)
+        self.assertEqual(len(self.handler._stored.certificate_fingerprints), 1)
+
+    def test_certificate_available_ignores_identical_bundle(self) -> None:
+        """Test repeated availability events do not reconfigure the charm."""
+        event = MagicMock()
+        event.certificate = "certificate-1"
+        event.certificate_signing_request = "csr-1"
+        event.ca = "ca-1"
+        event.chain = ["intermediate-1"]
+        self.handler._stored.certificate_fingerprints = {}
+
+        self.handler._on_certificate_available(event)
+        self.handler._on_certificate_available(event)
+
+        self.handler.callback_f.assert_called_once_with(event)
+
+    def test_certificate_available_calls_callback_for_renewal(self) -> None:
+        """Test renewed certificate material reconfigures the charm."""
+        first_event = MagicMock()
+        first_event.certificate = "certificate-1"
+        first_event.certificate_signing_request = "csr-1"
+        first_event.ca = "ca-1"
+        first_event.chain = ["intermediate-1"]
+        renewed_event = MagicMock()
+        renewed_event.certificate = "certificate-2"
+        renewed_event.certificate_signing_request = "csr-1"
+        renewed_event.ca = "ca-1"
+        renewed_event.chain = ["intermediate-1"]
+        self.handler._stored.certificate_fingerprints = {}
+
+        self.handler._on_certificate_available(first_event)
+        self.handler._on_certificate_available(renewed_event)
+
+        self.assertEqual(self.handler.callback_f.call_count, 2)
+        self.handler.callback_f.assert_called_with(renewed_event)
+
+    def test_certificate_available_tracks_csrs_independently(self) -> None:
+        """Test certificates for separate CSRs are deduplicated separately."""
+        first_event = MagicMock()
+        first_event.certificate = "certificate-1"
+        first_event.certificate_signing_request = "csr-1"
+        first_event.ca = "ca-1"
+        first_event.chain = ["intermediate-1"]
+        second_event = MagicMock()
+        second_event.certificate = "certificate-2"
+        second_event.certificate_signing_request = "csr-2"
+        second_event.ca = "ca-1"
+        second_event.chain = ["intermediate-1"]
+        self.handler._stored.certificate_fingerprints = {}
+
+        self.handler._on_certificate_available(first_event)
+        self.handler._on_certificate_available(second_event)
+        self.handler._on_certificate_available(first_event)
+
+        self.assertEqual(self.handler.callback_f.call_count, 2)
+        self.assertEqual(len(self.handler._stored.certificate_fingerprints), 2)
+
+    def test_certificate_available_retries_after_callback_failure(
+        self,
+    ) -> None:
+        """Test failed charm configuration does not suppress the next retry."""
+        event = MagicMock()
+        event.certificate = "certificate-1"
+        event.certificate_signing_request = "csr-1"
+        event.ca = "ca-1"
+        event.chain = ["intermediate-1"]
+        self.handler._stored.certificate_fingerprints = {}
+        attempts = 0
+
+        def configure_charm(event):
+            nonlocal attempts
+            attempts += 1
+            if attempts == 1:
+                raise RuntimeError("failed")
+            self.mock_charm._configure_charm_completed = True
+
+        self.handler.callback_f.side_effect = configure_charm
+
+        with self.assertRaises(RuntimeError):
+            self.handler._on_certificate_available(event)
+        self.handler._on_certificate_available(event)
+
+        self.assertEqual(self.handler.callback_f.call_count, 2)
+        self.assertEqual(len(self.handler._stored.certificate_fingerprints), 1)
+
+    def test_certificate_available_retries_after_incomplete_callback(
+        self,
+    ) -> None:
+        """Test a guarded configuration failure does not save the fingerprint."""
+        event = MagicMock()
+        event.certificate = "certificate-1"
+        event.certificate_signing_request = "csr-1"
+        event.ca = "ca-1"
+        event.chain = ["intermediate-1"]
+        self.handler._stored.certificate_fingerprints = {}
+        self.handler.callback_f.side_effect = None
+
+        self.handler._on_certificate_available(event)
+        self.handler._on_certificate_available(event)
+
+        self.assertEqual(self.handler.callback_f.call_count, 2)
+        self.assertEqual(self.handler._stored.certificate_fingerprints, {})
+
+    def test_certificate_available_ignores_nested_callback(self) -> None:
+        """Test certificate sync cannot recursively reconfigure the charm."""
+        event = MagicMock()
+        event.certificate = "certificate-1"
+        event.certificate_signing_request = "csr-1"
+        event.ca = "ca-1"
+        event.chain = ["intermediate-1"]
+        self.handler._stored.certificate_fingerprints = {}
+
+        def configure_charm(event):
+            self.handler._on_certificate_available(event)
+            self.mock_charm._configure_charm_completed = True
+
+        self.handler.callback_f.side_effect = configure_charm
+
+        self.handler._on_certificate_available(event)
+
+        self.handler.callback_f.assert_called_once_with(event)
+        self.assertEqual(len(self.handler._stored.certificate_fingerprints), 1)
+        self.assertFalse(self.handler._certificate_callback_in_progress)
+
+    def test_certificate_available_defers_nested_csr(self) -> None:
+        """Test a nested CSR is processed safely on its next delivery."""
+        first_event = MagicMock()
+        first_event.certificate = "certificate-1"
+        first_event.certificate_signing_request = "csr-1"
+        first_event.ca = "ca-1"
+        first_event.chain = ["intermediate-1"]
+        second_event = MagicMock()
+        second_event.certificate = "certificate-2"
+        second_event.certificate_signing_request = "csr-2"
+        second_event.ca = "ca-1"
+        second_event.chain = ["intermediate-1"]
+        self.handler._stored.certificate_fingerprints = {}
+
+        def configure_charm(event):
+            if event is first_event:
+                self.handler._on_certificate_available(second_event)
+            self.mock_charm._configure_charm_completed = True
+
+        self.handler.callback_f.side_effect = configure_charm
+
+        self.handler._on_certificate_available(first_event)
+        self.handler._on_certificate_available(second_event)
+
+        self.assertEqual(self.handler.callback_f.call_count, 2)
+        self.assertEqual(len(self.handler._stored.certificate_fingerprints), 2)
+        self.assertFalse(self.handler._certificate_callback_in_progress)
+
+    def test_get_private_key_secret_uses_unit_mode(self) -> None:
+        """Test private-key secret lookup uses the configured certificate mode."""
+        secret = MagicMock()
+        secret.get_info.return_value.id = "secret-id"
+        self.mock_charm.model.get_secret.return_value = secret
+
+        self.assertEqual(self.handler.get_private_key_secret(), "secret-id")
+        self.handler.interface._get_private_key_secret_label.assert_called_once_with(
+            mode=Mode.UNIT
+        )
+
+    def test_get_private_key_secret_uses_app_mode(self) -> None:
+        """Test app-managed private-key secret lookup uses app mode."""
+        self.handler.app_managed_certificates = True
+        secret = MagicMock()
+        secret.get_info.return_value.id = "secret-id"
+        self.mock_charm.model.get_secret.return_value = secret
+
+        self.assertEqual(self.handler.get_private_key_secret(), "secret-id")
+        self.handler.interface._get_private_key_secret_label.assert_called_once_with(
+            mode=Mode.APP
+        )
 
     def test_get_entity_app_managed(self) -> None:
         """Test get_entity when app_managed_certificates=True."""
