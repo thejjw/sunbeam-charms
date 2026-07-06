@@ -69,7 +69,7 @@ if typing.TYPE_CHECKING:
     import charms.rabbitmq_k8s.v0.rabbitmq as rabbitmq
     import charms.sunbeam_libs.v0.service_readiness as service_readiness
     import charms.tempo_coordinator_k8s.v0.tracing as tracing
-    import charms.tls_certificates_interface.v4.tls_certificates as tls_certificates
+    import charmlibs.interfaces.tls_certificates as tls_certificates
     import charms.traefik_k8s.v0.traefik_route as traefik_route
     import charms.traefik_k8s.v2.ingress as ingress
     import interface_ceph_client.ceph_client as ceph_client  # type: ignore [import-untyped]
@@ -1047,7 +1047,7 @@ class TlsCertificatesHandler(RelationHandler):
 
     def default_certificate_requests(self) -> list:
         """Return default certificate requests."""
-        from charms.tls_certificates_interface.v4.tls_certificates import (
+        from charmlibs.interfaces.tls_certificates import (
             CertificateRequestAttributes,
         )
 
@@ -1064,7 +1064,7 @@ class TlsCertificatesHandler(RelationHandler):
         logger.debug("Setting up certificates event handler")
         # Lazy import to ensure this lib is only required if the charm
         # has this relation.
-        from charms.tls_certificates_interface.v4.tls_certificates import (
+        from charmlibs.interfaces.tls_certificates import (
             Mode,
             TLSCertificatesRequiresV4,
         )
@@ -1072,7 +1072,13 @@ class TlsCertificatesHandler(RelationHandler):
         mode: Mode = Mode.APP if self.app_managed_certificates else Mode.UNIT
         self.certificates = sunbeam_tracing.trace_type(
             TLSCertificatesRequiresV4
-        )(self.charm, "certificates", self.certificate_requests, mode)
+        )(
+            self.charm,
+            "certificates",
+            self.certificate_requests,
+            mode,
+            refresh_events=[self.charm.on.update_status],
+        )
 
         self.framework.observe(
             self.certificates.on.certificate_available,
