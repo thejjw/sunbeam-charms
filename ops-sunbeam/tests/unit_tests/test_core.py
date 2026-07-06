@@ -68,6 +68,34 @@ class TestOSBaseOperatorCharm(test_utils.CharmTestCase):
             set(),
         )
 
+    def test_configure_charm_marks_completed(self) -> None:
+        """Test successful charm configuration records completion."""
+        charm = self.harness.charm
+        with patch.object(charm, "update_relations"), patch.object(
+            charm, "configure_unit"
+        ), patch.object(charm, "configure_app"), patch.object(
+            charm, "post_config_setup"
+        ):
+            charm.configure_charm(self.mock_event)
+
+        self.assertTrue(charm._configure_charm_completed)
+
+    def test_configure_charm_does_not_mark_guarded_failure_completed(
+        self,
+    ) -> None:
+        """Test a configuration failure consumed by guard remains incomplete."""
+        charm = self.harness.charm
+        with patch.object(charm, "update_relations"), patch.object(
+            charm,
+            "configure_unit",
+            side_effect=sunbeam_charm.sunbeam_guard.WaitingExceptionError(
+                "not ready"
+            ),
+        ):
+            charm.configure_charm(self.mock_event)
+
+        self.assertFalse(charm._configure_charm_completed)
+
 
 class TestOSBaseOperatorCharmK8S(test_utils.CharmTestCase):
     """Test for the OSBaseOperatorCharm class."""
