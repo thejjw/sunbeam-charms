@@ -52,6 +52,7 @@ from ops_sunbeam.core import (
 )
 
 if typing.TYPE_CHECKING:
+    import charmlibs.interfaces.tls_certificates as tls_certificates
     import charms.ceilometer_k8s.v0.ceilometer_service as ceilometer_service
     import charms.certificate_transfer_interface.v0.certificate_transfer as certificate_transfer
     import charms.cinder_volume.v0.cinder_volume as sunbeam_cinder_volume
@@ -69,7 +70,6 @@ if typing.TYPE_CHECKING:
     import charms.rabbitmq_k8s.v0.rabbitmq as rabbitmq
     import charms.sunbeam_libs.v0.service_readiness as service_readiness
     import charms.tempo_coordinator_k8s.v0.tracing as tracing
-    import charms.tls_certificates_interface.v4.tls_certificates as tls_certificates
     import charms.traefik_k8s.v0.traefik_route as traefik_route
     import charms.traefik_k8s.v2.ingress as ingress
     import interface_ceph_client.ceph_client as ceph_client  # type: ignore [import-untyped]
@@ -1047,7 +1047,7 @@ class TlsCertificatesHandler(RelationHandler):
 
     def default_certificate_requests(self) -> list:
         """Return default certificate requests."""
-        from charms.tls_certificates_interface.v4.tls_certificates import (
+        from charmlibs.interfaces.tls_certificates import (
             CertificateRequestAttributes,
         )
 
@@ -1064,7 +1064,7 @@ class TlsCertificatesHandler(RelationHandler):
         logger.debug("Setting up certificates event handler")
         # Lazy import to ensure this lib is only required if the charm
         # has this relation.
-        from charms.tls_certificates_interface.v4.tls_certificates import (
+        from charmlibs.interfaces.tls_certificates import (
             Mode,
             TLSCertificatesRequiresV4,
         )
@@ -1072,7 +1072,13 @@ class TlsCertificatesHandler(RelationHandler):
         mode: Mode = Mode.APP if self.app_managed_certificates else Mode.UNIT
         self.certificates = sunbeam_tracing.trace_type(
             TLSCertificatesRequiresV4
-        )(self.charm, "certificates", self.certificate_requests, mode)
+        )(
+            self.charm,
+            "certificates",
+            self.certificate_requests,
+            mode,
+            refresh_events=[self.charm.on.update_status],
+        )
 
         self.framework.observe(
             self.certificates.on.certificate_available,
@@ -1109,8 +1115,13 @@ class TlsCertificatesHandler(RelationHandler):
 
     def get_private_key_secret(self) -> str:
         """Return private key secret."""
+        from charmlibs.interfaces.tls_certificates import (
+            Mode,
+        )
+
+        mode = Mode.APP if self.app_managed_certificates else Mode.UNIT
         secret = self.charm.model.get_secret(
-            label=self.interface._get_private_key_secret_label()
+            label=self.interface._get_private_key_secret_label(mode=mode)
         )
         secret_info = secret.get_info()
         return secret_info.id
