@@ -43,6 +43,7 @@ CHARM_ROOT = Path(__file__).parents[2]
 
 def s3_credentials_relation_complete(
     endpoint: str = "s3-credentials",
+    region: str = "us-east-1",
 ) -> testing.Relation:
     """S3 credentials relation with access-key, secret-key, and endpoint set."""
     return testing.Relation(
@@ -53,7 +54,7 @@ def s3_credentials_relation_complete(
             "secret-key": "test-secret-key",
             "endpoint": "http://s3.example.com:9000",
             "bucket": "gnocchi",
-            "region": "us-east-1",
+            "region": region,
         },
         remote_units_data={},
     )
@@ -190,11 +191,37 @@ def complete_relations_s3():
 
 
 @pytest.fixture()
+def complete_relations_s3_non_default_region():
+    """All relations needed to reach active status using S3 in a non-default region."""
+    return [
+        db_relation_complete(),
+        identity_service_relation_complete(),
+        ingress_internal_relation_complete(),
+        ingress_public_relation_complete(),
+        s3_credentials_relation_complete(region="us-east-2"),
+        peer_relation(),
+    ]
+
+
+@pytest.fixture()
 def complete_state_s3(complete_relations_s3, complete_secrets, containers_s3):
     """Full state with leader, S3 relations, secrets, and containers."""
     return testing.State(
         leader=True,
         relations=complete_relations_s3,
+        containers=containers_s3,
+        secrets=complete_secrets,
+    )
+
+
+@pytest.fixture()
+def complete_state_s3_non_default_region(
+    complete_relations_s3_non_default_region, complete_secrets, containers_s3
+):
+    """Full state using S3 credentials in a non-default region."""
+    return testing.State(
+        leader=True,
+        relations=complete_relations_s3_non_default_region,
         containers=containers_s3,
         secrets=complete_secrets,
     )

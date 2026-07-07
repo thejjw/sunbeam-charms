@@ -201,6 +201,22 @@ class TestS3Backend:
         assert "driver = s3" in content
         assert "driver = ceph" not in content
         assert "s3_endpoint_url = http://s3.example.com:9000" in content
+        assert "s3_region_name" not in content
+
+    def test_s3_non_default_region_config_file_written(
+        self, ctx, complete_state_s3_non_default_region
+    ):
+        """Non-default S3 regions are rendered in gnocchi.conf."""
+        state_out = ctx.run(
+            ctx.on.config_changed(), complete_state_s3_non_default_region
+        )
+        assert_config_file_exists(
+            state_out, ctx, "gnocchi-api", "/etc/gnocchi/gnocchi.conf"
+        )
+        container = state_out.get_container("gnocchi-api")
+        fs = container.get_filesystem(ctx)
+        content = (fs / "etc/gnocchi/gnocchi.conf").read_text()
+        assert "s3_region_name = us-east-2" in content
 
     def test_blocked_when_neither_ceph_nor_s3(
         self, ctx, state_no_storage_backend

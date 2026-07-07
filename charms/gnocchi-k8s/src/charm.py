@@ -94,12 +94,19 @@ class S3RelationHandler(sunbeam_rhandlers.RelationHandler):
         if not self.ready:
             return {}
         info = self.interface.get_storage_connection_info()
+
+        # Handle Gnocchi region for S3
+        # Gnocchi uses boto3 with a quirk for us-east-1 region
+        # https://docs.aws.amazon.com/boto3/latest/guide/s3-example-creating-buckets.html#create-an-amazon-s3-bucket
+        region = info.get("region", "us-east-1")
+        region = None if region == "us-east-1" else region
+
         return {
             "s3_endpoint": info.get("endpoint", ""),
             "s3_access_key_id": info.get("access-key", ""),
             "s3_secret_access_key": info.get("secret-key", ""),
             "s3_bucket": info.get("bucket", "gnocchi"),
-            "s3_region": info.get("region", "us-east-1"),
+            "s3_region": region,
         }
 
 
