@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6795aa82_df5399dd",
+        "filename": "charms/ironic-conductor-k8s/src/charm.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 439,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-07-10T22:14:41Z",
+      "side": 1,
+      "message": "Shouldn\u0027t `_glance_s3_backend` be in StoredState if it is assumed to be unchanged from the last successful query? As a plain instance variable it will reset to False on charm restart, so if Glance is briefly unreachable, the _validate_temp_url_secret will see a false value for `_glance_s3_backend` and expect a secret even though s3 was confirmed",
+      "revId": "88c7bb8360e67e18627c237605c385d5753ad46c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
