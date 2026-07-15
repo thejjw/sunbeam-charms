@@ -84,6 +84,23 @@
       "message": "No backports",
       "revId": "73388acf398b6ceb36538e424f9da1e9b479cb2e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2340db73_02df9fa7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-07-15T15:07:16Z",
+      "side": 1,
+      "message": "Also curious whether the base in `tests/identity/iam.yaml` needs to be updated as part of this change.",
+      "revId": "73388acf398b6ceb36538e424f9da1e9b479cb2e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
