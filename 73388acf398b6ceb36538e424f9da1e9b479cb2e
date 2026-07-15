@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "73388acf398b6ceb36538e424f9da1e9b479cb2e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6400d2c2_16723be6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-15T08:29:05Z",
+      "side": 1,
+      "message": "recheck\n\nfailure transient scope",
+      "revId": "73388acf398b6ceb36538e424f9da1e9b479cb2e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
