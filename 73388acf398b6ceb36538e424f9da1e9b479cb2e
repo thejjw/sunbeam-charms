@@ -67,6 +67,23 @@
       "message": "LGTM.\n\nQuick questions:\n- We don\u0027t have to change the iam.yaml templates too right?\n- Should this be backported to 2025.1 and 2024.1 to use ubuntu@24.04 base?",
       "revId": "73388acf398b6ceb36538e424f9da1e9b479cb2e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0306fb16_8b1efb3c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-15T14:12:43Z",
+      "side": 1,
+      "message": "No backports",
+      "revId": "73388acf398b6ceb36538e424f9da1e9b479cb2e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
