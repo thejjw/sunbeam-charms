@@ -101,6 +101,24 @@
       "message": "Also curious whether the base in `tests/identity/iam.yaml` needs to be updated as part of this change.",
       "revId": "73388acf398b6ceb36538e424f9da1e9b479cb2e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "73f51707_531327b1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-16T07:54:00Z",
+      "side": 1,
+      "message": "The iam.yaml is about deploying the Identity Stack, which is not managed / owned by sunbeam. It\u0027s not our responsibility to ensure compatibility with traefik 26.04. We shall keep the version from the IAM bundle.",
+      "parentUuid": "2340db73_02df9fa7",
+      "revId": "73388acf398b6ceb36538e424f9da1e9b479cb2e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
