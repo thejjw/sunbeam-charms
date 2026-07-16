@@ -84,6 +84,24 @@
       "message": "if upstream ever changes the default to true, while `service_template.heartbeat_in_pthread` is false, the key won\u0027t be rendered and use the default value of true, so there will be no way to set this false.",
       "revId": "36c6b70dff0d28a78376d085e99d619470f52695",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "40a26ed3_5b02f893",
+        "filename": "templates/parts/section-oslo-messaging-rabbit",
+        "patchSetId": 2
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-16T12:22:22Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "55e03de9_e7b5bfd9",
+      "revId": "36c6b70dff0d28a78376d085e99d619470f52695",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
@@ -105,10 +123,10 @@
         "allowOverrideInChildProjects": false
       },
       "applicabilityExpressionResult": {
-        "value": {"expression":{"expressionString":"is:false"},"status":"FAIL","errorMessage":{"value":null},"passingAtoms":[],"failingAtoms":["is:false"]}
+        "value": {"expression":{"expressionString":"is:false"},"status":"FAIL","errorMessage":{"value":null},"passingAtoms":[],"failingAtoms":["is:false"],"atomExplanations":{"value":null}}
       },
       "submittabilityExpressionResult": {
-        "value": {"expression":{"expressionString":"is:true"},"status":"NOT_EVALUATED","errorMessage":{"value":null},"passingAtoms":[],"failingAtoms":[]}
+        "value": {"expression":{"expressionString":"is:true"},"status":"NOT_EVALUATED","errorMessage":{"value":null},"passingAtoms":[],"failingAtoms":[],"atomExplanations":{"value":null}}
       },
       "overrideExpressionResult": {},
       "patchSetCommitId": "36c6b70dff0d28a78376d085e99d619470f52695",
@@ -133,7 +151,7 @@
       },
       "applicabilityExpressionResult": {},
       "submittabilityExpressionResult": {
-        "value": {"expression":{"expressionString":"label:Code-Review=MAX AND -label:Code-Review=MIN"},"status":"PASS","errorMessage":{"value":null},"passingAtoms":["label:Code-Review=MAX"],"failingAtoms":["label:Code-Review=MIN"]}
+        "value": {"expression":{"expressionString":"label:Code-Review=MAX AND -label:Code-Review=MIN"},"status":"PASS","errorMessage":{"value":null},"passingAtoms":["label:Code-Review=MAX"],"failingAtoms":["label:Code-Review=MIN"],"atomExplanations":{"value":null}}
       },
       "overrideExpressionResult": {},
       "patchSetCommitId": "36c6b70dff0d28a78376d085e99d619470f52695",
@@ -158,7 +176,7 @@
       },
       "applicabilityExpressionResult": {},
       "submittabilityExpressionResult": {
-        "value": {"expression":{"expressionString":"label:Verified=MAX AND -label:Verified=MIN"},"status":"PASS","errorMessage":{"value":null},"passingAtoms":["label:Verified=MAX"],"failingAtoms":["label:Verified=MIN"]}
+        "value": {"expression":{"expressionString":"label:Verified=MAX AND -label:Verified=MIN"},"status":"PASS","errorMessage":{"value":null},"passingAtoms":["label:Verified=MAX"],"failingAtoms":["label:Verified=MIN"],"atomExplanations":{"value":null}}
       },
       "overrideExpressionResult": {},
       "patchSetCommitId": "36c6b70dff0d28a78376d085e99d619470f52695",
@@ -183,7 +201,7 @@
       },
       "applicabilityExpressionResult": {},
       "submittabilityExpressionResult": {
-        "value": {"expression":{"expressionString":"label:Workflow=MAX AND -label:Workflow=MIN"},"status":"PASS","errorMessage":{"value":null},"passingAtoms":["label:Workflow=MAX"],"failingAtoms":["label:Workflow=MIN"]}
+        "value": {"expression":{"expressionString":"label:Workflow=MAX AND -label:Workflow=MIN"},"status":"PASS","errorMessage":{"value":null},"passingAtoms":["label:Workflow=MAX"],"failingAtoms":["label:Workflow=MIN"],"atomExplanations":{"value":null}}
       },
       "overrideExpressionResult": {},
       "patchSetCommitId": "36c6b70dff0d28a78376d085e99d619470f52695",
