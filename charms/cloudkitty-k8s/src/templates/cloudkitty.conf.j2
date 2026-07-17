@@ -17,16 +17,29 @@ auth_strategy = keystone
 [oslo_concurrency]
 lock_path = /var/lib/cloudkitty/tmp
 
-{% include "parts/section-oslo-middleware" %}
-
 {% include "parts/section-oslo-messaging-rabbit" %}
 
 [audit_middleware_notifications]
 driver = log
 
 [storage]
-version = 1
-backend = sqlalchemy
+version = 2
+backend = loki
+
+[storage_loki]
+# Pull variables straight from the native relation handler namespace key block!
+{% if logging and logging.logging_endpoints -%}
+url = {{ logging.logging_endpoints }}
+{% else -%}
+url = http://localhost:3100/loki/api/v1
+{% endif -%}
+
+{% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
+ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
+insecure = false
+{% else -%}
+insecure = true
+{% endif -%}
 
 [fetcher]
 backend = gnocchi
