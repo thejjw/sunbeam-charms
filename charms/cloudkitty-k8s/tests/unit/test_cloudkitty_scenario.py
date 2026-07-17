@@ -53,9 +53,7 @@ class TestAllRelations:
             state_out, ctx, "cloudkitty", "/etc/cloudkitty/cloudkitty.conf"
         )
 
-    def test_cloudkitty_gnocchi_clients_use_admin_interface(
-        self, ctx, complete_state
-    ):
+    def test_cloudkitty_gnocchi_clients_use_admin_interface(self, ctx, complete_state):
         """cloudkitty.conf renders admin interfaces for Gnocchi clients."""
         state_out = ctx.run(ctx.on.config_changed(), complete_state)
         assert_config_file_contains(
@@ -122,9 +120,7 @@ class TestBlockedWhenEachRelationMissing:
         self, ctx, complete_relations, complete_secrets, container, missing_rel
     ):
         """Charm should be blocked/waiting when a mandatory relation is removed."""
-        remaining = [
-            r for r in complete_relations if r.endpoint != missing_rel
-        ]
+        remaining = [r for r in complete_relations if r.endpoint != missing_rel]
         state_in = testing.State(
             leader=True,
             relations=remaining,
@@ -163,9 +159,7 @@ class TestContainerDisconnectBlocksOrWaits:
 
     def test_container_disconnect(self, ctx, complete_state):
         """Charm should block/wait when containers cannot connect."""
-        assert_container_disconnect_causes_waiting_or_blocked(
-            ctx, complete_state
-        )
+        assert_container_disconnect_causes_waiting_or_blocked(ctx, complete_state)
 
 
 class TestRelationBrokenBlocksOrWaits:

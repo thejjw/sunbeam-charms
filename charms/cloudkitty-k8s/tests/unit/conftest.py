@@ -48,9 +48,7 @@ def _cleanup_db_events():
 @pytest.fixture()
 def ctx():
     """Create a testing.Context for CloudkittyOperatorCharm."""
-    return testing.Context(
-        charm.CloudkittyOperatorCharm, charm_root=CHARM_ROOT
-    )
+    return testing.Context(charm.CloudkittyOperatorCharm, charm_root=CHARM_ROOT)
 
 
 def gnocchi_db_relation_complete() -> testing.Relation:
@@ -89,9 +87,7 @@ def container():
         "cloudkitty",
         extra_execs=[
             testing.Exec(command_prefix=["cloudkitty-dbsync"], return_code=0),
-            testing.Exec(
-                command_prefix=["cloudkitty-storage-init"], return_code=0
-            ),
+            testing.Exec(command_prefix=["cloudkitty-storage-init"], return_code=0),
         ],
     )
 
