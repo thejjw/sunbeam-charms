@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b329b20f_cf32ef2a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 31779
+      },
+      "writtenOn": "2026-07-20T07:19:09Z",
+      "side": 1,
+      "message": "recheck linters failure",
+      "revId": "c469d338ec6586fa6f4f46de105e9190fc99c4f2",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
