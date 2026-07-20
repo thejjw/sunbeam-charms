@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "529e167e_cea40ef9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-20T08:59:36Z",
+      "side": 1,
+      "message": "The charm needs to be added to a build job in:\nzuul.d/jobs.yaml\n\nStorage charms have dedicated charm-build-bin-storage-\u003cx\u003e buckets",
+      "revId": "2707d1d9113432070fc13e33676f8bd00b81fc28",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
