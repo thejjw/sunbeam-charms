@@ -315,6 +315,24 @@
       "parentUuid": "dcf7141e_f8224605",
       "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8f1fc408_22a564cc",
+        "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-21T09:25:14Z",
+      "side": 1,
+      "message": "Let\u0027s do it for this charm, and we\u0027ll advise later for powerstore. Let\u0027s keep this change review focused on PowerFlex",
+      "parentUuid": "71b7cd6f_578c961e",
+      "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
