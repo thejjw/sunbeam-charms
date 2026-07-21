@@ -99,6 +99,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "86fe2b40_d915cb53",
+        "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 31779
+      },
+      "writtenOn": "2026-07-21T09:22:01Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "c9223e4f_b599f2d5",
+      "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "22639c6a_31ec2294",
@@ -277,6 +295,24 @@
       "writtenOn": "2026-07-21T08:06:24Z",
       "side": 1,
       "message": "This contains credentials, so should also be managed as a juju secret.\nA juju secret is a dict that can contain multiple fields.",
+      "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71b7cd6f_578c961e",
+        "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 31779
+      },
+      "writtenOn": "2026-07-21T09:22:01Z",
+      "side": 1,
+      "message": "We did the same thing for powerstore without any secret. But your suggestion is fine, do you want us to modify the type on the dell powerstore charm as well?",
+      "parentUuid": "dcf7141e_f8224605",
       "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
