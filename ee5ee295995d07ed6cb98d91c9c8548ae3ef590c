@@ -148,6 +148,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "545c8f84_ddd52f3d",
+        "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-21T09:13:59Z",
+      "side": 1,
+      "message": "I\u0027m just asking if the default value should be there?\n\nThis looks like a type of value that should always be provided by the end user, and not be default, but I\u0027m not sure here.",
+      "parentUuid": "5ab27adc_042c425e",
+      "range": {
+        "startLine": 52,
+        "startChar": 15,
+        "endLine": 52,
+        "endChar": 22
+      },
+      "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e82da714_d5b1d1f6",
         "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
         "patchSetId": 8
