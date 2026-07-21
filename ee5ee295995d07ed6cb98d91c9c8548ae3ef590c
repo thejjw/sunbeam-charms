@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "608aefde_94ed4e5e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-21T07:51:57Z",
+      "side": 1,
+      "message": "You can run the unit tests locally for this charm using:\n\ntox -e py3 -- storage/cinder-volume-dellpowerflex\n\nThis will help you debug, as the current failure shown will not be solved by a `recheck`.",
+      "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
