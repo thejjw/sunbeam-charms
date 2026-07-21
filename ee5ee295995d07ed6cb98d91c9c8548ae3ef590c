@@ -37,6 +37,29 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "946e8ea0_9b7de5f8",
+        "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-21T08:06:24Z",
+      "side": 1,
+      "message": "This is lacking the option `driver-ssl-cert`, that will set both `driver_ssl_cert_verify` and `driver_ssl_cert_path` in the snap in the end.\n\nIs that not required when the PowerFlex Manager is behind an https endpoint?",
+      "range": {
+        "startLine": 22,
+        "startChar": 2,
+        "endLine": 22,
+        "endChar": 9
+      },
+      "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c9223e4f_b599f2d5",
         "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
         "patchSetId": 8
@@ -48,6 +71,80 @@
       "writtenOn": "2026-07-21T07:54:10Z",
       "side": 1,
       "message": "Can we make it an enum?\n`enum: [scaleio, nvme-tcp]`\n\nTo help juju validate these parameters earlier, and ensure we only get valid values into the charm",
+      "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "22639c6a_31ec2294",
+        "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-21T08:06:24Z",
+      "side": 1,
+      "message": "is that the default value for all storage pools served by powerflex arrays?\n\nIf not, we shouldn\u0027t\u0027 set a default, and ensure it\u0027s mandatory to be filled.",
+      "range": {
+        "startLine": 52,
+        "startChar": 15,
+        "endLine": 52,
+        "endChar": 22
+      },
+      "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e82da714_d5b1d1f6",
+        "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-21T08:06:24Z",
+      "side": 1,
+      "message": "This parameter is named `rest_api_connect_timeout` without the powerflex prefix\n\nhttps://docs.openstack.org/cinder/latest/configuration/block-storage/drivers/dell-emc-powerflex-driver.html#configuration-options",
+      "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e1db906c_0d33a092",
+        "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-21T08:06:24Z",
+      "side": 1,
+      "message": "This parameter is named `rest_api_read_timeout` without the powerflex prefix\n\nhttps://docs.openstack.org/cinder/latest/configuration/block-storage/drivers/dell-emc-powerflex-driver.html#configuration-options",
+      "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dcf7141e_f8224605",
+        "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-21T08:06:24Z",
+      "side": 1,
+      "message": "This contains credentials, so should also be managed as a juju secret.\nA juju secret is a dict that can contain multiple fields.",
       "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
