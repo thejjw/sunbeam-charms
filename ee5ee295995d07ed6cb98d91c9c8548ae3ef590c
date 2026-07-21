@@ -172,6 +172,30 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "3d15f4a7_668f47ea",
+        "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 31779
+      },
+      "writtenOn": "2026-07-21T09:17:28Z",
+      "side": 1,
+      "message": "this is a required field that needs to be set by the end user unless he accepts the default values depicted here.",
+      "parentUuid": "545c8f84_ddd52f3d",
+      "range": {
+        "startLine": 52,
+        "startChar": 15,
+        "endLine": 52,
+        "endChar": 22
+      },
+      "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "e82da714_d5b1d1f6",
         "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
         "patchSetId": 8
