@@ -466,9 +466,9 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "service_name": "designate",
                 "type": "dns",
                 "description": "OpenStack Designate API",
-                "internal_url": self.internal_url,
-                "public_url": self.public_url,
-                "admin_url": self.admin_url,
+                "internal_url": f"{self.internal_url}/v2",
+                "public_url": f"{self.public_url}/v2",
+                "admin_url": f"{self.admin_url}/v2",
             }
         ]
 
