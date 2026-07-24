@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbef846a_b3d89324",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 13
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-24T09:17:57Z",
+      "side": 1,
+      "message": "last nit that was missed, and this is good to go.",
+      "revId": "4c47ef50cb8d10c049d6bcfdbd34a2f29f001e81",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cac66c9d_fb48b71d",
+        "filename": "charms/storage/cinder-volume-dellpowerflex/pyproject.toml",
+        "patchSetId": 13
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-07-24T09:17:57Z",
+      "side": 1,
+      "message": "Main branch is on 2026.1",
+      "range": {
+        "startLine": 6,
+        "startChar": 11,
+        "endLine": 6,
+        "endChar": 17
+      },
+      "revId": "4c47ef50cb8d10c049d6bcfdbd34a2f29f001e81",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
