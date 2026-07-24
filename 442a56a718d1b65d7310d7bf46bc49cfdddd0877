@@ -16,6 +16,23 @@
       "message": "recheck because of TimeoutError: wait timed out after 2400s",
       "revId": "442a56a718d1b65d7310d7bf46bc49cfdddd0877",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee0c2d6b_2612a5fa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2711
+      },
+      "writtenOn": "2026-07-24T07:31:46Z",
+      "side": 1,
+      "message": "recheck because CMR offers were stuck in \"(domain-config) integration incomplete\", causing a 2400s timeout",
+      "revId": "442a56a718d1b65d7310d7bf46bc49cfdddd0877",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
