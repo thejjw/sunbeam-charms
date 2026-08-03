@@ -33,6 +33,23 @@
       "message": "recheck because CMR offers were stuck in \"(domain-config) integration incomplete\", causing a 2400s timeout",
       "revId": "442a56a718d1b65d7310d7bf46bc49cfdddd0877",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86cd26f4_0c29f1fa",
+        "filename": "charms/neutron-k8s/pyproject.toml",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-03T03:11:52Z",
+      "side": 1,
+      "message": "Can you move to 1.10",
+      "revId": "442a56a718d1b65d7310d7bf46bc49cfdddd0877",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
