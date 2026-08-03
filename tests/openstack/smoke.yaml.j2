@@ -4,7 +4,7 @@ applications:
   traefik:
     charm: ch:traefik-k8s
     channel: latest/candidate
-    base: ubuntu@20.04
+    base: ubuntu@26.04
     scale: 1
     trust: true
     options:
@@ -12,8 +12,7 @@ applications:
   traefik-rgw:
     charm: ch:traefik-k8s
     channel: latest/candidate
-    revision: 297
-    base: ubuntu@20.04
+    base: ubuntu@26.04
     scale: 1
     trust: true
     options:
