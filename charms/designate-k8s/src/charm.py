@@ -466,9 +466,9 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "service_name": "designate",
                 "type": "dns",
                 "description": "OpenStack Designate API",
-                "internal_url": self.internal_url,
-                "public_url": self.public_url,
-                "admin_url": self.admin_url,
+                "internal_url": f"{self.internal_url}/v2",
+                "public_url": f"{self.public_url}/v2",
+                "admin_url": f"{self.admin_url}/v2",
             }
         ]
 
@@ -551,7 +551,7 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Set endpoint in relation data."""
         if self.internal_url:
             self.dnsaas.interface.set_endpoint(
-                relation=event.relation, endpoint=self.internal_url
+                relation=event.relation, endpoint=f"{self.internal_url}/v2"
             )
         else:
             logging.debug("DNS Endpoint not yet set, not sending config")
@@ -560,7 +560,7 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Set endpoint on relation on update of local data."""
         if self.internal_url:
             self.dnsaas.interface.set_endpoint(
-                relation=None, endpoint=self.internal_url
+                relation=None, endpoint=f"{self.internal_url}/v2"
             )
         else:
             logging.debug("DNS Endpoint not yet set, not sending config")
