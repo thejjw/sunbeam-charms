@@ -263,6 +263,28 @@ class TestConfigureSnap:
                 == base64.b64encode(b"ROOT_CA\nINTERMEDIATE_CA").decode()
             )
 
+    def test_configure_snap_sets_identity_credentials(
+        self, ctx, complete_state
+    ):
+        """configure_snap should pass keystone credentials to the snap."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            charm_instance = mgr.charm
+            charm_instance.set_snap_data = MagicMock()
+            charm_instance.check_serving_backends = MagicMock()
+
+            charm_instance.configure_snap(MagicMock())
+
+            snap_data = charm_instance.set_snap_data.call_args.args[0]
+            assert (
+                snap_data["identity.auth-url"]
+                == "http://10.153.2.45:80/openstack-keystone"
+            )
+            assert snap_data["identity.username"] == "username"
+            assert snap_data["identity.password"] == "user-password"
+            assert snap_data["identity.project-name"] == "user-project"
+            assert snap_data["identity.project-domain-name"] == "pdomain_-ame"
+            assert snap_data["identity.user-domain-name"] == "udomain-name"
+
     def test_configure_snap_unsets_missing_ca_bundle(
         self, ctx, complete_state
     ):

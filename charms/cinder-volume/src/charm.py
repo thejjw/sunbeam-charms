@@ -239,6 +239,12 @@ class CinderVolumeOperatorCharm(charm.OSBaseOperatorCharmSnap):
                 "database.url": contexts.database.connection,
                 "cinder.project-id": contexts.identity_credentials.project_id,
                 "cinder.user-id": contexts.identity_credentials.username,
+                "identity.auth-url": contexts.identity_credentials.internal_endpoint,
+                "identity.username": contexts.identity_credentials.username,
+                "identity.password": contexts.identity_credentials.password,
+                "identity.project-name": contexts.identity_credentials.project_name,
+                "identity.project-domain-name": contexts.identity_credentials.project_domain_name,
+                "identity.user-domain-name": contexts.identity_credentials.user_domain_name,
                 "cinder.cluster": self.app.name,
                 "cinder.image-volume-cache-enabled": config(
                     "image-volume-cache-enabled"
