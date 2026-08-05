@@ -16,6 +16,23 @@
       "message": "Must also be backported on the snap first.",
       "revId": "bf19aeec98f9a98c5f7f760f6bd31f8ab046634c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb571658_df60d863",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-05T02:27:28Z",
+      "side": 1,
+      "message": "snap change backported",
+      "revId": "bf19aeec98f9a98c5f7f760f6bd31f8ab046634c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
