@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "720e142f_b740a44a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-08-10T08:29:51Z",
+      "side": 1,
+      "message": "Can we have a longer description of this change?\n\nCan you ensure: Signed-off-by: Matt Verran \u003cverranm76@gmail.com\u003e is a single line?\n\nFeels like this change is trailing behind main for multiple commits.\n\nFor examples, reverting the platform changes / the pyproject.toml version, is that intended? Main track 2026.1",
+      "revId": "93a53958d434e6650a6b3cba8117e9b5bbea6251",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
