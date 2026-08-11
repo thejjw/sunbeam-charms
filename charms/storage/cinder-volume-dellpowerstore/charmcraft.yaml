@@ -87,6 +87,16 @@ config:
         san_password: <Replication system San password>
       type: string
 
+actions:
+  pre-upgrade:
+    description: |
+      Prepare the charm for an upgrade.
+      Run this action on the leader before upgrading the charm to a new channel.
+  post-upgrade:
+    description: |
+      Clean up after an upgrade.
+      Run this action on the leader after all units are healthy at the new version.
+
 requires:
   cinder-volume:
     interface: cinder-volume

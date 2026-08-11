@@ -36,6 +36,16 @@ requires:
     optional: true
     limit: 1
 
+actions:
+  pre-upgrade:
+    description: |
+      Prepare the charm for an upgrade.
+      Run this action on the leader before upgrading the charm to a new channel.
+  post-upgrade:
+    description: |
+      Clean up after an upgrade.
+      Run this action on the leader after all units are healthy at the new version.
+
 parts:
   charm:
     plugin: uv

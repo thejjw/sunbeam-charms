@@ -120,6 +120,10 @@ class OperatorPeers(Object):
             return None
         return self._app_data_bag.get(key)
 
+    def remove_app_data(self, key: str) -> None:
+        """Remove a key from the peer app data bag."""
+        self._app_data_bag.pop(key, None)
+
     def get_all_app_data(self) -> typing.MutableMapping[str, str]:
         """Return all the app data from the relation."""
         return self._app_data_bag

@@ -44,6 +44,16 @@ config:
         methods of using TLS (see RFC 4513) with StartTLS using a non-ldaps url which,
         of course, still requires a CA certificate.
 
+actions:
+  pre-upgrade:
+    description: |
+      Prepare the charm for an upgrade.
+      Run this action on the leader before upgrading the charm to a new channel.
+  post-upgrade:
+    description: |
+      Clean up after an upgrade.
+      Run this action on the leader after all units are healthy at the new version.
+
 requires:
   logging:
     interface: loki_push_api
