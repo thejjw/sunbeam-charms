@@ -132,6 +132,36 @@ class OSBaseOperatorCharm(
         self.framework.observe(
             self.on.collect_unit_status, self._on_collect_unit_status_event
         )
+        actions = self.meta.actions or {}
+        if "pre-upgrade" in actions:
+            self.framework.observe(
+                self.on["pre-upgrade"].action,
+                self._on_pre_upgrade_action,
+            )
+        if "post-upgrade" in actions:
+            self.framework.observe(
+                self.on["post-upgrade"].action,
+                self._on_post_upgrade_action,
+            )
+
+    def _on_pre_upgrade_action(self, event: ops.ActionEvent) -> None:
+        """Prepare the charm for an upgrade.
+
+        Base implementation is a no-op. Charms that need upgrade-specific
+        preparation (e.g., reducing traefik health check interval, pausing
+        workers, clearing caches) should override this method and call
+        super().pre_upgrade() first.
+        """
+        event.set_results({"result": "no-op"})
+
+    def _on_post_upgrade_action(self, event: ops.ActionEvent) -> None:
+        """Clean up after an upgrade.
+
+        Base implementation is a no-op. Charms that need upgrade-specific
+        cleanup should override this method and call super().post_upgrade()
+        last.
+        """
+        event.set_results({"result": "no-op"})
 
     def __post_init__(self):
         """Post init hook."""
@@ -917,9 +947,13 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
     def ingress_healthcheck_interval(self):
         """Default ingress healthcheck interval.
 
-        This value can be overridden at the charm level. Time values
-        following Golang time.ParseDuration() format are valid.
+        Reduced to 3s during upgrades (set via the pre-upgrade action,
+        persisted in peer data) so traefik detects dead/alive backends fast.
+        Defaults to 30s for steady-state.
         """
+        peers = getattr(self, "peers", None)
+        if peers is not None and peers.get_app_data("healthcheck-fast"):
+            return "3s"
         return "30s"
 
     @property
@@ -942,11 +976,82 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
 
         return params
 
+    # ------------------------------------------------------------------
+    # Upgrade actions (pre-upgrade / post-upgrade)
+    # ------------------------------------------------------------------
+
+    def _on_pre_upgrade_action(self, event: ops.ActionEvent) -> None:
+        """Prepare the charm for an upgrade.
+
+        Reduces the ingress health check interval to 3s so traefik detects
+        dead/alive backends fast during the rolling pod restarts. The flag
+        is persisted in peer relation app data so it survives configure_charm
+        re-publishes during the rolling update.
+        """
+        if not self.unit.is_leader():
+            event.fail("pre-upgrade must be run on the leader unit")
+            return
+        peers = getattr(self, "peers", None)
+        if peers is None:
+            event.fail("peer relation not available")
+            return
+        peers.set_app_data({"healthcheck-fast": "true"})
+        self._update_ingress_healthcheck()
+        event.set_results({"result": "healthcheck interval reduced to 3s"})
+
+    def _on_post_upgrade_action(self, event: ops.ActionEvent) -> None:
+        """Clean up after an upgrade.
+
+        Restores the ingress health check interval to its steady-state default
+        (30s). Idempotent: safe to run even if pre-upgrade was not called.
+        """
+        if not self.unit.is_leader():
+            event.fail("post-upgrade must be run on the leader unit")
+            return
+        peers = getattr(self, "peers", None)
+        if peers is None:
+            event.fail("peer relation not available")
+            return
+        peers.remove_app_data("healthcheck-fast")
+        self._update_ingress_healthcheck()
+        event.set_results({"result": "healthcheck interval restored to 30s"})
+
+    def _update_ingress_healthcheck(self) -> None:
+        """Re-publish ingress relation data with the current healthcheck interval.
+
+        Mutates the healthcheck params dict on each ingress handler in place,
+        then calls provide_ingress_requirements to re-publish the app databag
+        so traefik re-renders its config.
+        """
+        interval = self.ingress_healthcheck_interval
+        for handler_attr in ("ingress_internal", "ingress_public"):
+            handler = getattr(self, handler_attr, None)
+            if handler is None:
+                continue
+            params = getattr(handler, "ingress_healthcheck_params", None)
+            if params is not None:
+                params["interval"] = interval
+            interface_params = getattr(
+                handler.interface, "healthcheck_params", None
+            )
+            if interface_params is not None:
+                interface_params["interval"] = interval
+            provide = getattr(
+                handler.interface, "provide_ingress_requirements", None
+            )
+            if provide is not None:
+                provide(port=handler.default_ingress_port)
+
     def get_relation_handlers(
         self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> list[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
+        # Create base handlers (peers, DB, AMQP, etc.) first so that
+        # self.peers is available when ingress handlers read
+        # self.ingress_healthcheck_params (which checks peer data for the
+        # healthcheck-fast flag).
+        handlers = super().get_relation_handlers(handlers)
         # Note: intentionally including the ingress handler here in order to
         # be able to link the ingress and identity-service handlers.
         if self.can_add_handler("ingress-internal", handlers):
@@ -982,7 +1087,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
                 self.identity_service_extra_roles,
             )
             handlers.append(self.id_svc)
-        return super().get_relation_handlers(handlers)
+        return handlers
 
     def _ingress_changed(self, event: ops.framework.EventBase) -> None:
         """Ingress changed callback.

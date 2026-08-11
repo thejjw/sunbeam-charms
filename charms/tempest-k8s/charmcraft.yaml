@@ -130,6 +130,15 @@ actions:
     description: List existing test lists, to be used with validate action.
     additionalProperties: false
 
+  pre-upgrade:
+    description: |
+      Prepare the charm for an upgrade.
+      Run this action on the leader before upgrading the charm to a new channel.
+  post-upgrade:
+    description: |
+      Clean up after an upgrade.
+      Run this action on the leader after all units are healthy at the new version.
+
 containers:
   tempest:
     resource: tempest-image

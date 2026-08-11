@@ -64,6 +64,15 @@ actions:
       channel. The snap is held after installation to prevent automatic
       refreshes; use this action to apply updates explicitly.
 
+  pre-upgrade:
+    description: |
+      Prepare the charm for an upgrade.
+      Run this action on the leader before upgrading the charm to a new channel.
+  post-upgrade:
+    description: |
+      Clean up after an upgrade.
+      Run this action on the leader after all units are healthy at the new version.
+
 parts:
   update-certificates:
     plugin: nil

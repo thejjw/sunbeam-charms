@@ -25,6 +25,16 @@ config:
       description: Name of the OpenStack region
       type: string
 
+actions:
+  pre-upgrade:
+    description: |
+      Prepare the charm for an upgrade.
+      Run this action on the leader before upgrading the charm to a new channel.
+  post-upgrade:
+    description: |
+      Clean up after an upgrade.
+      Run this action on the leader after all units are healthy at the new version.
+
 containers:
   openstack-exporter:
     resource: openstack-exporter-image

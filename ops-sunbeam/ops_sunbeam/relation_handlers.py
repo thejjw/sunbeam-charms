@@ -726,6 +726,10 @@ class BasePeerHandler(RelationHandler):
         """Retrieve data from the peer relation."""
         return self.interface.get_app_data(key)
 
+    def remove_app_data(self, key: str) -> None:
+        """Remove a key from the peer app data bag."""
+        self.interface.remove_app_data(key)
+
     def leader_get(self, key: str) -> str | None:
         """Retrieve data from the peer relation."""
         return self.interface.get_app_data(key)
