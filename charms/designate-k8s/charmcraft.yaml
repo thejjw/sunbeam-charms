@@ -38,6 +38,18 @@ config:
         been provided to the domain registrar in order to delegate the domain to
         Designate. e.g. "ns1.example.com. ns2.example.com."
 
+actions:
+  pre-upgrade:
+    description: |
+      Reduce ingress health check interval before an upgrade.
+      Run this action on the leader before refreshing the charm to a new channel.
+      Traefik will detect dead/alive backends in ~3s instead of ~30s, reducing
+      API downtime during the rolling pod restarts.
+  post-upgrade:
+    description: |
+      Restore ingress health check interval to steady-state after an upgrade.
+      Run this action on the leader after all units are healthy at the new version.
+
 containers:
   designate:
     resource: designate-image

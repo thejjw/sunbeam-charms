@@ -133,6 +133,16 @@ actions:
       Certificate names with `.` will be replace with `-`.
       Bundles received on receive-ca-cert relations are exposed as
       receive-ca-cert-<relation-id>-relation.
+  pre-upgrade:
+    description: |
+      Reduce ingress health check interval before an upgrade.
+      Run this action on the leader before refreshing the charm to a new channel.
+      Traefik will detect dead/alive backends in ~2s instead of ~30s, reducing
+      API downtime during the rolling pod restarts.
+  post-upgrade:
+    description: |
+      Restore ingress health check interval to steady-state after an upgrade.
+      Run this action on the leader after all units are healthy at the new version.
 
 containers:
   keystone:

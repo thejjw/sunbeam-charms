@@ -146,6 +146,12 @@ storage:
 resources:
   mysvc-image:
     type: oci-image
+
+actions:
+  pre-upgrade:
+    description: Prepare for upgrade.
+  post-upgrade:
+    description: Clean up after upgrade.
 """
 
 

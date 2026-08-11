@@ -29,6 +29,9 @@ sys.path.append("src")  # noqa
 import ops.model
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.test_utils as test_utils
+from ops.testing import (
+    ActionFailed,
+)
 
 from . import (
     test_charms,
@@ -604,6 +607,122 @@ class TestOSBaseOperatorMultiSVCAPICharm(_TestOSBaseOperatorAPICharm):
         self.assertEqual(
             sorted(self.container_calls.started_services("my-service")),
             sorted(["apache forwarder", "my-service"]),
+        )
+
+
+class TestUpgradeActions(_TestOSBaseOperatorAPICharm):
+    """Tests for pre-upgrade / post-upgrade actions on the API charm."""
+
+    def setUp(self) -> None:
+        """Run test class setup."""
+        super().setUp(test_charms.MyAPICharm)
+
+    def _peer_app_data(self) -> dict:
+        """Return the peer relation app databag."""
+        rel = self.harness.model.get_relation("peers")
+        return self.harness.get_relation_data(
+            rel.id, self.harness.charm.app.name
+        )
+
+    def test_pre_upgrade_sets_fast_flag_and_reduces_interval(self) -> None:
+        """pre-upgrade on leader writes healthcheck-fast and reduces interval."""
+        test_utils.add_complete_peer_relation(self.harness)
+        self.harness.set_leader()
+        out = self.harness.run_action("pre-upgrade")
+        self.assertEqual(
+            out.results["result"],
+            f"healthcheck interval reduced to "
+            f"{self.harness.charm.INGRESS_HEALTHCHECK_FAST}",
+        )
+        self.assertEqual(
+            self._peer_app_data()[self.harness.charm.HEALTHCHECK_FAST_KEY],
+            "true",
+        )
+        self.assertEqual(
+            self.harness.charm.ingress_healthcheck_interval,
+            self.harness.charm.INGRESS_HEALTHCHECK_FAST,
+        )
+
+    def test_post_upgrade_clears_flag_and_restores_interval(self) -> None:
+        """post-upgrade removes healthcheck-fast and restores the interval."""
+        test_utils.add_complete_peer_relation(self.harness)
+        self.harness.set_leader()
+        self.harness.run_action("pre-upgrade")
+        out = self.harness.run_action("post-upgrade")
+        self.assertEqual(
+            out.results["result"],
+            f"healthcheck interval restored to "
+            f"{self.harness.charm.INGRESS_HEALTHCHECK_DEFAULT}",
+        )
+        self.assertNotIn(
+            self.harness.charm.HEALTHCHECK_FAST_KEY, self._peer_app_data()
+        )
+        self.assertEqual(
+            self.harness.charm.ingress_healthcheck_interval,
+            self.harness.charm.INGRESS_HEALTHCHECK_DEFAULT,
+        )
+
+    def test_post_upgrade_idempotent_without_pre_upgrade(self) -> None:
+        """post-upgrade is safe to run even when pre-upgrade was not called."""
+        test_utils.add_complete_peer_relation(self.harness)
+        self.harness.set_leader()
+        out = self.harness.run_action("post-upgrade")
+        self.assertEqual(
+            out.results["result"],
+            f"healthcheck interval restored to "
+            f"{self.harness.charm.INGRESS_HEALTHCHECK_DEFAULT}",
+        )
+        self.assertEqual(
+            self.harness.charm.ingress_healthcheck_interval,
+            self.harness.charm.INGRESS_HEALTHCHECK_DEFAULT,
+        )
+
+    def test_pre_upgrade_non_leader_fails(self) -> None:
+        """pre-upgrade on a non-leader unit fails with a clear message."""
+        test_utils.add_complete_peer_relation(self.harness)
+        with self.assertRaises(ActionFailed):
+            self.harness.run_action("pre-upgrade")
+
+    def test_remove_app_data_deletes_from_relation(self) -> None:
+        """remove_app_data actually removes the key from the relation databag."""
+        test_utils.add_complete_peer_relation(self.harness)
+        self.harness.set_leader()
+        peers = self.harness.charm.peers
+        peers.set_app_data({"some-key": "val"})
+        self.assertEqual(self._peer_app_data()["some-key"], "val")
+        peers.remove_app_data("some-key")
+        self.assertNotIn("some-key", self._peer_app_data())
+
+    def test_peers_handler_exists_before_ingress_handlers(self) -> None:
+        """get_relation_handlers creates peers before ingress handlers.
+
+        Guards the ordering fix that ensures self.peers is available when
+        ingress handlers read self.ingress_healthcheck_params.
+        """
+        self.assertIsNotNone(self.harness.charm.peers)
+        # ingress handlers are only created when the relations are in metadata;
+        # API_CHARM_METADATA declares both, so they must exist too.
+        self.assertTrue(hasattr(self.harness.charm, "ingress_internal"))
+
+    def test_interval_reads_peer_flag_cross_unit(self) -> None:
+        """ingress_healthcheck_params reflects the peer flag set by the leader.
+
+        The flag lives in peer app data (shared across units), so any unit
+        reading ingress_healthcheck_interval picks up the fast value once the
+        leader has set it via pre-upgrade.
+        """
+        test_utils.add_complete_peer_relation(self.harness)
+        self.harness.set_leader()
+        self.harness.charm.peers.set_app_data(
+            {self.harness.charm.HEALTHCHECK_FAST_KEY: "true"}
+        )
+        self.assertEqual(
+            self.harness.charm.ingress_healthcheck_interval,
+            self.harness.charm.INGRESS_HEALTHCHECK_FAST,
+        )
+        self.assertEqual(
+            self.harness.charm.ingress_healthcheck_params["interval"],
+            self.harness.charm.INGRESS_HEALTHCHECK_FAST,
         )
 
 

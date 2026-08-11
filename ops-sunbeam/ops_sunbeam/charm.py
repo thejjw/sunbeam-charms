@@ -132,6 +132,38 @@ class OSBaseOperatorCharm(
         self.framework.observe(
             self.on.collect_unit_status, self._on_collect_unit_status_event
         )
+        actions = self.meta.actions or {}
+        if "pre-upgrade" in actions:
+            self.framework.observe(
+                self.on["pre-upgrade"].action,
+                self._on_pre_upgrade_action,
+            )
+        if "post-upgrade" in actions:
+            self.framework.observe(
+                self.on["post-upgrade"].action,
+                self._on_post_upgrade_action,
+            )
+
+    def _on_pre_upgrade_action(self, event: ops.ActionEvent) -> None:
+        """Prepare the charm for an upgrade.
+
+        Base implementation is a no-op. Charms that need upgrade-specific
+        preparation (e.g., reducing traefik health check interval, pausing
+        workers, clearing caches) should override this method and call
+        ``super()._on_pre_upgrade_action(event)`` first.
+        """
+        logger.info("pre-upgrade action: no-op")
+        event.set_results({"result": "no-op"})
+
+    def _on_post_upgrade_action(self, event: ops.ActionEvent) -> None:
+        """Clean up after an upgrade.
+
+        Base implementation is a no-op. Charms that need upgrade-specific
+        cleanup should override this method and call
+        ``super()._on_post_upgrade_action(event)`` last.
+        """
+        logger.info("post-upgrade action: no-op")
+        event.set_results({"result": "no-op"})
 
     def __post_init__(self):
         """Post init hook."""
@@ -891,6 +923,14 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
 class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
     """Base class for OpenStack API operators."""
 
+    # Ingress health check intervals. The fast value is set during upgrades
+    # (persisted in peer app data via the pre-upgrade action) so traefik
+    # detects dead/alive backends quickly during rolling pod restarts.
+    INGRESS_HEALTHCHECK_FAST = "3s"
+    INGRESS_HEALTHCHECK_DEFAULT = "30s"
+    # Peer app-data key used to flag the fast healthcheck interval.
+    HEALTHCHECK_FAST_KEY = "healthcheck-fast"
+
     wsgi_admin_script: str
     wsgi_public_script: str
 
@@ -917,10 +957,15 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
     def ingress_healthcheck_interval(self):
         """Default ingress healthcheck interval.
 
-        This value can be overridden at the charm level. Time values
-        following Golang time.ParseDuration() format are valid.
+        Reduced to :attr:`INGRESS_HEALTHCHECK_FAST` during upgrades (set via
+        the pre-upgrade action, persisted in peer data) so traefik detects
+        dead/alive backends fast. Defaults to
+        :attr:`INGRESS_HEALTHCHECK_DEFAULT` for steady-state.
         """
-        return "30s"
+        peers = getattr(self, "peers", None)
+        if peers is not None and peers.get_app_data(self.HEALTHCHECK_FAST_KEY):
+            return self.INGRESS_HEALTHCHECK_FAST
+        return self.INGRESS_HEALTHCHECK_DEFAULT
 
     @property
     def ingress_healthcheck_timeout(self):
@@ -942,11 +987,103 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
 
         return params
 
+    # ------------------------------------------------------------------
+    # Upgrade actions (pre-upgrade / post-upgrade)
+    # ------------------------------------------------------------------
+
+    def _on_pre_upgrade_action(self, event: ops.ActionEvent) -> None:
+        """Prepare the charm for an upgrade.
+
+        Reduces the ingress health check interval to
+        :attr:`INGRESS_HEALTHCHECK_FAST` so traefik detects dead/alive
+        backends fast during the rolling pod restarts. The flag is persisted
+        in peer relation app data so it survives configure_charm re-publishes
+        during the rolling update.
+        """
+        if not self.unit.is_leader():
+            event.fail("pre-upgrade must be run on the leader unit")
+            return
+        peers = getattr(self, "peers", None)
+        if peers is None:
+            event.fail("peer relation not available")
+            return
+        logger.info(
+            "pre-upgrade: reducing ingress healthcheck interval to %s",
+            self.INGRESS_HEALTHCHECK_FAST,
+        )
+        peers.set_app_data({self.HEALTHCHECK_FAST_KEY: "true"})
+        self._update_ingress_healthcheck()
+        event.set_results(
+            {
+                "result": (
+                    f"healthcheck interval reduced to "
+                    f"{self.INGRESS_HEALTHCHECK_FAST}"
+                )
+            }
+        )
+
+    def _on_post_upgrade_action(self, event: ops.ActionEvent) -> None:
+        """Clean up after an upgrade.
+
+        Restores the ingress health check interval to its steady-state
+        default (:attr:`INGRESS_HEALTHCHECK_DEFAULT`). Idempotent: safe to
+        run even if pre-upgrade was not called. Must be run even if the
+        upgrade was aborted, otherwise the fast interval stays in effect.
+        """
+        if not self.unit.is_leader():
+            event.fail("post-upgrade must be run on the leader unit")
+            return
+        peers = getattr(self, "peers", None)
+        if peers is None:
+            event.fail("peer relation not available")
+            return
+        logger.info(
+            "post-upgrade: restoring ingress healthcheck interval to %s",
+            self.INGRESS_HEALTHCHECK_DEFAULT,
+        )
+        peers.remove_app_data(self.HEALTHCHECK_FAST_KEY)
+        self._update_ingress_healthcheck()
+        event.set_results(
+            {
+                "result": (
+                    f"healthcheck interval restored to "
+                    f"{self.INGRESS_HEALTHCHECK_DEFAULT}"
+                )
+            }
+        )
+
+    def _update_ingress_healthcheck(self) -> None:
+        """Re-publish ingress relation data with the current healthcheck interval.
+
+        Mutates the healthcheck params dict on each ingress handler in place
+        (the same dict the handler passed to its ``IngressPerAppRequirer``),
+        then calls ``provide_ingress_requirements`` to re-publish the app
+        databag so traefik re-renders its config.
+        """
+        interval = self.ingress_healthcheck_interval
+        for handler_attr in ("ingress_internal", "ingress_public"):
+            handler = getattr(self, handler_attr, None)
+            if handler is None:
+                continue
+            params = getattr(handler, "ingress_healthcheck_params", None)
+            if params is not None:
+                params["interval"] = interval
+            provide = getattr(
+                handler.interface, "provide_ingress_requirements", None
+            )
+            if provide is not None:
+                provide(port=handler.default_ingress_port)
+
     def get_relation_handlers(
         self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> list[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
+        # Create base handlers (peers, DB, AMQP, etc.) first so that
+        # self.peers is available when ingress handlers read
+        # self.ingress_healthcheck_params (which checks peer data for the
+        # healthcheck-fast flag).
+        handlers = super().get_relation_handlers(handlers)
         # Note: intentionally including the ingress handler here in order to
         # be able to link the ingress and identity-service handlers.
         if self.can_add_handler("ingress-internal", handlers):
@@ -982,7 +1119,7 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
                 self.identity_service_extra_roles,
             )
             handlers.append(self.id_svc)
-        return super().get_relation_handlers(handlers)
+        return handlers
 
     def _ingress_changed(self, event: ops.framework.EventBase) -> None:
         """Ingress changed callback.

@@ -41,6 +41,15 @@ actions:
   get-southbound-db-url:
     description: Southbound DB Connection URL for access to OVN via the relay.
 
+  pre-upgrade:
+    description: |
+      Prepare the charm for an upgrade.
+      Run this action on the leader before upgrading the charm to a new channel.
+  post-upgrade:
+    description: |
+      Clean up after an upgrade.
+      Run this action on the leader after all units are healthy at the new version.
+
 containers:
   ovsdb-server:
     resource: ovn-sb-db-server-image

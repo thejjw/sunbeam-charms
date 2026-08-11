@@ -332,6 +332,23 @@ class TestAllRelations:
             ],
         )
 
+    def test_nova_conf_contains_upgrade_levels_compute_auto(self, ctx):
+        """nova.conf renders [upgrade_levels] compute = auto by default."""
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "nova-api",
+            "/etc/nova/nova.conf",
+            ["[upgrade_levels]", "compute = auto"],
+        )
+
     def test_wsgi_nova_conf_contains_heartbeat_in_pthread(self, ctx):
         """nova-api should render heartbeat_in_pthread."""
         state_in = testing.State(
