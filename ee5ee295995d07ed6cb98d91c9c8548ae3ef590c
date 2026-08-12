@@ -212,6 +212,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "accb8786_d48e01f3",
+        "filename": "charms/storage/cinder-volume-dellpowerflex/charmcraft.yaml",
+        "patchSetId": 8
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 37792
+      },
+      "writtenOn": "2026-08-12T07:23:34Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "3d15f4a7_668f47ea",
+      "range": {
+        "startLine": 52,
+        "startChar": 15,
+        "endLine": 52,
+        "endChar": 22
+      },
+      "revId": "ee5ee295995d07ed6cb98d91c9c8548ae3ef590c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e82da714_d5b1d1f6",
