@@ -27,6 +27,8 @@ region_name = {{ identity_credentials.region }}
 
 {% include "parts/section-oslo-messaging-rabbit" %}
 
+{% include "parts/section-oslo-notifications" %}
+
 [oslo_concurrency]
 lock_path = /var/lib/manila/tmp
 
