@@ -16,5 +16,6 @@ templates:
   - parts/identity-data
   - parts/section-oslo-middleware
   - parts/section-oslo-messaging-rabbit
+  - parts/section-oslo-notifications
   - parts/section-service-user
   - ca-bundle.pem.j2

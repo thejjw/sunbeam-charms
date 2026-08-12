@@ -24,5 +24,7 @@ enabled_share_protocols = {{ manila_config.enabled_share_protocols }}
 
 {% include "parts/section-oslo-messaging-rabbit" %}
 
+{% include "parts/section-oslo-notifications" %}
+
 [oslo_concurrency]
 lock_path = /var/lib/manila/tmp

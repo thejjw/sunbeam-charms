@@ -85,5 +85,13 @@ openstack =
 
 {% include "parts/section-oslo-messaging-rabbit" %}
 
+{% include "parts/section-oslo-notifications" %}
+
+{% if options.enable_telemetry_notifications %}
+[notifications]
+notify_on_state_change = vm_and_task_state
+notification_format = unversioned
+{% endif %}
+
 [audit_middleware_notifications]
 driver = log
