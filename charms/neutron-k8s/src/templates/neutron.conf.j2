@@ -78,6 +78,8 @@ cafile = /usr/local/share/ca-certificates/ca-bundle.pem
 
 {% include "parts/section-oslo-messaging-rabbit" %}
 
+{% include "parts/section-oslo-notifications" %}
+
 
 {% if external_dns and external_dns.endpoint -%}
 [designate]

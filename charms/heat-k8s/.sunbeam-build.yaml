@@ -18,4 +18,5 @@ templates:
   - parts/section-trustee
   - parts/section-oslo-middleware
   - parts/section-oslo-messaging-rabbit
+  - parts/section-oslo-notifications
   - ca-bundle.pem.j2
