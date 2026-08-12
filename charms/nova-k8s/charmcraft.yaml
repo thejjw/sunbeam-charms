@@ -34,6 +34,10 @@ config:
       default: false
       description: Enable debug logging.
       type: boolean
+    enable-telemetry-notifications:
+      type: boolean
+      default: false
+      description: Enable notifications to send to telemetry.
     host-subset-size:
       default: 3
       type: int
