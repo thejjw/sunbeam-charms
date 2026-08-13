@@ -637,3 +637,57 @@ class TestNovaConductorCheckRecovered:
             plan.checks["nova-conductor-alive"].level
             == ops_pebble.CheckLevel.ALIVE
         )
+
+
+class TestRpcCacheRefresh:
+    """rpc-cache-refresh action SIGHUPs nova-conductor in its container."""
+
+    def _conductor_container(self, pkill_return_code: int = 0):
+        """Nova-conductor container with a mock for `pkill -HUP nova-conductor`."""
+        return testing.Container(
+            name="nova-conductor",
+            can_connect=True,
+            execs=[
+                testing.Exec(
+                    command_prefix=["pkill", "-HUP", "-f", "nova-conductor"],
+                    return_code=pkill_return_code,
+                ),
+            ],
+        )
+
+    def _state(self, pkill_return_code: int = 0):
+        return testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=[
+                _nova_api_container(),
+                _service_container("nova-scheduler"),
+                self._conductor_container(pkill_return_code),
+                _service_container("nova-spiceproxy"),
+            ],
+            secrets=_all_secrets(),
+        )
+
+    def test_rpc_cache_refresh_sighups_conductor(self, ctx):
+        """Successful action runs pkill -HUP on nova-conductor."""
+        ctx.run(ctx.on.action("rpc-cache-refresh"), self._state())
+        assert ctx.action_results == {
+            "result": "nova-conductor RPC cache refreshed"
+        }
+
+    def test_rpc_cache_refresh_container_not_ready(self, ctx):
+        """Action fails when the nova-conductor container cannot connect."""
+        containers = [
+            _nova_api_container(),
+            _service_container("nova-scheduler"),
+            testing.Container(name="nova-conductor", can_connect=False),
+            _service_container("nova-spiceproxy"),
+        ]
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations(),
+            containers=containers,
+            secrets=_all_secrets(),
+        )
+        with pytest.raises(testing.ActionFailed):
+            ctx.run(ctx.on.action("rpc-cache-refresh"), state_in)
