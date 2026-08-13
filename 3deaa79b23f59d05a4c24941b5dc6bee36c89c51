@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1109c977_e3ed029f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2711
+      },
+      "writtenOn": "2026-08-13T08:01:38Z",
+      "side": 1,
+      "message": "Munir, the error of tox-cover is: ModuleNotFoundError: No module named \u0027httpx\u0027,\nI\u0027ve submitted a patch for it - https://review.opendev.org/c/openstack/sunbeam-charms/+/1000804",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
