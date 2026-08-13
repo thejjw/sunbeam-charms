@@ -16,6 +16,23 @@
       "message": "CI failures are caused by another bug so I added:\n\nDepends-On: https://review.opendev.org/c/openstack/sunbeam-charms/+/1000804",
       "revId": "ce309bbdec80fb7cbd5c18087ff1beb326856229",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ea139ee_14295930",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2711
+      },
+      "writtenOn": "2026-08-13T10:15:09Z",
+      "side": 1,
+      "message": "recheck after adding Depends-On",
+      "revId": "ce309bbdec80fb7cbd5c18087ff1beb326856229",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
