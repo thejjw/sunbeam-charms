@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "244c99d6_14a372c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2711
+      },
+      "writtenOn": "2026-08-13T08:12:04Z",
+      "side": 1,
+      "message": "it seems cover test failures are caused by another bug - https://bugs.launchpad.net/sunbeam-charms/+bug/2163384",
+      "revId": "8f62fb5604c1e0ddd668d74c0eef1a3bbbd30885",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
