@@ -197,6 +197,31 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ],
     ]
 
+    def __init__(self, framework):
+        super().__init__(framework)
+        self.framework.observe(
+            self.on.rpc_cache_refresh_action,
+            self._on_rpc_cache_refresh_action,
+        )
+
+    def _on_rpc_cache_refresh_action(self, event: ops.ActionEvent) -> None:
+        """SIGHUP cinder-scheduler to clear the cached RPC version cap."""
+        container = self.unit.get_container(CINDER_SCHEDULER_CONTAINER)
+        if not container.can_connect():
+            event.fail("cinder-scheduler container not ready")
+            return
+        logger.info(
+            "rpc-cache-refresh: SIGHUP cinder-scheduler on unit %s",
+            self.unit.name,
+        )
+        try:
+            container.exec(["pkill", "-HUP", "-f", "cinder-scheduler"]).wait()
+        except ops.pebble.ExecError as e:
+            logger.error("rpc-cache-refresh failed: %s", e)
+            event.fail(f"Failed to SIGHUP cinder-scheduler: {e}")
+            return
+        event.set_results({"result": "cinder-scheduler RPC cache refreshed"})
+
     def get_relation_handlers(
         self, handlers=None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
