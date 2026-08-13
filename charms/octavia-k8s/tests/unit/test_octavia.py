@@ -279,6 +279,14 @@ def _make_api_error(status_code: int = 403) -> ApiError:
     response = mock.MagicMock()
     response.status_code = status_code
     response.text = "Forbidden"
+    response.json.return_value = {
+        "apiVersion": "v1",
+        "kind": "Status",
+        "status": "Failure",
+        "code": status_code,
+        "reason": "Forbidden",
+        "message": "Forbidden",
+    }
     return ApiError(response=response)
 
 
