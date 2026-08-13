@@ -50,6 +50,11 @@ enable = False
 [conductor]
 workers = 4
 
+[upgrade_levels]
+# permanent auto caps RPC to the lowest deployed compute version,
+# enabling safe mixed-version operation during SLURP upgrade hops.
+compute = auto
+
 [pci]
 {% for alias in nova.pci_aliases -%}
 alias = {{ alias }}

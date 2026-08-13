@@ -361,6 +361,28 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self.framework.observe(
             self.on["peers"].relation_departed, self._on_peer_relation_departed
         )
+        self.framework.observe(
+            self.on.rpc_cache_refresh_action,
+            self._on_rpc_cache_refresh_action,
+        )
+
+    def _on_rpc_cache_refresh_action(self, event: ops.ActionEvent) -> None:
+        """SIGHUP nova-conductor to clear the cached RPC version cap."""
+        container = self.unit.get_container(NOVA_CONDUCTOR_CONTAINER)
+        if not container.can_connect():
+            event.fail("nova-conductor container not ready")
+            return
+        logger.info(
+            "rpc-cache-refresh: SIGHUP nova-conductor on unit %s",
+            self.unit.name,
+        )
+        try:
+            container.exec(["pkill", "-HUP", "-f", "nova-conductor"]).wait()
+        except ExecError as e:
+            logger.error("rpc-cache-refresh failed: %s", e)
+            event.fail(f"Failed to SIGHUP nova-conductor: {e}")
+            return
+        event.set_results({"result": "nova-conductor RPC cache refreshed"})
 
     def _on_peer_relation_created(
         self, event: ops.framework.EventBase
