@@ -292,3 +292,50 @@ class TestStorageBackendProvidesRemoteReady:
             # Check logging of the ModelError
             mock_debug.assert_called_once()
             assert "storage-backend" in mock_debug.call_args[0][1]
+
+
+class TestRpcCacheRefresh:
+    """rpc-cache-refresh action SIGHUPs cinder-scheduler in its container."""
+
+    def _scheduler_container(self):
+        return k8s_container(
+            "cinder-scheduler",
+            execs=[
+                testing.Exec(
+                    command_prefix=["pkill", "-HUP", "-f", "cinder-scheduler"],
+                    return_code=0,
+                ),
+            ],
+        )
+
+    def test_rpc_cache_refresh_sighups_scheduler(self, ctx, complete_state):
+        """Successful action runs pkill -HUP on cinder-scheduler."""
+        containers = [
+            complete_state.get_container("cinder-api"),
+            self._scheduler_container(),
+        ]
+        state_in = testing.State(
+            leader=True,
+            relations=complete_state.relations,
+            containers=containers,
+            secrets=complete_state.secrets,
+        )
+        ctx.run(ctx.on.action("rpc-cache-refresh"), state_in)
+        assert ctx.action_results == {
+            "result": "cinder-scheduler RPC cache refreshed"
+        }
+
+    def test_rpc_cache_refresh_container_not_ready(self, ctx, complete_state):
+        """Action fails when the cinder-scheduler container cannot connect."""
+        containers = [
+            complete_state.get_container("cinder-api"),
+            testing.Container(name="cinder-scheduler", can_connect=False),
+        ]
+        state_in = testing.State(
+            leader=True,
+            relations=complete_state.relations,
+            containers=containers,
+            secrets=complete_state.secrets,
+        )
+        with pytest.raises(testing.ActionFailed):
+            ctx.run(ctx.on.action("rpc-cache-refresh"), state_in)

@@ -24,6 +24,7 @@ backend configurations are managed by the subordinate charms.
 
 import base64
 import logging
+import subprocess
 import typing
 from typing import (
     Mapping,
@@ -150,6 +151,33 @@ class CinderVolumeOperatorCharm(charm.OSBaseOperatorCharmSnap):
         self._state.set_default(api_ready=False, backends=[])
         self._backend_status = compound_status.Status("backends", priority=10)
         self.status_pool.add(self._backend_status)
+        self.framework.observe(
+            self.on.rpc_cache_refresh_action,
+            self._on_rpc_cache_refresh_action,
+        )
+
+    def _on_rpc_cache_refresh_action(self, event: ops.ActionEvent) -> None:
+        """SIGHUP cinder-volume to clear the cached RPC version cap."""
+        service = f"snap.{self.snap_name}.cinder-volume.service"
+        logger.info(
+            "rpc-cache-refresh: SIGHUP %s on unit %s",
+            service,
+            self.unit.name,
+        )
+        try:
+            subprocess.run(
+                ["systemctl", "kill", "--signal=HUP", service],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as e:
+            logger.error(
+                "rpc-cache-refresh failed for %s: %s", service, e.stderr
+            )
+            event.fail(f"Failed to SIGHUP cinder-volume: {e.stderr}")
+            return
+        event.set_results({"result": "cinder-volume RPC cache refreshed"})
 
     @property
     def snap_name(self) -> str:

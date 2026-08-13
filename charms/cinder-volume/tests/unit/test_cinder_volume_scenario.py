@@ -425,3 +425,56 @@ class TestRelationBrokenBlocksOrWaits:
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
         )
+
+
+class TestRpcCacheRefresh:
+    """rpc-cache-refresh action SIGHUPs the cinder-volume snap service."""
+
+    def test_rpc_cache_refresh_sighups_service(
+        self, ctx, complete_state, monkeypatch
+    ):
+        """Successful action runs systemctl kill --signal=HUP on the service."""
+        import subprocess as real_subprocess
+
+        import charm as cinder_volume_charm
+
+        run_mock = MagicMock()
+        monkeypatch.setattr(cinder_volume_charm, "subprocess", MagicMock())
+        cinder_volume_charm.subprocess.run = run_mock
+        cinder_volume_charm.subprocess.CalledProcessError = (
+            real_subprocess.CalledProcessError
+        )
+
+        ctx.run(ctx.on.action("rpc-cache-refresh"), complete_state)
+        assert ctx.action_results == {
+            "result": "cinder-volume RPC cache refreshed"
+        }
+        expected_service = "snap.cinder-volume.cinder-volume.service"
+        run_mock.assert_called_once_with(
+            ["systemctl", "kill", "--signal=HUP", expected_service],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+    def test_rpc_cache_refresh_failure_reported(
+        self, ctx, complete_state, monkeypatch
+    ):
+        """Action surfaces a systemctl failure via event.fail."""
+        import subprocess as real_subprocess
+
+        import charm as cinder_volume_charm
+
+        monkeypatch.setattr(cinder_volume_charm, "subprocess", MagicMock())
+        cinder_volume_charm.subprocess.CalledProcessError = (
+            real_subprocess.CalledProcessError
+        )
+        cinder_volume_charm.subprocess.run.side_effect = (
+            real_subprocess.CalledProcessError(
+                1,
+                ["systemctl", "kill", "--signal=HUP", "svc"],
+                stderr="no such unit",
+            )
+        )
+        with pytest.raises(testing.ActionFailed):
+            ctx.run(ctx.on.action("rpc-cache-refresh"), complete_state)

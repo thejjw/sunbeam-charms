@@ -107,6 +107,14 @@ actions:
     description: |
       Clean up after an upgrade.
       Run this action on the leader after all units are healthy at the new version.
+  rpc-cache-refresh:
+    description: |
+      SIGHUP cinder-volume to clear the cached RPC version cap.
+      After a SLURP upgrade, cinder-volume holds a stale cap pinned to the
+      previous release. This action triggers cinder's reset() to re-query the
+      services table and pick up the new minimum version. Zero-downtime.
+      Run this action on every unit: each unit's cinder-volume holds its own
+      cached cap, so running it on the leader alone is not sufficient.
 
 parts:
   update-certificates:
