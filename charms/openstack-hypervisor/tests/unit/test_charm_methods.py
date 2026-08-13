@@ -301,6 +301,43 @@ class TestActions:
         )
         hypervisor_snap_mock.hold.assert_called_once_with()
 
+    def test_rpc_cache_refresh_sighups_nova_compute(self, harness):
+        """rpc-cache-refresh SIGHUPs the nova-compute snap service."""
+        harness.begin()
+        action_output = harness.run_action("rpc-cache-refresh")
+        assert (
+            action_output.results["result"]
+            == "nova-compute RPC cache refreshed"
+        )
+        expected_service = (
+            f"snap.{charm.HYPERVISOR_SNAP_NAME}.nova-compute.service"
+        )
+        charm.subprocess.run.assert_called_once_with(
+            ["systemctl", "kill", "--signal=HUP", expected_service],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
+    def test_rpc_cache_refresh_failure_reported(self, harness):
+        """rpc-cache-refresh surfaces a systemctl failure via event.fail."""
+        import subprocess as real_subprocess
+
+        harness.begin()
+        # The conftest mocks `subprocess` as a MagicMock, so the charm's
+        # `except subprocess.CalledProcessError` needs the real class to be
+        # catchable.
+        charm.subprocess.CalledProcessError = (
+            real_subprocess.CalledProcessError
+        )
+        charm.subprocess.run.side_effect = real_subprocess.CalledProcessError(
+            1,
+            ["systemctl", "kill", "--signal=HUP", "svc"],
+            stderr="no such unit",
+        )
+        with pytest.raises(ops.testing.ActionFailed):
+            harness.run_action("rpc-cache-refresh")
+
 
 # ---------------------------------------------------------------------------
 # Consul tests

@@ -225,6 +225,15 @@ actions:
     description: |
       Clean up after an upgrade.
       Run this action on the leader after all units are healthy at the new version.
+  rpc-cache-refresh:
+    description: |
+      SIGHUP nova-compute to clear the cached RPC version cap.
+      After a SLURP upgrade, nova-compute holds a stale cap pinned to the
+      previous release. This action triggers nova's reset() to re-query the
+      services table and pick up the new minimum version. Zero-downtime.
+      Run this action on every unit (every compute host): each unit's
+      nova-compute holds its own cached cap, so running it on the leader
+      alone is not sufficient.
 
 requires:
   amqp:

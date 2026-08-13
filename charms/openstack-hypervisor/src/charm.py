@@ -165,6 +165,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             self._on_refresh_snap_action,
         )
         self.framework.observe(
+            self.on.rpc_cache_refresh_action,
+            self._on_rpc_cache_refresh_action,
+        )
+        self.framework.observe(
             self.on.install,
             self._on_install,
         )
@@ -566,6 +570,29 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             )
         except snap.SnapError as e:
             event.fail(f"Failed to refresh snap {HYPERVISOR_SNAP_NAME}: {e}")
+
+    def _on_rpc_cache_refresh_action(self, event: ActionEvent) -> None:
+        """SIGHUP nova-compute to clear the cached RPC version cap."""
+        service = f"snap.{HYPERVISOR_SNAP_NAME}.nova-compute.service"
+        logger.info(
+            "rpc-cache-refresh: SIGHUP %s on unit %s",
+            service,
+            self.unit.name,
+        )
+        try:
+            subprocess.run(
+                ["systemctl", "kill", "--signal=HUP", service],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as e:
+            logger.error(
+                "rpc-cache-refresh failed for %s: %s", service, e.stderr
+            )
+            event.fail(f"Failed to SIGHUP nova-compute: {e.stderr}")
+            return
+        event.set_results({"result": "nova-compute RPC cache refreshed"})
 
     def ensure_services_running(self):
         """Ensure systemd services running."""
