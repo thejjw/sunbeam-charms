@@ -12,6 +12,9 @@ python-glanceclient        # ironic-conductor-k8s
 python-swiftclient         # ironic-conductor-k8s
 cryptography               # neutron-k8s
 jsonschema                 # neutron-k8s
+# Temporary until https://github.com/canonical/lightkube-extensions/issues/15
+# is fixed: lightkube-extensions does not declare httpx.
+httpx                      # lightkube-extensions
 pytest-interface-tester    # barbican-k8s
 pydantic                   # traefik-k8s ingress lib
 netifaces                  # cinder-volume-ceph
