@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eee7b0e2_07572742",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2711
+      },
+      "writtenOn": "2026-08-14T07:28:38Z",
+      "side": 1,
+      "message": "The Neutron 502 was caused by repeated certificate_available events from\nthe update-status refresh. Even when the certificate was unchanged, each\nevent triggered configure_charm(), replanning the Neutron WSGI service.\nRequests reaching Traefik during the restart failed with backend EOF and\nwere returned as 502.\n\nThe patch now deduplicates unchanged certificate bundles, prevents\nsynchronous certificate callback re-entry, and only records a bundle as\nhandled after charm configuration completes successfully. Real certificate\nrenewals still trigger reconciliation.",
+      "revId": "e8b7e19d218a19c97c1d201150dfe99ca3a94d60",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
