@@ -16,6 +16,108 @@
       "message": "Munir, the error of tox-cover is: ModuleNotFoundError: No module named \u0027httpx\u0027,\nI\u0027ve submitted a patch for it - https://review.opendev.org/c/openstack/sunbeam-charms/+/1000804",
       "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "430c390c_91243a6f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-14T06:24:52Z",
+      "side": 1,
+      "message": "Comments inline.",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a517e03c_77781d51",
+        "filename": "charms/cinder-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-14T06:24:52Z",
+      "side": 1,
+      "message": "Can you confirm if the notifications in [1] are coming from cinder-api/scheduler or cinder-volume?\n\n[1] https://docs.openstack.org/ceilometer/2026.1/admin/telemetry-measurements.html#openstack-block-storage",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f297b2d3_60a277ed",
+        "filename": "charms/heat-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-14T06:24:52Z",
+      "side": 1,
+      "message": "Are there any measurements related to heat available. I do not see any in [1]\n\n[1] https://docs.openstack.org/ceilometer/2024.1/admin/telemetry-measurements.html",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f4d04f4_4a4204d3",
+        "filename": "charms/manila-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-14T06:24:52Z",
+      "side": 1,
+      "message": "All the measurements are already collected by pollster for 2026.1 [1]\nHowever this change is required for 2025.1 and 2024.1\n\n[1] https://docs.openstack.org/ceilometer/2026.1/admin/telemetry-measurements.html#openstack-file-share",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "774ed401_4f773542",
+        "filename": "charms/neutron-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-14T06:24:52Z",
+      "side": 1,
+      "message": "Neutron supports only notifications related to bandwidth [1] which are emitted by qos service plugin and I see qos is not yet added as service plugin in sunbeam-charms neutron. So there is no value in adding notifications for neutron.\n\n[1] https://docs.openstack.org/ceilometer/2026.1/admin/telemetry-measurements.html#openstack-networking",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c9d11226_6fef432e",
+        "filename": "charms/nova-k8s/src/templates/nova.conf.j2",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-14T06:24:52Z",
+      "side": 1,
+      "message": "Is this required on nova-k8s or on nova-compute side?",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
