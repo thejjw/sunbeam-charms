@@ -33,6 +33,23 @@
       "message": "recheck after adding Depends-On",
       "revId": "ce309bbdec80fb7cbd5c18087ff1beb326856229",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ab89650b_7603813a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2711
+      },
+      "writtenOn": "2026-08-14T03:21:57Z",
+      "side": 1,
+      "message": "recheck because Tempest hit a transient Neutron API 502 while cleaning up a default security group; Neutron and subsequent network tests recovered",
+      "revId": "ce309bbdec80fb7cbd5c18087ff1beb326856229",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
