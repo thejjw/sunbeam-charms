@@ -50,6 +50,23 @@
       "message": "recheck because Tempest hit a transient Neutron API 502 while cleaning up a default security group; Neutron and subsequent network tests recovered",
       "revId": "ce309bbdec80fb7cbd5c18087ff1beb326856229",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f15123ae_c27471aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2711
+      },
+      "writtenOn": "2026-08-14T06:22:52Z",
+      "side": 1,
+      "message": "recheck because Neutron returned a transient 502 while attaching the private subnet to the router during smoke setup",
+      "revId": "ce309bbdec80fb7cbd5c18087ff1beb326856229",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
