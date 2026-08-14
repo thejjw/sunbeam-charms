@@ -52,6 +52,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "72cf669d_e761a3f9",
+        "filename": "charms/cinder-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 30534
+      },
+      "writtenOn": "2026-08-14T15:12:17Z",
+      "side": 1,
+      "message": "The doc [1] says cinder-api/scheduler and cinder-volume\n\n- cinder-scheduler → sends capacity metrics\n- cinder-volume → sends volume/snapshot/backup events\n- cinder-api → sends volume/snapshot events\n\nThose are `notify_about_capacity_usage`, `notify_about_volume_usage`, `notify_about_backup_usage`, and `notify_about_snapshot_usage` methods in the volume_utils.py [2]\n\nThe scheduler code explitictly confirms the scheduler piece \n\n[1] https://docs.openstack.org/ceilometer/latest/install/cinder/install-cinder-ubuntu.html\n[2] https://opendev.org/openstack/cinder/src/branch/stable/2026.1/cinder/volume/volume_utils.py#L164\n[3] https://opendev.org/openstack/cinder/src/branch/stable/2026.1/cinder/scheduler/host_manager.py#L976",
+      "parentUuid": "a517e03c_77781d51",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f297b2d3_60a277ed",
