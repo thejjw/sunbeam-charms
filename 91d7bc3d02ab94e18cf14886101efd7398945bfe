@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "91d7bc3d02ab94e18cf14886101efd7398945bfe",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ca178149_56fce843",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-08-14T09:31:47Z",
+      "side": 1,
+      "message": "Let\u0027s wait for this PR: https://review.opendev.org/c/openstack/sunbeam-charms/+/1000804\n\nTo finish landing, and then we can rebase this one. It should fix the httpx dependency issue.",
+      "revId": "91d7bc3d02ab94e18cf14886101efd7398945bfe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
