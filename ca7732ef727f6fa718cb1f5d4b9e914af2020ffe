@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "449f0916_90266fc5",
+        "filename": "test-requirements.txt",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-14T06:05:44Z",
+      "side": 1,
+      "message": "Can you add a comment mentioning this change as workaround until https://github.com/canonical/lightkube-extensions/issues/15 is fixed",
+      "revId": "ca7732ef727f6fa718cb1f5d4b9e914af2020ffe",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
