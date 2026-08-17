@@ -35,6 +35,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa7fd44f_94cea17c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30534
+      },
+      "writtenOn": "2026-08-17T10:20:31Z",
+      "side": 1,
+      "message": "I addressed your questions. The patch update will follow up.",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a517e03c_77781d51",
@@ -87,6 +104,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0b84c8a9_adad0f8b",
+        "filename": "charms/heat-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 30534
+      },
+      "writtenOn": "2026-08-17T10:20:31Z",
+      "side": 1,
+      "message": "Ceilometer is prepared to receive notifications from Heat [1][2]. However, I don\u0027t see any meters defined [3]  (stack/Heat).\nLooking at the Heat code, the only notifications sent don\u0027t seem to be the telemetry data targeted to Ceilometer [4],[5].\n\n[1] https://opendev.org/openstack/ceilometer/src/branch/stable/2026.1/ceilometer/notification.py#L68\n[2] https://docs.openstack.org/ceilometer/2026.1/install/heat/install-heat-ubuntu.html \n[3] https://opendev.org/openstack/ceilometer/src/branch/stable/2026.1/ceilometer/data/meters.d/meters.yaml\n[4] https://opendev.org/openstack/heat/src/branch/stable/2026.1/heat/engine/notification/stack.py#L34\n[5] https://opendev.org/openstack/heat/src/branch/stable/2026.1/heat/engine/notification/autoscaling.py#L29",
+      "parentUuid": "f297b2d3_60a277ed",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7f4d04f4_4a4204d3",
@@ -100,6 +135,24 @@
       "writtenOn": "2026-08-14T06:24:52Z",
       "side": 1,
       "message": "All the measurements are already collected by pollster for 2026.1 [1]\nHowever this change is required for 2025.1 and 2024.1\n\n[1] https://docs.openstack.org/ceilometer/2026.1/admin/telemetry-measurements.html#openstack-file-share",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "df1f226d_fd3e515f",
+        "filename": "charms/manila-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 30534
+      },
+      "writtenOn": "2026-08-17T10:20:31Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "7f4d04f4_4a4204d3",
       "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -121,6 +174,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4178d973_35474dd9",
+        "filename": "charms/neutron-k8s/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 30534
+      },
+      "writtenOn": "2026-08-17T10:20:31Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "774ed401_4f773542",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9d11226_6fef432e",
@@ -134,6 +205,24 @@
       "writtenOn": "2026-08-14T06:24:52Z",
       "side": 1,
       "message": "Is this required on nova-k8s or on nova-compute side?",
+      "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4b57d32d_403c8c93",
+        "filename": "charms/nova-k8s/src/templates/nova.conf.j2",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 30534
+      },
+      "writtenOn": "2026-08-17T10:20:31Z",
+      "side": 1,
+      "message": "According to the Ceilometer docs [1] this is required only on the nova-compute side.\n\n[1] https://docs.openstack.org/ceilometer/2026.1/install/install-compute-ubuntu.html",
+      "parentUuid": "c9d11226_6fef432e",
       "revId": "3deaa79b23f59d05a4c24941b5dc6bee36c89c51",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
