@@ -71,7 +71,6 @@ applications:
     options:
       snap-channel: 2026.1/edge
       external-bridge-address: 0.0.0.0/0
-      ovs-provider: microovn
   manila-data:
     {% if manila_data is defined and manila_data is sameas true -%}
     charm: ../../../manila-data.charm

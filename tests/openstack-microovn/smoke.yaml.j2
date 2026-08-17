@@ -12,7 +12,6 @@ applications:
   traefik-rgw:
     charm: ch:traefik-k8s
     channel: latest/candidate
-    revision: 297
     base: ubuntu@26.04
     scale: 1
     trust: true
@@ -492,6 +491,8 @@ relations:
   - nova:identity-service
 - - traefik:ingress
   - nova:ingress-internal
+- - traefik:ingress
+  - nova:ingress-metadata
 - - traefik:traefik-route
   - nova:traefik-route-internal
 - - keystone:send-ca-cert
