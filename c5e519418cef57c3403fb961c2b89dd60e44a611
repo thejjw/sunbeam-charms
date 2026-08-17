@@ -33,6 +33,23 @@
       "message": "recheck after dependency 1000804 PS3 passed",
       "revId": "c5e519418cef57c3403fb961c2b89dd60e44a611",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c04d4d26_212831a2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-17T09:38:34Z",
+      "side": 1,
+      "message": "Joshua, Thanks for the PR and the verification.\n\nCan you test one more scenario\n\nDeploy with existing edge charms with TLS enabled. Refresh to the new built charms with this fix and check if any charm requests for regeneration of certificates.\n\nExpectation is the new library should be backward compatible and should work with existing certificates without asking to regenerate them (or auto regenerate them when self-signed certificates are used)",
+      "revId": "c5e519418cef57c3403fb961c2b89dd60e44a611",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
