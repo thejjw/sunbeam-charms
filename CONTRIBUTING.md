@@ -101,13 +101,13 @@ If playbooks are modified just to deploy the pre-requisite environment, func tes
 the following tox command
 
 ```
-/home/ubuntu/.local/tox/bin/tox -e func -- --smoke --test-directory=tests/openstack
+/home/ubuntu/.local/tox/bin/tox -e func -- --smoke --test-directory=tests/openstack-microovn
 ```
 
 Rerun functest-* commands using following commands
 
 ```
 source .tox/func/bin/activate
-PYTHONPATH=/home/ubuntu/sunbeam-charms/tests/local:$PYTHONPATH functest-configure -m MODEL --test-directory tests/openstack
-PYTHONPATH=/home/ubuntu/sunbeam-charms/tests/local:$PYTHONPATH functest-test -m MODEL --test-directory tests/openstack
+PYTHONPATH=/home/ubuntu/sunbeam-charms/tests/local:$PYTHONPATH functest-configure -m MODEL --test-directory tests/openstack-microovn
+PYTHONPATH=/home/ubuntu/sunbeam-charms/tests/local:$PYTHONPATH functest-test -m MODEL --test-directory tests/openstack-microovn
 ```
