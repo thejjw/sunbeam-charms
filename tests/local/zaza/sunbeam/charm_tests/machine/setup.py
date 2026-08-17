@@ -42,7 +42,6 @@ import zaza.model
 
 MACHINE_MODEL = "controller"
 MACHINE_MODEL_WITH_OWNER = f"admin/{MACHINE_MODEL}"
-MACHINE_BUNDLE_FILE = "./tests/openstack/bundles/machines.yaml"
 MACHINE_MICROOVN_BUNDLE_FILE = "./tests/openstack-microovn/bundles/machines.yaml"
 CILIUM_INTERFACE = "cilium_host"
 CILIUM_SPACE = "k8s-subnet"
@@ -370,66 +369,6 @@ def _enable_microceph_orchestrator():
     except subprocess.CalledProcessError as e:
         logging.error("Command failed with error: %s", e)
         raise e
-
-
-def deploy_machine_applications():
-    """Deploy machine apps and wait for all apps to reach target status.
-
-    Deploys machine apps (hypervisor, microceph, cinder-volume, etc.).
-    Order: wait for k8s CMR-offering apps to be provisioned, wire CMR,
-    wait for machine apps to reach target status, wait for k8s CMR apps
-    to reach active (cinder/gnocchi/manila-cephfs unblock once CMR is wired).
-    """
-    k8s_model = zaza.model.get_juju_model()
-    target_deploy_status = lc_utils.get_charm_config().get(
-        "target_deploy_status", {}
-    )
-    non_active_apps = {
-        app: cfg["workload-status"]
-        for app, cfg in target_deploy_status.items()
-        if cfg.get("workload-status") != "active"
-    }
-
-    logging.debug("Updating machine bundle")
-    bundle = MACHINE_BUNDLE_FILE
-    replace_model_in_bundle(Path(bundle), {"K8S_MODEL": k8s_model})
-
-    logging.info(bundle)
-    juju_machine = jubilant.Juju(model=MACHINE_MODEL)
-    _prepare_controller_model_spaces(juju_machine)
-    juju_machine.cli("deploy", str(bundle), "--map-machines=existing,0=0")
-
-    juju_k8s = jubilant.Juju(model=k8s_model)
-
-    _configure_magnum(juju_k8s)
-
-    # 1. Wait for k8s apps to reach their target status.
-    _wait_for_model(juju_k8s, non_active_apps, timeout=K8S_WAIT_TIMEOUT)
-
-    # 2. Wire CMR — all k8s pods are provisioned and etcd load has subsided.
-    _perform_common_cross_model_integrations(juju_machine, k8s_model)
-
-    # 3 & 4. Wait for machine apps and k8s CMR apps in parallel now that
-    # CMR is wired; machine model needs ceph credentials from microceph
-    # while k8s CMR apps need the storage-backend/ceph integrations.
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
-        futures = [
-            ex.submit(
-                _wait_for_model,
-                juju_machine,
-                non_active_apps,
-                timeout=POST_CMR_WAIT_TIMEOUT,
-            ),
-            ex.submit(
-                _wait_for_cmr_apps,
-                juju_k8s,
-                ["cinder", "gnocchi", "manila-cephfs"],
-                active=True,
-                timeout=POST_CMR_WAIT_TIMEOUT,
-            ),
-        ]
-        for future in concurrent.futures.as_completed(futures):
-            future.result()
 
 
 def deploy_machine_applications_microovn():
