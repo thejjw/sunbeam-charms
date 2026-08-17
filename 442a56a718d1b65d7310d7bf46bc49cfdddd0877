@@ -50,6 +50,24 @@
       "message": "Can you move to 1.10",
       "revId": "442a56a718d1b65d7310d7bf46bc49cfdddd0877",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1e41bec_914b481d",
+        "filename": "charms/neutron-k8s/pyproject.toml",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 2711
+      },
+      "writtenOn": "2026-08-17T06:08:06Z",
+      "side": 1,
+      "message": "Hi @hemanth.nakkina@canonical.com , thanks, done, I\u0027ve moved api version to 1.10, and here is my self-test result - https://pastebin.canonical.com/p/QFGWZS89KC/",
+      "parentUuid": "86cd26f4_0c29f1fa",
+      "revId": "442a56a718d1b65d7310d7bf46bc49cfdddd0877",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
