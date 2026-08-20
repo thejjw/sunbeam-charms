@@ -41,6 +41,9 @@ import pydantic_core
 from cryptography import (
     x509,
 )
+from cryptography.hazmat.primitives import (
+    serialization,
+)
 from pydantic import (
     BaseModel,
 )
@@ -52,6 +55,31 @@ logger = logging.getLogger(__name__)
 
 
 Required = pydantic.Field(...)
+
+_CERTIFICATE_BLOCK = re.compile(
+    r"-----BEGIN CERTIFICATE-----.*?-----END CERTIFICATE-----",
+    re.DOTALL,
+)
+_PRIVATE_KEY_BLOCK = re.compile(
+    r"-----BEGIN (?P<label>[A-Z0-9 ]*PRIVATE KEY)-----.*?"
+    r"-----END (?P=label)-----",
+    re.DOTALL,
+)
+
+
+def _pem_blocks(value: str, pattern: re.Pattern[str]) -> list[str]:
+    """Return PEM blocks if all non-whitespace input belongs to a block."""
+    blocks = []
+    position = 0
+    for match in pattern.finditer(value):
+        gap = value[slice(position, match.start())]
+        if gap.strip():
+            return []
+        blocks.append(match.group(0))
+        position = match.end()
+    if value[position:].strip():
+        return []
+    return blocks
 
 
 def to_snake(value: str) -> str:
@@ -84,19 +112,68 @@ def certificate_validator(value: str | None) -> str | None:
     if not isinstance(value, str):
         raise ValueError("Certificate must be a string")
 
-    certificate = value
-    if "-----BEGIN CERTIFICATE-----" not in certificate:
+    if "-----BEGIN CERTIFICATE-----" not in value:
         raise ValueError("Certificate must be PEM formatted")
 
     try:
-        cert = x509.load_pem_x509_certificate(certificate.encode())
-        if cert.not_valid_after < datetime.datetime.now():
-            raise ValueError("Certificate has expired")
+        certificates = _pem_blocks(value, _CERTIFICATE_BLOCK)
+        if len(certificates) != 1:
+            raise ValueError("Expected exactly one certificate")
+        cert = x509.load_pem_x509_certificate(certificates[0].encode())
+        _validate_certificate_expiry(cert)
     except Exception as e:
-        logger.error(f"Failed to validate certificate: {e}")
-        raise ValueError("Invalid certificate format")
+        logger.error("Failed to validate certificate: %s", type(e).__name__)
+        raise ValueError("Invalid certificate format") from e
 
-    return certificate
+    return value
+
+
+def _validate_certificate_expiry(certificate: x509.Certificate) -> None:
+    """Validate that a certificate has not expired."""
+    if certificate.not_valid_after_utc < datetime.datetime.now(datetime.UTC):
+        raise ValueError("Certificate has expired")
+
+
+def certificate_bundle_validator(value: str | None) -> str | None:
+    """Validate PEM certificate or CA bundle content."""
+    if value is None:
+        return value
+    if not isinstance(value, str):
+        raise ValueError("Certificate bundle must be a string")
+
+    try:
+        blocks = _pem_blocks(value, _CERTIFICATE_BLOCK)
+        if not blocks:
+            raise ValueError("Certificate bundle is empty")
+        for block in blocks:
+            certificate = x509.load_pem_x509_certificate(block.encode())
+            _validate_certificate_expiry(certificate)
+    except Exception as e:
+        logger.error(
+            "Failed to validate certificate bundle: %s", type(e).__name__
+        )
+        raise ValueError("Invalid certificate format") from e
+
+    return value
+
+
+def private_key_validator(value: str) -> str:
+    """Validate unencrypted PEM private-key content."""
+    if not isinstance(value, str):
+        raise ValueError("Private key must be a string")
+
+    try:
+        private_keys = _pem_blocks(value, _PRIVATE_KEY_BLOCK)
+        if len(private_keys) != 1:
+            raise ValueError("Expected exactly one private key")
+        serialization.load_pem_private_key(
+            private_keys[0].encode(), password=None
+        )
+    except Exception as e:
+        logger.error("Failed to validate private key: %s", type(e).__name__)
+        raise ValueError("Invalid private key format") from e
+
+    return value
 
 
 @cache

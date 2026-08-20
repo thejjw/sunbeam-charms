@@ -66,7 +66,7 @@ config:
     nimble-verify-cert-path:
       default: null
       description: |
-        Path to Nimble Array SSL certificate
+        PEM-encoded certificate or CA bundle used to verify the Nimble array.
       type: string
     san-thin-provision:
       default: true
