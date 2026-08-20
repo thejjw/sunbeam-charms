@@ -18,7 +18,7 @@
 
 """Cloudkitty Operator Charm.
 
-This charm provide Cloudkitty services as part of an OpenStack deployment
+This charm provides Cloudkitty services as part of an OpenStack deployment.
 """
 
 import logging
@@ -75,8 +75,6 @@ class CloudkittyWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             logger.exception(
                 f"Failed to enable wsgi-{self.service_name}-api site in apache"
             )
-            # ignore for now - pebble is raising an exited too quickly, but it
-            # appears to work properly.
         self.start_wsgi()
 
     def get_healthcheck_layer(self) -> dict:
@@ -256,7 +254,7 @@ class CloudkittyOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     @property
     def db_sync_container_name(self) -> str:
-        """Name of Containerto run db sync from."""
+        """Name of Container to run db sync from."""
         return CLOUDKITTY_CONTAINER
 
     @property
