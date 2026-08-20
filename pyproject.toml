@@ -23,6 +23,12 @@ multi_line_output = 3
 force_grid_wrap = true
 
 # Linting tools configuration
+[tool.mypy]
+# Sunbeam charms require a minimum of Python 3.12 at runtime; pin the mypy
+# target so it does not follow the linters interpreter version (3.10 on the
+# ubuntu-jammy CI node).
+python_version = "3.12"
+
 [tool.flake8]
 max-line-length = 79
 max-doc-length = 99
