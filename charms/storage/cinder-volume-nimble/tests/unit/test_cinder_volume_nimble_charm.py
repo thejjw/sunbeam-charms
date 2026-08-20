@@ -16,6 +16,7 @@
 
 """Unit tests for Cinder nimble operator charm."""
 
+import datetime
 from unittest.mock import (
     MagicMock,
     Mock,
@@ -25,6 +26,19 @@ from unittest.mock import (
 import charm
 import ops.testing
 import ops_sunbeam.test_utils as test_utils
+from cryptography import (
+    x509,
+)
+from cryptography.hazmat.primitives import (
+    hashes,
+    serialization,
+)
+from cryptography.hazmat.primitives.asymmetric import (
+    rsa,
+)
+from cryptography.x509.oid import (
+    NameOID,
+)
 
 
 class _CinderVolumeNimbleOperatorCharm(charm.CinderVolumeNimbleOperatorCharm):
@@ -53,6 +67,27 @@ def add_complete_cinder_volume_relation(harness: ops.testing.Harness) -> int:
     )
 
 
+def certificate(common_name: str) -> str:
+    """Create a valid self-signed PEM certificate."""
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+    name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, common_name)])
+    now = datetime.datetime.now(datetime.UTC)
+    value = (
+        x509.CertificateBuilder()
+        .subject_name(name)
+        .issuer_name(name)
+        .public_key(private_key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(now - datetime.timedelta(minutes=1))
+        .not_valid_after(now + datetime.timedelta(days=1))
+        .sign(private_key, hashes.SHA256())
+    )
+    return value.public_bytes(serialization.Encoding.PEM).decode()
+
+
 class TestCinderNimbleOperatorCharm(test_utils.CharmTestCase):
     """Test cases for CinderVolumeNimbleOperatorCharm class."""
 
@@ -76,19 +111,67 @@ class TestCinderNimbleOperatorCharm(test_utils.CharmTestCase):
         self.addCleanup(snap_patch.stop)
         self.addCleanup(self.harness.cleanup)
 
+    def _set_required_config(self, **config):
+        """Set required configuration."""
+        secret_login = self.harness.add_user_secret(
+            {"san-login": "test-login"}
+        )
+        secret_password = self.harness.add_user_secret(
+            {"san-password": "test-password"}
+        )
+        self.harness.grant_secret(secret_login, self.harness.charm.app)
+        self.harness.grant_secret(secret_password, self.harness.charm.app)
+        self.harness.update_config(
+            {
+                "san-ip": "10.20.20.3",
+                "protocol": "iscsi",
+                "san-login": secret_login,
+                "san-password": secret_password,
+                **config,
+            }
+        )
+
+    def test_certificate_content_is_forwarded(self):
+        """Certificate bundle content is passed to snap configuration."""
+        self.harness.begin()
+        bundle = certificate("first") + certificate("second")
+        self._set_required_config(**{"nimble-verify-cert-path": bundle})
+
+        backend = self.harness.charm.get_backend_configuration()
+
+        self.assertEqual(backend["nimble-verify-cert-path"], bundle)
+
+    def test_rejects_certificate_path(self):
+        """A filesystem path is rejected in place of PEM content."""
+        self.harness.begin()
+        self._set_required_config(
+            **{"nimble-verify-cert-path": "/tmp/nimble-ca.pem"}
+        )
+
+        with self.assertRaisesRegex(ValueError, "Invalid certificate format"):
+            self.harness.charm.get_backend_configuration()
+
     def test_all_relations(self):
         """Test charm in context of full set of relations."""
         self.harness.begin_with_initial_hooks()
         # Add secret for the secret-type config field
         # Use the secret_key value from the driver spec for the secret dict
-        secret_login = self.harness.add_user_secret({"san-login": "test-login"})
-        secret_password = self.harness.add_user_secret({"san-password": "test-password"})
+        secret_login = self.harness.add_user_secret(
+            {"san-login": "test-login"}
+        )
+        secret_password = self.harness.add_user_secret(
+            {"san-password": "test-password"}
+        )
         add_complete_cinder_volume_relation(self.harness)
         self.harness.grant_secret(secret_login, self.harness.charm.app)
         self.harness.grant_secret(secret_password, self.harness.charm.app)
         # Update config with required fields and the secret reference
         self.harness.update_config(
-            {"san-ip": "10.20.20.3", "san-login": secret_login, "san-password": secret_password}
+            {
+                "san-ip": "10.20.20.3",
+                "san-login": secret_login,
+                "san-password": secret_password,
+            }
         )
         self.harness.evaluate_status()
         self.assertSetEqual(
