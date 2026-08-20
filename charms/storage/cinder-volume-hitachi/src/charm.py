@@ -28,17 +28,18 @@ import logging
 import typing
 
 import ops
-import pydantic
 import ops_sunbeam.charm as charm
-import ops_sunbeam.tracing as sunbeam_tracing
-
 import ops_sunbeam.storage as sunbeam_storage
+import ops_sunbeam.tracing as sunbeam_tracing
+import pydantic
 
 logger = logging.getLogger(__name__)
 
 
 @sunbeam_tracing.trace_sunbeam_charm
-class CinderVolumeHitachiOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
+class CinderVolumeHitachiOperatorCharm(
+    charm.OSCinderVolumeDriverOperatorCharm
+):
     """Cinder/Hitachi Operator charm."""
 
     service_name = "cinder-volume-hitachi"
@@ -67,8 +68,12 @@ class CinderVolumeHitachiOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
                     ),
                     sunbeam_storage.Required,
                 ],
-                "hitachi-storage-id": typing.Annotated[str, sunbeam_storage.Required],
-                "hitachi-pools": typing.Annotated[str, sunbeam_storage.Required],
+                "hitachi-storage-id": typing.Annotated[
+                    str, sunbeam_storage.Required
+                ],
+                "hitachi-pools": typing.Annotated[
+                    str, sunbeam_storage.Required
+                ],
                 "protocol": typing.Annotated[
                     typing.Literal["fc", "iscsi"], sunbeam_storage.Required
                 ],
@@ -88,12 +93,16 @@ class CinderVolumeHitachiOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
                 ],
                 "hitachi-mirror-ssl-cert": typing.Annotated[
                     str | None,
-                    pydantic.BeforeValidator(sunbeam_storage.certificate_validator),
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.certificate_validator
+                    ),
                 ],
                 "hitachi-mirror-auth-username": typing.Annotated[
                     str,
                     pydantic.BeforeValidator(
-                        sunbeam_storage.secret_validator("hitachi-mirror-auth-username")
+                        sunbeam_storage.secret_validator(
+                            "hitachi-mirror-auth-username"
+                        )
                     ),
                     sunbeam_storage.RequiredIfGroup(
                         "hitachi-mirror-chap-authentication"
@@ -102,7 +111,9 @@ class CinderVolumeHitachiOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
                 "hitachi-mirror-auth-password": typing.Annotated[
                     str,
                     pydantic.BeforeValidator(
-                        sunbeam_storage.secret_validator("hitachi-mirror-auth-password")
+                        sunbeam_storage.secret_validator(
+                            "hitachi-mirror-auth-password"
+                        )
                     ),
                     sunbeam_storage.RequiredIfGroup(
                         "hitachi-mirror-chap-authentication"
@@ -111,7 +122,9 @@ class CinderVolumeHitachiOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
                 "hitachi-mirror-rest-username": typing.Annotated[
                     str,
                     pydantic.BeforeValidator(
-                        sunbeam_storage.secret_validator("hitachi-mirror-rest-username")
+                        sunbeam_storage.secret_validator(
+                            "hitachi-mirror-rest-username"
+                        )
                     ),
                     sunbeam_storage.RequiredIfGroup(
                         "hitachi-mirror-rest-authentication"
@@ -121,7 +134,9 @@ class CinderVolumeHitachiOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
                 "hitachi-mirror-rest-password": typing.Annotated[
                     str,
                     pydantic.BeforeValidator(
-                        sunbeam_storage.secret_validator("hitachi-mirror-rest-password")
+                        sunbeam_storage.secret_validator(
+                            "hitachi-mirror-rest-password"
+                        )
                     ),
                     sunbeam_storage.RequiredIfGroup(
                         "hitachi-mirror-rest-authentication"

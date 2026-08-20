@@ -667,6 +667,17 @@ refresh-snap:
             {namespace: {"key": "abc"}}, typed=True
         )
 
+    def test_set_snap_data_does_not_log_values(self) -> None:
+        """Snap configuration values are not included in debug logs."""
+        charm = self.harness.charm
+        charm.mock_snap.get.return_value = {}
+        private_material = "private-material"
+
+        with self.assertLogs(sunbeam_charm.logger, level="DEBUG") as logs:
+            charm.set_snap_data({"private-key": private_material})
+
+        self.assertNotIn(private_material, "\n".join(logs.output))
+
     def test_get_snap_returns_installed_parallel_instance(self) -> None:
         """Return installed parallel snap instance from SnapCache."""
         charm = self.harness.charm
