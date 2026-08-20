@@ -47,6 +47,7 @@ CLOUDKITTY_CONTAINER = "cloudkitty"
 # =============================================================================
 # THE RELATION HANDLER (MATCHING CANONICAL HOW-TO PATTERN)
 # =============================================================================
+@sunbeam_tracing.trace_type
 class LokiLoggingRelationHandler(sunbeam_rhandlers.RelationHandler):
     """Custom Sunbeam Relation Handler for the Loki logging interface."""
 
