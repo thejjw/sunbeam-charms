@@ -22,10 +22,10 @@ of an OpenStack deployment
 """
 
 import logging
+import typing
 from enum import (
     StrEnum,
 )
-import typing
 
 import ops
 import ops_sunbeam.charm as charm
@@ -38,17 +38,20 @@ logger = logging.getLogger(__name__)
 
 class Family(StrEnum):
     """Enumeration of valid storage family types."""
+
     ONTAP_CLUSTER = "ontap_cluster"
 
 
 class TransportType(StrEnum):
     """Enumeration of valid transport types."""
+
     HTTP = "http"
     HTTPS = "https"
 
 
 class LunSpaceReservation(StrEnum):
     """Enumeration of valid LUN space reservation options."""
+
     ENABLED = "enabled"
     DISABLED = "disabled"
 
@@ -74,24 +77,44 @@ class CinderVolumeNetAppOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
                 ],
                 "netapp-storage-family": Family | None,
                 "netapp-storage-protocol": typing.Annotated[
-                    typing.Literal["iscsi", "fc", "nfs", "nvme"], sunbeam_storage.Required
+                    typing.Literal["iscsi", "fc", "nfs", "nvme"],
+                    sunbeam_storage.Required,
                 ],
                 "netapp-transport-type": TransportType | None,
+                "netapp-ssl-cert-path": typing.Annotated[
+                    str | None,
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.certificate_bundle_validator
+                    ),
+                ],
                 "netapp-password": typing.Annotated[
                     str,
-                    pydantic.BeforeValidator(sunbeam_storage.secret_validator("netapp-password")),
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("netapp-password")
+                    ),
                 ],
                 "netapp-private-key-file": typing.Annotated[
                     str,
-                    pydantic.BeforeValidator(sunbeam_storage.secret_validator("netapp-private-key-file")),
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator(
+                            "netapp-private-key-file"
+                        )
+                    ),
+                    pydantic.AfterValidator(
+                        sunbeam_storage.private_key_validator
+                    ),
                 ],
                 "netapp-certificate-file": typing.Annotated[
-                    str,
-                    pydantic.BeforeValidator(sunbeam_storage.secret_validator("netapp-certificate-file")),
+                    str | None,
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.certificate_validator
+                    ),
                 ],
                 "netapp-ca-certificate-file": typing.Annotated[
                     str,
-                    pydantic.BeforeValidator(sunbeam_storage.secret_validator("netapp-ca-certificate-file")),
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.certificate_bundle_validator
+                    ),
                     sunbeam_storage.Required,
                 ],
                 "netapp-lun-space-reservation": LunSpaceReservation | None,

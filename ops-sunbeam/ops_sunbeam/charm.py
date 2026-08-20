@@ -1471,7 +1471,9 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         if new_settings:
             if namespace is not None:
                 new_settings = {namespace: new_settings}
-            logger.debug(f"Applying new snap settings {new_settings}")
+            logger.debug(
+                "Applying new snap setting keys %s", sorted(new_settings)
+            )
             snap_svc.set(new_settings, typed=True)
         else:
             logger.debug("Snap settings do not need updating")

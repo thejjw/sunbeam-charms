@@ -22,10 +22,10 @@ of an OpenStack deployment
 """
 
 import logging
+import typing
 from enum import (
     StrEnum,
 )
-import typing
 
 import ops
 import ops_sunbeam.charm as charm
@@ -64,13 +64,23 @@ class CinderVolumeNimbleOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
                 ],
                 "san-login": typing.Annotated[
                     str,
-                    pydantic.BeforeValidator(sunbeam_storage.secret_validator("san-login")),
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("san-login")
+                    ),
                     sunbeam_storage.Required,
                 ],
                 "san-password": typing.Annotated[
                     str,
-                    pydantic.BeforeValidator(sunbeam_storage.secret_validator("san-password")),
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("san-password")
+                    ),
                     sunbeam_storage.Required,
+                ],
+                "nimble-verify-cert-path": typing.Annotated[
+                    str | None,
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.certificate_bundle_validator
+                    ),
                 ],
             }
         )
