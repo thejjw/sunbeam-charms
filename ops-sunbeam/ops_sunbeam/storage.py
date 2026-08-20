@@ -41,6 +41,9 @@ import pydantic_core
 from cryptography import (
     x509,
 )
+from cryptography.hazmat.primitives import (
+    serialization,
+)
 from pydantic import (
     BaseModel,
 )
@@ -90,13 +93,52 @@ def certificate_validator(value: str | None) -> str | None:
 
     try:
         cert = x509.load_pem_x509_certificate(certificate.encode())
-        if cert.not_valid_after < datetime.datetime.now():
-            raise ValueError("Certificate has expired")
+        _validate_certificate_expiry(cert)
     except Exception as e:
         logger.error(f"Failed to validate certificate: {e}")
         raise ValueError("Invalid certificate format")
 
     return certificate
+
+
+def _validate_certificate_expiry(certificate: x509.Certificate) -> None:
+    """Validate that a certificate has not expired."""
+    if certificate.not_valid_after_utc < datetime.datetime.now(datetime.UTC):
+        raise ValueError("Certificate has expired")
+
+
+def certificate_bundle_validator(value: str | None) -> str | None:
+    """Validate PEM certificate or CA bundle content."""
+    if value is None:
+        return value
+    if not isinstance(value, str):
+        raise ValueError("Certificate bundle must be a string")
+
+    try:
+        certificates = x509.load_pem_x509_certificates(value.encode())
+        if not certificates:
+            raise ValueError("Certificate bundle is empty")
+        for certificate in certificates:
+            _validate_certificate_expiry(certificate)
+    except Exception as e:
+        logger.error(f"Failed to validate certificate bundle: {e}")
+        raise ValueError("Invalid certificate format") from e
+
+    return value
+
+
+def private_key_validator(value: str) -> str:
+    """Validate unencrypted PEM private-key content."""
+    if not isinstance(value, str):
+        raise ValueError("Private key must be a string")
+
+    try:
+        serialization.load_pem_private_key(value.encode(), password=None)
+    except Exception as e:
+        logger.error("Failed to validate private key: %s", type(e).__name__)
+        raise ValueError("Invalid private key format") from e
+
+    return value
 
 
 @cache
