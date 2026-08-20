@@ -31,11 +31,11 @@ config:
       description: |
         Availability zone to associate with this backend.
       type: string
-    driver-ssl-cert:
-      default: null
+    driver-ssl-cert-verify:
+      default: false
       description: |
-        PEM-encoded SSL certificate for HTTPS connections to the storage array.
-      type: string
+        Verify HTTPS certificates using the system trust store.
+      type: boolean
     qnap-management-url:
       default: null
       description: |

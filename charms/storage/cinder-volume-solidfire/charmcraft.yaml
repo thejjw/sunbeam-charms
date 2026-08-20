@@ -35,12 +35,11 @@ config:
       description: |
         IP address of SAN controller
       type: string
-    driver-ssl-cert:
-      type: string
-      default: null
+    driver-ssl-cert-verify:
+      type: boolean
+      default: false
       description: |
-        PEM-encoded SSL certificate to use for HTTPS connections to the
-        storage array. If unset, SSL verification is not performed.
+        Verify HTTPS certificates using the system trust store.
     san-login:
       description: |
         Username for SAN controller
