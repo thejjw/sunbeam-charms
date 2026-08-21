@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3253d417_a631459c",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-21T07:21:59Z",
+      "side": 1,
+      "message": "Can you send some action result for both pause/resume actions",
+      "revId": "59026de5fbed5f77e3fc508613d28372a4dc5535",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2180315c_7da051ae",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-21T07:21:59Z",
+      "side": 1,
+      "message": "Does the self._state.paused should be before configure_charm()? Is there a case where configure_charm() looks at _state.paused and returns without doing anything?",
+      "revId": "59026de5fbed5f77e3fc508613d28372a4dc5535",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "415b3ef9_eca57c17",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-21T07:21:59Z",
+      "side": 1,
+      "message": "nit: not adding any value, just calling the base class __init__ which happens without this function",
+      "revId": "59026de5fbed5f77e3fc508613d28372a4dc5535",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bda3e5f3_5cfeffb4",
+        "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-21T07:21:59Z",
+      "side": 1,
+      "message": "container.stop_checks(check_name)",
+      "revId": "59026de5fbed5f77e3fc508613d28372a4dc5535",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9cd01435_d7105e70",
+        "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-21T07:21:59Z",
+      "side": 1,
+      "message": "container.start_checks(check_name)",
+      "revId": "59026de5fbed5f77e3fc508613d28372a4dc5535",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
