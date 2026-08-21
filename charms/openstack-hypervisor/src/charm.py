@@ -574,16 +574,12 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             logger.debug(
                 "microovn snap not yet installed; skipping switch restart check."
             )
-        svcs = [
-            "neutron-ovn-metadata-agent",
-            "nova-api-metadata",
-            "nova-compute",
-        ]
-        inactive = [
-            svc
-            for svc in svcs
-            if not hypervisor_snap.services[svc].get("active")
-        ]
+        services = hypervisor_snap.services
+        svcs = ["nova-api-metadata", "nova-compute"]
+        inactive = [svc for svc in svcs if not services[svc].get("active")]
+        ovn_agent = services["neutron-ovn-agent"]
+        if ovn_agent.get("enabled") and not ovn_agent.get("active"):
+            inactive.insert(0, "neutron-ovn-agent")
         if inactive:
             logger.info(f"Starting inactive services: {', '.join(inactive)}")
             hypervisor_snap.start(inactive)
@@ -911,12 +907,6 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         local_ip = get_local_ip_by_default_route()
         try:
             contexts = self.contexts()
-            sb_connection_strs = list(
-                contexts.ovsdb_cms.db_ingress_sb_connection_strs
-            )
-            if not sb_connection_strs:
-                raise AttributeError(name="ovsdb southbound ingress string")
-
             snap_data = {
                 "compute.cpu-mode": "host-model",
                 "compute.spice-proxy-address": config("ip-address")
@@ -965,7 +955,6 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 "network.ovn-cacert": base64.b64encode(
                     contexts.certificates.ca_with_chain.encode()
                 ).decode(),
-                "network.ovn-sb-connection": ",".join(sb_connection_strs),
                 "network.physnet-name": config("physnet-name"),
                 "node.fqdn": socket.getfqdn(),
                 "node.ip-address": config("ip-address") or local_ip,
@@ -1412,8 +1401,14 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 logger.debug("Resetting rabbitmq url")
                 snap_data.update({"rabbitmq.url": None})
             elif relation_ == "ovsdb-cms":
-                logger.debug("Resetting OVN SB connection")
-                snap_data.update({"network.ovn-sb-connection": None})
+                logger.debug("Resetting OVN TLS material")
+                snap_data.update(
+                    {
+                        "network.ovn-key": None,
+                        "network.ovn-cert": None,
+                        "network.ovn-cacert": None,
+                    }
+                )
 
         if snap_data:
             self.set_snap_data(snap_data)
