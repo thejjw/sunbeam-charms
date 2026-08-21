@@ -379,9 +379,8 @@ def deploy_machine_applications_microovn():
     scenario MicroOVN manages the full OVN stack (control plane + OVS on
     machines). There is no ovn-central-k8s or ovn-relay-k8s in the k8s model.
 
-    sunbeam-ovn-proxy bridges microovn:ovsdb to the ovsdb-cms interface,
-    serving the hypervisor in-bundle and providing a cross-model ovsdb-cms
-    offer for neutron and octavia in the k8s model.
+    sunbeam-ovn-proxy bridges microovn:ovsdb to the ovsdb-cms interface and
+    provides a cross-model offer for neutron and octavia in the k8s model.
 
     Order: wait for k8s CMR-offering apps to be provisioned, wire CMR,
     wait for machine apps to reach target status, wait for k8s CMR apps
