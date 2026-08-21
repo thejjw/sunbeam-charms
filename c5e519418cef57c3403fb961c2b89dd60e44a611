@@ -50,6 +50,24 @@
       "message": "Joshua, Thanks for the PR and the verification.\n\nCan you test one more scenario\n\nDeploy with existing edge charms with TLS enabled. Refresh to the new built charms with this fix and check if any charm requests for regeneration of certificates.\n\nExpectation is the new library should be backward compatible and should work with existing certificates without asking to regenerate them (or auto regenerate them when self-signed certificates are used)",
       "revId": "c5e519418cef57c3403fb961c2b89dd60e44a611",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "96eec108_e73340b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2711
+      },
+      "writtenOn": "2026-08-21T03:38:57Z",
+      "side": 1,
+      "message": "Hi @hemanth.nakkina@canonical.com , \n\nI tested the upgrade path from edge charms with self-signed TLS already\nenabled, then refreshed neutron, ovn-central, and ovn-relay to charms built\nfrom this change.\n\nThe applications returned to active without requiring any manual\ncertificate action. The certificates were automatically regenerated because\nthe refreshed units received different binding IPs, so the existing\ncertificate SANs no longer matched the current unit addresses. For example,\novn-relay/0 changed from 10.1.0.47 to 10.1.0.253.\n\nThis is expected for the self-signed provider: it automatically issued the\nreplacement certificates, with no outstanding manual certificate request or\noperator intervention.\n\nHere is the result - https://pastebin.com/LE3WPQAE",
+      "parentUuid": "c04d4d26_212831a2",
+      "revId": "c5e519418cef57c3403fb961c2b89dd60e44a611",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
