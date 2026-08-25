@@ -121,6 +121,41 @@
       "parentUuid": "797004fd_b5bdc06d",
       "revId": "c5e519418cef57c3403fb961c2b89dd60e44a611",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09b76428_09598db8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-25T06:06:40Z",
+      "side": 1,
+      "message": "I have tested the PR with octavia and all seems good.. Upgrade does not trigger regeneration of certificates. The tests which you made might involve pod ip as SAN and so it is correct to get certs regenerated.",
+      "parentUuid": "86473646_6992a41a",
+      "revId": "c5e519418cef57c3403fb961c2b89dd60e44a611",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b3e2fdd0_272ec450",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-25T06:06:40Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "c5e519418cef57c3403fb961c2b89dd60e44a611",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
