@@ -11,6 +11,7 @@ python-keystoneclient      # keystone-k8s
 python-glanceclient        # ironic-conductor-k8s
 python-swiftclient         # ironic-conductor-k8s
 cryptography               # neutron-k8s
+charmlibs-interfaces-tls-certificates~=1.10  # tls-certificates requirers
 jsonschema                 # neutron-k8s
 # Temporary until https://github.com/canonical/lightkube-extensions/issues/15
 # is fixed: lightkube-extensions does not declare httpx.
