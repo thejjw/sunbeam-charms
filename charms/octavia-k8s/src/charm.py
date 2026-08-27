@@ -40,7 +40,7 @@ import ops_sunbeam.ovn.relation_handlers as ovn_rhandlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 import tenacity
-from charms.tls_certificates_interface.v4.tls_certificates import (
+from charmlibs.interfaces.tls_certificates import (
     CertificateRequestAttributes,
     Mode,
     TLSCertificatesRequiresV4,
@@ -352,7 +352,13 @@ class AmphoraTlsCertificatesHandler(sunbeam_rhandlers.TlsCertificatesHandler):
         mode = Mode.APP if self.app_managed_certificates else Mode.UNIT
         self.certificates = sunbeam_tracing.trace_type(
             TLSCertificatesRequiresV4
-        )(self.charm, self.relation_name, self.certificate_requests, mode)
+        )(
+            self.charm,
+            self.relation_name,
+            self.certificate_requests,
+            mode,
+            refresh_events=[self.charm.on.update_status],
+        )
 
         self.framework.observe(
             self.certificates.on.certificate_available,
