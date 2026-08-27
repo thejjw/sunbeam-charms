@@ -400,7 +400,7 @@ class AmphoraCertificatesContext(sunbeam_config_contexts.ConfigContext):
         """Build the cert context on the leader unit.
 
         Reads directly from the TLS certificate relation handlers.
-        The tls_certificates_interface library allows only the leader to
+        The charmlibs TLS certificates library allows only the leader to
         retrieve CSRs (and thus assigned certs) when mode is Mode.APP.
         """
         ctxt = {}
