@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26f53264_8faefcd3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2711
+      },
+      "writtenOn": "2026-08-27T03:17:42Z",
+      "side": 1,
+      "message": "I just removed the line \u0027Depends-On: https://review.opendev.org/c/openstack/sunbeam-charms/+/1000804\u0027 for patchset2,\nIf it hits CI failures behind 1000804, I will backport 1000804 to 2025.1 as well, then add new right Depends-On url",
+      "revId": "d723c85793b0a31f41099878863e3dd8393c6cbf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
