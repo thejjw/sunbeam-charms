@@ -33,6 +33,23 @@
       "message": "Recheck - failed on tests",
       "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2aa8481_2b773cd5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-08-27T16:40:43Z",
+      "side": 1,
+      "message": "recheck - pipeline test errors",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
