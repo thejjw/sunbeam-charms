@@ -553,12 +553,19 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     wsgi_admin_script = "/usr/share/neutron/neutron-api.wsgi"
     wsgi_public_script = "/usr/share/neutron/neutron-api.wsgi"
 
+    # Run migrations for every subproject shipped in the image that still
+    # ships a migration tree. networking-sfc 22.0.0 (2026.1) dropped its
+    # alembic versions upstream; running its sanity check against stale
+    # alembic_version_sfc rows fails with ResolutionError, so it is
+    # deliberately excluded.
     db_sync_cmds = [
         [
             "sudo",
             "-u",
             "neutron",
             "neutron-db-manage",
+            "--subproject",
+            subproject,
             "--config-file",
             "/etc/neutron/neutron.conf",
             "--config-file",
@@ -566,6 +573,11 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             "upgrade",
             "head",
         ]
+        for subproject in (
+            "neutron",
+            "neutron-dynamic-routing",
+            "neutron-vpnaas",
+        )
     ]
     db_sync_timeout = 480
 
