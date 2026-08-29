@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "83376e2d_c3df1cc7",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 38555
+      },
+      "writtenOn": "2026-08-29T22:02:51Z",
+      "side": 1,
+      "message": "Addressed in PS17, pause/resume now return { \"ok\": true } on success and `even.fail` on failure.",
+      "parentUuid": "3253d417_a631459c",
+      "revId": "59026de5fbed5f77e3fc508613d28372a4dc5535",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "2180315c_7da051ae",
         "filename": "ops-sunbeam/ops_sunbeam/charm.py",
         "patchSetId": 16
@@ -31,6 +49,24 @@
       "writtenOn": "2026-08-21T07:21:59Z",
       "side": 1,
       "message": "Does the self._state.paused should be before configure_charm()? Is there a case where configure_charm() looks at _state.paused and returns without doing anything?",
+      "revId": "59026de5fbed5f77e3fc508613d28372a4dc5535",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "702050c0_df30d5b0",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 38555
+      },
+      "writtenOn": "2026-08-29T22:02:51Z",
+      "side": 1,
+      "message": "Addressed in PS17, the paused state is cleared before configure_charm(), and the action fails if reconciliation does not complete.",
+      "parentUuid": "2180315c_7da051ae",
       "revId": "59026de5fbed5f77e3fc508613d28372a4dc5535",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -54,6 +90,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "a549847b_b9d300c6",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 955,
+      "author": {
+        "id": 38555
+      },
+      "writtenOn": "2026-08-29T22:02:51Z",
+      "side": 1,
+      "message": "Addressed in PS17, removed the `init` from the class.",
+      "parentUuid": "415b3ef9_eca57c17",
+      "revId": "59026de5fbed5f77e3fc508613d28372a4dc5535",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bda3e5f3_5cfeffb4",
         "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
         "patchSetId": 16
@@ -71,6 +125,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "598e298b_2c549ae2",
+        "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 38555
+      },
+      "writtenOn": "2026-08-29T22:02:51Z",
+      "side": 1,
+      "message": "Addressed in PS17.",
+      "parentUuid": "bda3e5f3_5cfeffb4",
+      "revId": "59026de5fbed5f77e3fc508613d28372a4dc5535",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9cd01435_d7105e70",
         "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
         "patchSetId": 16
@@ -82,6 +154,24 @@
       "writtenOn": "2026-08-21T07:21:59Z",
       "side": 1,
       "message": "container.start_checks(check_name)",
+      "revId": "59026de5fbed5f77e3fc508613d28372a4dc5535",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7f2f825c_2813618a",
+        "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
+        "patchSetId": 16
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 38555
+      },
+      "writtenOn": "2026-08-29T22:02:51Z",
+      "side": 1,
+      "message": "Addressed in PS17.",
+      "parentUuid": "9cd01435_d7105e70",
       "revId": "59026de5fbed5f77e3fc508613d28372a4dc5535",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }

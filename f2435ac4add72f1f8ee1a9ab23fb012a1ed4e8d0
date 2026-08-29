@@ -65,6 +65,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "80889273_fed72d36",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 870,
+      "author": {
+        "id": 38555
+      },
+      "writtenOn": "2026-08-29T22:02:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f35dfcef_026efd38",
+      "range": {
+        "startLine": 870,
+        "startChar": 8,
+        "endLine": 870,
+        "endChar": 24
+      },
+      "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "05024ba2_9cb69287",
@@ -100,6 +124,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe46b6d3_6604c529",
+        "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 38555
+      },
+      "writtenOn": "2026-08-29T22:02:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d7a1f0e6_dce974b7",
+      "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9716a00c_1b93db59",
@@ -131,6 +173,24 @@
       "side": 1,
       "message": "Logic now is checking in the peer relation or in _state to check if is paused or not, so I think we are fine",
       "parentUuid": "9716a00c_1b93db59",
+      "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d21283a_7c4ba55a",
+        "filename": "ops-sunbeam/ops_sunbeam/container_handlers.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 609,
+      "author": {
+        "id": 38555
+      },
+      "writtenOn": "2026-08-29T22:02:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1ff48e31_e591b7d3",
       "revId": "f2435ac4add72f1f8ee1a9ab23fb012a1ed4e8d0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
