@@ -32,6 +32,7 @@ import clusterd
 import ops
 import ops.framework
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.compound_status as compound_status
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
@@ -75,6 +76,13 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
     def __init__(self, framework: ops.Framework) -> None:
         """Run constructor."""
         super().__init__(framework)
+        # Priority above "workload" (100) so a drift message is the
+        # active status shown; blocked/waiting/maintenance statuses still
+        # outrank it by severity.
+        self.snap_channel_status = compound_status.Status(
+            "snap-channel", priority=200
+        )
+        self.status_pool.add(self.snap_channel_status)
         self._state.set_default(
             channel="config", departed=False, certs_hash=""
         )
@@ -253,12 +261,48 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
 
         return str(binding.network.bind_address)
 
+    def _update_snap_channel_status(self) -> None:
+        """Reflect snap channel drift in the unit status.
+
+        Best effort: status publication must never fail a hook.
+        UnknownStatus is the pool's "does not compete" value: it never
+        outranks any real status, so the drift status is only shown when
+        there is something to report.
+        """
+        try:
+            openstack = snap.SnapCache()["openstack"]
+            if not (openstack.present and openstack.channel):
+                self.snap_channel_status.set(ops.model.UnknownStatus())
+                return
+            message = sunbeam_charm.snap_channel_drift_message(
+                openstack.channel,
+                self.model.config.get("snap-channel"),
+            )
+            self.snap_channel_status.set(
+                ops.model.ActiveStatus(message)
+                if message
+                else ops.model.UnknownStatus()
+            )
+        except Exception:
+            logger.debug("Could not update snap channel status", exc_info=True)
+
+    def _on_collect_unit_status_event(self, event: ops.CollectStatusEvent):
+        """Publish the snap channel drift status before the pool status."""
+        self._update_snap_channel_status()
+        super()._on_collect_unit_status_event(event)
+
     def _on_refresh_snap_action(self, event: ops.ActionEvent) -> None:
         """Refresh openstack snap to latest on configured channel."""
-        snap_channel = self.model.config.get("snap-channel")
+        snap_channel = event.params.get("channel") or self.model.config.get(
+            "snap-channel"
+        )
         try:
             cache = snap.SnapCache()
             openstack = cache["openstack"]
+            if openstack.present and openstack.channel:
+                snap_channel = sunbeam_charm.resolve_snap_channel(
+                    openstack.channel, snap_channel
+                )
             openstack.unhold()
             openstack.ensure(snap.SnapState.Latest, channel=snap_channel)
             openstack.hold()
@@ -278,10 +322,32 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         try:
             cache = snap.SnapCache()
             openstack = cache["openstack"]
-            if not openstack.present or snap_channel != openstack.channel:
+            if not openstack.present:
                 openstack.ensure(snap.SnapState.Latest, channel=snap_channel)
                 self._state.channel = openstack.channel
                 self.set_workload_version()
+            elif snap_channel != openstack.channel:
+                resolved = sunbeam_charm.resolve_snap_channel(
+                    openstack.channel, snap_channel
+                )
+                if sunbeam_charm.snap_track(
+                    openstack.channel
+                ) != sunbeam_charm.snap_track(resolved):
+                    # Track mismatch (major upgrade) — log only; track
+                    # moves are driven via the refresh-snap action to
+                    # avoid mid-hop downgrades on partially moved fleets.
+                    logger.info(
+                        "snap track mismatch (no swap from hook): "
+                        "installed=%s configured=%s",
+                        openstack.channel,
+                        snap_channel,
+                    )
+                else:
+                    # Risk change within the same track (minor upgrade)
+                    # — safe to swap to the configured channel.
+                    openstack.ensure(snap.SnapState.Latest, channel=resolved)
+                    self._state.channel = openstack.channel
+                    self.set_workload_version()
             openstack.hold()
         except (snap.SnapError, snap.SnapNotFoundError) as e:
             logger.error(
