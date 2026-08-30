@@ -70,6 +70,7 @@ from ops.charm import (
 from ops.model import (
     ActiveStatus,
     MaintenanceStatus,
+    UnknownStatus,
 )
 
 if TYPE_CHECKING:
@@ -78,6 +79,48 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 SNAP_INSTANCE_KEY_REGEX_PATTERN = r"^[a-z0-9]{1,10}$"
+
+
+_SNAP_RISKS = ("stable", "candidate", "beta", "edge")
+
+
+def canonical_snap_channel(channel: str) -> str:
+    """Canonicalize a snap channel name per snapd rules.
+
+    A channel is track/risk[/branch]. Per snapd, a bare risk name
+    ("edge") means "latest/edge" and any other bare name is a track
+    at stable risk ("2024.1" means "2024.1/stable").
+    """
+    channel = str(channel or "").strip()
+    if not channel:
+        return channel
+    track, sep, _risk = channel.partition("/")
+    if not sep:
+        if track in _SNAP_RISKS:
+            return f"latest/{track}"
+        return f"{track}/stable"
+    return channel
+
+
+def snap_track(channel: str) -> str:
+    """Return the track part of a snap channel (track/risk[/branch])."""
+    return canonical_snap_channel(channel).split("/")[0]
+
+
+def snap_channel_drift_message(installed: str, configured: str) -> str:
+    """Return a status message describing snap channel drift.
+
+    Empty string when the channels align, so no message is published.
+    """
+    if not installed or not configured:
+        return ""
+    if canonical_snap_channel(installed) == canonical_snap_channel(configured):
+        return ""
+    # Facts only, no advice: config may lead (run refresh-snap to move the
+    # snap) or lag an action-driven move (update snap-channel instead).
+    # Recommending refresh-snap unconditionally could downgrade a unit that
+    # was deliberately moved ahead of config.
+    return f"installed snap: {installed}, configured: {configured}"
 
 
 class OSBaseOperatorCharm(
@@ -1320,6 +1363,14 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         super().__init__(framework)
         self.snap_module = self._import_snap()
 
+        # Priority above "workload" (100) so a drift message is the
+        # active status shown; blocked/waiting/maintenance statuses still
+        # outrank it by severity.
+        self.snap_channel_status = compound_status.Status(
+            "snap-channel", priority=200
+        )
+        self.status_pool.add(self.snap_channel_status)
+
         self.framework.observe(
             self.on.install,
             self._on_install,
@@ -1330,6 +1381,36 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
                 self.on["refresh-snap"].action,
                 self._on_refresh_snap_action,
             )
+
+    def _update_snap_channel_status(self) -> None:
+        """Reflect snap channel drift in the unit status.
+
+        Best effort: status publication must never fail a hook.
+        UnknownStatus is the pool's "does not compete" value: it never
+        outranks any real status, so the drift status is only shown when
+        there is something to report.
+        """
+        try:
+            # Re-read snapd: the cached object holds stale channel data
+            # after ensure() swaps the snap.
+            self.get_snap.cache_clear()
+            snap_svc = self.get_snap()
+            if not (snap_svc.present and snap_svc.channel):
+                self.snap_channel_status.set(UnknownStatus())
+                return
+            message = snap_channel_drift_message(
+                snap_svc.channel, self.snap_channel
+            )
+            self.snap_channel_status.set(
+                ActiveStatus(message) if message else UnknownStatus()
+            )
+        except Exception:
+            logger.debug("Could not update snap channel status", exc_info=True)
+
+    def _on_collect_unit_status_event(self, event: ops.CollectStatusEvent):
+        """Publish the snap channel drift status before the pool status."""
+        self._update_snap_channel_status()
+        super()._on_collect_unit_status_event(event)
 
     def _import_snap(self):
         import charms.operator_libs_linux.v2.snap as snap
@@ -1406,29 +1487,32 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
             return self.snap_name
         return self.snap_name.rsplit("_", 1)[0]
 
-    def _get_snap_channel_revision(self, snap_client) -> str | None:
-        """Return the revision published to the configured snap channel."""
+    def _get_snap_channel_revision(
+        self, snap_client, channel: Optional[str] = None
+    ) -> str | None:
+        """Return the revision published to the (configured) snap channel."""
+        channel = channel or self.snap_channel
         info = snap_client.get_snap_information(self._snap_base_name())
         try:
-            revision = info["channels"][self.snap_channel]["revision"]
+            revision = info["channels"][channel]["revision"]
         except (KeyError, TypeError):
             logger.debug(
                 "Unable to determine target revision for snap %s on channel %s",
                 self.snap_name,
-                self.snap_channel,
+                channel,
             )
             return None
         if revision is None:
             logger.debug(
                 "No target revision reported for snap %s on channel %s",
                 self.snap_name,
-                self.snap_channel,
+                channel,
             )
             return None
         logger.debug(
             "Target revision for snap %s on channel %s is %s",
             self.snap_name,
-            self.snap_channel,
+            channel,
             revision,
         )
         return str(revision)
@@ -1439,18 +1523,20 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         is_devmode: bool,
         want_devmode: bool,
         target_revision: str | None,
+        channel: Optional[str] = None,
     ) -> None:
         """Block when the requested confinement change is unsafe."""
+        channel = channel or self.snap_channel
         current_confinement = "devmode" if is_devmode else "strict"
         requested_confinement = "devmode" if want_devmode else "strict"
         if target_revision is None:
             revision_detail = (
-                f"and the target revision for channel {self.snap_channel} "
+                f"and the target revision for channel {channel} "
                 "could not be determined"
             )
         else:
             revision_detail = (
-                f"and channel {self.snap_channel} resolves to the same "
+                f"and channel {channel} resolves to the same "
                 f"revision {target_revision}"
             )
         message = (
@@ -1466,6 +1552,43 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         status_message = "Invalid snap state: see juju debug-logs"
         logger.error(message)
         raise sunbeam_guard.BlockedExceptionError(status_message)
+
+    def _ensure_snap_confinement_change(
+        self,
+        snap_svc: "snap.Snap",
+        snap_client: "snap.SnapClient",
+        is_devmode: bool,
+        want_devmode: bool,
+    ) -> None:
+        """Re-ensure the snap with the requested confinement.
+
+        Keeps the installed channel when it is on a different track to
+        the configured one, to avoid a mid-hop track move from a hook.
+        """
+        ensure_channel = self.snap_channel
+        if snap_svc.channel and snap_track(snap_svc.channel) != snap_track(
+            self.snap_channel
+        ):
+            ensure_channel = snap_svc.channel
+        target_revision = self._get_snap_channel_revision(
+            snap_client, ensure_channel
+        )
+        if (
+            target_revision is None
+            or str(snap_svc.revision) == target_revision
+        ):
+            self._block_invalid_snap_confinement(
+                snap_svc,
+                is_devmode,
+                want_devmode,
+                target_revision,
+                ensure_channel,
+            )
+        snap_svc.ensure(
+            self.snap_module.SnapState.Latest,
+            channel=ensure_channel,
+            devmode=want_devmode,
+        )
 
     def ensure_snap_present(self):
         """Install snap if it is not already present."""
@@ -1493,22 +1616,30 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
                     self.snap_name,
                 )
             elif snap_svc.present and want_devmode != is_devmode:
-                target_revision = self._get_snap_channel_revision(snap_client)
-                if (
-                    target_revision is None
-                    or str(snap_svc.revision) == target_revision
-                ):
-                    self._block_invalid_snap_confinement(
-                        snap_svc,
-                        is_devmode,
-                        want_devmode,
-                        target_revision,
-                    )
-                snap_svc.ensure(
-                    self.snap_module.SnapState.Latest,
-                    channel=self.snap_channel,
-                    devmode=want_devmode,
+                self._ensure_snap_confinement_change(
+                    snap_svc, snap_client, is_devmode, want_devmode
                 )
+            elif snap_svc.present and snap_svc.channel != self.snap_channel:
+                if snap_track(snap_svc.channel) != snap_track(
+                    self.snap_channel
+                ):
+                    # Track mismatch (major upgrade) — log only; track
+                    # moves are driven via the refresh-snap action to
+                    # avoid mid-hop downgrades on partially moved fleets.
+                    logger.info(
+                        "snap track mismatch (no swap from hook): "
+                        "installed=%s configured=%s",
+                        snap_svc.channel,
+                        self.snap_channel,
+                    )
+                else:
+                    # Risk change within the same track (minor upgrade)
+                    # — safe to swap to the configured channel.
+                    snap_svc.ensure(
+                        self.snap_module.SnapState.Latest,
+                        channel=self.snap_channel,
+                        devmode=want_devmode,
+                    )
             else:
                 # Either not present, or present but not latest
                 # In both cases, ensure Latest will work
@@ -1577,12 +1708,13 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         want_devmode = bool(
             self.model.config.get("experimental-devmode", False)
         )
+        channel = event.params.get("channel") or self.snap_channel
         try:
             snap_svc = self.get_snap()
             snap_svc.unhold()
             snap_svc.ensure(
                 self.snap_module.SnapState.Latest,
-                channel=self.snap_channel,
+                channel=channel,
                 devmode=want_devmode,
             )
             snap_svc.hold()

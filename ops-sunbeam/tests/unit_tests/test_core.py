@@ -657,6 +657,9 @@ refresh-snap:
             initial_charm_config=test_charms.INITIAL_CHARM_CONFIG,
         )
         self.mock_event = MagicMock()
+        # ActionEvent.params is a dict on real events; use a real dict so
+        # params.get("channel") returns None when unset.
+        self.mock_event.params = {}
         self.harness.begin()
         self.addCleanup(self.harness.cleanup)
 
@@ -832,13 +835,13 @@ refresh-snap:
             devmode=False,
         )
 
-    def test_ensure_snap_present_channel_change(self) -> None:
-        """Test ensure_snap_present when channel needs to change."""
+    def test_ensure_snap_present_track_change_no_swap(self) -> None:
+        """Test ensure_snap_present logs track mismatch instead of swapping."""
         charm = self.harness.charm
         snap = charm.mock_snap
         snap.reset_mock()
 
-        # Setup: snap is present but on different channel
+        # Setup: snap is present but on a different track
         snap.present = True
         snap.channel = "2024.1/stable"
         snap.latest = False
@@ -856,10 +859,42 @@ refresh-snap:
         snap.reset_mock()
         charm.ensure_snap_present()
 
-        # Snap should be updated to new channel
+        # Snap should NOT be updated — only a log, no swap
+        snap.ensure.assert_not_called()
+
+    def test_ensure_snap_present_same_track_channel_change(self) -> None:
+        """Test ensure_snap_present refreshes snap on same-track channel change.
+
+        A risk change within the same track (minor upgrade, e.g.
+        stable -> candidate) must still swap the snap to the
+        configured channel via config.
+        """
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        # Setup: snap is present on latest/stable, config wants
+        # latest/candidate (same track, different risk)
+        snap.present = True
+        snap.channel = "latest/stable"
+        snap.latest = False
+
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap", "devmode": False}
+        ]
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"snap-channel": "latest/candidate"})
+
+        snap.reset_mock()
+        charm.ensure_snap_present()
+
+        # Snap should be refreshed to the configured channel
         snap.ensure.assert_called_once_with(
             charm.snap_module.SnapState.Latest,
-            channel="latest/stable",
+            channel="latest/candidate",
             devmode=False,
         )
 
@@ -1042,10 +1077,10 @@ refresh-snap:
         self.assertIn("revision 116", "\n".join(logs.output))
         snap.ensure.assert_not_called()
 
-    def test_ensure_parallel_snap_channel_only_same_revision_refreshes(
+    def test_ensure_parallel_snap_track_change_no_swap(
         self,
     ) -> None:
-        """Refresh parallel snap channel when confinement already matches."""
+        """Track change on parallel snap instance does not swap from hook."""
         charm = self.harness.charm
         snap = charm.mock_snap
         snap.reset_mock()
@@ -1076,11 +1111,41 @@ refresh-snap:
             snap.reset_mock()
             charm.ensure_snap_present()
 
-        snap.ensure.assert_called_once_with(
-            charm.snap_module.SnapState.Latest,
-            channel="latest/stable",
-            devmode=False,
-        )
+        snap.ensure.assert_not_called()
+
+    def test_ensure_snap_present_track_mismatch_logs_only(self) -> None:
+        """Test track mismatch logs instead of swapping."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        snap.present = True
+        snap.channel = "2024.1/stable"
+        snap.latest = True
+        snap.revision = "116"
+
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap_noha", "devmode": False}
+        ]
+        snap_client.get_snap_information.return_value = {
+            "channels": {"latest/stable": {"revision": "116"}}
+        }
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": False})
+
+        with patch.object(
+            type(charm),
+            "snap_name",
+            new_callable=PropertyMock,
+            return_value="mysnap_noha",
+        ):
+            snap.reset_mock()
+            charm.ensure_snap_present()
+
+        snap.ensure.assert_not_called()
 
     def test_ensure_snap_present_confinement_and_channel_change_new_revision(
         self,
@@ -1090,8 +1155,9 @@ refresh-snap:
         snap = charm.mock_snap
         snap.reset_mock()
 
-        # Setup: snap is present, is latest, both channel and devmode need to
-        # change and the requested channel resolves to a different revision.
+        # Setup: snap is present, is latest, devmode needs to change and the
+        # installed channel is on a different track to the configured one, so
+        # the confinement change must keep the installed channel.
         snap.present = True
         snap.channel = "2024.1/beta"
         snap.latest = True
@@ -1103,7 +1169,7 @@ refresh-snap:
             {"name": "mysnap", "devmode": False}
         ]
         snap_client.get_snap_information.return_value = {
-            "channels": {"latest/stable": {"revision": "790"}}
+            "channels": {"2024.1/beta": {"revision": "790"}}
         }
         charm.snap_module.SnapClient.return_value = snap_client
 
@@ -1116,7 +1182,7 @@ refresh-snap:
 
         snap.ensure.assert_called_once_with(
             charm.snap_module.SnapState.Latest,
-            channel="latest/stable",
+            channel="2024.1/beta",
             devmode=True,
         )
 
@@ -1141,7 +1207,7 @@ refresh-snap:
             {"name": "mysnap", "devmode": False}
         ]
         snap_client.get_snap_information.return_value = {
-            "channels": {"2024.1/beta": {"revision": "789"}}
+            "channels": {"latest/stable": {"revision": "789"}}
         }
         charm.snap_module.SnapClient.return_value = snap_client
 
@@ -1182,6 +1248,116 @@ refresh-snap:
             devmode=True,
         )
         snap.hold.assert_called_once_with()
+
+    def test_refresh_snap_action_channel_param_overrides_config(self) -> None:
+        """Test refresh-snap action uses the optional channel param."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        event = MagicMock()
+        event.params = {"channel": "2025.1/stable"}
+
+        charm._on_refresh_snap_action(event)
+
+        snap.ensure.assert_called_once_with(
+            charm.snap_module.SnapState.Latest,
+            channel="2025.1/stable",
+            devmode=False,
+        )
+
+    def test_snap_channel_status_drift(self) -> None:
+        """Test channel drift is published as an active status message."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        snap.present = True
+        snap.channel = "2024.1/stable"
+
+        charm._update_snap_channel_status()
+
+        self.assertEqual(charm.snap_channel_status.status.name, "active")
+        self.assertEqual(
+            charm.snap_channel_status.message(),
+            "installed snap: 2024.1/stable, configured: latest/stable",
+        )
+
+    def test_snap_channel_status_aligned(self) -> None:
+        """Test aligned channels leave the status non-competing."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        snap.present = True
+        snap.channel = "latest/stable"
+
+        charm._update_snap_channel_status()
+
+        # UnknownStatus never outranks a real status in the pool.
+        self.assertEqual(charm.snap_channel_status.status.name, "unknown")
+        self.assertEqual(charm.snap_channel_status.message(), "")
+
+    def test_snap_channel_status_cleared_when_absent(self) -> None:
+        """Test a persisted drift message is cleared when the snap is gone."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        snap.present = True
+        snap.channel = "2024.1/stable"
+        charm._update_snap_channel_status()
+        self.assertNotEqual(charm.snap_channel_status.message(), "")
+
+        snap.present = False
+        charm._update_snap_channel_status()
+        self.assertEqual(charm.snap_channel_status.status.name, "unknown")
+        self.assertEqual(charm.snap_channel_status.message(), "")
+
+    def test_snap_channel_status_shorthand_equivalent(self) -> None:
+        """Bare risk names are equivalent to latest/<risk> channels."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        snap.present = True
+        snap.channel = "latest/stable"
+
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"snap-channel": "stable"})
+
+        charm._update_snap_channel_status()
+
+        self.assertEqual(charm.snap_channel_status.status.name, "unknown")
+        self.assertEqual(charm.snap_channel_status.message(), "")
+
+    def test_ensure_snap_present_shorthand_risk_change(self) -> None:
+        """Bare risk names resolve to the latest track for the gate."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        snap.present = True
+        snap.channel = "edge"
+        snap.latest = False
+
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap", "devmode": False}
+        ]
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"snap-channel": "beta"})
+
+        snap.reset_mock()
+        charm.ensure_snap_present()
+
+        snap.ensure.assert_called_once_with(
+            charm.snap_module.SnapState.Latest,
+            channel="beta",
+            devmode=False,
+        )
 
 
 class TestOSBaseOperatorAPICharmActions(_TestOSBaseOperatorAPICharm):

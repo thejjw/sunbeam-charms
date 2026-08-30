@@ -36,6 +36,8 @@ from typing import (
 sys.path.append("tests/unit_tests/lib")  # noqa
 sys.path.append("src")  # noqa
 
+import functools
+
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 
@@ -53,6 +55,10 @@ options:
     default: False
     description: Enable experimental devmode for snap installation.
     type: boolean
+  snap-channel:
+    default: latest/stable
+    description: Snap channel to track.
+    type: string
 """
 
 INITIAL_CHARM_CONFIG = {"debug": "true", "region": "RegionOne"}
@@ -424,6 +430,7 @@ class MySnapCharm(sunbeam_charm.OSBaseOperatorCharmSnap):
         self._log_event(event)
         super().configure_charm(event)
 
+    @functools.cache
     def get_snap(self):
         """Return mocked snap."""
         return self.mock_snap
@@ -440,4 +447,4 @@ class MySnapCharm(sunbeam_charm.OSBaseOperatorCharmSnap):
     @property
     def snap_channel(self) -> str:
         """Return snap channel."""
-        return "latest/stable"
+        return self.model.config.get("snap-channel", "latest/stable")

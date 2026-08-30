@@ -122,6 +122,13 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run constructor."""
         super().__init__(framework)
+        # Priority above "workload" (100) so a drift message is the
+        # active status shown; blocked/waiting/maintenance statuses still
+        # outrank it by severity.
+        self.snap_channel_status = compound_status.Status(
+            "snap-channel", priority=200
+        )
+        self.status_pool.add(self.snap_channel_status)
         self._state.set_default(metadata_secret="")
         self.enable_monitoring = self.check_relation_exists("cos-agent")
         # Enable telemetry when ceilometer-service relation is joined
@@ -523,7 +530,11 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def _on_refresh_snap_action(self, event: ActionEvent) -> None:
         """Refresh openstack-hypervisor snap to latest on configured channel."""
-        channel: str | None = self.model.config.get("snap-channel")  # type: ignore
+        channel: str | None = event.params.get(
+            "channel"
+        ) or self.model.config.get(
+            "snap-channel"
+        )  # type: ignore
         want_devmode = bool(
             self.model.config.get("experimental-devmode", False)
         )
@@ -721,9 +732,11 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
         return changes_made
 
-    def _get_hypervisor_snap_channel_revision(self, snap_client) -> str | None:
-        """Return the revision published to the configured snap channel."""
-        channel = self.model.config.get("snap-channel")
+    def _get_hypervisor_snap_channel_revision(
+        self, snap_client, channel: Optional[str] = None
+    ) -> str | None:
+        """Return the revision published to the (configured) snap channel."""
+        channel = channel or self.model.config.get("snap-channel")
         info = snap_client.get_snap_information(HYPERVISOR_SNAP_NAME)
         try:
             revision = info["channels"][channel]["revision"]
@@ -755,9 +768,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         is_devmode: bool,
         want_devmode: bool,
         target_revision: str | None,
+        channel: Optional[str] = None,
     ) -> None:
         """Block when the requested confinement change is unsafe."""
-        channel = self.model.config.get("snap-channel")
+        channel = channel or self.model.config.get("snap-channel")
         current_confinement = "devmode" if is_devmode else "strict"
         requested_confinement = "devmode" if want_devmode else "strict"
         if target_revision is None:
@@ -783,6 +797,37 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         status_message = "Invalid snap state: see juju debug-logs"
         logger.error(message)
         raise sunbeam_guard.BlockedExceptionError(status_message)
+
+    def _update_snap_channel_status(self) -> None:
+        """Reflect snap channel drift in the unit status.
+
+        Best effort: status publication must never fail a hook.
+        UnknownStatus is the pool's "does not compete" value: it never
+        outranks any real status, so the drift status is only shown when
+        there is something to report.
+        """
+        try:
+            # Re-read snapd: the cached cache holds stale channel data
+            # after ensure() swaps the snap.
+            self.get_snap_cache.cache_clear()
+            hypervisor = self.get_snap_cache()[HYPERVISOR_SNAP_NAME]
+            if not (hypervisor.present and hypervisor.channel):
+                self.snap_channel_status.set(ops.UnknownStatus())
+                return
+            message = sunbeam_charm.snap_channel_drift_message(
+                hypervisor.channel,
+                self.model.config.get("snap-channel"),
+            )
+            self.snap_channel_status.set(
+                ops.ActiveStatus(message) if message else ops.UnknownStatus()
+            )
+        except Exception:
+            logger.debug("Could not update snap channel status", exc_info=True)
+
+    def _on_collect_unit_status_event(self, event: ops.CollectStatusEvent):
+        """Publish the snap channel drift status before the pool status."""
+        self._update_snap_channel_status()
+        super()._on_collect_unit_status_event(event)
 
     def ensure_snap_present(self):
         """Install snap if it is not already present."""
@@ -822,8 +867,16 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                     HYPERVISOR_SNAP_NAME,
                 )
             elif hypervisor.present and want_devmode != is_devmode:
+                # Confinement change only — keep the installed channel
+                # if it is on a different track, to avoid a mid-hop
+                # track move from a hook.
+                ensure_channel = channel
+                if hypervisor.channel and sunbeam_charm.snap_track(
+                    hypervisor.channel
+                ) != sunbeam_charm.snap_track(channel):
+                    ensure_channel = hypervisor.channel
                 target_revision = self._get_hypervisor_snap_channel_revision(
-                    snap_client
+                    snap_client, ensure_channel
                 )
                 if (
                     target_revision is None
@@ -834,12 +887,34 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                         is_devmode,
                         want_devmode,
                         target_revision,
+                        ensure_channel,
                     )
                 hypervisor.ensure(
                     snap.SnapState.Latest,
-                    channel=channel,
+                    channel=ensure_channel,
                     devmode=want_devmode,
                 )
+            elif hypervisor.present and hypervisor.channel != channel:
+                if sunbeam_charm.snap_track(
+                    hypervisor.channel
+                ) != sunbeam_charm.snap_track(channel):
+                    # Track mismatch (major upgrade) — log only; track
+                    # moves are driven via the refresh-snap action to
+                    # avoid mid-hop downgrades on partially moved fleets.
+                    logger.info(
+                        "hypervisor snap track mismatch (no swap from hook): "
+                        "installed=%s configured=%s",
+                        hypervisor.channel,
+                        channel,
+                    )
+                else:
+                    # Risk change within the same track (minor upgrade)
+                    # — safe to swap to the configured channel.
+                    hypervisor.ensure(
+                        snap.SnapState.Latest,
+                        channel=channel,
+                        devmode=want_devmode,
+                    )
             else:
                 # Either not present, or present but not latest
                 # In both cases, ensure Latest will work
