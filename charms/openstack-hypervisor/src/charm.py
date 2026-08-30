@@ -549,7 +549,11 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def _on_refresh_snap_action(self, event: ActionEvent) -> None:
         """Refresh openstack-hypervisor snap to latest on configured channel."""
-        channel: str | None = self.model.config.get("snap-channel")  # type: ignore
+        channel: str | None = event.params.get(
+            "channel"
+        ) or self.model.config.get(
+            "snap-channel"
+        )  # type: ignore
         want_devmode = bool(
             self.model.config.get("experimental-devmode", False)
         )
@@ -906,6 +910,17 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                     snap.SnapState.Latest,
                     channel=channel,
                     devmode=want_devmode,
+                )
+            elif hypervisor.present and hypervisor.channel != channel:
+                # Channel mismatch — log only; channel moves are driven
+                # exclusively via refresh-snap (optional channel param).
+                # Hooks never swap the snap on mismatch to avoid both early
+                # fleet-wide swaps and mid-hop downgrades.
+                logger.info(
+                    "hypervisor snap channel mismatch (no swap from hook): "
+                    "installed=%s configured=%s",
+                    hypervisor.channel,
+                    channel,
                 )
             else:
                 # Either not present, or present but not latest

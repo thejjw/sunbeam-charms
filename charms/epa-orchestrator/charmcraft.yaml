@@ -21,7 +21,10 @@ config:
     snap-channel:
       default: 2026.1/edge
       type: string
-      description: The channel of the snap to install.
+      description: |
+        Snap channel to track. Changing this value does NOT trigger a snap
+        refresh — channel changes only take effect via the refresh-snap
+        action (optionally with a channel parameter).
 requires:
   sunbeam-machine:
     interface: sunbeam-machine
@@ -37,7 +40,12 @@ actions:
     description: |
       Refresh the snap to the latest available revision on the configured
       channel. The snap is held after installation to prevent automatic
-      refreshes; use this action to apply updates explicitly.
+      refreshes; use this action to apply updates explicitly. Overrides
+      the snap-channel config for this refresh if specified.
+    params:
+      channel:
+        type: string
+        description: Channel override for this refresh; defaults to snap-channel.
   pre-upgrade:
     description: |
       Prepare the charm for an upgrade.
