@@ -32,7 +32,11 @@ config:
     snap-channel:
       type: string
       default: latest/edge
-      description: Snap channel to track.
+      description: |
+        Snap channel to track. A risk change within the same track (e.g.
+        stable to candidate) refreshes the snap on the next hook run.
+        A track change does NOT refresh the snap from a hook — use the
+        refresh-snap action (optionally with a channel parameter).
     external-bridge-address:
       default: 0.0.0.0/0
       type: string
@@ -84,7 +88,12 @@ actions:
     description: |
       Refresh the snap to the latest available revision on the configured
       channel. The snap is held after installation to prevent automatic
-      refreshes; use this action to apply updates explicitly.
+      refreshes; use this action to apply updates explicitly. Overrides
+      the snap-channel config for this refresh if specified.
+    params:
+      channel:
+        type: string
+        description: Channel override for this refresh; defaults to snap-channel.
 
 parts:
   charm:

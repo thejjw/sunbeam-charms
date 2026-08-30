@@ -123,7 +123,62 @@ class TestConfigChanged:
             config={"snap-channel": "edge"},
         )
         state_out = ctx.run(ctx.on.config_changed(), state_in)
-        assert state_out.unit_status == testing.ActiveStatus("")
+        assert state_out.unit_status == testing.ActiveStatus(
+            "(snap-channel) installed snap: 2026.1/edge, configured: edge"
+        )
+
+    def test_config_changed_same_track_refreshes_snap(
+        self, ctx, peers, _mock_snap
+    ):
+        """Same-track channel change (risk change) refreshes the snap."""
+        mock_openstack = _mock_snap["openstack"]
+        mock_openstack.present = True
+        mock_openstack.channel = "2026.1/stable"
+        state_in = testing.State(
+            leader=True,
+            relations=[peers],
+            config={"snap-channel": "2026.1/candidate"},
+        )
+        ctx.run(ctx.on.config_changed(), state_in)
+        mock_openstack.ensure.assert_called_once_with(
+            snap.SnapState.Latest, channel="2026.1/candidate"
+        )
+
+    def test_config_changed_track_change_no_swap(self, ctx, peers, _mock_snap):
+        """Track change does not swap the snap from a hook."""
+        mock_openstack = _mock_snap["openstack"]
+        mock_openstack.present = True
+        mock_openstack.channel = "2026.1/stable"
+        state_in = testing.State(
+            leader=True,
+            relations=[peers],
+            config={"snap-channel": "2025.1/stable"},
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        assert state_out.unit_status == testing.ActiveStatus(
+            "(snap-channel) installed snap: 2026.1/stable,"
+            " configured: 2025.1/stable"
+        )
+        mock_openstack.ensure.assert_not_called()
+
+    def test_refresh_snap_action_channel_param(self, ctx, peers, _mock_snap):
+        """refresh-snap action honours the channel param."""
+        mock_openstack = _mock_snap["openstack"]
+        mock_openstack.present = True
+        mock_openstack.channel = "2026.1/stable"
+        state_in = testing.State(
+            leader=True,
+            relations=[peers],
+            config={"snap-channel": "2026.1/stable"},
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        ctx.run(
+            ctx.on.action("refresh-snap", params={"channel": "2025.1/stable"}),
+            state_out,
+        )
+        mock_openstack.ensure.assert_called_with(
+            snap.SnapState.Latest, channel="2025.1/stable"
+        )
 
 
 class TestGetCredentialsAction:

@@ -314,6 +314,30 @@ class TestActions:
         )
         hypervisor_snap_mock.hold.assert_called_once_with()
 
+    def test_refresh_snap_channel_param_overrides_config(self, harness):
+        """Refresh action uses the channel param over the config channel."""
+        harness.begin()
+        harness.update_config(
+            {
+                "experimental-devmode": True,
+                "snap-channel": "latest/edge",
+            }
+        )
+        harness.charm.get_snap_cache.cache_clear()
+        hypervisor_snap_mock = MagicMock()
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock,
+            "epa-orchestrator": MagicMock(),
+        }
+
+        harness.run_action("refresh-snap", {"channel": "2025.1/stable"})
+
+        hypervisor_snap_mock.ensure.assert_called_once_with(
+            charm.snap.SnapState.Latest,
+            channel="2025.1/stable",
+            devmode=True,
+        )
+
     def test_rpc_cache_refresh_sighups_nova_compute(self, harness):
         """rpc-cache-refresh SIGHUPs the nova-compute snap service."""
         harness.begin()
@@ -393,11 +417,14 @@ class TestSnap:
         devmode: bool,
         target_channel: str,
         target_revision: str | None,
+        want_devmode: bool | None = None,
     ) -> MagicMock:
         """Configure the harness with an installed hypervisor snap."""
         harness.update_config(
             {
-                "experimental-devmode": not devmode,
+                "experimental-devmode": (
+                    want_devmode if want_devmode is not None else not devmode
+                ),
                 "snap-channel": target_channel,
             }
         )
@@ -534,6 +561,101 @@ class TestSnap:
             "Invalid snap state: see juju debug-logs"
         )
         hypervisor_snap_mock.ensure.assert_not_called()
+
+    def test_ensure_snap_present_confinement_change_keeps_track(self, harness):
+        """Confinement change on a track-mismatched snap keeps installed track."""
+        hypervisor_snap_mock = self._setup_installed_hypervisor_snap(
+            harness,
+            channel="2024.1/beta",
+            revision="789",
+            devmode=False,
+            target_channel="2026.1/stable",
+            target_revision="790",
+        )
+
+        # Config channel (2026.1/stable) is on a different track, but the
+        # snap information must resolve the installed channel's revision.
+        snap_client = charm.snap.SnapClient.return_value
+        snap_client.get_snap_information.return_value = {
+            "channels": {"2024.1/beta": {"revision": "790"}}
+        }
+
+        with mock.patch.object(
+            harness.charm, "_disable_system_ovs", return_value=False
+        ), mock.patch.object(harness.charm, "_connect_to_epa_orchestrator"):
+            harness.charm.ensure_snap_present()
+
+        hypervisor_snap_mock.ensure.assert_called_once_with(
+            charm.snap.SnapState.Latest,
+            channel="2024.1/beta",
+            devmode=True,
+        )
+
+    def test_ensure_snap_present_same_track_channel_change(self, harness):
+        """Same-track channel change (risk change) refreshes via config."""
+        hypervisor_snap_mock = self._setup_installed_hypervisor_snap(
+            harness,
+            channel="2024.1/stable",
+            revision="789",
+            devmode=False,
+            want_devmode=False,
+            target_channel="2024.1/candidate",
+            target_revision="790",
+        )
+
+        with mock.patch.object(
+            harness.charm, "_disable_system_ovs", return_value=False
+        ), mock.patch.object(harness.charm, "_connect_to_epa_orchestrator"):
+            harness.charm.ensure_snap_present()
+
+        hypervisor_snap_mock.ensure.assert_called_once_with(
+            charm.snap.SnapState.Latest,
+            channel="2024.1/candidate",
+            devmode=False,
+        )
+
+    def test_ensure_snap_present_track_change_no_swap(self, harness):
+        """Track change does not swap the snap from a hook."""
+        hypervisor_snap_mock = self._setup_installed_hypervisor_snap(
+            harness,
+            channel="2024.1/stable",
+            revision="789",
+            devmode=False,
+            want_devmode=False,
+            target_channel="2026.1/stable",
+            target_revision="900",
+        )
+
+        with mock.patch.object(
+            harness.charm, "_disable_system_ovs", return_value=False
+        ), mock.patch.object(harness.charm, "_connect_to_epa_orchestrator"):
+            harness.charm.ensure_snap_present()
+
+        hypervisor_snap_mock.ensure.assert_not_called()
+
+        harness.charm._update_snap_channel_status()
+        message = harness.charm.snap_channel_status.message()
+        assert "2024.1/stable" in message
+        assert "2026.1/stable" in message
+        assert harness.charm.snap_channel_status.status.name == "active"
+
+    def test_snap_channel_status_aligned(self, harness):
+        """Aligned channels leave the status non-competing."""
+        self._setup_installed_hypervisor_snap(
+            harness,
+            channel="2024.1/stable",
+            revision="789",
+            devmode=False,
+            want_devmode=False,
+            target_channel="2024.1/stable",
+            target_revision="789",
+        )
+
+        harness.charm._update_snap_channel_status()
+
+        # UnknownStatus never outranks a real status in the pool.
+        assert harness.charm.snap_channel_status.status.name == "unknown"
+        assert harness.charm.snap_channel_status.message() == ""
 
 
 class TestRelationDerivedConfig:
