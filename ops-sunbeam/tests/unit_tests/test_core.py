@@ -629,6 +629,9 @@ refresh-snap:
             initial_charm_config=test_charms.INITIAL_CHARM_CONFIG,
         )
         self.mock_event = MagicMock()
+        # ActionEvent.params is a dict on real events; use a real dict so
+        # params.get("channel") returns None when unset.
+        self.mock_event.params = {}
         self.harness.begin()
         self.addCleanup(self.harness.cleanup)
 
@@ -805,7 +808,7 @@ refresh-snap:
         )
 
     def test_ensure_snap_present_channel_change(self) -> None:
-        """Test ensure_snap_present when channel needs to change."""
+        """Test ensure_snap_present logs mismatch instead of swapping."""
         charm = self.harness.charm
         snap = charm.mock_snap
         snap.reset_mock()
@@ -828,12 +831,8 @@ refresh-snap:
         snap.reset_mock()
         charm.ensure_snap_present()
 
-        # Snap should be updated to new channel
-        snap.ensure.assert_called_once_with(
-            charm.snap_module.SnapState.Latest,
-            channel="latest/stable",
-            devmode=False,
-        )
+        # Snap should NOT be updated — only a log, no swap
+        snap.ensure.assert_not_called()
 
     def test_ensure_snap_present_confinement_change_not_latest(self) -> None:
         """Test ensure_snap_present when confinement changes and snap is not latest."""
@@ -1048,11 +1047,41 @@ refresh-snap:
             snap.reset_mock()
             charm.ensure_snap_present()
 
-        snap.ensure.assert_called_once_with(
-            charm.snap_module.SnapState.Latest,
-            channel="latest/stable",
-            devmode=False,
-        )
+        snap.ensure.assert_not_called()
+
+    def test_ensure_snap_present_channel_mismatch_logs_only(self) -> None:
+        """Test channel mismatch logs instead of swapping."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        snap.present = True
+        snap.channel = "2024.1/stable"
+        snap.latest = True
+        snap.revision = "116"
+
+        snap_client = MagicMock()
+        snap_client.get_installed_snaps.return_value = [
+            {"name": "mysnap_noha", "devmode": False}
+        ]
+        snap_client.get_snap_information.return_value = {
+            "channels": {"latest/stable": {"revision": "116"}}
+        }
+        charm.snap_module.SnapClient.return_value = snap_client
+
+        with patch.object(charm, "ensure_snap_present"):
+            self.harness.update_config({"experimental-devmode": False})
+
+        with patch.object(
+            type(charm),
+            "snap_name",
+            new_callable=PropertyMock,
+            return_value="mysnap_noha",
+        ):
+            snap.reset_mock()
+            charm.ensure_snap_present()
+
+        snap.ensure.assert_not_called()
 
     def test_ensure_snap_present_confinement_and_channel_change_new_revision(
         self,
@@ -1154,3 +1183,20 @@ refresh-snap:
             devmode=True,
         )
         snap.hold.assert_called_once_with()
+
+    def test_refresh_snap_action_channel_param_overrides_config(self) -> None:
+        """Test refresh-snap action uses the optional channel param."""
+        charm = self.harness.charm
+        snap = charm.mock_snap
+        snap.reset_mock()
+
+        event = MagicMock()
+        event.params = {"channel": "2025.1/stable"}
+
+        charm._on_refresh_snap_action(event)
+
+        snap.ensure.assert_called_once_with(
+            charm.snap_module.SnapState.Latest,
+            channel="2025.1/stable",
+            devmode=False,
+        )

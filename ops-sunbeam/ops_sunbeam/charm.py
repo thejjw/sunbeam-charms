@@ -1518,6 +1518,17 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
                     channel=self.snap_channel,
                     devmode=want_devmode,
                 )
+            elif snap_svc.present and snap_svc.channel != self.snap_channel:
+                # Channel mismatch — log only; channel moves are driven
+                # exclusively via refresh-snap (optional channel param).
+                # Hooks never swap the snap on mismatch to avoid both early
+                # fleet-wide swaps and mid-hop downgrades.
+                logger.info(
+                    "snap channel mismatch (no swap from hook): "
+                    "installed=%s configured=%s",
+                    snap_svc.channel,
+                    self.snap_channel,
+                )
             else:
                 # Either not present, or present but not latest
                 # In both cases, ensure Latest will work
@@ -1586,12 +1597,13 @@ class OSBaseOperatorCharmSnap(OSBaseOperatorCharm):
         want_devmode = bool(
             self.model.config.get("experimental-devmode", False)
         )
+        channel = event.params.get("channel") or self.snap_channel
         try:
             snap_svc = self.get_snap()
             snap_svc.unhold()
             snap_svc.ensure(
                 self.snap_module.SnapState.Latest,
-                channel=self.snap_channel,
+                channel=channel,
                 devmode=want_devmode,
             )
             snap_svc.hold()
