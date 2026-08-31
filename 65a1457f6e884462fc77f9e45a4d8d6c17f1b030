@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1fc43af_7092fa2b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-08-31T04:11:03Z",
+      "side": 1,
+      "message": "Yurii, thanks for the new update.\n\nThe only concern i have is the traefik takes around ~30s to determine the service is down and sends the requests to the paused/stopped service.\n\nWe need a mechanism to remove the dead backend from the traefik.\n\nI am doing a PoC [1] to reduce the healthcheck timeout for certain operations so that traefik removes the dead backend sooner. This is not yet reviewed and approach is not finalized.\nIf you have any other ideas, please feel free to chime in\n\n[1] https://review.opendev.org/c/openstack/sunbeam-charms/+/1000817",
+      "revId": "65a1457f6e884462fc77f9e45a4d8d6c17f1b030",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
