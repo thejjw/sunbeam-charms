@@ -16,6 +16,24 @@
       "message": "Yurii, thanks for the new update.\n\nThe only concern i have is the traefik takes around ~30s to determine the service is down and sends the requests to the paused/stopped service.\n\nWe need a mechanism to remove the dead backend from the traefik.\n\nI am doing a PoC [1] to reduce the healthcheck timeout for certain operations so that traefik removes the dead backend sooner. This is not yet reviewed and approach is not finalized.\nIf you have any other ideas, please feel free to chime in\n\n[1] https://review.opendev.org/c/openstack/sunbeam-charms/+/1000817",
       "revId": "65a1457f6e884462fc77f9e45a4d8d6c17f1b030",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c19a9e2b_1afd2a41",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38555
+      },
+      "writtenOn": "2026-09-01T00:08:38Z",
+      "side": 1,
+      "message": "In the current backup/restore PR[1] workflow, all related API units pause first, then the related `mysql-router` applications scale to zero before the MySQL restore begins. Scaling the routers down closes the database paths and prevents further writes independently of Traefik’s backend convergence. The ~30s Traefik delay can cause transient HTTP failures during pause/resume, but it should not affect restore consistency. Faster health-check work would improve availability/convergence and seems useful as a follow-up, but I don\u0027t think it needs to block the pause/resume primitive.\n\n[1] https://github.com/canonical/snap-openstack/pull/876\n\nOne possible solution is to reduce the health check timeout, but 30s already seems reasonable. Another approach could be to add a field in Traefik\u0027s databag indicating that the application entered `maintenance`, or some state that signals Traefik to stop routing right away when that field is posted to the app databag. But that would require much more work and coordination than a simple timeout decrease.",
+      "parentUuid": "e1fc43af_7092fa2b",
+      "revId": "65a1457f6e884462fc77f9e45a4d8d6c17f1b030",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
