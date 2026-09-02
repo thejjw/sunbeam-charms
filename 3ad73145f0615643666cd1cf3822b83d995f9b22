@@ -71,6 +71,108 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "413907a9_6fbd05a0",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-02T14:49:37Z",
+      "side": 1,
+      "message": "Can you change it back to http://www.apache.org/licenses/LICENSE-2.0",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1c309a1_fd8abf43",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-02T14:49:37Z",
+      "side": 1,
+      "message": "Isnt it the handler should return True if loki_endpoints have value?",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7fdc1f70_1b15b0b6",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-02T14:49:37Z",
+      "side": 1,
+      "message": "Function never used",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfc42dd4_1ca93938",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-02T14:49:37Z",
+      "side": 1,
+      "message": "if condition not required as loki_endpoints is a property in self.interface",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fae4e20c_d551d716",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-02T14:49:37Z",
+      "side": 1,
+      "message": "Can you change this to \"Relation Handler Extracted Endpoint\"",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd1b0150_fbb3ecdb",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-02T14:49:37Z",
+      "side": 1,
+      "message": "apache need to be restarted after a2ensite right, where this is happening? I see start_service is overriden with noop",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1816ffdc_e3610838",
         "filename": "charms/cloudkitty-k8s/src/charm.py",
         "patchSetId": 11
