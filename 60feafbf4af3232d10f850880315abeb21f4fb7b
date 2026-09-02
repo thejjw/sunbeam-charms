@@ -16,6 +16,23 @@
       "message": "recheck\n\nopenstack-port-cni has been republished: https://github.com/canonical/ubuntu-openstack-rocks/pull/161",
       "revId": "60feafbf4af3232d10f850880315abeb21f4fb7b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a6935bf_13b6a24c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-02T07:07:36Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "60feafbf4af3232d10f850880315abeb21f4fb7b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
