@@ -16,6 +16,23 @@
       "message": "Requires: https://github.com/canonical/snap-openstack-hypervisor/pull/217\n\nThis PR introduces the neutron-ovn-agent service inside the snap.",
       "revId": "0abd24cb93aac14ae233d31b4b15b997da3c0b95",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1e1e04d_b6e4694d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-02T14:31:25Z",
+      "side": 1,
+      "message": "The failure is expected, as the service is not yet in the hypervisor snap",
+      "revId": "0abd24cb93aac14ae233d31b4b15b997da3c0b95",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
