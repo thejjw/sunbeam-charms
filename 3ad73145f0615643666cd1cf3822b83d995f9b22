@@ -106,6 +106,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0badb3b8_56126cb0",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:20:28Z",
+      "side": 1,
+      "message": "Restored link as requested. Apologies missed that one on final commit.",
+      "parentUuid": "7e52661e_b687bcc3",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d1c309a1_fd8abf43",
         "filename": "charms/cloudkitty-k8s/src/charm.py",
         "patchSetId": 11
@@ -135,6 +153,24 @@
       "side": 1,
       "message": "Acknowledged",
       "parentUuid": "d1c309a1_fd8abf43",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7e7ab18_ac88de9f",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:20:28Z",
+      "side": 1,
+      "message": "Reworked using Masakari as an example",
+      "parentUuid": "d1d4c785_39168332",
       "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -176,6 +212,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "bb1458e9_4bf84668",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:20:28Z",
+      "side": 1,
+      "message": "Removed dead code from testing.",
+      "parentUuid": "0718caac_1dce53b3",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cfc42dd4_1ca93938",
         "filename": "charms/cloudkitty-k8s/src/charm.py",
         "patchSetId": 11
@@ -205,6 +259,24 @@
       "side": 1,
       "message": "Acknowledged",
       "parentUuid": "cfc42dd4_1ca93938",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c98a7f4a_3669b866",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:20:28Z",
+      "side": 1,
+      "message": "Removed dead/redundant code from when testing.",
+      "parentUuid": "6e657f26_ca56b85f",
       "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -246,6 +318,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e6e7a8c5_24316806",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:20:28Z",
+      "side": 1,
+      "message": "Corrected case as requested.",
+      "parentUuid": "30e0be01_44304b8c",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bd1b0150_fbb3ecdb",
         "filename": "charms/cloudkitty-k8s/src/charm.py",
         "patchSetId": 11
@@ -281,6 +371,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "e0bbd685_684e9188",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:20:28Z",
+      "side": 1,
+      "message": "I used cinder-k8s as inspiration on this, but missed the `self.start_wsgi()`. Corrected. I note there seem to be many ways to do this from the different charms, please advise on which is the best way if this isn\u0027t.",
+      "parentUuid": "db220477_37945836",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1816ffdc_e3610838",
         "filename": "charms/cloudkitty-k8s/src/charm.py",
         "patchSetId": 11
@@ -310,6 +418,24 @@
       "side": 1,
       "message": "Acknowledged",
       "parentUuid": "1816ffdc_e3610838",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e672c5b5_9ee20e5c",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:20:28Z",
+      "side": 1,
+      "message": "Removed - again following cinder-k8s/masakari as an example",
+      "parentUuid": "29888886_2371f96c",
       "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
