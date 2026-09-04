@@ -16,6 +16,23 @@
       "message": "@verranm76@gmail.com can you please ACK on the comments that were solved? Thank you!",
       "revId": "50fa4f665182d898b248e118a3b03aa4f8abb6f1",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "77cb022b_1f008ce3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:02:13Z",
+      "side": 1,
+      "message": "All issues updated. Cinder-k8s and Masakari used to rework sections where applicable. Dead code removed from testing and license link restored - sorry about that one.",
+      "revId": "50fa4f665182d898b248e118a3b03aa4f8abb6f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }

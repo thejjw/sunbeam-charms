@@ -88,6 +88,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "7e52661e_b687bcc3",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:02:13Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "413907a9_6fbd05a0",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "d1c309a1_fd8abf43",
         "filename": "charms/cloudkitty-k8s/src/charm.py",
         "patchSetId": 11
@@ -99,6 +117,24 @@
       "writtenOn": "2026-09-02T14:49:37Z",
       "side": 1,
       "message": "Isnt it the handler should return True if loki_endpoints have value?",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1d4c785_39168332",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:02:13Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "d1c309a1_fd8abf43",
       "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -122,6 +158,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "0718caac_1dce53b3",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:02:13Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "7fdc1f70_1b15b0b6",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cfc42dd4_1ca93938",
         "filename": "charms/cloudkitty-k8s/src/charm.py",
         "patchSetId": 11
@@ -133,6 +187,24 @@
       "writtenOn": "2026-09-02T14:49:37Z",
       "side": 1,
       "message": "if condition not required as loki_endpoints is a property in self.interface",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e657f26_ca56b85f",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:02:13Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "cfc42dd4_1ca93938",
       "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -156,6 +228,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "30e0be01_44304b8c",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:02:13Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "fae4e20c_d551d716",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "bd1b0150_fbb3ecdb",
         "filename": "charms/cloudkitty-k8s/src/charm.py",
         "patchSetId": 11
@@ -173,6 +263,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "db220477_37945836",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:02:13Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "bd1b0150_fbb3ecdb",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1816ffdc_e3610838",
         "filename": "charms/cloudkitty-k8s/src/charm.py",
         "patchSetId": 11
@@ -184,6 +292,24 @@
       "writtenOn": "2026-09-02T12:01:07Z",
       "side": 1,
       "message": "Is this really necessary? The config changed event should already go through the main configure path no?",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "29888886_2371f96c",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 38307
+      },
+      "writtenOn": "2026-09-04T08:02:13Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "1816ffdc_e3610838",
       "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
