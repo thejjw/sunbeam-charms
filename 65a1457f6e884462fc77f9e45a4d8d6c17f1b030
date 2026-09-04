@@ -34,6 +34,23 @@
       "parentUuid": "e1fc43af_7092fa2b",
       "revId": "65a1457f6e884462fc77f9e45a4d8d6c17f1b030",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "abe2d447_27962f3b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 18
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-04T05:59:00Z",
+      "side": 1,
+      "message": "pause/resume will be used for mysql restore and the traefik still seeing backends for paused services for ~30s should be fine for now. This problem will be investigated further as part of cluster upgrade. \n\nLGTM, thanks for the PR",
+      "revId": "65a1457f6e884462fc77f9e45a4d8d6c17f1b030",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
