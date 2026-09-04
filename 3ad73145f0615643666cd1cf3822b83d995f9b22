@@ -122,6 +122,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5622d193_624bef2a",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-04T15:05:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0badb3b8_56126cb0",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d1c309a1_fd8abf43",
@@ -171,6 +189,24 @@
       "side": 1,
       "message": "Reworked using Masakari as an example",
       "parentUuid": "d1d4c785_39168332",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "eb3147cf_0edeccdb",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-04T15:05:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7e7ab18_ac88de9f",
       "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -228,6 +264,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c7a379b2_450c2fbf",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-04T15:05:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bb1458e9_4bf84668",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cfc42dd4_1ca93938",
@@ -277,6 +331,24 @@
       "side": 1,
       "message": "Removed dead/redundant code from when testing.",
       "parentUuid": "6e657f26_ca56b85f",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e1c1cae1_c8497978",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-04T15:05:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c98a7f4a_3669b866",
       "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -334,6 +406,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c2a8eb26_e02da7e0",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-04T15:05:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6e7a8c5_24316806",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bd1b0150_fbb3ecdb",
@@ -387,6 +477,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3b308ce5_66ac3834",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-04T15:05:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e0bbd685_684e9188",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1816ffdc_e3610838",
@@ -436,6 +544,24 @@
       "side": 1,
       "message": "Removed - again following cinder-k8s/masakari as an example",
       "parentUuid": "29888886_2371f96c",
+      "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6915f2ee_b62bd6a7",
+        "filename": "charms/cloudkitty-k8s/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-04T15:05:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e672c5b5_9ee20e5c",
       "revId": "3ad73145f0615643666cd1cf3822b83d995f9b22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
