@@ -33,6 +33,23 @@
       "message": "recheck - The voting func-test-openstack failure is unrelated to this change:\nK8s bootstrap failed to enable MetalLB because the metallb webhook service refused\nconnections, leaving Traefik without a LoadBalancer IP and causing the deployment wait\nto time out. The same MetalLB bootstrap failure is also present in the microovn job.",
       "revId": "062942a077cbdd1d3af949e875bb7f0167be2148",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "49f27fff_4adad4b3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-07T03:14:34Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "062942a077cbdd1d3af949e875bb7f0167be2148",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
