@@ -35,13 +35,61 @@ import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from charms.loki_k8s.v1.loki_push_api import (
+    LokiPushApiConsumer,
+)
 
 logger = logging.getLogger(__name__)
 
 CLOUDKITTY_API_PORT = 8889
 CLOUDKITTY_CONTAINER = "cloudkitty"
-# CLOUDKITTY_API_CONTAINER = "cloudkitty-api"
-# CLOUDKITTY_PROCESSOR_CONTAINER = "cloudkitty-processor"
+
+
+class LokiLoggingRelationHandler(sunbeam_rhandlers.RelationHandler):
+    """Custom Sunbeam Relation Handler for the Loki logging interface."""
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Initialize the library interface consumer and register events."""
+        logger.debug("Setting up Loki logging interface consumer")
+        self.loki_consumer = LokiPushApiConsumer(
+            self.charm, relation_name=self.relation_name
+        )
+
+        rname = self.relation_name.replace("-", "_")
+        logging_event = getattr(self.charm.on, f"{rname}_relation_changed")
+        self.framework.observe(logging_event, self._on_logging_changed)
+
+        return self.loki_consumer
+
+    def _on_logging_changed(self, event: ops.framework.EventBase) -> None:
+        """Callback to trigger charm reconfiguration when relation details shift."""
+        logger.info(f"Loki logging integration event received: {event}")
+        self.callback_f(event)
+
+    @property
+    def ready(self) -> bool:
+        """Whether the handler has successfully captured relation endpoints."""
+        return bool(self.interface.loki_endpoints)
+
+    def context(self) -> dict:
+        """Expose relation parameters to the global template context environment."""
+        endpoints = self.interface.loki_endpoints
+        loki_url = ""
+
+        # Extract the live URL cleanly using the native library endpoints wrapper
+        if endpoints and isinstance(endpoints, list):
+            for endpoint in endpoints:
+                val = (
+                    endpoint.get("url", "")
+                    if isinstance(endpoint, dict)
+                    else endpoint
+                )
+                if val:
+                    loki_url = val
+                    break
+
+        logger.info(f"Relation Handler Extracted Endpoint: '{loki_url}'")
+        return {"logging_endpoints": loki_url}
 
 
 @sunbeam_tracing.trace_type
@@ -50,41 +98,33 @@ class CloudkittyWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
 
     @property
     def wsgi_conf(self) -> str:
-        """Location of WSGI config file."""
-        return (
-            f"/etc/apache2/sites-available/wsgi-{self.service_name}-api.conf"
-        )
+        """Location of WSGI config file matching template naming convention."""
+        return f"/etc/apache2/sites-available/wsgi-{self.service_name}.conf"
 
     def start_service(self):
         """Start services in container."""
         pass
 
     def init_service(self, context) -> None:
-        """Enable and start WSGI service."""
+        """Enable and start WSGI service matching our updated filename."""
         self.write_config(context)
         try:
             self.execute(
-                ["a2dissite", f"wsgi-{self.service_name}-api"],
+                ["a2dissite", f"wsgi-{self.service_name}"],
                 exception_on_error=True,
             )
             self.execute(
-                ["a2ensite", f"wsgi-{self.service_name}-api"],
+                ["a2ensite", f"wsgi-{self.service_name}"],
                 exception_on_error=True,
             )
         except ops.pebble.ExecError:
             logger.exception(
-                f"Failed to enable wsgi-{self.service_name}-api site in apache"
+                f"Failed to enable wsgi-{self.service_name} site in apache"
             )
-            # ignore for now - pebble is raising an exited too quickly, but it
-            # appears to work properly.
         self.start_wsgi()
 
     def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer.
-
-        :returns: pebble health check layer configuration for cloudkitty service
-        :rtype: dict
-        """
+        """Health check pebble layer configuration."""
         return {
             "checks": {
                 "online": {
@@ -95,7 +135,9 @@ class CloudkittyWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             }
         }
 
-    def default_container_configs(self) -> List[Dict]:
+    def default_container_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
         """Generate default configuration files for container."""
         return [
             sunbeam_core.ContainerConfigFile(self.wsgi_conf, "root", "root"),
@@ -122,11 +164,7 @@ class CloudkittyProcessorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for Cloudkitty Processor services."""
 
     def get_layer(self) -> dict:
-        """Cloudkitty Processor service.
-
-        :returns: pebble layer configuration for wsgi services
-        :rtype: dict
-        """
+        """Cloudkitty Processor service."""
         return {
             "summary": "cloudkitty layer",
             "description": "pebble configuration for cloudkitty services",
@@ -141,7 +179,9 @@ class CloudkittyProcessorPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             },
         }
 
-    def default_container_configs(self) -> List[Dict]:
+    def default_container_configs(
+        self,
+    ) -> List[sunbeam_core.ContainerConfigFile]:
         """Generate default configuration files for container."""
         return [
             sunbeam_core.ContainerConfigFile(
@@ -170,6 +210,10 @@ class CloudkittyOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ["cloudkitty-storage-init"],
     ]
 
+    def _on_config_changed(self, event: ops.EventBase):
+        """Handle standard configuration change events."""
+        self.configure_charm(event)
+
     def get_relation_handlers(
         self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
     ) -> List[sunbeam_rhandlers.RelationHandler]:
@@ -183,6 +227,13 @@ class CloudkittyOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 "gnocchi-db" in self.mandatory_relations,
             )
             handlers.append(self.gnocchi_svc)
+
+        # Inject our custom logging handler cleanly under the 'logging' key
+        if self.can_add_handler("logging", handlers):
+            self.logging_handler = LokiLoggingRelationHandler(
+                self, "logging", self.configure_charm
+            )
+            handlers.append(self.logging_handler)
 
         return super().get_relation_handlers(handlers)
 
@@ -211,7 +262,6 @@ class CloudkittyOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             CloudkittyWSGIPebbleHandler(
                 self,
                 CLOUDKITTY_CONTAINER,
-                # self.service_name,
                 "cloudkitty",
                 self.container_configs,
                 self.template_dir,

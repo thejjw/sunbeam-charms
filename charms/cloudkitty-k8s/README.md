@@ -21,8 +21,7 @@ messaging and keystone identity operators:
     juju relate keystone:identity-service cloudkitty:identity-service
     juju relate traefik:ingress cloudkitty:ingress-internal
     juju relate cloudkitty:metric-service gnocchi:metric-service
-    # todo - gnocchi for fetcher and collector
-    # todo - prometheus for fetcher and collector
+    juju integrate cloudkitty loki-logging
 
 ### Configuration
 
