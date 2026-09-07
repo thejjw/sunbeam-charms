@@ -1015,9 +1015,6 @@ class TestOVSSystem:
 def _minimal_contexts_stub():
     """Return a minimal contexts SimpleNamespace for configure_unit tests."""
     return SimpleNamespace(
-        ovsdb_cms=SimpleNamespace(
-            db_ingress_sb_connection_strs=["ssl:10.0.0.1:6642"]
-        ),
         certificates=SimpleNamespace(
             ca_cert="CA",
             cert="CERT",
@@ -1078,6 +1075,24 @@ class TestMicroOVNConfiguration:
             == "nova-secret"
         )
 
+    def test_ovn_connection_not_included_in_snap_data(self, harness):
+        """configure_unit leaves OVN connections to the snap content plug."""
+        harness.begin()
+        captured = _setup_configure_unit_mocks(harness.charm)
+        harness.charm.configure_unit(MagicMock())
+
+        assert "network.ovn-sb-connection" not in captured
+
+    def test_ovn_tls_material_included_in_snap_data(self, harness):
+        """configure_unit continues to pass secret-backed OVN TLS material."""
+        harness.begin()
+        captured = _setup_configure_unit_mocks(harness.charm)
+        harness.charm.configure_unit(MagicMock())
+
+        assert captured["network.ovn-key"] == "S0VZ"
+        assert captured["network.ovn-cert"] == "Q0VSVA=="
+        assert captured["network.ovn-cacert"] == "Q0FfQ0hBSU4="
+
     def test_ensure_services_running_restarts_microovn_switch(
         self, charm_instance
     ):
@@ -1087,7 +1102,7 @@ class TestMicroOVNConfiguration:
         hypervisor_snap_mock.services = {
             service: {"active": True}
             for service in [
-                "neutron-ovn-metadata-agent",
+                "neutron-ovn-agent",
                 "nova-api-metadata",
                 "nova-compute",
             ]
@@ -1105,6 +1120,46 @@ class TestMicroOVNConfiguration:
             {charm.MICROOVN_RESTART_TRIGGER_SNAP_KEY: "false"}
         )
 
+    def test_ensure_services_running_skips_disabled_ovn_agent(
+        self, charm_instance
+    ):
+        """Do not override fail-closed OVN agent eligibility."""
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.services = {
+            "neutron-ovn-agent": {"active": False, "enabled": False},
+            "nova-api-metadata": {"active": False, "enabled": True},
+            "nova-compute": {"active": True, "enabled": True},
+        }
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock
+        }
+
+        charm_instance.ensure_services_running()
+
+        hypervisor_snap_mock.start.assert_called_once_with(
+            ["nova-api-metadata"]
+        )
+
+    def test_ensure_services_running_starts_enabled_ovn_agent(
+        self, charm_instance
+    ):
+        """Start an eligible OVN agent when it remains inactive."""
+        hypervisor_snap_mock = MagicMock()
+        hypervisor_snap_mock.services = {
+            "neutron-ovn-agent": {"active": False, "enabled": True},
+            "nova-api-metadata": {"active": True, "enabled": True},
+            "nova-compute": {"active": True, "enabled": True},
+        }
+        charm.snap.SnapCache.return_value = {
+            "openstack-hypervisor": hypervisor_snap_mock
+        }
+
+        charm_instance.ensure_services_running()
+
+        hypervisor_snap_mock.start.assert_called_once_with(
+            ["neutron-ovn-agent"]
+        )
+
     def test_ensure_services_running_microovn_snap_not_found_error(
         self, charm_instance
     ):
@@ -1114,7 +1169,7 @@ class TestMicroOVNConfiguration:
         hypervisor_snap_mock.services = {
             svc: {"active": True}
             for svc in [
-                "neutron-ovn-metadata-agent",
+                "neutron-ovn-agent",
                 "nova-api-metadata",
                 "nova-compute",
             ]

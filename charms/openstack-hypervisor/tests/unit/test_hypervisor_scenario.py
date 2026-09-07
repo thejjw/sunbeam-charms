@@ -24,8 +24,8 @@ Findings
    epa_client, ConsulNotifyRequirer, and COSAgentProvider.  All must be
    patched before the Context instantiates the charm.  ``monkeypatch`` in an
    autouse conftest fixture handles this cleanly.
-3. **Mandatory relations** – amqp, identity-credentials, ovsdb-cms, and
-   nova-service are non-optional requires endpoints.  All four must be
+3. **Mandatory relations** – amqp, identity-credentials, and nova-service are
+   non-optional requires endpoints.  All three must be
    present (with valid data) for the charm to proceed past
    ``check_relation_handlers_ready``.
 4. **configure_unit** – the main work method calls ``ensure_snap_present()``,
@@ -33,8 +33,8 @@ Findings
    ``set_snap_data()``.  Since these hit real OS APIs, the snap mock and
    ip mock in conftest cover them.
 5. **Limitations** – full configure_unit success tests are difficult because
-   the context objects (``contexts.certificates``, ``contexts.ovsdb_cms``,
-   etc.) require deeply populated relation data.  The tests below cover the
+   the context objects (for example, ``contexts.certificates``) require deeply
+   populated relation data.  The tests below cover the
    relation-readiness layer; deeper snap-configuration tests remain in the
    harness suite.
 """
@@ -62,27 +62,6 @@ MANDATORY_RELATIONS = mandatory_relations_from_charmcraft(CHARM_ROOT)
 # Relation / secret builders for hypervisor-specific endpoints
 # ---------------------------------------------------------------------------
 
-OVSDB_CMS_APP_DATA = {
-    "loadbalancer-address": "10.15.24.37",
-    "sb-connection-string": "ssl:10.15.24.37:6642",
-}
-OVSDB_CMS_UNIT_DATA = {
-    "bound-address": "10.1.176.143",
-    "bound-hostname": "ovn-relay-0.ovn-relay-endpoints.openstack.svc.cluster.local",
-    "egress-subnets": "10.20.21.10/32",
-    "ingress-address": "10.20.21.10",
-}
-
-
-def ovsdb_cms_relation() -> testing.Relation:
-    """ovsdb-cms relation with loadbalancer address."""
-    return testing.Relation(
-        endpoint="ovsdb-cms",
-        remote_app_name="ovn-relay",
-        remote_app_data=OVSDB_CMS_APP_DATA,
-        remote_units_data={0: OVSDB_CMS_UNIT_DATA},
-    )
-
 
 def nova_service_relation() -> testing.Relation:
     """nova-service relation with spice-proxy-url."""
@@ -100,7 +79,6 @@ def _all_mandatory_relations() -> list:
     return [
         amqp_relation_complete(),
         identity_credentials_relation_complete(),
-        ovsdb_cms_relation(),
         nova_service_relation(),
     ]
 
@@ -145,7 +123,6 @@ def _relation_builder(name: str):
     builders = {
         "amqp": amqp_relation_complete,
         "identity-credentials": identity_credentials_relation_complete,
-        "ovsdb-cms": ovsdb_cms_relation,
         "nova-service": nova_service_relation,
     }
     return builders[name]

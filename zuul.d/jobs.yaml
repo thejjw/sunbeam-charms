@@ -447,7 +447,7 @@
       and OVS on machines via openstack-network-agents, replacing the
       ovn-central-k8s / ovn-relay-k8s stack. sunbeam-ovn-proxy bridges
       MicroOVN's ovsdb interface to the ovsdb-cms interface consumed by
-      neutron, octavia, and the hypervisor.
+      neutron and octavia.
     timeout: 7200
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml

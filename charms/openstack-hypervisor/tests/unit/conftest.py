@@ -42,27 +42,6 @@ _ABSENT_HOST_PATHS = {
 
 # ---- relation / secret builders for hypervisor-specific endpoints ----
 
-OVSDB_CMS_APP_DATA = {
-    "loadbalancer-address": "10.15.24.37",
-    "sb-connection-string": "ssl:10.15.24.37:6642",
-}
-OVSDB_CMS_UNIT_DATA = {
-    "bound-address": "10.1.176.143",
-    "bound-hostname": "ovn-relay-0.ovn-relay-endpoints.openstack.svc.cluster.local",
-    "egress-subnets": "10.20.21.10/32",
-    "ingress-address": "10.20.21.10",
-}
-
-
-def ovsdb_cms_relation() -> testing.Relation:
-    """ovsdb-cms relation with loadbalancer address (external_connectivity)."""
-    return testing.Relation(
-        endpoint="ovsdb-cms",
-        remote_app_name="ovn-relay",
-        remote_app_data=OVSDB_CMS_APP_DATA,
-        remote_units_data={0: OVSDB_CMS_UNIT_DATA},
-    )
-
 
 def nova_service_relation() -> testing.Relation:
     """nova-service relation with spice-proxy-url."""
@@ -77,14 +56,13 @@ def nova_service_relation() -> testing.Relation:
 
 
 # ---- Mandatory relations (non-optional requires from charmcraft.yaml) ----
-# amqp, identity-credentials, ovsdb-cms, nova-service
+# amqp, identity-credentials, nova-service
 
 
 def _all_mandatory_relations() -> list:
     return [
         amqp_relation_complete(),
         identity_credentials_relation_complete(),
-        ovsdb_cms_relation(),
         nova_service_relation(),
     ]
 
