@@ -225,6 +225,28 @@ actions:
       Run this action on every unit (every compute host): each unit's
       nova-compute holds its own cached cap, so running it on the leader
       alone is not sufficient.
+  configure-encrypted-storage:
+    description: |
+      Configure encrypted storage for Nova instances.
+
+      The target device must already be prepared by the operator: it must be
+      LUKS-encrypted and contain the filesystem to use for instance storage.
+      The existing LUKS passphrase must be provided through a Juju secret.
+
+      Requests Vaultlocker to enroll the device through the encrypted-device
+      relation. When Vaultlocker returns the unlocked device, validates and
+      mounts its filesystem at the Nova instances path.
+    params:
+      target:
+        type: string
+        description: Persistent path to the operator-prepared LUKS device.
+      existing-key-secret-id:
+        type: string
+        description: Juju secret URI containing the existing LUKS passphrase.
+    required:
+      - target
+      - existing-key-secret-id
+    additionalProperties: false
 
 requires:
   amqp:
@@ -262,6 +284,9 @@ requires:
 provides:
   cos-agent:
     interface: cos_agent
+  encrypted-device:
+    interface: encrypted-device
+    limit: 1
 
 extra-bindings:
   migration: null
