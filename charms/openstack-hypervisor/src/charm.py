@@ -42,6 +42,7 @@ from typing import (
 )
 
 import charms.operator_libs_linux.v2.snap as snap
+import encrypted_storage
 import epa_client
 import jsonschema
 import ops
@@ -78,11 +79,18 @@ from ops.charm import (
 from utils import (
     get_local_ip_by_default_route,
 )
+from vaultlocker_interfaces.encrypted_device import (
+    DeviceRequest,
+    DeviceResult,
+    DeviceResultsChangedEvent,
+    EncryptedDeviceProvides,
+)
 
 logger = logging.getLogger(__name__)
 
 MIGRATION_BINDING = "migration"
 DATA_BINDING = "data"
+ENCRYPTED_DEVICE_RELATION = "encrypted-device"
 MTLS_USAGES = {x509.OID_SERVER_AUTH, x509.OID_CLIENT_AUTH}
 HYPERVISOR_SNAP_NAME = "openstack-hypervisor"
 EVACUATION_UNIX_SOCKET_FILEPATH = "shutdown.sock"
@@ -129,7 +137,11 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             "snap-channel", priority=200
         )
         self.status_pool.add(self.snap_channel_status)
-        self._state.set_default(metadata_secret="")
+        self._state.set_default(
+            metadata_secret="",
+            encrypted_storage_target="",
+            encrypted_storage_result={},
+        )
         self.enable_monitoring = self.check_relation_exists("cos-agent")
         # Enable telemetry when ceilometer-service relation is joined
         self.enable_telemetry = self.check_relation_exists(
@@ -197,6 +209,23 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         )
 
         self._epa_client = epa_client.EPAClient()
+
+        self._encrypted_storage_status = compound_status.Status(
+            "encrypted-storage", priority=20
+        )
+        self.status_pool.add(self._encrypted_storage_status)
+
+        self.encrypted_device = EncryptedDeviceProvides(
+            self, ENCRYPTED_DEVICE_RELATION
+        )
+        self.framework.observe(
+            self.on.configure_encrypted_storage_action,
+            self._configure_encrypted_storage_action,
+        )
+        self.framework.observe(
+            self.encrypted_device.on.results_changed,
+            self._on_encrypted_device_results_changed,
+        )
 
         self._nova_compute_status = compound_status.Status(
             "nova-compute", priority=10
@@ -460,6 +489,223 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             raise HypervisorError(stderr)
 
         return stdout
+
+    def _configure_encrypted_storage_action(self, event: ActionEvent) -> None:
+        """Request enrollment or continue storage activation."""
+        target = event.params.get("target")
+        secret_id = event.params.get("existing-key-secret-id")
+        if not isinstance(target, str) or not target.strip():
+            message = "target must not be empty"
+            logger.error("Encrypted storage action failed: %s", message)
+            event.fail(message)
+            return
+        if not isinstance(secret_id, str) or not secret_id.strip():
+            message = "existing-key-secret-id must not be empty"
+            logger.error("Encrypted storage action failed: %s", message)
+            event.fail(message)
+            return
+
+        selected_target = self._state.encrypted_storage_target
+        if selected_target and selected_target != target:
+            message = (
+                f"Encrypted storage is already configured or requested for "
+                f"{selected_target}; changing the target is not supported"
+            )
+            logger.error("Encrypted storage action failed: %s", message)
+            event.fail(message)
+            return
+
+        relation = self.model.get_relation(ENCRYPTED_DEVICE_RELATION)
+        try:
+            # Reuse an enrollment result when mounting needs another attempt.
+            result = self._get_encrypted_device_result(relation, target)
+            if result is not None:
+                self._complete_encrypted_storage_setup(result)
+                event.set_results(
+                    {
+                        "status": "completed",
+                        "target": target,
+                        "mapper-path": result.mapper_path,
+                        "luks-uuid": result.luks_uuid,
+                        "message": "Encrypted instance storage mounted",
+                    }
+                )
+                return
+
+            if relation is None or not relation.active:
+                raise encrypted_storage.EncryptedStorageError(
+                    "Vaultlocker encrypted-device relation is unavailable",
+                    "encrypted-device relation is not available",
+                )
+            encrypted_storage.validate_target(target)
+
+            # Sunbeam grants Vaultlocker access to this secret. Only its ID
+            # is sent over the relation.
+            self.encrypted_device.set_device_requests(
+                relation,
+                [
+                    DeviceRequest(
+                        target=target,
+                        existing_key_secret_id=secret_id,
+                    )
+                ],
+            )
+            self._state.encrypted_storage_target = target
+        except (
+            HypervisorError,
+            encrypted_storage.EncryptedStorageError,
+            snap.SnapError,
+            ValueError,
+            ops.ModelError,
+        ) as exc:
+            logger.error(
+                "Encrypted storage action failed for target %s: %s",
+                target,
+                exc,
+            )
+            if self._state.encrypted_storage_target:
+                self._encrypted_storage_status.set(
+                    ops.BlockedStatus(
+                        self._encrypted_storage_blocked_message(exc)
+                    )
+                )
+            event.fail(str(exc))
+            return
+
+        # Relation data is sent when this action finishes. Vaultlocker
+        # responds through a later relation changed event.
+        self._encrypted_storage_status.set(
+            ops.WaitingStatus("Waiting for Vaultlocker enrollment")
+        )
+        event.set_results(
+            {
+                "status": "requested",
+                "target": target,
+                "message": "Vaultlocker enrollment requested",
+            }
+        )
+
+    def _on_encrypted_device_results_changed(
+        self, event: DeviceResultsChangedEvent
+    ) -> None:
+        """Configure mount when Vaultlocker publishes a device result."""
+        target = self._state.encrypted_storage_target
+        if not target:
+            return
+        try:
+            result = self._get_encrypted_device_result(event.relation, target)
+            if result is None:
+                self._encrypted_storage_status.set(
+                    ops.WaitingStatus("Waiting for Vaultlocker enrollment")
+                )
+                return
+            self._complete_encrypted_storage_setup(result)
+        except (
+            HypervisorError,
+            encrypted_storage.EncryptedStorageError,
+            snap.SnapError,
+            ValueError,
+            ops.ModelError,
+        ) as exc:
+            logger.exception(
+                "Encrypted storage configuration failed for target %s: %s",
+                target,
+                exc,
+            )
+            self._encrypted_storage_status.set(
+                ops.BlockedStatus(self._encrypted_storage_blocked_message(exc))
+            )
+
+    @staticmethod
+    def _encrypted_storage_blocked_message(exc: Exception) -> str:
+        """Return a short failure reason for workload status."""
+        if isinstance(exc, encrypted_storage.EncryptedStorageError):
+            return exc.status_message
+        return "Encrypted storage operation failed"
+
+    def _get_encrypted_device_result(
+        self, relation: Optional[ops.Relation], target: str
+    ) -> Optional[DeviceResult]:
+        """Read a matching result, retaining enrollment across relation loss."""
+        saved = self._state.encrypted_storage_result
+        saved_result = None
+        if saved and saved["target"] == target:
+            saved_result = DeviceResult(
+                target=saved["target"],
+                mapper_path=saved["mapper_path"],
+                luks_uuid=saved["luks_uuid"],
+            )
+
+        result = None
+        if relation is not None and relation.active:
+            vaultlocker_unit = next(iter(relation.units), None)
+            if vaultlocker_unit is not None:
+                for candidate in self.encrypted_device.get_device_results(
+                    relation, vaultlocker_unit
+                ):
+                    if candidate.target == target:
+                        result = candidate
+                        break
+
+        if (
+            result is not None
+            and saved_result is not None
+            and result.luks_uuid != saved_result.luks_uuid
+        ):
+            raise encrypted_storage.EncryptedStorageError(
+                f"Vaultlocker returned a different LUKS UUID for {target}; "
+                "changing the enrolled device is not supported",
+                "Vaultlocker result has a different LUKS UUID",
+            )
+        return result or saved_result
+
+    def _complete_encrypted_storage_setup(self, result: DeviceResult) -> None:
+        """Retain enrollment, mount the device, and start nova-compute."""
+        selected_target = self._state.encrypted_storage_target
+        if selected_target and selected_target != result.target:
+            raise encrypted_storage.EncryptedStorageError(
+                "Device result does not match the selected target",
+                "Vaultlocker result has a different target",
+            )
+        encrypted_storage.validate_device_result(
+            result.target, result.mapper_path, result.luks_uuid
+        )
+        self._state.encrypted_storage_target = result.target
+        # Retain the enrollment result for mount retries.
+        self._state.encrypted_storage_result = {
+            "target": result.target,
+            "mapper_path": result.mapper_path,
+            "luks_uuid": result.luks_uuid,
+        }
+        self._encrypted_storage_status.set(
+            ops.MaintenanceStatus("Configuring encrypted instance storage")
+        )
+        hypervisor_snap = self.get_snap_cache()[HYPERVISOR_SNAP_NAME]
+        # Persist the mount definition before stopping nova-compute.
+        if encrypted_storage.prepare_encrypted_storage(result.mapper_path):
+            if hypervisor_snap.services["nova-compute"].get("active"):
+                try:
+                    hypervisor_snap.stop(["nova-compute"])
+                except snap.SnapError as exc:
+                    raise encrypted_storage.EncryptedStorageError(
+                        f"cannot stop nova-compute: {exc}",
+                        "nova-compute could not be stopped",
+                    ) from exc
+            if hypervisor_snap.services["nova-compute"].get("active"):
+                raise encrypted_storage.EncryptedStorageError(
+                    "nova-compute is still running; encrypted instance storage was not mounted",
+                    "nova-compute is still running",
+                )
+            encrypted_storage.mount_encrypted_storage(result.mapper_path)
+        if not hypervisor_snap.services["nova-compute"].get("active"):
+            try:
+                hypervisor_snap.start(["nova-compute"])
+            except snap.SnapError as exc:
+                raise encrypted_storage.EncryptedStorageError(
+                    f"cannot start nova-compute: {exc}",
+                    "nova-compute could not be started",
+                ) from exc
+        self._encrypted_storage_status.set(ops.ActiveStatus())
 
     def _list_nics_action(self, event: ActionEvent):
         """Run list_nics action."""

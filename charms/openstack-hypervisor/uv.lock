@@ -532,6 +532,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pyroute2" },
     { name = "tenacity" },
+    { name = "vaultlocker-interfaces" },
 ]
 
 [package.metadata]
@@ -550,6 +551,7 @@ requires-dist = [
     { name = "pydantic" },
     { name = "pyroute2" },
     { name = "tenacity" },
+    { name = "vaultlocker-interfaces", git = "https://github.com/canonical/charm-vaultlocker.git?subdirectory=packages%2Fvaultlocker-interfaces&branch=main" },
 ]
 
 [[package]]
@@ -634,16 +636,16 @@ wheels = [
 
 [[package]]
 name = "ops"
-version = "3.6.0"
+version = "3.8.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "opentelemetry-api" },
     { name = "pyyaml" },
     { name = "websocket-client" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d3/bb/79b7efdb1243cbad11b6568c51ba4fb7358cd2c4d13bfd971a77c0aa7440/ops-3.6.0.tar.gz", hash = "sha256:a1c3361049c66759840a436143b07c74c2a46dcc44cbfd1177a9051f849c7971", size = 579236, upload-time = "2026-02-26T04:19:12.689Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/53/fb/5028f6db40b58939bd352e1373ebf9e722772c8d0929c4977ddb5e674ea5/ops-3.8.3.tar.gz", hash = "sha256:fd0c474f0c650bc9decfa613578a800931e6cf1ea948c7a59f55aeacfd8e6d4e", size = 612626, upload-time = "2026-10-01T03:11:24.325Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8c/b6/d7daab4f841566d3cb0402d3463f7c1a00626724d6d7c02d7bf934ae6c86/ops-3.6.0-py3-none-any.whl", hash = "sha256:341c6688684446cc4b42860738898683feb271175bb9c4775ae68c81e4e0976a", size = 211856, upload-time = "2026-02-26T04:19:08.012Z" },
+    { url = "https://files.pythonhosted.org/packages/91/c1/ec795e4a04815d6a1b6d313cf03821f7041f8d68cad365c0534dcf339118/ops-3.8.3-py3-none-any.whl", hash = "sha256:037feb823874da6d700852e1a5c06927077311c939276daaa1b925fd16cbf15b", size = 216166, upload-time = "2026-10-01T03:11:19.978Z" },
 ]
 
 [[package]]
@@ -960,6 +962,14 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c7/24/5f1b3bdffd70275f6661c76461e25f024d5a38a46f04aaca912426a2b1d3/urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed", size = 435556, upload-time = "2026-01-07T16:24:43.925Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/39/08/aaaad47bc4e9dc8c725e68f9d04865dbcb2052843ff09c97b08904852d84/urllib3-2.6.3-py3-none-any.whl", hash = "sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4", size = 131584, upload-time = "2026-01-07T16:24:42.685Z" },
+]
+
+[[package]]
+name = "vaultlocker-interfaces"
+version = "0.1.0"
+source = { git = "https://github.com/canonical/charm-vaultlocker.git?subdirectory=packages%2Fvaultlocker-interfaces&branch=main#377a8d4688714f1ae25e6ecd49a39979440ea796" }
+dependencies = [
+    { name = "ops" },
 ]
 
 [[package]]
