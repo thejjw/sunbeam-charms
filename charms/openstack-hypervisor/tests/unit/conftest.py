@@ -133,6 +133,50 @@ def _mock_heavy_externals(monkeypatch):
     monkeypatch.setattr(charm.os.path, "exists", path_exists)
 
 
+class _TestableHypervisorCharm(charm.HypervisorOperatorCharm):
+    """Charm subclass that skips consul_notify observer registration.
+
+    The ConsulNotifyRequirer mock does not provide real BoundEvents,
+    so we intercept framework.observe to skip those handlers.
+    """
+
+    def __init__(self, framework):
+        self.seen_events = []
+        original_observe = framework.observe
+
+        def patched_observe(event, handler):
+            if (
+                hasattr(handler, "__name__")
+                and "consul_notify" in handler.__name__
+            ):
+                return
+            return original_observe(event, handler)
+
+        framework.observe = patched_observe
+        super().__init__(framework)
+        framework.observe = original_observe
+
+
+@pytest.fixture()
+def harness(_mock_heavy_externals, monkeypatch):
+    """Provide an ops.testing.Harness with all heavy externals mocked.
+
+    Uses the shared ``_mock_heavy_externals`` fixture from conftest,
+    then adds ConsulNotifyRequirer mocking and uses test_utils.get_harness
+    for the proper model backend (network_get, etc.).
+    """
+    import ops_sunbeam.test_utils as test_utils
+
+    consul_mock = MagicMock()
+    monkeypatch.setattr(charm, "ConsulNotifyRequirer", consul_mock)
+    cos_agent_mock = MagicMock()
+    monkeypatch.setattr(charm, "COSAgentProvider", cos_agent_mock)
+
+    h = test_utils.get_harness(_TestableHypervisorCharm)
+    yield h
+    h.cleanup()
+
+
 @pytest.fixture()
 def ctx(_mock_heavy_externals):
     """Create a testing.Context for HypervisorOperatorCharm."""
