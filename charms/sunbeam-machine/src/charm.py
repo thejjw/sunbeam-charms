@@ -49,6 +49,9 @@ PACKAGES = [
     "open-iscsi",
     "linux-modules-extra-{kernel}",  # Provides nvme-tcp module
 ]
+NVME_TCP_MODULE_PATTERN = (
+    "/lib/modules/{kernel}/kernel/drivers/nvme/**/nvme-tcp.ko*"
+)
 
 
 @sunbeam_tracing.trace_sunbeam_charm
@@ -146,13 +149,32 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
         apt_updated = False
         for package in PACKAGES:
             if "{kernel}" in package:
-                package = package.format(kernel=platform.release())
-            pkg = apt.DebianPackage.from_system(package)
+                kernel = platform.release()
+                package = package.format(kernel=kernel)
+            else:
+                kernel = None
+            try:
+                pkg = apt.DebianPackage.from_system(package)
+            except apt.PackageNotFoundError:
+                if kernel and self._nvme_tcp_module_present(kernel):
+                    logger.info(
+                        "Skipping package %s because nvme-tcp is already "
+                        "available for kernel %s",
+                        package,
+                        kernel,
+                    )
+                    continue
+                raise
             if not pkg.present:
                 if not apt_updated:
                     apt.update()
                     apt_updated = True
                 pkg.ensure(apt.PackageState.Present)
+
+    def _nvme_tcp_module_present(self, kernel: str) -> bool:
+        """Return whether the nvme-tcp kernel module is already available."""
+        pattern = NVME_TCP_MODULE_PATTERN.format(kernel=kernel).lstrip("/")
+        return any(Path("/").glob(pattern))
 
 
 if __name__ == "__main__":  # pragma: nocover
