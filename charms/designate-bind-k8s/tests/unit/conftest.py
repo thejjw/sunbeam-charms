@@ -28,11 +28,28 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
-    k8s_container,
     peer_relation,
 )
 
 CHARM_ROOT = Path(__file__).parents[2]
+ROCK_BASE_PLAN = {
+    "services": {
+        "dns-server": {
+            "override": "replace",
+            "command": "/usr/sbin/named [ -g ]",
+            "startup": "enabled",
+        },
+    },
+    "checks": {
+        "config": {
+            "override": "replace",
+            "exec": {
+                "command": "/usr/bin/named-checkconf",
+            },
+            "service-context": "dns-server",
+        },
+    },
+}
 
 
 @pytest.fixture(autouse=True)
@@ -52,9 +69,29 @@ def ctx():
 
 
 @pytest.fixture()
-def container():
-    """A connectable designate-bind container."""
-    return k8s_container("designate-bind")
+def container(tmp_path):
+    """A connectable designate-bind container using the rock base plan."""
+    cache_dir = tmp_path / "cache"
+    run_dir = tmp_path / "run"
+    cache_dir.mkdir()
+    run_dir.mkdir()
+    dynamic_zones = cache_dir / "_default.nzd"
+    dynamic_zones.write_text("root-owned")
+    dynamic_zones.chmod(0o600)
+    return testing.Container(
+        name="designate-bind",
+        can_connect=True,
+        _base_plan=ROCK_BASE_PLAN,
+        service_statuses={
+            "dns-server": testing.pebble.ServiceStatus.ACTIVE,
+        },
+        mounts={
+            "bind-cache": testing.Mount(
+                location="/var/cache/bind", source=cache_dir
+            ),
+            "bind-run": testing.Mount(location="/run", source=run_dir),
+        },
+    )
 
 
 @pytest.fixture()

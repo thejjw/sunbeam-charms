@@ -404,7 +404,7 @@ applications:
     scale: 1
     trust: true
     resources:
-      designate-bind-image: ubuntu/bind9:9.18-22.04_beta
+      designate-bind-image: ubuntu/bind9:9.20-26.04_stable
   designate:
     {% if designate_k8s is defined and designate_k8s is sameas true -%}
     charm: ../../../designate-k8s.charm

@@ -24,6 +24,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    assert_config_file_contains,
     assert_config_file_exists,
     k8s_container,
     peer_relation,
@@ -41,9 +42,18 @@ class TestAllRelations:
     def test_config_file_named_conf(self, ctx, complete_state):
         """Peer relation present → named.conf is rendered."""
         state_out = ctx.run(ctx.on.config_changed(), complete_state)
-        assert_config_file_exists(
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "designate-bind",
+            "/etc/bind/named.conf",
+            ['include "/etc/bind/named.conf.root-hints";'],
+        )
+
+        config_path = assert_config_file_exists(
             state_out, ctx, "designate-bind", "/etc/bind/named.conf"
         )
+        assert "named.conf.default-zones" not in config_path.read_text()
 
     def test_config_file_named_conf_options(self, ctx, complete_state):
         """Peer relation present → named.conf.options is rendered."""
@@ -73,13 +83,39 @@ class TestPebbleReady:
         assert state_out.unit_status == testing.ActiveStatus("")
 
         out_container = state_out.get_container("designate-bind")
-        assert "designate-bind" in out_container.layers
-        layer = out_container.layers["designate-bind"]
-        assert "designate-bind" in layer.to_dict().get("services", {})
+        assert "dns-server" in out_container.layers
+        layer = out_container.layers["dns-server"]
+        service = layer.to_dict()["services"]["dns-server"]
+        assert service["command"] == "/usr/sbin/named -g -u bind"
+        assert "user" not in service
+        assert "group" not in service
 
-        assert out_container.service_statuses.get("designate-bind") == (
+        plan = out_container.plan.to_dict()
+        assert list(plan["services"]) == ["dns-server"]
+
+        assert out_container.service_statuses.get("dns-server") == (
             testing.pebble.ServiceStatus.ACTIVE
         )
+
+    def test_pebble_ready_prepares_restart_safe_state(
+        self, ctx, complete_state
+    ):
+        """First start prepares dynamic state once and preserves it later."""
+        container = complete_state.get_container("designate-bind")
+        state_out = ctx.run(ctx.on.pebble_ready(container), complete_state)
+
+        out_container = state_out.get_container("designate-bind")
+        filesystem = out_container.get_filesystem(ctx)
+        assert (filesystem / "run/named").is_dir()
+        assert (filesystem / "var/cache/bind").is_dir()
+        assert (filesystem / "run/designate-bind-charm-prepared").is_file()
+
+        dynamic_zones = filesystem / "var/cache/bind/_default.nzd"
+        assert dynamic_zones.read_text() == "root-owned"
+        assert dynamic_zones.stat().st_mode & 0o777 == 0o660
+        dynamic_zones.write_text("preserved")
+        state_out = ctx.run(ctx.on.config_changed(), state_out)
+        assert dynamic_zones.read_text() == "preserved"
 
     def test_pebble_ready_active_without_explicit_peers(self, ctx):
         """Pebble-ready without explicit peer relation still goes active."""
