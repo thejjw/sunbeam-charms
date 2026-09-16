@@ -33,6 +33,23 @@
       "message": "recheck\n\nzaza fixture fix committed.",
       "revId": "1f8454d3840252e33bfb346787feef4066158a3d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cb5c38a_12b115bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-16T11:01:05Z",
+      "side": 1,
+      "message": "LGTM\n\n+2 for backport given bind9 is moved to a LTS rock",
+      "revId": "1f8454d3840252e33bfb346787feef4066158a3d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
