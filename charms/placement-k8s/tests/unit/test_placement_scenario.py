@@ -16,6 +16,10 @@
 
 """Scenario (ops.testing state-transition) tests for placement-k8s."""
 
+import json
+from dataclasses import (
+    replace,
+)
 from pathlib import (
     Path,
 )
@@ -24,6 +28,7 @@ from unittest.mock import (
 )
 
 import charm
+import ops
 import pytest
 from ops import (
     testing,
@@ -34,6 +39,7 @@ from ops_sunbeam.test_utils_scenario import (
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
     assert_unit_status,
+    cleanup_database_requires_events,
     k8s_api_container,
     mandatory_relations_from_charmcraft,
     missing_relation_combinations,
@@ -261,3 +267,352 @@ class TestPlacementApiHealthCheck:
         out_rel = state_out.get_relation(placement_rel.id)
         # ServiceReadinessProvider writes to local app data
         assert out_rel.local_app_data.get("ready") == "true"
+
+    def test_readiness_request_checks_api_health(self, ctx, complete_state):
+        """A bootstrapped service must also be healthy to satisfy a readiness request."""
+        placement = testing.Relation(
+            endpoint="placement", remote_app_name="nova"
+        )
+        state = replace(
+            complete_state,
+            relations=[*complete_state.relations, placement],
+        )
+        with patch.object(
+            charm.PlacementOperatorCharm,
+            "_placement_api_healthy",
+            return_value=False,
+        ):
+            state = ctx.run(ctx.on.config_changed(), state)
+            cleanup_database_requires_events()
+            placement = state.get_relation(placement.id)
+            state = ctx.run(ctx.on.relation_changed(placement), state)
+
+        assert state.get_relation(placement.id).local_app_data["ready"] == (
+            "false"
+        )
+        assert state.unit_status == testing.WaitingStatus(
+            "(container:placement-api) Placement API not yet serving"
+        )
+
+        cleanup_database_requires_events()
+        placement = state.get_relation(placement.id)
+        state = ctx.run(ctx.on.relation_changed(placement), state)
+        assert (
+            state.get_relation(placement.id).local_app_data["ready"] == "true"
+        )
+        assert state.unit_status == testing.ActiveStatus("")
+
+
+@pytest.mark.parametrize(
+    "event_name", ["update_status", "pebble_check_recovered"]
+)
+class TestPlacementApiReadiness:
+    """Readiness recovers without another config or relation event (LP: #2166145)."""
+
+    @pytest.fixture()
+    def container(self, tmp_path):
+        """Keep the workload filesystem across successive hook executions."""
+        mounts = {
+            "etc": testing.Mount(location="/etc", source=tmp_path / "etc"),
+            "certs": testing.Mount(
+                location="/usr/local/share/ca-certificates",
+                source=tmp_path / "certs",
+            ),
+        }
+        for mount in mounts.values():
+            mount.source.mkdir()
+        return replace(k8s_api_container("placement-api"), mounts=mounts)
+
+    @pytest.fixture(params=[True, False], ids=["leader", "non-leader"])
+    def readiness_state(self, request, complete_state):
+        """Include a ready leader and a consumer of placement readiness."""
+        relations = [
+            (
+                replace(relation, local_app_data={"leader_ready": "true"})
+                if relation.endpoint == "peers"
+                else relation
+            )
+            for relation in complete_state.relations
+        ]
+        relations.append(
+            testing.Relation(endpoint="placement", remote_app_name="nova")
+        )
+        return replace(
+            complete_state, leader=request.param, relations=relations
+        )
+
+    @pytest.fixture()
+    def waiting_state(self, ctx, readiness_state):
+        """Persist the API readiness waiting status while Apache is starting."""
+        with patch.object(
+            charm.PlacementOperatorCharm,
+            "_placement_api_healthy",
+            return_value=False,
+        ):
+            state = ctx.run(ctx.on.config_changed(), readiness_state)
+        assert state.unit_status == testing.WaitingStatus(
+            "(container:placement-api) Placement API not yet serving"
+        )
+        return state
+
+    @staticmethod
+    def run_readiness_check(ctx, state, event_name, check_name="online"):
+        """Run a health event and verify it performs no workload configuration."""
+        cleanup_database_requires_events()
+        ctx.exec_history.clear()
+        with (
+            patch.object(
+                charm.PlacementOperatorCharm, "configure_charm"
+            ) as configure,
+            patch.object(ops.Container, "push") as push,
+            patch.object(ops.Container, "restart") as restart,
+        ):
+            if event_name == "update_status":
+                state = ctx.run(ctx.on.update_status(), state)
+            else:
+                # Scenario's check-event validation does not normalize hyphenated
+                # container names. Emit through ops to exercise all recovery observers.
+                with ctx(ctx.on.start(), state) as manager:
+                    container = manager.charm.unit.get_container(
+                        "placement-api"
+                    )
+                    manager.charm.on.placement_api_pebble_check_recovered.emit(
+                        container, check_name
+                    )
+                    state = manager.run()
+
+        configure.assert_not_called()
+        push.assert_not_called()
+        restart.assert_not_called()
+        assert not ctx.exec_history.get("placement-api")
+        return state
+
+    def test_readiness_recovers(self, ctx, waiting_state, event_name):
+        """Keep waiting while unhealthy, then clear it and publish readiness."""
+        with patch.object(
+            charm.PlacementOperatorCharm,
+            "_placement_api_healthy",
+            return_value=False,
+        ) as probe:
+            state = self.run_readiness_check(ctx, waiting_state, event_name)
+        probe.assert_called_once_with()
+        assert state.unit_status == testing.WaitingStatus(
+            "(container:placement-api) Placement API not yet serving"
+        )
+        placement = next(
+            relation
+            for relation in state.relations
+            if relation.endpoint == "placement"
+        )
+        assert "ready" not in placement.local_app_data
+
+        # Only the API probe result changes; there is no relation/config hook.
+        state = self.run_readiness_check(ctx, state, event_name)
+        assert state.unit_status == testing.ActiveStatus("")
+        ready = state.get_relation(placement.id).local_app_data.get("ready")
+        assert ready == ("true" if state.leader else None)
+
+        state = self.run_readiness_check(ctx, state, event_name)
+        assert state.unit_status == testing.ActiveStatus("")
+
+    def test_readiness_checks_prerequisites(
+        self, ctx, waiting_state, event_name
+    ):
+        """A healthy API alone cannot bypass a missing mandatory relation."""
+        state = replace(
+            waiting_state,
+            relations=[
+                relation
+                for relation in waiting_state.relations
+                if relation.endpoint != "database"
+            ],
+        )
+        with patch.object(
+            charm.PlacementOperatorCharm, "_placement_api_healthy"
+        ) as probe:
+            state = self.run_readiness_check(ctx, state, event_name)
+        probe.assert_not_called()
+        assert isinstance(state.unit_status, testing.BlockedStatus)
+        assert "integration missing" in state.unit_status.message
+        placement = next(
+            relation
+            for relation in state.relations
+            if relation.endpoint == "placement"
+        )
+        assert "ready" not in placement.local_app_data
+
+    def test_other_waiting_status_preserved(
+        self, ctx, complete_state, event_name
+    ):
+        """An API readiness check cannot clear a workload waiting status."""
+        state = ctx.run(ctx.on.config_changed(), complete_state)
+        state = replace(
+            state,
+            leader=False,
+            relations=[
+                (
+                    replace(relation, local_app_data={})
+                    if relation.endpoint == "peers"
+                    else relation
+                )
+                for relation in state.relations
+            ],
+        )
+        cleanup_database_requires_events()
+        state = ctx.run(ctx.on.config_changed(), state)
+        assert state.unit_status == testing.WaitingStatus(
+            "(workload) Leader not ready"
+        )
+
+        state = self.run_readiness_check(ctx, state, event_name)
+        assert state.unit_status == testing.WaitingStatus(
+            "(workload) Leader not ready"
+        )
+
+    def test_readiness_recovery_preserves_configuration_failure(
+        self, ctx, waiting_state, event_name
+    ):
+        """Clear the API waiting entry without overwriting a configuration error."""
+        cleanup_database_requires_events()
+        with patch.object(
+            charm.PlacementOperatorCharm,
+            "configure_unit",
+            side_effect=RuntimeError("configuration failed"),
+        ):
+            state = ctx.run(ctx.on.config_changed(), waiting_state)
+        blocked_status = testing.BlockedStatus(
+            "(workload) Error in charm (see logs): configuration failed"
+        )
+        assert state.unit_status == blocked_status
+
+        state = self.run_readiness_check(ctx, state, event_name)
+        assert state.unit_status == blocked_status
+        status_pool = next(
+            stored
+            for stored in state.stored_states
+            if stored.name == "_status_pool"
+        )
+        statuses = json.loads(status_pool.content["statuses"])
+        assert statuses["container:placement-api"] == {
+            "status": "active",
+            "message": "",
+        }
+        assert "api-readiness" not in statuses
+
+    def test_no_probe_before_bootstrapping(
+        self, ctx, readiness_state, event_name
+    ):
+        """An unconfigured unit cannot announce readiness even if the API responds."""
+        with patch.object(
+            charm.PlacementOperatorCharm, "_placement_api_healthy"
+        ) as probe:
+            state = self.run_readiness_check(ctx, readiness_state, event_name)
+        probe.assert_not_called()
+        assert state.unit_status == testing.MaintenanceStatus(
+            "(bootstrap) Service not bootstrapped"
+        )
+        placement = next(
+            relation
+            for relation in state.relations
+            if relation.endpoint == "placement"
+        )
+        assert "ready" not in placement.local_app_data
+
+    def test_pause_clears_pending_readiness(
+        self, ctx, waiting_state, event_name
+    ):
+        """Pausing a starting API leaves maintenance status and disables probes."""
+        cleanup_database_requires_events()
+        with patch.object(
+            charm.PlacementOperatorCharm, "_placement_api_healthy"
+        ) as probe:
+            state = ctx.run(ctx.on.action("pause"), waiting_state)
+            paused_status = testing.MaintenanceStatus(
+                "(workload) Paused. Use 'resume' action to resume normal service."
+            )
+            assert state.unit_status == paused_status
+            state = self.run_readiness_check(ctx, state, event_name)
+        probe.assert_not_called()
+        assert state.unit_status == paused_status
+        assert (
+            state.get_container("placement-api").service_statuses[
+                "wsgi-placement-api"
+            ]
+            == testing.pebble.ServiceStatus.INACTIVE
+        )
+
+    def test_no_probe_when_container_disconnected(
+        self, ctx, waiting_state, event_name
+    ):
+        """Container availability is reported by the existing Pebble handler."""
+        container = replace(
+            waiting_state.get_container("placement-api"), can_connect=False
+        )
+        state = replace(waiting_state, containers=[container])
+        with patch.object(
+            charm.PlacementOperatorCharm, "_placement_api_healthy"
+        ) as probe:
+            state = self.run_readiness_check(ctx, state, event_name)
+        probe.assert_not_called()
+        assert state.unit_status == testing.WaitingStatus(
+            "(container:placement-api) pebble not ready"
+        )
+
+    def test_failed_pebble_check_preserved(
+        self, ctx, waiting_state, event_name
+    ):
+        """A failed readiness check takes precedence over the API probe."""
+        container = waiting_state.get_container("placement-api")
+        container = replace(
+            container,
+            check_infos=[
+                (
+                    replace(
+                        check,
+                        status=testing.pebble.CheckStatus.DOWN,
+                        failures=check.threshold,
+                    )
+                    if check.name == "online"
+                    else check
+                )
+                for check in container.check_infos
+            ],
+        )
+        state = replace(waiting_state, containers=[container])
+        with patch.object(
+            charm.PlacementOperatorCharm, "_placement_api_healthy"
+        ) as probe:
+            # The alive check recovered, but the ready check is still failing.
+            state = self.run_readiness_check(
+                ctx, state, event_name, check_name="up"
+            )
+        probe.assert_not_called()
+        assert state.unit_status == testing.BlockedStatus(
+            "(container:placement-api) healthcheck failed: online"
+        )
+        placement = next(
+            relation
+            for relation in state.relations
+            if relation.endpoint == "placement"
+        )
+        assert "ready" not in placement.local_app_data
+
+    def test_no_probe_when_service_stopped(
+        self, ctx, waiting_state, event_name
+    ):
+        """An inactive service retains the existing container waiting status."""
+        container = replace(
+            waiting_state.get_container("placement-api"),
+            service_statuses={
+                "wsgi-placement-api": testing.pebble.ServiceStatus.INACTIVE
+            },
+        )
+        state = replace(waiting_state, containers=[container])
+        with patch.object(
+            charm.PlacementOperatorCharm, "_placement_api_healthy"
+        ) as probe:
+            state = self.run_readiness_check(ctx, state, event_name)
+        probe.assert_not_called()
+        assert state.unit_status == testing.WaitingStatus(
+            "(container:placement-api) service not ready"
+        )
