@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "2f6a6ba811f13b5f99c18199623efb82669b7f2f",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "322e07f7_94136c7f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-16T08:18:15Z",
+      "side": 1,
+      "message": "recheck Ci failure fixed by https://github.com/openstack-charmers/zaza-openstack-tests/pull/1438#event-31206051798",
+      "revId": "2f6a6ba811f13b5f99c18199623efb82669b7f2f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
