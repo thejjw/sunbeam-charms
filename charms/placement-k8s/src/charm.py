@@ -33,7 +33,6 @@ import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
-import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 from ops.charm import (
@@ -49,6 +48,44 @@ logger = logging.getLogger(__name__)
 @sunbeam_tracing.trace_type
 class WSGIPlacementPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Placement Pebble Handler."""
+
+    charm: "PlacementOperatorCharm"
+
+    def _on_update_status(self, event: ops.EventBase) -> None:
+        """Refresh container health and publish readiness once the API serves."""
+        if self.check_readiness(event):
+            self.charm.set_readiness_on_related_units()
+
+    def check_readiness(self, event: ops.EventBase) -> bool:
+        """Assess Pebble and API health using the existing container status."""
+        super()._on_update_status(event)
+        return self.check_api_readiness()
+
+    def check_api_readiness(self) -> bool:
+        """Check the API after service setup or a successful Pebble assessment."""
+        if (
+            self.charm.is_service_paused
+            or not self.charm.bootstrapped()
+            or not all(
+                handler.ready
+                for handler in self.charm.relation_handlers
+                if handler.mandatory
+            )
+            or not isinstance(self.status.status, ops.ActiveStatus)
+        ):
+            return False
+
+        if not self.charm._placement_api_healthy():
+            self.status.set(ops.WaitingStatus("Placement API not yet serving"))
+            return False
+
+        return True
+
+    def stop_all(self) -> None:
+        """Stop services and report maintenance when intentionally paused."""
+        super().stop_all()
+        if self.charm.is_service_paused:
+            self.status.set(ops.MaintenanceStatus("Service paused"))
 
     def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
         """Enable and start WSGI service."""
@@ -82,17 +119,16 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     def get_pebble_handlers(self) -> List[sunbeam_chandlers.PebbleHandler]:
         """Pebble handlers for the service."""
-        return [
-            WSGIPlacementPebbleHandler(
-                self,
-                self.service_name,
-                self.service_name,
-                self.container_configs,
-                self.template_dir,
-                self.configure_charm,
-                f"wsgi-{self.service_name}",
-            )
-        ]
+        self.placement_pebble_handler = WSGIPlacementPebbleHandler(
+            self,
+            self.service_name,
+            self.service_name,
+            self.container_configs,
+            self.template_dir,
+            self.configure_charm,
+            f"wsgi-{self.service_name}",
+        )
+        return [self.placement_pebble_handler]
 
     def get_relation_handlers(
         self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
@@ -114,14 +150,16 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def post_config_setup(self):
         """Configuration steps after services have been setup."""
         super().post_config_setup()
-        self.set_readiness_on_related_units()
+        if self.placement_pebble_handler.check_api_readiness():
+            self.set_readiness_on_related_units()
 
     def handle_readiness_request_from_event(
         self, event: RelationEvent
     ) -> None:
         """Set service readiness in relation data."""
         self.svc_ready_handler.interface.set_service_status(
-            event.relation, self.bootstrapped()
+            event.relation,
+            self.placement_pebble_handler.check_readiness(event),
         )
 
     def _placement_api_healthy(self) -> bool:
@@ -144,11 +182,7 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             return False
 
     def set_readiness_on_related_units(self) -> None:
-        """Set service readiness on placement related units."""
-        if not self._placement_api_healthy():
-            raise sunbeam_guard.WaitingExceptionError(
-                "Placement API not yet serving"
-            )
+        """Publish readiness after the Pebble handler confirms API health."""
         logger.debug(
             "Set service readiness on all connected placement relations"
         )
