@@ -59,6 +59,16 @@ config:
       description: |
         Enable spreading the instances between hosts with the same best weight.
 
+actions:
+  rpc-cache-refresh:
+    description: |
+      SIGHUP nova-conductor to clear the cached RPC version cap.
+      After a SLURP upgrade, the control plane holds a stale cap pinned to
+      the previous release. This action triggers nova's reset() to re-query
+      the services table and pick up the new minimum version. Zero-downtime.
+      Run this action on every unit: each unit's nova-conductor holds its
+      own cached cap, so running it on the leader alone is not sufficient.
+
 containers:
   nova-api:
     resource: nova-api-image
