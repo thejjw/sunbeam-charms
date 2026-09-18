@@ -16,6 +16,23 @@
       "message": "recheck due to NODE_FAILURE",
       "revId": "daec33668f6cb55bd8c32aaf140ee739fcaa057d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "91bf9735_33b740fd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-18T07:00:56Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "daec33668f6cb55bd8c32aaf140ee739fcaa057d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
