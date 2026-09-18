@@ -46,6 +46,7 @@
         cinder-volume-hpe3par: 2024.1/edge
         cinder-volume-datacore: 2024.1/edge
         cinder-volume-datera: 2024.1/edge
+        cinder-volume-dellpowerflex: 2024.1/edge
         cinder-volume-dellpowermax: 2024.1/edge
         cinder-volume-dellpowervault: 2024.1/edge
         cinder-volume-fujitsueternusdx: 2024.1/edge
