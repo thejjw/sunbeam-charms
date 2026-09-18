@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fad565aa_62a808de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-18T10:59:24Z",
+      "side": 1,
+      "message": "Quick code review as I don\u0027t have much time",
+      "revId": "8e50afa8141b2d6d529dc680515c7e956840782b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e36cb15f_180c6c26",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-18T10:59:24Z",
+      "side": 1,
+      "message": "edge/hotfix is interpreted as track edge, rather than risk edge with branch hotfix. This can incorrectly block branch refreshes and report false drift. Recognize this shorthand and normalize the omitted track.\n\n\n+ why are we using partition instead of split?",
+      "revId": "8e50afa8141b2d6d529dc680515c7e956840782b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6ec45f3b_55218b9e",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 1622,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-18T10:59:24Z",
+      "side": 1,
+      "message": "For a snap tracking 2026.1/stable, requesting candidate should refresh to 2026.1/candidate. The new comparison instead treats it as latest/candidate and skips the refresh. Resolve the requested channel against the installed track before comparing tracks or reporting drift. The hypervisor and clusterd guards are also affected.",
+      "revId": "8e50afa8141b2d6d529dc680515c7e956840782b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
