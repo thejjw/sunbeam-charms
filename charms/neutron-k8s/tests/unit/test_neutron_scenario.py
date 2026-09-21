@@ -73,6 +73,25 @@ class TestAllRelations:
             ["[nova]", "region_name = RegionOne"],
         )
 
+    def test_neutron_conf_enables_qos_service_plugin(
+        self, ctx, complete_state
+    ):
+        """The qos service plugin is registered so the QoS API is served."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        config_path = assert_config_file_exists(
+            state_out, ctx, "neutron-server", "/etc/neutron/neutron.conf"
+        )
+        for line in config_path.read_text().splitlines():
+            if line.startswith("service_plugins ="):
+                service_plugins = [
+                    plugin.strip()
+                    for plugin in line.split("=", maxsplit=1)[1].split(",")
+                ]
+                assert "qos" in service_plugins
+                break
+        else:
+            pytest.fail("service_plugins is missing from neutron.conf")
+
 
 class TestPebbleReady:
     """Pebble-ready event with all relations → container configured."""
