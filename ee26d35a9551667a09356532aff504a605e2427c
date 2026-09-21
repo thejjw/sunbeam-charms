@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7d44d706_003f830f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-21T03:41:09Z",
+      "side": 1,
+      "message": "LGTM\n\nSAtya Jhaveri, thank you for the contribution and the manual testing of qos feature",
+      "revId": "ee26d35a9551667a09356532aff504a605e2427c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
