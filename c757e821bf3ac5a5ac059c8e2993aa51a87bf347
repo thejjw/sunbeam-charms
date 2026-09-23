@@ -16,6 +16,29 @@
       "message": "LGTM",
       "revId": "c757e821bf3ac5a5ac059c8e2993aa51a87bf347",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "161a72d2_edc3c9ed",
+        "filename": "charms/storage/cinder-volume-netapp/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-09-23T16:22:04Z",
+      "side": 1,
+      "message": "changing the semantic of the config option makes the config name to look awkward, this is not a path, and other config keys are not a file neither.\n\nhow extensive would be to rename these options to drop the suffix?",
+      "range": {
+        "startLine": 86,
+        "startChar": 20,
+        "endLine": 86,
+        "endChar": 24
+      },
+      "revId": "c757e821bf3ac5a5ac059c8e2993aa51a87bf347",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
