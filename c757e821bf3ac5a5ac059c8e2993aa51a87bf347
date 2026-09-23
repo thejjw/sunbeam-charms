@@ -39,6 +39,30 @@
       },
       "revId": "c757e821bf3ac5a5ac059c8e2993aa51a87bf347",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f9adc79_fd3a5285",
+        "filename": "charms/storage/cinder-volume-netapp/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-23T17:15:03Z",
+      "side": 1,
+      "message": "I know, it would require modifying the snap cinder volume, and snap openstack.\n\nI weighed on this, and knowing this is affecting users, I chose not to.\nBUT, since it\u0027s not working at all currently, there\u0027s real stable/backward compatibility expectations",
+      "parentUuid": "161a72d2_edc3c9ed",
+      "range": {
+        "startLine": 86,
+        "startChar": 20,
+        "endLine": 86,
+        "endChar": 24
+      },
+      "revId": "c757e821bf3ac5a5ac059c8e2993aa51a87bf347",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
