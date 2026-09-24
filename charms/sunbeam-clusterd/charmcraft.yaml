@@ -5,7 +5,7 @@ summary: A juju charm to run sunbeam clusterd
 description: |
   Manage sunbeam clusterd deployment
 
-base: ubuntu@24.04
+base: ubuntu@26.04
 platforms:
   amd64:
   arm64:
@@ -14,7 +14,7 @@ platforms:
 config:
   options:
     snap-channel:
-      default: 2026.1/edge
+      default: 2026.2/edge
       type: string
     debug:
       default: false
@@ -54,5 +54,5 @@ parts:
       # s390x: build cryptography (openssl-sys/Rust) from source
       - libssl-dev
       - pkg-config
-      - rustc-1.82
-      - cargo-1.82
+      - rustc
+      - cargo

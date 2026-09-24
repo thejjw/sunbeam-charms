@@ -8,7 +8,7 @@
     name: nftables
   become: true
   when:
-    - ansible_distribution_release in ('jammy', 'noble')
+    - ansible_distribution_release in ('jammy', 'noble', 'resolute')
     - nftables_enabled | default(true) | bool
 
 - name: Increase fs.inotify.max_user_instances
@@ -25,7 +25,7 @@
   become: true
   changed_when: false
   when:
-    - ansible_distribution_release in ('jammy', 'noble')
+    - ansible_distribution_release in ('jammy', 'noble', 'resolute')
     - nftables_enabled | default(true) | bool
     - insert_nft_rules | bool
 
@@ -34,7 +34,7 @@
   become: true
   changed_when: false
   when:
-    - ansible_distribution_release in ('jammy', 'noble')
+    - ansible_distribution_release in ('jammy', 'noble', 'resolute')
     - nftables_enabled | default(true) | bool
     - insert_nft_rules | bool
 
@@ -43,7 +43,7 @@
   become: true
   changed_when: false
   when:
-    - ansible_distribution_release in ('jammy', 'noble')
+    - ansible_distribution_release in ('jammy', 'noble', 'resolute')
     - nftables_enabled | default(true) | bool
     - insert_nft_rules | bool
 

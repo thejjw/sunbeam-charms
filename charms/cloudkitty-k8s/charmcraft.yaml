@@ -14,7 +14,7 @@ links:
   issues:
     - https://bugs.launchpad.net/charm-cloudkitty-k8s
 
-base: ubuntu@24.04
+base: ubuntu@26.04
 platforms:
   amd64:
   arm64:
@@ -47,7 +47,7 @@ resources:
   cloudkitty-image:
     type: oci-image
     description: OCI image for OpenStack Cloudkitty
-    upstream-source: ghcr.io/canonical/cloudkitty-consolidated:2026.1-24.04_edge
+    upstream-source: ghcr.io/canonical/cloudkitty-consolidated:2026.2-26.04_edge
 
 requires:
   ingress-internal:
@@ -101,5 +101,5 @@ parts:
       # s390x: build cryptography (openssl-sys/Rust) from source
       - libssl-dev
       - pkg-config
-      - rustc-1.82
-      - cargo-1.82
+      - rustc
+      - cargo
