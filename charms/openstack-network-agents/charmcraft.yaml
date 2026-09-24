@@ -7,7 +7,7 @@ description: |
   provider bridge/physnet mapping, and runs neutron-ovn-metadata-agent.
   Attach this charm to MicroOVN units to provide north/south traffic.
 
-base: ubuntu@24.04
+base: ubuntu@26.04
 subordinate: true
 
 platforms:
@@ -97,5 +97,5 @@ parts:
       # s390x: build cryptography (openssl-sys/Rust) from source
       - libssl-dev
       - pkg-config
-      - rustc-1.82
-      - cargo-1.82
+      - rustc
+      - cargo
