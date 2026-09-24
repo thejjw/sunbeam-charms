@@ -18,7 +18,7 @@ description: |
   Requires a Keystone relation (``identity-credentials``) in order to inject
   OpenStack credentials into the daemon.
 
-base: ubuntu@24.04
+base: ubuntu@26.04
 platforms:
   amd64:
   arm64:
@@ -116,8 +116,8 @@ parts:
       # s390x: build cryptography (openssl-sys/Rust) from source
       - libssl-dev
       - pkg-config
-      - rustc-1.82
-      - cargo-1.82
+      - rustc
+      - cargo
   manifests:
     # Bundle the upstream manifest trees into the charm so that
     # ops.manifests can locate them at runtime under upstream/.

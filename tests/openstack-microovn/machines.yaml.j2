@@ -1,6 +1,6 @@
 machines:
   "0":
-    base: ubuntu@24.04
+    base: ubuntu@26.04
     arch: amd64
 
 applications:
@@ -23,7 +23,7 @@ applications:
     charm: ../../../sunbeam-machine.charm
     {% else -%}
     charm: ch:sunbeam-machine
-    channel: 2026.1/edge
+    channel: 2026.2/edge
     {% endif -%}
     scale: 1
     to:
@@ -33,27 +33,27 @@ applications:
     charm: ../../../epa-orchestrator.charm
     {% else -%}
     charm: ch:epa-orchestrator
-    channel: 2026.1/edge
+    channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: ubuntu@26.04
   cinder-volume:
     {% if cinder_volume is defined and cinder_volume is sameas true -%}
     charm: ../../../cinder-volume.charm
     {% else -%}
     charm: ch:cinder-volume
-    channel: 2026.1/edge
+    channel: 2026.2/edge
     {% endif -%}
     scale: 1
     to:
       - "0"
     options:
-      snap-channel: 2026.1/edge
+      snap-channel: 2026.2/edge
   cinder-microceph:
     {% if cinder_volume_ceph is defined and cinder_volume_ceph is sameas true -%}
     charm: ../../../cinder-volume-ceph.charm
     {% else -%}
     charm: ch:cinder-volume-ceph
-    channel: 2026.1/edge
+    channel: 2026.2/edge
     {% endif -%}
     options:
       ceph-osd-replication-count: 1
@@ -62,32 +62,32 @@ applications:
     charm: ../../../openstack-hypervisor.charm
     {% else -%}
     charm: ch:openstack-hypervisor
-    channel: 2026.1/edge
+    channel: 2026.2/edge
     {% endif -%}
     scale: 1
     to:
       - "0"
     arch: amd64
     options:
-      snap-channel: 2026.1/edge
+      snap-channel: 2026.2/edge
       external-bridge-address: 0.0.0.0/0
   manila-data:
     {% if manila_data is defined and manila_data is sameas true -%}
     charm: ../../../manila-data.charm
     {% else -%}
     charm: ch:manila-data
-    channel: 2026.1/edge
+    channel: 2026.2/edge
     {% endif -%}
     scale: 1
     to:
       - "0"
     arch: amd64
     options:
-      snap-channel: 2026.1/edge
+      snap-channel: 2026.2/edge
   microovn:
     charm: ch:microovn
     channel: 26.03/stable
-    base: ubuntu@24.04
+    base: ubuntu@26.04
     scale: 1
     to:
       - "0"
@@ -103,9 +103,9 @@ applications:
     charm: ../../../sunbeam-ovn-proxy.charm
     {% else -%}
     charm: ch:sunbeam-ovn-proxy
-    channel: 2026.1/edge
+    channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: ubuntu@26.04
     scale: 1
     to:
       - "0"
@@ -114,11 +114,11 @@ applications:
     charm: ../../../openstack-network-agents.charm
     {% else -%}
     charm: ch:openstack-network-agents
-    channel: 2026.1/edge
+    channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: ubuntu@26.04
     options:
-      snap-channel: 2026.1/edge
+      snap-channel: 2026.2/edge
       external-bridge-address: 0.0.0.0/0
 
 saas:

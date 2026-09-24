@@ -3,8 +3,8 @@
 
 [project]
 name = "cinder-volume-purestorage"
-version = "2026.1"
-requires-python = "~=3.12.0"
+version = "2026.2"
+requires-python = "~=3.14.0"
 
 dependencies = [
     "cryptography",
