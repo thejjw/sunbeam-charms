@@ -9,7 +9,7 @@ description: |
   charms need more information that is provided by the ovsdb-cms
   relation.
 
-base: ubuntu@24.04
+base: ubuntu@26.04
 platforms:
   amd64:
   arm64:
@@ -28,8 +28,8 @@ parts:
       # s390x: build cryptography (openssl-sys/Rust) from source
       - libssl-dev
       - pkg-config
-      - rustc-1.82
-      - cargo-1.82
+      - rustc
+      - cargo
 requires:
   ovsdb:
     interface: ovsdb
