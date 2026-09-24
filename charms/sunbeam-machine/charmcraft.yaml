@@ -5,7 +5,7 @@ summary: Manage sunbeam utilities in OpenStack deployment
 description: |
   Manage machine configuration for sunbeam deployment
 
-base: ubuntu@24.04
+base: ubuntu@26.04
 platforms:
   amd64:
   arm64:
@@ -49,5 +49,5 @@ parts:
       # s390x: build cryptography (openssl-sys/Rust) from source
       - libssl-dev
       - pkg-config
-      - rustc-1.82
-      - cargo-1.82
+      - rustc
+      - cargo
