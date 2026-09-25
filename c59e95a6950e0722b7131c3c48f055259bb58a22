@@ -16,6 +16,23 @@
       "message": "recheck\n\nfailed to read noble index from the apt mirror",
       "revId": "c59e95a6950e0722b7131c3c48f055259bb58a22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e00e6ae6_ee65c9ef",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38672
+      },
+      "writtenOn": "2026-09-25T02:17:50Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "c59e95a6950e0722b7131c3c48f055259bb58a22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
