@@ -34,6 +34,9 @@ import ops_sunbeam.tracing as sunbeam_tracing
 
 logger = logging.getLogger(__name__)
 
+STORAGE_BINDING = "storage"
+MOUNT_PLUGS = ("nfs-mount", "mount-observe")
+
 
 @sunbeam_tracing.trace_sunbeam_charm
 class ManilaDataOperatorCharm(charm.OSBaseOperatorCharmSnap):
@@ -68,12 +71,36 @@ class ManilaDataOperatorCharm(charm.OSBaseOperatorCharmSnap):
         self.configure_charm(event)
 
     @property
+    def storage_address(self) -> str | None:
+        """Address of this unit on the storage binding."""
+        binding = self.model.get_binding(STORAGE_BINDING)
+        if binding is None:
+            return None
+        address = binding.network.bind_address
+        if address is None:
+            return None
+        return str(address)
+
+    def _connect_plugs(self) -> None:
+        """Connect the manual snap plugs used to mount shares."""
+        manila_data = self.get_snap()
+        for plug in MOUNT_PLUGS:
+            try:
+                manila_data.connect(plug)
+            except self.snap_module.SnapError as e:
+                logger.error("Failed to connect %s plug: %s", plug, e)
+                raise sunbeam_guard.BlockedExceptionError(
+                    f"Failed to connect snap plug {plug}"
+                ) from e
+
+    @property
     def databases(self) -> Mapping[str, str]:
         """Provide database name for manila services."""
         return {"database": "manila"}
 
     def configure_snap(self, event) -> None:
         """Run configuration on snap."""
+        self._connect_plugs()
         config = self.model.config.get
         try:
             contexts = self.contexts()
@@ -84,6 +111,7 @@ class ManilaDataOperatorCharm(charm.OSBaseOperatorCharmSnap):
                 "settings.enable-telemetry-notifications": config(
                     "enable-telemetry-notifications"
                 ),
+                "settings.data-node-access-ips": self.storage_address,
             }
         except AttributeError as e:
             raise sunbeam_guard.WaitingExceptionError(
