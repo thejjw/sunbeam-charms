@@ -33,6 +33,23 @@
       "message": "Need these to get merged to clear the functional tests: https://github.com/openstack-charmers/zaza/pull/699",
       "revId": "7b5b1c23a7e74c7a69ced02553d3baeb2e03d1fc",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fba455c3_57cca956",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-09-28T14:13:32Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "7b5b1c23a7e74c7a69ced02553d3baeb2e03d1fc",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
