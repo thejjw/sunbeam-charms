@@ -53,32 +53,60 @@ def _ceph_broker_req_id() -> tuple[str, str]:
     return rq.request_id, rq.request
 
 
-def ceph_relation_complete() -> testing.Relation:
+def ceph_relation_complete(
+    unit_extra: dict | None = None,
+    rsp_extra: dict | None = None,
+) -> testing.Relation:
     """Ceph relation with auth, key, and matching broker request/response."""
     request_id, broker_req_json = _ceph_broker_req_id()
+    rsp = {"exit-code": 0, "request-id": request_id, **(rsp_extra or {})}
+    unit0 = {
+        "auth": "cephx",
+        "key": "AQBUfpVeNl7CHxAA8/f6WTcYFxW2dJ5VyvWmJg==",
+        "ingress-address": "192.0.2.2",
+        "ceph-public-address": "192.0.2.2",
+        f"broker-rsp-{CEPH_CLIENT_UNIT}": json.dumps(rsp),
+        **(unit_extra or {}),
+    }
     return testing.Relation(
         endpoint="ceph",
         remote_app_name="ceph-mon",
         remote_app_data={},
-        local_unit_data={
-            "broker_req": broker_req_json,
-        },
+        local_unit_data={"broker_req": broker_req_json},
+        remote_units_data={0: unit0, 1: {}},
+    )
+
+
+
+def ceph_relation_no_broker() -> testing.Relation:
+    """Ceph relation with key and monitors but no broker request/response.
+ 
+    This is what a provider publishes to a consumer that never sends a
+    broker request (create-pool=false).
+    """
+    return testing.Relation(
+        endpoint="ceph",
+        remote_app_name="ceph-mon",
+        remote_app_data={},
+        local_unit_data={},
         remote_units_data={
             0: {
                 "auth": "cephx",
                 "key": "AQBUfpVeNl7CHxAA8/f6WTcYFxW2dJ5VyvWmJg==",
                 "ingress-address": "192.0.2.2",
                 "ceph-public-address": "192.0.2.2",
-                f"broker-rsp-{CEPH_CLIENT_UNIT}": json.dumps(
-                    {
-                        "exit-code": 0,
-                        "request-id": request_id,
-                    }
-                ),
             },
-            1: {},
         },
     )
+ 
+ 
+@pytest.fixture(autouse=True)
+def snap_bin(tmp_path, monkeypatch):
+    """An empty /snap/bin: no ceph-check unless a test adds it."""
+    bin_dir = tmp_path /"snap-bin"
+    bin_dir.mkdir()
+    monkeypatch.setattr(charm, "SNAP_BIN", bin_dir)
+    return bin_dir
 
 
 def cinder_volume_relation() -> testing.SubordinateRelation:
