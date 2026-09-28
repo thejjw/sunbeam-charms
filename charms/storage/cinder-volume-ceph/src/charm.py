@@ -21,7 +21,11 @@ This charm provide Cinder <-> Ceph integration as part
 of an OpenStack deployment
 """
 
+import dataclasses
+import enum
+import json
 import logging
+import subprocess
 import uuid
 from typing import (
     Callable,
@@ -37,12 +41,41 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as relation_handlers
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
+from ops_sunbeam import (
+    compound_status,
+)
 from ops.model import (
+    BlockedStatus,
     Relation,
     SecretRotate,
 )
 
+CEPH_CHECK_TIMEOUT = 60
+FSID_PEER_KEY = "ceph-fsid"
+
 logger = logging.getLogger(__name__)
+
+class CephCheckResult(enum.IntEnum):
+    """Exit code of `<snap>.ceph_check <backend>` (mirrored in snap-cinder-volume)"""
+
+    OK = 0 
+    ERROR = 1
+    USAGE = 2
+    POOL_MISSING = 3 
+    PERMISSION_DENIED = 4 
+    UNREACHABLE = 5
+
+    @classmethod
+    def _missing_(cls, value):
+        return cls.ERROR
+
+
+@dataclasses.dataclass(frozen=True)
+class CephCheckOutcome:
+    """Result of `<snap>.ceph-check backend."""
+
+    rc: CephCheckResult
+    fsid: str | None = None
 
 
 @sunbeam_tracing.trace_type
@@ -64,7 +97,7 @@ class CinderCephConfigurationContext(config_contexts.ConfigContext):
         backend_name = config("volume-backend-name") or self.charm.app.name
         return {
             "rbd_pool": pool_name,
-            "rbd_user": self.charm.app.name,
+            "rbd_user": self.charm.ceph.client_name or self.charm.app.name,
             "backend_name": backend_name,
             "backend_availability_zone": config("backend-availability-zone"),
             "secret_uuid": self.charm.get_secret_uuid() or "unknown",
@@ -112,6 +145,86 @@ class CephAccessProvidesHandler(sunbeam_rhandlers.RelationHandler):
         return True
 
 
+@sunbeam_tracing.trace_type
+class CinderVolumeCephClientHandler(sunbeam_rhandlers.CephClientHandler):
+    """Ceph-client handler that can consume and existing pool."""
+
+    @property
+    def create_pool(self) -> bool:
+        """Whether pool creation should be requested from the provider."""
+        return bool(self.model.config.get("create-pool", True))
+
+    def request_pools(self, event: ops.framework.EventBase) -> None:
+        """Request pools, or only a key when create-pool is false."""
+        if self.create_pool:
+            super().request_pools(event)
+            return
+        relations = self.model.relations[self.relation_name]
+        if not relations:
+            return
+        rq = self.interface.new_request
+        self.interface._stored.broker_req = rq.request
+        for relation in relations:
+            unit_data = relation.data[self.model.unit]
+            if unit_data.get("broker_req") != rq.request:
+                unit_data["broker_req"] = rq.request
+
+
+    def _remote_unit_value(self, field: str) -> str | None:
+        """Value of *field* from the first remote unit that published a key."""
+        for relation in self.model.relations[self.relation_name]:
+            for unit in relation.units:
+                data = relation.data[unit]
+                if data.get("key") and data.get(field):
+                    return data[field]
+        return None
+
+
+    @property
+    def client_name(self) -> str | None:
+        """CephX client name published by provider, if any."""
+        return self._remote_unit_value("client-name")
+
+
+    @property
+    def provider_fsid(self) -> str | None:
+        """Cluster FSID published by provider, if any."""
+        return self._remote_unit_value("fsid")
+
+
+    @property
+    def broker_error(self) -> str | None:
+        """Provider's error for our current broker request, if it failed."""
+        rsp_key = "broker-rsp-" + self.model.unit.name.replace("/", "-")
+        for relation in self.model.relations[self.relation_name]:
+            try:
+                sent = json.loads(
+                    relation.data[self.model.unit].get("broker_req") or "{}"
+                )
+            except ValueError:
+                continue
+            request_id = sent.get("request-id")
+            if not request_id:
+                continue
+            for unit in relation.units:
+                try:
+                    rsp = json.loads(relation.data[unit].get(rsp_key) or "{}")
+                except ValueError:
+                    continue
+                if rsp.get("request-id") == request_id and rsp.get("exit-code"):
+                    return rsp.get("stderr") or f"exit-code {rsp["exit-code"]}"
+        return None
+
+
+    def set_status(self, status: compound_status.Status) -> None:
+        """Report a rejected broker request instead of waiting."""
+        error = self.broker_error
+        if error:
+            status.set(BlockedStatus(f"ceph provider rejected request: {error}"))
+            return
+        super().set_status(status)
+
+
 @sunbeam_tracing.trace_sunbeam_charm
 class CinderVolumeCephOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
     """Cinder/Ceph Operator charm."""
@@ -121,6 +234,20 @@ class CinderVolumeCephOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
     client_secret_key = "secret-uuid"
 
     ceph_access_relation_name = "ceph-access"
+
+    def __init__(self, framework: ops.Framework):
+        super().__init__(framework)
+        self.framework.observe(self.on.update_status, self.configure_charm)
+        self.framework.observe(
+            self.on["ceph"].relation_broken, self._on_ceph_relation_broken
+        )
+
+
+    def _on_ceph_relation_broken(self, event: ops.RelationBrokenEvent) -> None:
+        """Forget the pinned cluster: the next relation may be a different cluster."""
+        if self.unit.is_leader():
+            self.peers.set_app_data({FSID_PEER_KEY: ""})
+        self.configure_charm(event)
 
     def configure_charm(self, event: ops.EventBase):
         """Catchall handler to configure charm services."""
@@ -139,7 +266,7 @@ class CinderVolumeCephOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
     ) -> list[relation_handlers.RelationHandler]:
         """Relation handlers for the service."""
         handlers = handlers or []
-        self.ceph = relation_handlers.CephClientHandler(
+        self.ceph = CinderVolumeCephClientHandler(
             self,
             "ceph",
             self.configure_charm,
@@ -176,6 +303,8 @@ class CinderVolumeCephOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
                 "rbd-secret-uuid": contexts.cinder_ceph.secret_uuid,
                 "rbd-key": contexts.ceph.key,
                 "auth": contexts.ceph.auth,
+                "fsid": self.peers.get_app_data(FSID_PEER_KEY) or
+                self.ceph.provider_fsid,
             }
         except AttributeError as e:
             raise sunbeam_guard.WaitingExceptionError(
@@ -290,6 +419,87 @@ class CinderVolumeCephOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
             elif not relation_id:
                 self.send_ceph_access_credentials(relation)
 
+    def configure_snap(self, event: ops.EventBase) -> None:
+        """Configure the backend, then verify its pool before going ready."""
+        if not bool(self._state.volume_ready):
+            raise sunbeam_guard.WaitingExceptionError("Volume not ready")
+        backend_context = self.get_backend_configuration()
+        self.set_snap_data(backend_context, namespace=self.backend_key)
+        fsid = self.check_pool(backend_context)
+        if fsid:
+            self.check_fsid(fsid)
+            if backend_context.get("fsid") != fsid:
+                self.set_snap_data({"fsid": fsid}, namespace=self.backend_key)
+        self.cinder_volume.interface.set_ready()
+
+    def check_pool(self, backend_context: Mapping) -> str | None:
+        """Verify the pool using the backend's own credentials."""
+        outcome = self._run_ceph_check()
+        if outcome is None:
+            return None
+        pool = backend_context["rbd-pool"]
+        user = backend_context["rbd-user"]
+        match outcome.rc:
+            case CephCheckResult.OK:
+                return outcome.fsid
+            case CephCheckResult.POOL_MISSING:
+                msg = f"pool '{pool}' does not exist"
+            case CephCheckResult.PERMISSION_DENIED:
+                msg = f"client.{user} not authorized for pool '{pool}'"
+            case CephCheckResult.UNREACHABLE:
+                msg = f"ceph cluster unreachable"
+            case CephCheckResult.ERROR | CephCheckResult.USAGE:
+                msg = f"ceph pool check failed; see juju debug-log"
+        raise sunbeam_guard.BlockedExceptionError(msg)
+
+
+    def check_fsid(self, fsid: str) -> None:
+        """Ensure this backend remains paired with the same cluster."""
+        provider = self.ceph.provider_fsid
+        if provider and provider != fsid:
+            raise sunbeam_guard.BlockedExceptionError(
+                f"ceph fsid mismatch (provider {provider}, cluster {fsid})"
+            )
+        pinned = self.peers.get_app_data(FSID_PEER_KEY)
+        if pinned and pinned != fsid:
+            raise sunbeam_guard.BlockedExceptionError(
+                f"ceph cluster fsid changed (expected {pinned}, got {fsid})"
+            )
+        if not pinned and self.unit.is_leader():
+            self.peers.set_app_data({FSID_PEER_KEY: fsid})
+
+
+    def _run_ceph_check(self) -> CephCheckOutcome | None:
+        """Run `<snap>.ceph-check <backend>; None if the snap lacks it"""
+        snap_svc = self.get_snap()
+        if not any(app.get("name") == "ceph-check" for app in snap_svc.apps):
+            logger.warning(f"{self.snap_name} has no ceph-check command; skipping pool verification")
+            return None
+        cmd = [
+            "snap",
+            "run"
+            f"{self.snap_name}.ceph-check",
+            self.model.app.name
+        ]
+        try:
+            result = subprocess.run(
+                cmd,
+                capture_output = True,
+                text=True,
+                timeout=CEPH_CHECK_TIMEOUT,
+            )
+        except subprocess.TimeoutExpired:
+            logger.warning("ceph-check timed out")
+            return CephCheckOutcome(CephCheckResult.UNREACHABLE)
+        if result.returncode != CephCheckResult.OK:
+            logger.warning(f"ceph-check rc={result.returncode}")
+            return CephCheckOutcome(CephCheckResult(result.returncode))
+        try:
+            fsid = json.loads(result.stdout or "{}").get("fsid")
+        except (ValueError, AttributeError):
+            logger.warning(f"ceph-check printed no usable fsid: {result.stdout}")
+            fsid = None
+        return CephCheckOutcome(CephCheckResult.OK, fsid)
 
 if __name__ == "__main__":  # pragma: nocover
     ops.main(CinderVolumeCephOperatorCharm)
