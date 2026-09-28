@@ -54,11 +54,29 @@ BIND_RNDC_RELATION = "dns-backend"
 RNDC_SECRET_PREFIX = "rndc_"
 RNDC_REVISION_KEY = "rndc_revision"
 RNDC_STORE_KEY = "rndc-store"
+BIND_SERVICE = "dns-server"
+BIND_PREPARED_MARKER = "/run/designate-bind-charm-prepared"
 
 
 @sunbeam_tracing.trace_type
 class BindPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Pebble handler for designate-bind service."""
+
+    @property
+    def directories(self) -> list[sunbeam_chandlers.ContainerDir]:
+        """Directories that named must be able to write."""
+        return [
+            sunbeam_chandlers.ContainerDir(
+                "/run/named",
+                self.charm.service_user,
+                self.charm.service_group,
+            ),
+            sunbeam_chandlers.ContainerDir(
+                "/var/cache/bind",
+                self.charm.service_user,
+                self.charm.service_group,
+            ),
+        ]
 
     def get_layer(self) -> dict:
         """Pebble layer for bind 9 service."""
@@ -66,7 +84,7 @@ class BindPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
             "summary": "designate-bind layer",
             "description": "pebble config layer for designate-bind",
             "services": {
-                "designate-bind": {
+                self.service_name: {
                     "override": "replace",
                     "summary": "designate-bind",
                     "command": "/usr/sbin/named -g -u bind",
@@ -74,6 +92,62 @@ class BindPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 }
             },
         }
+
+    def _set_bind_file_access(
+        self,
+        container: ops.Container,
+        directory: str,
+    ) -> None:
+        """Make privileged-startup files writable by the bind group."""
+        for entry in container.list_files(directory):
+            if entry.type is ops.pebble.FileType.DIRECTORY:
+                self._set_bind_file_access(container, entry.path)
+            elif entry.type is ops.pebble.FileType.FILE and (
+                entry.user != "root"
+                or entry.group != self.charm.service_group
+                or entry.permissions & 0o060 != 0o060
+            ):
+                with container.pull(entry.path, encoding=None) as source:
+                    content = source.read()
+                container.push(
+                    entry.path,
+                    content,
+                    permissions=entry.permissions | 0o060,
+                    user="root",
+                    group=self.charm.service_group,
+                )
+
+    def _finish_first_start(self, container: ops.Container) -> None:
+        """Make state created during first start safe for later restarts."""
+        container.stop(self.service_name)
+        for directory in self.directories:
+            self._set_bind_file_access(container, directory.path)
+        container.start(self.service_name)
+        container.push(
+            BIND_PREPARED_MARKER,
+            "",
+            permissions=0o600,
+            user="root",
+            group="root",
+        )
+
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Initialise named and prepare first-start state for restarts."""
+        container = self.charm.unit.get_container(self.container_name)
+        first_start = not container.exists(BIND_PREPARED_MARKER)
+
+        if first_start:
+            services = container.get_services(self.service_name)
+            if (
+                self.service_name in services
+                and services[self.service_name].is_running()
+            ):
+                container.stop(self.service_name)
+
+        super().init_service(context)
+
+        if first_start:
+            self._finish_first_start(container)
 
 
 @sunbeam_tracing.trace_type
@@ -245,11 +319,13 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 "/etc/bind/named.conf",
                 "root",
                 "bind",
+                0o640,
             ),
             sunbeam_core.ContainerConfigFile(
                 "/etc/bind/named.conf.options",
                 "root",
                 "bind",
+                0o640,
             ),
         ]
 
@@ -280,7 +356,7 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             BindPebbleHandler(
                 self,
                 self.service_name,
-                self.service_name,
+                BIND_SERVICE,
                 self.container_configs,
                 self.template_dir,
                 self.configure_charm,
