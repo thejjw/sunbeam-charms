@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Test TestTlsCertificatesHandler for certificate renewals."""
+"""Tests for ops_sunbeam relation handlers."""
 
 from types import (
     SimpleNamespace,
@@ -27,6 +27,9 @@ import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.test_utils as test_utils
 from charmlibs.interfaces.tls_certificates import (
     Mode,
+)
+from ops.model import (
+    BlockedStatus,
 )
 
 
@@ -1108,6 +1111,108 @@ class TestTlsCertificatesHandler(test_utils.CharmTestCase):
             [mock_default_request],
         )
         self.handler.interface.sync.assert_called_once()
+
+
+UUID_A = "aaaaaaaa-0000-4000-8000-000000000001"
+UUID_B = "bbbbbbbb-0000-4000-8000-000000000002"
+BY_APP = {
+    "ceph-embedded": {"uuid": UUID_A, "key": "key-a"},
+    "ceph-ext": {"uuid": UUID_B, "key": "key-b"},
+}
+
+
+class TestCephAccessRequiresHandler(test_utils.CharmTestCase):
+    """Tests for CephAccessRequiresHandler with multiple relations."""
+
+    PATCHES = []
+
+    def setUp(self) -> None:
+        """Set up the test environment."""
+        super().setUp(test_utils, self.PATCHES)
+        self.mock_charm = MagicMock()
+        self.callback = MagicMock()
+        with patch.object(
+            sunbeam_rhandlers.CephAccessRequiresHandler,
+            "setup_event_handler",
+            return_value=MagicMock(),
+        ), patch.object(
+            sunbeam_rhandlers.CephAccessRequiresHandler,
+            "__post_init__",
+            return_value=None,
+        ):
+            self.handler = sunbeam_rhandlers.CephAccessRequiresHandler(
+                charm=self.mock_charm,
+                relation_name="ceph-access",
+                callback_f=self.callback,
+                mandatory=False,
+            )
+        self.interface = MagicMock()
+        self.handler.interface = self.interface
+
+    def _set_interface(self, by_app: dict) -> None:
+        """Mimic the lib: oldest complete relation backs the legacy API."""
+        oldest = next(iter(by_app.values()), {})
+        self.interface.ceph_access_data_by_app = by_app
+        self.interface.ceph_access_data = oldest
+        self.interface.ready = bool(by_app)
+
+    def test_ready_any_relation(self) -> None:
+        """Ready when at least one provider has complete credentials."""
+        self._set_interface(BY_APP)
+        self.assertTrue(self.handler.ready)
+
+    def test_not_ready_without_credentials(self) -> None:
+        """Not ready when no provider has complete credentials."""
+        self._set_interface({})
+        self.assertFalse(self.handler.ready)
+
+    def test_context_includes_backends_and_legacy_keys(self) -> None:
+        """Context carries the per-app map plus legacy key/uuid."""
+        self._set_interface(BY_APP)
+        ctxt = self.handler.context()
+        self.assertEqual(ctxt["backends"], BY_APP)
+        self.assertEqual(ctxt["uuid"], UUID_A)
+        self.assertEqual(ctxt["key"], "key-a")
+
+    def test_context_empty(self) -> None:
+        """Context is well-formed with no credentials."""
+        self._set_interface({})
+        ctxt = self.handler.context()
+        self.assertEqual(ctxt["backends"], {})
+        self.assertIsNone(ctxt["uuid"])
+        self.assertIsNone(ctxt["key"])
+
+    def test_goneaway_calls_callback(self) -> None:
+        """Goneaway always hands the event to the charm."""
+        self._set_interface({"ceph-embedded": BY_APP["ceph-embedded"]})
+        event = MagicMock()
+        self.handler._ceph_access_goneaway(event)
+        self.callback.assert_called_once_with(event)
+
+    def test_goneaway_mandatory_with_remaining_relation_not_blocked(
+        self,
+    ) -> None:
+        """Losing one of several providers must not block the charm."""
+        self.handler.mandatory = True
+        self._set_interface({"ceph-embedded": BY_APP["ceph-embedded"]})
+        self.handler._ceph_access_goneaway(MagicMock())
+        self.assertNotIsInstance(self.handler.status.status, BlockedStatus)
+
+    def test_goneaway_mandatory_last_relation_blocks(self) -> None:
+        """Losing the last provider blocks a mandatory relation."""
+        self.handler.mandatory = True
+        self._set_interface({})
+        self.handler._ceph_access_goneaway(MagicMock())
+        self.assertEqual(
+            self.handler.status.status,
+            BlockedStatus("integration missing"),
+        )
+
+    def test_goneaway_optional_never_blocks(self) -> None:
+        """An optional relation never blocks, even with no providers."""
+        self._set_interface({})
+        self.handler._ceph_access_goneaway(MagicMock())
+        self.assertNotIsInstance(self.handler.status.status, BlockedStatus)
 
 
 if __name__ == "__main__":
