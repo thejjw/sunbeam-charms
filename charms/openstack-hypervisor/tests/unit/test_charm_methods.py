@@ -28,6 +28,9 @@ from pathlib import (
 from types import (
     SimpleNamespace,
 )
+from typing import (
+    cast,
+)
 from unittest import (
     mock,
 )
@@ -676,6 +679,124 @@ class TestRelationDerivedConfig:
         assert charm_instance._handle_barbican_service(SimpleNamespace()) == {
             "compute.key-manager-enabled": False
         }
+
+
+# ---------------------------------------------------------------------------
+# Ceph-access tests
+# ---------------------------------------------------------------------------
+
+
+UUID_A = "aaaaaaaa-0000-4000-8000-000000000001"
+UUID_B = "bbbbbbbb-0000-4000-8000-000000000002"
+CREDS_A = {"uuid": UUID_A, "key": "key-a"}
+CREDS_B = {"uuid": UUID_B, "key": "key-b"}
+
+
+def _ceph_contexts(backends: dict) -> SimpleNamespace:
+    """Contexts with a ready ceph-access handler (oldest = first entry)."""
+    oldest = next(iter(backends.values()), {})
+    return SimpleNamespace(
+        ceph_access=SimpleNamespace(
+            backends=backends,
+            uuid=oldest.get("uuid"),
+            key=oldest.get("key"),
+        )
+    )
+
+
+def _set_current_snap_settings(settings: dict) -> None:
+    """Make the mocked hypervisor snap report *settings* (typed get)."""
+    snap_cache = cast(MagicMock, charm.snap.SnapCache)
+    snap_cache.return_value["openstack-hypervisor"].get.return_value = settings
+
+
+class TestCephAccessSnapData:
+    """Per-backend ceph-access snap keys and legacy compute.rbd-* handling."""
+
+    def test_emits_key_per_backend(self, charm_instance):
+        """Every related backend gets its own ceph-access.<app> entry."""
+        _set_current_snap_settings({})
+        data = charm_instance._handle_ceph_access(
+            _ceph_contexts({"cinder-volume-ceph": CREDS_A, "ext-a": CREDS_B})
+        )
+        assert data["ceph-access.cinder-volume-ceph"] == CREDS_A
+        assert data["ceph-access.ext-a"] == CREDS_B
+
+    def test_fresh_deploy_fills_legacy_rbd_from_oldest(self, charm_instance):
+        """With no compute.rbd-secret-uuid yet, the oldest backend fills it."""
+        _set_current_snap_settings({})
+        data = charm_instance._handle_ceph_access(
+            _ceph_contexts({"cinder-volume-ceph": CREDS_A, "ext-a": CREDS_B})
+        )
+        assert data["compute.rbd-user"] == "nova"
+        assert data["compute.rbd-secret-uuid"] == UUID_A
+        assert data["compute.rbd-key"] == "key-a"
+
+    def test_legacy_uuid_is_sticky(self, charm_instance):
+        """An existing compute.rbd-secret-uuid is never switched."""
+        _set_current_snap_settings(
+            {"compute": {"rbd-secret-uuid": UUID_B, "rbd-key": "key-b"}}
+        )
+        data = charm_instance._handle_ceph_access(
+            _ceph_contexts({"cinder-volume-ceph": CREDS_A, "ext-a": CREDS_B})
+        )
+        assert "compute.rbd-secret-uuid" not in data
+        assert "compute.rbd-user" not in data
+        assert data["compute.rbd-key"] == "key-b"
+
+    def test_legacy_key_follows_rotation(self, charm_instance):
+        """Rotating the legacy backend's key updates compute.rbd-key."""
+        _set_current_snap_settings(
+            {"compute": {"rbd-secret-uuid": UUID_A, "rbd-key": "old-key"}}
+        )
+        data = charm_instance._handle_ceph_access(
+            _ceph_contexts({"cinder-volume-ceph": CREDS_A})
+        )
+        assert data["compute.rbd-key"] == "key-a"
+        assert "compute.rbd-secret-uuid" not in data
+
+    def test_legacy_left_alone_when_its_backend_is_gone(self, charm_instance):
+        """If the legacy backend's relation is removed, compute.* is untouched."""
+        _set_current_snap_settings(
+            {
+                "compute": {"rbd-secret-uuid": UUID_A, "rbd-key": "key-a"},
+                "ceph-access": {
+                    "cinder-volume-ceph": CREDS_A,
+                    "ext-a": CREDS_B,
+                },
+            }
+        )
+        data = charm_instance._handle_ceph_access(
+            _ceph_contexts({"ext-a": CREDS_B})
+        )
+        assert not any(k.startswith("compute.") for k in data)
+
+    def test_prunes_removed_backend(self, charm_instance):
+        """A backend no longer related is unset (None)."""
+        _set_current_snap_settings(
+            {"ceph-access": {"cinder-volume-ceph": CREDS_A, "ext-a": CREDS_B}}
+        )
+        data = charm_instance._handle_ceph_access(
+            _ceph_contexts({"cinder-volume-ceph": CREDS_A})
+        )
+        assert data["ceph-access.ext-a"] is None
+        assert data["ceph-access.cinder-volume-ceph"] == CREDS_A
+
+    def test_missing_context_prunes_everything(self, charm_instance):
+        """Last relation gone: handler absent from contexts, all entries unset."""
+        _set_current_snap_settings(
+            {
+                "compute": {"rbd-secret-uuid": UUID_A, "rbd-key": "key-a"},
+                "ceph-access": {"cinder-volume-ceph": CREDS_A},
+            }
+        )
+        data = charm_instance._handle_ceph_access(SimpleNamespace())
+        assert data == {"ceph-access.cinder-volume-ceph": None}
+
+    def test_missing_context_nothing_set(self, charm_instance):
+        """No relation and nothing previously set: no snap changes."""
+        _set_current_snap_settings({})
+        assert charm_instance._handle_ceph_access(SimpleNamespace()) == {}
 
 
 # ---------------------------------------------------------------------------
