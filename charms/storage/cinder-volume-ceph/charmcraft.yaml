@@ -48,6 +48,14 @@ config:
         created for the pool. The number of placement groups for a pool can
         only be increased, never decreased - so it is important to identify the
         percent of data that will likely reside in the pool.
+    create-pool:
+      type: boolean
+      default: true
+      description: |
+        Whether to issue pool creation requests over the ceph relation.
+        Set to false to consume a pool that already exists on the provider cluster:
+        no broker requests are sent, and the backend is configured as soon as the 
+        provider publishes a key and monitors.
     volume-backend-name:
       default: null
       type: string
