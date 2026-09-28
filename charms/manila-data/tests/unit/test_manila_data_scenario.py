@@ -16,10 +16,17 @@
 
 """ops.testing (state-transition) tests for manila-data."""
 
+import ipaddress
 from pathlib import (
     Path,
 )
+from unittest.mock import (
+    MagicMock,
+    PropertyMock,
+    patch,
+)
 
+import charm
 import pytest
 from ops import (
     testing,
@@ -152,3 +159,87 @@ class TestRelationBrokenBlocksOrWaits:
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
         )
+
+
+# ---------------------------------------------------------------------------
+# Tests: storage binding and snap configuration
+# ---------------------------------------------------------------------------
+
+
+class TestStorageAddress:
+    """Test the storage_address property."""
+
+    def test_storage_address(self, ctx, complete_state):
+        """storage_address returns the storage binding address."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            mock_binding = MagicMock()
+            mock_binding.network.bind_address = ipaddress.IPv4Address(
+                "10.20.0.5"
+            )
+            mgr.charm.model.get_binding = MagicMock(return_value=mock_binding)
+
+            assert mgr.charm.storage_address == "10.20.0.5"
+            mgr.charm.model.get_binding.assert_called_once_with(
+                charm.STORAGE_BINDING
+            )
+
+    def test_storage_address_none_when_binding_missing(
+        self, ctx, complete_state
+    ):
+        """storage_address returns None when the binding is missing."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            mgr.charm.model.get_binding = MagicMock(return_value=None)
+
+            assert mgr.charm.storage_address is None
+
+    def test_storage_address_none_without_bind_address(
+        self, ctx, complete_state
+    ):
+        """storage_address returns None when there is no bind address."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            mock_binding = MagicMock()
+            mock_binding.network.bind_address = None
+            mgr.charm.model.get_binding = MagicMock(return_value=mock_binding)
+
+            assert mgr.charm.storage_address is None
+
+
+class TestConfigureSnap:
+    """Test configure_snap connects plugs and sets snap data."""
+
+    def test_configure_snap(self, ctx, complete_state):
+        """configure_snap connects plugs and passes the storage address."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            charm_instance = mgr.charm
+            mock_snap = MagicMock(name="manila-data")
+            charm_instance.get_snap = MagicMock(return_value=mock_snap)
+            charm_instance.set_snap_data = MagicMock()
+
+            with patch.object(
+                charm.ManilaDataOperatorCharm,
+                "storage_address",
+                new_callable=PropertyMock,
+                return_value="10.20.0.5",
+            ):
+                charm_instance.configure_snap(MagicMock())
+
+            assert [c.args for c in mock_snap.connect.call_args_list] == [
+                (plug,) for plug in charm.MOUNT_PLUGS
+            ]
+            snap_data = charm_instance.set_snap_data.call_args.args[0]
+            assert snap_data["settings.data-node-access-ips"] == "10.20.0.5"
+
+    def test_configure_snap_blocks_when_connect_fails(
+        self, ctx, complete_state
+    ):
+        """configure_snap blocks when a snap plug cannot be connected."""
+        with ctx(ctx.on.config_changed(), complete_state) as mgr:
+            charm_instance = mgr.charm
+            mock_snap = MagicMock(name="manila-data")
+            mock_snap.connect.side_effect = Exception("boom")
+            charm_instance.get_snap = MagicMock(return_value=mock_snap)
+            charm_instance.set_snap_data = MagicMock()
+
+            with pytest.raises(charm.sunbeam_guard.BlockedExceptionError):
+                charm_instance.configure_snap(MagicMock())
+            charm_instance.set_snap_data.assert_not_called()
