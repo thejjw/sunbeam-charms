@@ -1,0 +1,12 @@
+Code-Review+2: Hemanth N <hemanth.nakkina@canonical.com>
+Verified+2: Zuul
+Workflow+1: Ahmad Hassan <ahmad.hassan@canonical.com>
+Backport-Candidate+2: Hemanth N <hemanth.nakkina@canonical.com>
+Backport-Candidate+2: Ahmad Hassan <ahmad.hassan@canonical.com>
+Code-Review+2: Ahmad Hassan <ahmad.hassan@canonical.com>
+Submitted-by: Zuul
+Submitted-at: Mon, 28 Sep 2026 09:54:27 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/1005760
+Comments-Total: 3
+Project: openstack/sunbeam-charms
+Branch: refs/heads/main
