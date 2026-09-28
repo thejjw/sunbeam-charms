@@ -62,6 +62,10 @@ requires:
     optional: true
     limit: 1
 
+extra-bindings:
+  # Address granted access to shares during migration.
+  storage: null
+
 actions:
   refresh-snap:
     description: |
