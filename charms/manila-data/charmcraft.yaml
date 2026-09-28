@@ -30,6 +30,7 @@ config:
     snap-channel:
       default: 2026.2/edge
       type: string
+      description: Snap channel to track.
     enable-telemetry-notifications:
       type: boolean
       default: false
@@ -56,6 +57,10 @@ requires:
     interface: tracing
     optional: true
     limit: 1
+
+extra-bindings:
+  # Address granted access to shares during migration.
+  storage: null
 
 actions:
   refresh-snap:

@@ -1,57 +1,61 @@
 # manila-data
 
-## Developing
-
-Create and activate a virtualenv with the development requirements:
-
-    virtualenv -p python3 venv
-    source venv/bin/activate
-    pip install -r requirements-dev.txt
-
 ## Code overview
 
-Get familiarised with [Charmed Operator Framework](https://juju.is/docs/sdk)
-and [Sunbeam documentation](sunbeam-docs).
+The charm extends `OSBaseOperatorCharmSnap` from the `ops_sunbeam` library and
+manages the `manila-data` snap. See the [Snap's documentation][snap-manila-docs]
+and the [Juju SDK docs][juju-sdk] for background.
 
-manila-data charm uses the ops\_sunbeam library and extends
-OSBaseOperatorCharmSnap from the library.
+On each configuration pass the charm:
 
-manila-data charm consumes database relation to connect to database,
-amqp to connect to rabbitmq, and identity-credentials to connect to keystone.
+- Connects the snap's `nfs-mount` and `mount-observe` plugs, which are needed
+  to mount shares during host-assisted share migration.
+- Builds the snap configuration from the `database`, `amqp` and
+  `identity-credentials` relations and the charm config.
+- Passes the unit's `storage` binding address to the snap as
+  `settings.data-node-access-ips`, the address share backends grant access to.
 
-The charm starts manila-data service.
+The snap renders the Manila configuration and runs the `manila-data` service.
 
-## Intended use case
+## Development
 
-manila-data charm deploys and configures OpenStack manila-data service.
+All commands run through `tox` from the repository root. From this directory,
+pass `--root ../../`.
 
-## Roadmap
-
-TODO
-
-## Testing
-
-The Python operator framework includes a very nice harness for testing
-operator behaviour without full deployment. Run tests using command:
+Run the unit tests:
 
     tox --root ../../ -e py3 -- manila-data
 
-## Deployment
+Check and apply code formatting (runs across all charms):
 
-This project uses tox for building and managing. To build the charm
-run:
+    tox --root ../../ -e pep8
+    tox --root ../../ -e fmt
+
+Regenerate `uv.lock`, upgrading all dependencies to their latest allowed
+versions (for example after changing `pyproject.toml`):
+
+    tox --root ../../ -e lock -- manila-data
+
+## Building and deploying
+
+Build the charm (requires `charmcraft`). The shared libraries are copied in
+before packing, and the result is written to `manila-data.charm` at the
+repository root:
 
     tox --root ../../ -e build -- manila-data
 
-To deploy the local test instance:
+Deploy the local build from the repository root:
 
-    juju deploy ./manila-data.charm manila-data
+    juju deploy ./manila-data.charm manila-data --bind "storage=<storage-space>"
 
-To upgrade / refresh the manila-k8s charm with a locally-built charm, use the
-following command:
+Refresh an existing deployment with a local build:
 
     juju refresh manila-data --path ./manila-data.charm
 
+See the repository [CONTRIBUTING.md][repo-contributing] for functional tests.
+
 <!-- LINKS -->
 
-[sunbeam-docs]: https://opendev.org/openstack/sunbeam-charms/src/branch/main/README.md
+[juju-sdk]: https://juju.is/docs/sdk
+[repo-contributing]: https://opendev.org/openstack/sunbeam-charms/src/branch/main/CONTRIBUTING.md
+[snap-manila-docs]: https://github.com/canonical/snap-manila-data/blob/main/README.md
