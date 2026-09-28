@@ -1090,19 +1090,57 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
     def _handle_ceph_access(
         self, contexts: sunbeam_core.OPSCharmContexts
     ) -> dict:
+        """Snap settings for every ceph-access backend."""
         try:
-            if contexts.ceph_access.uuid:
-                return {
-                    "compute.rbd-user": "nova",
-                    "compute.rbd-secret-uuid": contexts.ceph_access.uuid,
-                    "compute.rbd-key": contexts.ceph_access.key,
-                }
+            ceph_access = contexts.ceph_access
+            backends: dict = dict(ceph_access.backends)
+            legacy = {"uuid": ceph_access.uuid, "key": ceph_access.key}
         except AttributeError:
-            # If the relation has been removed it is probably less disruptive to leave the
-            # rbd setting in the snap rather than unsetting them.
-            logger.debug("ceph_access relation not integrated")
+            # contexts() omits handlers that are not ready, so this is also
+            # the path taken when the last ceph-access relation is removed.
+            backends, legacy = {}, {}
 
+        current = self._current_snap_settings()
+        snap_data: dict = {
+            f"ceph-access.{app}": {"uuid": creds["uuid"], "key": creds["key"]}
+            for app, creds in backends.items()
+        }
+        for app in current.get("ceph-access") or {}:
+            if app not in backends:
+                snap_data[f"ceph-access.{app}"] = None
+
+        snap_data.update(
+            self._legacy_rbd_settings(
+                backends, legacy, current.get("compute") or {}
+            )
+        )
+        return snap_data
+
+    @staticmethod
+    def _legacy_rbd_settings(
+        backends: dict, legacy: dict, compute: dict
+    ) -> dict:
+        """compute.rbd-* settings; the secret UUID never switches backend."""
+        current_uuid = compute.get("rbd-secret-uuid")
+        if current_uuid:
+            for creds in backends.values():
+                if creds["uuid"] == current_uuid:
+                    return {"compute.rbd-key": creds["key"]}
+            # Its backend is no longer related: leave the settings in place,
+            # which is less disruptive than unsetting them.
+            return {}
+        if legacy.get("uuid"):
+            return {
+                "compute.rbd-user": "nova",
+                "compute.rbd-secret-uuid": legacy["uuid"],
+                "compute.rbd-key": legacy["key"],
+            }
         return {}
+
+    def _current_snap_settings(self) -> dict:
+        """Current typed settings of the openstack-hypervisor snap."""
+        hypervisor = self.get_snap_cache()["openstack-hypervisor"]
+        return hypervisor.get(None, typed=True) or {}
 
     def _handle_ceilometer_service(
         self, contexts: sunbeam_core.OPSCharmContexts
