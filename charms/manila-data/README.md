@@ -2,67 +2,88 @@
 
 ## Description
 
-The manila-data is an operator to manage the OpenStack manila-data service
-in a snap based deployment.
+The `manila-data` is an operator to manage OpenStack Manila data service in a
+Snap-based deployment.
 
 ## Usage
 
 ### Deployment
 
-manila-data is deployed using the command below:
+Deploy the charm and bind the `storage` endpoint to the space used to reach
+the share exports:
 
-    juju deploy manila-data
+    juju deploy manila-data --bind "storage=<storage-space>"
 
-For instructions on how to build the charm and deploy / refresh it, check out
-the [CONTRIBUTING.md][contributors-guide].
+Then integrate it with the database, messaging and identity operators:
 
-Now connect the manila-data operator to existing database, messaging,
-and keystone identity operators:
+    juju integrate mysql:database manila-data:database
+    juju integrate rabbitmq:amqp manila-data:amqp
+    juju integrate keystone:identity-credentials manila-data:identity-credentials
 
-    juju relate mysql:database manila-data:database
-    juju relate rabbitmq:amqp manila-data:amqp
-    juju relate keystone:identity-credentials manila-data:identity-credentials
+For instructions on building the charm and deploying or refreshing a local
+build, see [CONTRIBUTING.md][contributors-guide].
+
+### Network bindings
+
+- `storage`: The unit's address on this binding is passed to Manila as the
+  data node access IP. The share backends will grant this address access to
+  mounted shares during host-assisted migration. The IP address must be able
+  to reach the share exports (for example Ceph NFS). If unbound, the default
+  space is used.
+
+### Snap interfaces
+
+The charm connects the following snap plugs, which are needed to mount shares
+during host-assisted share migration:
+
+- `nfs-mount`
+- `mount-observe`
 
 ### Configuration
 
-This section covers common and/or important configuration options. See file
-`config.yaml` for the full list of options, along with their descriptions and
-default values. See the [Juju documentation][juju-docs-config-apps] for details
-on configuring applications.
+See the `config` section of `charmcraft.yaml` for the full list of options and
+their defaults, and the [Juju documentation][juju-docs-config-apps] for how to
+configure applications.
+
+- `snap-channel`: Snap channel to track.
+- `debug`: Enable debug logging.
+- `enable-telemetry-notifications`: Send notifications to telemetry.
 
 ### Actions
 
-This section covers Juju [actions][juju-docs-actions] supported by the charm.
-Actions allow specific operations to be performed on a per-unit basis. To
-display action descriptions run `juju actions manila-data`. If the charm is not
-deployed then see file `actions.yaml`.
+Run `juju actions manila-data` to list the [actions][juju-docs-actions]
+supported by the charm.
+
+- `refresh-snap`: Refresh the snap to the latest revision on the configured
+  channel. The snap is held after installation, so updates are only applied
+  through this action.
 
 ## Relations
 
-manila-data requires the following relations:
+Required:
 
-- `amqp`: To connect to RabbitMQ.
-- `database`: To connect to MySQL.
-- `identity-credentials`: To connect to Keystone.
+- `amqp`: Connect to RabbitMQ.
+- `database`: Connect to MySQL.
+- `identity-credentials`: Connect to Keystone.
 
-The following relations are optional:
+Optional:
 
-- `logging`: To send logs to Loki.
-- `tracing`: To connect to a tracing backend.
+- `logging`: Send logs to Loki.
+- `receive-ca-cert`: Receive CA certificates.
+- `tracing`: Send traces to a tracing backend.
 
 ## Contributing
 
-Please see the [Juju SDK docs](https://juju.is/docs/sdk) for guidelines
-on enhancements to this charm following best practice guidelines, and
-[CONTRIBUTING.md][contributors-guide] for developer guidance.
+See the [Juju SDK docs](https://juju.is/docs/sdk) for charm development
+guidelines, and [CONTRIBUTING.md][contributors-guide] for developer guidance.
 
 ## Bugs
 
-Please report bugs on [Launchpad][lp-bugs-charm-manila-k8s].
+Please report bugs on [Launchpad][lp-bugs-charm-manila-data].
 
 <!-- LINKS -->
 
 [contributors-guide]: https://opendev.org/openstack/sunbeam-charms/src/branch/main/charms/manila-data/CONTRIBUTING.md
 [juju-docs-actions]: https://jaas.ai/docs/actions
 [juju-docs-config-apps]: https://documentation.ubuntu.com/juju/3.6/reference/configuration/#application-configuration
-[lp-bugs-charm-manila-k8s]: https://bugs.launchpad.net/sunbeam-charms/+filebug
+[lp-bugs-charm-manila-data]: https://bugs.launchpad.net/sunbeam-charms/+filebug
