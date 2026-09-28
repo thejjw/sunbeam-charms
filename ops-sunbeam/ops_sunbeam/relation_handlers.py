@@ -1676,7 +1676,7 @@ class CephAccessRequiresHandler(RelationHandler):
     def _ceph_access_goneaway(self, event: ops.framework.EventBase) -> None:
         """React to credential goneaway event."""
         self.callback_f(event)
-        if self.mandatory:
+        if self.mandatory and not self.ready:
             self.status.set(BlockedStatus("integration missing"))
 
     @property
@@ -1693,6 +1693,7 @@ class CephAccessRequiresHandler(RelationHandler):
         data = self.interface.ceph_access_data
         ctxt["key"] = data.get("key")
         ctxt["uuid"] = data.get("uuid")
+        ctxt["backends"] = dict(self.interface.ceph_access_data_by_app)
         return ctxt
 
 
