@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "eeca8cd1_38de2d9c",
+        "filename": "charms/manila-data/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-29T07:19:33Z",
+      "side": 1,
+      "message": "Shouldn\u0027t we have them as auto connect on the snap definition?",
+      "revId": "dbd2bfef6f545635e23c7cf7c91b12dc5363ca17",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
