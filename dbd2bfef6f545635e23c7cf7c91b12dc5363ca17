@@ -16,6 +16,24 @@
       "message": "Shouldn\u0027t we have them as auto connect on the snap definition?",
       "revId": "dbd2bfef6f545635e23c7cf7c91b12dc5363ca17",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "22a27b3e_589b54b2",
+        "filename": "charms/manila-data/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-09-29T11:14:59Z",
+      "side": 1,
+      "message": "Hmm let me check how to request this for the Snap.",
+      "parentUuid": "eeca8cd1_38de2d9c",
+      "revId": "dbd2bfef6f545635e23c7cf7c91b12dc5363ca17",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
