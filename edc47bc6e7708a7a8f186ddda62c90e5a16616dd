@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d1aeb8ce_e665ce42",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-09-30T08:53:17Z",
+      "side": 1,
+      "message": "How does this behave on upgrade?\n\nParticularly interested on upgrade from 198 to this.",
+      "revId": "edc47bc6e7708a7a8f186ddda62c90e5a16616dd",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
