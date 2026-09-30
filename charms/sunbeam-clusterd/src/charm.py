@@ -22,7 +22,9 @@ every metadata about a sunbeam deployment.
 """
 
 import hashlib
+import json
 import logging
+import os
 import socket
 from pathlib import (
     Path,
@@ -55,6 +57,9 @@ from relation_handlers import (
 )
 
 logger = logging.getLogger(__name__)
+
+# clusterd snap state directory (LP #2168558 fallback writes here)
+CLUSTERD_STATE_DIR = Path("/var/snap/openstack/common/state")
 
 
 def _identity(x: bool) -> bool:
@@ -95,9 +100,46 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             self.on.refresh_snap_action, self._on_refresh_snap_action
         )
         self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
+        self.framework.observe(
+            self.on.peers_relation_changed, self._on_peers_relation_changed
+        )
+        self.framework.observe(
+            self.on.secret_changed, self._on_peer_certs_secret_changed
+        )
         self._clusterd = clusterd.ClusterdClient(
             Path("/var/snap/openstack/common/state/control.socket")
         )
+
+    def _on_peers_relation_changed(self, event: ops.RelationEvent) -> None:
+        """Apply peer-shared certificates promptly on non-leader units.
+
+        The leader publishes the cert bundle over this relation when the
+        clusterd API is unavailable (LP #2168558); followers apply it here
+        instead of waiting for update-status cadence.
+        """
+        if self.unit.is_leader():
+            return
+        self._apply_peer_certs_if_needed()
+
+    def _on_peer_certs_secret_changed(
+        self, event: ops.SecretChangedEvent
+    ) -> None:
+        """Apply updated peer-shared certificates on non-leader units.
+
+        Rotations update the published secret's content without changing
+        the relation data key, so this event is what signals followers.
+        """
+        if self.unit.is_leader():
+            return
+        peers_rel = self.model.get_relation("peers")
+        if not peers_rel:
+            return
+        published_id = peers_rel.data[peers_rel.app].get(
+            "cluster-certs-secret-id"
+        )
+        if not published_id or str(event.secret.id) != published_id:
+            return
+        self._apply_peer_certs_if_needed()
 
     def get_relation_handlers(
         self, handlers: list[RelationHandler] | None = None
@@ -367,6 +409,14 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def configure_app_leader(self, event: ops.EventBase):
         """Configure leader unit."""
+        # Certificate recovery before the clusterd_ready check: when the
+        # cluster certificate is expired the API is dead and the ready
+        # check below can never pass until certs are replaced. Only when
+        # a cluster cert already exists (i.e. replacing one, never on a
+        # fresh bootstrap) so installs keep the original order.
+        # (LP #2168558)
+        if (CLUSTERD_STATE_DIR / "cluster.crt").exists():
+            self.configure_certificates()
         if not self.clusterd_ready():
             logger.debug("Clusterd not ready yet.")
             event.defer()
@@ -379,8 +429,12 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         if isinstance(event, ClusterdNewNodeEvent):
             self.add_node_to_cluster(event)
 
-    def configure_app_non_leader(self, event: ops.EventBase):
+    def configure_app_non_leader(self, event: ops.EventBase) -> None:
         """Configure non-leader unit."""
+        # Apply peer-shared certificates before the super() call: it may
+        # raise WaitingExceptionError (leader not ready) which would
+        # otherwise skip cert recovery on follower units. (LP #2168558)
+        self._apply_peer_certs_if_needed()
         super().configure_app_non_leader(event)
         if isinstance(event, ClusterdNodeAddedEvent):
             self.join_node_to_cluster(event)
@@ -398,10 +452,7 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         self.set_snap_data(snap_data)
 
     def configure_certificates(self):
-        """Configure certificates."""
-        if not self.unit.is_leader():
-            logger.debug("Not leader, skipping certificate configuration.")
-            return
+        """Configure certificates (leader only)."""
         if not self.certs.ready:
             logger.debug("Certificates not ready yet.")
             return
@@ -410,12 +461,148 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         if certs_hash == self._state.certs_hash:
             logger.debug("Certificates have not changed.")
             return
-        self._clusterd.set_certs(
-            ca=certs["ca_cert"],
-            key=certs["key"],
-            cert=certs["cert"],
-        )
+        try:
+            self._clusterd.set_certs(
+                ca=certs["ca_cert"],
+                key=certs["key"],
+                cert=certs["cert"],
+            )
+        except (
+            clusterd.ClusterdUnavailableError,
+            requests.exceptions.HTTPError,
+        ) as e:
+            # Only the cert API being dead is recoverable via the
+            # state-dir fallback: unavailable (connection refused or
+            # 503) or 5xx while forwarding to peers. 4xx means the
+            # request itself is wrong and must fail loudly.
+            # (LP #2168558)
+            if isinstance(e, requests.exceptions.HTTPError) and (
+                e.response is None or e.response.status_code < 500
+            ):
+                raise
+            logger.warning(
+                f"Clusterd cert API unavailable ({e}), "
+                "writing certificates to state dir directly "
+                "and sharing with peers"
+            )
+            if self._write_certs_to_state_dir(certs):
+                self._publish_certs_to_peers(certs)
+            # Deliberately do not record certs_hash: the fallback does
+            # not update the cluster-ca config in the clusterd DB, so
+            # once the snap restart heals the API the leader must retry
+            # set_certs (which also refreshes the DB) on the next hook.
+            return
         self._state.certs_hash = certs_hash
+
+    def _publish_certs_to_peers(self, certs: dict) -> None:
+        """Share the certificate bundle with peer units.
+
+        Non-leader units cannot read the app-owned certificate secrets,
+        and the clusterd API fan-out is broken in the expired-cert
+        scenario, so the leader publishes the bundle as a peer-relation
+        app secret for followers to apply locally. (LP #2168558)
+
+        Reuses the secret referenced in the peers relation data: secret
+        labels are unit-local, so looking up by label would fail on a
+        new leader and leak a new secret per leadership change.
+        """
+        peers_rel = self.model.get_relation("peers")
+        if not peers_rel:
+            logger.warning("No peers relation, cannot share certificates")
+            return
+        payload = json.dumps(certs)
+        secret_id = peers_rel.data[peers_rel.app].get(
+            "cluster-certs-secret-id"
+        )
+        if secret_id:
+            secret = self.model.get_secret(id=secret_id)
+            secret.set_content({"certs": payload})
+            return
+        secret = self.app.add_secret(
+            content={"certs": payload},
+            label="clusterd-cluster-certs",
+        )
+        peers_rel.data[self.app]["cluster-certs-secret-id"] = secret.id
+
+    def _apply_peer_certs_if_needed(self) -> None:
+        """On non-leader units, apply peer-shared certs if they differ.
+
+        The local clusterd API cannot be used to push certs when the
+        cluster certificate is already expired (503, LP #2168558), so
+        read the leader-shared secret and write it to the state dir.
+        Applies whenever the local files differ from the shared bundle,
+        covering both expired certs and mid-lifetime rotations.
+        """
+        peers_rel = self.model.get_relation("peers")
+        if not peers_rel:
+            return
+        secret_id = peers_rel.data[peers_rel.app].get(
+            "cluster-certs-secret-id"
+        )
+        if not secret_id:
+            logger.debug("Leader has not shared certificates via peers")
+            return
+        secret = self.model.get_secret(id=secret_id)
+        certs = json.loads(secret.get_content(refresh=True)["certs"])
+        if not self._cert_bundle_is_newer(certs):
+            logger.debug(
+                "Leader-shared certificate bundle not newer than local, skipping"
+            )
+            return
+        logger.warning(
+            "Local cluster certificate differs from leader-shared bundle, applying"
+        )
+        self._write_certs_to_state_dir(certs)
+
+    @staticmethod
+    def _cert_bundle_is_newer(certs: dict) -> bool:
+        """Return whether the given cert bundle is newer than the on-disk one.
+
+        Guards against downgrades: after leadership churn the requirer's
+        context may resolve to a stale certificate, and the peer-share path
+        must never overwrite a newer (or merely different) on-disk
+        certificate with an older one. (LP #2168558)
+        """
+        try:
+            new_cert = x509.load_pem_x509_certificate(certs["cert"].encode())
+        except Exception:
+            logger.warning("Shared certificate bundle unparseable, skipping")
+            return False
+        try:
+            old_cert = x509.load_pem_x509_certificate(
+                (CLUSTERD_STATE_DIR / "cluster.crt").read_bytes()
+            )
+        except FileNotFoundError:
+            return True
+        except Exception:
+            return True
+        return new_cert.not_valid_after_utc > old_cert.not_valid_after_utc
+
+    @staticmethod
+    def _write_certs_to_state_dir(certs: dict) -> bool:
+        """Write certificates directly to the snap state dir and restart.
+
+        Fallback for when the clusterd certificate API is dead (e.g. the
+        cluster certificate expired and dqlite lost quorum, LP #2168558).
+        Refuses to write a bundle that is not newer than the on-disk
+        certificate (stale-bundle downgrade guard).
+        """
+        if not SunbeamClusterdCharm._cert_bundle_is_newer(certs):
+            logger.warning(
+                "Skipping state-dir cert write: bundle not newer than on-disk certificate"
+            )
+            return False
+        state_dir = CLUSTERD_STATE_DIR
+        for name, content in (
+            ("cluster.crt", certs["cert"]),
+            ("cluster.key", certs["key"]),
+            ("cluster-ca.crt", certs["ca_cert"]),
+        ):
+            (state_dir / name).write_text(content)
+        # The cluster private key must not be world-readable.
+        os.chmod(state_dir / "cluster.key", 0o600)
+        snap.SnapCache()["openstack"].restart()
+        return True
 
     def set_snap_data(self, snap_data: dict):
         """Set snap data on local snap."""
