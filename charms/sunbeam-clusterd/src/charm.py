@@ -22,7 +22,9 @@ every metadata about a sunbeam deployment.
 """
 
 import hashlib
+import json
 import logging
+import os
 import socket
 from pathlib import (
     Path,
@@ -55,6 +57,9 @@ from relation_handlers import (
 )
 
 logger = logging.getLogger(__name__)
+
+# clusterd snap state directory (LP #2168558 fallback writes here)
+CLUSTERD_STATE_DIR = Path("/var/snap/openstack/common/state")
 
 
 def _identity(x: bool) -> bool:
@@ -95,9 +100,46 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             self.on.refresh_snap_action, self._on_refresh_snap_action
         )
         self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
+        self.framework.observe(
+            self.on.peers_relation_changed, self._on_peers_relation_changed
+        )
+        self.framework.observe(
+            self.on.secret_changed, self._on_peer_certs_secret_changed
+        )
         self._clusterd = clusterd.ClusterdClient(
             Path("/var/snap/openstack/common/state/control.socket")
         )
+
+    def _on_peers_relation_changed(self, event: ops.RelationEvent) -> None:
+        """Apply peer-shared certificates promptly on non-leader units.
+
+        The leader publishes the cert bundle over this relation when the
+        clusterd API is unavailable (LP #2168558); followers apply it here
+        as soon as the relation data changes.
+        """
+        if self.unit.is_leader():
+            return
+        self._apply_peer_certs_if_needed()
+
+    def _on_peer_certs_secret_changed(
+        self, event: ops.SecretChangedEvent
+    ) -> None:
+        """Apply updated peer-shared certificates on non-leader units.
+
+        Rotations update the published secret's content without changing
+        the relation data key, so this event is what signals followers.
+        """
+        if self.unit.is_leader():
+            return
+        peers_rel = self.model.get_relation("peers")
+        if not peers_rel:
+            return
+        published_id = peers_rel.data[peers_rel.app].get(
+            "cluster-certs-secret-id"
+        )
+        if not published_id or str(event.secret.id) != published_id:
+            return
+        self._apply_peer_certs_if_needed()
 
     def get_relation_handlers(
         self, handlers: list[RelationHandler] | None = None
@@ -367,6 +409,14 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
 
     def configure_app_leader(self, event: ops.EventBase):
         """Configure leader unit."""
+        # Certificate recovery before the clusterd_ready check: when the
+        # cluster certificate is expired the API is dead and the ready
+        # check below can never pass until certs are replaced. Only when
+        # a cluster cert already exists (i.e. replacing one, never on a
+        # fresh bootstrap) so installs keep the original order.
+        # (LP #2168558)
+        if (CLUSTERD_STATE_DIR / "cluster.crt").exists():
+            self.configure_certificates()
         if not self.clusterd_ready():
             logger.debug("Clusterd not ready yet.")
             event.defer()
@@ -379,8 +429,12 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         if isinstance(event, ClusterdNewNodeEvent):
             self.add_node_to_cluster(event)
 
-    def configure_app_non_leader(self, event: ops.EventBase):
+    def configure_app_non_leader(self, event: ops.EventBase) -> None:
         """Configure non-leader unit."""
+        # Apply peer-shared certificates before the super() call: it may
+        # raise WaitingExceptionError (leader not ready) which would
+        # otherwise skip cert recovery on follower units. (LP #2168558)
+        self._apply_peer_certs_if_needed()
         super().configure_app_non_leader(event)
         if isinstance(event, ClusterdNodeAddedEvent):
             self.join_node_to_cluster(event)
@@ -398,10 +452,7 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         self.set_snap_data(snap_data)
 
     def configure_certificates(self):
-        """Configure certificates."""
-        if not self.unit.is_leader():
-            logger.debug("Not leader, skipping certificate configuration.")
-            return
+        """Configure certificates (leader only)."""
         if not self.certs.ready:
             logger.debug("Certificates not ready yet.")
             return
@@ -410,12 +461,160 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         if certs_hash == self._state.certs_hash:
             logger.debug("Certificates have not changed.")
             return
-        self._clusterd.set_certs(
-            ca=certs["ca_cert"],
-            key=certs["key"],
-            cert=certs["cert"],
-        )
+        try:
+            self._clusterd.set_certs(
+                ca=certs["ca_cert"],
+                key=certs["key"],
+                cert=certs["cert"],
+            )
+        except (
+            clusterd.ClusterdUnavailableError,
+            requests.exceptions.HTTPError,
+        ) as e:
+            # Only the cert API being dead is recoverable via the
+            # state-dir fallback: unavailable (connection refused or
+            # 503) or 5xx while forwarding to peers. 4xx means the
+            # request itself is wrong and must fail loudly.
+            # (LP #2168558)
+            if isinstance(e, requests.exceptions.HTTPError) and (
+                e.response is None or e.response.status_code < 500
+            ):
+                raise
+            logger.warning(
+                f"Clusterd cert API unavailable ({e}), "
+                "writing certificates to state dir directly "
+                "and sharing with peers"
+            )
+            if self._write_certs_to_state_dir(certs):
+                self._publish_certs_to_peers(certs)
+            # Deliberately do not record certs_hash: the fallback does
+            # not update the cluster-ca config in the clusterd DB, so
+            # once the snap restart heals the API the leader must retry
+            # set_certs (which also refreshes the DB) on the next hook.
+            return
         self._state.certs_hash = certs_hash
+
+    def _publish_certs_to_peers(self, certs: dict) -> None:
+        """Share the certificate bundle with peer units.
+
+        Non-leader units cannot read the app-owned certificate secrets,
+        and the clusterd API fan-out is broken in the expired-cert
+        scenario, so the leader publishes the bundle as a peer-relation
+        app secret for followers to apply locally. (LP #2168558)
+
+        Reuses the secret referenced in the peers relation data: secret
+        labels are unit-local, so looking up by label would fail on a
+        new leader and leak a new secret per leadership change.
+        """
+        peers_rel = self.model.get_relation("peers")
+        if not peers_rel:
+            logger.warning("No peers relation, cannot share certificates")
+            return
+        payload = json.dumps(certs)
+        secret_id = peers_rel.data[peers_rel.app].get(
+            "cluster-certs-secret-id"
+        )
+        if secret_id:
+            secret = self.model.get_secret(id=secret_id)
+            secret.set_content({"certs": payload})
+            return
+        secret = self.app.add_secret(
+            content={"certs": payload},
+            label="clusterd-cluster-certs",
+        )
+        peers_rel.data[self.app]["cluster-certs-secret-id"] = secret.id
+
+    def _apply_peer_certs_if_needed(self) -> None:
+        """On non-leader units, apply peer-shared certs if they differ.
+
+        The local clusterd API cannot be used to push certs when the
+        cluster certificate is already expired (503, LP #2168558), so
+        read the leader-shared secret and write it to the state dir.
+        Applies whenever the local files differ from the shared bundle,
+        covering both expired certs and mid-lifetime rotations.
+        """
+        peers_rel = self.model.get_relation("peers")
+        if not peers_rel:
+            return
+        secret_id = peers_rel.data[peers_rel.app].get(
+            "cluster-certs-secret-id"
+        )
+        if not secret_id:
+            logger.debug("Leader has not shared certificates via peers")
+            return
+        secret = self.model.get_secret(id=secret_id)
+        certs = json.loads(secret.get_content(refresh=True)["certs"])
+        if not self._cert_bundle_is_newer(certs):
+            logger.debug(
+                "Leader-shared certificate bundle unchanged or not newer"
+                " than local certificate, skipping"
+            )
+            return
+        logger.warning(
+            "Local cluster certificate differs from leader-shared bundle, applying"
+        )
+        self._write_certs_to_state_dir(certs)
+
+    @staticmethod
+    def _cert_bundle_is_newer(certs: dict) -> bool:
+        """Return whether the given cert bundle should replace the on-disk one.
+
+        Guards against downgrades: after leadership churn the requirer's
+        context may resolve to a stale certificate, and the peer-share path
+        must never overwrite a newer (or merely different) on-disk
+        certificate with an older one. A different certificate with the
+        same or later expiry still applies, so CA re-issues with fixed
+        validity windows or CA policy changes are not refused. An
+        identical certificate does not apply, keeping the fallback
+        idempotent. (LP #2168558)
+        """
+        try:
+            new_cert = x509.load_pem_x509_certificate(certs["cert"].encode())
+        except Exception:
+            logger.warning("Shared certificate bundle unparsable, skipping")
+            return False
+        on_disk = CLUSTERD_STATE_DIR / "cluster.crt"
+        try:
+            if on_disk.read_bytes() == certs["cert"].encode():
+                return False
+            old_cert = x509.load_pem_x509_certificate(on_disk.read_bytes())
+        except FileNotFoundError:
+            return True
+        except Exception:
+            return True
+        return new_cert.not_valid_after_utc >= old_cert.not_valid_after_utc
+
+    @staticmethod
+    def _write_certs_to_state_dir(certs: dict) -> bool:
+        """Write certificates directly to the snap state dir and restart.
+
+        Fallback for when the clusterd certificate API is dead (e.g. the
+        cluster certificate expired and dqlite lost quorum, LP #2168558).
+        Refuses to write a bundle that is not newer than the on-disk
+        certificate (stale-bundle downgrade guard).
+        """
+        if not SunbeamClusterdCharm._cert_bundle_is_newer(certs):
+            logger.warning(
+                "Skipping state-dir cert write: bundle not newer than on-disk certificate"
+            )
+            return False
+        state_dir = CLUSTERD_STATE_DIR
+        # Write the private key with 0600 from creation so it is never
+        # briefly world-readable. (LP #2168558)
+        key_fd = os.open(
+            state_dir / "cluster.key",
+            os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+            0o600,
+        )
+        with os.fdopen(key_fd, "w") as f:
+            f.write(certs["key"])
+        for name, content in (
+            ("cluster.crt", certs["cert"]),
+            ("cluster-ca.crt", certs["ca_cert"]),
+        ):
+            (state_dir / name).write_text(content)
+        snap.SnapCache()["openstack"].restart()
+        return True
 
     def set_snap_data(self, snap_data: dict):
         """Set snap data on local snap."""
@@ -474,6 +673,13 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             token = self._clusterd.generate_token(
                 event.unit.name.replace("/", "-")
             )
+        except clusterd.ClusterdUnavailableError as e:
+            # 503 while the dqlite database is down (e.g. expired
+            # cluster certificate, LP #2168558); retry on a later hook.
+            logger.error(f"Clusterd error: {str(e)}")
+            logger.debug("Failed to generate token, retrying.")
+            event.defer()
+            return
         except requests.exceptions.HTTPError as e:
             if e.response is not None and e.response.status_code >= 500:
                 logger.error(f"Clusterd error: {str(e)}")
@@ -497,7 +703,18 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
             return
 
         logger.debug(f"Departing unit: {event.departing_unit.name}")
-        self._remove_member_from_cluster(event.departing_unit.name)
+        try:
+            self._remove_member_from_cluster(event.departing_unit.name)
+        except clusterd.ClusterdUnavailableError as e:
+            # Clusterd API degraded (e.g. expired cluster certificate,
+            # LP #2168558): defer and retry once it is reachable again
+            # so the member is not left in the dqlite member list.
+            logger.warning(
+                f"Clusterd unavailable during member removal ({e}),"
+                " deferring"
+            )
+            event.defer()
+            return
         if self.model.unit.is_leader():
             departing_key = f"{event.departing_unit.name}.join_token"
             self.peers.interface._app_data_bag.pop(
@@ -550,11 +767,18 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
         except requests.exceptions.HTTPError as e:
             if (
                 e.response is not None
-                and "Daemon not yet initialized" in e.response.text
+                and "not yet initialized" in e.response.text
             ):
                 if self_departing:
                     logger.debug("Member already left cluster")
                     return True
+        except clusterd.ClusterdUnavailableError as e:
+            # 503 responses are mapped to ClusterdUnavailableError with
+            # the response text embedded in the message, so the same
+            # not-yet-initialized check applies. (LP #2168558)
+            if "not yet initialized" in str(e) and self_departing:
+                logger.debug("Member already left cluster")
+                return True
         return False
 
     def _remove_member_from_cluster(self, departing_unit: str):
@@ -573,6 +797,16 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
                 logger.debug(
                     "Forwarded request failed, most likely because member was leader"
                     " and this member was removed."
+                )
+            elif self_departing and "Clusterd returned 503" in str(e):
+                # Tolerated for a self-departing unit for the same reason
+                # as the 503/500 HTTPError cases below: the cluster is
+                # degraded or this member is already gone. (LP #2168558)
+                logger.debug(
+                    "Clusterd unavailable while removing this member,"
+                    " most likely already removed from clusterd."
+                    " Error: %s",
+                    str(e),
                 )
             else:
                 raise e
@@ -675,7 +909,7 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
                     raise e
                 db_closed = "database is closed" in e.response.text
                 clusterd_not_initialized = (
-                    "Daemon not yet initialized" in e.response.text
+                    "not yet initialized" in e.response.text
                 )
                 if db_closed or clusterd_not_initialized:
                     logger.debug(
@@ -686,6 +920,31 @@ class SunbeamClusterdCharm(sunbeam_charm.OSBaseOperatorCharm):
                     )
                     return True
                 raise e
+            except clusterd.ClusterdUnavailableError as e:
+                # 503s arrive here with the response text embedded in
+                # the message. The snap's wording is "Database is not
+                # yet initialized", hence the looser match.
+                # (LP #2168558)
+                db_closed = "database is closed" in str(e)
+                clusterd_not_initialized = "not yet initialized" in str(e)
+                if db_closed or clusterd_not_initialized:
+                    logger.debug(
+                        "Clusterd returned a known error while waiting for removal."
+                        ". Skipping."
+                        " Error: %s",
+                        str(e),
+                    )
+                    return True
+                # Any other unavailable response (e.g. dqlite quorum
+                # lost while the cluster recovers) means removal cannot
+                # be confirmed yet: keep waiting until the retry budget
+                # expires and the event is deferred.
+                logger.debug(
+                    "Clusterd unavailable while waiting for removal,"
+                    " will retry. Error: %s",
+                    str(e),
+                )
+                return False
 
         try:
             return _wait_until_local_member_left_cluster()
