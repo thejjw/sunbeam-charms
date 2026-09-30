@@ -55,6 +55,7 @@ class ClusterdClient:
         try:
             logging.debug("[%s] %s, args=%s", method, url, kwargs)
             response = self._session.request(method=method, url=url, **kwargs)
+            response.raise_for_status()
             logging.debug("Response(%s) = %s", response, response.text)
         except requests.exceptions.ConnectionError as e:
             msg = str(e)
@@ -70,9 +71,10 @@ class ClusterdClient:
                     f"HTTPError: {e.response.status_code}, {e.response.text}"
                 )
                 if e.response.status_code == 503:
-                    raise ClusterdUnavailableError(str(e)) from e
+                    raise ClusterdUnavailableError(
+                        f"Clusterd returned 503: {e.response.text}"
+                    ) from e
             raise e
-        response.raise_for_status()
         return response.json()
 
     def _get(self, path, **kwargs):
