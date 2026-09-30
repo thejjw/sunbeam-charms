@@ -53,10 +53,12 @@ config:
         but you must weigh that against the risk of spurious leader flapping and
         the unwanted churn that entails.
         .
-        NOTE: The ovsdb-server will refuse to decrease or increase the value of
-        this timer more than 2x the current value. The charm will compensate for
+        NOTE: The ovsdb-server refuses to increase this timer to more than 2x
+        its current value in one step. The charm will compensate for
         this and decrease / increase the timer in increments, but care should be
-        taken to not decrease / increase the value too much in one operation.
+        taken to not increase the value too much in one operation.
+        A large increase may take a long time to complete, as the charm will
+        wait an election window between changes.
     ovsdb-server-inactivity-probe:
       default: 60
       type: int
