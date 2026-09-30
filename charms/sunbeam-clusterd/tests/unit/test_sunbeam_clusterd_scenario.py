@@ -16,9 +16,37 @@
 
 """Scenario (ops.testing state-transition) tests for sunbeam-clusterd."""
 
+import datetime
+import os
+from types import (
+    SimpleNamespace,
+)
+from unittest.mock import (
+    MagicMock,
+)
+
+import charm as charm_module
+import clusterd as clusterd_module
 import pytest
+import requests as requests_module
+from charm import (
+    SunbeamClusterdCharm,
+)
 from charms.operator_libs_linux.v2 import (
     snap,
+)
+from cryptography import (
+    x509,
+)
+from cryptography.hazmat.primitives import (
+    hashes,
+    serialization,
+)
+from cryptography.hazmat.primitives.asymmetric import (
+    rsa,
+)
+from cryptography.x509.oid import (
+    NameOID,
 )
 from ops import (
     testing,
@@ -28,6 +56,256 @@ from ops_sunbeam.test_utils_scenario import (
     certificates_relation_complete,
     tracing_relation_complete,
 )
+
+
+def _generate_cert(not_after: datetime.datetime) -> str:
+    """Generate a self-signed certificate valid until not_after."""
+    key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    subject = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "test")])
+    cert = (
+        x509.CertificateBuilder()
+        .subject_name(subject)
+        .issuer_name(subject)
+        .public_key(key.public_key())
+        .serial_number(x509.random_serial_number())
+        .not_valid_before(datetime.datetime.now(datetime.timezone.utc))
+        .not_valid_after(not_after)
+        .sign(key, hashes.SHA256())
+    )
+    return cert.public_bytes(serialization.Encoding.PEM).decode()
+
+
+@pytest.fixture()
+def state_dir(tmp_path, monkeypatch):
+    """Redirect the clusterd state dir to a temp dir."""
+    state_dir = tmp_path / "state"
+    state_dir.mkdir()
+    monkeypatch.setattr(charm_module, "CLUSTERD_STATE_DIR", state_dir)
+    return state_dir
+
+
+def _cert_bundle(not_after: datetime.datetime) -> dict:
+    """Bundle as produced by TlsCertificatesHandler.context()."""
+    return {
+        "cert": _generate_cert(not_after),
+        "key": "TEST-KEY",
+        "ca_cert": "TEST-CA",
+        "ca_with_chain": "TEST-CA",
+    }
+
+
+class TestCertBundleIsNewer:
+    """LP #2168558: downgrade guard for state-dir cert writes."""
+
+    def test_newer_bundle_is_newer(self, state_dir):
+        """A bundle with a later notAfter than on-disk is newer."""
+        old = datetime.datetime.now(
+            datetime.timezone.utc
+        ) + datetime.timedelta(days=10)
+        new = old + datetime.timedelta(days=10)
+        (state_dir / "cluster.crt").write_text(_generate_cert(old))
+        assert (
+            SunbeamClusterdCharm._cert_bundle_is_newer(_cert_bundle(new))
+            is True
+        )
+
+    def test_older_bundle_is_not_newer(self, state_dir):
+        """A bundle with an earlier notAfter than on-disk is rejected."""
+        new = datetime.datetime.now(
+            datetime.timezone.utc
+        ) + datetime.timedelta(days=20)
+        old = new - datetime.timedelta(days=10)
+        (state_dir / "cluster.crt").write_text(_generate_cert(new))
+        assert (
+            SunbeamClusterdCharm._cert_bundle_is_newer(_cert_bundle(old))
+            is False
+        )
+
+    def test_identical_bundle_is_not_newer(self, state_dir):
+        """The same certificate already on disk does not re-apply."""
+        not_after = datetime.datetime.now(
+            datetime.timezone.utc
+        ) + datetime.timedelta(days=10)
+        cert = _generate_cert(not_after)
+        (state_dir / "cluster.crt").write_text(cert)
+        assert (
+            SunbeamClusterdCharm._cert_bundle_is_newer(
+                {"cert": cert, "key": "k", "ca_cert": "ca"}
+            )
+            is False
+        )
+
+    def test_different_bundle_with_same_expiry_is_newer(self, state_dir):
+        """A different cert with the same notAfter still applies."""
+        not_after = datetime.datetime.now(
+            datetime.timezone.utc
+        ) + datetime.timedelta(days=10)
+        (state_dir / "cluster.crt").write_text(_generate_cert(not_after))
+        assert (
+            SunbeamClusterdCharm._cert_bundle_is_newer(_cert_bundle(not_after))
+            is True
+        )
+
+    def test_missing_on_disk_cert_is_newer(self, state_dir):
+        """With no on-disk cert any valid bundle applies."""
+        bundle = _cert_bundle(
+            datetime.datetime.now(datetime.timezone.utc)
+            + datetime.timedelta(days=1)
+        )
+        assert SunbeamClusterdCharm._cert_bundle_is_newer(bundle) is True
+
+    def test_unparseable_bundle_rejected(self, state_dir):
+        """Garbage shared cert must not be applied."""
+        assert (
+            SunbeamClusterdCharm._cert_bundle_is_newer({"cert": "garbage"})
+            is False
+        )
+
+
+class TestWriteCertsToStateDir:
+    """LP #2168558: state-dir fallback write behaviour."""
+
+    def test_skips_older_bundle(self, state_dir, _mock_snap):
+        """An older bundle is not written and the snap is not restarted."""
+        new = datetime.datetime.now(
+            datetime.timezone.utc
+        ) + datetime.timedelta(days=20)
+        old = new - datetime.timedelta(days=10)
+        (state_dir / "cluster.crt").write_text(_generate_cert(new))
+        assert (
+            SunbeamClusterdCharm._write_certs_to_state_dir(_cert_bundle(old))
+            is False
+        )
+        assert not (state_dir / "cluster.key").exists()
+        _mock_snap.__getitem__.return_value.restart.assert_not_called()
+
+    def test_writes_newer_bundle_and_secures_key(self, state_dir, _mock_snap):
+        """A newer bundle is written, key is 0600, snap restarted."""
+        old = datetime.datetime.now(
+            datetime.timezone.utc
+        ) + datetime.timedelta(days=5)
+        new = old + datetime.timedelta(days=10)
+        (state_dir / "cluster.crt").write_text(_generate_cert(old))
+        assert (
+            SunbeamClusterdCharm._write_certs_to_state_dir(_cert_bundle(new))
+            is True
+        )
+        assert (state_dir / "cluster.key").read_text() == "TEST-KEY"
+        assert (state_dir / "cluster-ca.crt").read_text() == "TEST-CA"
+        assert os.stat(state_dir / "cluster.key").st_mode & 0o777 == 0o600
+        _mock_snap.__getitem__.return_value.restart.assert_called_once()
+
+
+class _RelData(dict):
+    """Relation data mapping that answers for any entity with app data."""
+
+    def __getitem__(self, key):
+        return dict.__getitem__(self, "app")
+
+
+class TestPublishCertsToPeers:
+    """LP #2168558: peer-secret publication reuses the existing secret."""
+
+    def test_reuses_secret_from_relation_data(self):
+        """With the id already in peer app data, no new secret is created."""
+        charm_stub = SimpleNamespace()
+        charm_stub.model = SimpleNamespace(
+            get_relation=lambda name: SimpleNamespace(
+                app=SimpleNamespace(),
+                data=_RelData(
+                    {"app": {"cluster-certs-secret-id": "secret-1"}}
+                ),
+            )
+        )
+        secret = MagicMock()
+        charm_stub.model.get_secret = MagicMock(return_value=secret)
+        charm_stub.app = SimpleNamespace(
+            add_secret=MagicMock(
+                side_effect=AssertionError("must not create a secret")
+            )
+        )
+        SunbeamClusterdCharm._publish_certs_to_peers(charm_stub, {"cert": "x"})
+        secret.set_content.assert_called_once()
+        charm_stub.model.get_secret.assert_called_once_with(id="secret-1")
+
+    def test_creates_secret_when_absent(self):
+        """Without an existing id, a secret is created and referenced."""
+        charm_stub = SimpleNamespace()
+        app_data: dict = {}
+        charm_stub.model = SimpleNamespace(
+            get_relation=lambda name: SimpleNamespace(
+                app=SimpleNamespace(),
+                data=_RelData({"app": app_data}),
+            )
+        )
+        charm_stub.model.get_secret = MagicMock()
+        new_secret = MagicMock()
+        new_secret.id = "secret-new"
+        charm_stub.app = SimpleNamespace(
+            add_secret=MagicMock(return_value=new_secret)
+        )
+        SunbeamClusterdCharm._publish_certs_to_peers(charm_stub, {"cert": "x"})
+        charm_stub.app.add_secret.assert_called_once()
+        assert app_data["cluster-certs-secret-id"] == "secret-new"
+
+
+class TestConfigureCertificatesFallback:
+    """LP #2168558: leader fallback only on a dead cert API, hash on success."""
+
+    def _charm_stub(self):
+        stub = SimpleNamespace()
+        stub.certs = SimpleNamespace(
+            ready=True,
+            context=lambda: _cert_bundle(
+                datetime.datetime.now(datetime.timezone.utc)
+                + datetime.timedelta(days=1)
+            ),
+        )
+        stub._state = SimpleNamespace(certs_hash="")
+        stub._clusterd = MagicMock()
+        stub._write_certs_to_state_dir = MagicMock(return_value=True)
+        stub._publish_certs_to_peers = MagicMock()
+        return stub
+
+    def test_unavailable_api_falls_back_without_hash(self):
+        """Fallback runs on ClusterdUnavailableError, certs_hash not set."""
+        stub = self._charm_stub()
+        stub._clusterd.set_certs.side_effect = (
+            clusterd_module.ClusterdUnavailableError("503")
+        )
+        SunbeamClusterdCharm.configure_certificates(stub)
+        stub._write_certs_to_state_dir.assert_called_once()
+        stub._publish_certs_to_peers.assert_called_once()
+        assert stub._state.certs_hash == ""
+
+    def test_5xx_http_error_falls_back(self):
+        """Fallback runs on HTTPError with 5xx (peer forwarding failed)."""
+        stub = self._charm_stub()
+        response = SimpleNamespace(status_code=500, text="boom")
+        stub._clusterd.set_certs.side_effect = requests_module.HTTPError(
+            "500", response=response
+        )
+        SunbeamClusterdCharm.configure_certificates(stub)
+        stub._write_certs_to_state_dir.assert_called_once()
+        assert stub._state.certs_hash == ""
+
+    def test_4xx_http_error_raises(self):
+        """A 4xx HTTPError (bad request) fails loudly."""
+        stub = self._charm_stub()
+        response = SimpleNamespace(status_code=400, text="bad")
+        stub._clusterd.set_certs.side_effect = requests_module.HTTPError(
+            "400", response=response
+        )
+        with pytest.raises(requests_module.HTTPError):
+            SunbeamClusterdCharm.configure_certificates(stub)
+        stub._write_certs_to_state_dir.assert_not_called()
+
+    def test_success_sets_hash(self):
+        """Healthy API path records the hash."""
+        stub = self._charm_stub()
+        SunbeamClusterdCharm.configure_certificates(stub)
+        stub._clusterd.set_certs.assert_called_once()
+        assert stub._state.certs_hash != ""
 
 
 class TestLeaderBootstrap:
