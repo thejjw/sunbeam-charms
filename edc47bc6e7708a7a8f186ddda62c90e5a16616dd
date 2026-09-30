@@ -16,6 +16,24 @@
       "message": "How does this behave on upgrade?\n\nParticularly interested on upgrade from 198 to this.",
       "revId": "edc47bc6e7708a7a8f186ddda62c90e5a16616dd",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2964e0bb_29f10736",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-09-30T14:58:27Z",
+      "side": 1,
+      "message": "On upgrade, leader tries to configure_certificates and tries to do update clusterdb with certs from relation data and it fails with 503 and fallbaks to writing the certs to local file system and it publishes the certs to peers as app-owned secret.",
+      "parentUuid": "d1aeb8ce_e665ce42",
+      "revId": "edc47bc6e7708a7a8f186ddda62c90e5a16616dd",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
