@@ -19,7 +19,9 @@ This charm provide Glance services as part of an OpenStack deployment
 """
 
 import logging
+import time
 from typing import (
+    Iterator,
     List,
     Mapping,
 )
@@ -50,6 +52,24 @@ OVN_SB_DB_CONTAINER = "ovn-sb-db-server"
 OVN_NB_DB_CONTAINER = "ovn-nb-db-server"
 OVN_NORTHD_CONTAINER = "ovn-northd"
 OVN_DB_CONTAINERS = [OVN_SB_DB_CONTAINER, OVN_NB_DB_CONTAINER]
+# Accepted range for the 'ovsdb-server-election-timer' config option.
+ELECTION_TIMER_MIN_SECONDS = 1
+ELECTION_TIMER_MAX_SECONDS = 60
+
+
+def election_timer_steps(current_ms: int, target_ms: int) -> Iterator[int]:
+    """Yield the election timer values to set to get from current to target.
+
+    ovsdb refuses to increase the timer by more than 2x in one change, so
+    increases are yielded as successive doublings capped at the target.
+    Decreases are not restricted and are yielded in a single step.
+    """
+    if target_ms < current_ms:
+        yield target_ms
+        return
+    while current_ms < target_ms:
+        current_ms = min(current_ms * 2, target_ms)
+        yield current_ms
 
 
 @sunbeam_tracing.trace_type
@@ -311,6 +331,54 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             )
             return
 
+    def configure_ovsdb_election_timer(
+        self, db: str, target_seconds: int
+    ) -> None:
+        """Set the OVSDB cluster Raft election timer, in seconds."""
+        if db == "nb":
+            executor = self.get_pebble_executor(OVN_NB_DB_CONTAINER)
+            schema = "OVN_Northbound"
+        elif db == "sb":
+            executor = self.get_pebble_executor(OVN_SB_DB_CONTAINER)
+            schema = "OVN_Southbound"
+        target = "ovn{}_db".format(db)
+        if not (status := self.cluster_status(target, executor)):
+            return
+
+        # ovsdb only allows the election timer to be increased by at most a
+        # factor of 2 in one go. If the election timer has changed by more than
+        # that, we increment by factors of 2, waiting a full election window
+        # between changes.
+        # This logic is ported from the ovn-central machine charm
+        # https://github.com/canonical/ovn-charms-v1/blob/13bab83a0e1ffd64d39b5ca3dc66e69e97e37ecf/ovn-central/src/lib/charm/openstack/ovn_central.py#L690
+        # NOTE: The machine charm also applies this logic on decrease, but
+        # ovsdb has no such restriction
+        # https://github.com/openvswitch/ovs/blob/1a3fefbcd0b0f70ced621b92e286fef3dffaac09/ovsdb/raft.c#L5168
+        current_ms = status.election_timer
+        target_ms = target_seconds * 1000
+        for next_ms in election_timer_steps(current_ms, target_ms):
+            if not status or not status.is_cluster_leader:
+                return
+            msg = "Changing {} election timer {}ms -> {}ms".format(
+                schema, current_ms, next_ms
+            )
+            logger.debug(msg)
+            self.status.set(ops.model.MaintenanceStatus(msg))
+            ovn.ovn_appctl(
+                target,
+                (
+                    "cluster/change-election-timer",
+                    schema,
+                    str(next_ms),
+                ),
+                rundir=self.ovn_rundir(),
+                cmd_executor=executor,
+            )
+            # Allow an election window to pass before changing the timer again.
+            time.sleep((current_ms + next_ms) / 1000)
+            current_ms = next_ms
+            status = self.cluster_status(target, executor)
+
     def configure_ovn_listener(self, db, port_map):
         """Create or update OVN listener configuration.
 
@@ -500,6 +568,44 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 },
             },
         )
+        self.configure_election_timers()
+
+    def configure_election_timers(self):
+        """Configure the OVSDB Raft election timers."""
+        election_timer = self.config["ovsdb-server-election-timer"]
+        if not (
+            ELECTION_TIMER_MIN_SECONDS
+            <= election_timer
+            <= ELECTION_TIMER_MAX_SECONDS
+        ):
+            # Reported by post_config_setup once cluster bootstrap is done.
+            logger.warning(
+                "Skipping election timer change: %s is outside the accepted "
+                "range of %s-%s seconds for 'ovsdb-server-election-timer'",
+                election_timer,
+                ELECTION_TIMER_MIN_SECONDS,
+                ELECTION_TIMER_MAX_SECONDS,
+            )
+            return
+        self.configure_ovsdb_election_timer("nb", election_timer)
+        self.configure_ovsdb_election_timer("sb", election_timer)
+
+    def post_config_setup(self):
+        """Configuration steps after services have been setup."""
+        election_timer = self.config["ovsdb-server-election-timer"]
+        if not (
+            ELECTION_TIMER_MIN_SECONDS
+            <= election_timer
+            <= ELECTION_TIMER_MAX_SECONDS
+        ):
+            raise sunbeam_guard.BlockedExceptionError(
+                f"Invalid configuration: 'ovsdb-server-election-timer' must "
+                f"be between {ELECTION_TIMER_MIN_SECONDS} and "
+                f"{ELECTION_TIMER_MAX_SECONDS} seconds inclusive, got "
+                f"{election_timer}."
+            )
+
+        super().post_config_setup()
 
 
 if __name__ == "__main__":  # pragma: nocover

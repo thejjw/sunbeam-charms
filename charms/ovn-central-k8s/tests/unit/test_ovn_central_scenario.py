@@ -51,9 +51,13 @@ MANDATORY_RELATIONS = mandatory_relations_from_charmcraft(CHARM_ROOT)
 CONTAINER_NAMES = ["ovn-sb-db-server", "ovn-nb-db-server", "ovn-northd"]
 
 
-def _containers(can_connect: bool = True) -> list[testing.Container]:
+def _containers(
+    can_connect: bool = True,
+    extra_execs: set[testing.Exec] | None = None,
+) -> list[testing.Container]:
+    execs = extra_execs or set()
     return [
-        testing.Container(name=name, can_connect=can_connect)
+        testing.Container(name=name, can_connect=can_connect, execs=execs)
         for name in CONTAINER_NAMES
     ]
 
@@ -80,10 +84,13 @@ def _all_relations() -> list:
 # ---------------------------------------------------------------------------
 
 
-def _mock_cluster_status() -> MagicMock:
+def _mock_cluster_status(
+    *, election_timer=4000, is_cluster_leader=True
+) -> MagicMock:
     status = MagicMock()
     status.cluster_id = "test-cluster-id"
-    status.is_cluster_leader = True
+    status.is_cluster_leader = is_cluster_leader
+    status.election_timer = election_timer
     return status
 
 
@@ -107,7 +114,7 @@ def _tls_mocks():
     return stack
 
 
-def _heavy_ops_mocks():
+def _heavy_ops_mocks(cluster_status=None):
     """Context manager that patches OVN exec-heavy methods and container config."""
     stack = contextlib.ExitStack()
     stack.enter_context(
@@ -116,11 +123,17 @@ def _heavy_ops_mocks():
             "configure_ovn_listener",
         )
     )
+    if isinstance(cluster_status, list):
+        status_kwargs = {"side_effect": cluster_status}
+    else:
+        status_kwargs = {
+            "return_value": cluster_status or _mock_cluster_status()
+        }
     stack.enter_context(
         mock.patch.object(
             charm.OVNCentralOperatorCharm,
             "cluster_status",
-            return_value=_mock_cluster_status(),
+            **status_kwargs,
         )
     )
     stack.enter_context(
@@ -287,3 +300,171 @@ class TestNonLeaderClusterJoin:
             state_out = ctx.run(ctx.on.config_changed(), state_in)
 
         assert state_out.unit_status == testing.ActiveStatus("")
+
+
+@mock.patch("charm.time.sleep")
+class TestElectionTimer:
+    """Charm events reconcile the NB and SB election timers."""
+
+    def test_config_changed_applies_timer_to_both_databases(self, sleep, ctx):
+        """Config-changed changes the timer in each database container."""
+        state_in = testing.State(
+            leader=True,
+            config={"ovsdb-server-election-timer": 6},
+            containers=_containers(
+                extra_execs={testing.Exec(command_prefix=["ovn-appctl"])}
+            ),
+            relations=_all_relations(),
+        )
+        with _tls_mocks(), _heavy_ops_mocks():
+            state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert state_out.unit_status == testing.ActiveStatus("")
+        assert [
+            entry.command for entry in ctx.exec_history["ovn-nb-db-server"]
+        ] == [
+            [
+                "ovn-appctl",
+                "-t",
+                "/var/run/ovn/ovnnb_db.ctl",
+                "cluster/change-election-timer",
+                "OVN_Northbound",
+                "6000",
+            ],
+        ]
+        assert [
+            entry.command for entry in ctx.exec_history["ovn-sb-db-server"]
+        ] == [
+            [
+                "ovn-appctl",
+                "-t",
+                "/var/run/ovn/ovnsb_db.ctl",
+                "cluster/change-election-timer",
+                "OVN_Southbound",
+                "6000",
+            ],
+        ]
+
+    @pytest.mark.parametrize("timer", [0, 61])
+    def test_invalid_timer_blocks_after_leader_bootstrap(
+        self, sleep, ctx, timer
+    ):
+        """The Juju leader still publishes cluster IDs with an invalid timer."""
+        peers = testing.PeerRelation(endpoint="peers")
+        state_in = testing.State(
+            leader=True,
+            config={"ovsdb-server-election-timer": timer},
+            containers=_containers(),
+            relations=[_certificates_relation(), peers],
+        )
+        with _tls_mocks(), _heavy_ops_mocks():
+            state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        app_data = state_out.get_relation(peers.id).local_app_data
+        assert app_data.get("leader_ready") == "true"
+        assert app_data.get("nb_cid")
+        assert app_data.get("sb_cid")
+        assert isinstance(state_out.unit_status, testing.BlockedStatus)
+        assert "ovsdb-server-election-timer" in state_out.unit_status.message
+
+    @pytest.mark.parametrize("timer", [1, 60])
+    def test_boundary_timer_is_valid(self, sleep, ctx, timer):
+        """Inclusive range boundaries are accepted without blocking."""
+        state_in = testing.State(
+            leader=True,
+            config={"ovsdb-server-election-timer": timer},
+            containers=_containers(
+                extra_execs={testing.Exec(command_prefix=["ovn-appctl"])}
+            ),
+            relations=_all_relations(),
+        )
+        with _tls_mocks(), _heavy_ops_mocks(_mock_cluster_status()):
+            state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert state_out.unit_status == testing.ActiveStatus("")
+
+    def test_only_changes_if_ovsdb_leader(self, sleep, ctx):
+        """Juju configures timers according to OVSDB leadership."""
+        state_in = testing.State(
+            leader=True,
+            config={"ovsdb-server-election-timer": 6},
+            containers=_containers(
+                extra_execs={
+                    testing.Exec(command_prefix=["ovn-appctl"]),
+                }
+            ),
+            relations=_all_relations(),
+        )
+
+        with _tls_mocks(), _heavy_ops_mocks(
+            _mock_cluster_status(is_cluster_leader=False)
+        ):
+            state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert state_out.unit_status == testing.ActiveStatus("")
+        for container in ctx.exec_history:
+            assert not any(
+                "cluster/change-election-timer" in entry.command
+                for entry in ctx.exec_history[container]
+            )
+
+
+@mock.patch("charm.time.sleep")
+@mock.patch.object(charm.OVNCentralOperatorCharm, "cluster_status")
+class TestConfigureElectionTimer:
+    """Direct calls to configure_ovsdb_election_timer."""
+
+    @staticmethod
+    def _configure(ctx, db, target):
+        state = testing.State(
+            containers=_containers(
+                extra_execs={testing.Exec(command_prefix=["ovn-appctl"])}
+            )
+        )
+        with ctx(ctx.on.config_changed(), state) as manager:
+            manager.run()
+            manager.charm.configure_ovsdb_election_timer(db, target)
+
+    def test_increase_doubles_until_target(self, status, sleep, ctx):
+        """A large increase doubles the timer until the final target fits."""
+        steps = [1000, 2000, 4000, 8000, 16000, 32000, 42000]
+        status.return_value = _mock_cluster_status(election_timer=steps[0])
+        self._configure(ctx, "sb", 42)
+
+        assert [
+            entry.command[-1] for entry in ctx.exec_history["ovn-sb-db-server"]
+        ] == [str(ms) for ms in steps[1:]]
+
+    def test_decrease_applies_in_single_step(self, status, sleep, ctx):
+        """A decrease has no ovsdb restriction, one change reaches the target."""
+        status.return_value = _mock_cluster_status(election_timer=42000)
+        self._configure(ctx, "sb", 1)
+
+        assert [
+            entry.command[-1] for entry in ctx.exec_history["ovn-sb-db-server"]
+        ] == ["1000"]
+        sleep.assert_called_once()
+
+    def test_no_cluster_status_skips_change(self, status, sleep, ctx):
+        """A server without usable cluster status is left alone."""
+        status.return_value = None
+        self._configure(ctx, "nb", 4)
+
+        assert not ctx.exec_history
+
+    def test_lost_leadership_stops_changes(self, status, sleep, ctx):
+        """Leadership is rechecked after a timer change before another write."""
+        # Leader on the first read, follower on the re-read after the change.
+        status.side_effect = [
+            _mock_cluster_status(),
+            _mock_cluster_status(is_cluster_leader=False),
+        ]
+        self._configure(ctx, "nb", 42)
+
+        changes = [
+            entry
+            for entry in ctx.exec_history["ovn-nb-db-server"]
+            if "cluster/change-election-timer" in entry.command
+        ]
+        assert len(changes) == 1
+        sleep.assert_called_once()
