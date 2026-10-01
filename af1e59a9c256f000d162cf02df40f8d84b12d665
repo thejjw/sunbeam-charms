@@ -33,6 +33,24 @@
       "message": "We might want to document that this will also bring the latest point release of OVN (24.03.8), we might want to ensure we have a new 2024.1/edge on the hypervisor snap, and promote together.",
       "revId": "af1e59a9c256f000d162cf02df40f8d84b12d665",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "da241c37_cecc7351",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-01T08:22:46Z",
+      "side": 1,
+      "message": "updated the commit message",
+      "parentUuid": "6ce2eb38_6c5fd349",
+      "revId": "af1e59a9c256f000d162cf02df40f8d84b12d665",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
