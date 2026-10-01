@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8c85732_33835c09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38360
+      },
+      "writtenOn": "2026-10-01T20:57:14Z",
+      "side": 1,
+      "message": "The fiddliest part of the implementation is the logic to handle stepping up the election timer by greater than x2. I put it in because that\u0027s what the machine charm does, and because the config option already said we did it. That being said, it would simplify a lot to just block if the we try to change it by too much at once and then ask the user to retry. Open to either.",
+      "revId": "632632ec4598d3ca69b93d45b429303f25ebdb22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
