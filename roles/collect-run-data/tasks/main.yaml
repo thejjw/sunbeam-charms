@@ -23,59 +23,40 @@
   shell: df -h > {{ zuul.project.src_dir }}/log/df.txt
 - name: collect mount list
   shell: mount > {{ zuul.project.src_dir }}/log/mount.txt
-- name: debug logs replay
+- name: debug logs replay for all models
   args:
     executable: /bin/bash
   shell: |
     set -o pipefail
-    MODEL="$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')"
-    juju switch $MODEL
-    juju debug-log --replay > {{ zuul.project.src_dir }}/log/debug-hooks.txt
-    CONTROLLER_MODEL="$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^controller$')"
-    if [[ -n "$CONTROLLER_MODEL" ]]; then
-      juju switch "$CONTROLLER_MODEL"
-      juju debug-log --replay > {{ zuul.project.src_dir }}/log/debug-hooks-$CONTROLLER_MODEL.txt
-    fi
+    for model in $(juju models --format=json | jq -r '.models[]["short-name"]'); do
+      juju debug-log --replay -m "$model" > "{{ zuul.project.src_dir }}/log/debug-hooks-$model.txt" || echo "WARN: debug-log failed for model $model"
+    done
     exit 0
 - name: juju status
   args:
     executable: /bin/bash
   shell: |
     set -o pipefail
-    CONTROLLER_MODEL="$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^controller$')"
-    if [[ -n "$CONTROLLER_MODEL" ]]; then
-      juju status -m "$CONTROLLER_MODEL" > "{{ zuul.project.src_dir }}/log/juju-status.$CONTROLLER_MODEL.txt"
-      juju status -m "$CONTROLLER_MODEL" --format=yaml > "{{ zuul.project.src_dir }}/log/juju-status.$CONTROLLER_MODEL.yaml"
-    fi
-    for model in $(juju models | grep zaza- | awk '{gsub(/\*?/,""); print $1}'); do
-      juju status -m $model > {{ zuul.project.src_dir }}/log/juju-status.$model.txt
-      juju status -m $model --format=yaml > {{ zuul.project.src_dir }}/log/juju-status.$model.yaml
+    for model in $(juju models --format=json | jq -r '.models[]["short-name"]'); do
+      juju status -m "$model" > "{{ zuul.project.src_dir }}/log/juju-status.$model.txt" || echo "WARN: juju status failed for model $model"
+      juju status -m "$model" --format=yaml > "{{ zuul.project.src_dir }}/log/juju-status.$model.yaml" || true
     done
-- name: Collect units' info
+- name: Collect units' info for all models
   args:
     executable: /bin/bash
   shell: |
     set -o pipefail
     set -x
     LOG_FOLDER={{ zuul.project.src_dir }}/log/unit-info/
-    MODEL_NAME=$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^zaza-')
     mkdir -p $LOG_FOLDER
-    for unit in $(juju status --format json | jq -r '[.applications[].units | keys[0]] | join("\n")');
-    do
-      echo Collecting unit info: $unit
-      unit_name=$(echo $unit | tr / -)
-      juju show-unit --output="$LOG_FOLDER/$unit_name.yaml" $unit
-    done
-    CONTROLLER_MODEL="$(juju models --format=json | jq -r '.models[]["short-name"]' | grep '^controller$')"
-    if [[ -n "$CONTROLLER_MODEL" ]]; then
-      juju switch $CONTROLLER_MODEL
-      for unit in $(juju status --format json | jq -r '[.applications[].units | keys[0]] | join("\n")');
-      do
+    for model in $(juju models --format=json | jq -r '.models[]["short-name"]'); do
+      # .units // {} guards machine-only apps; keys[] collects all units, not just the first
+      for unit in $(juju status -m "$model" --format json 2>/dev/null | jq -r '[.applications[] | .units // {} | keys[]] | join("\n")'); do
         echo Collecting unit info: $unit
         unit_name=$(echo $unit | tr / -)
-        juju show-unit --output="$LOG_FOLDER/$unit_name.yaml" $unit
+        juju show-unit -m "$model" --output="$LOG_FOLDER/$unit_name.yaml" "$unit" || echo "WARN: show-unit failed for $unit"
       done
-    fi
+    done
 - name: Include k8s tasks
   include_tasks: k8s.yaml
   when: env_type == 'k8s'
