@@ -924,6 +924,18 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Ingress Port for API service."""
         return 9876
 
+    @property
+    def ingress_healthcheck_path(self):
+        """Healthcheck path for ingress relation."""
+        return "/healthcheck"
+
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
+
     def get_pebble_handlers(
         self,
     ) -> List[sunbeam_chandlers.ServicePebbleHandler]:

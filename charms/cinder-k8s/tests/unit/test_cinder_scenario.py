@@ -16,6 +16,7 @@
 
 """Scenario (ops.testing state-transition) tests for cinder-k8s."""
 
+import dataclasses
 from pathlib import (
     Path,
 )
@@ -152,6 +153,49 @@ class TestPebbleReady:
         assert out_container.service_statuses.get("wsgi-cinder-api") == (
             testing.pebble.ServiceStatus.ACTIVE
         )
+
+    def test_pebble_ready_healthchecks(self, ctx, complete_state):
+        """The online check probes the API's /healthcheck over HTTP."""
+        container = complete_state.get_container("cinder-api")
+        state_out = ctx.run(ctx.on.pebble_ready(container), complete_state)
+
+        checks = state_out.get_container("cinder-api").plan.checks
+        assert checks["online"].http == {
+            "url": "http://localhost:8776/healthcheck"
+        }
+        assert checks["up"].exec == {"command": "service apache2 status"}
+
+    def test_pebble_ready_replaces_exec_online_check(
+        self, ctx, complete_state
+    ):
+        """An exec-only online check from earlier revisions is replaced."""
+        old_checks = testing.pebble.Layer(
+            {
+                "checks": {
+                    "online": {
+                        "override": "replace",
+                        "level": "ready",
+                        "exec": {"command": "service apache2 status"},
+                    }
+                }
+            }
+        )
+        container = dataclasses.replace(
+            complete_state.get_container("cinder-api"),
+            layers={"healthchecks": old_checks},
+        )
+        containers = [
+            container if c.name == "cinder-api" else c
+            for c in complete_state.containers
+        ]
+        state_in = dataclasses.replace(complete_state, containers=containers)
+        state_out = ctx.run(ctx.on.pebble_ready(container), state_in)
+
+        checks = state_out.get_container("cinder-api").plan.checks
+        assert checks["online"].http == {
+            "url": "http://localhost:8776/healthcheck"
+        }
+        assert "up" in checks
 
     def test_pebble_ready_without_relations_blocked(self, ctx):
         """Pebble-ready but no relations → blocked."""
