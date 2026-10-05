@@ -13,11 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tenacity
 import zaza.openstack.charm_tests.test_utils as test_utils
+from glanceclient.v2.client import Client as GlanceClient
 from zaza.openstack.utilities import openstack as openstack_utils
 
-from glanceclient.v2.client import Client as GlanceClient
-import tenacity
+# Import to apply the retry patch to the keystone session factory of zaza.
+from zaza.sunbeam.charm_tests import keystone_retry as _ks_session_patch  # noqa: F401
 
 
 class OpenStackImagesSyncK8sTest(test_utils.BaseCharmTest):

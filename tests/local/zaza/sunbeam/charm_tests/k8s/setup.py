@@ -15,6 +15,7 @@
 
 import logging
 import os
+import time
 from pathlib import (
     Path,
 )
@@ -33,6 +34,12 @@ from lightkube.resources.core_v1 import (
 )
 
 METALLB_ANNOTATION = "metallb.universe.tf/loadBalancerIPs"
+
+# The kube API can briefly time out reads right after the machine deploy
+# settles (post-CMR churn); retry rather than failing the whole run on a
+# single transient, same as the NAD create retries in octavia setup.
+LB_ANNOTATE_RETRIES = 10
+LB_ANNOTATE_RETRY_DELAY = 30
 
 
 def add_loadbalancer_annotations(
@@ -57,39 +64,56 @@ def add_loadbalancer_annotations(
 
     try:
         kube = KubeClient(kubeconfig, model, trust_env=False)
-        for service in kube.list(
-            Service, namespace=model, fields={"spec.type": "LoadBalancer"}
-        ):
-            if not service.metadata:
-                logging.warning(f"No metadata for service, {service}")
-                continue
-
-            service_name = str(service.metadata.name)
-            service_annotations = service.metadata.annotations or {}
-            if lb_annotation not in service_annotations:
-                if not service.status:
-                    logging.warning(
-                        f"k8s service {service_name!r} has no status"
-                    )
-                    continue
-                if not service.status.loadBalancer:
-                    logging.warning(
-                        f"k8s service {service_name!r} has no loadBalancer status"
-                    )
-                    continue
-                if not service.status.loadBalancer.ingress:
-                    logging.warning(
-                        f"k8s service {service_name!r} has no loadBalancer ingress"
-                    )
-                    continue
-                loadbalancer_ip = service.status.loadBalancer.ingress[0].ip
-                service_annotations[lb_annotation] = loadbalancer_ip
-                service.metadata.annotations = service_annotations
-                logging.info(
-                    f"Patching {service_name!r} to use IP {loadbalancer_ip!r}"
-                )
-                kube.patch(Service, service_name, obj=service)
     except ConfigError:
         logging.warning("Error creating k8s client", exc_info=True)
-    except ApiError:
-        logging.warning("Error getting services list", exc_info=True)
+        return
+
+    for attempt in range(1, LB_ANNOTATE_RETRIES + 1):
+        try:
+            for service in kube.list(
+                Service, namespace=model, fields={"spec.type": "LoadBalancer"}
+            ):
+                if not service.metadata:
+                    logging.warning(f"No metadata for service, {service}")
+                    continue
+
+                service_name = str(service.metadata.name)
+                service_annotations = service.metadata.annotations or {}
+                if lb_annotation not in service_annotations:
+                    if not service.status:
+                        logging.warning(
+                            f"k8s service {service_name!r} has no status"
+                        )
+                        continue
+                    if not service.status.loadBalancer:
+                        logging.warning(
+                            f"k8s service {service_name!r} has no loadBalancer status"
+                        )
+                        continue
+                    if not service.status.loadBalancer.ingress:
+                        logging.warning(
+                            f"k8s service {service_name!r} has no loadBalancer ingress"
+                        )
+                        continue
+                    loadbalancer_ip = service.status.loadBalancer.ingress[0].ip
+                    service_annotations[lb_annotation] = loadbalancer_ip
+                    service.metadata.annotations = service_annotations
+                    logging.info(
+                        f"Patching {service_name!r} to use IP {loadbalancer_ip!r}"
+                    )
+                    kube.patch(Service, service_name, obj=service)
+            break
+        except ApiError:
+            logging.warning("Error getting services list", exc_info=True)
+            return
+        except Exception as exc:
+            if attempt == LB_ANNOTATE_RETRIES:
+                raise
+            logging.warning(
+                "LoadBalancer annotation attempt %d/%d failed (%s);"
+                " retrying",
+                attempt,
+                LB_ANNOTATE_RETRIES,
+                exc,
+            )
+            time.sleep(LB_ANNOTATE_RETRY_DELAY)
