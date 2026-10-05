@@ -90,6 +90,17 @@ class TestPebbleReady:
             testing.pebble.ServiceStatus.ACTIVE
         )
 
+    def test_pebble_ready_healthchecks(self, ctx, complete_state):
+        """The online check probes the API's /healthcheck over HTTP."""
+        container = complete_state.get_container("cloudkitty")
+        state_out = ctx.run(ctx.on.pebble_ready(container), complete_state)
+
+        checks = state_out.get_container("cloudkitty").plan.checks
+        assert checks["online"].http == {
+            "url": "http://localhost:8889/healthcheck"
+        }
+        assert checks["up"].exec == {"command": "service apache2 status"}
+
     def test_pebble_ready_without_relations_blocked(self, ctx):
         """Pebble-ready but no relations → blocked."""
         container = k8s_api_container("cloudkitty")

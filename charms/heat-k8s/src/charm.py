@@ -58,6 +58,9 @@ HEAT_API_CFN_PORT = 8000
 class HeatAPIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Pebble handler for Heat API container."""
 
+    # Earlier charm revisions ran the standalone heat-api service.
+    legacy_services = ("heat-api",)
+
     def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
         """Enable and start WSGI service."""
         container = self.charm.unit.get_container(self.container_name)
@@ -85,6 +88,9 @@ class HeatAPIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
 @sunbeam_tracing.trace_type
 class HeatCfnAPIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Pebble handler for Heat CFN API container."""
+
+    # Earlier charm revisions ran the standalone heat-api-cfn service.
+    legacy_services = ("heat-api-cfn",)
 
     def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
         """Enable and start WSGI service."""
@@ -196,8 +202,8 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
     _state = StoredState()
-    wsgi_admin_script = "/usr/bin/heat-wsgi-api"
-    wsgi_public_script = "/usr/bin/heat-wsgi-api"
+    wsgi_admin_script = "/usr/bin/heat-api-wsgi"
+    wsgi_public_script = "/usr/bin/heat-api-wsgi"
     heat_auth_encryption_key = "auth-encryption-key"
 
     db_sync_cmds = [["heat-manage", "db_sync"]]
@@ -582,6 +588,11 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return (
             f"http://localhost:{self.default_public_ingress_port}/healthcheck"
         )
+
+    @property
+    def ingress_healthcheck_path(self):
+        """Healthcheck path for ingress relation."""
+        return "/healthcheck"
 
     @property
     def wsgi_container_name(self) -> str:

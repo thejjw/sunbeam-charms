@@ -67,61 +67,24 @@ STORAGE_NAME = "local-repository"
 CEPH_RGW_RELATION = "ceph-rgw-ready"
 CORS_ORIGIN_RELATION_NAME = "cors-origin"
 
-# Use Apache to translate /<model-name> to /.  This should be possible
-# adding rules to the api-paste.ini but this does not seem to work
-# and glance always interprets the mode-name as a requested version number.
-
 
 @sunbeam_tracing.trace_type
-class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
+class GlanceAPIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     """Handler for glance api container."""
 
-    def get_layer(self) -> ops.pebble.LayerDict:
-        """Glance API service pebble layer.
-
-        :returns: pebble layer configuration for glance api service
-        """
-        return {
-            "summary": f"{self.service_name} layer",
-            "description": "pebble config layer for glance api service",
-            "services": {
-                f"{self.service_name}": {
-                    "override": "replace",
-                    "summary": f"{self.service_name} standalone",
-                    "startup": "disabled",
-                    "command": (
-                        "/usr/bin/glance-api "
-                        "--config-file /etc/glance/glance-api.conf"
-                    ),
-                    "user": "glance",
-                    "group": "glance",
-                },
-                "apache forwarder": {
-                    "override": "replace",
-                    "summary": "apache",
-                    "command": "/usr/sbin/apache2 -DFOREGROUND -DNO_DETACH",
-                    "startup": "disabled",
-                    "environment": {
-                        "APACHE_RUN_DIR": "/var/run/apache2",
-                        "APACHE_PID_FILE": "/var/run/apache2/apache2.pid",
-                        "APACHE_LOCK_DIR": "/var/lock/apache2",
-                        "APACHE_RUN_USER": "www-data",
-                        "APACHE_RUN_GROUP": "www-data",
-                        "APACHE_LOG_DIR": "/var/log/apache2",
-                    },
-                },
-            },
-        }
+    # Earlier charm revisions ran the standalone glance-api server behind an
+    # apache forwarder. Glance no longer ships a standalone server.
+    legacy_services = ("glance-api", "apache forwarder")
 
     def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
-        """Initialise service ready for use.
-
-        Write configuration files to the container and record
-        that service is ready for us.
-        """
-        self.execute(["a2enmod", "proxy_http"], exception_on_error=True)
-        self.execute(["a2enmod", "headers"], exception_on_error=True)
-        return super().init_service(context)
+        """Enable and start WSGI service."""
+        # The glance-api package ships an apache site listening on the
+        # same port as the charm managed site.
+        try:
+            self.execute(["a2dissite", "glance-api"], exception_on_error=True)
+        except ops.pebble.ExecError:
+            logger.exception("Failed to disable glance-api site in apache")
+        super().init_service(context)
 
 
 @sunbeam_tracing.trace_type
@@ -288,8 +251,8 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     _state = StoredState()
     _authed = False
     service_name = "glance-api"
-    wsgi_admin_script = "/usr/bin/glance-wsgi-api"
-    wsgi_public_script = "/usr/bin/glance-wsgi-api"
+    wsgi_admin_script = "/usr/bin/glance-api-wsgi"
+    wsgi_public_script = "/usr/bin/glance-api-wsgi"
 
     db_sync_cmds = [
         [
@@ -351,12 +314,6 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
             ),
             sunbeam_core.ContainerConfigFile(
                 "/etc/glance/glance-api.d/01-swift.conf",
-                self.service_user,
-                self.service_group,
-                0o640,
-            ),
-            sunbeam_core.ContainerConfigFile(
-                "/etc/apache2/sites-enabled/glance-forwarding.conf",
                 self.service_user,
                 self.service_group,
                 0o640,
@@ -472,8 +429,9 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def healthcheck_http_url(self) -> str:
         """Healthcheck HTTP URL for the service."""
-        # / returns 300 and /versions return 200
-        return f"http://localhost:{self.default_public_ingress_port}/versions"
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
 
     def has_local_storage(self) -> bool:
         """Whether the application has been deployed with local storage or not.
@@ -578,6 +536,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 self.container_configs,
                 self.template_dir,
                 self.configure_charm,
+                f"wsgi-{self.service_name}",
             )
         ]
 

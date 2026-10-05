@@ -16,7 +16,7 @@ links:
   issues:
     - https://bugs.launchpad.net/charm-ovn-relay-k8s
 
-base: ubuntu@24.04
+base: ubuntu@26.04
 platforms:
   amd64:
   arm64:
@@ -49,7 +49,7 @@ resources:
   ovn-sb-db-server-image:
     type: oci-image
     description: OCI image for OVN Southbound Database Server
-    upstream-source: ghcr.io/canonical/ovn-consolidated:26.03-24.04_edge
+    upstream-source: ghcr.io/canonical/ovn-consolidated:26.09-26.04_edge
 
 requires:
   ovsdb-cms:
@@ -91,5 +91,5 @@ parts:
       # s390x: build cryptography (openssl-sys/Rust) from source
       - libssl-dev
       - pkg-config
-      - rustc-1.82
-      - cargo-1.82
+      - rustc
+      - cargo

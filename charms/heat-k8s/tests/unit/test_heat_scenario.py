@@ -16,6 +16,7 @@
 
 """Scenario (ops.testing state-transition) tests for heat-k8s."""
 
+import dataclasses
 from pathlib import (
     Path,
 )
@@ -78,6 +79,37 @@ class TestPebbleReady:
         assert out_container.service_statuses.get("wsgi-heat-api") == (
             testing.pebble.ServiceStatus.ACTIVE
         )
+
+    def test_pebble_ready_stops_legacy_service(self, ctx, complete_state):
+        """The standalone heat-api service from earlier revisions is stopped."""
+        legacy_layer = testing.pebble.Layer(
+            {
+                "services": {
+                    "heat-api": {
+                        "override": "replace",
+                        "command": "heat-api",
+                    }
+                }
+            }
+        )
+        container = dataclasses.replace(
+            complete_state.get_container("heat-api"),
+            layers={"heat-api": legacy_layer},
+            service_statuses={
+                "heat-api": testing.pebble.ServiceStatus.ACTIVE,
+            },
+        )
+        containers = [
+            container if c.name == "heat-api" else c
+            for c in complete_state.containers
+        ]
+        state_in = dataclasses.replace(complete_state, containers=containers)
+        state_out = ctx.run(ctx.on.pebble_ready(container), state_in)
+
+        assert state_out.unit_status == testing.ActiveStatus("")
+        statuses = state_out.get_container("heat-api").service_statuses
+        assert statuses["wsgi-heat-api"] == testing.pebble.ServiceStatus.ACTIVE
+        assert statuses["heat-api"] != testing.pebble.ServiceStatus.ACTIVE
 
     def test_pebble_ready_without_relations_blocked(self, ctx):
         """Pebble-ready but no relations → blocked."""

@@ -7,9 +7,9 @@ Listen 0.0.0.0:{{ ks_config.public_port }}
     WSGIDaemonProcess keystone-public processes=4 threads=1 user=keystone group=keystone display-name=%{GROUP} python-path=/usr/lib/python3/site-packages
     WSGIProcessGroup keystone-public
     {% if ingress_internal and ingress_internal.ingress_path -%}
-    WSGIScriptAlias {{ ingress_internal.ingress_path }} /usr/bin/keystone-wsgi-public
+    WSGIScriptAlias {{ ingress_internal.ingress_path }} /usr/bin/keystone-api-wsgi
     {% endif -%}
-    WSGIScriptAlias / /usr/bin/keystone-wsgi-public
+    WSGIScriptAlias / /usr/bin/keystone-api-wsgi
     WSGIApplicationGroup %{GLOBAL}
     WSGIPassAuthorization On
     <IfVersion >= 2.4>
