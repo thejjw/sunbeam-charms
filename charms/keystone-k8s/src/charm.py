@@ -969,8 +969,8 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     _state = StoredState()
     _authed = False
     service_name = "keystone"
-    wsgi_admin_script = "/usr/bin/keystone-wsgi-admin"
-    wsgi_public_script = "/usr/bin/keystone-wsgi-public"
+    wsgi_admin_script = "/usr/bin/keystone-api-wsgi"
+    wsgi_public_script = "/usr/bin/keystone-api-wsgi"
     domain_config_dir = Path("/etc/keystone/domains")
     domain_ca_dir = Path("/usr/local/share/ca-certificates")
     service_port = 5000
@@ -2656,7 +2656,7 @@ export OS_AUTH_VERSION=3
     @property
     def healthcheck_http_url(self) -> str:
         """Healthcheck HTTP URL for the service."""
-        return f"http://localhost:{self.default_public_ingress_port}/{self.ingress_healthcheck_path}"
+        return f"http://localhost:{self.default_public_ingress_port}{self.ingress_healthcheck_path}"
 
     @property
     def ingress_healthcheck_path(self):

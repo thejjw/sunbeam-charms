@@ -77,6 +77,9 @@ class ServiceTemplateConfigContext(sunbeam_config_contexts.ConfigContext):
 class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
     """Base handler for Pebble based containers."""
 
+    # Services left in the pebble plan by earlier charm revisions.
+    legacy_services: tuple[str, ...] = ()
+
     def __init__(
         self,
         charm: "OSBaseOperatorCharm",
@@ -275,7 +278,12 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
             return False
         container = self.charm.unit.get_container(self.container_name)
         services = container.get_services()
-        return all(s.is_running() for s in services.values())
+        return all(
+            s.is_running()
+            for name, s in services.items()
+            # Legacy services are ignored when assessing readiness.
+            if name not in self.legacy_services
+        )
 
     def execute(
         self, cmd: list[str], exception_on_error: bool = False, **kwargs
@@ -346,7 +354,9 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
         container = self.charm.unit.get_container(self.container_name)
         try:
             plan = container.get_plan()
-            if not plan.checks:
+            if not plan.checks or self._healthchecks_outdated(
+                plan, healthcheck_layer
+            ):
                 logger.debug("Adding healthcheck layer to the plan")
                 container.add_layer(
                     "healthchecks", healthcheck_layer, combine=True
@@ -354,6 +364,32 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
         except ops.pebble.ConnectionError as connect_error:
             logger.error("Not able to add Healthcheck layer")
             logger.exception(connect_error)
+
+    @staticmethod
+    def _check_type(check: typing.Mapping[str, typing.Any]) -> str | None:
+        """Return the kind of a pebble check: http, tcp or exec."""
+        for kind in ("http", "tcp", "exec"):
+            if check.get(kind):
+                return kind
+        return None
+
+    def _healthchecks_outdated(
+        self,
+        plan: ops.pebble.Plan,
+        healthcheck_layer: ops.pebble.LayerDict,
+    ) -> bool:
+        """Whether the plan doesn't have standard checks.
+
+        Checks with a matching name and kind are left alone, so checks
+        stopped by the charm are not restarted.
+        """
+        for name, wanted in healthcheck_layer.get("checks", {}).items():
+            current = plan.checks.get(name)
+            if current is None:
+                return True
+            if self._check_type(current.to_dict()) != self._check_type(wanted):
+                return True
+        return False
 
     def stop_healthcheck(self, check_name: str) -> None:
         """Stop a healthcheck."""
@@ -457,7 +493,14 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
             )
             return
         services = container.get_services()
+
+        # Pebble cannot remove services from a plan, so these are stopped and
+        # ignored when starting services and assessing readiness.
+        self._stop_legacy_services(container, services)
+
         for service_name, service in services.items():
+            if service_name in self.legacy_services:
+                continue
             if not service.is_running():
                 logger.debug(
                     f"Starting {service_name} in {self.container_name}"
@@ -474,6 +517,25 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
                     container, service_name
                 )
                 self._reset_files_changed()
+
+    def _stop_legacy_services(
+        self,
+        container: ops.Container,
+        services: typing.Mapping[str, ops.pebble.ServiceInfo],
+    ) -> None:
+        """Stop running services listed in legacy_services."""
+        running = [
+            name
+            for name, svc in services.items()
+            if name in self.legacy_services and svc.is_running()
+        ]
+        if running:
+            logger.info(
+                "Stopping legacy services %s in %s",
+                running,
+                self.container_name,
+            )
+            container.stop(*running)
 
     def stop_all(self) -> None:
         """Stop services in container."""
