@@ -15,7 +15,7 @@ links:
   issues:
     - https://bugs.launchpad.net/charm-aodh-k8s
 
-base: ubuntu@24.04
+base: ubuntu@26.04
 platforms:
   amd64:
   arm64:
@@ -68,23 +68,23 @@ resources:
   aodh-api-image:
     type: oci-image
     description: OCI image for OpenStack aodh api service
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2026.1-24.04_edge
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2026.2-26.04_edge
   aodh-evaluator-image:
     type: oci-image
     description: OCI image for OpenStack aodh evaluator service
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2026.1-24.04_edge
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2026.2-26.04_edge
   aodh-notifier-image:
     type: oci-image
     description: OCI image for OpenStack aodh notifier service
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2026.1-24.04_edge
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2026.2-26.04_edge
   aodh-listener-image:
     type: oci-image
     description: OCI image for OpenStack aodh listener service
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2026.1-24.04_edge
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2026.2-26.04_edge
   aodh-expirer-image:
     type: oci-image
     description: OCI image for OpenStack aodh expirer service
-    upstream-source: ghcr.io/canonical/aodh-consolidated:2026.1-24.04_edge
+    upstream-source: ghcr.io/canonical/aodh-consolidated:2026.2-26.04_edge
 
 requires:
   database:
@@ -139,5 +139,5 @@ parts:
       # s390x: build cryptography (openssl-sys/Rust) from source
       - libssl-dev
       - pkg-config
-      - rustc-1.82
-      - cargo-1.82
+      - rustc
+      - cargo

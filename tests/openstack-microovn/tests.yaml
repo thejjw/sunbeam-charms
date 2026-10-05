@@ -4,7 +4,10 @@ smoke_bundles:
   - smoke
 configure:
   - zaza.sunbeam.charm_tests.machine.setup.deploy_machine_applications_microovn
-  - zaza.sunbeam.charm_tests.octavia.setup.configure_amphora
+  # Skipped for Hibiscus (2026.2) release: the tests passed in larger runners,
+  # but the currently available resources are insufficient. Re-enable after
+  # the release.
+  # - zaza.sunbeam.charm_tests.octavia.setup.configure_amphora
   - zaza.sunbeam.charm_tests.k8s.setup.add_loadbalancer_annotations
   - zaza.sunbeam.charm_tests.keystone.setup.wait_for_all_endpoints
   - zaza.openstack.charm_tests.keystone.setup.add_tempest_roles
@@ -39,6 +42,8 @@ tests_options:
   tempest:
     default:
       smoke: True
+      # Temporarily reduce concurrency to 2: 4 workers overload the CI node.
+      concurrency: 2
       exclude-list:
         # Needs ssh into VM
         - tempest.api.compute.servers.test_server_actions.ServerActionsTestJSON
