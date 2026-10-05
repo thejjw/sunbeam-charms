@@ -63,6 +63,7 @@ from ops.model import (
 
 logger = logging.getLogger(__name__)
 IMAGES_DIR = "/var/lib/glance/images"
+STAGING_DIR = "/var/lib/glance/staging"
 STORAGE_NAME = "local-repository"
 CEPH_RGW_RELATION = "ceph-rgw-ready"
 CORS_ORIGIN_RELATION_NAME = "cors-origin"
@@ -75,6 +76,11 @@ CORS_ORIGIN_RELATION_NAME = "cors-origin"
 @sunbeam_tracing.trace_type
 class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
     """Handler for glance api container."""
+
+    @property
+    def directories(self) -> list[sunbeam_chandlers.ContainerDir]:
+        """Directories to create in container."""
+        return [sunbeam_chandlers.ContainerDir(STAGING_DIR, "glance", "glance")]
 
     def get_layer(self) -> ops.pebble.LayerDict:
         """Glance API service pebble layer.
@@ -91,7 +97,9 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                     "startup": "disabled",
                     "command": (
                         "/usr/bin/glance-api "
-                        "--config-file /etc/glance/glance-api.conf"
+                        "--config-file /etc/glance/glance-api.conf "
+                        "--config-file /etc/glance/glance-image-import.conf "
+                        "--config-file /etc/glance/glance-api-paste.ini"
                     ),
                     "user": "glance",
                     "group": "glance",
