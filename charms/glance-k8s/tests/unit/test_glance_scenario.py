@@ -16,6 +16,7 @@
 
 """Scenario (ops.testing state-transition) tests for glance-k8s."""
 
+import dataclasses
 from pathlib import (
     Path,
 )
@@ -54,6 +55,22 @@ class TestAllRelations:
             state_out, ctx, "glance-api", "/etc/glance/glance-api.conf"
         )
 
+    def test_wsgi_config_file_written(self, ctx, complete_state):
+        """All relations present → apache WSGI site for glance is rendered."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "glance-api",
+            "/etc/apache2/sites-available/wsgi-glance-api.conf",
+            [
+                "Listen 9292",
+                "WSGIScriptAlias / /usr/bin/glance-api-wsgi",
+                "WSGIChunkedRequest On",
+                "LimitRequestBody 0",
+            ],
+        )
+
 
 class TestPebbleReady:
     """Pebble-ready event with all relations → container configured."""
@@ -68,18 +85,46 @@ class TestPebbleReady:
         out_container = state_out.get_container("glance-api")
         assert "glance-api" in out_container.layers
         layer = out_container.layers["glance-api"]
-        assert "glance-api" in layer.to_dict().get("services", {})
+        assert "wsgi-glance-api" in layer.to_dict().get("services", {})
 
-        assert out_container.service_statuses.get("glance-api") == (
+        assert out_container.service_statuses.get("wsgi-glance-api") == (
             testing.pebble.ServiceStatus.ACTIVE
         )
+
+    def test_pebble_ready_stops_legacy_services(self, ctx, complete_state):
+        """Services from the standalone deployment are stopped, not started."""
+        legacy_layer = testing.pebble.Layer(
+            {
+                "services": {
+                    name: {"override": "replace", "command": "/bin/true"}
+                    for name in ("glance-api", "apache forwarder")
+                }
+            }
+        )
+        container = dataclasses.replace(
+            complete_state.get_container("glance-api"),
+            layers={"glance-api": legacy_layer},
+            service_statuses={
+                "glance-api": testing.pebble.ServiceStatus.ACTIVE,
+                "apache forwarder": testing.pebble.ServiceStatus.ACTIVE,
+            },
+        )
+        state_in = dataclasses.replace(complete_state, containers=[container])
+        state_out = ctx.run(ctx.on.pebble_ready(container), state_in)
+
+        assert state_out.unit_status == testing.ActiveStatus("")
+        statuses = state_out.get_container("glance-api").service_statuses
+        assert statuses["wsgi-glance-api"] == (
+            testing.pebble.ServiceStatus.ACTIVE
+        )
+        for name in ("glance-api", "apache forwarder"):
+            assert statuses[name] != testing.pebble.ServiceStatus.ACTIVE
 
     def test_pebble_ready_without_relations_blocked(self, ctx):
         """Pebble-ready but no relations → blocked."""
         container = k8s_api_container(
             "glance-api",
             extra_execs=[
-                testing.Exec(command_prefix=["a2enmod"], return_code=0),
                 testing.Exec(command_prefix=["ceph-authtool"], return_code=0),
                 testing.Exec(command_prefix=["chown"], return_code=0),
                 testing.Exec(command_prefix=["chmod"], return_code=0),
