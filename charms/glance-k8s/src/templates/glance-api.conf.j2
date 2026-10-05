@@ -14,6 +14,8 @@ image_size_cap = {{ glance_config.image_size_cap }}
 
 enabled_backends = {{ glance_config.enabled_backends }}
 
+node_staging_uri = file:///var/lib/glance/staging
+
 {% include "parts/section-database" %}
 
 {% include "parts/section-identity" %}
@@ -31,6 +33,9 @@ default_backend = filestore
 
 [filestore]
 filesystem_store_datadir = /var/lib/glance/images/
+
+[os_glance_staging_store]
+filesystem_store_datadir = /var/lib/glance/staging/
 
 {% if ceph.auth %}
 [ceph]
