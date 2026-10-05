@@ -60,8 +60,12 @@ MULTUS_MANIFEST_URL = (
     "/master/deployments/multus-daemonset-thick.yml"
 )
 
-# The openstack-port-cni-k8s charm channel to deploy.
-PORT_CNI_CHANNEL = "2026.1/edge"
+# The openstack-port-cni-k8s application and its deploy sources.
+PORT_CNI_APP = "openstack-port-cni-k8s"
+PORT_CNI_CHANNEL = "2026.2/edge"
+# Locally built charm artifact (repo root). Preferred when present, so the
+# release channel does not need to be published yet.
+PORT_CNI_LOCAL_CHARM = "openstack-port-cni-k8s.charm"
 
 # NetworkAttachmentDefinition name — matches amphora-network-attachment config.
 NAD_NAME = "ovs-lbmgmt"
@@ -194,30 +198,35 @@ def _disable_cni_exclusive():
 def _deploy_openstack_port_cni(juju_k8s):
     """Deploy openstack-port-cni-k8s and wait for it to become active."""
     status = juju_k8s.status()
-    if "openstack-port-cni-k8s" in status.apps:
-        logging.info("openstack-port-cni-k8s already deployed, skipping")
+    if PORT_CNI_APP in status.apps:
+        logging.info("%s already deployed, skipping", PORT_CNI_APP)
         return
 
-    logging.info("Deploying openstack-port-cni-k8s from %s", PORT_CNI_CHANNEL)
-    juju_k8s.cli(
-        "deploy", "openstack-port-cni-k8s",
-        "--channel", PORT_CNI_CHANNEL,
-        "--base", "ubuntu@24.04",
-        "--trust",
-    )
+    if os.path.exists(PORT_CNI_LOCAL_CHARM):
+        logging.info("Deploying %s from local charm %s", PORT_CNI_APP,
+                     PORT_CNI_LOCAL_CHARM)
+        juju_k8s.cli("deploy", PORT_CNI_LOCAL_CHARM, "--trust")
+    else:
+        logging.info("Deploying %s from %s", PORT_CNI_APP, PORT_CNI_CHANNEL)
+        juju_k8s.cli(
+            "deploy", PORT_CNI_APP,
+            "--channel", PORT_CNI_CHANNEL,
+            "--base", "ubuntu@26.04",
+            "--trust",
+        )
     try:
         juju_k8s.cli(
             "integrate",
-            "openstack-port-cni-k8s:identity-credentials",
+            f"{PORT_CNI_APP}:identity-credentials",
             "keystone:identity-credentials",
         )
     except jubilant.CLIError as e:
         if "already exists" not in e.stderr:
             raise
 
-    logging.info("Waiting for openstack-port-cni-k8s to become active")
+    logging.info("Waiting for %s to become active", PORT_CNI_APP)
     juju_k8s.wait(
-        lambda status: jubilant.all_active(status, "openstack-port-cni-k8s"),
+        lambda status: jubilant.all_active(status, PORT_CNI_APP),
         timeout=600,
         delay=10,
     )

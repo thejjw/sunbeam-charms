@@ -8,8 +8,6 @@ debug = {{ options.debug }}
 {% if amqp %}
 transport_url = {{ amqp.transport_url }}
 {% endif %}
-bind_port = 9282
-workers = 4
 image_size_cap = {{ glance_config.image_size_cap }}
 
 enabled_backends = {{ glance_config.enabled_backends }}
