@@ -461,6 +461,18 @@ class MasakariOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Default port."""
         return 15868
 
+    @property
+    def ingress_healthcheck_path(self):
+        """Healthcheck path for ingress relation."""
+        return "/healthcheck"
+
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
+
 
 if __name__ == "__main__":
     main(MasakariOperatorCharm)

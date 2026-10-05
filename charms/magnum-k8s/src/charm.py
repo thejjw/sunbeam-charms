@@ -209,6 +209,13 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return "/healthcheck"
 
     @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
+
+    @property
     def config_contexts(self) -> List[sunbeam_config_contexts.ConfigContext]:
         """Generate list of configuration adapters for the charm."""
         _cadapters = super().config_contexts
