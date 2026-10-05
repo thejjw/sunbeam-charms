@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "400caef3_501ac62d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-10-05T15:34:50Z",
+      "side": 1,
+      "message": "As discussed offline, we can\u0027t make use of a staging PVC because of juju upgradability issue.\n\nSo this has the potential to fill the root disk if too many failed images or to many concurrent downloads on the same host and K8S container storage is on the root partition.",
+      "revId": "264e3d958ea58e809b78144717a5fe2d9d06139b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
