@@ -123,18 +123,6 @@ class CloudkittyWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             )
         self.start_wsgi()
 
-    def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer configuration."""
-        return {
-            "checks": {
-                "online": {
-                    "override": "replace",
-                    "level": "ready",
-                    "exec": {"command": "service apache2 status"},
-                },
-            }
-        }
-
     def default_container_configs(
         self,
     ) -> List[sunbeam_core.ContainerConfigFile]:
@@ -202,8 +190,8 @@ class CloudkittyOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _authed = False
     service_name = "cloudkitty"
-    wsgi_admin_script = "/usr/bin/cloudkitty-api"
-    wsgi_public_script = "/usr/bin/cloudkitty-api"
+    wsgi_admin_script = "/usr/bin/cloudkitty-api-wsgi"
+    wsgi_public_script = "/usr/bin/cloudkitty-api-wsgi"
 
     db_sync_cmds = [
         ["cloudkitty-dbsync", "upgrade"],
@@ -288,6 +276,13 @@ class CloudkittyOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def ingress_healthcheck_path(self):
         """Healthcheck path for ingress relation."""
         return "/healthcheck"
+
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
 
     @property
     def service_conf(self) -> str:

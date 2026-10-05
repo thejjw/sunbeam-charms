@@ -1,8 +1,8 @@
 # Project configuration
 [project]
 name = "openstack-network-agents"
-version = "2026.1"
-requires-python = ">=3.12,<3.15"
+version = "2026.2"
+requires-python = "~=3.14.0"
 
 dependencies = [
     "cryptography",

@@ -71,7 +71,7 @@ then
     ops_sunbeam_src_path="ops-sunbeam/ops_sunbeam"
 
     PYTHONPATH=$(python3 ./repository.py pythonpath) mypy ${ops_sunbeam_src_path}
-elif [[ $1 =~ ^(py3|py310|py312)$ ]];
+elif [[ $1 =~ ^(py3|py310|py312|py314)$ ]];
 then
 
     # Run py3 on ops-sunbeam

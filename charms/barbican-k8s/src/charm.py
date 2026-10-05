@@ -73,8 +73,8 @@ class WSGIBarbicanAdminConfigContext(sunbeam_ctxts.ConfigContext):
             "public_port": 9312,
             "user": self.charm.service_user,
             "group": self.charm.service_group,
-            "wsgi_admin_script": "/usr/bin/barbican-wsgi-api",
-            "wsgi_public_script": "/usr/bin/barbican-wsgi-api",
+            "wsgi_admin_script": "/usr/bin/barbican-api-wsgi",
+            "wsgi_public_script": "/usr/bin/barbican-api-wsgi",
             "error_log": "/dev/stdout",
             "custom_log": "/dev/stdout",
         }
@@ -258,8 +258,8 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = framework.StoredState()
     service_name = "barbican-api"
-    wsgi_admin_script = "/usr/bin/barbican-wsgi-api"
-    wsgi_public_script = "/usr/bin/barbican-wsgi-api"
+    wsgi_admin_script = "/usr/bin/barbican-api-wsgi"
+    wsgi_public_script = "/usr/bin/barbican-api-wsgi"
 
     db_sync_cmds = [
         ["sudo", "-u", "barbican", "barbican-manage", "db", "upgrade"]
@@ -492,8 +492,9 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     @property
     def healthcheck_http_url(self) -> str:
         """Healthcheck HTTP URL for the service."""
-        # / returns a 300 return code, which is not understood by Pebble as OK
-        return super().healthcheck_http_url + "?build"
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
 
 
 @sunbeam_tracing.trace_sunbeam_charm
