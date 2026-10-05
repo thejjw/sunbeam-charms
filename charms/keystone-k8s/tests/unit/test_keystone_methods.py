@@ -1961,6 +1961,66 @@ class TestGetAdminPasswordAction:
         # Password was set by pwgen mock returning "randompassword"
         assert ctx2.action_results["password"] == "randompassword"
 
+    def test_leader_retries_transient_model_error(
+        self, ctx, complete_state, monkeypatch
+    ):
+        """Transient ModelError on the secret read is retried, not surfaced."""
+        from ops.model import (
+            ModelError,
+        )
+
+        state_mid = _bootstrap(ctx, complete_state)
+
+        calls = {"n": 0}
+
+        def flaky_admin_password(self):
+            calls["n"] += 1
+            if calls["n"] < 3:
+                # Juju cannot ensure the role binding for the secret access
+                # token against the k8s API under deploy-time churn.
+                raise ModelError(
+                    "cannot ensure role binding: etcdserver: request timed out"
+                )
+            return "retry-password"
+
+        monkeypatch.setattr(
+            charm.KeystoneOperatorCharm,
+            "admin_password",
+            property(flaky_admin_password),
+        )
+        monkeypatch.setattr(charm.time, "sleep", lambda *_: None)
+
+        ctx2 = _new_ctx()
+        ctx2.run(ctx2.on.action("get-admin-password"), state_mid)
+
+        assert calls["n"] == 3
+        assert ctx2.action_results["password"] == "retry-password"
+
+    def test_leader_fails_cleanly_when_model_error_persists(
+        self, ctx, complete_state, monkeypatch
+    ):
+        """Persistent ModelError surfaces as a clear action failure."""
+        from ops.model import (
+            ModelError,
+        )
+
+        state_mid = _bootstrap(ctx, complete_state)
+
+        def broken_admin_password(self):
+            raise ModelError("cannot ensure role binding: connection refused")
+
+        monkeypatch.setattr(
+            charm.KeystoneOperatorCharm,
+            "admin_password",
+            property(broken_admin_password),
+        )
+        monkeypatch.setattr(charm.time, "sleep", lambda *_: None)
+
+        ctx2 = _new_ctx()
+        with pytest.raises(testing.ActionFailed) as exc_info:
+            ctx2.run(ctx2.on.action("get-admin-password"), state_mid)
+        assert "unavailable" in exc_info.value.message.lower()
+
 
 # ---------------------------------------------------------------------------
 # Certificate pipeline tests

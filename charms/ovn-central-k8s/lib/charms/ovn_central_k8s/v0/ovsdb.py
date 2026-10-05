@@ -40,7 +40,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 5
+LIBPATCH = 6
 
 
 LOADBALANCER_KEY = "loadbalancer-address"
@@ -173,7 +173,11 @@ class OVSDBCMSRequires(Object):
             return all(self.proxied_connection_strings().values())
         if self.external_connectivity:
             return self.loadbalancer_address() is not None
-        return all(self.bound_hostnames()) or all(self.bound_addresses())
+
+        # Require at least one related unit with an address
+        hostnames = self.bound_hostnames()
+        addresses = self.bound_addresses()
+        return (hostnames and all(hostnames)) or (addresses and all(addresses))
 
     def _on_ovsdb_cms_relation_changed(self, event):
         """OVSDBCMS relation changed."""

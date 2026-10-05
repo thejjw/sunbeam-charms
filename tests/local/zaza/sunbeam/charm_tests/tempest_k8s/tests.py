@@ -19,6 +19,8 @@ from zaza import model
 from zaza.openstack.charm_tests import test_utils
 from zaza.openstack.utilities import openstack as openstack_utils
 
+# Import to apply the retry patch to the keystone session factory of zaza.
+from zaza.sunbeam.charm_tests import keystone_retry as _ks_session_patch  # noqa: F401
 
 logger = logging.getLogger(__name__)
 

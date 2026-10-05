@@ -24,6 +24,9 @@ import pytest
 from ops import (
     testing,
 )
+from ops.pebble import (
+    ServiceStatus,
+)
 from ops_sunbeam.test_utils_scenario import (
     assert_config_file_contains,
     assert_config_file_exists,
@@ -174,6 +177,39 @@ class TestBlockedWhenEachRelationMissing:
             f"Expected blocked/waiting when '{missing_rel}' missing, "
             f"got {state_out.unit_status}"
         )
+
+
+class TestOvsdbCmsAbsentDoesNotStartWorkload:
+    """The neutron workload must not run before ovsdb-cms is ready."""
+
+    def test_workload_not_started_when_ovsdb_cms_absent(
+        self, ctx, complete_relations, complete_secrets, container
+    ):
+        """With ovsdb-cms absent, the neutron-server services stay stopped."""
+        remaining = [
+            r for r in complete_relations if r.endpoint != "ovsdb-cms"
+        ]
+        state_in = testing.State(
+            leader=True,
+            relations=remaining,
+            containers=[container],
+            secrets=complete_secrets,
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert_unit_status(state_out, "blocked", "integration missing")
+
+        service_statuses = (
+            state_out.get_container("neutron-server").service_statuses or {}
+        )
+        for service in (
+            "wsgi-neutron-api",
+            "neutron-rpc-server",
+            "neutron-periodic-workers",
+        ):
+            assert (
+                service_statuses.get(service) is not ServiceStatus.ACTIVE
+            ), f"{service} must not be active when ovsdb-cms is absent"
 
 
 class TestWaitingNonLeader:

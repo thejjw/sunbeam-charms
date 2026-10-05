@@ -27,9 +27,11 @@ import re
 import subprocess
 import threading
 from concurrent.futures import (
-    ThreadPoolExecutor,
-    wait as futures_wait,
     FIRST_EXCEPTION,
+    ThreadPoolExecutor,
+)
+from concurrent.futures import (
+    wait as futures_wait,
 )
 from pathlib import (
     Path,
@@ -45,9 +47,8 @@ MACHINE_MODEL_WITH_OWNER = f"admin/{MACHINE_MODEL}"
 MACHINE_MICROOVN_BUNDLE_FILE = "./tests/openstack-microovn/bundles/machines.yaml"
 CILIUM_INTERFACE = "cilium_host"
 CILIUM_SPACE = "k8s-subnet"
-K8S_WAIT_TIMEOUT = (
-    3600  # 1 hour for k8s model wait (covers full pods provisioning)
-)
+K8S_WAIT_TIMEOUT = 5400  # 1.5 h for k8s model wait (covers full pods provisioning;
+# rabbitmq's ~90 serial amqp hooks can overrun a 1 h budget on slow nodes)
 POST_CMR_WAIT_TIMEOUT = 2400  # 40 minutes for post-CMR parallel wait
 
 
@@ -352,10 +353,11 @@ def _configure_magnum(juju_k8s):
 
 
 def _enable_microceph_orchestrator():
-    """Workaround to enable Orchestrator module.
+    """Workaround to enable the MicroCeph orchestrator module and backend.
 
-    Required until https://github.com/canonical/microceph/pull/611
-    is merged and published in squid/stable.
+    Required until a charm-microceph revision that enables the mgr module
+    and sets the orch backend in the ceph-nfs relation handler publishes
+    to the microceph charm.
     """
     try:
         subprocess.run(
