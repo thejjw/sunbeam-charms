@@ -18,6 +18,7 @@ default_provider_driver = ovn
 enabled_provider_drivers = amphora:The Octavia Amphora driver
 default_provider_driver = amphora
 {%- endif %}
+healthcheck_enabled = True
 
 [driver_agent]
 {% if ovn -%}

@@ -3,7 +3,7 @@ Listen 8000
     WSGIDaemonProcess heat-api-cfn processes=4 threads=1 user={{ wsgi_config.user }} group={{ wsgi_config.group }} \
                       display-name=%{GROUP}
     WSGIProcessGroup heat-api-cfn
-    WSGIScriptAlias / /usr/bin/heat-wsgi-api-cfn
+    WSGIScriptAlias / /usr/bin/heat-api-cfn-wsgi
     WSGIApplicationGroup %{GLOBAL}
     WSGIPassAuthorization On
     <IfVersion >= 2.4>
