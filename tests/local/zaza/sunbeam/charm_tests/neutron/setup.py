@@ -23,6 +23,7 @@ Tempest can make use of these resources in test runs.
 
 
 import logging
+import time
 
 from zaza.openstack.charm_tests.neutron.setup import (
     DEFAULT_UNDERCLOUD_NETWORK_CONFIG,
@@ -31,6 +32,32 @@ from zaza.openstack.charm_tests.neutron.setup import (
 from zaza.openstack.utilities import cli as cli_utils
 from zaza.openstack.utilities import generic as generic_utils
 from zaza.openstack.utilities import openstack as openstack_utils
+
+# The first neutron API call of the run can land while neutron-server is
+# still restarting (config churn from earlier configure steps) and get a
+# 503 ServiceUnavailable; the neutronclient only retries connection errors,
+# not 5xx responses, so wait for the API before configuring the network.
+NEUTRON_API_RETRIES = 12
+NEUTRON_API_RETRY_DELAY = 10
+
+
+def _wait_for_neutron_api(keystone_session):
+    """Wait until the neutron API answers a simple list request."""
+    neutron_client = openstack_utils.get_neutron_session_client(keystone_session)
+    for attempt in range(1, NEUTRON_API_RETRIES + 1):
+        try:
+            neutron_client.list_networks()
+            return
+        except Exception as e:
+            if attempt == NEUTRON_API_RETRIES:
+                raise
+            logging.warning(
+                "Neutron API not ready yet (attempt %d/%d): %s",
+                attempt,
+                NEUTRON_API_RETRIES,
+                e,
+            )
+            time.sleep(NEUTRON_API_RETRY_DELAY)
 
 
 def setup_sdn(network_config, keystone_session):
@@ -154,6 +181,9 @@ def basic_overcloud_network():
 
     # Get keystone session
     keystone_session = openstack_utils.get_overcloud_keystone_session()
+
+    # Wait for the neutron API to be ready before configuring the network
+    _wait_for_neutron_api(keystone_session)
 
     # Configure the overcloud network
     setup_sdn(network_config, keystone_session=keystone_session)

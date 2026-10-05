@@ -483,6 +483,13 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         return "/healthcheck"
 
     @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
+
+    @property
     def ns_records(self) -> List[str]:
         """Get nameserver records."""
         nameservers = self.config.get("nameservers")
