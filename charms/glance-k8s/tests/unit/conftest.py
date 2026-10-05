@@ -77,7 +77,6 @@ def container():
     return k8s_api_container(
         "glance-api",
         extra_execs=[
-            testing.Exec(command_prefix=["a2enmod"], return_code=0),
             testing.Exec(command_prefix=["ceph-authtool"], return_code=0),
             testing.Exec(command_prefix=["chown"], return_code=0),
             testing.Exec(command_prefix=["chmod"], return_code=0),
