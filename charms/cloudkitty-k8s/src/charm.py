@@ -108,6 +108,16 @@ class CloudkittyWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
     def init_service(self, context) -> None:
         """Enable and start WSGI service matching our updated filename."""
         self.write_config(context)
+        # The cloudkitty-api package ships an apache site listening on the
+        # same port as the charm managed site.
+        try:
+            self.execute(
+                ["a2dissite", "cloudkitty-api"],
+                exception_on_error=True,
+            )
+        except ops.pebble.ExecError:
+            logger.exception("Failed to disable cloudkitty-api site in apache")
+
         try:
             self.execute(
                 ["a2dissite", f"wsgi-{self.service_name}"],
@@ -122,18 +132,6 @@ class CloudkittyWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
                 f"Failed to enable wsgi-{self.service_name} site in apache"
             )
         self.start_wsgi()
-
-    def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer configuration."""
-        return {
-            "checks": {
-                "online": {
-                    "override": "replace",
-                    "level": "ready",
-                    "exec": {"command": "service apache2 status"},
-                },
-            }
-        }
 
     def default_container_configs(
         self,
@@ -202,8 +200,8 @@ class CloudkittyOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _authed = False
     service_name = "cloudkitty"
-    wsgi_admin_script = "/usr/bin/cloudkitty-api"
-    wsgi_public_script = "/usr/bin/cloudkitty-api"
+    wsgi_admin_script = "/usr/bin/cloudkitty-api-wsgi"
+    wsgi_public_script = "/usr/bin/cloudkitty-api-wsgi"
 
     db_sync_cmds = [
         ["cloudkitty-dbsync", "upgrade"],
@@ -288,6 +286,13 @@ class CloudkittyOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def ingress_healthcheck_path(self):
         """Healthcheck path for ingress relation."""
         return "/healthcheck"
+
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
 
     @property
     def service_conf(self) -> str:
