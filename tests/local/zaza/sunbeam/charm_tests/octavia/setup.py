@@ -54,14 +54,44 @@ from zaza.openstack.utilities import openstack as openstack_utils
 # Constants
 # ---------------------------------------------------------------------------
 
-# The Multus thick-plugin daemonset manifest URL.
-MULTUS_MANIFEST_URL = (
-    "https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni"
-    "/master/deployments/multus-daemonset-thick.yml"
-)
+# Multus thick-plugin release. Pinned because the manifest on master
+# references the moving "snapshot-thick" image, and recent master builds
+# break pod sandbox creation against the k8s snap apiserver (v1.32).
+# v4.2.4 is the last release with client-go v0.34.1, where the
+# WatchListClient gate (streaming-list informer, on by default from
+# client-go v0.36 / multus v4.3.x) is off — the daemon's pod informer
+# then syncs via plain LIST and CNI adds succeed, as in the 2026.1 green
+# CI. None falls back to the manifest's default (master).
+MULTUS_VERSION = "4.2.4"
 
-# The openstack-port-cni-k8s charm channel to deploy.
-PORT_CNI_CHANNEL = "2026.1/edge"
+MULTUS_BASE_URL = (
+    "https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni"
+)
+MULTUS_REGISTRY = "ghcr.io/k8snetworkplumbingwg/multus-cni"
+
+if MULTUS_VERSION:
+    MULTUS_MANIFEST_URL = (
+        f"{MULTUS_BASE_URL}/v{MULTUS_VERSION}/deployments/multus-daemonset-thick.yml"
+    )
+    # Both the daemon and the shim-installing init container, so they stay
+    # version-matched (the manifest's own image pins are "snapshot-thick").
+    MULTUS_IMAGE = f"{MULTUS_REGISTRY}:v{MULTUS_VERSION}-thick"
+else:
+    MULTUS_MANIFEST_URL = (
+        f"{MULTUS_BASE_URL}/master/deployments/multus-daemonset-thick.yml"
+    )
+    MULTUS_IMAGE = None
+
+MULTUS_DAEMONSET = "kube-multus-ds"
+MULTUS_CONTAINER = "kube-multus"
+MULTUS_INIT_CONTAINER = "install-multus-binary"
+
+# The openstack-port-cni-k8s application and its deploy sources.
+PORT_CNI_APP = "openstack-port-cni-k8s"
+PORT_CNI_CHANNEL = "2026.2/edge"
+# Locally built charm artifact (repo root). Preferred when present, so the
+# release channel does not need to be published yet.
+PORT_CNI_LOCAL_CHARM = "./openstack-port-cni-k8s.charm"
 
 # NetworkAttachmentDefinition name — matches amphora-network-attachment config.
 NAD_NAME = "ovs-lbmgmt"
@@ -150,6 +180,52 @@ def _deploy_multus():
         ["sudo", "k8s", "kubectl", "apply", "-f", MULTUS_MANIFEST_URL],
         check=True,
     )
+    # Guard against WatchList streaming-list incompatibilities with the
+    # k8s snap apiserver, which wedge the pod informer and break all
+    # pod sandbox creation.
+    logging.info("Disabling WatchListClient on the Multus daemon")
+    subprocess.run(
+        [
+            "sudo", "k8s", "kubectl", "set", "env",
+            f"daemonset/{MULTUS_DAEMONSET}", "-n", "kube-system",
+            "KUBE_FEATURE_WatchListClient=false",
+        ],
+        check=True,
+    )
+    if MULTUS_IMAGE:
+        logging.info("Pinning Multus images to %s", MULTUS_IMAGE)
+        subprocess.run(
+            [
+                "sudo", "k8s", "kubectl", "set", "image",
+                f"daemonset/{MULTUS_DAEMONSET}", "-n", "kube-system",
+                f"{MULTUS_CONTAINER}={MULTUS_IMAGE}",
+                f"{MULTUS_INIT_CONTAINER}={MULTUS_IMAGE}",
+            ],
+            check=True,
+        )
+    # The upstream manifest pins the daemon to 50Mi, which OOM-kills it
+    # under deploy-time CNI churn and leaves every pod sandbox creation
+    # blocked (octavia can then never attach its amphora interface).
+    logging.info("Raising Multus daemon resources")
+    subprocess.run(
+        [
+            "sudo", "k8s", "kubectl", "-n", "kube-system",
+            "set", "resources", f"daemonset/{MULTUS_DAEMONSET}",
+            f"--containers={MULTUS_CONTAINER}",
+            "--limits=memory=256Mi,cpu=500m",
+            "--requests=memory=128Mi,cpu=100m",
+        ],
+        check=True,
+    )
+    logging.info("Waiting for Multus DaemonSet to roll out")
+    subprocess.run(
+        [
+            "sudo", "k8s", "kubectl", "rollout", "status",
+            f"daemonset/{MULTUS_DAEMONSET}", "-n", "kube-system",
+            "--timeout=600s",
+        ],
+        check=True,
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -186,6 +262,32 @@ def _disable_cni_exclusive():
     )
 
 
+def _wait_for_cilium_ready():
+    """Wait for the Cilium DaemonSet to roll out after the cni.exclusive flip.
+
+    Upgrading Cilium with cni.exclusive=false restarts the CNI, which
+    transiently disrupts pod networking and can make API healthchecks fail
+    (neutron/cinder/etc). Wait until Cilium is fully rolled out again before
+    deploying/relating openstack-port-cni, so the later active-wait does not
+    race the CNI restart.
+    """
+    logging.info("Waiting for Cilium DaemonSet to roll out")
+    subprocess.run(
+        [
+            "sudo",
+            "k8s",
+            "kubectl",
+            "rollout",
+            "status",
+            "daemonset/cilium",
+            "-n",
+            "kube-system",
+            "--timeout=600s",
+        ],
+        check=True,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Step 3: Deploy openstack-port-cni-k8s and relate to keystone
 # ---------------------------------------------------------------------------
@@ -194,31 +296,40 @@ def _disable_cni_exclusive():
 def _deploy_openstack_port_cni(juju_k8s):
     """Deploy openstack-port-cni-k8s and wait for it to become active."""
     status = juju_k8s.status()
-    if "openstack-port-cni-k8s" in status.apps:
-        logging.info("openstack-port-cni-k8s already deployed, skipping")
+    if PORT_CNI_APP in status.apps:
+        logging.info("%s already deployed, skipping", PORT_CNI_APP)
         return
 
-    logging.info("Deploying openstack-port-cni-k8s from %s", PORT_CNI_CHANNEL)
-    juju_k8s.cli(
-        "deploy", "openstack-port-cni-k8s",
-        "--channel", PORT_CNI_CHANNEL,
-        "--base", "ubuntu@24.04",
-        "--trust",
-    )
+    if os.path.exists(PORT_CNI_LOCAL_CHARM):
+        logging.info("Deploying %s from local charm %s", PORT_CNI_APP,
+                     PORT_CNI_LOCAL_CHARM)
+        juju_k8s.cli("deploy", PORT_CNI_LOCAL_CHARM,
+                     "--base", "ubuntu@26.04", "--trust")
+    else:
+        logging.info("Deploying %s from %s", PORT_CNI_APP, PORT_CNI_CHANNEL)
+        juju_k8s.cli(
+            "deploy", PORT_CNI_APP,
+            "--channel", PORT_CNI_CHANNEL,
+            "--base", "ubuntu@26.04",
+            "--trust",
+        )
     try:
         juju_k8s.cli(
             "integrate",
-            "openstack-port-cni-k8s:identity-credentials",
+            f"{PORT_CNI_APP}:identity-credentials",
             "keystone:identity-credentials",
         )
     except jubilant.CLIError as e:
         if "already exists" not in e.stderr:
             raise
 
-    logging.info("Waiting for openstack-port-cni-k8s to become active")
+    # The first sandbox creation after the Cilium cni.exclusive restart can
+    # stall for several minutes per kubelet attempt before succeeding;
+    # 600 s was observed too tight for the pod to reach active.
+    logging.info("Waiting for %s to become active", PORT_CNI_APP)
     juju_k8s.wait(
-        lambda status: jubilant.all_active(status, "openstack-port-cni-k8s"),
-        timeout=600,
+        lambda status: jubilant.all_active(status, PORT_CNI_APP),
+        timeout=1800,
         delay=10,
     )
 
@@ -626,6 +737,7 @@ def configure_amphora():
 
     # --- 2. Cilium cni.exclusive=false ---
     _disable_cni_exclusive()
+    _wait_for_cilium_ready()
 
     # --- 3. openstack-port-cni-k8s ---
     _deploy_openstack_port_cni(juju_k8s)
