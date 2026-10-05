@@ -924,6 +924,18 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         """Ingress Port for API service."""
         return 9876
 
+    @property
+    def ingress_healthcheck_path(self):
+        """Healthcheck path for ingress relation."""
+        return "/healthcheck"
+
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
+
     def get_pebble_handlers(
         self,
     ) -> List[sunbeam_chandlers.ServicePebbleHandler]:
@@ -1667,9 +1679,10 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     ) -> None:
         """Identify and stamp the partially-applied alembic revision.
 
-        Called when a 'Duplicate column name' error indicates that a previous
-        db-sync timed out after the DDL auto-committed but before alembic
-        wrote the new revision into alembic_version.
+        Called when a partial-migration error (e.g. "Duplicate column name" or
+        "Table ... already exists") indicates that a previous db-sync timed out
+        after the DDL auto-committed but before alembic wrote the new revision
+        into alembic_version.
         """
         # Base prefix: everything before the alembic sub-command.
         # db_sync_cmd = ["octavia-db-manage", "--config-file", "<path>",
@@ -1740,15 +1753,19 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         for line in (out or "").splitlines():
             logger.info("db-sync stdout: %s", line.strip())
 
-    def _is_duplicate_column_error(self, exc: ops.pebble.ExecError) -> bool:
-        """Return True if exc indicates a duplicate-column migration error."""
+    def _is_partial_db_migration_error(
+        self, exc: ops.pebble.ExecError
+    ) -> bool:
+        """Return True if exc indicates a partially-applied DB migration."""
         combined = f"{exc.stderr or ''}{exc.stdout or ''}"
-        return "Duplicate column name" in combined
+        return "Duplicate column name" in combined or (
+            "Table " in combined and "already exists" in combined
+        )
 
     def _probe_and_recover(
         self, container: ops.model.Container, cmd: list
     ) -> None:
-        """Probe db-sync after a timeout and stamp if a duplicate-column is found.
+        """Probe db-sync after a timeout and stamp if a partial DB migration is found.
 
         MySQL was slow on the first attempt; now that the connection is warm,
         probe with a short timeout to detect whether DDL auto-committed.
@@ -1758,10 +1775,9 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         try:
             self._exec_db_sync(container, cmd, 60)
         except ops.pebble.ExecError as e:
-            if self._is_duplicate_column_error(e):
+            if self._is_partial_db_migration_error(e):
                 logger.warning(
-                    "Duplicate column after timeout-probe; recovering. "
-                    "stderr: %s",
+                    "Partial DB migration after timeout-probe; recovering. stderr: %s",
                     e.stderr,
                 )
                 self._stamp_partial_migration(container, cmd)
@@ -1780,10 +1796,10 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         container: ops.model.Container,
         cmd: list,
     ) -> None:
-        """Stamp if duplicate-column; raise BlockedExceptionError otherwise."""
-        if self._is_duplicate_column_error(exc):
+        """Stamp if a partial DB migration; raise BlockedExceptionError otherwise."""
+        if self._is_partial_db_migration_error(exc):
             logger.warning(
-                "Duplicate column on first attempt; recovering via stamp. "
+                "Partial DB migration on first attempt; recovering via stamp. "
                 "stderr: %s",
                 exc.stderr,
             )
@@ -1802,14 +1818,14 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
         If a previous db-sync timed out partway through, the DDL may have
         auto-committed in MySQL while alembic_version was never updated.  On
-        the next attempt alembic fails immediately with
-        "Duplicate column name '<col>'".
+        the next attempt alembic fails immediately with a "Duplicate column
+        name" or "Table ... already exists" error.
 
         To recover without operator intervention this method:
           1. Attempts one direct exec to capture failures immediately.
           2. On TimeoutError: probes once (short timeout) to detect the
-             duplicate-column state while MySQL is still connected.
-          3. On a Duplicate-column ExecError: calls ``_stamp_partial_migration``
+             partial-migration state while MySQL is still connected.
+          3. On a partial-migration ExecError: calls ``_stamp_partial_migration``
              to advance alembic_version to the partially-applied revision.
           4. All other transient errors fall through to tenacity retries.
         """

@@ -4,7 +4,7 @@ variables:
 machines:
   '0':
     constraints: *constraints
-    base: ubuntu@24.04
+    base: ubuntu@26.04
 
 applications:
   sunbeam-machine:
@@ -12,9 +12,9 @@ applications:
     charm: ../../../sunbeam-machine.charm
     {% else -%}
     charm: ch:sunbeam-machine
-    channel: 2026.1/edge
+    channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: ubuntu@26.04
     constraints: *constraints
     scale: 1
     to:
@@ -24,9 +24,9 @@ applications:
     charm: ../../../sunbeam-clusterd.charm
     {% else -%}
     charm: ch:sunbeam-clusterd
-    channel: 2026.1/edge
+    channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: ubuntu@26.04
     constraints: *constraints
     scale: 1
     to:
@@ -45,18 +45,18 @@ applications:
     charm: ../../../epa-orchestrator.charm
     {% else -%}
     charm: ch:epa-orchestrator
-    channel: latest/edge
+    channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: ubuntu@26.04
     constraints: *constraints
   manila-data:
     {% if manila_data is defined and manila_data is sameas true -%}
     charm: ../../../manila-data.charm
     {% else -%}
     charm: ch:manila-data
-    channel: 2026.1/edge
+    channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: ubuntu@26.04
     constraints: *constraints
     scale: 1
     to:

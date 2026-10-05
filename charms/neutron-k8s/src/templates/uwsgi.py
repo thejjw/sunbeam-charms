@@ -4,10 +4,8 @@
 
 """uWSGI helper template for neutron."""
 
-
-def worker_id():
-    """Return a stable worker identifier for uWSGI."""
-    return 1
-
-
 opt = {}
+
+# Consumed by neutron.common.wsgi_utils.get_api_worker_count(), set to the
+# number of WSGIDaemonProcess processes in wsgi-neutron-api.conf.j2
+numproc = 4
