@@ -32,6 +32,7 @@ import logging
 import os
 import re
 import tempfile
+import time
 from collections import (
     defaultdict,
 )
@@ -969,8 +970,8 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     _state = StoredState()
     _authed = False
     service_name = "keystone"
-    wsgi_admin_script = "/usr/bin/keystone-wsgi-admin"
-    wsgi_public_script = "/usr/bin/keystone-wsgi-public"
+    wsgi_admin_script = "/usr/bin/keystone-api-wsgi"
+    wsgi_public_script = "/usr/bin/keystone-api-wsgi"
     domain_config_dir = Path("/etc/keystone/domains")
     domain_ca_dir = Path("/usr/local/share/ca-certificates")
     service_port = 5000
@@ -995,6 +996,11 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     TRUSTED_DASHBOARD = "trusted-dashboard"
     EXTERNAL_IDP = "external-idp"
     KEYSTONE_SAML = "keystone-saml"
+
+    # get-admin-password retries: Juju secret reads can transiently fail if
+    # the unit agent cannot ensure role binding against the k8s API.
+    ADMIN_PASSWORD_RETRIES = 6
+    ADMIN_PASSWORD_RETRY_DELAY = 10
 
     def __init__(self, framework):
         super().__init__(framework)
@@ -1429,7 +1435,31 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         if not self.unit.is_leader():
             event.fail("Please run action on lead unit.")
             return
-        event.set_results({"password": self.admin_password})
+
+        # Reading the admin password triggers a juju secret read, which
+        # requires the unit agent to ensure a role binding for the secret
+        # access token against the k8s API. Under deploy-time API churn, the
+        # call can transiently fail with ModelError.
+        admin_password = None
+        for attempt in range(1, self.ADMIN_PASSWORD_RETRIES + 1):
+            try:
+                admin_password = self.admin_password
+                break
+            except ops.model.ModelError as e:
+                logger.warning(
+                    "get-admin-password: secret read attempt %d/%d failed (%s); retrying",
+                    attempt,
+                    self.ADMIN_PASSWORD_RETRIES,
+                    e,
+                )
+                if attempt == self.ADMIN_PASSWORD_RETRIES:
+                    event.fail(f"Admin password unavailable: {e}")
+                    return
+                time.sleep(self.ADMIN_PASSWORD_RETRY_DELAY)
+        if not admin_password:
+            event.fail("Admin password is not yet available")
+            return
+        event.set_results({"password": admin_password})
 
     def _get_admin_account_action(self, event: ActionEvent) -> None:
         """Get details for the admin account.
@@ -2656,7 +2686,7 @@ export OS_AUTH_VERSION=3
     @property
     def healthcheck_http_url(self) -> str:
         """Healthcheck HTTP URL for the service."""
-        return f"http://localhost:{self.default_public_ingress_port}/{self.ingress_healthcheck_path}"
+        return f"http://localhost:{self.default_public_ingress_port}{self.ingress_healthcheck_path}"
 
     @property
     def ingress_healthcheck_path(self):

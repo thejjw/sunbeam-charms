@@ -244,8 +244,8 @@ class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "aodh-api"
-    wsgi_admin_script = "/usr/share/aodh/app.wsgi"
-    wsgi_public_script = "/usr/share/aodh/app.wsgi"
+    wsgi_admin_script = "/usr/bin/aodh-api-wsgi"
+    wsgi_public_script = "/usr/bin/aodh-api-wsgi"
 
     db_sync_cmds = [["aodh-dbsync"]]
 
@@ -287,6 +287,13 @@ class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def ingress_healthcheck_path(self):
         """Healthcheck path for ingress relation."""
         return "/healthcheck"
+
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
 
     @property
     def container_configs(self) -> List[sunbeam_core.ContainerConfigFile]:

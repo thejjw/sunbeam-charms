@@ -21,6 +21,9 @@ import barbicanclient.client as barbican_client
 import zaza.openstack.charm_tests.test_utils as test_utils
 from zaza.openstack.utilities import openstack as openstack_utils
 
+# Import to apply the retry patch to the keystone session factory of zaza.
+from zaza.sunbeam.charm_tests import keystone_retry as _ks_session_patch  # noqa: F401
+
 
 class OpenStackAPIAuditTest(test_utils.BaseCharmTest):
     """Charm tests for API audit logging."""
@@ -85,7 +88,7 @@ class KeystoneAPIAuditTest(OpenStackAPIAuditTest):
     application_name = "keystone"
 
     def test_audit(self):
-        name = f"test-%s" % random.randint(0, 32768)
+        name = "test-%s" % random.randint(0, 32768)
 
         # Create a domain to trigger an event.
         self.keystone_client.domains.create(name, enabled=False)
