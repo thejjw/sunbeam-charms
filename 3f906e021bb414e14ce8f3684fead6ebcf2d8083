@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "12792354_a51ad9bb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-05T03:15:52Z",
+      "side": 1,
+      "message": "recheck designate-bind-k8s is now available on 9/edge which should pass the funcional tests",
+      "revId": "3f906e021bb414e14ce8f3684fead6ebcf2d8083",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
