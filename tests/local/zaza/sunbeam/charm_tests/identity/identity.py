@@ -13,21 +13,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import logging
 import json
-import yaml
+import logging
 import subprocess
 import tempfile
 
-from keystoneauth1.identity import v3
-from keystoneauth1 import session
-from keystoneclient.v3 import client as keystoneclient
 import zaza
 import zaza.model as model
-from zaza.notifications import notify_around, NotifyEvents
 import zaza.openstack.charm_tests.test_utils as test_utils
+from keystoneauth1 import session
+from keystoneauth1.identity import v3
+from keystoneclient.v3 import client as keystoneclient
+from zaza.notifications import NotifyEvents, notify_around
 from zaza.openstack.utilities import openstack as openstack_utils
-
 
 _FEDERATED_GROUP_NAME = "federated_users"
 _FEDERATED_PROJECT_NAME = "federated_project"
@@ -87,6 +85,28 @@ def _get_issuer_url():
         return issuer_url
 
 
+def _get_ca_cert():
+    """Return the path to a file holding the keystone CA cert chain."""
+    rel_info = _get_unit_rel_info("keystone/0")
+    ca_and_chain = []
+    for rel in rel_info:
+        if rel.get("endpoint") != "receive-ca-cert":
+            continue
+        for unit_data in rel.get("related-units", {}).values():
+            data = unit_data.get("data", {})
+            ca = data.get("ca")
+            if ca:
+                ca_and_chain.append(ca)
+            chain = json.loads(data.get("chain", "[]"))
+            ca_and_chain.extend(chain)
+    if not ca_and_chain:
+        return None
+    ca_file = tempfile.NamedTemporaryFile(delete=False).name
+    with open(ca_file, "w") as fd:
+        fd.write("\n".join(ca_and_chain))
+    return ca_file
+
+
 class SetupOffersAndRelations(object):
     application_name = "keystone"
     oauth_app_name = "hydra"
@@ -114,7 +134,9 @@ class SetupOffersAndRelations(object):
             model_name=self.model_name)
 
         auth = openstack_utils.get_overcloud_auth()
-        self.keystone_client = openstack_utils.get_keystone_client(auth)
+        self.keystone_client = openstack_utils.get_keystone_client(
+            auth, verify=_get_ca_cert()
+        )
 
     def _get_offer_url(self, application, endpoint):
         offers = zaza.sync_wrapper(
@@ -296,25 +318,8 @@ class IdentityTests(test_utils.BaseCharmTest):
 
     @property
     def _ca_cert(self):
-        if self.ca_file:
-            return self.ca_file
-
-        rel_info = _get_unit_rel_info("keystone/0")
-        ca_and_chain = []
-        for rel in rel_info:
-            ep = rel.get("endpoint")
-            if ep == "receive-ca-cert":
-                for unit, unit_data in rel.get("related-units", {}).items():
-                    data = unit_data.get("data", {})
-                    ca = data.get("ca")
-                    if ca:
-                        ca_and_chain.append(ca)
-                    chain = json.loads(data.get("chain", '[]'))
-                    if chain:
-                        data.extend(chain)
-        self.ca_file = tempfile.NamedTemporaryFile(delete=False).name
-        with open(self.ca_file, "w") as fd:
-            fd.write("\n".join(ca_and_chain))
+        if not self.ca_file:
+            self.ca_file = _get_ca_cert()
         return self.ca_file
 
     def _create_client_creds(self):

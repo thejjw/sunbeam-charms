@@ -68,23 +68,6 @@ class CinderWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
             # appears to work properly.
         self.start_wsgi()
 
-    def get_healthcheck_layer(self) -> dict:
-        """Health check pebble layer.
-
-        :returns: pebble health check layer configuration for cinder-api
-                  service
-        :rtype: dict
-        """
-        return {
-            "checks": {
-                "online": {
-                    "override": "replace",
-                    "level": "ready",
-                    "exec": {"command": "service apache2 status"},
-                },
-            }
-        }
-
     def default_container_configs(self) -> List[Dict]:
         """Generate default configuration files for container."""
         return [
@@ -310,6 +293,13 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     def ingress_healthcheck_path(self):
         """Healthcheck path for ingress relation."""
         return "/healthcheck"
+
+    @property
+    def healthcheck_http_url(self) -> str:
+        """Healthcheck HTTP URL for the service."""
+        return (
+            f"http://localhost:{self.default_public_ingress_port}/healthcheck"
+        )
 
     @property
     def service_conf(self) -> str:

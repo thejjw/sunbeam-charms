@@ -59,6 +59,21 @@ class TestAllRelations:
             state_out, ctx, "octavia-api", "/etc/octavia/octavia.conf"
         )
 
+    def test_healthcheck_endpoint(self, ctx, complete_state):
+        """The API serves /healthcheck and Pebble probes it over HTTP."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "octavia-api",
+            "/etc/octavia/octavia.conf",
+            ["healthcheck_enabled = True"],
+        )
+        checks = state_out.get_container("octavia-api").plan.checks
+        assert checks["online"].http == {
+            "url": "http://localhost:9876/healthcheck"
+        }
+
 
 class TestPebbleReady:
     """Pebble-ready event with all relations → container configured."""

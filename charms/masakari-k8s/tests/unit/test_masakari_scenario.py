@@ -82,6 +82,24 @@ class TestAllRelations:
             state_out, ctx, "masakari-api", "/etc/masakari/masakari.conf"
         )
 
+    def test_healthcheck_endpoint(self, ctx, complete_state):
+        """The API serves /healthcheck and Pebble probes it over HTTP."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "masakari-api",
+            "/etc/masakari/api-paste.ini",
+            [
+                "/healthcheck: healthcheck",
+                "paste.app_factory = oslo_middleware:Healthcheck.app_factory",
+            ],
+        )
+        checks = state_out.get_container("masakari-api").plan.checks
+        assert checks["online"].http == {
+            "url": "http://localhost:15868/healthcheck"
+        }
+
     def test_identity_service_extra_roles_requested(self, ctx, complete_state):
         """Masakari requests the Barbican secret decrypter role."""
         state_out = ctx.run(ctx.on.config_changed(), complete_state)

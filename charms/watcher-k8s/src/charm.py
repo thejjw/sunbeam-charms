@@ -33,6 +33,22 @@ WATCHER_APPLIER_CONTAINER = "watcher-applier"
 
 
 @sunbeam_tracing.trace_type
+class WatcherWSGIPebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
+    """Pebble handler for Watcher api service."""
+
+    def init_service(self, context: sunbeam_core.OPSCharmContexts) -> None:
+        """Initialise the container."""
+        # The watcher-api package ships an apache site listening on the
+        # same port as the charm managed site.
+        try:
+            self.execute(["a2dissite", "watcher-api"], exception_on_error=True)
+        except ops.pebble.ExecError:
+            logger.exception("Failed to disable watcher-api site in apache")
+
+        super().init_service(context)
+
+
+@sunbeam_tracing.trace_type
 class WatcherDecisionEnginePebbleHandler(
     sunbeam_chandlers.ServicePebbleHandler
 ):
@@ -190,28 +206,33 @@ class WatcherOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         self,
     ) -> list[sunbeam_chandlers.ServicePebbleHandler]:
         """Pebble handlers for operator."""
-        pebble_handlers = super().get_pebble_handlers()
-        pebble_handlers.extend(
-            [
-                WatcherDecisionEnginePebbleHandler(
-                    self,
-                    WATCHER_DECISION_ENGINE_CONTAINER,
-                    "watcher-decision-engine",
-                    self.container_configs,
-                    self.template_dir,
-                    self.configure_charm,
-                ),
-                WatcherApplierPebbleHandler(
-                    self,
-                    WATCHER_APPLIER_CONTAINER,
-                    "watcher-applier",
-                    self.container_configs,
-                    self.template_dir,
-                    self.configure_charm,
-                ),
-            ]
-        )
-        return pebble_handlers
+        return [
+            WatcherWSGIPebbleHandler(
+                self,
+                WATCHER_API_CONTAINER,
+                self.service_name,
+                self.container_configs,
+                self.template_dir,
+                self.configure_charm,
+                f"wsgi-{self.service_name}",
+            ),
+            WatcherDecisionEnginePebbleHandler(
+                self,
+                WATCHER_DECISION_ENGINE_CONTAINER,
+                "watcher-decision-engine",
+                self.container_configs,
+                self.template_dir,
+                self.configure_charm,
+            ),
+            WatcherApplierPebbleHandler(
+                self,
+                WATCHER_APPLIER_CONTAINER,
+                "watcher-applier",
+                self.container_configs,
+                self.template_dir,
+                self.configure_charm,
+            ),
+        ]
 
     def get_relation_handlers(
         self, handlers: list[sunbeam_rhandlers.RelationHandler] = None
