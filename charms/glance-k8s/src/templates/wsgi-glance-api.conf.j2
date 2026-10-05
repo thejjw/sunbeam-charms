@@ -1,23 +1,23 @@
-Listen 0.0.0.0:{{ ks_config.public_port }}
-
-<VirtualHost *:{{ ks_config.public_port }}>
-    {% if ks_config.server_name %}
-    ServerName {{ks_config.server_name}}
-    {% endif %}
-    WSGIDaemonProcess keystone-public processes=4 threads=1 user=keystone group=keystone display-name=%{GROUP} python-path=/usr/lib/python3/site-packages
-    WSGIProcessGroup keystone-public
+Listen {{ wsgi_config.public_port }}
+<VirtualHost *:{{ wsgi_config.public_port }}>
+    WSGIDaemonProcess glance-api processes=5 threads=1 user={{ wsgi_config.user }} group={{ wsgi_config.group }} \
+                      display-name=%{GROUP}
+    WSGIProcessGroup glance-api
     {% if ingress_internal and ingress_internal.ingress_path -%}
     WSGIScriptAlias {{ ingress_internal.ingress_path }} {{ wsgi_config.wsgi_public_script }}
     {% endif -%}
     WSGIScriptAlias / {{ wsgi_config.wsgi_public_script }}
     WSGIApplicationGroup %{GLOBAL}
     WSGIPassAuthorization On
+    # Image uploads may use chunked transfer encoding and exceed
+    # apache's default request body limit.
+    WSGIChunkedRequest On
+    LimitRequestBody 0
     <IfVersion >= 2.4>
       ErrorLogFormat "%{cu}t %M"
     </IfVersion>
     ErrorLog {{ wsgi_config.error_log }}
-    LogFormat "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %b %D \"%{Referer}i\" \"%{User-Agent}i\"" logformat
-    CustomLog {{ wsgi_config.custom_log }} logformat
+    CustomLog {{ wsgi_config.custom_log }} combined
 
     <Directory /usr/bin>
         <IfVersion >= 2.4>
@@ -28,6 +28,4 @@ Listen 0.0.0.0:{{ ks_config.public_port }}
             Allow from all
         </IfVersion>
     </Directory>
-    {% include "apache2-oidc-params" %}
-    {% include "apache2-saml-params" %}
 </VirtualHost>

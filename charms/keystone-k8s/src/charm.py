@@ -2656,7 +2656,7 @@ export OS_AUTH_VERSION=3
     @property
     def healthcheck_http_url(self) -> str:
         """Healthcheck HTTP URL for the service."""
-        return f"http://localhost:{self.default_public_ingress_port}/{self.ingress_healthcheck_path}"
+        return f"http://localhost:{self.default_public_ingress_port}{self.ingress_healthcheck_path}"
 
     @property
     def ingress_healthcheck_path(self):
