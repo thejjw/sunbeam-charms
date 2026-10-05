@@ -19,7 +19,11 @@
 from pathlib import (
     Path,
 )
+from unittest.mock import (
+    MagicMock,
+)
 
+import charm
 import pytest
 from ops import (
     testing,
@@ -89,6 +93,17 @@ class TestPebbleReady:
         assert out_container.service_statuses.get("wsgi-cloudkitty-api") == (
             testing.pebble.ServiceStatus.ACTIVE
         )
+
+    def test_pebble_ready_healthchecks(self, ctx, complete_state):
+        """The online check probes the API's /healthcheck over HTTP."""
+        container = complete_state.get_container("cloudkitty")
+        state_out = ctx.run(ctx.on.pebble_ready(container), complete_state)
+
+        checks = state_out.get_container("cloudkitty").plan.checks
+        assert checks["online"].http == {
+            "url": "http://localhost:8889/healthcheck"
+        }
+        assert checks["up"].exec == {"command": "service apache2 status"}
 
     def test_pebble_ready_without_relations_blocked(self, ctx):
         """Pebble-ready but no relations → blocked."""
@@ -180,3 +195,29 @@ class TestRelationBrokenBlocksOrWaits:
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
         )
+
+
+class TestWSGISiteHandling:
+    """The packaged cloudkitty-api site collides on port 8889 with our own."""
+
+    @pytest.fixture()
+    def handler(self):
+        """Build the WSGI handler without running its ops constructor."""
+        handler = charm.CloudkittyWSGIPebbleHandler.__new__(
+            charm.CloudkittyWSGIPebbleHandler
+        )
+        handler.service_name = "cloudkitty"
+        handler.write_config = MagicMock()
+        handler.start_wsgi = MagicMock()
+        handler.execute = MagicMock()
+        return handler
+
+    def test_init_service_disables_packaged_site(self, handler):
+        """init_service disables cloudkitty-api before enabling wsgi-cloudkitty."""
+        handler.init_service(None)
+
+        commands = [call.args[0] for call in handler.execute.call_args_list]
+        assert ["a2dissite", "cloudkitty-api"] in commands
+        assert commands.index(
+            ["a2dissite", "cloudkitty-api"]
+        ) < commands.index(["a2ensite", "wsgi-cloudkitty"])

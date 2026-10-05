@@ -16,7 +16,7 @@ links:
   source: https://opendev.org/openstack/sunbeam-charms
   issues: https://bugs.launchpad.net/sunbeam-charms
 
-base: ubuntu@24.04
+base: ubuntu@26.04
 platforms:
   amd64:
   arm64:
@@ -70,7 +70,7 @@ resources:
   watcher-image:
     description: OCI image for OpenStack Watcher services
     type: oci-image
-    upstream-source: ghcr.io/canonical/watcher-consolidated:2026.1-24.04_edge
+    upstream-source: ghcr.io/canonical/watcher-consolidated:2026.2-26.04_edge
 
 requires:
   amqp:
@@ -128,5 +128,5 @@ parts:
       # s390x: build cryptography (openssl-sys/Rust) from source
       - libssl-dev
       - pkg-config
-      - rustc-1.82
-      - cargo-1.82
+      - rustc
+      - cargo
