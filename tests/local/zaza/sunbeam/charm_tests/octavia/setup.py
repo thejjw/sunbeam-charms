@@ -61,7 +61,7 @@ MULTUS_MANIFEST_URL = (
 )
 
 # The openstack-port-cni-k8s charm channel to deploy.
-PORT_CNI_CHANNEL = "2026.1/edge"
+PORT_CNI_CHANNEL = "2026.2/edge"
 
 # NetworkAttachmentDefinition name — matches amphora-network-attachment config.
 NAD_NAME = "ovs-lbmgmt"
@@ -202,7 +202,7 @@ def _deploy_openstack_port_cni(juju_k8s):
     juju_k8s.cli(
         "deploy", "openstack-port-cni-k8s",
         "--channel", PORT_CNI_CHANNEL,
-        "--base", "ubuntu@24.04",
+        "--base", "ubuntu@26.04",
         "--trust",
     )
     try:
