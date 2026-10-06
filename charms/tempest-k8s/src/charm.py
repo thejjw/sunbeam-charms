@@ -72,8 +72,10 @@ from utils.constants import (
 )
 from utils.overrides import (
     get_compute_overrides,
+    get_identity_overrides,
     get_ironic_overrides,
     get_manila_overrides,
+    get_octavia_overrides,
     get_role_based_overrides,
     get_swift_overrides,
 )
@@ -241,7 +243,7 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             return {}
         return {"OS_CACERT": OS_CACERT_PATH}
 
-    def _get_overrides_for_tempest_conf(self) -> str:
+    def _get_overrides_for_tempest_conf(self, domain_name: str) -> str:
         """Return a string of overrides.
 
         The format should be section.key value section.key value
@@ -254,6 +256,8 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 get_compute_overrides(),
                 get_ironic_overrides(),
                 get_manila_overrides(),
+                get_octavia_overrides(),
+                get_identity_overrides(domain_name),
                 get_role_based_overrides(self.config["roles"]),
             )
         ).strip()
@@ -295,7 +299,9 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_WORKSPACE": TEMPEST_WORKSPACE,
             "TEMPEST_WORKSPACE_PATH": TEMPEST_WORKSPACE_PATH,
             "TEMPEST_OUTPUT": variant.output_path(),
-            "TEMPEST_CONFIG_OVERRIDES": self._get_overrides_for_tempest_conf(),
+            "TEMPEST_CONFIG_OVERRIDES": self._get_overrides_for_tempest_conf(
+                credential["domain-name"]
+            ),
         }
         tempest_env.update(self._get_proxy_environment())
         tempest_env.update(self._get_os_cacert_environment())

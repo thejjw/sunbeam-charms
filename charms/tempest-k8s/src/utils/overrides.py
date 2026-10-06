@@ -64,6 +64,24 @@ def get_manila_overrides() -> str:
     )
 
 
+def get_octavia_overrides() -> str:
+    """Return Octavia configuration override.
+
+    Octavia tests are not supported by cloud validation yet.
+    The Octavia Tempest plugin reads load_balancer, not octavia.
+    """
+    return "service_available.load_balancer false"
+
+
+def get_identity_overrides(domain_name: str) -> str:
+    """Return identity configuration override.
+
+    account-generator omits the user domain on system accounts.
+    Tempest applies this fallback after identifying account scope.
+    """
+    return f"auth.default_credentials_domain_name {domain_name}"
+
+
 def get_role_based_overrides(config_roles: str) -> str:
     """Generate tempest.conf overrides based on the configured roles.
 
