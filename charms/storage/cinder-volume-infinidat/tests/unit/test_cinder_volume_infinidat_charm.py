@@ -193,8 +193,8 @@ class TestInfinidatConfigValidation(test_utils.CharmTestCase):
         )
         self.assertEqual(config.protocol, "iscsi")
 
-    def test_use_chap_auth_defaults_true(self):
-        """CHAP auth should default to true from charm config metadata."""
+    def test_chap_is_opt_in(self):
+        """CHAP stays off unless requested, so no credentials are needed."""
         config_class = self._get_config_class()
         config = config_class(
             san_ip="10.20.20.3",
@@ -203,7 +203,7 @@ class TestInfinidatConfigValidation(test_utils.CharmTestCase):
             infinidat_pool_name="pool1",
             protocol="fc",
         )
-        self.assertTrue(config.use_chap_auth)
+        self.assertFalse(config.use_chap_auth)
 
     def test_driver_use_ssl_defaults_false(self):
         """HTTPS should be opt-in for the Infinidat management API."""
@@ -272,5 +272,54 @@ class TestInfinidatConfigValidation(test_utils.CharmTestCase):
             chap_username=self._mock_secret({"chap-username": "chap-user"}),
             chap_password=self._mock_secret({"chap-password": "chap-pass"}),
         )
+        self.assertEqual(config.chap_username, "chap-user")
+        self.assertEqual(config.chap_password, "chap-pass")
+
+    def test_iscsi_chap_enabled_requires_credentials(self):
+        """Enabling CHAP with iscsi and no credentials fails validation."""
+        config_class = self._get_config_class()
+        with pytest.raises(
+            pydantic.ValidationError,
+            match="chap-username and chap-password are required",
+        ):
+            config_class(
+                san_ip="10.20.20.3",
+                san_login=self._mock_secret({"san-login": "admin"}),
+                san_password=self._mock_secret({"san-password": "secret123"}),
+                infinidat_pool_name="pool1",
+                protocol="iscsi",
+                infinidat_iscsi_netspaces="netspace1",
+                use_chap_auth=True,
+            )
+
+    def test_fc_chap_enabled_ignores_credentials(self):
+        """CHAP credentials are not required when the protocol is fc."""
+        config_class = self._get_config_class()
+        config = config_class(
+            san_ip="10.20.20.3",
+            san_login=self._mock_secret({"san-login": "admin"}),
+            san_password=self._mock_secret({"san-password": "secret123"}),
+            infinidat_pool_name="pool1",
+            protocol="fc",
+            use_chap_auth=True,
+        )
+        self.assertTrue(config.use_chap_auth)
+        self.assertIsNone(config.chap_username)
+
+    def test_iscsi_chap_enabled_with_credentials_passes(self):
+        """Enabling CHAP with iscsi and both credentials passes."""
+        config_class = self._get_config_class()
+        config = config_class(
+            san_ip="10.20.20.3",
+            san_login=self._mock_secret({"san-login": "admin"}),
+            san_password=self._mock_secret({"san-password": "secret123"}),
+            infinidat_pool_name="pool1",
+            protocol="iscsi",
+            infinidat_iscsi_netspaces="netspace1",
+            use_chap_auth=True,
+            chap_username=self._mock_secret({"chap-username": "chap-user"}),
+            chap_password=self._mock_secret({"chap-password": "chap-pass"}),
+        )
+        self.assertTrue(config.use_chap_auth)
         self.assertEqual(config.chap_username, "chap-user")
         self.assertEqual(config.chap_password, "chap-pass")
