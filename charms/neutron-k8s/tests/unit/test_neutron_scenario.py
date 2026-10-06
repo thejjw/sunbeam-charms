@@ -73,6 +73,17 @@ class TestAllRelations:
             ["[nova]", "region_name = RegionOne"],
         )
 
+    def test_neutron_conf_sets_placement(self, ctx, complete_state):
+        """neutron.conf renders the placement section with keystone auth."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "neutron-server",
+            "/etc/neutron/neutron.conf",
+            ["[placement]", "auth_type = password", "region_name = RegionOne"],
+        )
+
     def test_neutron_conf_enables_qos_service_plugin(
         self, ctx, complete_state
     ):

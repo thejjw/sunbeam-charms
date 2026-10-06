@@ -160,6 +160,9 @@ requires:
   ovsdb-cms:
     interface: ovsdb-cms
     limit: 1
+  placement:
+    interface: placement
+    optional: true
   certificates:
     interface: tls-certificates
     optional: true
