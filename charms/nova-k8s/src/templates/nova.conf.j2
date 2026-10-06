@@ -5,6 +5,18 @@ debug = {{ options.debug }}
 
 transport_url = {{ amqp.transport_url }}
 
+{% if options.vendor_data or options.vendor_data_url -%}
+[api]
+auth_strategy = keystone
+vendordata_providers = {% if options.vendor_data %}StaticJSON{% endif %}{% if options.vendor_data and options.vendor_data_url %}, {% endif %}{% if options.vendor_data_url %}DynamicJSON{% endif %}
+{% if options.vendor_data -%}
+vendordata_jsonfile_path = /etc/nova/vendor_data.json
+{% endif -%}
+{% if options.vendor_data_url -%}
+vendordata_dynamic_targets = {{ options.vendor_data_url }}
+{% endif -%}
+
+{% endif -%}
 [api_database]
 {% if api_database.connection -%}
 connection = {{ api_database.connection }}

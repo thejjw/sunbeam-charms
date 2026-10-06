@@ -60,6 +60,31 @@ config:
       description: |
         Enable spreading the instances between hosts with the same best weight.
 
+    vendor-data:
+      type: string
+      description: |
+        JSON-formatted vendordata served to all instances.
+
+        When set, nova-api registers the StaticJSON vendordata provider and
+        serves this data as "vendor_data.json" (and as the "static" key of
+        "vendor_data2.json") via the metadata service and config drive. The
+        data is written to /etc/nova/vendor_data.json in the nova-api
+        container.
+
+    vendor-data-url:
+      type: string
+      description: |
+        Dynamic vendordata target of the form "<name>@<url>".
+
+        When set, nova-api registers the DynamicJSON vendordata provider and
+        fetches instance metadata from the URL at boot. The fetched data is
+        exposed to instances as the "<name>" key in vendor_data2.json.
+
+        The endpoint receives a POST with instance context: project id,
+        instance id, image id, hostname, user-data, metadata and boot-roles.
+        Unauthenticated endpoints are supported; if authentication is
+        required, extend the "vendordata_dynamic_auth" group in nova.conf.
+
 actions:
   pause:
     description: Pause container services

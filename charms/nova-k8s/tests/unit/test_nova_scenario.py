@@ -674,3 +674,108 @@ class TestRpcCacheRefresh:
         )
         with pytest.raises(testing.ActionFailed):
             ctx.run(ctx.on.action("rpc-cache-refresh"), state_in)
+
+
+class TestVendorData:
+    """Vendordata rendering in nova.conf."""
+
+    def _run(self, ctx, config=None):
+        state_in = testing.State(
+            leader=True,
+            config=config or {},
+            relations=_all_relations() + [_nova_service_relation()],
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+        )
+        return ctx.run(ctx.on.config_changed(), state_in)
+
+    def test_no_vendordata_by_default(self, ctx):
+        """Without vendor-data options, no vendordata is configured."""
+        state_out = self._run(ctx)
+        assert state_out.unit_status == testing.ActiveStatus("")
+        assert_config_file_not_contains(
+            state_out,
+            ctx,
+            "nova-api",
+            "/etc/nova/nova.conf",
+            [
+                "[api]",
+                "vendordata_providers",
+                "vendordata_dynamic_targets",
+                "vendordata_jsonfile_path",
+            ],
+        )
+
+    def test_static_vendordata_configured(self, ctx):
+        """vendor-data enables the StaticJSON provider from a JSON file."""
+        state_out = self._run(ctx, config={"vendor-data": '{"foo": "bar"}'})
+        assert state_out.unit_status == testing.ActiveStatus("")
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "nova-api",
+            "/etc/nova/nova.conf",
+            [
+                "[api]",
+                "vendordata_providers = StaticJSON",
+                "vendordata_jsonfile_path = /etc/nova/vendor_data.json",
+            ],
+        )
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "nova-api",
+            "/etc/nova/vendor_data.json",
+            ['{"foo": "bar"}'],
+        )
+
+    def test_dynamic_vendordata_configured(self, ctx):
+        """vendor-data-url enables the DynamicJSON provider, target passed raw."""
+        state_out = self._run(
+            ctx,
+            config={
+                "vendor-data-url": "vendordata@http://vendordata.example.com/v1"
+            },
+        )
+        assert state_out.unit_status == testing.ActiveStatus("")
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "nova-api",
+            "/etc/nova/nova.conf",
+            [
+                "[api]",
+                "vendordata_providers = DynamicJSON",
+                "vendordata_dynamic_targets = vendordata@http://vendordata.example.com/v1",
+            ],
+        )
+
+    def test_static_and_dynamic_vendordata_configured(self, ctx):
+        """Both options together enable both providers."""
+        state_out = self._run(
+            ctx,
+            config={
+                "vendor-data": '{"foo": "bar"}',
+                "vendor-data-url": "vendordata@http://vendordata.example.com/v1",
+            },
+        )
+        assert state_out.unit_status == testing.ActiveStatus("")
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "nova-api",
+            "/etc/nova/nova.conf",
+            [
+                "[api]",
+                "vendordata_providers = StaticJSON, DynamicJSON",
+                "vendordata_jsonfile_path = /etc/nova/vendor_data.json",
+                "vendordata_dynamic_targets = vendordata@http://vendordata.example.com/v1",
+            ],
+        )
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "nova-api",
+            "/etc/nova/vendor_data.json",
+            ['{"foo": "bar"}'],
+        )

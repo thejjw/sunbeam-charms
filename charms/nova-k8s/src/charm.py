@@ -780,6 +780,12 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
                 0o640,
             ),
             sunbeam_core.ContainerConfigFile(
+                "/etc/nova/vendor_data.json",
+                "root",
+                "nova",
+                0o640,
+            ),
+            sunbeam_core.ContainerConfigFile(
                 "/etc/nova/api_audit_map.conf",
                 "root",
                 "nova",
