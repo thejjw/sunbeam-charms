@@ -255,6 +255,8 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
                 get_ironic_overrides(),
                 get_manila_overrides(),
                 get_role_based_overrides(self.config["roles"]),
+                # Octavia tests are not supported by cloud validation yet.
+                "service_available.load_balancer false",
             )
         ).strip()
 
@@ -295,7 +297,15 @@ class TempestOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             "TEMPEST_WORKSPACE": TEMPEST_WORKSPACE,
             "TEMPEST_WORKSPACE_PATH": TEMPEST_WORKSPACE_PATH,
             "TEMPEST_OUTPUT": variant.output_path(),
-            "TEMPEST_CONFIG_OVERRIDES": self._get_overrides_for_tempest_conf(),
+            # account-generator omits the user domain on system accounts.
+            # Tempest applies this fallback after identifying account scope.
+            "TEMPEST_CONFIG_OVERRIDES": " ".join(
+                (
+                    self._get_overrides_for_tempest_conf(),
+                    "auth.default_credentials_domain_name "
+                    f"{credential['domain-name']}",
+                )
+            ).strip(),
         }
         tempest_env.update(self._get_proxy_environment())
         tempest_env.update(self._get_os_cacert_environment())

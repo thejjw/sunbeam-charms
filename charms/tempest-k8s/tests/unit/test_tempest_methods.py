@@ -285,6 +285,26 @@ class TestGetEnvironmentForTempest:
         )
         assert env["TEMPEST_ACCOUNTS_COUNT"] == "12"
 
+    @pytest.mark.parametrize("variant", list(TempestEnvVariant))
+    def test_default_credentials_domain(self, variant):
+        """Use the provisioned user domain for accounts without a domain."""
+        m = self._make_charm_with_credential()
+        domain = "CloudValidation-b82746a08d"
+        m.user_id_ops.get_user_credential.return_value = {
+            **CREDENTIAL,
+            "domain-name": domain,
+        }
+        m._get_overrides_for_tempest_conf.return_value = (
+            "service_available.load_balancer false"
+        )
+        env = charm.TempestOperatorCharm._get_environment_for_tempest(
+            m, variant
+        )
+        assert env["TEMPEST_CONFIG_OVERRIDES"] == (
+            "service_available.load_balancer false "
+            f"auth.default_credentials_domain_name {domain}"
+        )
+
     @patch("utils.constants.cpu_count", Mock(return_value=8))
     def test_concurrency_default(self):
         """Test concurrency default."""
@@ -312,6 +332,17 @@ class TestGetEnvironmentForTempest:
 
 class TestRolesOverrides:
     """_get_overrides_for_tempest_conf includes/excludes role overrides."""
+
+    @pytest.mark.parametrize(
+        "roles", ["compute,control,storage", "compute", "storage"]
+    )
+    def test_octavia_disabled(self, roles):
+        """Disable Octavia with the option read by its Tempest plugin."""
+        m = _mock_charm(roles=roles)
+        result = charm.TempestOperatorCharm._get_overrides_for_tempest_conf(m)
+        options = result.split()
+        overrides_by_name = dict(zip(options[::2], options[1::2]))
+        assert overrides_by_name["service_available.load_balancer"] == "false"
 
     def test_default_all_roles(self):
         """Test default all roles."""
