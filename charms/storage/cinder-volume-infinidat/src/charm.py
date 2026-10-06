@@ -63,6 +63,33 @@ class CinderVolumeInfinidatOperatorCharm(
                     )
                 return self
 
+            @pydantic.model_validator(mode="after")
+            def validate_iscsi_chap_credentials(
+                self,
+            ) -> "InfinidatConfigModel":
+                """Require CHAP credentials when iSCSI uses CHAP.
+
+                CHAP only applies to the iSCSI protocol, so this check is
+                skipped with fc. With iscsi, the Cinder Infinidat driver
+                generates new random credentials on every attach if none
+                are set and writes them to the array, which then drops the
+                host's open iSCSI sessions.
+                This check can be relaxed once the driver is fixed upstream:
+                https://bugs.launchpad.net/cinder/+bug/2169698
+                Tracked downstream in
+                https://bugs.launchpad.net/snap-openstack/+bug/2165002
+                """
+                if (
+                    self.protocol == "iscsi"
+                    and self.use_chap_auth
+                    and not (self.chap_username and self.chap_password)
+                ):
+                    raise ValueError(
+                        "chap-username and chap-password are required "
+                        "when use-chap-auth is true and protocol is iscsi"
+                    )
+                return self
+
         return InfinidatConfigModel
 
     def _configuration_type_overrides(self) -> dict[str, typing.Any]:
