@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed583d3e_634e5242",
+        "filename": "charms/neutron-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-07T04:43:14Z",
+      "side": 1,
+      "message": "I dont think we require this explicitly as placement service is part of core and mandatory and we are not using any relation data even if relation is set",
+      "revId": "549c7ee472f92e0f18727a0829fb7677ac8c7f9c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c7cb00c8_898c619b",
+        "filename": "charms/neutron-k8s/src/templates/neutron.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-07T04:43:14Z",
+      "side": 1,
+      "message": "We need to look at all charms and see if we still need www_authenticate_uri.\n\nNothing to do with this PR",
+      "revId": "549c7ee472f92e0f18727a0829fb7677ac8c7f9c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
