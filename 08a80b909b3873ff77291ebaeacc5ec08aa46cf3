@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9631e227_ac141986",
+        "filename": "charms/nova-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-07T05:25:38Z",
+      "side": 1,
+      "message": "can we have validations whether the value is json formatted or not so that charm can fail fast",
+      "revId": "08a80b909b3873ff77291ebaeacc5ec08aa46cf3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a3cdf867_6032ccfb",
+        "filename": "charms/nova-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-07T05:25:38Z",
+      "side": 1,
+      "message": "similar validation here",
+      "revId": "08a80b909b3873ff77291ebaeacc5ec08aa46cf3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1e1f198a_c5228811",
+        "filename": "charms/nova-k8s/src/templates/nova.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-07T05:25:38Z",
+      "side": 1,
+      "message": "is this required?",
+      "revId": "08a80b909b3873ff77291ebaeacc5ec08aa46cf3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
