@@ -50,6 +50,24 @@
       "message": "can we add check here only if  protocol to iscsi",
       "revId": "aa80fab3144c572d092f1836b34eae3aa686e9b6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a88a67c_9ed46aef",
+        "filename": "charms/storage/cinder-volume-infinidat/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 39508
+      },
+      "writtenOn": "2026-10-07T07:14:29Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "01e5f3e6_06de9e64",
+      "revId": "aa80fab3144c572d092f1836b34eae3aa686e9b6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }

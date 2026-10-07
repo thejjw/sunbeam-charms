@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6465578_4932b0d1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39508
+      },
+      "writtenOn": "2026-10-07T07:14:29Z",
+      "side": 1,
+      "message": "Thanks for the review, Hemanth.\n\nPatch set 2 addresses both of your comments:\n- The CHAP credentials check in charm.py now only applies when the protocol is iscsi, as in the netspaces validator. The validator and the related tests are renamed to say iscsi, and the option descriptions and the error message now state that the credentials are only required with iscsi. I updated the existing tests to use iscsi and added one covering fc.\n- The commit message now uses Closes-Bug for #2165002 and Related-Bug for the Cinder bug, as in the OpenDev developer guide.\n\nI also rebased onto the current (gerrit) main.\n\nI\u0027ll wait for your update on the upgrade note before changing anything else.",
+      "revId": "37fd748265a35af2bdce194859aa33e29e45ffb0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
