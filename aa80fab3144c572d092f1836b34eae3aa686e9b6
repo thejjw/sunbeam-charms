@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b25dd3ad_ee92f2bd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-07T04:21:57Z",
+      "side": 1,
+      "message": "minor comments inline.\n\nCommit message uses Related-Fix: can this be changed to Closes-Bug:  refernce [1]\n\n[1] https://docs.opendev.org/opendev/infra-manual/latest/developers.html",
+      "revId": "aa80fab3144c572d092f1836b34eae3aa686e9b6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "01e5f3e6_06de9e64",
+        "filename": "charms/storage/cinder-volume-infinidat/src/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-07T04:21:57Z",
+      "side": 1,
+      "message": "can we add check here only if  protocol to iscsi",
+      "revId": "aa80fab3144c572d092f1836b34eae3aa686e9b6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
