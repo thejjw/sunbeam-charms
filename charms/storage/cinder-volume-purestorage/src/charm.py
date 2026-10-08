@@ -57,6 +57,13 @@ class Personality(StrEnum):
     VMS = "vms"
 
 
+class ReplicationType(StrEnum):
+    """Enumeration of possible replication types."""
+
+    ASYNC = "async"
+    SYNC = "sync"
+
+
 def ip_network_list_validator(value: str) -> list[pydantic.IPvAnyNetwork]:
     """Validate and parse a comma-separated list of IP networks."""
     if not value:
@@ -77,6 +84,16 @@ CIDR_LIST_TYPING = typing.Annotated[
     pydantic.BeforeValidator(ip_network_list_validator),
     pydantic.PlainSerializer(list_serializer, return_type=str),
 ]
+
+
+REPLICATION_GROUP = sunbeam_storage.RequiredIfGroup("replication")
+_REPLICATION_KEYS = (
+    "replication-target-name",
+    "replication-target-address",
+    "replication-target-api-token",
+    "replication-type",
+    "replication-sync-uniform",
+)
 
 
 @sunbeam_tracing.trace_sunbeam_charm
@@ -106,9 +123,43 @@ class CinderVolumePureStorageOperatorCharm(charm.OSCinderVolumeDriverOperatorCha
                 "pure-nvme-cidr": pydantic.IPvAnyNetwork | None,
                 "pure-nvme-cidr-list": CIDR_LIST_TYPING,
                 "pure-nvme-transport": NvmeTransport,
+                "replication-target-name": typing.Annotated[ 
+                    str | None, REPLICATION_GROUP
+                ],
+                "replication-target-address": typing.Annotated[ 
+                    pydantic.IPvAnyAddress | str | None, REPLICATION_GROUP
+                ],
+                "replication-target-api-token": typing.Annotated[ 
+                    str | None,
+                    pydantic.BeforeValidator(sunbeam_storage.secret_validator("token")),
+                    REPLICATION_GROUP,
+                ],
+                "replication-type": ReplicationType,
             }
         )
         return overrides
+
+
+    def get_backend_configuration(self) -> typing.Mapping:
+        """Fold replication target options into replication-device."""
+        config = dict(super().get_backend_configuration())
+        target = {k: config.pop(k, None) for k in _REPLICATION_KEYS}
+        if target["replication-target-name"]:
+            device = (
+                f"backend_id:{target['replication-target-name']},"
+                f"san_ip:{target['replication-target-address']},"
+                f"api_token:{target['replication-target-api-token']},"
+                f"type:{target['replication-type']}"
+            )
+            if (
+                target["replication-type"] == ReplicationType.SYNC
+                and target["replication-sync-uniform"]
+            ):
+                device += ",uniform:true"
+            config["replication-device"] = device
+        return config
+
+
 
 
 if __name__ == "__main__":  # pragma: nocover
