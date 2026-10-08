@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69c6c3de_5d972a03",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-10-08T23:32:15Z",
+      "side": 1,
+      "message": "I have manually tested this patch in an isolated Juju model with the hypervisor related to the Vaultlocker charm. Verified enrollment and mounting, repeated actions, invalid inputs, fstab conflicts, and refusal to mount over existing data. Also verified that Nova refuses to start when the configured mount is missing or read-only, and that the device unlocks and mounts after reboot.",
+      "revId": "ab664f8326d6a3ee9736acd3cd245c0106cb777c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
