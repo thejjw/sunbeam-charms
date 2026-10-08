@@ -21,6 +21,12 @@ cinder-volume (requires, container scope).
 """
 
 
+import dataclasses
+
+import pytest
+from ops import testing
+
+
 class TestAllRelations:
     """Config-changed with all mandatory relations present."""
 
@@ -34,3 +40,100 @@ class TestAllRelations:
                 f"Charm blocked on missing integration despite all "
                 f"mandatory relations present: {status.message}"
             )
+
+
+TARGET_TOKEN = "target-api-token-value"
+
+
+def _with_replication(state, **config):
+    """Return state with a replication target secret and extra config."""
+    target_secret = testing.Secret(
+        tracked_content={"replication-target-api-token": TARGET_TOKEN}, owner="app"
+    )
+    cfg = {**state.config, **config}
+    if cfg.get("replication-target-api-token") == "SECRET":
+        cfg["replication-target-api-token"] = target_secret.id
+    return dataclasses.replace(
+        state,
+        config=cfg,
+        secrets=[*state.secrets, target_secret],
+    )
+
+
+def _backend_config(ctx, state):
+    with ctx(ctx.on.config_changed(), state) as mgr:
+        return mgr.charm.get_backend_configuration()
+
+
+class TestReplication:
+    """Replication target options fold into replication-device."""
+
+    def test_no_target(self, ctx, complete_state):
+        cfg = _backend_config(ctx, complete_state)
+        assert "replication-device" not in cfg
+        assert not any(k.startswith("replication-") for k in cfg)
+
+    def test_async_target(self, ctx, complete_state):
+        state = _with_replication(
+            complete_state,
+            **{
+                "replication-target-name": "joule",
+                "replication-target-address": "10.240.1.53",
+                "replication-target-api-token": "SECRET",
+            },
+        )
+        cfg = _backend_config(ctx, state)
+        assert cfg["replication-device"] == (
+            f"backend_id:joule,san_ip:10.240.1.53,"
+            f"api_token:{TARGET_TOKEN},type:async"
+        )
+        assert not any(
+            k.startswith("replication-target") or k == "replication-type"
+            for k in cfg
+        )
+
+    @pytest.mark.parametrize(
+        "rtype,uniform,suffix",
+        [
+            ("sync", True, "type:sync,uniform:true"),
+            ("sync", False, "type:sync"),
+            ("async", True, "type:async"),
+        ],
+    )
+    def test_type_and_uniform(self, ctx, complete_state, rtype, uniform, suffix):
+        state = _with_replication(
+            complete_state,
+            **{
+                "replication-target-name": "joule",
+                "replication-target-address": "10.240.1.53",
+                "replication-target-api-token": "SECRET",
+                "replication-type": rtype,
+                "replication-sync-uniform": uniform,
+            },
+        )
+        cfg = _backend_config(ctx, state)
+        assert cfg["replication-device"].endswith(suffix)
+
+    def test_partial_target_rejected(self, ctx, complete_state):
+        state = _with_replication(
+            complete_state, **{"replication-target-name": "joule"}
+        )
+        with pytest.raises(Exception) as exc:
+            print(type(exc.value))
+            _backend_config(ctx, state)
+
+    def test_secret_missing_token_rejected(self, ctx, complete_state):
+        bad = testing.Secret(tracked_content={"nottoken": "x"}, owner="app")
+        state = dataclasses.replace(
+            complete_state,
+            config={
+                **complete_state.config,
+                "replication-target-name": "joule",
+                "replication-target-address": "10.240.1.53",
+                "replication-target-api-token": bad.id,
+            },
+            secrets=[*complete_state.secrets, bad],
+        )
+        with pytest.raises(Exception) as exc:
+            print(type(exc.value))
+            _backend_config(ctx, state)
