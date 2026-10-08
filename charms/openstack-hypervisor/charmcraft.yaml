@@ -31,6 +31,21 @@ config:
       description: |
         Whether to resume the guest VMs when the host boots.
       type: boolean
+    block-device-allocate-retries:
+      type: int
+      description: |
+        Number of times to check for a volume to be created before
+        aborting a server create. The timeout is calculated together
+        with block-device-allocate-retries-interval. Unset by default,
+        in which case nova's default applies (60 retries at 3 seconds
+        interval, i.e. 3 minutes).
+    block-device-allocate-retries-interval:
+      type: int
+      description: |
+        Seconds between block device allocation retries. Unset by
+        default, in which case nova's default (3 seconds) applies. See
+        block-device-allocate-retries for how the timeout is
+        calculated.
     dns-servers:
       default: 8.8.8.8
       type: string
