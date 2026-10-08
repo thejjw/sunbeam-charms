@@ -1351,3 +1351,33 @@ class TestMicroOVNConfiguration:
             charm.MICROOVN_RESTART_TRIGGER_SNAP_KEY
         )
         hypervisor_snap_mock.set.assert_not_called()
+
+
+class TestImagesTypeConfiguration:
+    """compute.images-type snap setting is driven by charm config."""
+
+    def test_images_type_unset_by_default(self, harness):
+        """Without images-type config, the snap key is not set."""
+        harness.begin()
+        captured = _setup_configure_unit_mocks(harness.charm)
+        harness.charm.configure_unit(MagicMock())
+
+        assert captured.get("compute.images-type") is None
+
+    def test_images_type_passed_to_snap(self, harness):
+        """images-type config value is passed to the snap."""
+        harness.begin()
+        harness.update_config({"images-type": "qcow2"})
+        captured = _setup_configure_unit_mocks(harness.charm)
+        harness.charm.configure_unit(MagicMock())
+
+        assert captured.get("compute.images-type") == "qcow2"
+
+    def test_invalid_images_type_not_passed_to_snap(self, harness):
+        """An invalid images-type is not forwarded to the snap."""
+        harness.begin()
+        harness.update_config({"images-type": "qcow23"})
+        captured = _setup_configure_unit_mocks(harness.charm)
+        harness.charm.configure_unit(MagicMock())
+
+        assert captured.get("compute.images-type") is None

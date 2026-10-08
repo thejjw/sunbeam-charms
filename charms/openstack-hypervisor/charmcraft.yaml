@@ -31,6 +31,15 @@ config:
       description: |
         Whether to resume the guest VMs when the host boots.
       type: boolean
+    images-type:
+      type: string
+      description: |
+        libvirt image backend for ephemeral storage (nova [libvirt]
+        images_type). Supported values: raw, qcow2, rbd, flat (and Nova's
+        lvm, ploop, default). If unset, Nova's default (qcow2) is used.
+        'rbd' requires Ceph access (see compute.rbd-user and
+        compute.rbd-secret-uuid on the openstack-hypervisor snap) and an
+        RBD pool for Nova images.
     dns-servers:
       default: 8.8.8.8
       type: string
