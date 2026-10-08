@@ -82,6 +82,10 @@ def complete_state():
         config={
             "san-ip": "10.0.0.1",
             "pure-api-token": api_token_secret.id,
+            "volume-backend-name": "pure-test",
+            "backend-availability-zone": "nova",
+            "pure-iscsi-cidr-list": "10.0.0.0/24",
+            "pure-nvme-cidr-list": "10.0.0.0/24",
         },
         relations=[cinder_volume_relation()],
         secrets=[api_token_secret],
