@@ -101,6 +101,10 @@ EPA_ALLOCATION_OVS_DPDK_DATAPATH = "ovs-dpdk-datapath"
 # Snap Key if microovn switch restart is needed after DPDK config change.
 MICROOVN_RESTART_TRIGGER_SNAP_KEY = "network.external-switch-restart"
 
+IMAGES_TYPE_CHOICES = frozenset(
+    {"raw", "flat", "qcow2", "lvm", "rbd", "ploop", "default"}
+)
+
 
 class SnapInstallationError(Exception):
     """Custom exception for snap installation failure errors."""
@@ -129,6 +133,10 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             "snap-channel", priority=200
         )
         self.status_pool.add(self.snap_channel_status)
+        self._images_type_status = compound_status.Status(
+            "images-type", priority=150
+        )
+        self.status_pool.add(self._images_type_status)
         self._state.set_default(metadata_secret="")
         self.enable_monitoring = self.check_relation_exists("cos-agent")
         # Enable telemetry when ceilometer-service relation is joined
@@ -829,9 +837,26 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
             logger.debug("Could not update snap channel status", exc_info=True)
 
     def _on_collect_unit_status_event(self, event: ops.CollectStatusEvent):
-        """Publish the snap channel drift status before the pool status."""
+        """Publish the snap channel and images-type statuses."""
         self._update_snap_channel_status()
+        self._update_images_type_status()
         super()._on_collect_unit_status_event(event)
+
+    def _update_images_type_status(self) -> None:
+        """Publish a blocked status when images-type is invalid."""
+        images_type = self.model.config.get("images-type")
+        if images_type is not None and images_type not in IMAGES_TYPE_CHOICES:
+            self._images_type_status.set(
+                ops.BlockedStatus(
+                    "invalid images-type '%s'. Valid values: %s"
+                    % (
+                        images_type,
+                        ", ".join(sorted(IMAGES_TYPE_CHOICES)),
+                    )
+                )
+            )
+        else:
+            self._images_type_status.set(ops.UnknownStatus())
 
     def ensure_snap_present(self):  # noqa: C901
         """Install snap if it is not already present."""
@@ -1010,6 +1035,13 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
         config = self.model.config.get
         self.ensure_snap_present()
         local_ip = get_local_ip_by_default_route()
+        images_type = config("images-type")
+        if images_type is not None and images_type not in IMAGES_TYPE_CHOICES:
+            logger.error(
+                "Invalid images-type %r, not applying it to the snap",
+                images_type,
+            )
+            images_type = None
         try:
             contexts = self.contexts()
             snap_data = {
@@ -1029,6 +1061,7 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 or config("ip-address")
                 or local_ip,
                 "compute.resume-on-boot": config("resume-on-boot"),
+                "compute.images-type": images_type,
                 "compute.pci-device-specs": config("pci-device-specs"),
                 "identity.admin-role": contexts.identity_credentials.admin_role,
                 "identity.auth-url": contexts.identity_credentials.internal_endpoint,
