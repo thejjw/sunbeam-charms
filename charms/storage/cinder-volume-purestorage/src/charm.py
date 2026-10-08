@@ -30,6 +30,7 @@ import typing
 
 import ops
 import ops_sunbeam.charm as charm
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.storage as sunbeam_storage
 import ops_sunbeam.tracing as sunbeam_tracing
 import pydantic
@@ -57,6 +58,13 @@ class Personality(StrEnum):
     VMS = "vms"
 
 
+class ReplicationType(StrEnum):
+    """Enumeration of possible replication types."""
+
+    ASYNC = "async"
+    SYNC = "sync"
+
+
 def ip_network_list_validator(value: str) -> list[pydantic.IPvAnyNetwork]:
     """Validate and parse a comma-separated list of IP networks."""
     if not value:
@@ -65,6 +73,16 @@ def ip_network_list_validator(value: str) -> list[pydantic.IPvAnyNetwork]:
         return [ipaddress.ip_network(ip.strip()) for ip in value.split(",")]
     except ValueError as e:
         raise ValueError(f"Invalid IP network: {e}")
+
+
+def _reject_trisync(value: bool) -> bool:
+    """TriSync needs two replication targets; only one is supported."""
+    if value:
+        raise ValueError(
+            "pure-trisync-enabled requires two replication targets, "
+            "which are not supported yet"
+        )
+    return value
 
 
 def list_serializer(value: list) -> str:
@@ -77,6 +95,16 @@ CIDR_LIST_TYPING = typing.Annotated[
     pydantic.BeforeValidator(ip_network_list_validator),
     pydantic.PlainSerializer(list_serializer, return_type=str),
 ]
+
+
+REPLICATION_GROUP = sunbeam_storage.RequiredIfGroup("replication")
+_REPLICATION_KEYS = (
+    "replication-target-name",
+    "replication-target-address",
+    "replication-target-api-token",
+    "replication-type",
+    "replication-sync-uniform",
+)
 
 
 @sunbeam_tracing.trace_sunbeam_charm
@@ -106,9 +134,73 @@ class CinderVolumePureStorageOperatorCharm(charm.OSCinderVolumeDriverOperatorCha
                 "pure-nvme-cidr": pydantic.IPvAnyNetwork | None,
                 "pure-nvme-cidr-list": CIDR_LIST_TYPING,
                 "pure-nvme-transport": NvmeTransport,
+                "replication-target-name": typing.Annotated[
+                    str | None, REPLICATION_GROUP
+                ],
+                "replication-target-address": typing.Annotated[
+                    pydantic.IPvAnyAddress | str | None, REPLICATION_GROUP
+                ],
+                "replication-target-api-token": typing.Annotated[
+                    str | None,
+                    pydantic.BeforeValidator(sunbeam_storage.secret_validator("replication-target-api-token")),
+                    REPLICATION_GROUP,
+                ],
+                "replication-type": ReplicationType,
+                "replication-driver-ssl-cert": typing.Annotated[
+                    str | None,
+                    pydantic.BeforeValidator(sunbeam_storage.certificate_validator),
+                ],
+                "pure-trisync-enabled": typing.Annotated[
+                    bool, pydantic.AfterValidator(_reject_trisync)
+                ],
             }
         )
         return overrides
+
+
+    def _snap_supports(self, feature: str) -> bool:
+        """Return whether the cinder-volume snap advertises a feature.
+
+        The snap stores the revision that set the marker. A value that does
+        not match the installed revision was left behind by a newer revision
+        before a downgrade, so it does not count.
+        """
+        snap_module = self._import_snap()
+        try:
+            snap = snap_module.SnapCache()[self.snap_name]
+            marker = snap.get(f"features.{feature}", typed=True)
+        except snap_module.SnapError:
+            return False
+        return marker is not None and str(marker) == str(snap.revision)
+
+
+    def get_backend_configuration(self) -> typing.Mapping:
+        """Fold replication target options into replication-device."""
+        config = dict(super().get_backend_configuration())
+        if config.get("replication-driver-ssl-cert") and not self._snap_supports(
+            "pure-replication-ssl-cert"
+        ):
+            raise sunbeam_guard.BlockedExceptionError(
+                "replication-driver-ssl-cert needs a newer cinder-volume snap; "
+                "refresh cinder-volume first"
+            )
+        target = {k: config.pop(k, None) for k in _REPLICATION_KEYS}
+        if target["replication-target-name"]:
+            device = (
+                f"backend_id:{target['replication-target-name']},"
+                f"san_ip:{target['replication-target-address']},"
+                f"api_token:{target['replication-target-api-token']},"
+                f"type:{target['replication-type']}"
+            )
+            if (
+                target["replication-type"] == ReplicationType.SYNC
+                and target["replication-sync-uniform"]
+            ):
+                device += ",uniform:true"
+            config["replication-device"] = device
+        return config
+
+
 
 
 if __name__ == "__main__":  # pragma: nocover
