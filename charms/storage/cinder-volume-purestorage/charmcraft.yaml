@@ -172,6 +172,38 @@ config:
         Pure Protection Group name to use for trisync replication leg
         inside the sync replication pod. Will be created if it does not exist.
       type: string
+    replication-target-name:
+      default: null
+      description: |
+        Name of the target FlashArray to replicate to (replication_device 
+        backend_id). Setting this enables replication; requires
+        replication-target-address and replication-target-api-token.
+        The arrays must be connected on the FlashArray side. If the
+        target is unreachable when cinder-volume starts, the backend fails
+        to initialize.
+      type: string
+    replication-target-address:
+      default: null
+      description: |
+        Management IP address or FQDN of the replication target FlashArray.
+      type: string
+    replication-target-api-token:
+      description: |
+        Juju secret containing the REST API token for the replication 
+        target FlashArray, under the key 'token'.
+      type: secret
+    replication-type:
+      default: async
+      description: |
+        Replication type: async (protection-group snapshots) or sync
+        (ActiveCluster pod).
+      type: string
+    replication-sync-uniform:
+      default: false
+      description: |
+        For sync replication, whether data paths are uniform between
+        arrays and attachments should connect to both.
+      type: boolean
 
 requires:
   cinder-volume:
