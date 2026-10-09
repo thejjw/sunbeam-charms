@@ -16,6 +16,24 @@
       "message": "Out of curiosity, what issue does the patch fix? Is it somehow related to the following? If so, \"blocking\" sounds the other way around.\nhttps://bugs.launchpad.net/sunbeam-charms/+bug/2167409",
       "revId": "ef08b33e0e58f9222904cf1c27872639876121b0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e6eea76e_3d850a48",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-10-09T06:19:55Z",
+      "side": 1,
+      "message": "Hi Nobuto,\n\nSunbeam won\u0027t allow two cinder backends to specify same volume_backend_name value. If second backend uses the same name, it will go into blocked state with the message. This is aligned with the ticket expectation \u0027If Sunbeam intends to require uniqueness, it should reject the configuration with a clear error rather than silently ignoring it.\u0027",
+      "parentUuid": "774f3830_8be8690f",
+      "revId": "ef08b33e0e58f9222904cf1c27872639876121b0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
