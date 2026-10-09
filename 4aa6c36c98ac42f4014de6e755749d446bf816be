@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c41c760a_2a2592bd",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-10-09T23:00:56Z",
+      "side": 1,
+      "message": "Thanks for raising this. Just to clarify the lifecycle: the juju secret contains the operator’s existing LUKS passphrase and is only needed during enrollment. Vaultlocker adds a separate managed key stored in Vault, which is used for later unlocks. The intended Sunbeam workflow is to remove the enrollment secret once enrollment is confirmed. That limits how long the passphrase is stored in Juju",
+      "parentUuid": "8ffc9ebd_b0a034f2",
+      "revId": "4aa6c36c98ac42f4014de6e755749d446bf816be",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a410f400_c669751a",
         "filename": "charms/openstack-hypervisor/charmcraft.yaml",
         "patchSetId": 3
