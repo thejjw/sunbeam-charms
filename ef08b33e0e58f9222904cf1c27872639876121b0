@@ -34,6 +34,24 @@
       "parentUuid": "774f3830_8be8690f",
       "revId": "ef08b33e0e58f9222904cf1c27872639876121b0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5f3643a_1082d180",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2026-10-09T06:23:05Z",
+      "side": 1,
+      "message": "I think the comment has the context around it.\n\n\u003e Expected: multiple backends sharing a volume_backend_name is standard Cinder configuration and is how pooling across backends is expressed (https://docs.openstack.org/cinder/latest/admin/multi-backend.html). It works as expected on Kolla-Ansible deployments. If Sunbeam intends to require uniqueness, it should reject the configuration with a clear error rather than silently ignoring it.\n\nThe first preference is of course supporting the architecture since it\u0027s pretty common design pattern of Cinder deployment, and the upstream supports it 100%.",
+      "parentUuid": "e6eea76e_3d850a48",
+      "revId": "ef08b33e0e58f9222904cf1c27872639876121b0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
