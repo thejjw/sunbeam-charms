@@ -150,6 +150,12 @@ class OperatorPeers(Object):
         for k, v in settings.items():
             self.peers_rel.data[self.model.unit][k] = v
 
+    def get_local_unit_value(self, key: str) -> str | None:
+        """Return the value for key from the local unit's peer unit databag."""
+        if not self.peers_rel:
+            return None
+        return self.peers_rel.data[self.model.unit].get(key)
+
     def all_joined_units(self) -> set[ops.model.Unit]:
         """All remote units joined to the peer relation."""
         if not self.peers_rel:
