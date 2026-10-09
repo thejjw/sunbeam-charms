@@ -20,6 +20,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8ffc9ebd_b0a034f2",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2026-10-09T16:00:42Z",
+      "side": 1,
+      "message": "Am I reading this correctly that the LUKS passphrase is saved to Juju secret? If so, Juju secret is not assured to be Encryption at Rest, and the big picture here is not to write any secret to the disk unencrypted.\n\nI\u0027m just concerned theoretically that the secret for LUKS device could be leaked to a physical disk without encryption (of the key itself). I hope I\u0027m wrong here though.",
+      "revId": "4aa6c36c98ac42f4014de6e755749d446bf816be",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a410f400_c669751a",
         "filename": "charms/openstack-hypervisor/charmcraft.yaml",
         "patchSetId": 3
