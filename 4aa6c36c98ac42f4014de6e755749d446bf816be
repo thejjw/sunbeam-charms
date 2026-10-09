@@ -16,6 +16,29 @@
       "message": "recheck openstack-images-sync workload startup failure",
       "revId": "4aa6c36c98ac42f4014de6e755749d446bf816be",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a410f400_c669751a",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-10-09T13:59:36Z",
+      "side": 1,
+      "message": "Should this be of type secrets?",
+      "range": {
+        "startLine": 244,
+        "startChar": 14,
+        "endLine": 244,
+        "endChar": 20
+      },
+      "revId": "4aa6c36c98ac42f4014de6e755749d446bf816be",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
