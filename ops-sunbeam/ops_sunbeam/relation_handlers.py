@@ -754,6 +754,10 @@ class BasePeerHandler(RelationHandler):
         """Publish settings on the peer unit data bag."""
         self.interface.set_unit_data(settings)
 
+    def get_local_unit_value(self, key: str) -> str | None:
+        """Return the value for key from the local unit's peer unit databag."""
+        return self.interface.get_local_unit_value(key)
+
     def get_all_unit_values(
         self, key: str, include_local_unit: bool = False
     ) -> list[str]:

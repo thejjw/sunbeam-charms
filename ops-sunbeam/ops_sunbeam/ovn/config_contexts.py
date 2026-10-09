@@ -27,10 +27,21 @@ from .. import tracing as sunbeam_tracing
 class OVNDBConfigContext(sunbeam_ccontexts.ConfigContext):
     """Context for OVN charms."""
 
+    @property
+    def _unit_cluster_member(self) -> bool:
+        """Whether this unit has already joined its OVN DB cluster."""
+        peers = getattr(self.charm, "peers", None)
+        interface = getattr(peers, "interface", None)
+        peers_rel = getattr(interface, "peers_rel", None)
+        if not peers_rel:
+            return False
+        return peers_rel.data[self.charm.unit].get("cluster_member") == "true"
+
     def context(self) -> dict:
         """Context for OVN certs and leadership."""
         return {
             "is_charm_leader": self.charm.unit.is_leader(),
+            "is_unit_cluster_member": self._unit_cluster_member,
             "ovn_key": "/etc/ovn/key_host",
             "ovn_cert": "/etc/ovn/cert_host",
             "ovn_ca_cert": "/etc/ovn/ovn-central.crt",
