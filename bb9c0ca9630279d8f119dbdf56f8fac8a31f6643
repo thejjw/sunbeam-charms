@@ -16,6 +16,24 @@
       "message": "Don\u0027t we bump the default value too? Setting 15 min as the new default really helped in Charmed OpenStack to reduce the number of issue reports in my perception. \nhttps://review.opendev.org/c/openstack/charm-nova-compute/+/828253",
       "revId": "bb9c0ca9630279d8f119dbdf56f8fac8a31f6643",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e16001e_780794b8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-09T01:55:55Z",
+      "side": 1,
+      "message": "Yes much needed, thanks for pointing it out. Updated in PS2",
+      "parentUuid": "f1b437a9_4ebb13c6",
+      "revId": "bb9c0ca9630279d8f119dbdf56f8fac8a31f6643",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
