@@ -189,11 +189,259 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         """Run constructor."""
         super().__init__(framework)
         self.framework.observe(self.on.upgrade_charm, self._on_upgrade_charm)
+        self.framework.observe(
+            self.on["peers"].relation_departed, self._on_peer_departed
+        )
 
     def _on_upgrade_charm(self, event: ops.framework.EventBase):
         """Handle the upgrade charm event."""
         logger.info("Handling upgrade-charm event")
+        self._backfill_cluster_member_flag()
         self.certs.validate_and_regenerate_certificates_if_needed()
+
+    def _backfill_cluster_member_flag(self) -> None:
+        """Mark existing running DB services as cluster members on upgrade."""
+        if self.peers.get_local_unit_value("cluster_member") == "true":
+            return
+
+        for container_name in OVN_DB_CONTAINERS:
+            container = self.unit.get_container(container_name)
+            if not container.can_connect():
+                return
+            service = container.get_services().get(container_name)
+            if not service or not service.is_running():
+                return
+
+        logger.info("Backfilling OVN cluster member flag on upgrade")
+        self.peers.set_unit_data({"cluster_member": "true"})
+
+    def _on_peer_departed(
+        self, event: ops.charm.RelationDepartedEvent
+    ) -> None:
+        """Handle OVN cluster downscale when a peer is removed.
+
+        Juju does not remove a scaled-away unit's server from the OVN RAFT
+        clusters, so stale members accumulate and quorum is eventually lost.
+        The departing unit gracefully leaves the clusters (cluster/leave)
+        while its pod is still alive; a remaining leader waits for that to
+        happen and kicks the server out as a fallback if it does not.
+        """
+        departing_unit = event.departing_unit
+        if departing_unit is None:
+            return
+
+        if departing_unit == self.unit:
+            # We are being removed: gracefully leave the OVN clusters.
+            for db in ("nb", "sb"):
+                try:
+                    self.cluster_leave(db)
+                except (
+                    ops.pebble.Error,
+                    ValueError,
+                    tenacity.RetryError,
+                ) as e:
+                    logger.warning(
+                        "Failed to leave the OVN %s cluster: %s", db, e
+                    )
+            return
+
+        # We remain in the cluster; only the leader reconciles membership.
+        if not self.unit.is_leader():
+            return
+        # The databag is unavailable once the unit is gone (e.g. on hook
+        # retries), so fall back to the stable pod hostname derived from the
+        # unit name, e.g. ovn-central/1 -> ovn-central-1.
+        departing_data = event.relation.data.get(departing_unit)
+        hostname = (
+            departing_data.get("bound-hostname") if departing_data else None
+        ) or departing_unit.name.replace("/", "-")
+        self._remove_departing_server(hostname)
+
+    def _remove_departing_server(self, hostname: str) -> None:
+        """Remove a departed unit's server from the OVN RAFT clusters.
+
+        :param hostname: Cluster hostname of the departed server
+        :type hostname: str
+        """
+        for db in ("nb", "sb"):
+            try:
+                if self._wait_for_server_leave(db, hostname):
+                    continue
+                logger.warning(
+                    "Departing unit %s did not leave the OVN %s cluster, "
+                    "kicking it out",
+                    hostname,
+                    db,
+                )
+                self.cluster_kick(db, hostname)
+            except (
+                ops.pebble.Error,
+                ValueError,
+                tenacity.RetryError,
+            ) as e:
+                logger.warning(
+                    "Failed to remove %s from the OVN %s cluster: %s",
+                    hostname,
+                    db,
+                    e,
+                )
+
+    def cluster_kick(self, db: str, hostname: str) -> None:
+        """Remove servers matching hostname from an OVN RAFT cluster.
+
+        :param db: Database to operate on, 'nb' or 'sb'
+        :type db: str
+        :param hostname: Cluster hostname of the server to remove
+        :type hostname: str
+        """
+        if db == "nb":
+            executor = self.get_pebble_executor(OVN_NB_DB_CONTAINER)
+        elif db == "sb":
+            executor = self.get_pebble_executor(OVN_SB_DB_CONTAINER)
+        else:
+            return
+        target = "ovn{}_db".format(db)
+        status = self.cluster_status(target, cmd_executor=executor)
+        if not status:
+            logger.warning(
+                "Unable to get %s cluster status, skipping removal of %s",
+                target,
+                hostname,
+            )
+            return
+        schema = status.name
+        for server_id, address in status.servers:
+            if self._hostname_matches_address(hostname, address):
+                logger.info(
+                    "Removing server %s (%s) from the OVN %s cluster",
+                    server_id,
+                    address,
+                    schema,
+                )
+                ovn.ovn_appctl(
+                    target,
+                    ("cluster/kick", schema, server_id),
+                    rundir=self.ovn_rundir(),
+                    cmd_executor=executor,
+                )
+
+    def cluster_leave(self, db: str) -> None:
+        """Best-effort, non-blocking leave of an OVN RAFT cluster.
+
+        The departing unit issues cluster/leave and returns immediately: its
+        pod is being torn down, so blocking here (e.g. waiting for the leave
+        to complete) risks the agent being killed mid-hook. The surviving
+        leader reconciles membership and kicks the server as a fallback.
+
+        :param db: Database to operate on, 'nb' or 'sb'
+        :type db: str
+        """
+        if db == "nb":
+            container = OVN_NB_DB_CONTAINER
+        elif db == "sb":
+            container = OVN_SB_DB_CONTAINER
+        else:
+            return
+        if not self.unit.get_container(container).can_connect():
+            return
+        executor = self.get_pebble_executor(container)
+        target = "ovn{}_db".format(db)
+        status = self.cluster_status(target, cmd_executor=executor)
+        if not status:
+            return
+        # A single-member cluster has nothing to leave.
+        if len(status.servers) <= 1:
+            return
+        schema = status.name
+        logger.info("Leaving the OVN %s cluster", schema)
+        ovn.ovn_appctl(
+            target,
+            ("cluster/leave", schema),
+            rundir=self.ovn_rundir(),
+            cmd_executor=executor,
+        )
+
+    def _wait_for_server_leave(self, db: str, hostname: str) -> bool:
+        """Wait for a departing server to remove itself from the cluster.
+
+        :param db: Database to operate on, 'nb' or 'sb'
+        :type db: str
+        :param hostname: Cluster hostname of the departing server
+        :type hostname: str
+        :returns: True if the server left, False on timeout.
+        :rtype: bool
+        """
+        if db == "nb":
+            executor = self.get_pebble_executor(OVN_NB_DB_CONTAINER)
+        elif db == "sb":
+            executor = self.get_pebble_executor(OVN_SB_DB_CONTAINER)
+        else:
+            return True
+        target = "ovn{}_db".format(db)
+
+        def _left() -> bool:
+            # cluster_status raises RetryError once its internal retries
+            # are exhausted, or pebble errors on immediate failures; keep
+            # polling until the timeout instead of aborting the wait (and
+            # silently skipping the fallback kick) on transient errors.
+            try:
+                status = self.cluster_status(target, cmd_executor=executor)
+            except (ops.pebble.Error, tenacity.RetryError) as e:
+                logger.debug(
+                    "Unable to get %s cluster status while waiting for "
+                    "%s to leave: %s",
+                    target,
+                    hostname,
+                    e,
+                )
+                return False
+            if status is None:
+                return False
+            return not any(
+                self._hostname_matches_address(hostname, address)
+                for _, address in status.servers
+            )
+
+        return self._poll_until(_left)
+
+    @staticmethod
+    def _hostname_matches_address(hostname: str, address: str) -> bool:
+        """Whether an OVN RAFT server address belongs to a hostname.
+
+        Server addresses have the form 'proto:host:port', e.g.
+        'ssl:ovn-central-1:6643'. Compare host components rather than
+        substrings so 'ovn-central-1' does not match 'ovn-central-10'.
+        Only the first host label is compared, as the hostname may be
+        an FQDN (socket.getfqdn()) or the short pod name derived from
+        the unit name.
+
+        :param hostname: Cluster hostname of the server
+        :type hostname: str
+        :param address: Server address from the cluster status
+        :type address: str
+        :returns: True if the address belongs to the hostname.
+        :rtype: bool
+        """
+        parts = address.split(":")
+        if len(parts) != 3:
+            return False
+        return parts[1].split(".")[0] == hostname.split(".")[0]
+
+    @staticmethod
+    def _poll_until(predicate) -> bool:
+        """Poll a predicate until it is true, up to a bounded timeout.
+
+        :returns: True if the predicate became true, False on timeout.
+        :rtype: bool
+        """
+        try:
+            return tenacity.Retrying(
+                stop=tenacity.stop_after_delay(60),
+                wait=tenacity.wait_fixed(3),
+                retry=tenacity.retry_if_result(lambda done: not done),
+            )(predicate)
+        except tenacity.RetryError:
+            return False
 
     def get_pebble_handlers(self):
         """Pebble handlers for all OVN containers."""
@@ -422,6 +670,7 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.set_leader_ready()
         self.start_northd()
         self.check_pebble_handlers_ready()
+        self.peers.set_unit_data({"cluster_member": "true"})
 
     def configure_app_non_leader(self, event):
         """Configure non leader."""
@@ -449,6 +698,10 @@ class OVNCentralOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         if warnings:
             for line in warnings.splitlines():
                 logger.warning("CMD Out: %s", line.strip())
+        # Mark the unit as a cluster member as soon as the joins have
+        # succeeded: on a hook retry the join scripts would otherwise
+        # treat the freshly-joined DB files as stale and re-join.
+        self.peers.set_unit_data({"cluster_member": "true"})
         logging.debug("Starting services in DB containers")
         for ph in self.get_named_pebble_handlers(OVN_DB_CONTAINERS):
             ph.start_service()
