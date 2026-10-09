@@ -17,6 +17,7 @@
 import json
 import os
 import sys
+import unittest
 from unittest.mock import (
     MagicMock,
     PropertyMock,
@@ -28,6 +29,7 @@ sys.path.append("src")  # noqa
 
 import ops.model
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.test_utils as test_utils
 
 from . import (
@@ -1734,3 +1736,102 @@ class TestOSBaseOperatorAPICharmActions(_TestOSBaseOperatorAPICharm):
             self.harness.run_action("resume")
 
             mock_init.assert_called_once()
+
+
+class TestCinderVolumeDriverUniqueBackendName(unittest.TestCase):
+    """Backends sharing a volume-backend-name are blocked, not silently dropped."""
+
+    driver = sunbeam_charm.OSCinderVolumeDriverOperatorCharm
+
+    @staticmethod
+    def _charm(snap_config, backend_key="hitachi.vsp-be1"):
+        charm = MagicMock()
+        charm.backend_key = backend_key
+        charm.app.name = backend_key.split(".", 1)[1]
+        charm.snap_module.SnapError = Exception
+        charm.get_snap.return_value.get.return_value = snap_config
+        driver = sunbeam_charm.OSCinderVolumeDriverOperatorCharm
+        charm._other_backend_names.side_effect = (
+            lambda: driver._other_backend_names(charm)
+        )
+        return charm
+
+    def test_other_backend_names_ignores_own_and_non_backend_groups(self):
+        """Only other backends' names are returned; own entry is skipped."""
+        charm = self._charm(
+            {
+                "rabbitmq": {"url": "rabbit://x"},
+                "cinder": {"cluster": "cv"},
+                "hitachi": {
+                    "vsp-be1": {"volume-backend-name": "mine"},
+                    "vsp-be2": {"volume-backend-name": "theirs"},
+                },
+                "ceph": {"ceph1": {"volume-backend-name": "cephy"}},
+            }
+        )
+
+        names = self.driver._other_backend_names(charm)
+
+        self.assertEqual(names, {"theirs": "vsp-be2", "cephy": "ceph1"})
+
+    def test_other_backend_names_empty_when_snap_unreadable(self):
+        """A snap error is treated as no known backends."""
+        charm = self._charm({})
+        charm.get_snap.return_value.get.side_effect = Exception("boom")
+        self.assertEqual(self.driver._other_backend_names(charm), {})
+
+    def test_duplicate_name_blocks_with_clear_message(self):
+        """A name used by another backend raises Blocked naming that backend."""
+        charm = self._charm(
+            {"hitachi": {"vsp-be2": {"volume-backend-name": "pooled"}}}
+        )
+
+        with self.assertRaises(sunbeam_guard.BlockedExceptionError) as ctx:
+            self.driver._ensure_unique_backend_name(
+                charm, {"volume-backend-name": "pooled"}
+            )
+
+        self.assertEqual(
+            ctx.exception.msg,
+            "volume-backend-name 'pooled' is already used by backend "
+            "'vsp-be2'; backend names must be unique",
+        )
+
+    def test_unique_name_passes(self):
+        """A name no other backend uses is accepted."""
+        charm = self._charm(
+            {"hitachi": {"vsp-be2": {"volume-backend-name": "other"}}}
+        )
+
+        self.driver._ensure_unique_backend_name(
+            charm, {"volume-backend-name": "mine"}
+        )
+
+    def test_keeping_own_name_passes(self):
+        """A backend re-applying its own existing name is not a duplicate."""
+        charm = self._charm(
+            {"hitachi": {"vsp-be1": {"volume-backend-name": "mine"}}}
+        )
+
+        self.driver._ensure_unique_backend_name(
+            charm, {"volume-backend-name": "mine"}
+        )
+
+    def test_configure_snap_does_not_write_duplicate(self):
+        """A blocked backend never reaches set_snap_data."""
+        charm = self._charm(
+            {"hitachi": {"vsp-be2": {"volume-backend-name": "pooled"}}}
+        )
+        charm._state.volume_ready = True
+        charm.get_backend_configuration.return_value = {
+            "volume-backend-name": "pooled"
+        }
+        charm._ensure_unique_backend_name.side_effect = (
+            lambda ctx: self.driver._ensure_unique_backend_name(charm, ctx)
+        )
+
+        with self.assertRaises(sunbeam_guard.BlockedExceptionError):
+            self.driver.configure_snap(charm, MagicMock())
+
+        charm.set_snap_data.assert_not_called()
+        charm.cinder_volume.interface.set_ready.assert_not_called()

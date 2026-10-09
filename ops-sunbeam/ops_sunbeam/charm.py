@@ -1870,8 +1870,66 @@ class OSCinderVolumeDriverOperatorCharm(OSBaseOperatorCharmSnap):
         if not bool(self._state.volume_ready):
             raise sunbeam_guard.WaitingExceptionError("Volume not ready")
         backend_context = self.get_backend_configuration()
+        self._ensure_unique_backend_name(backend_context)
         self.set_snap_data(backend_context, namespace=self.backend_key)
         self.cinder_volume.interface.set_ready()
+
+    def _other_backend_names(self) -> dict[str, str]:
+        """Return `volume-backend-name` values used by the other backends.
+
+        Backends are stored in the snap configuration as
+        `<backend-type>.<application-name>.<option>`. The returned mapping
+        goes from each `volume-backend-name` to the application name of the
+        backend using it. This backend's own entry is not included.
+        """
+        try:
+            snap_config = self.get_snap().get(None, typed=True)
+        except self.snap_module.SnapError:
+            logger.info(
+                "Could not read snap configuration, no other backend names"
+            )
+            return {}
+
+        own_type, _, own_app = self.backend_key.partition(".")
+        names: dict[str, str] = {}
+        for backend_type, backends in dict(snap_config or {}).items():
+            if not isinstance(backends, dict):
+                continue
+            for app_name, options in backends.items():
+                if not isinstance(options, dict):
+                    continue
+                if (backend_type, app_name) == (own_type, own_app):
+                    continue
+                if name := options.get("volume-backend-name"):
+                    names[str(name)] = app_name
+        logger.info(
+            "Found %d volume-backend-name(s) used by other backends: %s",
+            len(names),
+            sorted(names),
+        )
+        return names
+
+    def _ensure_unique_backend_name(self, backend_context: Mapping) -> None:
+        """Refuse a `volume-backend-name` already used by another backend.
+
+        The cinder-volume snap rejects the whole configuration, for every
+        backend, when two backends share a name, and it does so without
+        reporting anything. Block this charm instead, so the operator sees
+        the reason in the status and nothing invalid reaches the snap.
+        The charm unblocks once the configuration is changed to a unique name.
+        """
+        name = backend_context.get("volume-backend-name")
+        if not name:
+            return
+        other_app = self._other_backend_names().get(str(name))
+        if other_app is None:
+            return
+        message = (
+            f"volume-backend-name '{name}' is already used by backend "
+            f"'{other_app}'; backend names must be unique"
+        )
+        logger.error("%s: %s", self.app.name, message)
+        raise sunbeam_guard.BlockedExceptionError(message)
 
     def get_backend_configuration(self) -> Mapping:
         """Return the backend configuration."""
