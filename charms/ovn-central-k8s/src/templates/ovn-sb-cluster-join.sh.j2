@@ -7,7 +7,14 @@ function log_msg()
     msg=$1
     echo "$(date): $msg" >> $WRAPPER_LOG 
 }
+{% if ovs_db.is_unit_cluster_member %}
 ls -l /var/lib/ovn/{.ovn,ovn}sb* &> /dev/null && { log_msg "Existing DB files found, skipping join"; exit 0; }
+{% else %}
+if ls -l /var/lib/ovn/{.ovn,ovn}sb* &> /dev/null; then
+    log_msg "Replacement unit, removing stale DB files"
+    rm -f /var/lib/ovn/{.ovn,ovn}sb*
+fi
+{% endif %}
 log_msg "No existing DB files present"
 ADDRESSES="{{ peers.db_sb_cluster_connection_strs|join(' ') }}"
 log_msg "Running join-cluster cmd: ovsdb-tool join-cluster /var/lib/ovn/ovnsb_db.db OVN_Southbound $ADDRESSES"
