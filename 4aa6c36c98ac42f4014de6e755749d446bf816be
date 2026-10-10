@@ -55,6 +55,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "4157a882_ade913a5",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2026-10-10T02:15:48Z",
+      "side": 1,
+      "message": "That makes more sense now, thanks for the clarification. As long as the initial passphrase gets revoked in the charm\u0027s setup flow, that\u0027s less of concerns then. I\u0027m not sure but calling the initial key with \"transient / temporary passphrase\" might make it clearer for the intention.",
+      "parentUuid": "c41c760a_2a2592bd",
+      "revId": "4aa6c36c98ac42f4014de6e755749d446bf816be",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a410f400_c669751a",
         "filename": "charms/openstack-hypervisor/charmcraft.yaml",
         "patchSetId": 3
