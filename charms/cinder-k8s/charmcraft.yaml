@@ -33,6 +33,21 @@ config:
       default: RegionOne
       description: Name of the OpenStack region
       type: string
+    default-volume-type:
+      type: string
+      default: null
+      description: |
+        Name of the volume type used when a volume is created without an
+        explicit type and project has no project-specific default type
+        set. Rendered as `default_volume_type` in cinder.conf for the
+        cinder-api and cinder-scheduler services.
+
+        The volume type must already exist in Cinder. If it does not, volume
+        creation requests that rely on the default will fail. When unset,
+        Cinder uses its built-in `__DEFAULT__` type.
+
+        This should be set to the same value as the `default-volume-type`
+        option of the cinder-volume charm.
 
 actions:
   pause:
