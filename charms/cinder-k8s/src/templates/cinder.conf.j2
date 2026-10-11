@@ -10,6 +10,9 @@ debug = {{ options.debug }}
 transport_url = {{ amqp.transport_url }}
 auth_strategy = keystone
 os_region_name = {{ options.region }}
+{% if options.default_volume_type -%}
+default_volume_type = {{ options.default_volume_type }}
+{% endif -%}
 {% if receive_ca_cert and receive_ca_cert.ca_bundle -%}
 glance_ca_certificates_file = /usr/local/share/ca-certificates/ca-bundle.pem
 {% endif -%}

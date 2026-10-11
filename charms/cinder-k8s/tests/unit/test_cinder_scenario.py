@@ -16,6 +16,7 @@
 
 """Scenario (ops.testing state-transition) tests for cinder-k8s."""
 
+import dataclasses
 from pathlib import (
     Path,
 )
@@ -132,6 +133,50 @@ class TestAllRelations:
             "/etc/cinder/cinder.conf",
             ["heartbeat_in_pthread"],
         )
+
+
+class TestDefaultVolumeType:
+    """The default-volume-type option is rendered into cinder.conf."""
+
+    @pytest.mark.parametrize("container", ["cinder-api", "cinder-scheduler"])
+    def test_default_volume_type_unset(self, ctx, complete_state, container):
+        """No default_volume_type in cinder.conf when the option is unset."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_not_contains(
+            state_out,
+            ctx,
+            container,
+            "/etc/cinder/cinder.conf",
+            ["default_volume_type"],
+        )
+
+    @pytest.mark.parametrize("container", ["cinder-api", "cinder-scheduler"])
+    def test_default_volume_type_set(self, ctx, complete_state, container):
+        """default_volume_type is rendered in [DEFAULT] for api and scheduler."""
+        state_in = dataclasses.replace(
+            complete_state, config={"default-volume-type": "my-custom-type"}
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        assert state_out.unit_status == testing.ActiveStatus("")
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            container,
+            "/etc/cinder/cinder.conf",
+            ["default_volume_type = my-custom-type"],
+        )
+
+    def test_default_volume_type_in_default_section(self, ctx, complete_state):
+        """default_volume_type is rendered before any other section header."""
+        state_in = dataclasses.replace(
+            complete_state, config={"default-volume-type": "my-custom-type"}
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        content = assert_config_file_exists(
+            state_out, ctx, "cinder-api", "/etc/cinder/cinder.conf"
+        ).read_text()
+        default_section = content.split("[DEFAULT]", 1)[1].split("\n[", 1)[0]
+        assert "default_volume_type = my-custom-type" in default_section
 
 
 class TestPebbleReady:
