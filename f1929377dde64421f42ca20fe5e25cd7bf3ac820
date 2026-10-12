@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89def8f0_11855508",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-12T14:20:14Z",
+      "side": 1,
+      "message": "recheck openstack-images-sync issue is resolved in rocks",
+      "revId": "f1929377dde64421f42ca20fe5e25cd7bf3ac820",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
