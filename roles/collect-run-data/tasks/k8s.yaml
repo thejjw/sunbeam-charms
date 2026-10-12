@@ -32,19 +32,9 @@
     executable: /bin/bash
   shell: |
     set -o pipefail
-    LOG_FOLDER={{ zuul.project.src_dir }}/log/pods/
-    mkdir -p $LOG_FOLDER
-    sudo k8s kubectl logs -n kube-system deployment/coredns --all-containers > $LOG_FOLDER/coredns.log
-    for MODEL_NAME in $(juju models --format=json | jq -r '.models[]["short-name"]'); do
-      sudo k8s kubectl get ns "$MODEL_NAME" &>/dev/null || continue
-      mkdir -p "$LOG_FOLDER/$MODEL_NAME"
-      for pod in $(sudo k8s kubectl get pods -n "$MODEL_NAME" -o=jsonpath='{.items[*].metadata.name}');
-      do
-        echo Collecting logs: $pod
-        # one file per container: --all-containers merges with no delimiter
-        for container in $(sudo k8s kubectl get pods -n "$MODEL_NAME" "$pod" -o=jsonpath='{.spec.containers[*].name}'); do
-          sudo k8s kubectl logs --ignore-errors -n "$MODEL_NAME" -c "$container" "$pod" > "$LOG_FOLDER/$MODEL_NAME/$pod-$container.log" || true
-          sudo k8s kubectl logs --ignore-errors -p -n "$MODEL_NAME" -c "$container" "$pod" > "$LOG_FOLDER/$MODEL_NAME/$pod-$container.previous.log" 2>/dev/null || true
-        done
-      done
-    done
+    # kubelet keeps all pod container instance logs (current, previous and
+    # rotated) under /var/log/pods; tarring the dir is a full copy in one
+    # call instead of one kubectl invocation per container.
+    tar -czf {{ zuul.project.src_dir }}/log/pods-logs.tar.gz -C /var/log/pods .
+  become: true
+  failed_when: false
