@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44401fa5_cb5972ce",
+        "filename": "charms/cinder-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2026-10-12T01:48:07Z",
+      "side": 1,
+      "message": "Is this assumption true? I\u0027m not 100% sure but I thought the default volume type config is more of a scheduler config instead of each backend config so if cinder-k8s charm is responsible for cinder-scheduler then setting it there is more than enough probably?",
+      "revId": "3b3ffd828b2ba176789c4b7671d7a38cc5c6ae06",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
