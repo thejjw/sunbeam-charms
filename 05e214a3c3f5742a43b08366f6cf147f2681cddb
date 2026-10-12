@@ -33,6 +33,23 @@
       "message": "recheck openstack-images-sync rock fixed",
       "revId": "05e214a3c3f5742a43b08366f6cf147f2681cddb",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15952df7_2eaf32e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-12T09:36:19Z",
+      "side": 1,
+      "message": "recheck openstack-images-sync rock published",
+      "revId": "05e214a3c3f5742a43b08366f6cf147f2681cddb",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
