@@ -33,6 +33,23 @@
       "message": "recheck openstack-images-sync rock issue resolved",
       "revId": "142cf68187e9dd3e6eae6f246a59a971e89e2282",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "997e2190_9a2dc84b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-12T11:55:32Z",
+      "side": 1,
+      "message": "recheck seems disk size issue",
+      "revId": "142cf68187e9dd3e6eae6f246a59a971e89e2282",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
