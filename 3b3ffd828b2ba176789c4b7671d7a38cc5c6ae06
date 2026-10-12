@@ -16,6 +16,24 @@
       "message": "Is this assumption true? I\u0027m not 100% sure but I thought the default volume type config is more of a scheduler config instead of each backend config so if cinder-k8s charm is responsible for cinder-scheduler then setting it there is more than enough probably?",
       "revId": "3b3ffd828b2ba176789c4b7671d7a38cc5c6ae06",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "51bfe3b0_2362a247",
+        "filename": "charms/cinder-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 38672
+      },
+      "writtenOn": "2026-10-12T02:42:08Z",
+      "side": 1,
+      "message": "Tested and it\u0027s just read by cinder-api when a volume is created without a type (volume/api.py, create_volume flow). cinder/scheduler/ has no references to default_volume_type. So setting it on cinder-k8s alone is enough. Updated to remove the \"same value as cinder-volume\" line and reworded the description to say the option is used by just the cinder-api\nThanks!",
+      "parentUuid": "44401fa5_cb5972ce",
+      "revId": "3b3ffd828b2ba176789c4b7671d7a38cc5c6ae06",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
