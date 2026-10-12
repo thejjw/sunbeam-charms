@@ -70,6 +70,23 @@
       "parentUuid": "f5f3643a_1082d180",
       "revId": "ef08b33e0e58f9222904cf1c27872639876121b0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "86ca5b3e_8c9357b6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-12T14:21:01Z",
+      "side": 1,
+      "message": "recheck openstack-images-sync issue is resolved",
+      "revId": "ef08b33e0e58f9222904cf1c27872639876121b0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
