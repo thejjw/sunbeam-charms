@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "535dc209_927b4a71",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-13T04:54:31Z",
+      "side": 1,
+      "message": "Hi\n\nI do not think we need a explicit integration here.\n\nThe placement section in config is only used when network segment operations are issued but not during neutron-server startup. This is similar to how nova section is prepopulated in neutron.conf",
+      "revId": "2bb30d8669620e0b2ae48e7ec968dd6df7ebae79",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
