@@ -73,6 +73,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5aa775ff_e700a093",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-10-13T21:07:15Z",
+      "side": 1,
+      "message": "I will update the the description to be clearer. One more detail to clarify, the current enrollment flow adds the Vaultlocker-managed key but does not delete the operator’s existing LUKS keyslot. The flow only removes the juju secret.\n\nThe original passphrase still remains valid but we dont store or manage it. Do you think this be a concern?",
+      "parentUuid": "4157a882_ade913a5",
+      "revId": "4aa6c36c98ac42f4014de6e755749d446bf816be",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a410f400_c669751a",
         "filename": "charms/openstack-hypervisor/charmcraft.yaml",
         "patchSetId": 3
