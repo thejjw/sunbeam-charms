@@ -25,6 +25,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    ConfigOverrideTestsMixin,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
@@ -182,3 +183,10 @@ class TestRelationBrokenBlocksOrWaits:
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
         )
+
+
+class TestConfigOverrides(ConfigOverrideTestsMixin):
+    """Service configuration overrides."""
+
+    main_conf = "/etc/ironic/ironic.conf"
+    policy_supported = True

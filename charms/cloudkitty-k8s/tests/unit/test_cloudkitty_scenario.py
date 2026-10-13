@@ -29,6 +29,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    ConfigOverrideTestsMixin,
     assert_config_file_contains,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
@@ -221,3 +222,10 @@ class TestWSGISiteHandling:
         assert commands.index(
             ["a2dissite", "cloudkitty-api"]
         ) < commands.index(["a2ensite", "wsgi-cloudkitty"])
+
+
+class TestConfigOverrides(ConfigOverrideTestsMixin):
+    """Service configuration overrides."""
+
+    main_conf = "/etc/cloudkitty/cloudkitty.conf"
+    policy_supported = True

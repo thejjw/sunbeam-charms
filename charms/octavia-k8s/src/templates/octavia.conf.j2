@@ -231,3 +231,8 @@ log_retry_interval = {{ options.log_retry_interval }}
 {% if options.disable_local_log_storage -%}
 disable_local_log_storage = True
 {% endif -%}
+
+# Policy overrides written by the charm are read from this directory and
+# take precedence over the policy file.
+[oslo_policy]
+policy_dirs = /etc/octavia/policy.d

@@ -26,3 +26,8 @@ enabled_share_protocols = {{ manila_config.enabled_share_protocols }}
 
 [oslo_concurrency]
 lock_path = /var/lib/manila/tmp
+
+# Policy overrides written by the charm are read from this directory and
+# take precedence over the policy file.
+[oslo_policy]
+policy_dirs = /etc/manila/policy.d

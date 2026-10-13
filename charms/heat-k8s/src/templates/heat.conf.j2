@@ -40,3 +40,8 @@ driver = log
 
 [clients]
 ca_file = /usr/local/share/ca-certificates/ca-bundle.pem
+
+# Policy overrides written by the charm are read from this directory and
+# take precedence over the policy file.
+[oslo_policy]
+policy_dirs = /etc/heat/policy.d

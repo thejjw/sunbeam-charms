@@ -213,6 +213,18 @@ config:
       type: string
 
 actions:
+  validate-config-overrides:
+    description: |
+      Validate a service configuration override file without applying it.
+    params:
+      content:
+        type: string
+        default: ""
+        description: Override file content to validate.
+  get-config-overrides:
+    description: Report the service configuration overrides in effect.
+  apply-config-overrides:
+    description: Validate the attached override resources and apply them now.
   pause:
     description: Pause container services
     additionalProperties: false
@@ -237,6 +249,14 @@ resources:
     type: oci-image
     description: OCI image for OpenStack octavia
     upstream-source: ghcr.io/canonical/octavia-consolidated:2026.2-26.04_edge
+  config-override:
+    type: file
+    filename: override.conf
+    description: Optional oslo.config drop-in override for octavia-api.
+  policy-override:
+    type: file
+    filename: override.yaml
+    description: Optional oslo.policy override for octavia-api.
 
 # Juju deos not refresh on storage description update, so leaving old
 # description https://github.com/juju/juju/issues/22432

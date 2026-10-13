@@ -87,3 +87,8 @@ helm_chart_name = {{ options.helm_chart_name }}
 default_helm_chart_version = 0.1.0
 api_resources = {{ options.capi_api_resources }}
 k8s_control_plane_resource_conditions = MachinesReady,Ready,ControlPlaneComponentsHealthy
+
+# Policy overrides written by the charm are read from this directory and
+# take precedence over the policy file.
+[oslo_policy]
+policy_dirs = /etc/magnum/policy.d

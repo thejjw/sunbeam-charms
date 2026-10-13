@@ -38,6 +38,7 @@ from ops.model import (
     ModelError,
 )
 from ops_sunbeam.test_utils_scenario import (
+    ConfigOverrideTestsMixin,
     assert_config_file_contains,
     assert_config_file_exists,
     assert_config_file_not_contains,
@@ -383,3 +384,10 @@ class TestRpcCacheRefresh:
         )
         with pytest.raises(testing.ActionFailed):
             ctx.run(ctx.on.action("rpc-cache-refresh"), state_in)
+
+
+class TestConfigOverrides(ConfigOverrideTestsMixin):
+    """Service configuration overrides."""
+
+    main_conf = "/etc/cinder/cinder.conf"
+    policy_supported = True

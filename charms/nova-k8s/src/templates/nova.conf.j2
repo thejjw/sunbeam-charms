@@ -92,3 +92,8 @@ openstack =
 
 [audit_middleware_notifications]
 driver = log
+
+# Policy overrides written by the charm are read from this directory and
+# take precedence over the policy file.
+[oslo_policy]
+policy_dirs = /etc/nova/policy.d

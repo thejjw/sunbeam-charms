@@ -164,6 +164,7 @@ class CinderOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _authed = False
     service_name = "cinder-api"
+    config_override_namespace = "cinder"
     wsgi_admin_script = "/usr/bin/cinder-wsgi"
     wsgi_public_script = "/usr/bin/cinder-wsgi"
 

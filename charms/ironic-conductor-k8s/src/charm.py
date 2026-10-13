@@ -251,6 +251,7 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 
     service_name = "ironic-conductor"
+    config_override_namespace = "ironic"
 
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run the constructor."""
@@ -285,6 +286,11 @@ class IronicConductorOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.unit.set_ports(
             IRONIC_CONDUCTOR_HTTP_PORT, IRONIC_CONDUCTOR_TFTP_PORT
         )
+
+    @property
+    def service_conf(self) -> str:
+        """Service default configuration file."""
+        return "/etc/ironic/ironic.conf"
 
     @property
     def service_user(self) -> str:

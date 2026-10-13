@@ -82,6 +82,7 @@ class OVNPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                 "online": {
                     "override": "replace",
                     "level": "ready",
+                    "threshold": 3,
                     "exec": {"command": f"{self.status_command}"},
                 },
             }

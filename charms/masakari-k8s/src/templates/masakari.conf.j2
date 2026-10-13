@@ -48,3 +48,8 @@ process_all_instances = {{ options.process_all_instances }}
 
 [audit_middleware_notifications]
 driver = log
+
+# Policy overrides written by the charm are read from this directory and
+# take precedence over the policy file.
+[oslo_policy]
+policy_dirs = /etc/masakari/policy.d

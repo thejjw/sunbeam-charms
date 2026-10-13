@@ -202,6 +202,7 @@ class HeatOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
     _state = StoredState()
+    config_override_namespace = "heat"
     wsgi_admin_script = "/usr/bin/heat-api-wsgi"
     wsgi_public_script = "/usr/bin/heat-api-wsgi"
     heat_auth_encryption_key = "auth-encryption-key"

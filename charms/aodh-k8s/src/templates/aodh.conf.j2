@@ -25,3 +25,8 @@ alarm_histories_delete_batch_size = {{ options.alarm_histories_delete_batch_size
 
 [audit_middleware_notifications]
 driver = log
+
+# Policy overrides written by the charm are read from this directory and
+# take precedence over the policy file.
+[oslo_policy]
+policy_dirs = /etc/aodh/policy.d

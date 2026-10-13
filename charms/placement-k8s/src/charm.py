@@ -110,6 +110,7 @@ class PlacementOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "placement-api"
+    config_override_namespace = "placement"
     wsgi_admin_script = "/usr/bin/placement-api"
     wsgi_public_script = "/usr/bin/placement-api"
 

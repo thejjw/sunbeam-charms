@@ -258,6 +258,7 @@ class BarbicanOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = framework.StoredState()
     service_name = "barbican-api"
+    config_override_namespace = "barbican"
     wsgi_admin_script = "/usr/bin/barbican-api-wsgi"
     wsgi_public_script = "/usr/bin/barbican-api-wsgi"
 

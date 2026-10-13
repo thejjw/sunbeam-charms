@@ -258,6 +258,7 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     _state = StoredState()
     _authed = False
     service_name = "glance-api"
+    config_override_namespace = "glance"
     wsgi_admin_script = "/usr/bin/glance-api-wsgi"
     wsgi_public_script = "/usr/bin/glance-api-wsgi"
 

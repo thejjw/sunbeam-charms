@@ -832,6 +832,7 @@ class OctaviaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "octavia-api"
+    config_override_namespace = "octavia"
     wsgi_admin_script = "/usr/bin/octavia-wsgi"
     wsgi_public_script = "/usr/bin/octavia-wsgi"
 

@@ -200,6 +200,7 @@ class CloudkittyOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _authed = False
     service_name = "cloudkitty"
+    config_override_namespace = "cloudkitty"
     wsgi_admin_script = "/usr/bin/cloudkitty-api-wsgi"
     wsgi_public_script = "/usr/bin/cloudkitty-api-wsgi"
 
