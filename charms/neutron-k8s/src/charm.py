@@ -550,6 +550,7 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "neutron-server"
+    config_override_namespace = "neutron"
     wsgi_admin_script = "/usr/share/neutron/neutron-api.wsgi"
     wsgi_public_script = "/usr/share/neutron/neutron-api.wsgi"
 

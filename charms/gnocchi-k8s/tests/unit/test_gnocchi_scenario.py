@@ -25,6 +25,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    ConfigOverrideTestsMixin,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
@@ -225,3 +226,10 @@ class TestS3Backend:
         state_out = ctx.run(ctx.on.config_changed(), state_no_storage_backend)
         assert isinstance(state_out.unit_status, testing.BlockedStatus)
         assert "s3-credentials or ceph" in state_out.unit_status.message
+
+
+class TestConfigOverrides(ConfigOverrideTestsMixin):
+    """Service configuration overrides."""
+
+    main_conf = "/etc/gnocchi/gnocchi.conf"
+    policy_supported = True

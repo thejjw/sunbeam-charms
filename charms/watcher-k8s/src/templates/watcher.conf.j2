@@ -80,3 +80,8 @@ collector_plugins = {{ options.collector_plugins }}
 url = {{ options.maas_url }}
 api_key = {{ options.maas_api_key }}
 {% endif -%}
+
+# Policy overrides written by the charm are read from this directory and
+# take precedence over the policy file.
+[oslo_policy]
+policy_dirs = /etc/watcher/policy.d

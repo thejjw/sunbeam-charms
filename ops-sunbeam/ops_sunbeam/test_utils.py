@@ -692,6 +692,22 @@ def set_all_pebbles_ready(harness: Harness) -> None:
         harness.container_pebble_ready(container)
 
 
+def add_config_override_resources(
+    harness: Harness,
+    config: str | None = None,
+    policy: str | None = None,
+) -> None:
+    """Attach override file content as juju resources.
+
+    ``None`` means the resource is not attached (missing); an empty string
+    is an attached empty file, i.e. explicitly no override.
+    """
+    if config is not None:
+        harness.add_resource("config-override", config)
+    if policy is not None:
+        harness.add_resource("policy-override", policy)
+
+
 def set_remote_leader_ready(
     harness: Harness,
     rel_id: int,

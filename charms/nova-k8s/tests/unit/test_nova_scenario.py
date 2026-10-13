@@ -32,6 +32,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    ConfigOverrideTestsMixin,
     amqp_relation_complete,
     assert_config_file_contains,
     assert_config_file_not_contains,
@@ -230,6 +231,17 @@ def ctx():
     return testing.Context(
         charm.NovaOperatorCharm,
         charm_root=CHARM_ROOT,
+    )
+
+
+@pytest.fixture()
+def complete_state():
+    """State with every mandatory relation and the secrets in place."""
+    return testing.State(
+        leader=True,
+        relations=_all_relations() + [_nova_service_relation()],
+        containers=_all_containers(),
+        secrets=_all_secrets(),
     )
 
 
@@ -674,3 +686,10 @@ class TestRpcCacheRefresh:
         )
         with pytest.raises(testing.ActionFailed):
             ctx.run(ctx.on.action("rpc-cache-refresh"), state_in)
+
+
+class TestConfigOverrides(ConfigOverrideTestsMixin):
+    """Service configuration overrides."""
+
+    main_conf = "/etc/nova/nova.conf"
+    policy_supported = True

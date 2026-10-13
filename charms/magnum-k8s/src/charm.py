@@ -159,6 +159,7 @@ class MagnumOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "magnum-api"
+    config_override_namespace = "magnum"
     wsgi_admin_script = "/usr/bin/magnum-api-wsgi"
     wsgi_public_script = "/usr/bin/magnum-api-wsgi"
 

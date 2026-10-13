@@ -29,6 +29,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    ConfigOverrideTestsMixin,
     assert_config_file_contains,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
@@ -3807,3 +3808,10 @@ class TestUpgradeCharm:
         ):
             state_out = ctx.run(ctx.on.upgrade_charm(), state_in)
         assert state_out.unit_status == testing.ActiveStatus("")
+
+
+class TestConfigOverrides(ConfigOverrideTestsMixin):
+    """Service configuration overrides."""
+
+    main_conf = "/etc/octavia/octavia.conf"
+    policy_supported = True

@@ -22,12 +22,17 @@ import dataclasses
 import json
 import pathlib
 import random
+import sys
 from typing import (
     Callable,
 )
 
+import yaml
 from ops import (
     testing,
+)
+from ops_sunbeam import (
+    config_overrides,
 )
 
 # ---------------------------------------------------------------------------
@@ -164,9 +169,13 @@ def cleanup_database_requires_events():
             yield
             cleanup_database_requires_events()
     """
-    from charms.data_platform_libs.v0.data_interfaces import (
-        DatabaseRequiresEvents,
-    )
+    try:
+        from charms.data_platform_libs.v0.data_interfaces import (
+            DatabaseRequiresEvents,
+        )
+    except ModuleNotFoundError:
+        # Charms that do not vendor the database library define no events.
+        return
 
     for attr in list(vars(DatabaseRequiresEvents)):
         if attr.endswith(
@@ -779,6 +788,254 @@ def assert_unit_status(
             f"Expected '{message_contains}' in status message, "
             f"got '{state_out.unit_status.message}'"
         )
+
+
+# =========================================================================
+# Config overrides
+# =========================================================================
+
+
+def config_override_resources(
+    tmp_path: pathlib.Path,
+    config: str | None = None,
+    policy: str | None = None,
+) -> list[testing.Resource]:
+    """Juju resources carrying override file content for a scenario State.
+
+    ``None`` means the resource is not attached (missing); an empty string
+    is an attached empty file, i.e. explicitly no override.
+    """
+    resources = []
+    if config is not None:
+        path = tmp_path / "override.conf"
+        path.write_text(config)
+        resources.append(testing.Resource(name="config-override", path=path))
+    if policy is not None:
+        path = tmp_path / "override.yaml"
+        path.write_text(policy)
+        resources.append(testing.Resource(name="policy-override", path=path))
+    return resources
+
+
+def allow_config_override_validation(monkeypatch) -> None:
+    """Accept every config override content without running the validator.
+
+    The scenario framework has no container exec for the validator script, so
+    the content is treated as if it had validated inside the container.
+    """
+    monkeypatch.setattr(
+        config_overrides.ConfigOverrideManager,
+        "validate",
+        lambda self, *args, **kwargs: config_overrides.ValidationResult(
+            valid=True
+        ),
+    )
+
+
+#: Content of a configuration override file written by the shared tests.
+CONFIG_OVERRIDE_TEXT = "[DEFAULT]\ndebug = true\n"
+
+
+class ConfigOverrideTestsMixin:
+    """Contract every service charm supporting configuration overrides meets.
+
+    The charm writes the override files where the spec derived from its
+    service conventions points at.  Subclasses state the configuration file
+    the charm renders and whether the service reads the policy drop-in;
+    everything else follows from the charm code.
+    """
+
+    #: Configuration file the charm renders, in the workload container.
+    main_conf: str = ""
+
+    #: Whether the charm declares the ``policy-override`` resource.
+    policy_supported: bool = False
+
+    @property
+    def charm_root(self) -> pathlib.Path:
+        """Root directory of the charm under test."""
+        module = sys.modules[type(self).__module__]
+        file = module.__file__
+        if file is None:
+            raise RuntimeError(f"{module.__name__} has no __file__")
+        return pathlib.Path(file).parents[2]
+
+    @property
+    def dropin_path(self) -> str:
+        """Path of the configuration override drop-in."""
+        return f"{self.main_conf}{config_overrides.DROPIN_SUFFIX}"
+
+    @property
+    def policy_dropin_path(self) -> str:
+        """Path of the policy override drop-in."""
+        conf_dir = pathlib.PurePosixPath(self.main_conf).parent
+        return (
+            f"{conf_dir}/{config_overrides.POLICY_DIRNAME}/"
+            f"{config_overrides.POLICY_DROPIN_NAME}"
+        )
+
+    def test_config_override_resources_declared(self):
+        """The charm declares the resources and the actions the CLI calls."""
+        metadata = yaml.safe_load(
+            (self.charm_root / "charmcraft.yaml").read_text()
+        )
+        resources = metadata["resources"]
+        assert resources["config-override"]["type"] == "file"
+        if self.policy_supported:
+            assert resources["policy-override"]["type"] == "file"
+        else:
+            assert "policy-override" not in resources
+        actions = metadata["actions"]
+        validate = actions["validate-config-overrides"]
+        assert validate["params"]["content"]["type"] == "string"
+        assert "get-config-overrides" in actions
+        assert "apply-config-overrides" in actions
+
+    def test_config_override_resource_applied(
+        self, ctx, complete_state, tmp_path, monkeypatch
+    ):
+        """A validated resource is written next to the rendered file."""
+        allow_config_override_validation(monkeypatch)
+        state_in = dataclasses.replace(
+            complete_state,
+            resources=config_override_resources(
+                tmp_path, config=CONFIG_OVERRIDE_TEXT
+            ),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        dropin = self._container_file(state_out, ctx, self.dropin_path)
+        assert dropin is not None, (
+            f"{self.dropin_path} is not written: the charm does not derive "
+            f"the overrides drop-in from {self.main_conf}"
+        )
+        assert dropin.read_text().endswith(CONFIG_OVERRIDE_TEXT)
+
+        cleanup_database_requires_events()
+        state_out = ctx.run(
+            ctx.on.config_changed(),
+            dataclasses.replace(
+                state_out,
+                resources=config_override_resources(tmp_path, config=""),
+            ),
+        )
+
+        assert self._container_file(state_out, ctx, self.dropin_path) is None
+
+        if self.policy_supported:
+            policy_text = "context_is_admin: role:admin\n"
+            cleanup_database_requires_events()
+            state_out = ctx.run(
+                ctx.on.config_changed(),
+                dataclasses.replace(
+                    state_out,
+                    resources=config_override_resources(
+                        tmp_path, policy=policy_text
+                    ),
+                ),
+            )
+            policy = self._container_file(
+                state_out, ctx, self.policy_dropin_path
+            )
+            assert policy is not None, (
+                f"{self.policy_dropin_path} is not written: the charm does "
+                f"not write the policy drop-in"
+            )
+            assert policy.read_text().endswith(policy_text)
+
+            cleanup_database_requires_events()
+            state_out = ctx.run(
+                ctx.on.config_changed(),
+                dataclasses.replace(
+                    state_out,
+                    resources=config_override_resources(tmp_path, policy=""),
+                ),
+            )
+            assert (
+                self._container_file(state_out, ctx, self.policy_dropin_path)
+                is None
+            )
+
+    def test_config_override_missing_resource_no_override(
+        self, ctx, complete_state
+    ):
+        """A missing resource is no override: nothing is written."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+
+        assert_unit_status(state_out, "active")
+        assert self._container_file(state_out, ctx, self.dropin_path) is None
+
+    def test_config_override_empty_resource_no_override(
+        self, ctx, complete_state, tmp_path
+    ):
+        """An empty resource file is no override: nothing is written."""
+        state_in = dataclasses.replace(
+            complete_state,
+            resources=config_override_resources(tmp_path, config=""),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert_unit_status(state_out, "active")
+        assert self._container_file(state_out, ctx, self.dropin_path) is None
+
+    def test_config_override_apply_action(
+        self, ctx, complete_state, tmp_path, monkeypatch
+    ):
+        """The apply action writes the attached overrides now."""
+        allow_config_override_validation(monkeypatch)
+        state_in = dataclasses.replace(
+            complete_state,
+            resources=config_override_resources(
+                tmp_path, config=CONFIG_OVERRIDE_TEXT
+            ),
+        )
+        state_out = ctx.run(ctx.on.action("apply-config-overrides"), state_in)
+
+        dropin = self._container_file(state_out, ctx, self.dropin_path)
+        assert dropin is not None
+        assert dropin.read_text().endswith(CONFIG_OVERRIDE_TEXT)
+
+        cleanup_database_requires_events()
+        state_out = ctx.run(ctx.on.action("apply-config-overrides"), state_out)
+
+        dropin = self._container_file(state_out, ctx, self.dropin_path)
+        assert dropin is not None
+        assert dropin.read_text().endswith(CONFIG_OVERRIDE_TEXT)
+
+    def test_config_override_rejected_content_not_applied(
+        self, ctx, complete_state, tmp_path, monkeypatch
+    ):
+        """Content the service rejects blocks the unit and writes nothing."""
+        monkeypatch.setattr(
+            config_overrides.ConfigOverrideManager,
+            "validate",
+            lambda self, *args, **kwargs: config_overrides.ValidationResult(
+                valid=False, errors=["rejected by the service"]
+            ),
+        )
+        state_in = dataclasses.replace(
+            complete_state,
+            resources=config_override_resources(
+                tmp_path, config=CONFIG_OVERRIDE_TEXT
+            ),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert_unit_status(
+            state_out, "blocked", "configuration overrides rejected"
+        )
+        assert self._container_file(state_out, ctx, self.dropin_path) is None
+
+    @staticmethod
+    def _container_file(
+        state: testing.State, ctx: testing.Context, path: str
+    ) -> pathlib.Path | None:
+        """Return the file at ``path`` from whichever container holds it."""
+        for container in state.containers:
+            file_path = container.get_filesystem(ctx) / path.lstrip("/")
+            if file_path.exists():
+                return file_path
+        return None
 
 
 # =========================================================================

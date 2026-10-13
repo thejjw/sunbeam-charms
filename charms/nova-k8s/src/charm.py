@@ -478,6 +478,7 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = ops.framework.StoredState()
     service_name = "nova-api"
+    config_override_namespace = "nova"
     wsgi_admin_script = "/usr/bin/nova-api-wsgi"
     wsgi_public_script = "/usr/bin/nova-api-wsgi"
     shared_metadata_secret_key = "shared-metadata-secret"

@@ -51,6 +51,18 @@ config:
       type: string
 
 actions:
+  validate-config-overrides:
+    description: |
+      Validate a service configuration override file without applying it.
+    params:
+      content:
+        type: string
+        default: ""
+        description: Override file content to validate.
+  get-config-overrides:
+    description: Report the service configuration overrides in effect.
+  apply-config-overrides:
+    description: Validate the attached override resources and apply them now.
   pause:
     description: Pause container services
     additionalProperties: false
@@ -71,6 +83,14 @@ resources:
     description: OCI image for OpenStack Watcher services
     type: oci-image
     upstream-source: ghcr.io/canonical/watcher-consolidated:2026.2-26.04_edge
+  config-override:
+    type: file
+    filename: override.conf
+    description: Optional oslo.config drop-in override for watcher-api.
+  policy-override:
+    type: file
+    filename: override.yaml
+    description: Optional oslo.policy override for watcher-api.
 
 requires:
   amqp:

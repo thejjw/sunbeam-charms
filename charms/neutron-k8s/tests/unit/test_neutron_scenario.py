@@ -16,6 +16,7 @@
 
 """Scenario (ops.testing state-transition) tests for neutron-k8s."""
 
+import dataclasses
 from pathlib import (
     Path,
 )
@@ -28,16 +29,25 @@ from ops.pebble import (
     ServiceStatus,
 )
 from ops_sunbeam.test_utils_scenario import (
+    ConfigOverrideTestsMixin,
+    allow_config_override_validation,
     assert_config_file_contains,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
     assert_unit_status,
+    cleanup_database_requires_events,
+    config_override_resources,
     mandatory_relations_from_charmcraft,
 )
 
 CHARM_ROOT = Path(__file__).parents[2]
 MANDATORY_RELATIONS = mandatory_relations_from_charmcraft(CHARM_ROOT)
+
+CONFIG_TEXT = "[DEFAULT]\ndebug = true\n"
+POLICY_TEXT = 'create_subnet: "role:admin"\n'
+CONF_DROPIN = "etc/neutron/neutron.conf.d/zz-config-overrides.conf"
+POLICY_DROPIN = "etc/neutron/policy.d/zz-config-overrides.yaml"
 
 
 class TestAllRelations:
@@ -253,3 +263,69 @@ class TestRelationBrokenBlocksOrWaits:
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
         )
+
+
+class TestConfigOverrides(ConfigOverrideTestsMixin):
+    """Service configuration overrides."""
+
+    main_conf = "/etc/neutron/neutron.conf"
+    policy_supported = True
+
+    def test_config_and_policy_resources_write_both_dropins(
+        self, ctx, complete_state, tmp_path, monkeypatch
+    ):
+        """Attached config and policy resources write both drop-ins."""
+        allow_config_override_validation(monkeypatch)
+        state_in = dataclasses.replace(
+            complete_state,
+            resources=config_override_resources(
+                tmp_path, config=CONFIG_TEXT, policy=POLICY_TEXT
+            ),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert_unit_status(state_out, "active", "")
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "neutron-server",
+            "/etc/neutron/neutron.conf",
+            ["policy_dirs = /etc/neutron/policy.d"],
+        )
+        conf = assert_config_file_exists(
+            state_out, ctx, "neutron-server", CONF_DROPIN
+        )
+        assert conf.read_text().endswith(CONFIG_TEXT)
+        policy = assert_config_file_exists(
+            state_out, ctx, "neutron-server", POLICY_DROPIN
+        )
+        assert policy.read_text().endswith(POLICY_TEXT)
+
+    def test_empty_config_resource_removes_the_config_dropin(
+        self, ctx, complete_state, tmp_path, monkeypatch
+    ):
+        """An empty config resource applies policy and drops the config drop-in."""
+        allow_config_override_validation(monkeypatch)
+        config_only = dataclasses.replace(
+            complete_state,
+            resources=config_override_resources(tmp_path, config=CONFIG_TEXT),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), config_only)
+        assert_config_file_exists(
+            state_out, ctx, "neutron-server", CONF_DROPIN
+        )
+
+        cleanup_database_requires_events()
+
+        policy_only = dataclasses.replace(
+            state_out,
+            resources=config_override_resources(
+                tmp_path, config="", policy=POLICY_TEXT
+            ),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), policy_only)
+
+        assert_unit_status(state_out, "active", "")
+        fs = state_out.get_container("neutron-server").get_filesystem(ctx)
+        assert not (fs / CONF_DROPIN).exists()
+        assert (fs / POLICY_DROPIN).read_text().endswith(POLICY_TEXT)

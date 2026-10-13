@@ -40,6 +40,11 @@ root_helper = "sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf"
 
 [cors]
 
+# Policy overrides written by the charm are read from this directory and
+# take precedence over the policy file.
+[oslo_policy]
+policy_dirs = /etc/neutron/policy.d
+
 {% include "parts/section-database" %}
 
 {% include "parts/section-identity" %}
