@@ -28,6 +28,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    ConfigOverrideTestsMixin,
     assert_config_file_contains,
     assert_config_file_exists,
     assert_config_file_not_contains,
@@ -247,3 +248,9 @@ class TestPoolsYamlMultiTarget:
             "/etc/designate/pools.yaml",
             ["bind-2.bind-endpoints.openstack.svc.cluster.local"],
         )
+
+
+class TestConfigOverrides(ConfigOverrideTestsMixin):
+    """Service configuration overrides."""
+
+    main_conf = "/etc/designate/designate.conf"

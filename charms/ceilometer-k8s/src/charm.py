@@ -166,6 +166,7 @@ class CeilometerOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 
     service_name = "ceilometer"
+    config_override_namespace = "ceilometer"
     shared_metering_secret_key = "shared-metering-secret"
 
     db_sync_cmds = [["ceilometer-upgrade"]]

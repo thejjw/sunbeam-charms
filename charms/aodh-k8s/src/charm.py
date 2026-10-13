@@ -244,6 +244,7 @@ class AodhOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "aodh-api"
+    config_override_namespace = "aodh"
     wsgi_admin_script = "/usr/share/aodh/app.wsgi"
     wsgi_public_script = "/usr/share/aodh/app.wsgi"
 

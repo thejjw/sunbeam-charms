@@ -355,6 +355,7 @@ class DesignateOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = ops.StoredState()
     service_name = "designate"
+    config_override_namespace = "designate"
     wsgi_admin_script = "/usr/bin/designate-api-wsgi"
     wsgi_public_script = "/usr/bin/designate-api-wsgi"
 

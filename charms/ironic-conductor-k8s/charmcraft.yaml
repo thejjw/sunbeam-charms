@@ -189,6 +189,18 @@ config:
         duration.
 
 actions:
+  validate-config-overrides:
+    description: |
+      Validate a service configuration override file without applying it.
+    params:
+      content:
+        type: string
+        default: ""
+        description: Override file content to validate.
+  get-config-overrides:
+    description: Report the service configuration overrides in effect.
+  apply-config-overrides:
+    description: Validate the attached override resources and apply them now.
   set-temp-url-secret:
     description: |
       Set Temp-Url-Key in the service object storage account. This enables Ironic
@@ -210,6 +222,10 @@ resources:
     type: oci-image
     description: OCI image for OpenStack Ironic Conductor
     upstream-source: ghcr.io/canonical/ironic-conductor:2026.1-24.04_edge
+  config-override:
+    type: file
+    filename: override.conf
+    description: Optional oslo.config drop-in override for ironic-conductor.
 
 requires:
   amqp:

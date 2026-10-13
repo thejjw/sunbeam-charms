@@ -51,6 +51,11 @@ expiration_time = {{ ks_config.dogpile_cache_expiration }}
 [policy]
 driver = sql
 
+# Policy overrides written by the charm are read from this directory and
+# take precedence over the policy file.
+[oslo_policy]
+policy_dirs = /etc/keystone/policy.d
+
 [assignment]
 driver = {{ ks_config.assignment_backend }}
 

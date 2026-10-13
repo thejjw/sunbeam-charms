@@ -995,6 +995,9 @@ class KeystoneOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     TRUSTED_DASHBOARD = "trusted-dashboard"
     EXTERNAL_IDP = "external-idp"
     KEYSTONE_SAML = "keystone-saml"
+    config_override_namespace = "keystone"
+    config_override_policy = True
+    config_override_service_env = "OS_KEYSTONE_CONFIG_FILES"
 
     def __init__(self, framework):
         super().__init__(framework)

@@ -224,6 +224,7 @@ class GnocchiOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
 
     _state = StoredState()
     service_name = "gnocchi-api"
+    config_override_namespace = "gnocchi"
     wsgi_admin_script = "/usr/bin/gnocchi-api"
     wsgi_public_script = "/usr/bin/gnocchi-api"
 

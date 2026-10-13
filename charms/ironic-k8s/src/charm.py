@@ -131,6 +131,7 @@ class IronicOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
     service_name = "ironic-api"
+    config_override_namespace = "ironic"
     wsgi_admin_script = "/usr/bin/ironic-api-wsgi"
     wsgi_public_script = "/usr/bin/ironic-api-wsgi"
 

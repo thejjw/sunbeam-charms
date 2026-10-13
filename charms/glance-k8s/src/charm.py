@@ -67,6 +67,10 @@ STAGING_DIR = "/var/lib/glance/staging"
 STORAGE_NAME = "local-repository"
 CEPH_RGW_RELATION = "ceph-rgw-ready"
 CORS_ORIGIN_RELATION_NAME = "cors-origin"
+# Directory the service reads configuration overrides from.  Passed to
+# glance-api as --config-dir so that the overrides take precedence over the
+# configuration files rendered by the charm.
+OVERRIDES_DIR = "/etc/glance/glance-api.conf.d"
 
 # Use Apache to translate /<model-name> to /.  This should be possible
 # adding rules to the api-paste.ini but this does not seem to work
@@ -101,7 +105,8 @@ class GlanceAPIPebbleHandler(sunbeam_chandlers.ServicePebbleHandler):
                         "/usr/bin/glance-api "
                         "--config-file /etc/glance/glance-api.conf "
                         "--config-file /etc/glance/glance-image-import.conf "
-                        "--config-file /etc/glance/glance-api-paste.ini"
+                        "--config-file /etc/glance/glance-api-paste.ini "
+                        f"--config-dir {OVERRIDES_DIR}"
                     ),
                     "user": "glance",
                     "group": "glance",
@@ -298,6 +303,8 @@ class GlanceOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     _state = StoredState()
     _authed = False
     service_name = "glance-api"
+    config_override_namespace = "glance"
+    config_override_policy = True
     wsgi_admin_script = "/usr/bin/glance-wsgi-api"
     wsgi_public_script = "/usr/bin/glance-wsgi-api"
 

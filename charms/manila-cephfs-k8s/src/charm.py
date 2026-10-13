@@ -196,6 +196,7 @@ class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 
     service_name = "manila-share"
+    config_override_namespace = "manila"
 
     def get_relation_handlers(
         self, handlers: List[sunbeam_rhandlers.RelationHandler] = None
@@ -292,6 +293,11 @@ class ManilaShareCephfsCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             ),
         ]
         return pebble_handlers
+
+    @property
+    def service_conf(self) -> str:
+        """Service default configuration file."""
+        return "/etc/manila/manila.conf"
 
     @property
     def service_user(self) -> str:

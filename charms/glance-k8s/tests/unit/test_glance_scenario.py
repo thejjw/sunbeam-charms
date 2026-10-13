@@ -16,6 +16,7 @@
 
 """Scenario (ops.testing state-transition) tests for glance-k8s."""
 
+import dataclasses
 from pathlib import (
     Path,
 )
@@ -25,18 +26,26 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    allow_config_override_validation,
     assert_config_file_contains,
     assert_config_file_exists,
     assert_config_file_not_contains,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
     assert_unit_status,
+    cleanup_database_requires_events,
+    config_override_resources,
     k8s_api_container,
     mandatory_relations_from_charmcraft,
 )
 
 CHARM_ROOT = Path(__file__).parents[2]
 MANDATORY_RELATIONS = mandatory_relations_from_charmcraft(CHARM_ROOT)
+
+CONFIG_TEXT = "[DEFAULT]\ndebug = true\n"
+POLICY_TEXT = "get_image: role:admin\n"
+CONF_DROPIN = "etc/glance/glance-api.conf.d/zz-config-overrides.conf"
+POLICY_DROPIN = "etc/glance/policy.d/zz-config-overrides.yaml"
 
 
 class TestAllRelations:
@@ -348,3 +357,140 @@ class TestCORSOriginRelation:
             "/etc/glance/glance-api.conf",
             ["[cors]"],
         )
+
+
+class TestConfigOverrides:
+    """Service configuration overrides come from the attached resources."""
+
+    def test_no_overrides_writes_no_dropin(self, ctx, complete_state):
+        """Without attached resources there is no drop-in configuration file."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+
+        fs = state_out.get_container("glance-api").get_filesystem(ctx)
+        assert not (
+            fs / "etc/glance/glance-api.conf.d/zz-config-overrides.conf"
+        ).exists()
+
+    def test_empty_resources_write_no_dropin(
+        self, ctx, complete_state, tmp_path
+    ):
+        """Empty override resource files count as no override."""
+        state_in = dataclasses.replace(
+            complete_state,
+            resources=config_override_resources(
+                tmp_path, config="", policy=""
+            ),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        fs = state_out.get_container("glance-api").get_filesystem(ctx)
+        assert not (fs / CONF_DROPIN).exists()
+        assert not (fs / POLICY_DROPIN).exists()
+
+    def test_invalid_content_writes_no_dropin(
+        self, ctx, complete_state, tmp_path, monkeypatch
+    ):
+        """Override content failing validation is rejected and not applied."""
+        from ops_sunbeam import (
+            config_overrides,
+        )
+
+        monkeypatch.setattr(
+            config_overrides.ConfigOverrideManager,
+            "validate",
+            lambda self, *args, **kwargs: config_overrides.ValidationResult(
+                valid=False, errors=["invalid configuration overrides"]
+            ),
+        )
+        state_in = dataclasses.replace(
+            complete_state,
+            resources=config_override_resources(
+                tmp_path, config="not-an-override"
+            ),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert_unit_status(
+            state_out, "blocked", "invalid configuration overrides"
+        )
+        fs = state_out.get_container("glance-api").get_filesystem(ctx)
+        assert not (fs / CONF_DROPIN).exists()
+
+    def test_validate_action_fails_for_invalid_content(
+        self, ctx, complete_state
+    ):
+        """The validate action rejects content that fails validation."""
+        with pytest.raises(testing.ActionFailed):
+            ctx.run(
+                ctx.on.action(
+                    "validate-config-overrides",
+                    params={"content": "not-an-override"},
+                ),
+                complete_state,
+            )
+
+    def test_validate_action_with_no_overrides(self, ctx, complete_state):
+        """With empty content the validate action reports nothing to do."""
+        ctx.run(
+            ctx.on.action("validate-config-overrides", params={"content": ""}),
+            complete_state,
+        )
+
+        assert ctx.action_results["valid"] == "true"
+
+    def test_config_and_policy_resources_write_both_dropins(
+        self, ctx, complete_state, tmp_path, monkeypatch
+    ):
+        """Attached config and policy resources write both drop-ins."""
+        allow_config_override_validation(monkeypatch)
+        state_in = dataclasses.replace(
+            complete_state,
+            resources=config_override_resources(
+                tmp_path, config=CONFIG_TEXT, policy=POLICY_TEXT
+            ),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert_unit_status(state_out, "active", "")
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "glance-api",
+            "etc/glance/glance-api.conf",
+            ["policy_dirs = /etc/glance/policy.d"],
+        )
+        conf = assert_config_file_exists(
+            state_out, ctx, "glance-api", CONF_DROPIN
+        )
+        assert conf.read_text().endswith(CONFIG_TEXT)
+        policy = assert_config_file_exists(
+            state_out, ctx, "glance-api", POLICY_DROPIN
+        )
+        assert policy.read_text().endswith(POLICY_TEXT)
+
+    def test_empty_config_resource_removes_the_config_dropin(
+        self, ctx, complete_state, tmp_path, monkeypatch
+    ):
+        """An empty config resource applies policy and drops the config drop-in."""
+        allow_config_override_validation(monkeypatch)
+        config_only = dataclasses.replace(
+            complete_state,
+            resources=config_override_resources(tmp_path, config=CONFIG_TEXT),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), config_only)
+        assert_config_file_exists(state_out, ctx, "glance-api", CONF_DROPIN)
+
+        cleanup_database_requires_events()
+
+        policy_only = dataclasses.replace(
+            state_out,
+            resources=config_override_resources(
+                tmp_path, config="", policy=POLICY_TEXT
+            ),
+        )
+        state_out = ctx.run(ctx.on.config_changed(), policy_only)
+
+        assert_unit_status(state_out, "active", "")
+        fs = state_out.get_container("glance-api").get_filesystem(ctx)
+        assert not (fs / CONF_DROPIN).exists()
+        assert (fs / POLICY_DROPIN).read_text().endswith(POLICY_TEXT)

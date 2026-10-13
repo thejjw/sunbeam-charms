@@ -77,6 +77,7 @@ class NovaIronicOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
 
     service_name = "nova-ironic"
+    config_override_namespace = "nova"
 
     def __init__(self, framework):
         super().__init__(framework)
@@ -88,6 +89,11 @@ class NovaIronicOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.framework.observe(
             self.on["peers"].relation_departed, self._on_peer_relation_departed
         )
+
+    @property
+    def service_conf(self) -> str:
+        """Service default configuration file."""
+        return "/etc/nova/nova.conf"
 
     @property
     def service_user(self) -> str:

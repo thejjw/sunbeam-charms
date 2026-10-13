@@ -116,6 +116,7 @@ class WatcherOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
     """Charm the service."""
 
     service_name = "watcher-api"
+    config_override_namespace = "watcher"
     wsgi_admin_script = "/usr/bin/watcher-api-wsgi"
     wsgi_public_script = "/usr/bin/watcher-api-wsgi"
 

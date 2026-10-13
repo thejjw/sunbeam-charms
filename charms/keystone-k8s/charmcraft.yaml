@@ -77,6 +77,18 @@ config:
           juju grant-secret saml-secret keystone
 
 actions:
+  validate-config-overrides:
+    description: |
+      Validate a service configuration override file without applying it.
+    params:
+      content:
+        type: string
+        default: ""
+        description: Override file content to validate.
+  get-config-overrides:
+    description: Report the service configuration overrides in effect.
+  apply-config-overrides:
+    description: Validate the attached override resources and apply them now.
   get-admin-password:
     description: Get the password for the Keystone Admin user
   get-admin-account:
@@ -154,6 +166,14 @@ resources:
     type: oci-image
     description: OCI image for OpenStack Keystone
     upstream-source: ghcr.io/canonical/keystone:2026.1-24.04_edge
+  config-override:
+    type: file
+    filename: override.conf
+    description: Optional oslo.config drop-in override for keystone.
+  policy-override:
+    type: file
+    filename: override.yaml
+    description: Optional oslo.policy override for keystone.
 
 storage:
   fernet-keys:

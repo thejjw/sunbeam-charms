@@ -201,6 +201,16 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
                     logger.debug(f"Changes detected in {files_updated}")
                 else:
                     logger.debug("No file changes detected")
+            for config, contents in self.extra_configs(container):
+                if contents is None:
+                    if container.exists(config.path):
+                        container.remove_path(config.path)
+                        files_updated.append(config.path)
+                    continue
+                if sunbeam_templating.sidecar_config_write(
+                    container, config, contents
+                ):
+                    files_updated.append(config.path)
         else:
             logger.debug("Container not ready")
         if files_updated:
@@ -208,6 +218,35 @@ class PebbleHandler(ops.framework.Object, metaclass=sunbeam_core.PostInitMeta):
         else:
             logger.debug("No file changes detected")
         return files_updated
+
+    def extra_configs(
+        self,
+        container: ops.Container,
+    ) -> list[tuple[sunbeam_core.ContainerConfigFile, str | None]]:
+        """Configuration files written from pre-rendered content.
+
+        Use this for files whose content is not produced from a Jinja2
+        template, such as the service configuration overrides supplied by
+        the user through ``ops_sunbeam.config_overrides``.  ``None``
+        content means the file is removed.
+
+        :param container: container the files are written to.
+        """
+        spec = getattr(self.charm, "config_override_spec", None)
+        if spec is None:
+            return []
+        # Every handler rendering the main configuration file holds a copy
+        # of the service and gets the override files, so that a service
+        # running in several containers is covered by a single spec.
+        manager = self.charm.config_overrides
+        if self.container_name not in manager.container_names():
+            return []
+        if not container.can_connect():
+            logger.debug(
+                "%s is not ready for config overrides", self.container_name
+            )
+            return []
+        return manager.extra_configs(container)
 
     def get_layer(self) -> ops.pebble.LayerDict:
         """Pebble configuration layer for the container."""
@@ -573,15 +612,31 @@ class WSGIPebbleHandler(PebbleHandler):
                 "Cannot start wgi service."
             )
             return
-        if self.wsgi_service_name not in container.get_services().keys():
-            container.add_layer(
-                self.service_name, self.get_layer(), combine=True
-            )
+        # The layer is re-applied on every call: its environment (the
+        # configuration files the service reads) changes with the service
+        # configuration file overrides, and the restart below makes the
+        # service pick the new environment up.
+        container.add_layer(self.service_name, self.get_layer(), combine=True)
         self.start_all(restart=restart)
 
     def start_service(self) -> None:
         """Start the service."""
         self.start_wsgi()
+
+    def wsgi_service_environment(self) -> dict[str, str]:
+        """Environment variables for the apache WSGI service.
+
+        The variables are part of the environment of the apache process and
+        are inherited by the mod_wsgi daemon processes running the service.
+        Services that discover their configuration files through an
+        environment variable (keystone's ``OS_KEYSTONE_CONFIG_FILES``) get
+        the files they must read, including the override drop-in while an
+        override is applied.
+        """
+        spec = getattr(self.charm, "config_override_spec", None)
+        if spec is None or not spec.service_env:
+            return {}
+        return self.charm.config_overrides.service_environment()
 
     def get_layer(self) -> ops.pebble.LayerDict:
         """Apache WSGI service pebble layer.
@@ -604,6 +659,7 @@ class WSGIPebbleHandler(PebbleHandler):
                         "APACHE_RUN_USER": "www-data",
                         "APACHE_RUN_GROUP": "www-data",
                         "APACHE_LOG_DIR": "/var/log/apache2",
+                        **self.wsgi_service_environment(),
                     },
                 },
             },

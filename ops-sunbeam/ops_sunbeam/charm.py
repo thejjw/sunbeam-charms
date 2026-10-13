@@ -54,6 +54,7 @@ import ops.pebble
 import ops.storage
 import ops_sunbeam.compound_status as compound_status
 import ops_sunbeam.config_contexts as sunbeam_config_contexts
+import ops_sunbeam.config_overrides as sunbeam_config_overrides
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
 import ops_sunbeam.guard as sunbeam_guard
@@ -69,6 +70,7 @@ from ops.charm import (
 )
 from ops.model import (
     ActiveStatus,
+    BlockedStatus,
     MaintenanceStatus,
     UnknownStatus,
 )
@@ -164,6 +166,9 @@ class OSBaseOperatorCharm(
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run constructor."""
         super().__init__(framework)
+        self._config_override_manager: (
+            sunbeam_config_overrides.ConfigOverrideManager | None
+        ) = None
         actions = self.meta.actions or {}
 
         if isinstance(self.framework._storage, ops.storage.JujuStorage):
@@ -183,6 +188,9 @@ class OSBaseOperatorCharm(
             self.framework.observe(
                 self.on["resume"].action, self._on_resume_action
             )
+
+        if self.config_override_spec is not None:
+            self.config_overrides.wire_actions()
 
         # Update mandatory relations from charmcraft.yaml definitions
         requires_relations: set[str] = {
@@ -211,6 +219,10 @@ class OSBaseOperatorCharm(
             "bootstrap", priority=90
         )
         self.status_pool.add(self.bootstrap_status)
+        self.config_overrides_status = compound_status.Status(
+            "config-overrides", priority=110
+        )
+        self.status_pool.add(self.config_overrides_status)
         self.framework.observe(self.on.config_changed, self._on_config_changed)
         self.framework.observe(self.on.start, self._on_start)
         self.framework.observe(self.on.secret_changed, self._on_secret_changed)
@@ -227,6 +239,35 @@ class OSBaseOperatorCharm(
             self.bootstrap_status.set(
                 MaintenanceStatus("Service not bootstrapped")
             )
+
+    @property
+    def config_override_spec(
+        self,
+    ) -> sunbeam_config_overrides.ConfigOverrideSpec | None:
+        """Spec for the service configuration file overrides.
+
+        Charms supporting overrides return a
+        ``ops_sunbeam.config_overrides.ConfigOverrideSpec`` describing the
+        files the service reads and how the service finds them.
+        """
+        return None
+
+    @property
+    def config_overrides(
+        self,
+    ) -> sunbeam_config_overrides.ConfigOverrideManager:
+        """Manager for the service configuration file overrides."""
+        if self._config_override_manager is None:
+            spec = self.config_override_spec
+            if spec is None:
+                raise ValueError(
+                    f"{type(self).__name__} does not support service "
+                    "configuration file overrides"
+                )
+            self._config_override_manager = (
+                sunbeam_config_overrides.ConfigOverrideManager(self, spec)
+            )
+        return self._config_override_manager
 
     def can_add_handler(
         self,
@@ -453,6 +494,42 @@ class OSBaseOperatorCharm(
         logger.info("Setting active status")
         self.status.set(ActiveStatus(""))
 
+    def _configure_config_overrides(self) -> None:
+        """Validate the attached service configuration overrides.
+
+        Overrides are only applied once the service accepted them, so
+        rejected content is reported with a blocked status and the
+        previously applied overrides stay in place.  While the workload
+        container is unreachable the content cannot be checked and the
+        previous status is kept.
+        """
+        if self.config_override_spec is None:
+            return
+        manager = self.config_overrides
+        if not manager.attached():
+            self.config_overrides_status.set(ActiveStatus())
+            return
+        if manager.container() is None:
+            logger.debug(
+                "deferring config override validation: container not ready"
+            )
+            return
+        result = manager.validation()
+        if not result.valid:
+            self.config_overrides_status.set(
+                BlockedStatus(
+                    "configuration overrides rejected: "
+                    + "; ".join(result.errors[:3])
+                )
+            )
+            return
+        if result.warnings:
+            self.config_overrides_status.set(
+                ActiveStatus("; ".join(result.warnings[:3]))
+            )
+            return
+        self.config_overrides_status.set(ActiveStatus())
+
     def configure_charm(self, event: ops.framework.EventBase) -> None:
         """Catchall handler to configure charm services."""
         # Remains false when guard handles a failure before reconciliation ends.
@@ -472,6 +549,7 @@ class OSBaseOperatorCharm(
             # republish relation if the relation adapter has implemented an
             # update method.
             self.update_relations()
+            self._configure_config_overrides()
             self.configure_unit(event)
             self.configure_app(event)
             self.bootstrap_status.set(ActiveStatus())
@@ -767,10 +845,74 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
 
     db_sync_timeout = 300
 
+    #: ``oslo.config.opts``/``oslo.policy.policies`` namespace of the
+    #: service, its oslo project name (``nova`` for every nova service).
+    #: When set, the charm accepts service configuration file overrides and
+    #: the spec is derived by
+    #: :func:`ops_sunbeam.config_overrides.spec_from_convention`.
+    config_override_namespace: str | None = None
+
+    #: Whether the service reads the policy drop-in, i.e. renders
+    #: ``[oslo_policy] policy_dirs`` pointing at the ``policy.d`` directory
+    #: the overrides are written to.  Set alongside
+    #: ``config_override_namespace``; policy overrides are rejected for a
+    #: charm that leaves it unset.
+    config_override_policy: bool = False
+
+    #: Environment variable the service reads to discover its configuration
+    #: files, for services that do not take them on the command line
+    #: (``OS_KEYSTONE_CONFIG_FILES`` for keystone).  The charm sets it to
+    #: the ordered list of files the service must read, including the
+    #: override drop-in while an override is applied.
+    config_override_service_env: str | None = None
+
     def __post_init__(self):
         """Post init hook."""
         super().__post_init__()
         self.pebble_handlers = self.get_pebble_handlers()
+
+    @property
+    def service_user(self) -> str:
+        """Service user file and directory ownership."""
+        return self.service_name
+
+    @property
+    def service_group(self) -> str:
+        """Service group file and directory ownership."""
+        return self.service_name
+
+    @property
+    def service_conf(self) -> str:
+        """Service default configuration file."""
+        return f"/etc/{self.service_name}/{self.service_name}.conf"
+
+    @property
+    def config_override_spec(
+        self,
+    ) -> sunbeam_config_overrides.ConfigOverrideSpec | None:
+        """Spec for the service configuration file overrides."""
+        namespace = self.config_override_namespace
+        if namespace is None:
+            return None
+        return sunbeam_config_overrides.spec_from_convention(
+            self.service_conf,
+            namespace,
+            file_user=self.service_user,
+            file_group=self.service_group,
+            policy=self.config_override_policy,
+            service_env=self.config_override_service_env,
+        )
+
+    @property
+    def config_override_dir(self) -> str | None:
+        """Directory the service reads the configuration overrides from.
+
+        Services whose command line the charm controls pass it as
+        ``--config-dir``.  The directory is created in a container as soon
+        as the charm writes its configuration files there.
+        """
+        spec = self.config_override_spec
+        return spec.dropin_dir if spec is not None else None
 
     @property
     def service_dns(self) -> str:
@@ -1294,21 +1436,6 @@ class OSBaseOperatorAPICharm(OSBaseOperatorCharmK8S):
             ]
         )
         return _cconfigs
-
-    @property
-    def service_user(self) -> str:
-        """Service user file and directory ownership."""
-        return self.service_name
-
-    @property
-    def service_group(self) -> str:
-        """Service group file and directory ownership."""
-        return self.service_name
-
-    @property
-    def service_conf(self) -> str:
-        """Service default configuration file."""
-        return f"/etc/{self.service_name}/{self.service_name}.conf"
 
     @property
     def config_contexts(self) -> list[sunbeam_config_contexts.ConfigContext]:

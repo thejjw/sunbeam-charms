@@ -57,6 +57,11 @@ swift_store_create_container_on_put = True
 [paste_deploy]
 flavor = keystone
 
+# Policy overrides written by the charm are read from this directory and
+# take precedence over the policy file.
+[oslo_policy]
+policy_dirs = /etc/glance/policy.d
+
 {% include "parts/section-oslo-middleware" %}
 
 {% if cors_origin and cors_origin.allowed_origin %}
