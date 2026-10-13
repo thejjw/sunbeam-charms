@@ -87,6 +87,23 @@
       "message": "recheck openstack-images-sync issue is resolved",
       "revId": "ef08b33e0e58f9222904cf1c27872639876121b0",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6a247803_c4639a2d",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1871,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-10-13T05:00:37Z",
+      "side": 1,
+      "message": "replaced with https://github.com/canonical/snap-cinder-volume/pull/107",
+      "revId": "ef08b33e0e58f9222904cf1c27872639876121b0",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ],
   "submitRequirementResults": [
