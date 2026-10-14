@@ -1335,6 +1335,36 @@ class TestOVSProvider:
         harness.charm.configure_unit(MagicMock())
         assert captured.get("network.ovs-managed-by") == ovs_provider
 
+    # --- block-device-allocate-retries in snap_data ---
+
+    def test_block_device_allocate_retries_included_in_snap_data(
+        self, harness
+    ):
+        """configure_unit maps block-device retry knobs to snap config."""
+        harness.begin()
+        harness.update_config(
+            {
+                "block-device-allocate-retries": 120,
+                "block-device-allocate-retries-interval": 3,
+            }
+        )
+        captured = _setup_configure_unit_mocks(harness.charm)
+        harness.charm.configure_unit(MagicMock())
+
+        assert captured["compute.block-device-allocate-retries"] == 120
+        assert captured["compute.block-device-allocate-retries-interval"] == 3
+
+    def test_default_block_device_allocate_retries(self, harness):
+        """Defaults give a 15 minute timeout; interval falls back to nova."""
+        harness.begin()
+        captured = _setup_configure_unit_mocks(harness.charm)
+        harness.charm.configure_unit(MagicMock())
+
+        assert captured["compute.block-device-allocate-retries"] == 300
+        assert (
+            captured["compute.block-device-allocate-retries-interval"] is None
+        )
+
     # --- ensure_snap_present: early ovs-managed-by ---
 
     def test_ensure_snap_present_sets_ovs_managed_by(self, harness):
