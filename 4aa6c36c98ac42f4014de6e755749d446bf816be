@@ -91,6 +91,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "13f11273_56c43fec",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 8108
+      },
+      "writtenOn": "2026-10-14T00:26:47Z",
+      "side": 1,
+      "message": "I\u0027m raising questions here mainly because I don\u0027t have a visibility of the entire workflow in a big picture manner in this patchset itself. There might be a design document somewhere but it\u0027s not linked from here as far as I see. \n\n\u003e but does not delete the operator’s existing LUKS keyslot. The flow only removes the juju secret.\n\u003e \n\u003e The original passphrase still remains valid but we dont store or manage it. Do you think this be a concern?\n\nIt\u0027s not the biggest concern I would say, but not sure if saving it to Juju secret (spilled out to disk as unencrypted) and deleting it without revoking are counted as secure Encryption at Rest or not.",
+      "parentUuid": "5aa775ff_e700a093",
+      "revId": "4aa6c36c98ac42f4014de6e755749d446bf816be",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a410f400_c669751a",
         "filename": "charms/openstack-hypervisor/charmcraft.yaml",
         "patchSetId": 3
