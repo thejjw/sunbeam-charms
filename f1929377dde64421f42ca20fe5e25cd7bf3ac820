@@ -33,6 +33,24 @@
       "message": "Can you confirm if cinder-volume requires this configuration?",
       "revId": "f1929377dde64421f42ca20fe5e25cd7bf3ac820",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1dc855b2_e77b0b48",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38672
+      },
+      "writtenOn": "2026-10-14T12:39:31Z",
+      "side": 1,
+      "message": "Cinder-volume doesn\u0027t need it, the option is read by cinder-api, so setting it on cinder-k8s is sufficient",
+      "parentUuid": "601ddfbd_48b6ee7d",
+      "revId": "f1929377dde64421f42ca20fe5e25cd7bf3ac820",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
