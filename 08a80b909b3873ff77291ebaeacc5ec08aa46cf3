@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "c38dd00c_bd584a69",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8992
+      },
+      "writtenOn": "2026-10-14T06:01:46Z",
+      "side": 1,
+      "message": "I believe this needs to be configured on the compute node as well when config drives are used.",
+      "revId": "08a80b909b3873ff77291ebaeacc5ec08aa46cf3",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9631e227_ac141986",
         "filename": "charms/nova-k8s/charmcraft.yaml",
         "patchSetId": 1
