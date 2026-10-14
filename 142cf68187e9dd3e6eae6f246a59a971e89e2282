@@ -50,6 +50,23 @@
       "message": "recheck seems disk size issue",
       "revId": "142cf68187e9dd3e6eae6f246a59a971e89e2282",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3e451d7_cfb212fe",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-10-14T01:29:27Z",
+      "side": 1,
+      "message": "LGTM. The PR that this patch depends on was merged on stable/2024.1 - https://github.com/canonical/snap-cinder-volume/pull/104 .\n\nAlthough the cherry pick proposed for stable/2025.1 [0] hasn\u0027t been merged, hence I\u0027m giving +1 and waiting for that CI gets green\n\n[0] https://review.opendev.org/c/openstack/sunbeam-charms/+/1009143",
+      "revId": "142cf68187e9dd3e6eae6f246a59a971e89e2282",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
