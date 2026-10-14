@@ -22,7 +22,11 @@ TMP_FILE="$(mktemp)"
 echo ":: discover-tempest-config" >> "$TMP_FILE"
 if discover-tempest-config --test-accounts "$TEMPEST_TEST_ACCOUNTS" --out "$TEMPEST_CONF" ${TEMPEST_CONFIG_OVERRIDES:+$TEMPEST_CONFIG_OVERRIDES} >> "$TMP_FILE" 2>&1; then
     tempest run --exclude-list "$TEMPEST_EXCLUDE_LIST" --workspace "$TEMPEST_WORKSPACE" -w "$TEMPEST_CONCURRENCY" "$@" >> "$TMP_FILE" 2>&1
-    python3 "$TEMPEST_HOME/cleanup.py" quick
+    echo ":: cleanup" >> "$TMP_FILE"
+    if ! python3 "$TEMPEST_HOME/cleanup.py" quick >> "$TMP_FILE" 2>&1; then
+        CLEANUP_FAILED=1
+        echo ":: cleanup failed, some tempest resources may remain" >> "$TMP_FILE"
+    fi
 else
     echo ":: skipping tempest run because discover-tempest-config had errors" >> "$TMP_FILE"
 fi
@@ -41,6 +45,10 @@ mkdir -p $TEMPEST_WORKSPACE && mv "$TMP_FILE" "$TEMPEST_OUTPUT"
 SUMMARY="$(awk '/^Totals$/,/Sum of execute/ { print }' < "$TEMPEST_OUTPUT")"
 if [[ -n "$SUMMARY" ]]; then
     echo "$SUMMARY"
+    if [[ -n "$CLEANUP_FAILED" ]]; then
+        echo "WARNING: cleanup of tempest resources failed, some resources may remain."
+        echo "See the log file for details."
+    fi
 else
     echo "Error running the tests, please view the log file"
     exit 1

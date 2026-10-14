@@ -30,12 +30,16 @@ from keystoneauth1.exceptions.http import (
 )
 from openstack.exceptions import (
     ForbiddenException,
+    ResourceNotFound,
+    ServiceDisabledException,
 )
 from utils.cleanup import (
     CleanUpError,
     _cleanup_block_resources,
     _cleanup_compute_resources,
     _cleanup_images,
+    _cleanup_leaked_networks,
+    _cleanup_network_ports,
     _cleanup_networks_resources,
     _cleanup_project,
     _cleanup_stacks,
@@ -111,6 +115,10 @@ class TestCleanup(unittest.TestCase):
                 "tempest-test_creds-11949114-project",
                 "tempest-test_creds-18083146-project",
             },
+            "networks": {
+                "tempest-test_creds-9369097-network",
+                "tempest-test_creds-20041716-network",
+            },
         }
 
         with patch(
@@ -121,6 +129,57 @@ class TestCleanup(unittest.TestCase):
             result = _get_exclusion_resources("test_account_file.yaml")
 
         self.assertEqual(result, expected_result)
+
+    def test_get_exclude_resources_system_accounts(self):
+        """Test system-scoped accounts, which have no project, are handled."""
+        account_file_content = textwrap.dedent("""
+        - domain_name: mydomain
+          password: password1
+          project_name: tempest-test_creds-11949114
+          resources:
+            network: tempest-test_creds-9369097-network
+          roles:
+          - member
+          username: tempest-test_creds-11949114-project-member
+        - password: password2
+          roles:
+          - reader
+          system: all
+          username: tempest-test_creds-18083146-system-reader
+        """)
+
+        with patch(
+            "utils.cleanup.open",
+            new_callable=mock_open,
+            read_data=account_file_content,
+        ):
+            result = _get_exclusion_resources("test_account_file.yaml")
+
+        self.assertEqual(
+            result,
+            {
+                "projects": {"tempest-test_creds-11949114"},
+                "users": {
+                    "tempest-test_creds-11949114-project-member",
+                    "tempest-test_creds-18083146-system-reader",
+                },
+                "networks": {"tempest-test_creds-9369097-network"},
+            },
+        )
+
+    def test_get_exclude_resources_missing_username(self):
+        """Test an account without a username is a malformed file."""
+        with patch(
+            "utils.cleanup.open",
+            new_callable=mock_open,
+            read_data="- project_name: tempest-test_creds-1\n",
+        ):
+            with self.assertRaises(CleanUpError) as error:
+                _get_exclusion_resources("test_account_file.yaml")
+
+        self.assertEqual(
+            str(error.exception), "Malformated test account file."
+        )
 
     def test_get_test_projects_in_domain(self):
         """Test get tempest projects of a specified domain."""
@@ -235,6 +294,115 @@ class TestCleanup(unittest.TestCase):
             "1"
         )
 
+    def _port(self, port_id, owner, device_id=""):
+        port = MagicMock()
+        port.configure_mock(
+            id=port_id, device_owner=owner, device_id=device_id
+        )
+        return port
+
+    def test_cleanup_network_ports(self):
+        """Ports are released according to their owner."""
+        self.mock_connection.network.ports.return_value = [
+            self._port("vm", "compute:nova"),
+            self._port("vip", "Octavia"),
+            self._port("ri", "network:router_interface", "router-1"),
+            self._port("dhcp", "network:dhcp"),
+        ]
+
+        _cleanup_network_ports(self.mock_connection, "net-1")
+
+        self.mock_connection.network.ports.assert_called_once_with(
+            network_id="net-1"
+        )
+        self.assertEqual(
+            self.mock_connection.network.delete_port.call_args_list,
+            [
+                call("vm", ignore_missing=True),
+                call("vip", ignore_missing=True),
+            ],
+        )
+        self.mock_connection.network.remove_interface_from_router.assert_called_once_with(
+            "router-1", port_id="ri"
+        )
+
+    def test_cleanup_networks_resources_deletes_ports_first(self):
+        """Ports on a network are deleted before the network itself."""
+        self.mock_connection.network.routers.return_value = []
+        network = MagicMock()
+        network.configure_mock(id="1", name="tempest-network")
+        self.mock_connection.network.networks.return_value = [network]
+        self.mock_connection.network.ports.return_value = [
+            self._port("vm", "compute:nova")
+        ]
+        order = MagicMock()
+        order.attach_mock(self.mock_connection.network.delete_port, "port")
+        order.attach_mock(self.mock_connection.network.delete_network, "net")
+
+        _cleanup_networks_resources(self.mock_connection, "project_id")
+
+        self.assertEqual([c[0] for c in order.mock_calls], ["port", "net"])
+
+    def test_cleanup_networks_resources_reports_failed_networks(self):
+        """A failing network is reported and does not stop the others."""
+        self.mock_connection.network.routers.return_value = []
+        bad = MagicMock()
+        bad.configure_mock(id="1", name="tempest-bad")
+        good = MagicMock()
+        good.configure_mock(id="2", name="tempest-good")
+        self.mock_connection.network.networks.return_value = [bad, good]
+        self.mock_connection.network.ports.return_value = []
+        self.mock_connection.network.delete_network.side_effect = [
+            Exception("Conflict"),
+            None,
+        ]
+
+        with self.assertRaises(CleanUpError) as error:
+            _cleanup_networks_resources(self.mock_connection, "project_id")
+
+        self.assertIn("tempest-bad (1): Conflict", str(error.exception))
+        self.assertNotIn("tempest-good", str(error.exception))
+        self.assertEqual(
+            self.mock_connection.network.delete_network.call_count, 2
+        )
+
+    def test_cleanup_networks_resources_network_already_gone(self):
+        """A network deleted in the meantime is not an error."""
+        self.mock_connection.network.routers.return_value = []
+        network = MagicMock()
+        network.configure_mock(id="1", name="tempest-network")
+        self.mock_connection.network.networks.return_value = [network]
+        self.mock_connection.network.ports.return_value = []
+        self.mock_connection.network.delete_network.side_effect = (
+            ResourceNotFound
+        )
+
+        _cleanup_networks_resources(self.mock_connection, "project_id")
+
+    def test_cleanup_leaked_networks_keeps_account_networks(self):
+        """Pre-provisioned account networks are kept, leaked ones removed."""
+        base = MagicMock()
+        base.configure_mock(id="1", name="tempest-acct-1-network")
+        leaked = MagicMock()
+        leaked.configure_mock(id="2", name="tempest-test-net-2")
+        foreign = MagicMock()
+        foreign.configure_mock(id="3", name="private-net")
+        self.mock_connection.network.networks.return_value = [
+            base,
+            leaked,
+            foreign,
+        ]
+        self.mock_connection.network.ports.return_value = []
+
+        _cleanup_leaked_networks(
+            self.mock_connection, "project_id", {"tempest-acct-1-network"}
+        )
+
+        self.mock_connection.network.delete_network.assert_called_once_with(
+            "2"
+        )
+        self.mock_connection.network.delete_router.assert_not_called()
+
     def test_cleanup_compute_resources(self):
         """Test cleanup instances and keypairs."""
         tempest_instance = MagicMock()
@@ -263,6 +431,9 @@ class TestCleanup(unittest.TestCase):
         self.mock_connection.compute.delete_server.assert_called_once_with("1")
         self.mock_connection.compute.delete_keypair.assert_called_once_with(
             tempest_keypair
+        )
+        self.mock_connection.compute.wait_for_delete.assert_called_once_with(
+            tempest_instance, wait=300
         )
 
     def test_cleanup_images(self):
@@ -370,6 +541,16 @@ class TestCleanup(unittest.TestCase):
 
         self.mock_connection.orchestration.delete_stack.assert_not_called()
 
+    def test_cleanup_stacks_service_disabled(self):
+        """Test cleanup stacks when heat is not in the service catalog."""
+        self.mock_connection.orchestration.stacks.side_effect = (
+            ServiceDisabledException
+        )
+
+        _cleanup_stacks(self.mock_connection, "test_project")
+
+        self.mock_connection.orchestration.delete_stack.assert_not_called()
+
     @patch("utils.cleanup._cleanup_compute_resources")
     @patch("utils.cleanup._cleanup_block_resources")
     @patch("utils.cleanup._cleanup_images")
@@ -469,6 +650,45 @@ class TestCleanup(unittest.TestCase):
         mock_get_test_projects_in_domain.assert_called()
         mock_run_cleanup_functions.assert_called()
         mock_cleanup_users.assert_called_once()
+
+    @patch("utils.cleanup._cleanup_leaked_networks")
+    @patch("utils.cleanup._cleanup_users")
+    @patch("utils.cleanup._connect_to_os")
+    @patch("utils.cleanup._get_test_projects_in_domain")
+    @patch("utils.cleanup._get_exclusion_resources")
+    def test_run_quick_cleanup_leaked_networks_in_account_projects(
+        self,
+        mock_get_exclusion_resources,
+        mock_get_test_projects_in_domain,
+        mock_connect_to_os,
+        mock_cleanup_users,
+        mock_cleanup_leaked_networks,
+    ):
+        """Test quick cleanup removes leaked networks in account projects."""
+        mock_get_exclusion_resources.return_value = {
+            "projects": {"account-project"},
+            "users": set(),
+            "networks": {"account-network"},
+        }
+        # all test projects, then the ones not in the account file
+        mock_get_test_projects_in_domain.side_effect = [
+            ["account-id", "other-id"],
+            ["other-id"],
+        ]
+        mock_cleanup_leaked_networks.side_effect = Exception("Conflict")
+
+        with self.assertRaises(CleanUpError) as error:
+            run_quick_cleanup(MagicMock())
+
+        mock_cleanup_leaked_networks.assert_called_once_with(
+            mock_connect_to_os.return_value,
+            "account-id",
+            {"account-network"},
+        )
+        self.assertIn(
+            "_cleanup_account_project_networks", str(error.exception)
+        )
+        self.assertIn("Conflict", str(error.exception))
 
     @patch("utils.cleanup._run_cleanup_functions")
     @patch("utils.cleanup._cleanup_users")
