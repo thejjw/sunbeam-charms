@@ -67,6 +67,23 @@
       "message": "The PR that this patch depends on was merged on stable/2025.1 - https://github.com/canonical/snap-cinder-volume/pull/103",
       "revId": "dff08d40ffcc54a3a96df7a2a0f6d501f4fd359d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "873f9cca_52ec9acd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-10-14T01:27:39Z",
+      "side": 1,
+      "message": "LGTM. Waiting on the CI",
+      "revId": "dff08d40ffcc54a3a96df7a2a0f6d501f4fd359d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
