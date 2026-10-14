@@ -1146,6 +1146,12 @@ class HypervisorOperatorCharm(sunbeam_charm.OSBaseOperatorCharm):
                 or config("ip-address")
                 or local_ip,
                 "compute.resume-on-boot": config("resume-on-boot"),
+                "compute.block-device-allocate-retries": config(
+                    "block-device-allocate-retries"
+                ),
+                "compute.block-device-allocate-retries-interval": config(
+                    "block-device-allocate-retries-interval"
+                ),
                 "compute.pci-device-specs": config("pci-device-specs"),
                 "credentials.ovn-metadata-proxy-shared-secret": self.metadata_secret(),
                 "identity.admin-role": contexts.identity_credentials.admin_role,
