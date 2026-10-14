@@ -37,6 +37,9 @@ import socket
 import typing
 import urllib
 import urllib.parse
+from pathlib import (
+    Path,
+)
 from typing import (
     TYPE_CHECKING,
     FrozenSet,
@@ -56,6 +59,7 @@ import ops_sunbeam.compound_status as compound_status
 import ops_sunbeam.config_contexts as sunbeam_config_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.db_recovery as sunbeam_db_recovery
 import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.job_ctrl as sunbeam_job_ctrl
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
@@ -962,6 +966,55 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
         """Name of Containerto run db sync from."""
         return self.service_name
 
+    @property
+    def db_sync_recovery_databases(self) -> list[str]:
+        """Database relations to recover from an interrupted initial DB sync.
+
+        Before each DB sync attempt, the databases of the relations listed
+        here have their tables dropped if they hold tables but no migration
+        version, as left behind by an interrupted initial sync.
+
+        Only list databases whose migrations are tracked in the default
+        alembic version table, otherwise an initialised database is
+        indistinguishable from a partially created one.
+        """
+        return []
+
+    def _recover_partial_db_schemas(self, container: ops.Container) -> None:
+        """Drop tables left behind by an interrupted initial DB sync.
+
+        :raises: pebble.ExecError
+        """
+        if not self.db_sync_recovery_databases:
+            return
+        # The workload container has access to the database, the charm
+        # container does not, so the recovery module is run there.
+        script = Path(sunbeam_db_recovery.__file__).read_text()
+        for relation_name in self.db_sync_recovery_databases:
+            db = self.dbs[relation_name]
+            process = container.exec(
+                ["python3", "-"],
+                environment={"DB_CONNECTION": db.context()["connection"]},
+                stdin=script,
+                timeout=self.db_sync_timeout,
+            )
+            try:
+                out, _ = process.wait_output()
+            except ops.pebble.ExecError as e:
+                logger.warning(
+                    "Failed to check schema of database %s: %s",
+                    db.database_name,
+                    e.stderr,
+                )
+                raise e
+            if out and out.strip():
+                logger.warning(
+                    "Database %s had a partially created schema from an "
+                    "interrupted DB sync, %s",
+                    db.database_name,
+                    out.strip(),
+                )
+
     @tenacity.retry(
         stop=tenacity.stop_after_attempt(10),
         retry=(
@@ -974,6 +1027,7 @@ class OSBaseOperatorCharmK8S(OSBaseOperatorCharm):
     )
     def _retry_db_sync(self, cmd):
         container = self.unit.get_container(self.db_sync_container_name)
+        self._recover_partial_db_schemas(container)
         logging.debug("Running sync: \n%s", cmd)
         try:
             process = container.exec(cmd, timeout=self.db_sync_timeout)

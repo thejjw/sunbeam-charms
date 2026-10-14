@@ -84,6 +84,7 @@ def _nova_api_container(can_connect: bool = True) -> testing.Container:
         execs=[
             testing.Exec(command_prefix=["a2dissite"], return_code=0),
             testing.Exec(command_prefix=["a2ensite"], return_code=0),
+            testing.Exec(command_prefix=["python3"], return_code=0),
             testing.Exec(command_prefix=["sudo"], return_code=0),
             testing.Exec(
                 command_prefix=["/root/cell_create_wrapper.sh"],
@@ -293,6 +294,29 @@ class TestAllRelations:
         assert "nova-api" in out_container.layers
         layer = out_container.layers["nova-api"]
         assert "wsgi-nova-api" in layer.to_dict().get("services", {})
+
+    def test_db_sync_recovers_partial_schemas(self, ctx):
+        """Each nova database is checked before the first db-sync command."""
+        state_in = testing.State(
+            leader=True,
+            relations=_all_relations() + [_nova_service_relation()],
+            containers=_all_containers(),
+            secrets=_all_secrets(),
+        )
+        ctx.run(ctx.on.config_changed(), state_in)
+
+        commands = [
+            exec_args.command for exec_args in ctx.exec_history["nova-api"]
+        ]
+        first_sync = next(
+            i for i, cmd in enumerate(commands) if "nova-manage" in cmd
+        )
+        recovered = [
+            exec_args.environment["DB_CONNECTION"].rsplit("/", 1)[-1]
+            for exec_args in ctx.exec_history["nova-api"][:first_sync]
+            if exec_args.command[0] == "python3"
+        ]
+        assert recovered == ["nova_api", "nova_cell0", "nova"]
 
     def test_config_files_written(self, ctx):
         """Config files are rendered into the nova-api container."""

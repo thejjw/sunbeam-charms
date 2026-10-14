@@ -45,6 +45,23 @@ class TestAllRelations:
         state_out = ctx.run(ctx.on.config_changed(), complete_state)
         assert state_out.unit_status == testing.ActiveStatus("")
 
+    def test_db_sync_recovers_partial_schema(self, ctx, complete_state):
+        """The neutron database is checked before the first db-sync command."""
+        ctx.run(ctx.on.config_changed(), complete_state)
+
+        history = ctx.exec_history["neutron-server"]
+        first_sync = next(
+            i
+            for i, exec_args in enumerate(history)
+            if "neutron-db-manage" in exec_args.command
+        )
+        recovered = [
+            exec_args.environment["DB_CONNECTION"].rsplit("/", 1)[-1]
+            for exec_args in history[:first_sync]
+            if exec_args.command[0] == "python3"
+        ]
+        assert recovered == ["neutron_server"]
+
     def test_config_file_written(self, ctx, complete_state):
         """All relations present → neutron.conf is rendered."""
         state_out = ctx.run(ctx.on.config_changed(), complete_state)

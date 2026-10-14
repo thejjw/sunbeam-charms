@@ -573,6 +573,15 @@ class NovaOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         ]
 
     @property
+    def db_sync_recovery_databases(self) -> List[str]:
+        """Database relations to recover from an interrupted initial DB sync.
+
+        nova-manage db sync migrates the cell0 database before the main
+        database, each in a single initial revision that cannot be resumed.
+        """
+        return ["api-database", "cell-database", "database"]
+
+    @property
     def service_conf(self) -> str:
         """Service default configuration file."""
         return "/etc/nova/nova.conf"

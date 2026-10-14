@@ -580,6 +580,10 @@ class NeutronOperatorCharm(sunbeam_charm.OSBaseOperatorAPICharm):
         )
     ]
     db_sync_timeout = 480
+    # An interrupted initial migration leaves the quotas table without the
+    # project_id column that the neutron-db-manage sanity checks expect, so
+    # the sync can never be resumed.
+    db_sync_recovery_databases = ["database"]
 
     def __init__(self, framework: ops.framework.Framework) -> None:
         """Run constructor."""

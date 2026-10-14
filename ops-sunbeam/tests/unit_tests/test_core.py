@@ -27,7 +27,9 @@ sys.path.append("tests/lib")  # noqa
 sys.path.append("src")  # noqa
 
 import ops.model
+import ops.pebble
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.db_recovery as sunbeam_db_recovery
 import ops_sunbeam.test_utils as test_utils
 
 from . import (
@@ -280,6 +282,81 @@ class TestOSBaseOperatorAPICharm(_TestOSBaseOperatorAPICharm):
         rel_data = self.harness.get_relation_data(db_rel_id, "my-service")
         requested_db = rel_data["database"]
         self.assertEqual(requested_db, "my_service")
+
+    def _add_db_relation(self) -> None:
+        """Add a complete database relation."""
+        self.harness.set_leader()
+        self.set_pebble_ready()
+        db_rel_id = test_utils.add_base_db_relation(self.harness)
+        test_utils.add_db_relation_credentials(self.harness, db_rel_id)
+
+    def test_db_sync_recovery_disabled_by_default(self) -> None:
+        """Test DB sync does not check the schema unless requested."""
+        self._add_db_relation()
+        process = MagicMock()
+        process.wait_output.return_value = ("", None)
+        with patch.object(
+            ops.model.Container, "exec", return_value=process
+        ) as mock_exec:
+            self.harness.charm._retry_db_sync(["db-sync"])
+        mock_exec.assert_called_once_with(["db-sync"], timeout=300)
+
+    def test_db_sync_recovers_partial_schema(self) -> None:
+        """Test partial schema is recovered before running the DB sync."""
+        self._add_db_relation()
+        process = MagicMock()
+        process.wait_output.return_value = ("dropped 42 tables\n", None)
+        with patch.object(
+            test_charms.MyAPICharm,
+            "db_sync_recovery_databases",
+            new_callable=PropertyMock,
+            return_value=["database"],
+        ):
+            with patch.object(
+                ops.model.Container, "exec", return_value=process
+            ) as mock_exec:
+                with self.assertLogs(sunbeam_charm.logger, "WARNING") as logs:
+                    self.harness.charm._retry_db_sync(["db-sync"])
+        recovery_call, sync_call = mock_exec.call_args_list
+        self.assertEqual(recovery_call.args[0], ["python3", "-"])
+        with open(sunbeam_db_recovery.__file__) as f:
+            self.assertEqual(recovery_call.kwargs["stdin"], f.read())
+        self.assertEqual(
+            recovery_call.kwargs["environment"],
+            {
+                "DB_CONNECTION": (
+                    "mysql+pymysql://foo:hardpassword@10.0.0.10/my_service"
+                )
+            },
+        )
+        self.assertEqual(sync_call.args[0], ["db-sync"])
+        self.assertTrue(
+            any(
+                "Database my_service had a partially created schema" in line
+                and "dropped 42 tables" in line
+                for line in logs.output
+            )
+        )
+
+    def test_db_sync_recovery_failure_is_raised(self) -> None:
+        """Test a failed schema check is raised to be retried."""
+        self._add_db_relation()
+        process = MagicMock()
+        process.wait_output.side_effect = ops.pebble.ExecError(
+            ["python3"], 1, "", "connection refused"
+        )
+        container = self.harness.charm.unit.get_container("my-service")
+        with patch.object(
+            test_charms.MyAPICharm,
+            "db_sync_recovery_databases",
+            new_callable=PropertyMock,
+            return_value=["database"],
+        ):
+            with patch.object(
+                ops.model.Container, "exec", return_value=process
+            ):
+                with self.assertRaises(ops.pebble.ExecError):
+                    self.harness.charm._recover_partial_db_schemas(container)
 
     def test_contexts(self) -> None:
         """Test contexts are correctly populated."""

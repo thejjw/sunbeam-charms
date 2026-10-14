@@ -104,6 +104,7 @@ def container():
         execs=[
             testing.Exec(command_prefix=["a2dissite"], return_code=0),
             testing.Exec(command_prefix=["a2ensite"], return_code=0),
+            testing.Exec(command_prefix=["python3"], return_code=0),
             testing.Exec(command_prefix=["sudo"], return_code=0),
         ],
     )
