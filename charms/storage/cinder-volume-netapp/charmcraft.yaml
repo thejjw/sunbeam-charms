@@ -84,7 +84,7 @@ config:
         - http
         - https
     netapp-ssl-cert-path:
-      description: The path to a CA_BUNDLE file or directory with certificates of trusted CA.
+      description: PEM-encoded CA bundle used to verify the storage system or proxy server.
       type: string
       default: null
     netapp-login:
@@ -96,16 +96,16 @@ config:
       type: secret
       default: null
     netapp-private-key-file:
-      description: Absolute path to the file containing the private key associated with the certificate.
+      description: PEM-encoded private key associated with the client certificate.
       type: secret
       default: null
     netapp-certificate-file:
-      description: Absolute path to the file containing the digital certificate.
-      type: secret
+      description: PEM-encoded client certificate used to authenticate to the storage system or proxy server.
+      type: string
       default: null
     netapp-ca-certificate-file:
-      description: Absolute path to the file containing the public key certificate of the trusted CA.
-      type: secret
+      description: PEM-encoded certificate or CA bundle used to validate the client certificate.
+      type: string
     netapp-certificate-host-validation:
       description: Enable certificate verification for host validation.
       type: boolean

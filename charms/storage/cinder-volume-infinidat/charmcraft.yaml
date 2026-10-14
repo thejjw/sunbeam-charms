@@ -33,13 +33,6 @@ config:
       description: |
         Availability zone to associate with this backend.
       type: string
-    driver-ssl-cert:
-      default: null
-      description: |
-        PEM-encoded SSL certificate to use for HTTPS connections to the
-        InfiniBox management interface. If unset, SSL verification is
-        not performed.
-      type: string
     driver-use-ssl:
       default: false
       description: |
