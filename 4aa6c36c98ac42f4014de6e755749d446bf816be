@@ -109,6 +109,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "d394c353_9a2a1862",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-10-15T21:24:17Z",
+      "side": 1,
+      "message": "Upon further discussion with the team, we’ll document this for operators who may be concerned. Since it\u0027s the operator\u0027s own passphrase, we shouldn\u0027t automatically revoke it.",
+      "parentUuid": "13f11273_56c43fec",
+      "revId": "4aa6c36c98ac42f4014de6e755749d446bf816be",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a410f400_c669751a",
         "filename": "charms/openstack-hypervisor/charmcraft.yaml",
         "patchSetId": 3
