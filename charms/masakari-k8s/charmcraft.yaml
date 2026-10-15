@@ -41,6 +41,15 @@ config:
         If set to true, evacuate all instances.
         if set to false, evacuate only instances that have HA_Enabled=True
         metadata key.
+    process-all-instances:
+      type: boolean
+      default: false
+      description: |
+        Whether to restrict instance failure recovery to instances with ha
+        enabled in their metadata.
+        If set to true, process all instances.
+        if set to false, process only instances that have HA_Enabled=True
+        metadata key.
     enable-secret-access:
       type: boolean
       default: true

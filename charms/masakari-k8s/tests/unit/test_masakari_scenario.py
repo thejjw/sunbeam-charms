@@ -27,6 +27,7 @@ from ops import (
     testing,
 )
 from ops_sunbeam.test_utils_scenario import (
+    assert_config_file_contains,
     assert_config_file_exists,
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
@@ -100,6 +101,32 @@ class TestAllRelations:
         identity_service = state_out.get_relations("identity-service")[0]
 
         assert "extra-roles" not in identity_service.local_app_data
+
+    def test_process_all_instances_default(self, ctx, complete_state):
+        """Instance failure recovery is restricted to HA instances by default."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "masakari-api",
+            "/etc/masakari/masakari.conf",
+            ["[instance_failure]\nprocess_all_instances = False\n"],
+        )
+
+    def test_process_all_instances_enabled(self, ctx, complete_state):
+        """process-all-instances=true renders process_all_instances = True."""
+        state_in = dataclasses.replace(
+            complete_state,
+            config={"process-all-instances": True},
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+        assert_config_file_contains(
+            state_out,
+            ctx,
+            "masakari-api",
+            "/etc/masakari/masakari.conf",
+            ["[instance_failure]\nprocess_all_instances = True\n"],
+        )
 
 
 class TestPebbleReady:
