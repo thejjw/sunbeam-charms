@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fea7d278_c25b29b2",
+        "filename": "charms/ovn-central-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-15T11:16:29Z",
+      "side": 1,
+      "message": "If can_connect() fails for some reason, the configuration ends up in \n\nrm -f /var/lib/ovn/{.ovn,ovn}nb*",
+      "revId": "66418b9767c15385f1a3b60f8be70c30a60c0e8e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9767495_7919b36d",
+        "filename": "charms/ovn-central-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-15T11:16:29Z",
+      "side": 1,
+      "message": "is there a need to clear this flag anytime? maybe when it is scaled down to 0?",
+      "revId": "66418b9767c15385f1a3b60f8be70c30a60c0e8e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8c4ab58f_79039fd0",
+        "filename": "charms/ovn-central-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-15T11:16:29Z",
+      "side": 1,
+      "message": "departing_unit.name \u003d\u003d self.unit.name",
+      "revId": "66418b9767c15385f1a3b60f8be70c30a60c0e8e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c97999a2_8bcf6bf5",
+        "filename": "charms/ovn-central-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-15T11:16:29Z",
+      "side": 1,
+      "message": "what happens if the leader unit is the departing ones and if it fails to cluster leave",
+      "revId": "66418b9767c15385f1a3b60f8be70c30a60c0e8e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
