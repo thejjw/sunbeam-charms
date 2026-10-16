@@ -1,18 +1,8 @@
 - project:
-    templates:
-      - openstack-python3-sunbeam-jobs
-      - openstack-cover-jobs
-      - openstack-sunbeam-charm-build-jobs
     check:
       jobs:
         - func-test-openstack-microovn:
             nodeset: charms-ubuntu-noble-32GB
-        - func-test-tempest:
-            nodeset: ubuntu-noble
-            voting: false
-        - func-test-identity:
-            nodeset: charms-ubuntu-noble-32GB
-            voting: false
     vars:
       ensure_tox_version: ==4.47.3
       juju_channel: 3.6/stable

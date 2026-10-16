@@ -466,6 +466,7 @@
       - name: charm-build-bin-infra
         soft: true
     files:
+      - zuul.d/
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-k8s/
       - charms/glance-k8s/
