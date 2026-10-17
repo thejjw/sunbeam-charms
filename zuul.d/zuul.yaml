@@ -7,12 +7,17 @@
       jobs:
         - func-test-openstack-microovn:
             nodeset: charms-ubuntu-resolute-32GB
-        - func-test-tempest:
-            nodeset: ubuntu-noble
             voting: false
+        - func-test-openstack-microovn-core:
+            nodeset: charms-ubuntu-resolute-32GB
+        - func-test-openstack-microovn-services:
+            nodeset: charms-ubuntu-resolute-32GB
+        - func-test-openstack-microovn-ceph:
+            nodeset: charms-ubuntu-resolute-32GB
+        - func-test-openstack-microovn-deploy:
+            nodeset: charms-ubuntu-resolute-32GB
         - func-test-identity:
             nodeset: charms-ubuntu-resolute-32GB
-            voting: false
     vars:
       ensure_tox_version: ==4.47.3
       juju_channel: 3.6/stable

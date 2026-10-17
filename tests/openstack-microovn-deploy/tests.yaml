@@ -1,0 +1,68 @@
+gate_bundles:
+  - smoke
+smoke_bundles:
+  - smoke
+configure:
+  - zaza.sunbeam.charm_tests.machine.setup.deploy_machine_applications_microovn
+  - zaza.sunbeam.charm_tests.k8s.setup.add_loadbalancer_annotations
+  - zaza.sunbeam.charm_tests.keystone.setup.wait_for_all_endpoints
+  - zaza.openstack.charm_tests.glance.setup.add_lts_image
+  - zaza.openstack.charm_tests.glance.setup.add_cirros_image
+  - zaza.openstack.charm_tests.glance.setup.add_cirros_alt_image
+  - zaza.sunbeam.charm_tests.neutron.setup.basic_overcloud_network
+# Deployment-verification job: no tempest/api_audit coverage exists for the
+# apps in this bundle. Verification is deploy + settle to
+# target_deploy_status (enforced by the configure steps above).
+tests: []
+tests_options:
+  trust:
+    - smoke
+  ignore_hard_deploy_errors:
+    - smoke
+  no_wait_deploy:
+    - smoke
+
+target_deploy_status:
+  keystone:
+    workload-status: waiting
+    workload-status-message-regex: '^.*domain-config.*integration incomplete.*$|^$'
+  neutron:
+    workload-status: blocked
+    workload-status-message-regex: '^.*integration missing$'
+  neutron-baremetal-config:
+    workload-status: blocked
+    workload-status-message-regex: '^Config option conf-secrets needs to be set.$'
+  neutron-generic-config:
+    workload-status: blocked
+    workload-status-message-regex: '^Config option conf-secrets needs to be set.$'
+  ironic-conductor:
+    workload-status: blocked
+    workload-status-message-regex: '^.*run set-temp-url-secret action on leader to enable direct deploy method.*$'
+  # nova-ironic is capacity-bound on 8vCPU and may stay crash-looped: accept
+  # the known-not-converged states (blocked/waiting) as well as the fully
+  # converged active state, so this job reports the ironic convergence state
+  # rather than gating on a single outcome.
+  nova-ironic:
+    workload-status:
+      - blocked
+      - waiting
+      - active
+    workload-status-message-regex: '^.*service not ready.*$|^$'
+  manila:
+    workload-status: waiting
+    workload-status-message-regex: '^.*Not all relations are ready$'
+  manila-cephfs:
+    workload-status: blocked
+    workload-status-message-regex: '^.*ceph-nfs.*$'
+  ceilometer:
+    workload-status: waiting
+    workload-status-message-regex: '^.*Not all relations are ready$'
+  gnocchi:
+    workload-status: blocked
+    workload-status-message-regex: '^.*ceph.*$'
+  watcher:
+    workload-status: waiting
+    workload-status-message-regex: '^.*integration incomplete$'
+  cloudkitty:
+    workload-status: waiting
+    workload-status-message-regex: '^.*Not all relations are ready$'

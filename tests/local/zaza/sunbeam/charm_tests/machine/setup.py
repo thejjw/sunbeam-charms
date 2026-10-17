@@ -44,12 +44,22 @@ import zaza.model
 
 MACHINE_MODEL = "controller"
 MACHINE_MODEL_WITH_OWNER = f"admin/{MACHINE_MODEL}"
-MACHINE_MICROOVN_BUNDLE_FILE = "./tests/openstack-microovn/bundles/machines.yaml"
 CILIUM_INTERFACE = "cilium_host"
 CILIUM_SPACE = "k8s-subnet"
 K8S_WAIT_TIMEOUT = 5400  # 1.5 h for k8s model wait (covers full pods provisioning;
 # rabbitmq's ~90 serial amqp hooks can overrun a 1 h budget on slow nodes)
 POST_CMR_WAIT_TIMEOUT = 2400  # 40 minutes for post-CMR parallel wait
+
+# Maps each k8s app to the (k8s endpoint, machine-model offer) pair to
+# integrate via CMR when the app is present in the deployed k8s model.
+CMR_MAP = {
+    # cinder-volume starts blocked until integrated with cinder-k8s
+    "cinder": ("storage-backend", "storage-backend"),
+    "gnocchi": ("ceph", "ceph"),
+    "manila-cephfs": ("ceph-nfs", "ceph-nfs"),
+    "neutron": ("ovsdb-cms", "sunbeam-ovn-proxy"),
+    "octavia": ("ovsdb-cms", "sunbeam-ovn-proxy"),
+}
 
 
 def replace_model_in_bundle(bundle: Path, words_to_replace: dict):
@@ -167,26 +177,19 @@ def _prepare_controller_model_spaces(juju):
     juju.cli("move-to-space", CILIUM_SPACE, *sorted(target_subnets))
 
 
-def _perform_common_cross_model_integrations(juju, k8s_model):
-    """Set up cross-model integrations for openstack and microovn tests.
+def _perform_cross_model_integrations(juju, k8s_model, present_k8s_apps):
+    """Set up cross-model integrations for apps present in the k8s model.
 
     These integrations connect k8s-side charms (cinder, gnocchi,
-    manila-cephfs) to their counterparts in the machines model.
+    manila-cephfs, neutron, octavia) to their counterparts in the
+    machines model. Apps absent from the deployed k8s model are skipped,
+    so subset test bundles only wire the CMRs they actually deploy.
     """
-    # cinder-volume starts blocked until integrated with cinder-k8s
-    _integrate(juju, k8s_model, "cinder:storage-backend", "storage-backend")
-    _integrate(juju, k8s_model, "gnocchi:ceph", "ceph")
-    _integrate(juju, k8s_model, "manila-cephfs:ceph-nfs", "ceph-nfs")
-
-
-def _perform_microovn_cross_model_integrations(juju, k8s_model):
-    """Set up cross-model integrations required by microovn tests.
-
-    These integrations connect k8s-side charms (neutron, octavia)
-    to their counterparts in the machines model.
-    """
-    _integrate(juju, k8s_model, "neutron:ovsdb-cms", "sunbeam-ovn-proxy")
-    _integrate(juju, k8s_model, "octavia:ovsdb-cms", "sunbeam-ovn-proxy")
+    for app, (k8s_endpoint, machine_offer) in CMR_MAP.items():
+        if app in present_k8s_apps:
+            _integrate(
+                juju, k8s_model, f"{app}:{k8s_endpoint}", machine_offer
+            )
 
 
 def _wait_for_all_apps(juju, juju_k8s, machine_apps, k8s_apps):
@@ -230,16 +233,20 @@ def _all_non_active_apps_settled(status, non_active_apps):
 
     :param status: jubilant Status object
     :param non_active_apps: dict mapping app name to expected workload
-        status string
+        status string, or a list of acceptable workload status strings
     """
     unready = []
     for app_name, expected_status in non_active_apps.items():
         app = status.apps.get(app_name)
         if app is None:
             continue  # app not in this model — skip
+        if isinstance(expected_status, str):
+            expected_statuses = [expected_status]
+        else:
+            expected_statuses = expected_status
         for unit_name, unit in app.units.items():
             if (
-                unit.workload_status.current != expected_status
+                unit.workload_status.current not in expected_statuses
                 or unit.juju_status.current != "idle"
             ):
                 unready.append(
@@ -294,8 +301,8 @@ def _wait_for_model(juju, non_active_apps, timeout=POST_CMR_WAIT_TIMEOUT):
     """Wait for all apps in a model to reach active/idle.
 
     Apps listed in non_active_apps are waited on with their specified
-    workload status. All other apps in the model are expected to reach
-    active/idle.
+    workload status (a string, or a list of acceptable status strings).
+    All other apps in the model are expected to reach active/idle.
     """
 
     def _check(status):
@@ -323,8 +330,12 @@ def _configure_magnum(juju_k8s):
 
     Creates (or reuses) a juju secret named 'kubeconfig', grants it to magnum,
     and sets the kubeconfig config option so magnum can proceed to active.
+    Skipped silently when magnum is not deployed (subset test bundles).
     """
     application = "magnum"
+    if application not in juju_k8s.status().apps:
+        logging.info("magnum is not deployed, skipping kubeconfig setup")
+        return
     secret_name = "kubeconfig"
     secret_content = {"kubeconfig": "fake-kubeconfig"}
     secret_not_found_pattern = r'ERROR secret ".*" not found'
@@ -387,7 +398,8 @@ def deploy_machine_applications_microovn():
     Order: wait for k8s CMR-offering apps to be provisioned, wire CMR,
     wait for machine apps to reach target status, wait for k8s CMR apps
     to reach active (cinder/gnocchi/manila-cephfs/neutron/octavia unblock
-    once CMR is wired).
+    once CMR is wired). Only apps present in the deployed k8s model are
+    wired and waited on, so subset test bundles are supported.
     """
     k8s_model = zaza.model.get_juju_model()
     target_deploy_status = lc_utils.get_charm_config().get(
@@ -400,7 +412,7 @@ def deploy_machine_applications_microovn():
     }
 
     logging.debug("Updating microovn machine bundle")
-    bundle = MACHINE_MICROOVN_BUNDLE_FILE
+    bundle = str(Path(lc_utils.get_bundle_dir()) / "machines.yaml")
     replace_model_in_bundle(Path(bundle), {"K8S_MODEL": k8s_model})
 
     logging.info(bundle)
@@ -416,12 +428,21 @@ def deploy_machine_applications_microovn():
     _wait_for_model(juju_k8s, non_active_apps, timeout=K8S_WAIT_TIMEOUT)
 
     # 2. Wire CMR — all k8s pods are provisioned and etcd load has subsided.
-    _perform_common_cross_model_integrations(juju_machine, k8s_model)
-    _perform_microovn_cross_model_integrations(juju_machine, k8s_model)
+    present_k8s_apps = set(juju_k8s.status().apps.keys())
+    _perform_cross_model_integrations(
+        juju_machine, k8s_model, present_k8s_apps
+    )
 
     # 3 & 4. Wait for machine apps and k8s CMR apps in parallel now that
     # CMR is wired; machine model needs ceph credentials from microceph
     # while k8s CMR apps need the storage-backend/ceph/ovsdb-cms integrations.
+    cmr_apps = [app for app in CMR_MAP if app in present_k8s_apps]
+    # tempest's init (discover-tempest-config) probes the neutron API,
+    # which only serves after the ovsdb-cms CMR is wired; the charm
+    # defers and retries its init until then.
+    post_cmr_apps = cmr_apps + (
+        ["tempest"] if "tempest" in present_k8s_apps else []
+    )
     with concurrent.futures.ThreadPoolExecutor(max_workers=2) as ex:
         futures = [
             ex.submit(
@@ -433,7 +454,7 @@ def deploy_machine_applications_microovn():
             ex.submit(
                 _wait_for_cmr_apps,
                 juju_k8s,
-                ["cinder", "gnocchi", "manila-cephfs", "neutron", "octavia"],
+                post_cmr_apps,
                 active=True,
                 timeout=POST_CMR_WAIT_TIMEOUT,
             ),
