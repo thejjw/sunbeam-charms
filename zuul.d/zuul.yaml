@@ -7,12 +7,17 @@
       jobs:
         - func-test-openstack-microovn:
             nodeset: charms-ubuntu-resolute-32GB
-        - func-test-tempest:
-            nodeset: ubuntu-noble
             voting: false
+        - func-test-openstack-microovn-core:
+            nodeset: charms-ubuntu-resolute-32GB
+        - func-test-openstack-microovn-services:
+            nodeset: charms-ubuntu-resolute-32GB
+        - func-test-openstack-microovn-ceph:
+            nodeset: charms-ubuntu-resolute-32GB
+        - func-test-openstack-microovn-deploy:
+            nodeset: charms-ubuntu-resolute-32GB
         - func-test-identity:
             nodeset: charms-ubuntu-resolute-32GB
-            voting: false
     vars:
       ensure_tox_version: ==4.47.3
       juju_channel: 3.6/stable
@@ -30,8 +35,6 @@
         neutron-k8s: 2026.2/edge
         neutron-baremetal-switch-config-k8s: 2026.2/edge
         neutron-generic-switch-config-k8s: 2026.2/edge
-        ovn-central-k8s: 26.09/edge
-        ovn-relay-k8s: 26.09/edge
         cinder-k8s: 2026.2/edge
         cinder-volume: 2026.2/edge
         cinder-volume-ceph: 2026.2/edge

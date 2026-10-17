@@ -1,0 +1,29 @@
+gate_bundles:
+  - smoke
+smoke_bundles:
+  - smoke
+configure:
+  - zaza.sunbeam.charm_tests.machine.setup.deploy_machine_applications_microovn
+  - zaza.sunbeam.charm_tests.k8s.setup.add_loadbalancer_annotations
+  - zaza.sunbeam.charm_tests.keystone.setup.wait_for_all_endpoints
+  - zaza.sunbeam.charm_tests.neutron.setup.basic_overcloud_network
+tests:
+  - zaza.sunbeam.charm_tests.api_audit.tests.CinderAPIAuditTest
+tests_options:
+  trust:
+    - smoke
+  ignore_hard_deploy_errors:
+    - smoke
+  no_wait_deploy:
+    - smoke
+
+target_deploy_status:
+  keystone:
+    workload-status: waiting
+    workload-status-message-regex: '^.*domain-config.*integration incomplete.*$|^$'
+  neutron:
+    workload-status: blocked
+    workload-status-message-regex: '^.*integration missing$'
+  cinder:
+    workload-status: blocked
+    workload-status-message-regex: '^.*storage-backend.*$'

@@ -37,7 +37,7 @@ from ops_sunbeam.charm import (
 
 if typing.TYPE_CHECKING:
     import charms.microovn.v0.ovsdb as microovsdb
-    import charms.ovn_central_k8s.v0.ovsdb as ovsdb
+    import charms.sunbeam_ovn_proxy.v0.ovsdb as ovsdb
 
 logger = logging.getLogger(__name__)
 
@@ -514,7 +514,7 @@ class OVSDBCMSProvidesHandler(
         # Lazy import to ensure this lib is only required if the charm
         # has this relation.
         logger.debug("Setting up ovs-cms provides event handler")
-        import charms.ovn_central_k8s.v0.ovsdb as ovsdb
+        import charms.sunbeam_ovn_proxy.v0.ovsdb as ovsdb
 
         ovsdb_svc = sunbeam_tracing.trace_type(ovsdb.OVSDBCMSProvides)(
             self.charm,
@@ -571,7 +571,7 @@ class OVSDBCMSRequiresHandler(
         # Lazy import to ensure this lib is only required if the charm
         # has this relation.
         logger.debug("Setting up ovs-cms requires event handler")
-        import charms.ovn_central_k8s.v0.ovsdb as ovsdb
+        import charms.sunbeam_ovn_proxy.v0.ovsdb as ovsdb
 
         ovsdb_svc = sunbeam_tracing.trace_type(ovsdb.OVSDBCMSRequires)(
             self.charm,
