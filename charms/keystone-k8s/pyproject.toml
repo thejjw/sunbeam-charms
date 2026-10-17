@@ -48,7 +48,7 @@ dev = [
     # we might need to find an alternative for croniter project
     # TODO: Remove pinning once we have releases from https://github.com/pallets-eco/croniter/releases
     "croniter==5.0.1",            # tempest-k8s
-    "lightkube-extensions@git+https://github.com/canonical/lightkube-extensions",               # ovn-relay-k8s,designate-bind-k8s
+    "lightkube-extensions@git+https://github.com/canonical/lightkube-extensions",               # designate-bind-k8s
     "charmhelpers@git+https://github.com/juju/charm-helpers",                                   # glance-k8s,gnocchi-k8s
     "interface_ceph_client@git+https://opendev.org/openstack/charm-ops-interface-ceph-client",  # cinder-volume-ceph
 ]

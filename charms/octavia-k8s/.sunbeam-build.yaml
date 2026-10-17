@@ -9,9 +9,9 @@ external-libraries:
 internal-libraries:
   - charms.keystone_k8s.v1.identity_service
   - charms.keystone_k8s.v0.identity_resource
-  - charms.ovn_central_k8s.v0.ovsdb
   - charms.designate_k8s.v0.designate_service
   - charms.sunbeam_libs.v0.service_readiness
+  - charms.sunbeam_ovn_proxy.v0.ovsdb
 templates:
   - parts/section-database
   - parts/database-connection

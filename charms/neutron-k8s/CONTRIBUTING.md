@@ -18,7 +18,7 @@ OSBaseOperatorAPICharm from the library.
 
 neutron-k8s charm consumes database relation to connect to database,
 identity-service to register the service endpoints to keystone,
-ovsdb-cms to connect to ovn-central, certificates to get generated
+ovsdb-cms to connect to sunbeam-ovn-proxy, certificates to get generated
 certificates from vault and ingress-internal/ingress-public relation
 to get exposed over internal and public networks.
 

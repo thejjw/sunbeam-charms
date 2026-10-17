@@ -35,8 +35,6 @@
         neutron-k8s: 2026.2/edge
         neutron-baremetal-switch-config-k8s: 2026.2/edge
         neutron-generic-switch-config-k8s: 2026.2/edge
-        ovn-central-k8s: 26.09/edge
-        ovn-relay-k8s: 26.09/edge
         cinder-k8s: 2026.2/edge
         cinder-volume: 2026.2/edge
         cinder-volume-ceph: 2026.2/edge

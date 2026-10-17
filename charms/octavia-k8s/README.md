@@ -15,11 +15,11 @@ octavia-k8s is deployed using below command:
     juju deploy octavia-k8s octavia --trust
 
 Now connect the octavia operator to existing database,
-keystone identity, ovn-central and certificates operators:
+keystone identity, sunbeam-ovn-proxy and certificates operators:
 
     juju relate mysql:database octavia:database
     juju relate keystone:identity-service octavia:identity-service
-    juju relate ovn-central:ovsdb-cms octavia:ovsdb-cms
+    juju relate sunbeam-ovn-proxy:ovsdb-cms octavia:ovsdb-cms
     juju relate self-signed-certificates:certificates octavia:certificates
 
 ### Configuration
