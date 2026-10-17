@@ -9,6 +9,14 @@ applications:
     trust: true
     options:
       kubernetes-service-annotations: metallb.universe.tf/address-pool=public
+  traefik-rgw:
+    charm: ch:traefik-k8s
+    channel: latest/candidate
+    base: ubuntu@26.04
+    scale: 1
+    trust: true
+    options:
+      kubernetes-service-annotations: metallb.universe.tf/address-pool=public
   mysql:
     charm: ch:mysql-k8s
     channel: 8.0/stable
@@ -16,8 +24,13 @@ applications:
     scale: 1
     trust: true
     options:
-      profile-limit-memory: 2560
-      experimental-max-connections: 150
+      profile-limit-memory: 6202
+      experimental-max-connections: 466
+  ldap-server:
+    charm: ch:ldap-test-fixture-k8s
+    channel: edge
+    base: ubuntu@22.04
+    scale: 1
   tls-operator:
     charm: self-signed-certificates
     channel: 1/beta
@@ -33,32 +46,6 @@ applications:
     trust: true
     options:
       minimum-replicas: 1
-  ovn-central:
-    {% if ovn_central_k8s is defined and ovn_central_k8s is sameas true -%}
-    charm: ../../../ovn-central-k8s.charm
-    {% else -%}
-    charm: ch:ovn-central-k8s
-    channel: 26.09/edge
-    {% endif -%}
-    base: ubuntu@26.04
-    scale: 1
-    trust: true
-    resources:
-      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:26.09-26.04_edge
-      ovn-nb-db-server-image: ghcr.io/canonical/ovn-consolidated:26.09-26.04_edge
-      ovn-northd-image: ghcr.io/canonical/ovn-consolidated:26.09-26.04_edge
-  ovn-relay:
-    {% if ovn_relay_k8s is defined and ovn_relay_k8s is sameas true -%}
-    charm: ../../../ovn-relay-k8s.charm
-    {% else -%}
-    charm: ch:ovn-relay-k8s
-    channel: 26.09/edge
-    {% endif -%}
-    base: ubuntu@26.04
-    scale: 1
-    trust: true
-    resources:
-      ovn-sb-db-server-image: ghcr.io/canonical/ovn-consolidated:26.09-26.04_edge
   keystone:
     {% if keystone_k8s is defined and keystone_k8s is sameas true -%}
     charm: ../../../keystone-k8s.charm
@@ -129,32 +116,44 @@ applications:
       debug: true
     resources:
       neutron-server-image: ghcr.io/canonical/neutron-consolidated:2026.2-26.04_edge
-  tempest:
-    {% if tempest_k8s is defined and tempest_k8s is sameas true -%}
-    charm: ../../../tempest-k8s.charm
+  cinder-router:
+    charm: ch:mysql-router-k8s
+    channel: 8.0/edge
+    base: ubuntu@22.04
+    scale: 1
+    trust: true
+    options:
+      expose-external: loadbalancer
+  cinder:
+    {% if cinder_k8s is defined and cinder_k8s is sameas true -%}
+    charm: ../../../cinder-k8s.charm
     {% else -%}
-    charm: ch:tempest-k8s
+    charm: ch:cinder-k8s
     channel: 2026.2/edge
     {% endif -%}
     base: ubuntu@26.04
     scale: 1
     trust: true
     resources:
-      tempest-image: ghcr.io/canonical/tempest:2026.1-26.04_edge
+      cinder-api-image: ghcr.io/canonical/cinder-consolidated:2026.2-26.04_edge
+      cinder-scheduler-image: ghcr.io/canonical/cinder-consolidated:2026.2-26.04_edge
+  keystone-ldap:
+    {% if keystone_ldap_k8s is defined and keystone_ldap_k8s is sameas true -%}
+    charm: ../../../keystone-ldap-k8s.charm
+    {% else -%}
+    charm: ch:keystone-ldap-k8s
+    channel: 2026.2/edge
+    {% endif -%}
+    base: ubuntu@26.04
+    scale: 1
 
 relations:
-- - tls-operator:certificates
-  - ovn-central:certificates
-
-- - tls-operator:certificates
-  - ovn-relay:certificates
-- - ovn-relay:ovsdb-cms
-  - ovn-central:ovsdb-cms
-
 - - mysql:database
   - keystone:database
 - - traefik:ingress
   - keystone:ingress-internal
+- - rabbitmq:amqp
+  - keystone:amqp
 
 - - mysql:database
   - glance:database
@@ -207,12 +206,62 @@ relations:
   - neutron:ingress-internal
 - - tls-operator:certificates
   - neutron:certificates
-- - neutron:ovsdb-cms
-  - ovn-central:ovsdb-cms
 - - keystone:send-ca-cert
   - neutron:receive-ca-cert
 
-- - tempest:identity-ops
-  - keystone:identity-ops
-- - tempest:receive-ca-cert
-  - keystone:send-ca-cert
+- - mysql:database
+  - cinder-router:backend-database
+- - cinder:database
+  - cinder-router:database
+- - cinder:amqp
+  - rabbitmq:amqp
+- - keystone:identity-service
+  - cinder:identity-service
+- - traefik:ingress
+  - cinder:ingress-internal
+- - keystone:send-ca-cert
+  - cinder:receive-ca-cert
+- - glance:image-service
+  - cinder:image-service
+
+- - keystone:domain-config
+  - keystone-ldap:domain-config
+
+---
+applications:
+  tls-operator:
+    offers:
+      certificates:
+        endpoints:
+          - certificates
+  rabbitmq:
+    offers:
+      amqp:
+        endpoints:
+          - amqp
+  keystone:
+    offers:
+      identity-service:
+        endpoints:
+          - identity-service
+      identity-credentials:
+        endpoints:
+          - identity-credentials
+      send-ca-cert:
+        endpoints:
+          - send-ca-cert
+  nova:
+    offers:
+      nova-service:
+        endpoints:
+          - nova-service
+  cinder-router:
+    offers:
+      cinder-database:
+        endpoints:
+          - database
+  traefik-rgw:
+    offers:
+      traefik-route-rgw:
+        endpoints:
+          - traefik-route
