@@ -633,7 +633,7 @@ class OSBaseOperatorCharm(
                     if isinstance(event, RabbitMQGoneAwayEvent):
                         _is_broken = True
                 case "ovsdb-cms":
-                    from charms.ovn_central_k8s.v0.ovsdb import (
+                    from charms.sunbeam_ovn_proxy.v0.ovsdb import (
                         OVSDBCMSGoneAwayEvent,
                     )
 

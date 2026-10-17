@@ -49,7 +49,7 @@ def ovsdb_cms_relation_complete(
     """ovsdb-cms relation with bound-address set on the remote unit."""
     return testing.Relation(
         endpoint=endpoint,
-        remote_app_name="ovn-central",
+        remote_app_name="sunbeam-ovn-proxy",
         remote_app_data={},
         remote_units_data={0: {"bound-address": "10.0.0.50"}},
     )

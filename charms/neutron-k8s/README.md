@@ -19,7 +19,7 @@ messaging, identity, OVN and Vault operators:
     juju relate mysql:database neutron:database
     juju relate rabbitmq:amqp neutron:amqp
     juju relate keystone:identity-service neutron:identity-service
-    juju relate ovn-central:ovsdb-cms neutron:ovsdb-cms
+    juju relate sunbeam-ovn-proxy:ovsdb-cms neutron:ovsdb-cms
     juju relate vault:certificates neutron:certificates
 
 ### Configuration

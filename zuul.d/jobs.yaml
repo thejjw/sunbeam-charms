@@ -66,21 +66,6 @@
         - name: tempest-k8s
           path: tempest-k8s
 - job:
-    name: charm-build-bin-core-ovn
-    parent: charm-build-bin
-    description: Build a bin of Sunbeam charms
-    files:
-      - ops-sunbeam/ops_sunbeam/
-      - charms/ovn-central-k8s/
-      - charms/ovn-relay-k8s/
-      - rebuild
-    vars:
-      charm_builds:
-        - name: ovn-central-k8s
-          path: ovn-central-k8s
-        - name: ovn-relay-k8s
-          path: ovn-relay-k8s
-- job:
     name: charm-build-bin-core-storage
     parent: charm-build-bin
     description: Build a bin of Sunbeam charms

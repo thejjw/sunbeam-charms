@@ -53,8 +53,9 @@ applications:
     channel: edge
     scale: 1
     trust: true
-  ovn-central:
-    charm: ch:ovn-central-k8s
+  # requires a cross-model relation to a microovn application (machine model) via its ovsdb endpoint
+  sunbeam-ovn-proxy:
+    charm: ch:sunbeam-ovn-proxy
     channel: edge
     scale: 1
     trust: true
@@ -126,10 +127,7 @@ relations:
 - - vault:insecure-certificates
   - neutron:certificates
 - - neutron:ovsdb-cms
-  - ovn-central:ovsdb-cms
-
-- - vault:insecure-certificates
-  - ovn-central:certificates
+  - sunbeam-ovn-proxy:ovsdb-cms
 
 - - rabbitmq:amqp
   - nova-compute:amqp
