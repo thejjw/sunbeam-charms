@@ -1,0 +1,62 @@
+gate_bundles:
+  - smoke
+smoke_bundles:
+  - smoke
+configure:
+  - zaza.sunbeam.charm_tests.machine.setup.deploy_machine_applications_microovn
+  - zaza.sunbeam.charm_tests.k8s.setup.add_loadbalancer_annotations
+  - zaza.sunbeam.charm_tests.keystone.setup.wait_for_all_endpoints
+  - zaza.openstack.charm_tests.keystone.setup.add_tempest_roles
+  - zaza.openstack.charm_tests.nova.setup.create_flavors
+  - zaza.openstack.charm_tests.nova.setup.manage_ssh_key
+  - zaza.openstack.charm_tests.glance.setup.add_lts_image
+  - zaza.openstack.charm_tests.glance.setup.add_cirros_image
+  - zaza.openstack.charm_tests.glance.setup.add_cirros_alt_image
+  - zaza.sunbeam.charm_tests.neutron.setup.basic_overcloud_network
+tests:
+  - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneMinimalNewRBAC
+  - zaza.sunbeam.charm_tests.tempest_k8s.tests.TempestK8sTest
+  - zaza.sunbeam.charm_tests.openstack_images_sync_k8s.tests.OpenStackImagesSyncK8sTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.GlanceAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.NeutronAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.NovaAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.KeystoneAPIAuditTest
+tests_options:
+  trust:
+    - smoke
+  ignore_hard_deploy_errors:
+    - smoke
+  no_wait_deploy:
+    - smoke
+  tempest:
+    default:
+      smoke: True
+      # Serial tempest on the subset bundle: more workers overload the
+      # 8vCPU/32GB CI node.
+      concurrency: 1
+      exclude-list:
+        # Needs ssh into VM
+        - tempest.api.compute.servers.test_server_actions.ServerActionsTestJSON
+        - tempest.api.compute.servers.test_attach_interfaces.AttachInterfacesUnderV243Test.test_add_remove_fixed_ip
+        - tempest.scenario.test_server_basic_ops.TestServerBasicOps.test_server_basic_ops
+        # Needs public network connectivity
+        - tempest.scenario.test_network_basic_ops.TestNetworkBasicOps.test_network_basic_ops
+        # TODO: Analyze this failure
+        - tempest.api.object_storage.test_account_quotas.AccountQuotasTest.test_overlimit_upload
+      include-list:
+        - "tempest.api.identity.v3.test_application_credentials.ApplicationCredentialsV3Test.test_create_application_credential"
+
+target_deploy_status:
+  keystone:
+    workload-status: waiting
+    workload-status-message-regex: '^.*domain-config.*integration incomplete.*$|^$'
+  neutron:
+    workload-status: blocked
+    workload-status-message-regex: '^.*integration missing$'
+  # tempest init probes the neutron API (discover-tempest-config), which
+  # only serves after the ovsdb-cms CMR is wired; the charm defers and
+  # retries, so accept blocked pre-CMR. The post-CMR wait requires it
+  # active (machine/setup.py).
+  tempest:
+    workload-status: blocked
+    workload-status-message-regex: '^.*tempest init failed.*$'
