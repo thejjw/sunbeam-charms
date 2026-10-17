@@ -96,6 +96,88 @@ class TestOSBaseOperatorCharm(test_utils.CharmTestCase):
 
         self.assertFalse(charm._configure_charm_completed)
 
+    def test_update_status_retries_configuration_that_latched_blocked(
+        self,
+    ) -> None:
+        """Test update-status re-runs a configuration that latched blocked."""
+        charm = self.harness.charm
+        with patch.object(charm, "update_relations"), patch.object(
+            charm,
+            "configure_unit",
+            side_effect=RuntimeError("configuration failed"),
+        ):
+            charm.configure_charm(self.mock_event)
+
+        self.assertFalse(charm._state.configure_charm_completed)
+
+        # A subsequent update-status should re-run the configuration.
+        with patch.object(charm, "update_relations"), patch.object(
+            charm, "configure_unit"
+        ), patch.object(charm, "configure_app"), patch.object(
+            charm, "post_config_setup"
+        ):
+            charm.on.update_status.emit()
+
+        self.assertTrue(charm._state.configure_charm_completed)
+
+    def test_update_status_does_not_retry_waiting_configuration(
+        self,
+    ) -> None:
+        """Test update-status leaves a waiting configuration untouched.
+
+        Relation/leader/pebble events are the natural retry triggers for a
+        waiting unit; update-status re-running the costly configure_charm
+        every five minutes would only race those events.
+        """
+        charm = self.harness.charm
+        with patch.object(charm, "update_relations"), patch.object(
+            charm,
+            "configure_unit",
+            side_effect=sunbeam_charm.sunbeam_guard.WaitingExceptionError(
+                "not ready"
+            ),
+        ):
+            charm.configure_charm(self.mock_event)
+
+        self.assertFalse(charm._state.configure_charm_completed)
+
+        with patch.object(charm, "configure_charm") as mock_configure:
+            charm.on.update_status.emit()
+
+        mock_configure.assert_not_called()
+
+    def test_update_status_does_not_retry_unconfigured_unit(self) -> None:
+        """Test update-status leaves a unit with no attempt yet untouched.
+
+        Start/pebble-ready will drive the first configuration.
+        """
+        charm = self.harness.charm
+        self.assertIsNone(charm._state.configure_charm_completed)
+
+        with patch.object(charm, "configure_charm") as mock_configure:
+            charm.on.update_status.emit()
+
+        mock_configure.assert_not_called()
+
+    def test_update_status_does_not_retry_completed_configuration(
+        self,
+    ) -> None:
+        """Test update-status leaves a completed configuration untouched."""
+        charm = self.harness.charm
+        with patch.object(charm, "update_relations"), patch.object(
+            charm, "configure_unit"
+        ), patch.object(charm, "configure_app"), patch.object(
+            charm, "post_config_setup"
+        ):
+            charm.configure_charm(self.mock_event)
+
+        self.assertTrue(charm._state.configure_charm_completed)
+
+        with patch.object(charm, "configure_charm") as mock_configure:
+            charm.on.update_status.emit()
+
+        mock_configure.assert_not_called()
+
 
 class TestOSBaseOperatorCharmK8S(test_utils.CharmTestCase):
     """Test for the OSBaseOperatorCharm class."""

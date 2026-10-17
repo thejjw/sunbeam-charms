@@ -20,6 +20,7 @@ from pathlib import (
     Path,
 )
 
+import charm
 import pytest
 from ops import (
     testing,
@@ -29,6 +30,7 @@ from ops_sunbeam.test_utils_scenario import (
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
     assert_unit_status,
+    cleanup_database_requires_events,
     k8s_api_container,
     mandatory_relations_from_charmcraft,
 )
@@ -174,3 +176,28 @@ class TestRelationBrokenBlocksOrWaits:
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
         )
+
+
+class TestBootstrapFailureRecovery:
+    """Failed bootstrap blocks with a clear message and is retried."""
+
+    def test_bootstrap_failure_blocks_then_recovers_on_update_status(
+        self, ctx, complete_state
+    ):
+        """Bootstrap failing → blocked, update-status after recovery → active."""
+        keystone_manager = charm.manager.KeystoneManager.return_value
+        keystone_manager.setup_keystone.side_effect = (
+            charm.manager.KeystoneExceptionError("Bootstrap failed")
+        )
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+
+        assert isinstance(state_out.unit_status, testing.BlockedStatus)
+        assert "Failed to bootstrap" in state_out.unit_status.message
+        assert "Error in charm" not in state_out.unit_status.message
+
+        # Database recovered, bootstrap succeeds and update-status retries.
+        keystone_manager.setup_keystone.side_effect = None
+        cleanup_database_requires_events()
+        state_out = ctx.run(ctx.on.update_status(), state_out)
+
+        assert state_out.unit_status == testing.ActiveStatus("")

@@ -2800,7 +2800,11 @@ export OS_AUTH_VERSION=3
         if self.unit.is_leader():
             try:
                 self.keystone_manager.setup_keystone()
-            except (ops.pebble.ExecError, ops.pebble.ConnectionError):
+            except (
+                ops.pebble.ExecError,
+                ops.pebble.ConnectionError,
+                manager.KeystoneExceptionError,
+            ):
                 raise sunbeam_guard.BlockedExceptionError(
                     "Failed to bootstrap"
                 )

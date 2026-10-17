@@ -184,7 +184,7 @@ class DesignatePebbleHandler(sunbeam_chandlers.WSGIPebbleHandler):
                     for line in warnings.splitlines():
                         logger.warning("a2dissite warn: %s", line.strip())
                 logger.debug(f"Output from a2dissite: \n{out}")
-            except ops.pebble.ExecError:
+            except ops.pebble.Error:
                 logger.exception("Failed to disable %s site in apache", site)
         super().init_service(context)
 

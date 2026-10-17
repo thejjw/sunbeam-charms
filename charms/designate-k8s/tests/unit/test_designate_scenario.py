@@ -23,6 +23,7 @@ from pathlib import (
     Path,
 )
 
+import ops
 import pytest
 from ops import (
     testing,
@@ -247,3 +248,24 @@ class TestPoolsYamlMultiTarget:
             "/etc/designate/pools.yaml",
             ["bind-2.bind-endpoints.openstack.svc.cluster.local"],
         )
+
+
+class TestA2dissiteChangeError:
+    """a2dissite timing out (ChangeError) must not break bootstrap."""
+
+    def test_a2dissite_change_error_not_fatal(
+        self, monkeypatch, ctx, complete_state
+    ):
+        """Hung a2dissite (ChangeError) is logged, bootstrap completes."""
+        real_exec = ops.model.Container.exec
+
+        def raising_exec(self, command, **kwargs):
+            if command[:1] == ["a2dissite"]:
+                raise ops.pebble.ChangeError(
+                    "timed out waiting for change 108", None
+                )
+            return real_exec(self, command, **kwargs)
+
+        monkeypatch.setattr(ops.model.Container, "exec", raising_exec)
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+        assert state_out.unit_status == testing.ActiveStatus("")

@@ -356,7 +356,13 @@ class TestPlacementApiReadiness:
         return state
 
     @staticmethod
-    def run_readiness_check(ctx, state, event_name, check_name="online"):
+    def run_readiness_check(
+        ctx,
+        state,
+        event_name,
+        check_name="online",
+        configure_expected=False,
+    ):
         """Run a health event and verify it performs no workload configuration."""
         cleanup_database_requires_events()
         ctx.exec_history.clear()
@@ -381,7 +387,13 @@ class TestPlacementApiReadiness:
                     )
                     state = manager.run()
 
-        configure.assert_not_called()
+        if configure_expected:
+            # A configuration that latched the unit blocked is retried on
+            # update-status so it recovers without a manual pod restart
+            # (LP #2170832 / #2170834).
+            configure.assert_called_once()
+        else:
+            configure.assert_not_called()
         push.assert_not_called()
         restart.assert_not_called()
         assert not ctx.exec_history.get("placement-api")
@@ -485,7 +497,12 @@ class TestPlacementApiReadiness:
         )
         assert state.unit_status == blocked_status
 
-        state = self.run_readiness_check(ctx, state, event_name)
+        state = self.run_readiness_check(
+            ctx,
+            state,
+            event_name,
+            configure_expected=(event_name == "update_status"),
+        )
         assert state.unit_status == blocked_status
         status_pool = next(
             stored

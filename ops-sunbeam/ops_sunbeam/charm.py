@@ -69,6 +69,7 @@ from ops.charm import (
 )
 from ops.model import (
     ActiveStatus,
+    BlockedStatus,
     MaintenanceStatus,
     UnknownStatus,
 )
@@ -204,6 +205,11 @@ class OSBaseOperatorCharm(
         # This is not an issue for machine charms as the machine is not
         # replaced during upgrades.
         self._state.set_default(paused=False)
+        # Tracks whether the last configure_charm attempt completed, so
+        # update-status can re-run a configuration that latched blocked
+        # (e.g. bootstrap attempted while the control plane was degraded).
+        # None = no attempt has run yet on this unit.
+        self._state.set_default(configure_charm_completed=None)
         self.status = compound_status.Status("workload", priority=100)
         self.status_pool = compound_status.StatusPool(self)
         self.status_pool.add(self.status)
@@ -218,6 +224,9 @@ class OSBaseOperatorCharm(
         self.framework.observe(self.on.secret_remove, self._on_secret_remove)
         self.framework.observe(
             self.on.collect_unit_status, self._on_collect_unit_status_event
+        )
+        self.framework.observe(
+            self.on.update_status, self._on_update_status_reconcile
         )
 
     def __post_init__(self):
@@ -457,6 +466,9 @@ class OSBaseOperatorCharm(
         """Catchall handler to configure charm services."""
         # Remains false when guard handles a failure before reconciliation ends.
         self._configure_charm_completed = False
+        # None = no attempt has run yet on this unit; False = an attempt ran
+        # and did not complete; True = the last attempt completed.
+        self._state.configure_charm_completed = False
         if self.is_service_paused:
             self.status.set(
                 MaintenanceStatus(
@@ -477,6 +489,43 @@ class OSBaseOperatorCharm(
             self.bootstrap_status.set(ActiveStatus())
             self.post_config_setup()
             self._configure_charm_completed = True
+            self._state.configure_charm_completed = True
+
+    def _should_retry_configure_charm(self) -> bool:
+        """Whether the last configuration attempt left the unit latched.
+
+        Only retry a previous attempt that started and left the unit
+        blocked (LP #2170832 / #2170834): no attempt yet, or a unit left
+        waiting/maintenance, will be (re)driven by the normal
+        start/pebble-ready/relation events, so re-running here would only
+        add a costly run every update-status tick.
+
+        Note: the guard converts any uncaught exception into a blocked
+        status, so an unrecoverable charm bug is also retried every
+        update-status tick. This is accepted as bounded noise because
+        configure paths are idempotent; add a retry budget here only if
+        hook duration ever becomes a problem.
+        """
+        if self._state.configure_charm_completed is not False:
+            return False
+        return isinstance(self.unit.status, BlockedStatus)
+
+    def _on_update_status_reconcile(
+        self, event: ops.framework.EventBase
+    ) -> None:
+        """Re-run charm configuration if the previous attempt latched blocked.
+
+        A configuration that latched the unit blocked would otherwise stay
+        blocked until the unit is restarted manually (the previous remedy
+        was deleting the pod to force a fresh start hook).
+        """
+        if not self._should_retry_configure_charm():
+            return
+        logger.warning(
+            "Charm configuration did not complete and left the unit "
+            "blocked, re-running on update-status"
+        )
+        self.configure_charm(event)
 
     def stop_services(self, relation: Optional[Set[str]] = None) -> None:
         """Stop all running services."""
