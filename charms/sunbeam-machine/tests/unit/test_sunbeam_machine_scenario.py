@@ -23,10 +23,16 @@ proxy settings.
 """
 
 from unittest.mock import (
+    MagicMock,
     mock_open,
 )
 
+import charm
 import pytest
+from charmlibs.snap import Error as SnapError
+from charmlibs.snap import (
+    OptionNotFoundError,
+)
 from ops import (
     testing,
 )
@@ -136,6 +142,71 @@ class TestInitial:
 
         mock_file().write.assert_not_called()
         assert_unit_status(state_out, "active")
+
+
+# ---------------------------------------------------------------------------
+# Tests: snapd parallel instances (LP#2147411)
+# ---------------------------------------------------------------------------
+
+
+class TestSnapdParallelInstances:
+    """snapd experimental parallel instances should be enabled early."""
+
+    def _mock_snap(self, monkeypatch, current) -> MagicMock:
+        mock_snap = MagicMock()
+        mock_snap.Error = SnapError
+        mock_snap.OptionNotFoundError = OptionNotFoundError
+        mock_snap.get_one.return_value = current
+        monkeypatch.setattr(charm, "snap", mock_snap)
+        return mock_snap
+
+    def test_parallel_instances_enabled_when_not_set(self, ctx, monkeypatch):
+        """Snap set system should be called when feature is not enabled."""
+        mock_snap = self._mock_snap(monkeypatch, False)
+        mock_snap.get_one.side_effect = OptionNotFoundError(
+            "not set", kind="option-not-found", value=None
+        )
+
+        state_in = testing.State(leader=True)
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        mock_snap.set.assert_called_once_with(
+            "system", {"experimental.parallel-instances": True}
+        )
+        assert_unit_status(state_out, "active")
+
+    def test_parallel_instances_already_enabled_typed(self, ctx, monkeypatch):
+        """Snap set system should not be called when already enabled."""
+        mock_snap = self._mock_snap(monkeypatch, True)
+
+        state_in = testing.State(leader=True)
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        mock_snap.set.assert_not_called()
+        assert_unit_status(state_out, "active")
+
+    def test_parallel_instances_already_enabled_string(self, ctx, monkeypatch):
+        """Snap set system should not be called when enabled via CLI."""
+        mock_snap = self._mock_snap(monkeypatch, "true")
+
+        state_in = testing.State(leader=True)
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        mock_snap.set.assert_not_called()
+        assert_unit_status(state_out, "active")
+
+    def test_parallel_instances_set_failure_blocks(self, ctx, monkeypatch):
+        """Charm should be blocked if snap set system fails."""
+        mock_snap = self._mock_snap(monkeypatch, False)
+        mock_snap.get_one.side_effect = OptionNotFoundError(
+            "not set", kind="option-not-found", value=None
+        )
+        mock_snap.set.side_effect = SnapError("snapd failed")
+
+        state_in = testing.State(leader=True)
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert state_out.unit_status.name == "blocked"
 
 
 # ---------------------------------------------------------------------------

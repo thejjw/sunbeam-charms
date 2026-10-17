@@ -24,6 +24,10 @@ from unittest.mock import (
 
 import charm
 import pytest
+from charmlibs.snap import Error as SnapError
+from charmlibs.snap import (
+    OptionNotFoundError,
+)
 from ops import (
     testing,
 )
@@ -70,6 +74,13 @@ def _mock_heavy_externals(monkeypatch):
     mock_platform = MagicMock()
     mock_platform.release.return_value = "6.8.0-generic"
     monkeypatch.setattr(charm, "platform", mock_platform)
+
+    # snap – snapd system config via charmlibs.snap
+    mock_snap = MagicMock()
+    mock_snap.Error = SnapError
+    mock_snap.OptionNotFoundError = OptionNotFoundError
+    mock_snap.get_one.return_value = True
+    monkeypatch.setattr(charm, "snap", mock_snap)
 
     # builtins.open – used to read/write /etc/environment
     monkeypatch.setattr(
