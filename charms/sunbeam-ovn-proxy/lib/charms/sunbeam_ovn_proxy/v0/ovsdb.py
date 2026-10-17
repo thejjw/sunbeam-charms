@@ -1,22 +1,51 @@
-"""TODO: Add a proper docstring here.
+"""OVSDBCMSProvides and OVSDBCMSRequires module.
 
-This is a placeholder docstring for this charm library. Docstrings are
-presented on Charmhub and updated whenever you push a new version of the
-library.
+This library was originally published as
+`charms.ovn_central_k8s.v0.ovsdb` (up to LIBPATCH 6) and moved to the
+sunbeam-ovn-proxy charm when ovn-central-k8s was retired.
 
-Complete documentation about creating and documenting libraries can be found
-in the SDK docs at https://juju.is/docs/sdk/libraries.
+This library contains the Requires and Provides classes for handling
+the ovsdb-cms interface. The interface publishes the OVN Northbound
+and Southbound database connection details to the cloud management
+services (CMS) charms, such as neutron-k8s and octavia-k8s.
 
-See `charmcraft publish-lib` and `charmcraft fetch-lib` for details of how to
-share and consume charm libraries. They serve to enhance collaboration
-between charmers. Use a charmer's libraries for classes that handle
-integration with their charm.
+Import `OVSDBCMSRequires` in your charm, with the charm object and the
+relation name:
+    - self
+    - "ovsdb-cms"
 
-Bear in mind that new revisions of the different major API versions (v0, v1,
-v2 etc) are maintained independently.  You can continue to update v0 and v1
-after you have pushed v3.
+The requirer resolves the database connection details in the
+following order of preference:
+    1. Proxied connection strings (db_nb_connection_strs and
+       db_sb_connection_strs application data), when the provider
+       sets proxy-relation
+    2. The loadbalancer-address application data, when provided
+    3. The bound-hostname or bound-address unit data of the provider
 
-Markdown is supported, following the CommonMark specification.
+Three events are available to respond to on both sides:
+    - connected
+    - ready
+    - goneaway
+
+A basic example showing the usage of this relation follows:
+
+```python
+import charms.sunbeam_ovn_proxy.v0.ovsdb as ovsdb
+
+class OVSDBCMSClientCharm(CharmBase):
+    def __init__(self, *args):
+        super().__init__(*args)
+        # OVSDB CMS Requires
+        self.ovsdb_cms = ovsdb.OVSDBCMSRequires(
+            self, "ovsdb-cms",
+        )
+        self.framework.observe(
+            self.ovsdb_cms.on.connected, self._on_ovsdb_cms_connected)
+        self.framework.observe(
+            self.ovsdb_cms.on.ready, self._on_ovsdb_cms_ready)
+        self.framework.observe(
+            self.ovsdb_cms.on.goneaway, self._on_ovsdb_cms_goneaway)
+```
 """
 
 import json
@@ -40,7 +69,7 @@ LIBAPI = 0
 
 # Increment this PATCH version before using `charmcraft publish-lib` or reset
 # to 0 if you are raising the major API version
-LIBPATCH = 6
+LIBPATCH = 7
 
 
 LOADBALANCER_KEY = "loadbalancer-address"
@@ -48,7 +77,6 @@ EXTERNAL_KEY = "external-connectivity"
 PROXY_KEY = "proxy-relation"
 
 
-# TODO: add your code here! Happy coding!
 class OVSDBCMSConnectedEvent(EventBase):
     """OVSDBCMS connected Event."""
 

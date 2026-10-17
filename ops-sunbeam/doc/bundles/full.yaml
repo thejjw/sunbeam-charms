@@ -2,29 +2,39 @@ bundle: kubernetes
 applications:
   traefik:
     charm: ch:traefik-k8s
-    channel: edge
+    channel: latest/candidate
+    base: ubuntu@26.04
     scale: 1
     trust: true
   traefik-public:
     charm: ch:traefik-k8s
-    channel: edge
+    channel: latest/candidate
+    base: ubuntu@26.04
     scale: 1
     trust: true
     options:
       kubernetes-service-annotations: metallb.universe.tf/address-pool=public
   mysql:
     charm: ch:mysql-k8s
-    channel: edge
-    scale: 1
-    trust: false
-  rabbitmq:
-    charm: ch:rabbitmq-k8s
-    channel: edge
+    channel: 8.0/stable
+    base: ubuntu@22.04
     scale: 1
     trust: true
+    options:
+      profile-limit-memory: 6202
+      experimental-max-connections: 466
+  rabbitmq:
+    charm: ch:rabbitmq-k8s
+    channel: 4.0/edge
+    base: ubuntu@24.04
+    scale: 1
+    trust: true
+    options:
+      minimum-replicas: 1
   keystone:
     charm: ch:keystone-k8s
-    channel: edge
+    channel: 2026.2/edge
+    base: ubuntu@26.04
     scale: 1
     trust: true
     storage:
@@ -32,34 +42,28 @@ applications:
       credential-keys: 5M
   glance:
     charm: ch:glance-k8s
-    channel: edge
+    channel: 2026.2/edge
+    base: ubuntu@26.04
     scale: 1
     trust: true
     storage:
-      local-repository: 5G
+      local-repository: 10G
   nova:
     charm: ch:nova-k8s
-    channel: edge
+    channel: 2026.2/edge
+    base: ubuntu@26.04
     scale: 1
     trust: true
   placement:
     charm: ch:placement-k8s
-    channel: edge
+    channel: 2026.2/edge
+    base: ubuntu@26.04
     scale: 1
     trust: true
   neutron:
     charm: ch:neutron-k8s
-    channel: edge
-    scale: 1
-    trust: true
-  ovn-central:
-    charm: ch:ovn-central-k8s
-    channel: edge
-    scale: 1
-    trust: true
-  nova-compute:
-    charm: ch:sunbeam-nova-compute-operator
-    channel: edge
+    channel: 2026.2/edge
+    base: ubuntu@26.04
     scale: 1
     trust: true
   vault:
@@ -70,17 +74,14 @@ applications:
       vault-image: vault
   horizon:
     charm: ch:horizon-k8s
-    channel: edge
+    channel: 2026.2/edge
+    base: ubuntu@26.04
     scale: 1
     trust: true
   cinder:
     charm: ch:cinder-k8s
-    channel: edge
-    scale: 1
-    trust: true
-  ovn-relay:
-    charm: ch:ovn-relay-k8s
-    channel: edge
+    channel: 2026.2/edge
+    base: ubuntu@26.04
     scale: 1
     trust: true
 
@@ -139,18 +140,6 @@ relations:
   - neutron:ingress-public
 - - vault:insecure-certificates
   - neutron:certificates
-- - neutron:ovsdb-cms
-  - ovn-central:ovsdb-cms
-
-- - vault:insecure-certificates
-  - ovn-central:certificates
-
-- - rabbitmq:amqp
-  - nova-compute:amqp
-- - keystone:identity-credentials
-  - nova-compute:cloud-credentials
-- - nova:cloud-compute
-  - nova-compute:cloud-compute
 
 - - mysql:database
   - horizon:database
@@ -171,6 +160,3 @@ relations:
   - cinder:ingress-internal
 - - traefik-public:ingress
   - cinder:ingress-public
-
-- - vault:insecure-certificates
-  - ovn-relay:certificates

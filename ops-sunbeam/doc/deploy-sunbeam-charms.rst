@@ -57,7 +57,9 @@ Run below commands to install juju controller on microk8s
 Deploy Sunbeam charms
 ~~~~~~~~~~~~~~~~~~~~~
 
-See ./reference-bundles.rst for information about example bundles available here.
+See ``./reference-bundles.rst`` for information about example bundles available
+here. The example bundles target Ubuntu 26.04 and pin the charms maintained in
+this repository to the ``2026.2/edge`` channel.
 
 To use locally built charms, update the following in the bundle
 
@@ -70,6 +72,29 @@ Run below commands to deploy the bundle
 
    juju add-model sunbeam
    juju deploy ./doc/bundles/full.yaml --trust
+
+The bundles deploy the Kubernetes control plane only. Neutron's
+``ovsdb-cms`` endpoint is provided by ``sunbeam-ovn-proxy``, a machine charm
+that runs in the model hosting MicroOVN.
+
+These steps assume MicroOVN is already deployed in a machine model. Integrate
+the OVN proxy with MicroOVN, and offer its ``ovsdb-cms`` endpoint:
+
+.. code-block:: bash
+
+   juju switch <machine-model>
+   juju deploy sunbeam-ovn-proxy --channel 2026.2/edge
+   juju integrate microovn:ovsdb sunbeam-ovn-proxy:ovsdb
+   juju offer sunbeam-ovn-proxy:ovsdb-cms
+
+Integrate Neutron with the offer from the Kubernetes model:
+
+.. code-block:: bash
+
+   juju switch micro:sunbeam
+   juju integrate neutron:ovsdb-cms <machine-controller>:admin/<machine-model>.sunbeam-ovn-proxy
+
+Neutron stays blocked until this integration is made.
 
 Check ``juju status`` and wait for all units to be active.
 
@@ -95,8 +120,9 @@ Testing OpenStack Control plane
 
    openstack endpoint list
 
-At this point launching a VM does not work as nova-compute charm does not
-support bringing up ovn-controller.
+Launching a VM requires ``openstack-hypervisor`` and
+``openstack-network-agents`` in the machine model alongside MicroOVN. They are
+not part of these Kubernetes bundles.
 
 
 .. _`juju with microk8s cloud`: https://juju.is/docs/olm/microk8s

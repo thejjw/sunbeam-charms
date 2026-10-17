@@ -50,7 +50,6 @@
       jobs:
         - charm-build-bin-core-identity
         - charm-build-bin-core-compute
-        - charm-build-bin-core-ovn
         - charm-build-bin-core-storage
         - charm-build-bin-services-a
         - charm-build-bin-services-b
@@ -65,7 +64,6 @@
       jobs:
         - charm-build-bin-core-identity
         - charm-build-bin-core-compute
-        - charm-build-bin-core-ovn
         - charm-build-bin-core-storage
         - charm-build-bin-services-a
         - charm-build-bin-services-b
