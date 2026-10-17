@@ -1,0 +1,49 @@
+gate_bundles:
+  - smoke
+smoke_bundles:
+  - smoke
+configure:
+  - zaza.sunbeam.charm_tests.machine.setup.deploy_machine_applications_microovn
+  - zaza.sunbeam.charm_tests.k8s.setup.add_loadbalancer_annotations
+  - zaza.sunbeam.charm_tests.keystone.setup.wait_for_all_endpoints
+  - zaza.openstack.charm_tests.keystone.setup.add_tempest_roles
+  - zaza.openstack.charm_tests.nova.setup.create_flavors
+  - zaza.openstack.charm_tests.nova.setup.manage_ssh_key
+  - zaza.openstack.charm_tests.glance.setup.add_lts_image
+  - zaza.openstack.charm_tests.glance.setup.add_cirros_image
+  - zaza.openstack.charm_tests.glance.setup.add_cirros_alt_image
+  - zaza.sunbeam.charm_tests.neutron.setup.basic_overcloud_network
+tests:
+  - zaza.sunbeam.charm_tests.api_audit.tests.CinderAPIAuditTest
+  - zaza.openstack.charm_tests.tempest.tests.TempestTestWithKeystoneMinimalNewRBAC
+tests_options:
+  trust:
+    - smoke
+  ignore_hard_deploy_errors:
+    - smoke
+  no_wait_deploy:
+    - smoke
+  tempest:
+    default:
+      # Full Cinder volume API suite, including the smoke create/attach
+      # volume coverage. Server-backed tests require the hypervisor app.
+      concurrency: 1
+      regex:
+        - 'tempest.api.volume.*'
+      exclude-list:
+        # Both snapshot tests hard-code create_server(wait_until='SSHABLE'):
+        # the runner has no route to the tenant network and the same class of
+        # ssh-requiring tests the core/monolithic suites exclude.
+        - tempest.api.volume.test_volumes_snapshots.VolumesSnapshotTestJSON.test_snapshot_create_delete_with_volume_in_use
+        - tempest.api.volume.test_volumes_snapshots.VolumesSnapshotTestJSON.test_snapshot_create_offline_delete_online
+
+target_deploy_status:
+  keystone:
+    workload-status: waiting
+    workload-status-message-regex: '^.*domain-config.*integration incomplete.*$|^$'
+  neutron:
+    workload-status: blocked
+    workload-status-message-regex: '^.*integration missing$'
+  cinder:
+    workload-status: blocked
+    workload-status-message-regex: '^.*storage-backend.*$'
