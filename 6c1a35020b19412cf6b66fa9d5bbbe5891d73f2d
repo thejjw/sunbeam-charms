@@ -50,6 +50,23 @@
       "message": "LGTM clean backport",
       "revId": "6c1a35020b19412cf6b66fa9d5bbbe5891d73f2d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1f5466c_dad42299",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-10-19T13:26:36Z",
+      "side": 1,
+      "message": "Confirmed clean backport",
+      "revId": "6c1a35020b19412cf6b66fa9d5bbbe5891d73f2d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
