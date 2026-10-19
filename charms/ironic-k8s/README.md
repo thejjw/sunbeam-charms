@@ -64,8 +64,7 @@ The following relations are optional:
 
 The charm by default uses following images:
 
-- `ghcr.io/canonical/ironic-api:2026.2-26.04_edge`
-- `ghcr.io/canonical/ironic-novncproxy:2026.2-26.04_edge`
+    ghcr.io/canonical/ironic-consolidated:2026.2-26.04_edge
 
 ## Contributing
 
