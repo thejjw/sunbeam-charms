@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4701642a_8bf94eb3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-19T02:06:54Z",
+      "side": 1,
+      "message": "recheck CI failure due to k8s pressure",
+      "revId": "5946c97d0e92c88e5f10e9eecfda8d0994e5a5c5",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
