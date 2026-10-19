@@ -16,6 +16,23 @@
       "message": "LGTM",
       "revId": "3a627cd1ece83531eda8ec2c016c33ff5d3a35e7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d174cbdb_f731a26e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-19T10:50:37Z",
+      "side": 1,
+      "message": "recheck horizon-k8s is published now",
+      "revId": "3a627cd1ece83531eda8ec2c016c33ff5d3a35e7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
