@@ -33,6 +33,23 @@
       "message": "Zuul failures are mostly because of the charms not published in Charmhub yet",
       "revId": "da9cc99e8c4ec932b1e0293e7817836a75bc47f7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d88f20c_18f2a9f4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-10-19T13:17:15Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "da9cc99e8c4ec932b1e0293e7817836a75bc47f7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
