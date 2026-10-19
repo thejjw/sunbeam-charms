@@ -50,6 +50,23 @@
       "message": "clean backport",
       "revId": "e6989119f95ad663dbcd2ada902cc9c765787664",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7558c97_24aca159",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-10-19T13:26:53Z",
+      "side": 1,
+      "message": "Confirmed clean backport",
+      "revId": "e6989119f95ad663dbcd2ada902cc9c765787664",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
