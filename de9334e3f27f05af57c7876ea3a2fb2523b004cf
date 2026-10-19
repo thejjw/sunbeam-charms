@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1126b20f_b8ae6d89",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-19T05:10:42Z",
+      "side": 1,
+      "message": "LGTM, minor nit which can be ignored",
+      "revId": "de9334e3f27f05af57c7876ea3a2fb2523b004cf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4c1b428c_d9fe1ec2",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 988,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-19T05:10:42Z",
+      "side": 1,
+      "message": "nit: This check is not necessary",
+      "revId": "de9334e3f27f05af57c7876ea3a2fb2523b004cf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
