@@ -18,6 +18,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "100155bb_6f50151a",
+        "filename": "charms/ovn-central-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 38987
+      },
+      "writtenOn": "2026-10-19T16:06:24Z",
+      "side": 1,
+      "message": "Done - Instead of relying on if the DB services are running, changed to verify if the /var/lib/ovn/ovnnb_db.db and ovnsb_db.db exist on the persistent storage.\nAlso the backfill runs only when upgrade-charm set cluster_member_backfill_pending. A replacement unit never gets that, so it isn\u0027t backfilled and its stale files are removed.",
+      "parentUuid": "fea7d278_c25b29b2",
+      "revId": "66418b9767c15385f1a3b60f8be70c30a60c0e8e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a9767495_7919b36d",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-10-15T11:16:29Z",
       "side": 1,
       "message": "is there a need to clear this flag anytime? maybe when it is scaled down to 0?",
+      "revId": "66418b9767c15385f1a3b60f8be70c30a60c0e8e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2782435a_9e9c266f",
+        "filename": "charms/ovn-central-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 38987
+      },
+      "writtenOn": "2026-10-19T16:06:24Z",
+      "side": 1,
+      "message": "I don\u0027t think so; cluster_member is per-unit peer data, so Juju should drop it when the unit is removed and new units start without it.",
+      "parentUuid": "a9767495_7919b36d",
       "revId": "66418b9767c15385f1a3b60f8be70c30a60c0e8e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -52,6 +88,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "efac9acd_4aa97b6d",
+        "filename": "charms/ovn-central-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 38987
+      },
+      "writtenOn": "2026-10-19T16:06:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c4ab58f_79039fd0",
+      "revId": "66418b9767c15385f1a3b60f8be70c30a60c0e8e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c97999a2_8bcf6bf5",
@@ -65,6 +119,24 @@
       "writtenOn": "2026-10-15T11:16:29Z",
       "side": 1,
       "message": "what happens if the leader unit is the departing ones and if it fails to cluster leave",
+      "revId": "66418b9767c15385f1a3b60f8be70c30a60c0e8e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2660e6f_788a46f7",
+        "filename": "charms/ovn-central-k8s/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 38987
+      },
+      "writtenOn": "2026-10-19T16:06:24Z",
+      "side": 1,
+      "message": "Done - now leader reconciles RAFT membership on leader-elected and update-status and kicks out servers that are no longer peer units. This should cover a departing leader and/or a failed cluster/leave.",
+      "parentUuid": "c97999a2_8bcf6bf5",
       "revId": "66418b9767c15385f1a3b60f8be70c30a60c0e8e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
