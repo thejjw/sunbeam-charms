@@ -16,6 +16,23 @@
       "message": "recheck Intermittent build failure",
       "revId": "424d00aff8617081fb4854c5a7affddce74d893a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17f436fd_b77ee3b3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-20T03:56:32Z",
+      "side": 1,
+      "message": "Hi Ionna, thank you for the PR. It looks good to me.\n\nWe are going to retire ovn-*-k8s charms from main and stable/2026.1 as 2026.1 deployments uses microovn for ovn control plane [1]\n\nCan you submit this patch onto stable/2025.1 and once it is merged we can backport to stable/2024.1\n\n[1] https://review.opendev.org/c/openstack/sunbeam-charms/+/1011068",
+      "revId": "424d00aff8617081fb4854c5a7affddce74d893a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
