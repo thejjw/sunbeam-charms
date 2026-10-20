@@ -16,6 +16,23 @@
       "message": "The fiddliest part of the implementation is the logic to handle stepping up the election timer by greater than x2. I put it in because that\u0027s what the machine charm does, and because the config option already said we did it. That being said, it would simplify a lot to just block if the we try to change it by too much at once and then ask the user to retry. Open to either.",
       "revId": "632632ec4598d3ca69b93d45b429303f25ebdb22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e82a9794_30f770bf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-20T04:08:31Z",
+      "side": 1,
+      "message": "Hi Zachary, thank you for the PR. It looks good to me.\n\nWe are going to retire ovn-*-k8s charms from main and stable/2026.1 as 2026.1 deployments uses microovn for ovn control plane [1]\n\nCan you submit this patch onto stable/2025.1 and once it is merged we can backport to stable/2024.1\n\n[1] https://review.opendev.org/c/openstack/sunbeam-charms/+/1011068",
+      "revId": "632632ec4598d3ca69b93d45b429303f25ebdb22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
