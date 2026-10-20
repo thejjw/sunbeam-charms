@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a6f2bd13_2ddae35b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-10-20T11:30:24Z",
+      "side": 1,
+      "message": "What happens if a stable 2024.1 deployment enables this config via `sunbeam cluster refresh`?\n\nShould we detect these issues and reboot?",
+      "revId": "55c48a2ae0f01205a5e82fcf350a88787b9857aa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
