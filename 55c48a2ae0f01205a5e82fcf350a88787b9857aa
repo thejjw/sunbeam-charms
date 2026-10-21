@@ -34,6 +34,23 @@
       "parentUuid": "a6f2bd13_2ddae35b",
       "revId": "55c48a2ae0f01205a5e82fcf350a88787b9857aa",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dfffa538_bf1810bd",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-10-21T10:21:41Z",
+      "side": 1,
+      "message": "ACK, so the 2025.1 and 2024.1 won\u0027t be clean cherry-picks",
+      "revId": "55c48a2ae0f01205a5e82fcf350a88787b9857aa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
