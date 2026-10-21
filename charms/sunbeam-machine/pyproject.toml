@@ -20,5 +20,6 @@ dependencies = [
     "opentelemetry-api~=1.21.0",  # charm_tracing library -> opentelemetry-sdk requires 1.21.0
     "cosl",
     "charmlibs-apt",
+    "charmlibs-snap",
     "pydantic",
 ]

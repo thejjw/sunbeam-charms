@@ -36,6 +36,7 @@ import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.tracing as sunbeam_tracing
 from charmlibs import (
     apt,
+    snap,
 )
 from charms.operator_libs_linux.v0 import (
     sysctl,
@@ -70,9 +71,38 @@ class SunbeamMachineCharm(sunbeam_charm.OSBaseOperatorCharm):
     def configure_unit(self, event: ops.EventBase):
         """Run configuration on this unit."""
         super().configure_unit(event)
+        self._snapd_configure()
         self._sysctl_configure()
         self._ensure_package_installed()
         self._configure_iscsi_initiator()
+
+    def _snapd_configure(self):
+        """Enable snapd experimental parallel instances feature.
+
+        Toggling this setting restarts snapd and can break snap
+        interface connections of already installed snaps (LP#2147411).
+        Enabling it here ensures snapd is configured before parallel
+        snap instances (e.g. consul for instance recovery) are
+        installed on the machine.
+        """
+        try:
+            if snap.get_one("system", "experimental.parallel-instances") in (
+                True,
+                "true",
+            ):
+                return
+        except snap.OptionNotFoundError:
+            pass
+        logger.info("Enabling snapd experimental parallel instances")
+        try:
+            snap.set("system", {"experimental.parallel-instances": True})
+        except snap.Error as e:
+            logger.error(
+                "Error setting snapd parallel instances", exc_info=True
+            )
+            raise sunbeam_guard.BlockedExceptionError(
+                "snapd parallel instances config failed"
+            ) from e
 
     def _sysctl_configure(self):
         """Run sysctl configuration on the local machine."""
