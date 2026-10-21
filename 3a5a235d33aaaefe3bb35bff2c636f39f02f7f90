@@ -16,6 +16,23 @@
       "message": "Following discussion at https://review.opendev.org/c/openstack/sunbeam-charms/+/1008337/comments/e82a9794_30f770bf cherry-pickedd the patch back to 2025.1 with an aim to backport to 2024.1.",
       "revId": "3a5a235d33aaaefe3bb35bff2c636f39f02f7f90",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0d13a7d0_86591900",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-21T09:31:41Z",
+      "side": 1,
+      "message": "LGTM",
+      "revId": "3a5a235d33aaaefe3bb35bff2c636f39f02f7f90",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
