@@ -16,6 +16,24 @@
       "message": "What happens if a stable 2024.1 deployment enables this config via `sunbeam cluster refresh`?\n\nShould we detect these issues and reboot?",
       "revId": "55c48a2ae0f01205a5e82fcf350a88787b9857aa",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dc79b3e8_930bc4c8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-21T09:44:13Z",
+      "side": 1,
+      "message": "In 2025.1 and 2024.1 the charm should check for existing snap connections which hit by this issue and run those snap connections on that node",
+      "parentUuid": "a6f2bd13_2ddae35b",
+      "revId": "55c48a2ae0f01205a5e82fcf350a88787b9857aa",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
