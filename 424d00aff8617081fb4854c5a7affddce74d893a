@@ -51,6 +51,23 @@
       "parentUuid": "17f436fd_b77ee3b3",
       "revId": "424d00aff8617081fb4854c5a7affddce74d893a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9a4b7ad_dbb73fcf",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-22T07:50:10Z",
+      "side": 1,
+      "message": "Can you abandon this PR",
+      "revId": "424d00aff8617081fb4854c5a7affddce74d893a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
