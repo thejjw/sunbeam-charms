@@ -66,3 +66,11 @@ ironic_tempest_plugin.tests.api.admin.test_microversion_enforcement.TestDeployTe
 
 # Creates same CUSTOM_TEST_2 runbook, never cleans it up, and fails on the next run
 ironic_tempest_plugin.tests.api.admin.test_microversion_enforcement.TestRunbookMicroversions.test_show_runbook
+
+# QoS policy tag writes are admin-only in neutron, but the neutron-tempest-plugin
+# shipped in the 2024.1 tempest snap (< 2.11) uses the member client for these
+# tests, so they fail with "rule:update_policies_tags is disallowed by policy".
+# Remove once the snap ships a fixed plugin, see below bug.
+# https://github.com/canonical/snap-tempest/issues/443
+neutron_tempest_plugin.api.admin.test_tag.TagQosPolicyTestJSON
+neutron_tempest_plugin.api.admin.test_tag.TagFilterQosPolicyTestJSON
