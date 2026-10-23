@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2de7361f_1c541634",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-23T06:04:34Z",
+      "side": 1,
+      "message": "Overall LGTM, minor comment inline",
+      "revId": "b92d82ed77fe4d350f33d2a19d7fbcad64aed14a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2eb4b78e_01cd720d",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-23T06:04:34Z",
+      "side": 1,
+      "message": "Can you mention how the secret content should look like in description (to know the key to be used)\n\n{\"passphrase\": \u003cvalue\u003e}\n\nAdd preliminary failfast checks whether the secret is accessible and have the key passphrase in the content",
+      "revId": "b92d82ed77fe4d350f33d2a19d7fbcad64aed14a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
