@@ -33,6 +33,24 @@
       "message": "Can you mention how the secret content should look like in description (to know the key to be used)\n\n{\"passphrase\": \u003cvalue\u003e}\n\nAdd preliminary failfast checks whether the secret is accessible and have the key passphrase in the content",
       "revId": "b92d82ed77fe4d350f33d2a19d7fbcad64aed14a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a00aec53_18132672",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-10-23T21:10:03Z",
+      "side": 1,
+      "message": "Updated the description. \nSince the secret is only read by vaultlocker, these checks are already implemented there.",
+      "parentUuid": "2eb4b78e_01cd720d",
+      "revId": "b92d82ed77fe4d350f33d2a19d7fbcad64aed14a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
