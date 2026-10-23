@@ -3,6 +3,17 @@
     file: download.yaml
   when: not skip_charm_download
 
+# LP#2164926: racing snapd restarts against in-flight snap changes
+# (installs/connects from the charms) leaves content-interface mounts
+# absent from consumer snap namespaces. Pre-setting the flag here means
+# sunbeam-machine's parallel-instances guard (LP#2147411) finds it
+# already enabled and never restarts snapd mid-deploy, avoiding the
+# race that killed func-test-openstack-microovn CI runs.
+- name: Enable snapd experimental parallel instances before charm deployment
+  become: true
+  ansible.builtin.command:
+    cmd: snap set system experimental.parallel-instances=true
+
 - name: run smoke tests
   ansible.builtin.command:
     cmd: "{{ tox_executable }} -e func -- --smoke --test-directory={{ test_dir }}"
