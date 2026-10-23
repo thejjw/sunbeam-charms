@@ -33,6 +33,23 @@
       "message": "recheck intermittent issue",
       "revId": "24968ec009993b52b0ca9b826ad951ae1bb3dfa9",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cf9b88cf_24174cfc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-23T05:27:33Z",
+      "side": 1,
+      "message": "recheck intermittent charm build issue",
+      "revId": "24968ec009993b52b0ca9b826ad951ae1bb3dfa9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
