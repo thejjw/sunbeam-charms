@@ -50,6 +50,23 @@
       "message": "recheck intermittent charm build issue",
       "revId": "24968ec009993b52b0ca9b826ad951ae1bb3dfa9",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "23d1e5ba_65d820db",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-10-24T02:35:43Z",
+      "side": 1,
+      "message": "can u rebase the PR with base as `1012149`. This should fix the CI failures",
+      "revId": "24968ec009993b52b0ca9b826ad951ae1bb3dfa9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
