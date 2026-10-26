@@ -67,6 +67,24 @@
       "message": "can u rebase the PR with base as `1012149`. This should fix the CI failures",
       "revId": "24968ec009993b52b0ca9b826ad951ae1bb3dfa9",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6168acb7_f77118c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38987
+      },
+      "writtenOn": "2026-10-26T19:18:48Z",
+      "side": 1,
+      "message": "I rebased based on 1012149, thanks!",
+      "parentUuid": "23d1e5ba_65d820db",
+      "revId": "24968ec009993b52b0ca9b826ad951ae1bb3dfa9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
