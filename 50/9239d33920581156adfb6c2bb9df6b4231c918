@@ -1,0 +1,9 @@
+Workflow+1: Ahmad Hassan <ahmad.hassan@canonical.com>
+Code-Review+2: Ahmad Hassan <ahmad.hassan@canonical.com>
+Code-Review+2: Felipe Reyes <felipe.reyes@canonical.com>
+Verified+2: Zuul
+Submitted-by: Zuul
+Submitted-at: Mon, 26 Oct 2026 22:43:30 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/1012149
+Project: openstack/sunbeam-charms
+Branch: refs/heads/stable/2025.1
