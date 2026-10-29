@@ -16,6 +16,40 @@
       "message": "recheck",
       "revId": "7665451b5eb876d528ad3e12b98b73302e34add7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "abe05107_a1452cb2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39585
+      },
+      "writtenOn": "2026-10-29T21:49:46Z",
+      "side": 1,
+      "message": "LGTM, just one minor question",
+      "revId": "7665451b5eb876d528ad3e12b98b73302e34add7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9caca126_1f1703ae",
+        "filename": "charms/openstack-hypervisor/src/encrypted_storage.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 39585
+      },
+      "writtenOn": "2026-10-29T21:49:46Z",
+      "side": 1,
+      "message": "question: How do we manage mount ordering to ensure that the device\u0027s systemd/pebble service is running and decrypts the device before attempting to mount it? If there is no other mechanism to check, in the systemd case there is `x-systemd.requires\u003d\u003cservice_name\u003e`",
+      "revId": "7665451b5eb876d528ad3e12b98b73302e34add7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
