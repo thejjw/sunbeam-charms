@@ -50,6 +50,24 @@
       "message": "question: How do we manage mount ordering to ensure that the device\u0027s systemd/pebble service is running and decrypts the device before attempting to mount it? If there is no other mechanism to check, in the systemd case there is `x-systemd.requires\u003d\u003cservice_name\u003e`",
       "revId": "7665451b5eb876d528ad3e12b98b73302e34add7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25013662_8cabf0ba",
+        "filename": "charms/openstack-hypervisor/src/encrypted_storage.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-11-03T21:38:53Z",
+      "side": 1,
+      "message": "Thanks for reviewing. The fstab entry points to the unlocked device, so systemd already waits for that device to appear before trying to mount it. There\u0027s no separate systemd service for each unlock job when using pebble and waiting for pebble itself would only tell us that pebble started.",
+      "parentUuid": "9caca126_1f1703ae",
+      "revId": "7665451b5eb876d528ad3e12b98b73302e34add7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
