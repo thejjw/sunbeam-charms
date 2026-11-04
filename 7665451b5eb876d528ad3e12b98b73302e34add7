@@ -68,6 +68,24 @@
       "parentUuid": "9caca126_1f1703ae",
       "revId": "7665451b5eb876d528ad3e12b98b73302e34add7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dda57ddc_e5e7c0cd",
+        "filename": "charms/openstack-hypervisor/src/encrypted_storage.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 39585
+      },
+      "writtenOn": "2026-11-04T19:10:18Z",
+      "side": 1,
+      "message": "Thanks!",
+      "parentUuid": "25013662_8cabf0ba",
+      "revId": "7665451b5eb876d528ad3e12b98b73302e34add7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
