@@ -16,6 +16,23 @@
       "message": "recheck unrelated to encryption storage work",
       "revId": "4195d875511547de5ad1747d0623e9416232049f",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5cb458a8_86fa1562",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-11-05T16:01:36Z",
+      "side": 1,
+      "message": "recheck",
+      "revId": "4195d875511547de5ad1747d0623e9416232049f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
