@@ -33,6 +33,40 @@
       "message": "nit: This check is not necessary",
       "revId": "de9334e3f27f05af57c7876ea3a2fb2523b004cf",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2eccb707_69736df0",
+        "filename": "ops-sunbeam/ops_sunbeam/db_recovery.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 25341
+      },
+      "writtenOn": "2026-11-09T22:54:27Z",
+      "side": 1,
+      "message": "suggestion: drop all of the tables at once, rather than individually",
+      "revId": "de9334e3f27f05af57c7876ea3a2fb2523b004cf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f91b7f89_3c82ac1f",
+        "filename": "ops-sunbeam/ops_sunbeam/db_recovery.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 25341
+      },
+      "writtenOn": "2026-11-09T22:54:27Z",
+      "side": 1,
+      "message": "question: why not list the dropped tables and why rather than simply a count?",
+      "revId": "de9334e3f27f05af57c7876ea3a2fb2523b004cf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
