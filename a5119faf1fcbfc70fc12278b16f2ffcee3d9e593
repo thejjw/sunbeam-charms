@@ -1,5 +1,23 @@
 {
-  "comments": [],
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6c838578_47aa34f8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-11-09T15:02:34Z",
+      "side": 1,
+      "message": "recheck to compare a clean main with encrypted-storage patch",
+      "revId": "a5119faf1fcbfc70fc12278b16f2ffcee3d9e593",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ],
   "submitRequirementResults": [
     {
       "submitRequirement": {
