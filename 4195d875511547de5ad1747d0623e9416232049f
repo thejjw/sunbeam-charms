@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "4195d875511547de5ad1747d0623e9416232049f",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ed5e44f1_2dfb844e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-11-09T15:00:53Z",
+      "side": 1,
+      "message": "recheck func-test-openstack-microovn timed out during deployment before Tempest started",
+      "revId": "4195d875511547de5ad1747d0623e9416232049f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
