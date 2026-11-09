@@ -92,6 +92,30 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "cc8832fb_5db8eef8",
+        "filename": "tests/openstack-microovn-ceph/tests.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-11-09T20:26:25Z",
+      "side": 1,
+      "message": "Fixed it by doing the volume `TempestTestWithKeystoneMinimalNewRBAC` test and `tempest.api.volume.*` tests.",
+      "parentUuid": "b93b5790_2843c7eb",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 63
+      },
+      "revId": "da9cc99e8c4ec932b1e0293e7817836a75bc47f7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d4dcd970_23c4c607",
@@ -109,6 +133,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0708502b_8eff9282",
+        "filename": "tests/openstack-microovn-deploy/tests.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-11-09T20:26:25Z",
+      "side": 1,
+      "message": "I ended up modifying tests/local/zaza/sunbeam/charm_tests/machine/setup.py to actually parse `workload-status-message-regex`, added an option to make the message regex supplied as dictionary per workload-status. This can also be upstreamed to Zaza if needed.",
+      "parentUuid": "d4dcd970_23c4c607",
+      "revId": "da9cc99e8c4ec932b1e0293e7817836a75bc47f7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "87b5ff54_35fb7921",
@@ -122,6 +164,24 @@
       "writtenOn": "2026-11-09T15:01:02Z",
       "side": 1,
       "message": "Please add charms/openstack-port-cni-k8s/ to this job’s files filter. configure_amphora deploys that charm, but a change confined to its directory currently does not trigger this voting integration suite.",
+      "revId": "da9cc99e8c4ec932b1e0293e7817836a75bc47f7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d545fc2b_7e5ff9f2",
+        "filename": "zuul.d/jobs.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-11-09T20:26:25Z",
+      "side": 1,
+      "message": "Woops missed that one. Done.",
+      "parentUuid": "87b5ff54_35fb7921",
       "revId": "da9cc99e8c4ec932b1e0293e7817836a75bc47f7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
