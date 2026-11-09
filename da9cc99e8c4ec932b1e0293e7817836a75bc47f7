@@ -50,6 +50,80 @@
       "message": "recheck",
       "revId": "da9cc99e8c4ec932b1e0293e7817836a75bc47f7",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e058a5a_e58d8a91",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-09T15:01:02Z",
+      "side": 1,
+      "message": "It feels like ceph is never tested?",
+      "revId": "da9cc99e8c4ec932b1e0293e7817836a75bc47f7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b93b5790_2843c7eb",
+        "filename": "tests/openstack-microovn-ceph/tests.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-09T15:01:02Z",
+      "side": 1,
+      "message": "Can we retain volume creation and attachment coverage in a voting suite? The core job now skips the Cinder Tempest tests, while this suite only checks audit logging through volumes.list(). Those functional tests remain only in the now non-voting monolithic job.",
+      "range": {
+        "startLine": 11,
+        "startChar": 0,
+        "endLine": 11,
+        "endChar": 63
+      },
+      "revId": "da9cc99e8c4ec932b1e0293e7817836a75bc47f7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d4dcd970_23c4c607",
+        "filename": "tests/openstack-microovn-deploy/tests.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-09T15:01:02Z",
+      "side": 1,
+      "message": "Accepting blocked and waiting here lets this deployment check pass with a broken nova-ironic workload. The machine setup readiness helper only checks the status and agent idleness; it does not enforce workload-status-message-regex.",
+      "revId": "da9cc99e8c4ec932b1e0293e7817836a75bc47f7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87b5ff54_35fb7921",
+        "filename": "zuul.d/jobs.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 583,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-09T15:01:02Z",
+      "side": 1,
+      "message": "Please add charms/openstack-port-cni-k8s/ to this job’s files filter. configure_amphora deploys that charm, but a change confined to its directory currently does not trigger this voting integration suite.",
+      "revId": "da9cc99e8c4ec932b1e0293e7817836a75bc47f7",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
