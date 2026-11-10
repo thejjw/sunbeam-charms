@@ -125,6 +125,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1c1d42e_a1d64e48",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-10T01:59:10Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "d394c353_9a2a1862",
+      "revId": "4aa6c36c98ac42f4014de6e755749d446bf816be",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a410f400_c669751a",
@@ -162,6 +180,30 @@
       "side": 1,
       "message": "Since action parameters use [json schema types](https://canonical.com/juju/docs/charmcraft/4/reference/files/actions-yaml-file/#action-params), string seemed like the appropriate type here.",
       "parentUuid": "a410f400_c669751a",
+      "range": {
+        "startLine": 244,
+        "startChar": 14,
+        "endLine": 244,
+        "endChar": 20
+      },
+      "revId": "4aa6c36c98ac42f4014de6e755749d446bf816be",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2034433f_7e445438",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-10T01:59:10Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "e9ad4547_5c3aca65",
       "range": {
         "startLine": 244,
         "startChar": 14,

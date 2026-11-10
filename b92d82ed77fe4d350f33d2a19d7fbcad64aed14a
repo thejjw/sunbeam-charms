@@ -51,6 +51,24 @@
       "parentUuid": "2eb4b78e_01cd720d",
       "revId": "b92d82ed77fe4d350f33d2a19d7fbcad64aed14a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4a4760d_a4bc8602",
+        "filename": "charms/openstack-hypervisor/charmcraft.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-10T01:59:10Z",
+      "side": 1,
+      "message": "Marked as resolved.",
+      "parentUuid": "a00aec53_18132672",
+      "revId": "b92d82ed77fe4d350f33d2a19d7fbcad64aed14a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
