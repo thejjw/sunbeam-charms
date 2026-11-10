@@ -1822,6 +1822,16 @@ class OSCinderVolumeDriverOperatorCharm(OSBaseOperatorCharmSnap):
                     sunbeam_storage.certificate_validator
                 ),
             ]
+        if "volume-dd-blocksize" in self.meta.config:
+            # Same lower bound as the cinder-volume snap, which rejects
+            # values below 512 bytes
+            overrides["volume-dd-blocksize"] = typing.Annotated[
+                int | None,
+                pydantic.Field(
+                    default=self.meta.config["volume-dd-blocksize"].default,
+                    ge=512,
+                ),
+            ]
         return overrides
 
     def ensure_snap_present(self):

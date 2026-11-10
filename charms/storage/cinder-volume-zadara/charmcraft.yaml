@@ -31,6 +31,13 @@ config:
       description: |
         Availability zone to associate with this backend.
       type: string
+    volume-dd-blocksize:
+      default: null
+      description: |
+        Block size in bytes used when copying or clearing volumes with dd
+        on the cinder-volume host. Must be at least 512. If unset, the
+        cinder-volume snap default is used.
+      type: int
     zadara-vpsa-host:
       default: null
       description: |

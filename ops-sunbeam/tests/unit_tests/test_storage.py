@@ -15,8 +15,12 @@
 """Tests for shared storage configuration validation."""
 
 import datetime
+import types
 
+import ops
+import ops_sunbeam.charm as sunbeam_charm
 import ops_sunbeam.storage as storage
+import pydantic
 import pytest
 from cryptography import (
     x509,
@@ -160,3 +164,66 @@ def test_private_key_validator_rejects_additional_content(payload_order):
 
     with pytest.raises(ValueError, match="Invalid private key format"):
         storage.private_key_validator(payload)
+
+
+def _driver_config_class(declare_blocksize=True) -> type[pydantic.BaseModel]:
+    """Build the config model for a driver charm."""
+    options = [
+        ("san-ip", "string"),
+        ("volume-backend-name", "string"),
+        ("backend-availability-zone", "string"),
+        ("protocol", "string"),
+    ]
+    if declare_blocksize:
+        options.append(("volume-dd-blocksize", "int"))
+    config = {
+        name: ops.ConfigMeta(
+            name=name, type=type_, default=None, description=None
+        )
+        for name, type_ in options
+    }
+    driver_cls = sunbeam_charm.OSCinderVolumeDriverOperatorCharm
+    # _configuration_type_overrides only reads self.meta.config, so a
+    # lightweight stand-in can replace a full charm instance
+    driver = types.SimpleNamespace(meta=types.SimpleNamespace(config=config))
+    overrides = driver_cls._configuration_type_overrides(driver)
+    return storage.to_pydantic_class(config, overrides)
+
+
+def _driver_config(**kwargs) -> pydantic.BaseModel:
+    """Build a driver config that declares volume-dd-blocksize."""
+    return _driver_config_class()(san_ip="10.0.0.1", **kwargs)
+
+
+def _snap_data(config: pydantic.BaseModel) -> dict:
+    """Dump the config as CinderVolumeConfigurationContext does."""
+    return config.model_dump(by_alias=True, exclude_none=True, mode="json")
+
+
+def test_volume_dd_blocksize_not_added_without_option():
+    """A driver that does not declare the option gets no override."""
+    config_class = _driver_config_class(declare_blocksize=False)
+
+    assert "volume_dd_blocksize" not in config_class.model_fields
+
+
+def test_volume_dd_blocksize_unset_is_not_sent_to_snap():
+    """An unset block size is omitted so the snap default applies."""
+    config = _driver_config()
+
+    assert config.volume_dd_blocksize is None
+    assert "volume-dd-blocksize" not in _snap_data(config)
+
+
+@pytest.mark.parametrize("value", [512, 1048576])
+def test_volume_dd_blocksize_accepts_512_or_more(value):
+    """Block sizes of 512 bytes or more are sent to the snap."""
+    config = _driver_config(volume_dd_blocksize=value)
+
+    assert _snap_data(config)["volume-dd-blocksize"] == value
+
+
+def test_volume_dd_blocksize_rejects_below_512():
+    """Block sizes below 512 bytes fail validation, matching the snap."""
+    with pytest.raises(pydantic.ValidationError, match="volume_dd_blocksize"):
+        _driver_config(volume_dd_blocksize=256)

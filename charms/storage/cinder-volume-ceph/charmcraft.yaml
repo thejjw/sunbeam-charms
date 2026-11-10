@@ -65,6 +65,13 @@ config:
         Availability zone name of this volume backend. If set, it will
         override the default availability zone. Supported for Pike or
         newer releases.
+    volume-dd-blocksize:
+      default: null
+      type: int
+      description: |
+        Block size in bytes used when copying or clearing volumes with dd
+        on the cinder-volume host. Must be at least 512. If unset, the
+        cinder-volume snap default is used.
     restrict-ceph-pools:
       default: false
       type: boolean
