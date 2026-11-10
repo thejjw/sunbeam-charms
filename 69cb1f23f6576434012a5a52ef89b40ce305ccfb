@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7f6bec3_d4ffd95d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-10T08:56:55Z",
+      "side": 1,
+      "message": "LGTM (hassahma)\n\nAutomated review (GLM Flash)\nReviewed by: GLM Flash (openrouter/~z-ai/glm-flash-latest)\n\nChange 1011805 patch set 2 — \"chore(magnum-k8s): change default capi helm chart version\"\nRevision 69cb1f23f6576434012a5a52ef89b40ce305ccfb (openstack/sunbeam-charms, main)",
+      "revId": "69cb1f23f6576434012a5a52ef89b40ce305ccfb",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
