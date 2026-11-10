@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f6b01cdc_d9169e08",
+        "filename": "tests/openstack-microovn-ceph/tests.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-10T07:16:45Z",
+      "side": 1,
+      "message": "Nit: create_flavors/manage_ssh_key/add_lts_image in the ceph suite, but no compute tests run here (volume-only regex). Harmless if tempest init needs them populated; otherwise droppable to shave setup time.",
+      "revId": "48caa646acc5394af7e0364d4d3cc07fdb0df87a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a88a22f7_98207fb6",
+        "filename": "tests/openstack-microovn-ceph/tests.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-10T07:16:45Z",
+      "side": 1,
+      "message": "tempest.api.volume.* covers volume lifecycle (create/snapshot/backup/...), but instance-level attach coverage (tempest.api.compute.volumes.test_attach_volume) still only exists in the non-voting monolithic job. If excluding it here is deliberate - those tests boot servers and need the tenant-network route, like the excluded ssh-requiring tests - a one-line comment saying so would prevent it being read as an oversight when someone audits the split.",
+      "revId": "48caa646acc5394af7e0364d4d3cc07fdb0df87a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad92c0d6_edf69bcb",
+        "filename": "tests/openstack-microovn-deploy/tests.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-10T07:16:45Z",
+      "side": 1,
+      "message": "Since this job is now voting: as written, a nova-ironic that stays blocked (\"service not ready\") forever still passes the suite - the accepted-status list plus per-status regex makes the gate pass on the not-converged outcome. That\u0027s clearly documented as intentional, but consider making the accepted outcome visible: e.g. log which of blocked/waiting/active was observed at the end of the configure phase, so a green vote that accepted a blocked nova-ironic is distinguishable in CI history. Alternatively a follow-up non-voting job could require active once the 8vCPU capacity issue is resolved.",
+      "revId": "48caa646acc5394af7e0364d4d3cc07fdb0df87a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b5eb5c9_c9b92bd3",
+        "filename": "zuul.d/jobs.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-10T07:16:45Z",
+      "side": 1,
+      "message": "Nit, non-blocking: the four new jobs repeat ~40 lines of near-identical files/vars blocks (and the monolithic job keeps its own fifth copy). A new charm directory now needs up to five edits; a shared abstract parent job (files via inheritance or YAML anchors) would prevent drift like the port-cni omission Guillaume caught.",
+      "revId": "48caa646acc5394af7e0364d4d3cc07fdb0df87a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
