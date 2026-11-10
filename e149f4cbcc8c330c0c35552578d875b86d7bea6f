@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "ef72fcca_5d55f957",
+        "filename": "/",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-10T07:43:48Z",
+      "side": 1,
+      "message": "Automated review (Claude Sonnet Latest)\nReviewed by: Claude Sonnet Latest (openrouter/~anthropic/claude-sonnet-latest)\n\nMinimal, correct change: adds default-volume-type (type: string, default: null — matching the convention used by glance-k8s and cinder-volume) and renders it as default_volume_type in the [DEFAULT] section of cinder.conf, guarded by a truthiness check. Covered by three new scenario tests (unset, set on both containers, section placement). Commit message follows repo style with Change-Id, Signed-off-by, cherry-pick trailer and Closes-Bug. Wiring is correct: charms/cinder-k8s/ triggers charm-build-bin-core-storage and the func-test jobs via zuul.d filters.\n\nZuul results consulted (buildset ee221336a6eb4e51ab6760f87fcddf7d): openstack-tox-linters SUCCESS, openstack-tox-pep8 SUCCESS, openstack-tox-py312 SUCCESS, openstack-tox-cover SUCCESS, charm-build-bin-core-storage SUCCESS, func-test-openstack SUCCESS, func-test-openstack-microovn FAILURE (non-voting).\n\nFindings: Critical 0, High 0, Medium 0, Low 1, Nit 2 — see inline comments.\n\nSuggested vote: Code-Review +1 | 0 | -1\n\nauto-review:e149f4cbcc8c330c0c35552578d875b86d7bea6f",
+      "revId": "e149f4cbcc8c330c0c35552578d875b86d7bea6f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "ba954e42_8efe3476",
         "filename": "/PATCHSET_LEVEL",
         "patchSetId": 1
@@ -14,6 +31,57 @@
       "writtenOn": "2026-10-29T11:11:58Z",
       "side": 1,
       "message": "LGTM",
+      "revId": "e149f4cbcc8c330c0c35552578d875b86d7bea6f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fbfb5265_cf7cc663",
+        "filename": "charms/cinder-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-10T07:43:48Z",
+      "side": 1,
+      "message": "Nit: default-volume-type now exists on both cinder-k8s and cinder-volume with quite different description depth. Nothing wrong — just noting operators must set the option on both charms for a consistent end-to-end default. No change required.",
+      "revId": "e149f4cbcc8c330c0c35552578d875b86d7bea6f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3dd33f94_2ab60d18",
+        "filename": "charms/cinder-k8s/src/templates/cinder.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-10T07:43:48Z",
+      "side": 1,
+      "message": "Low: the guard is a bare truthiness test. An empty string is correctly treated as unset, but a whitespace-only value (e.g. \" \") passes the guard and renders \u0027default_volume_type \u003d \u0027 with a blank value, which Cinder would reject or misinterpret at service start — a mis-typed manifest value silently produces a broken config line instead of falling back to __DEFAULT__.\n\nSuggested fix: normalize before rendering, e.g. {% set dvt \u003d options.default_volume_type | trim -%} then guard and render dvt; or validate the option in config-changed. Also consider a unit test for the empty-string config value to pin the \u0027unset behaves like absent\u0027 behavior.",
+      "revId": "e149f4cbcc8c330c0c35552578d875b86d7bea6f",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a4fa6c8_1ba81274",
+        "filename": "charms/cinder-k8s/src/templates/cinder.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-10T07:43:48Z",
+      "side": 1,
+      "message": "Nit: default_volume_type is consumed by cinder-api (volume-create defaulting); cinder-scheduler does not read it, so the commit message\u0027s \u0027cinder-api and cinder-scheduler always used __DEFAULT__\u0027 is slightly imprecise. Rendering the same cinder.conf to both containers is harmless and consistent with the rest of the template — wording only, no code change needed.",
       "revId": "e149f4cbcc8c330c0c35552578d875b86d7bea6f",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
