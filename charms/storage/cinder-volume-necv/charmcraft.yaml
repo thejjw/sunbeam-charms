@@ -31,6 +31,13 @@ config:
       description: |
         Availability zone to associate with this backend.
       type: string
+    volume-dd-blocksize:
+      default: null
+      description: |
+        Block size in bytes used when copying or clearing volumes with dd
+        on the cinder-volume host. Must be at least 512. If unset, the
+        cinder-volume snap default is used.
+      type: int
     # RULES for vendor-specific options:
     # 1. Secret fields MUST use `type: secret` (NOT `type: string`)
     # 2. Required fields (like san-ip) should NOT have `default: null` - omit the default key entirely

@@ -323,3 +323,47 @@ class TestInfinidatConfigValidation(test_utils.CharmTestCase):
         self.assertTrue(config.use_chap_auth)
         self.assertEqual(config.chap_username, "chap-user")
         self.assertEqual(config.chap_password, "chap-pass")
+
+    def test_volume_dd_blocksize_defaults_to_none(self):
+        """Blocksize stays unset so the snap default applies."""
+        config_class = self._get_config_class()
+        config = config_class(
+            san_ip="10.20.20.3",
+            san_login=self._mock_secret({"san-login": "admin"}),
+            san_password=self._mock_secret({"san-password": "secret123"}),
+            infinidat_pool_name="pool1",
+            protocol="fc",
+        )
+        self.assertIsNone(config.volume_dd_blocksize)
+        self.assertNotIn(
+            "volume-dd-blocksize",
+            config.model_dump(by_alias=True, exclude_none=True),
+        )
+
+    def test_volume_dd_blocksize_accepts_valid_value(self):
+        """A blocksize of 512 bytes or more passes validation."""
+        config_class = self._get_config_class()
+        config = config_class(
+            san_ip="10.20.20.3",
+            san_login=self._mock_secret({"san-login": "admin"}),
+            san_password=self._mock_secret({"san-password": "secret123"}),
+            infinidat_pool_name="pool1",
+            protocol="fc",
+            volume_dd_blocksize=512,
+        )
+        self.assertEqual(config.volume_dd_blocksize, 512)
+
+    def test_volume_dd_blocksize_rejects_below_512(self):
+        """A blocksize below 512 bytes fails validation."""
+        config_class = self._get_config_class()
+        with pytest.raises(
+            pydantic.ValidationError, match="volume_dd_blocksize"
+        ):
+            config_class(
+                san_ip="10.20.20.3",
+                san_login=self._mock_secret({"san-login": "admin"}),
+                san_password=self._mock_secret({"san-password": "secret123"}),
+                infinidat_pool_name="pool1",
+                protocol="fc",
+                volume_dd_blocksize=256,
+            )

@@ -37,6 +37,13 @@ config:
       default: null
       description: |
         Availability zone to associate with this backend (Pike+).
+    volume-dd-blocksize:
+      type: int
+      default: null
+      description: |
+        Block size in bytes used when copying or clearing volumes with dd
+        on the cinder-volume host. Must be at least 512. If unset, the
+        cinder-volume snap default is used.
     san-ip:
       type: string
       description: Dell Storage Center management IP or hostname.
