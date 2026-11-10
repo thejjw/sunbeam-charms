@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "31539d1d37793c5213cb1fc817bac0e8fc55405b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "13ddf66d_ea545aa4",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-10T11:10:00Z",
+      "side": 1,
+      "message": "NIT: is there a reason we prefer the unit test to live in a specific implementation, rather than in ops sunbeam directly? (where that behavior is enforced?)\n\nMoreover, please update the commit message to follow this repository conventions.\n\nstorage: add volume-dd-blocksize config option\n\n\n\nThe commit needs not be so descriptive, why do we need to describe the code change in itself? The diff in the commit already does that.",
+      "revId": "31539d1d37793c5213cb1fc817bac0e8fc55405b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
