@@ -1,0 +1,12 @@
+Backport-Candidate-1: Heather Lanigan <heather.lanigan@canonical.com>
+Verified+2: Zuul
+Code-Review+2: Hemanth N <hemanth.nakkina@canonical.com>
+Workflow+1: Hemanth N <hemanth.nakkina@canonical.com>
+Code-Review+1: Lucas Payne <lucas.payne@canonical.com>
+Code-Review+1: Heather Lanigan <heather.lanigan@canonical.com>
+Submitted-by: Zuul
+Submitted-at: Wed, 11 Nov 2026 02:04:53 +0000
+Reviewed-on: https://review.opendev.org/c/openstack/sunbeam-charms/+/1009660
+Comments-Total: 26
+Project: openstack/sunbeam-charms
+Branch: refs/heads/main
