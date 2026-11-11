@@ -50,6 +50,23 @@
       "message": "recheck microovn timedout again",
       "revId": "9b41207206c619dd7adbcb72aa36c930a763b3a4",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9656cdde_04103785",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38780
+      },
+      "writtenOn": "2026-11-11T06:38:16Z",
+      "side": 1,
+      "message": "@guillaume.boutry@canonical.com While testing this E2E on a local deployment, I noticed that volume-dd-blocksize never reaches the rendered cinder.conf for the ceph backend. cinder-volume-ceph is the only driver charm that overrides get_backend_configuration() with a hardcoded dict, bypassing the generic configuration_class pipeline in ops-sunbeam, so the new option is silently dropped for ceph. The other drivers use the base implementation, so they should work fine.\n\nWe could fix it by passing the option through the ceph-specific context and backend dict, matching the existing backend-availability-zone pattern. This would bypass the ge\u003d512 pydantic check in ops-sunbeam, however, so for ceph an invalid value would be rejected by the snap\u0027s own validation rather than a clean blocked status.",
+      "revId": "9b41207206c619dd7adbcb72aa36c930a763b3a4",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
