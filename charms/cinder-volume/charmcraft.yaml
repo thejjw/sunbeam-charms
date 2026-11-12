@@ -68,7 +68,12 @@ config:
       type: string
       default: null
       description: |
-        Default volume type to use when creating volumes.
+        DEPRECATED: this option has no effect and will be removed in a
+        future release.
+
+        The default volume type is applied by the cinder-api service when a
+        volume is created, so setting it on the volume service does nothing.
+        Use the default-volume-type option of the cinder-k8s charm instead.
     experimental-devmode:
       type: boolean
       default: false
