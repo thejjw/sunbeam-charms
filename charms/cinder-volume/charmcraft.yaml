@@ -64,11 +64,6 @@ config:
       description: |
         Max number of entries allowed in the image volume cache. 0 means
         unlimited.
-    default-volume-type:
-      type: string
-      default: null
-      description: |
-        Default volume type to use when creating volumes.
     experimental-devmode:
       type: boolean
       default: false

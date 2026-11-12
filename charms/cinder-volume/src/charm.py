@@ -283,7 +283,6 @@ class CinderVolumeOperatorCharm(charm.OSBaseOperatorCharmSnap):
                 "cinder.image-volume-cache-max-count": config(
                     "image-volume-cache-max-count"
                 ),
-                "cinder.default-volume-type": config("default-volume-type"),
                 "settings.debug": self.model.config["debug"],
                 "settings.enable-telemetry-notifications": self.model.config[
                     "enable-telemetry-notifications"
