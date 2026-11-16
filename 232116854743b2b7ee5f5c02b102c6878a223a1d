@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36b3454e_007ca824",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-16T07:18:14Z",
+      "side": 1,
+      "message": "Lets wait for sunbeam 2026.1/stable release before we merge this PR",
+      "revId": "232116854743b2b7ee5f5c02b102c6878a223a1d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
