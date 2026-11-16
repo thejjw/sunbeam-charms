@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a94b226e_6e3a81a6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-16T16:38:35Z",
+      "side": 1,
+      "message": "This is failure prone, especially when keystone will try to validate an expired token (since keystone 2024.1), this would introduce a vector of vulnerability.",
+      "revId": "3558b09a138f9796f4e0f38294019f987587672c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
