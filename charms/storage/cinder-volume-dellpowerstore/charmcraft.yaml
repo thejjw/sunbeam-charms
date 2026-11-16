@@ -55,7 +55,7 @@ config:
       description: |
         Dell PowerStore management IP address or hostname.
         This is the primary array management interface.
-      type: secret
+      type: string
     san-login:
       description: |
         Dell PowerStore management username.

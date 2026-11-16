@@ -71,10 +71,6 @@ def ctx():
 @pytest.fixture()
 def complete_state():
     """Full state with leader, cinder-volume relation, config and secrets."""
-    san_ip_secret = testing.Secret(
-        tracked_content={"san-ip": "10.20.30.40"},
-        owner="app",
-    )
     san_login_secret = testing.Secret(
         tracked_content={"san-login": "admin"},
         owner="app",
@@ -86,11 +82,10 @@ def complete_state():
     return testing.State(
         leader=True,
         config={
-            "san-ip": san_ip_secret.id,
             "san-login": san_login_secret.id,
             "san-password": san_password_secret.id,
             "protocol": "fc",
         },
         relations=[cinder_volume_relation()],
-        secrets=[san_ip_secret, san_login_secret, san_password_secret],
+        secrets=[san_login_secret, san_password_secret],
     )
