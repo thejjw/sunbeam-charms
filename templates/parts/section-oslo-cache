@@ -1,6 +1,8 @@
 [cache]
-{% if memcache_url %}
 enabled = true
+{% if memcache_url %}
 backend = oslo_cache.memcache_pool
 memcache_servers = {{ memcache_url }}
+{% else %}
+backend = dogpile.cache.memory
 {% endif %}

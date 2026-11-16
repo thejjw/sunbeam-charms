@@ -286,6 +286,32 @@ class TestOIDCScope:
         assert 'OIDCScope "openid email profile"' not in rendered
 
 
+class TestOsloCacheTemplate:
+    """Test the oslo.cache section rendered into keystone.conf."""
+
+    def _render(self, **context):
+        template_dir = Path(charm.__file__).parent / "templates"
+        template = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(str(template_dir))
+        ).get_template("parts/section-oslo-cache")
+        return template.render(**context)
+
+    def test_defaults_to_in_process_cache(self):
+        """Without memcached, caching must not fall back to the null backend."""
+        rendered = self._render()
+
+        assert "enabled = true" in rendered
+        assert "backend = dogpile.cache.memory" in rendered
+        assert "memcache_servers" not in rendered
+
+    def test_uses_memcached_when_configured(self):
+        """A memcached endpoint selects the shared memcache backend."""
+        rendered = self._render(memcache_url="127.0.0.1:11211")
+
+        assert "backend = oslo_cache.memcache_pool" in rendered
+        assert "memcache_servers = 127.0.0.1:11211" in rendered
+
+
 # ---------------------------------------------------------------------------
 # _on_peer_data_changed tests
 # ---------------------------------------------------------------------------
