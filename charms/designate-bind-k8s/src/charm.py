@@ -20,6 +20,7 @@ This charm provide designate-bind services
 import base64
 import hashlib
 import hmac
+import ipaddress
 import json
 import logging
 import secrets
@@ -37,8 +38,10 @@ import lightkube.models.core_v1 as core_v1
 import ops
 import ops.charm
 import ops_sunbeam.charm as sunbeam_charm
+import ops_sunbeam.config_contexts as sunbeam_config_contexts
 import ops_sunbeam.container_handlers as sunbeam_chandlers
 import ops_sunbeam.core as sunbeam_core
+import ops_sunbeam.guard as sunbeam_guard
 import ops_sunbeam.relation_handlers as sunbeam_rhandlers
 import ops_sunbeam.tracing as sunbeam_tracing
 from ops.framework import (
@@ -265,6 +268,64 @@ class BindRndcProvidesRelationHandler(sunbeam_rhandlers.RelationHandler):
         }
 
 
+def _split_config_list(value: Optional[str]) -> List[str]:
+    """Split a semicolon-separated config value into stripped entries."""
+    return [
+        entry.strip() for entry in (value or "").split(";") if entry.strip()
+    ]
+
+
+def parse_forwarders(value: Optional[str]) -> List[str]:
+    """Return the validated forwarders IP addresses.
+
+    :raises ValueError: if an entry is not an IP address.
+    """
+    forwarders = []
+    for entry in _split_config_list(value):
+        try:
+            forwarders.append(str(ipaddress.ip_address(entry)))
+        except ValueError:
+            raise ValueError(f"Invalid forwarders entry: {entry!r}") from None
+    return forwarders
+
+
+def parse_recursion_nets(value: Optional[str]) -> List[str]:
+    """Return the validated, normalised recursion networks.
+
+    :raises ValueError: if an entry is not an IP network.
+    """
+    nets = []
+    for entry in _split_config_list(value):
+        try:
+            nets.append(str(ipaddress.ip_network(entry, strict=False)))
+        except ValueError:
+            raise ValueError(
+                f"Invalid allowed_recursion_nets entry: {entry!r}"
+            ) from None
+    return nets
+
+
+@sunbeam_tracing.trace_type
+class BindOptionsContext(sunbeam_config_contexts.ConfigContext):
+    """Validated forwarding and recursion settings for named.conf.options."""
+
+    def context(self) -> dict:
+        """Forwarders and recursion ACL to render."""
+        try:
+            forwarders = parse_forwarders(self.charm.config.get("forwarders"))
+            nets = parse_recursion_nets(
+                self.charm.config.get("allowed_recursion_nets")
+            )
+        except ValueError:
+            # configure_unit() blocks before rendering; never render bad input.
+            forwarders, nets = [], []
+        return {
+            "forwarders": forwarders,
+            "recursion": bool(nets),
+            "allow_recursion": nets,
+        }
+
+
 @sunbeam_tracing.trace_sunbeam_charm
 class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
     """Charm the service."""
@@ -329,9 +390,30 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
             ),
         ]
 
+    @property
+    def config_contexts(self) -> List[sunbeam_config_contexts.ConfigContext]:
+        """Configuration contexts for the operator."""
+        contexts = super().config_contexts
+        contexts.append(BindOptionsContext(self, "bind"))
+        return contexts
+
     def update_owned_relation_data(self):
         """Update owned relation data."""
         self.bind_rndc.refresh_address()
+
+    def _validate_bind_config(self) -> None:
+        """Block the unit if forwarding/recursion config is invalid."""
+        try:
+            forwarders = parse_forwarders(self.config.get("forwarders"))
+            nets = parse_recursion_nets(
+                self.config.get("allowed_recursion_nets")
+            )
+        except ValueError as e:
+            raise sunbeam_guard.BlockedExceptionError(str(e)) from e
+        if forwarders and not nets:
+            raise sunbeam_guard.BlockedExceptionError(
+                "allowed_recursion_nets must be set when forwarders is set"
+            )
 
     def configure_unit(self, event: ops.EventBase) -> None:
         """Run configuration on this unit."""
@@ -339,6 +421,7 @@ class BindOperatorCharm(sunbeam_charm.OSBaseOperatorCharmK8S):
         self.check_relation_handlers_ready(event)
         self.update_owned_relation_data()
         self.open_ports()
+        self._validate_bind_config()
         self.configure_containers()
         self.run_db_sync()
         self.init_container_services()

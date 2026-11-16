@@ -16,10 +16,13 @@
 
 """Scenario (ops.testing state-transition) tests for designate-bind-k8s."""
 
+import dataclasses
 from unittest.mock import (
     patch,
 )
 
+import charm
+import pytest
 from ops import (
     testing,
 )
@@ -70,6 +73,200 @@ class TestAllRelations:
             testing.TCPPort(53),
             testing.TCPPort(953),
         }
+
+
+class TestForwarders:
+    """Forwarders and recursion rendering in named.conf.options."""
+
+    OPTIONS_FILE = "/etc/bind/named.conf.options"
+
+    @staticmethod
+    def _forwarders_block(forwarders: list[str]) -> str:
+        """Expected rendered forwarders block."""
+        entries = "".join(f"                {f};\n" for f in forwarders)
+        return (
+            "        forwarders {\n" + entries + "        };\n"
+            "        forward only;\n"
+        )
+
+    @staticmethod
+    def _recursion_block(nets: list[str]) -> str:
+        """Expected rendered recursion block."""
+        entries = "".join(f"                {n};\n" for n in nets)
+        return (
+            "        recursion yes;\n"
+            "        allow-recursion {\n" + entries + "        };\n"
+        )
+
+    def _run(self, ctx, state, config) -> testing.State:
+        """Run config-changed with the given charm config."""
+        state = dataclasses.replace(state, config=config)
+        return ctx.run(ctx.on.config_changed(), state)
+
+    def _render_options(self, ctx, state, config) -> str:
+        """Run config-changed and return rendered named.conf.options."""
+        state_out = self._run(ctx, state, config)
+        assert state_out.unit_status == testing.ActiveStatus("")
+        config_path = assert_config_file_exists(
+            state_out, ctx, "designate-bind", self.OPTIONS_FILE
+        )
+        return config_path.read_text()
+
+    @staticmethod
+    def _assert_no_forwarding_or_recursion(content: str) -> None:
+        """Assert neither forwarding nor recursion is configured."""
+        assert "forwarders {" not in content
+        assert "forward only;" not in content
+        assert "recursion yes;" not in content
+        assert "allow-recursion" not in content
+
+    @staticmethod
+    def _options_block(content: str) -> str:
+        """Return the body of the top-level options block."""
+        start = content.index("options {")
+        end = content.index("\n};", start)
+        return content[start:end]
+
+    def test_no_options(self, ctx, complete_state):
+        """No forwarders or recursion nets → configuration unchanged."""
+        content = self._render_options(ctx, complete_state, {})
+        self._assert_no_forwarding_or_recursion(content)
+        assert "Forwarders are managed" not in content
+
+    def test_empty_entries_treated_as_unset(self, ctx, complete_state):
+        """Values with only separators/whitespace are treated as unset."""
+        content = self._render_options(
+            ctx,
+            complete_state,
+            {"forwarders": " ; ; ", "allowed_recursion_nets": ";"},
+        )
+        self._assert_no_forwarding_or_recursion(content)
+
+    def test_recursion_nets_without_forwarders(self, ctx, complete_state):
+        """allowed_recursion_nets alone enables restricted recursion."""
+        content = self._render_options(
+            ctx,
+            complete_state,
+            {"allowed_recursion_nets": "10.0.0.0/8; 192.168.0.0/16;"},
+        )
+        assert "forwarders {" not in content
+        assert "forward only;" not in content
+        assert (
+            self._recursion_block(["10.0.0.0/8", "192.168.0.0/16"])
+            in self._options_block(content) + "\n"
+        )
+
+    def test_forwarders_with_recursion_nets(self, ctx, complete_state):
+        """Forwarders are validated, normalised and rendered with an ACL."""
+        content = self._render_options(
+            ctx,
+            complete_state,
+            {
+                "forwarders": " 8.8.8.8 ; ;2001:4860:4860::8888; ",
+                "allowed_recursion_nets": "10.1.2.3/8",
+            },
+        )
+        options = self._options_block(content) + "\n"
+        assert (
+            self._forwarders_block(["8.8.8.8", "2001:4860:4860::8888"])
+            in options
+        )
+        assert self._recursion_block(["10.0.0.0/8"]) in options
+        assert "any;" not in content.split("allow-recursion", 1)[1]
+
+    def test_forwarders_without_recursion_nets_blocks(
+        self, ctx, complete_state
+    ):
+        """Forwarders without allowed_recursion_nets → blocked, no any."""
+        state_out = self._run(ctx, complete_state, {"forwarders": "8.8.8.8"})
+        assert state_out.unit_status == testing.BlockedStatus(
+            "(workload) allowed_recursion_nets must be set when forwarders is"
+            " set"
+        )
+
+    @pytest.mark.parametrize(
+        "config,bad_value",
+        [
+            (
+                {
+                    "forwarders": "8.8.8.8\n        }",
+                    "allowed_recursion_nets": "10.0.0.0/8",
+                },
+                "8.8.8.8\n",
+            ),
+            (
+                {
+                    "forwarders": "dns.google",
+                    "allowed_recursion_nets": "10.0.0.0/8",
+                },
+                "dns.google",
+            ),
+            (
+                {"forwarders": "any", "allowed_recursion_nets": "10.0.0.0/8"},
+                "forwarders {",
+            ),
+            ({"allowed_recursion_nets": "10.0.0.0/33"}, "10.0.0.0/33"),
+            ({"allowed_recursion_nets": "any"}, "allow-recursion"),
+            (
+                {
+                    "allowed_recursion_nets": "10.0.0.0/8 }; allow-transfer { any"
+                },
+                "allow-transfer",
+            ),
+        ],
+    )
+    def test_invalid_config_blocks(
+        self, ctx, complete_state, config, bad_value
+    ):
+        """Invalid entries → blocked and never rendered."""
+        state_out = self._run(ctx, complete_state, config)
+        assert state_out.unit_status.name == "blocked"
+        assert "Invalid" in state_out.unit_status.message
+
+        container = state_out.get_container("designate-bind")
+        options_file = container.get_filesystem(
+            ctx
+        ) / self.OPTIONS_FILE.lstrip("/")
+        if options_file.exists():
+            assert bad_value not in options_file.read_text()
+
+
+class TestConfigParsing:
+    """Validation helpers for forwarders and allowed_recursion_nets."""
+
+    def test_parse_forwarders(self):
+        """IPv4/IPv6 forwarders are stripped; empty entries dropped."""
+        assert charm.parse_forwarders(" 8.8.8.8 ;;2001:4860:4860::8888;") == [
+            "8.8.8.8",
+            "2001:4860:4860::8888",
+        ]
+        assert charm.parse_forwarders("") == []
+        assert charm.parse_forwarders(None) == []
+
+    @pytest.mark.parametrize(
+        "value", ["dns.google", "any", "8.8.8.8/32", "8.8.8.8 port 53"]
+    )
+    def test_parse_forwarders_invalid(self, value):
+        """Non IP address forwarders are rejected."""
+        with pytest.raises(ValueError, match="Invalid forwarders entry"):
+            charm.parse_forwarders(value)
+
+    def test_parse_recursion_nets(self):
+        """Networks are normalised; single addresses become host networks."""
+        assert charm.parse_recursion_nets(
+            "10.1.2.3/8; 192.168.1.10;2001:db8::/32"
+        ) == ["10.0.0.0/8", "192.168.1.10/32", "2001:db8::/32"]
+        assert charm.parse_recursion_nets(" ; ") == []
+
+    @pytest.mark.parametrize(
+        "value", ["any", "localnets", "10.0.0.0/33", "10.0.0.0/8 }"]
+    )
+    def test_parse_recursion_nets_invalid(self, value):
+        """Non CIDR entries, including BIND ACL keywords, are rejected."""
+        with pytest.raises(
+            ValueError, match="Invalid allowed_recursion_nets entry"
+        ):
+            charm.parse_recursion_nets(value)
 
 
 class TestPebbleReady:

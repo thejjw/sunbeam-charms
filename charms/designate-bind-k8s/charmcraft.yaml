@@ -40,6 +40,36 @@ config:
 
         Ensure the annotations are correctly formatted and adhere to Kubernetes' syntax and character set : https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/#syntax-and-character-set
       type: string
+    forwarders:
+      default: ""
+      type: string
+      description: |
+        String containing a list of DNS forwarders IP addresses, separated
+        by semicolons: e.g., "8.8.8.8;8.8.4.4".
+
+        When set, BIND9 is configured with "forward only", so recursive
+        queries for names not served by Designate are sent exclusively to
+        these forwarders.
+
+        Forwarding requires recursion, so allowed_recursion_nets must also
+        be set; otherwise the unit is blocked.
+    allowed_recursion_nets:
+      default: ""
+      type: string
+      description: |
+        String containing a list of networks, in CIDR notation, allowed to
+        perform recursive queries through the BIND9 servers, separated by
+        semicolons: e.g., "10.0.0.0/8;172.16.0.0/12;192.168.0.0/16".
+
+        When set, recursion is enabled and restricted to these networks
+        (equivalent to "allow-recursion" in BIND9), with or without
+        forwarders.
+
+        DNS is exposed through a Kubernetes LoadBalancer service: depending
+        on its externalTrafficPolicy, BIND9 may see the node addresses
+        instead of the client addresses, in which case the node network must
+        also be listed. Setting "0.0.0.0/0;::/0" makes the server an open
+        resolver and is not recommended.
 
 containers:
   designate-bind:
