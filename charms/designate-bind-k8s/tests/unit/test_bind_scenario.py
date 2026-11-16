@@ -16,6 +16,7 @@
 
 """Scenario (ops.testing state-transition) tests for designate-bind-k8s."""
 
+import dataclasses
 from unittest.mock import (
     patch,
 )
@@ -70,6 +71,70 @@ class TestAllRelations:
             testing.TCPPort(53),
             testing.TCPPort(953),
         }
+
+
+class TestForwarders:
+    """Forwarders and recursion rendering in named.conf.options."""
+
+    OPTIONS_FILE = "/etc/bind/named.conf.options"
+
+    def _render_options(self, ctx, state, config) -> str:
+        """Run config-changed and return rendered named.conf.options."""
+        state = dataclasses.replace(state, config=config)
+        state_out = ctx.run(ctx.on.config_changed(), state)
+        assert state_out.unit_status == testing.ActiveStatus("")
+        config_path = assert_config_file_exists(
+            state_out, ctx, "designate-bind", self.OPTIONS_FILE
+        )
+        return config_path.read_text()
+
+    @staticmethod
+    def _block_entries(content: str, statement: str) -> list[str]:
+        """Return the entries of a `statement { a; b; };` block."""
+        block = content.split(statement + " {", 1)[1].split("};", 1)[0]
+        return [entry.strip() for entry in block.split(";") if entry.strip()]
+
+    def test_no_forwarders(self, ctx, complete_state):
+        """No forwarders → no forwarding/recursion, recursion nets ignored."""
+        content = self._render_options(
+            ctx, complete_state, {"allowed_recursion_nets": "10.0.0.0/8"}
+        )
+        assert "forwarders {" not in content
+        assert "forward only;" not in content
+        assert "recursion yes;" not in content
+        assert "allow-recursion" not in content
+
+    def test_forwarders_rendered(self, ctx, complete_state):
+        """Forwarders are sanitised and rendered inside the options block."""
+        content = self._render_options(
+            ctx, complete_state, {"forwarders": " 8.8.8.8 ; ;8.8.4.4; "}
+        )
+        assert self._block_entries(content, "forwarders") == [
+            "8.8.8.8",
+            "8.8.4.4",
+        ]
+        options_start = content.index("options {")
+        options_end = content.index("\n};", options_start)
+        assert options_start < content.index("forwarders {") < options_end
+        assert options_start < content.index("forward only;") < options_end
+        assert "recursion yes;" in content
+        assert "allow-recursion { any; };" in content
+
+    def test_forwarders_with_allowed_recursion_nets(self, ctx, complete_state):
+        """allowed_recursion_nets restricts recursion to listed networks."""
+        content = self._render_options(
+            ctx,
+            complete_state,
+            {
+                "forwarders": "8.8.8.8",
+                "allowed_recursion_nets": "10.0.0.0/8; 192.168.0.0/16;",
+            },
+        )
+        assert "allow-recursion { any; };" not in content
+        assert self._block_entries(content, "allow-recursion") == [
+            "10.0.0.0/8",
+            "192.168.0.0/16",
+        ]
 
 
 class TestPebbleReady:

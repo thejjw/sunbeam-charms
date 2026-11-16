@@ -5,10 +5,15 @@ options {
         // to talk to, you may need to fix the firewall to allow multiple
         // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
 
-        // If your ISP provided one or more IP addresses for stable
-        // nameservers, you probably want to use them as forwarders.
-        // Uncomment the following block, and insert the addresses replacing
-        // the all-0's placeholder.
+        // Forwarders are managed by the charm "forwarders" config option.
+        {%- if options.forwarders %}
+        forwarders {
+        {%- for forwarder in options.forwarders.split(';') if forwarder.strip() %}
+                {{ forwarder.strip() }};
+        {%- endfor %}
+        };
+        forward only;
+        {%- endif %}
 
         //========================================================================
         // If BIND logs error messages about the root key being expired,
@@ -22,6 +27,20 @@ options {
         request-ixfr no;
         allow-query { any; };
         allow-notify { any; };
+        {%- if options.forwarders %}
+
+        // Forwarding only applies to recursive queries.
+        recursion yes;
+        {%- if options.allowed_recursion_nets %}
+        allow-recursion {
+        {%- for net in options.allowed_recursion_nets.split(';') if net.strip() %}
+                {{ net.strip() }};
+        {%- endfor %}
+        };
+        {%- else %}
+        allow-recursion { any; };
+        {%- endif %}
+        {%- endif %}
 
         statistics-file "/var/cache/bind/named.stats";
         zone-statistics yes;

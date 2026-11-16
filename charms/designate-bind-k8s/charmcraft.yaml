@@ -40,6 +40,32 @@ config:
 
         Ensure the annotations are correctly formatted and adhere to Kubernetes' syntax and character set : https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/#syntax-and-character-set
       type: string
+    forwarders:
+      default: ""
+      type: string
+      description: |
+        String containing a list of DNS forwarders, separated by semicolons:
+        e.g., "8.8.8.8;8.8.4.4".
+
+        When set, BIND9 is configured with "forward only", so recursive
+        queries for names not served by Designate are sent exclusively to
+        these forwarders.
+
+        As a non-empty forwarders option implies recursion, recursive queries
+        will be enabled. When using this option, allowed_recursion_nets should
+        be set to restrict which clients can perform recursive queries and
+        prevent the service from becoming an open resolver.
+    allowed_recursion_nets:
+      default: ""
+      type: string
+      description: |
+        String containing a list of networks allowed to perform recursive
+        queries through the BIND9 servers, separated by semicolons:
+        e.g., "10.0.0.0/8;172.16.0.0/12;192.168.0.0/16".
+
+        The option is equivalent to "allow-recursion" in BIND9 and only takes
+        effect when the forwarders option is set. If not set while forwarders
+        are configured, recursive queries are allowed from any host.
 
 containers:
   designate-bind:
