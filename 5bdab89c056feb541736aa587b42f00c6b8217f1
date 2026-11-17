@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cda28e63_a7a25f74",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39630
+      },
+      "writtenOn": "2026-11-17T00:54:10Z",
+      "side": 1,
+      "message": "recheck func-test-openstack-microovn: node stall caused liveness-probe kills of most pods incl. mysql-0 (restarted read-only), leading to keystone/neutron 500/503 in tempest; unrelated to designate-bind change",
+      "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
