@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0e62e623_9868dccc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39630
+      },
+      "writtenOn": "2026-11-17T16:44:07Z",
+      "side": 1,
+      "message": "recheck func-test-openstack-microovn: node stall again (probe timeouts on ~21/37 pods, rabbitmq-0 and neutron-server killed by liveness, juju agents lost controller connection) causing neutron 502/503 in tempest; designate-bind loaded PS2 config cleanly before and after restart",
+      "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
