@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d0cdc75c_6d1c96d4",
+        "filename": "charms/storage/cinder-volume-purestorage/charmcraft.yaml",
+        "patchSetId": 6
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 25341
+      },
+      "writtenOn": "2026-11-17T20:52:26Z",
+      "side": 1,
+      "message": "question: how is this juju secret created? Where is the answer documented?",
+      "revId": "89d3d5f7c99a3a00b44b6fb06bac9ae1fd57990a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1a244988_a9a89360",
+        "filename": "charms/storage/cinder-volume-purestorage/tests/unit/test_cinder_volume_purestorage_scenario.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 25341
+      },
+      "writtenOn": "2026-11-17T20:52:26Z",
+      "side": 1,
+      "message": "todo: remove debug print statement",
+      "revId": "89d3d5f7c99a3a00b44b6fb06bac9ae1fd57990a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "41f08922_c859adf1",
+        "filename": "charms/storage/cinder-volume-purestorage/tests/unit/test_cinder_volume_purestorage_scenario.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 25341
+      },
+      "writtenOn": "2026-11-17T20:52:26Z",
+      "side": 1,
+      "message": "todo: remove debug print statement",
+      "revId": "89d3d5f7c99a3a00b44b6fb06bac9ae1fd57990a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
