@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "17b1cf5d_c29b0b78",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-17T04:56:28Z",
+      "side": 1,
+      "message": "Ensure this option is deprecated instead of removed in stable/2026.1 and below",
+      "revId": "c655143b86d5f124844367170dfb45390fc7f3ba",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
