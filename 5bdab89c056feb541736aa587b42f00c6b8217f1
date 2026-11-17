@@ -16,6 +16,125 @@
       "message": "recheck func-test-openstack-microovn: node stall caused liveness-probe kills of most pods incl. mysql-0 (restarted read-only), leading to keystone/neutron 500/503 in tempest; unrelated to designate-bind change",
       "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "089d0e70_9ad8ed4b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-17T07:47:14Z",
+      "side": 1,
+      "message": "Automated review (Claude Sonnet Latest)\nReviewed by: Claude Sonnet Latest (openrouter/~anthropic/claude-sonnet-latest)\n\n# Review of Change 1015910, patch set 1 — `feat(designate-bind-k8s): add forwarders option`\n\nRevision: `5bdab89c056feb541736aa587b42f00c6b8217f1` (openstack/sunbeam-charms, branch `main`)\nFiles: `charms/designate-bind-k8s/charmcraft.yaml`, `.../src/templates/named.conf.options.j2`, `.../tests/unit/test_bind_scenario.py`\n\n## Summary\n\nThe change adds two `string` config options (`forwarders`, `allowed_recursion_nets`) to the\ndesignate-bind-k8s charm and renders them in `named.conf.options.j2` as a `forwarders { ... };`\nblock plus `forward only;`, `recursion yes;` and an `allow-recursion` block. The Jinja\nwhitespace control (`{%-`) is used consistently and the rendered output I traced by hand is\nsyntactically valid BIND9 in all three states (forwarders unset / forwarders set / forwarders +\nnets set): the stripped newlines land the block at the same 8-space indentation as the\nsurrounding `options` statements, and no stray blank line is left inside the block. The commit\nmessage follows repo convention (conventional-commit subject, `Change-Id`, `Signed-off-by`,\n`Closes-Bug: #2171896`) and the file-filter wiring is correct: `zuul.d/jobs.yaml:124` and\n`zuul.d/jobs.yaml:494` both list `charms/designate-bind-k8s/`, so the charm\u0027s build and the\nrepo-wide unit/pep8/linters jobs are triggered by this path.\n\nThe substantive problem is the security default: when `forwarders` is set and\n`allowed_recursion_nets` is not, the template now emits `allow-recursion { any; };`. Before this\nchange the template set neither `recursion` nor `allow-recursion`, so BIND9\u0027s own defaults\n(`allow-recursion` falls back to `allow-query-cache`, i.e. `{ localnets; localhost; }`) applied\nand recursion was *not* open. Because this charm publishes DNS on port 53 through a Kubernetes\nLoadBalancer (`charm.py` `default_public_ingress_port \u003d 53`, `allow-query { any; }`), the new\nexplicit `any` turns the unit into an internet-reachable open resolver. There is also no\nvalidation of the operator-supplied strings before they are written into `named.conf`, so a\nmalformed value breaks `named.conf` rather than failing fast.\n\n## CI / Zuul results consulted\n\nRead anonymously from Gerrit (`/changes/1015910/detail?o\u003dLABELS\u0026o\u003dMESSAGES`), latest check run\n(buildset `cf6e4dafb8734e6baf718544cf25c82d`, `Verified +1` by Zuul at 2026-11-17 02:15 UTC):\n\n- `openstack-tox-linters` — SUCCESS (3m 40s)\n- `openstack-tox-pep8` — SUCCESS (1m 49s)\n- `openstack-tox-py314` — SUCCESS (6m 28s)\n- `openstack-tox-cover` — SUCCESS (13m 50s)\n- `charm-build-bin-services-a` — SUCCESS (10m 01s)\n- `func-test-openstack-microovn` — SUCCESS (1h 09m 30s)\n\nAn earlier run had `Verified -1` with `func-test-openstack-microovn` FAILURE; the author replied\nthat it was an unrelated node stall (`/PATCHSET_LEVEL` comment, 2026-11-17 00:54) and the recheck\npassed. I did not run any linters, tests or builds myself.\n\n## Findings\n\n### Critical: 0\n\nNone.\n\n### High: 1\n\n**H1. `allow-recursion { any; };` opens recursion to every host — a regression versus the previous BIND default.**\n`charms/designate-bind-k8s/src/templates/named.conf.options.j2:41` (with the gate at\n`:30-34` and the doc at `charms/designate-bind-k8s/charmcraft.yaml:66-68`).\n\nWhat is wrong: when `forwarders` is non-empty and `allowed_recursion_nets` is empty, the template\nemits `allow-recursion { any; };`. Why it matters: `HEAD~1`\u0027s template had no `recursion` and no\n`allow-recursion`, so BIND9 defaulted `allow-recursion` to `allow-query-cache`\n(`{ localnets; localhost; }`); `allow-query { any; }` alone does not open recursion. The new\nline is therefore a widening of the recursion policy, not a neutral default, and it is combined\nwith `forward only`, so any host that can reach the LoadBalancer (the charm declares\n`default_public_ingress_port \u003d 53` and opens UDP/TCP 53) gets an open recursive resolver that\nwill forward arbitrary queries upstream — the classic DNS amplification/reflection and cache-\npoisoning exposure. The commit message justifies this as \"matching the machine charm\", but a\nmachine charm\u0027s local-network default is not equivalent to a K8s charm fronted by a public\n`LoadBalancer`; that parity claim is also not verifiable from this worktree (there is no\n`designate-bind` machine charm here). Suggested fix: do not render `any` by default. Either make\n`allowed_recursion_nets` effectively required when `forwarders` is set (fail the unit into\n`BlockedStatus` with a clear message if it is unset), or default the rendered value to a safe\nset (e.g. the cluster/pod CIDRs, or BIND\u0027s `localnets`) instead of `any`, and keep the current\n\"allow any\" behaviour only behind an explicit opt-in. At minimum, the charm should not report\n`ActiveStatus` while it is an open resolver.\n\n### Medium: 2\n\n**M1. Operator-supplied config is interpolated into `named.conf` without per-entry validation (config injection / broken config).**\n`charms/designate-bind-k8s/src/templates/named.conf.options.j2:11-12` and `:36-37`; option\ndefinitions at `charms/designate-bind-k8s/charmcraft.yaml:43-68`.\n\nWhat is wrong: each entry is only `strip()`-ed and then written verbatim as `{{ entry }};`.\n`split(\u0027;\u0027)` prevents a literal `;` in an entry, but nothing prevents newlines, `{`/`}`, `#` or\n`//` inside an entry. A value such as `forwarders: \"8.8.8.8\\n        }\"` renders\n`8.8.8.8\\n        };` — the entry\u0027s `}` plus the auto-appended `;` closes the block early — and a\nvalue containing a newline can add arbitrary text lines to the `options` block. There is also no\ncheck that a forwarder is an IP address (BIND requires addresses, not hostnames) or that a\nrecursion net is a valid CIDR. Why it matters: the failure mode is a syntactically invalid\n`named.conf`, which makes `named` fail to start (the rock plan runs `named-checkconf` as a Pebble\ncheck) and takes the DNS backend down instead of rejecting the bad value at config time; the\ninput is operator-supplied via `juju config`, so this is a robustness/DoS issue rather than a\nprivilege boundary. Suggested fix: validate in `charm.py`\u0027s config-changed path (or before\nrendering) using `ipaddress.ip_address` for each `forwarders` entry and\n`ipaddress.ip_network(..., strict\u003dFalse)` for each net, and put the unit in `BlockedStatus` on\nfailure. Additionally reject entries containing whitespace other than the surrounding padding,\nand drop the `-`/`strip()`-only approach in favour of pre-validated lists passed to the template.\n\n**M2. The new tests do not assert rendered BIND syntax or indentation, and one of them enshrines the insecure default.**\n`charms/designate-bind-k8s/tests/unit/test_bind_scenario.py:107-121` (and `:97-105`, `:123-137`).\n\nWhat is wrong: the tests only assert substring presence/ordering and a semicolon-split list of\nentries; they never assert the exact rendered text, indentation, or that the result is\nparseable. `test_forwarders_rendered` explicitly asserts\n`assert \"allow-recursion { any; };\" in content` (line 121), so the open-resolver default becomes\na locked-in expectation rather than something a future fix can change freely. The helper\n`_block_entries` (line 94) would also mask indentation regressions, since it strips each entry.\nWhy it matters: the whole risk of this change is in the rendered text (whitespace control inside\na `named.conf`), which is exactly what is not asserted; a broken render would pass these tests as\nlong as the substrings appear. Suggested fix: assert the full expected rendered\n`named.conf.options` (or at least the exact block text with indentation) for the three states,\nadd a case with a newline/`}` in `forwarders` to pin the validation behaviour, and change the\n\"any\" assertion once H1 is addressed. A `named-checkconf`-based assertion (or invoking it against\nthe rendered file in the unit test) would give real syntax coverage.\n\n### Low: 3\n\n**L1. A whitespace-only `forwarders` value renders an empty block plus `forward only;`.**\n`charms/designate-bind-k8s/src/templates/named.conf.options.j2:9-15`. `if options.forwarders` is\ntruthy for `\" \"`/`\";;;\"`, while the `for ... if forwarder.strip()` filter drops every entry, so\nthe file gets `forwarders { };` followed by `forward only;`. BIND accepts an empty forwarders\nlist syntactically, but `forward only` with no usable forwarder silently breaks resolution for\nall non-authoritative names. Suggest treating a value whose stripped entries are all empty as\n\"unset\" (validate/normalise in the charm) so the config stays unchanged.\n\n**L2. `allowed_recursion_nets` is silently ignored when `forwarders` is unset.**\n`charms/designate-bind-k8s/src/templates/named.conf.options.j2:34`; documented at\n`charms/designate-bind-k8s/charmcraft.yaml:66-67`; asserted at\n`tests/unit/test_bind_scenario.py:97-105`. The doc says the option \"only takes effect when the\nforwarders option is set\", but the operator gets no feedback that the value they set is inert.\nSuggest logging a warning (or returning `BlockedStatus`/`WaitingStatus`) when\n`allowed_recursion_nets` is set without `forwarders`.\n\n**L3. Parity with the machine charm is claimed but not demonstrable here, and the option naming is only locally consistent.**\n`charms/designate-bind-k8s/charmcraft.yaml:54-57` and `:66-68`; commit message. The\n\"matching the machine charm\" statement cannot be checked from this worktree (no `designate-bind`\nmachine charm source is present), and for the K8s charm the security context differs (public\n`LoadBalancer` on 53). `allowed_recursion_nets` uses an underscore, which is consistent with the\nneighbouring `loadbalancer_annotations`, but if the machine charm exposes a differently named\noption (`allow-recursion`/`allowed_recursion_nets`) the two charms will diverge in operator UX.\nSuggest confirming the exact upstream option names/behaviour and, if parity is a goal, citing\nthe machine charm commit in the message; otherwise drop the parity claim and document the K8s\ndefault explicitly.\n\n### Nit: 2\n\n**N1.** `charms/designate-bind-k8s/src/templates/named.conf.options.j2:8` leaves the comment\n`// Forwarders are managed by the charm \"forwarders\" config option.` in place even when\n`forwarders` is unset, where it describes a feature that is not active. Minor; could be moved\ninside the `{%- if %}`.\n\n**N2.** `tests/unit/test_bind_scenario.py:108` docstring says \"Forwarders are sanitised\", but the\ncode performs no sanitisation beyond `strip()` (see M1). Either implement the sanitisation the\ndocstring promises or reword it. For completeness: the new `import dataclasses`\n(`test_bind_scenario.py:19`) is genuinely used by `dataclasses.replace` at line 83, so it is not\na dead import, and `git status --porcelain` in this worktree was empty when reviewed.\n\n## Suggested vote\n\nSuggested vote: Code-Review -1\n\nThe change is functionally correct, well-tested at the substring level, and its Zuul check\npipeline is green, but H1 introduces an internet-reachable open resolver default and M1 lets\nmalformed operator input break `named.conf`. I would re-vote +1 once the recursion default is\nmade safe (or `allowed_recursion_nets` is required when `forwarders` is set) and the config\nvalues are validated.\n\nauto-review:5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8747f40b_892db152",
+        "filename": "charms/designate-bind-k8s/charmcraft.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-17T07:47:14Z",
+      "side": 1,
+      "message": "**Low**: parity with the machine charm is claimed but not demonstrable here, and the option naming is only locally consistent. The \"matching the machine charm\" statement cannot be checked from this repo (no `designate-bind` machine charm source), and the K8s security context differs (public LoadBalancer on 53). `allowed_recursion_nets` uses an underscore, consistent with `loadbalancer_annotations`, but if the machine charm exposes a different option name the two charms diverge in operator UX. Fix: confirm the exact upstream option names/behaviour and cite the machine charm commit, or drop the parity claim and document the K8s default explicitly.",
+      "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ee02965f_3de429fd",
+        "filename": "charms/designate-bind-k8s/src/templates/named.conf.options.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-17T07:47:14Z",
+      "side": 1,
+      "message": "**Low**: a whitespace-only `forwarders` value renders an empty block plus `forward only;`. `if options.forwarders` is truthy for `\" \"`/`\";;;\"` while the `for ... if forwarder.strip()` filter drops every entry, so the file gets `forwarders { };` followed by `forward only;`, which silently breaks resolution for all non-authoritative names. Fix: treat a value whose stripped entries are all empty as unset (normalise in the charm) so the configuration stays unchanged.",
+      "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1c44ce35_f7dd7ac5",
+        "filename": "charms/designate-bind-k8s/src/templates/named.conf.options.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-17T07:47:14Z",
+      "side": 1,
+      "message": "**Medium**: operator-supplied config is interpolated into `named.conf` without per-entry validation. Entries are only `strip()`-ed and written as `{{ entry }};`; `split(\u0027;\u0027)` does not stop newlines, `{`/`}` or `#`/`//` inside an entry, so a value such as `8.8.8.8\\n        }` closes the block early and can inject arbitrary config lines. There is also no check that forwarders are IP addresses (BIND requires addresses, not hostnames) or that nets are valid CIDRs; the failure mode is an invalid `named.conf` that makes `named` fail to start (`named-checkconf` Pebble check) instead of rejecting the value at config time. Fix: validate with `ipaddress.ip_address` / `ipaddress.ip_network(..., strict\u003dFalse)` in the config-changed path, reject entries with embedded whitespace/newlines/braces, and put the unit in `BlockedStatus` on failure.",
+      "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "903e8997_22a7f0f3",
+        "filename": "charms/designate-bind-k8s/src/templates/named.conf.options.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-17T07:47:14Z",
+      "side": 1,
+      "message": "**Low**: `allowed_recursion_nets` is silently ignored when `forwarders` is unset. The option is documented as only taking effect with `forwarders` set, but an operator who sets it alone gets no feedback that the value is inert. Fix: log a warning, or surface `BlockedStatus`/`WaitingStatus`, when `allowed_recursion_nets` is set without `forwarders`.",
+      "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b0eaab56_b8bf7bf0",
+        "filename": "charms/designate-bind-k8s/src/templates/named.conf.options.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-17T07:47:14Z",
+      "side": 1,
+      "message": "**High**: `allow-recursion { any; };` opens recursion to every host - a regression versus the previous BIND default. When `forwarders` is set and `allowed_recursion_nets` is empty the template emits `any`; before this change the template set neither `recursion` nor `allow-recursion`, so BIND9 fell back to `{ localnets; localhost; }`. Because the charm publishes DNS on port 53 via a LoadBalancer with `allow-query { any; }`, this turns the unit into an internet-reachable open resolver combined with `forward only` (amplification/reflection, cache poisoning). Fix: do not render `any` by default - either require `allowed_recursion_nets` when `forwarders` is set (BlockedStatus otherwise), or default to a safe set (cluster/pod CIDRs or `localnets`), keeping allow-any behind an explicit opt-in.",
+      "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7affb598_57bdbdc7",
+        "filename": "charms/designate-bind-k8s/tests/unit/test_bind_scenario.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-17T07:47:14Z",
+      "side": 1,
+      "message": "**Medium**: the new tests do not assert rendered BIND syntax or indentation, and this line enshrines the insecure default. The tests only check substrings/ordering and a semicolon-split entry list (`_block_entries` strips each entry, masking indentation regressions); `assert \"allow-recursion { any; };\"; in content` locks in the open-resolver default so a future safe fix must also change the test. The whole risk of this change is in the rendered text (Jinja whitespace control inside named.conf), which is exactly what is untested. Fix: assert the full expected rendered `named.conf.options` (or at least exact block text with indentation) for the three states, add a case with a newline/`}` in `forwarders` to pin validation, and assert via `named-checkconf` on the rendered file.",
+      "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
