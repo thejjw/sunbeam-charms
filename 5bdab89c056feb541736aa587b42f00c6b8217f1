@@ -86,6 +86,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "ccfafc37_b44e5908",
+        "filename": "charms/designate-bind-k8s/src/templates/named.conf.options.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 34232
+      },
+      "writtenOn": "2026-11-17T09:26:36Z",
+      "side": 1,
+      "message": "I think forwarders and recursion should be partly decorrelated.\n\nIt is possible to use the bind DNS servers directly as recursive DNS without using a forward.\n\nIn that situation forwarders or having set the allowed_recursion_nets should both allow to enable the recursion.\nA bit like here (from the Charmed Openstack version) : https://opendev.org/openstack/charm-designate-bind/src/commit/8011530840bc088a249a5fbe288e39bbf92ae95c/src/templates/named.conf.options#L53",
+      "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "903e8997_22a7f0f3",
