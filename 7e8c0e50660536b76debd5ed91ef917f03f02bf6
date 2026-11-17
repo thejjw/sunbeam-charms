@@ -16,6 +16,23 @@
       "message": "recheck func-test-openstack-microovn: node stall again (probe timeouts on ~21/37 pods, rabbitmq-0 and neutron-server killed by liveness, juju agents lost controller connection) causing neutron 502/503 in tempest; designate-bind loaded PS2 config cleanly before and after restart",
       "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b9dd313a_f190cb30",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39630
+      },
+      "writtenOn": "2026-11-17T21:54:28Z",
+      "side": 1,
+      "message": "recheck func-test-openstack-microovn: node overload again - etcd apply latency up to 18s, kubelet housekeeping 26s, load avg 33 on 8 vCPU, 26/37 pods killed by liveness probes; keystone get-admin-password action lost, causing KeyError in MagnumAPIAuditTest. designate-bind active, PS2 config loaded cleanly.",
+      "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
