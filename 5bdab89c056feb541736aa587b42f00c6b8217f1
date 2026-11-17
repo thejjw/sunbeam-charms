@@ -37,6 +37,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "00c23106_5e1691d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39630
+      },
+      "writtenOn": "2026-11-17T15:28:14Z",
+      "side": 1,
+      "message": "PS2 addresses the review comments:\n\n- Recursion is enabled by allowed_recursion_nets, with or without\n  forwarders, so BIND9 can act as a recursive resolver without\n  forwarding (Olivier).\n- \"allow-recursion { any; }\" is removed: forwarders without\n  allowed_recursion_nets blocks the unit, so it can no longer be an\n  open resolver by default (H1).\n- forwarders and allowed_recursion_nets are validated as IP addresses\n  and networks in the charm before rendering; invalid values block the\n  unit and the last valid configuration is kept (M1, L1).\n- allowed_recursion_nets is no longer ignored without forwarders (L2).\n- Tests assert the exact rendered output and cover invalid input and\n  the parse helpers (M2).\n- Option descriptions and commit message updated; the machine charm\n  template is cited and the differences explained (L3, N1, N2).\n\ntox -e fmt, pep8 and py3 pass locally.",
+      "parentUuid": "089d0e70_9ad8ed4b",
+      "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "8747f40b_892db152",
         "filename": "charms/designate-bind-k8s/charmcraft.yaml",
         "patchSetId": 1
@@ -99,6 +117,24 @@
       "writtenOn": "2026-11-17T09:26:36Z",
       "side": 1,
       "message": "I think forwarders and recursion should be partly decorrelated.\n\nIt is possible to use the bind DNS servers directly as recursive DNS without using a forward.\n\nIn that situation forwarders or having set the allowed_recursion_nets should both allow to enable the recursion.\nA bit like here (from the Charmed Openstack version) : https://opendev.org/openstack/charm-designate-bind/src/commit/8011530840bc088a249a5fbe288e39bbf92ae95c/src/templates/named.conf.options#L53",
+      "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fe74b68e_1928680c",
+        "filename": "charms/designate-bind-k8s/src/templates/named.conf.options.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 39630
+      },
+      "writtenOn": "2026-11-17T15:28:14Z",
+      "side": 1,
+      "message": "Thanks, agreed. In PS2 recursion is no longer tied only to forwarders:\nsetting allowed_recursion_nets enables \"recursion yes;\" with\nallow-recursion restricted to those networks, with or without\nforwarders, so BIND9 can be used directly as a recursive resolver.\n\nI didn\u0027t add a separate \"recursion\" boolean like the machine charm,\nbecause here port 53 is exposed through a LoadBalancer and recursion\nwithout an ACL would make the unit an open resolver. Setting\nallowed_recursion_nets is therefore the explicit opt-in, and\nforwarders without allowed_recursion_nets blocks the unit.\n\nDoes this cover your use case?",
+      "parentUuid": "ccfafc37_b44e5908",
       "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
