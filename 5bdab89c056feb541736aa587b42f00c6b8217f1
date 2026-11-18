@@ -141,6 +141,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "d6044da9_53abfa4c",
+        "filename": "charms/designate-bind-k8s/src/templates/named.conf.options.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 34232
+      },
+      "writtenOn": "2026-11-18T08:47:30Z",
+      "side": 1,
+      "message": "Thank you for the update, it is better this way.",
+      "parentUuid": "fe74b68e_1928680c",
+      "revId": "5bdab89c056feb541736aa587b42f00c6b8217f1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "903e8997_22a7f0f3",
         "filename": "charms/designate-bind-k8s/src/templates/named.conf.options.j2",
         "patchSetId": 1
