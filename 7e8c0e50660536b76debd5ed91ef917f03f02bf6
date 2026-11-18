@@ -33,6 +33,23 @@
       "message": "recheck func-test-openstack-microovn: node overload again - etcd apply latency up to 18s, kubelet housekeeping 26s, load avg 33 on 8 vCPU, 26/37 pods killed by liveness probes; keystone get-admin-password action lost, causing KeyError in MagnumAPIAuditTest. designate-bind active, PS2 config loaded cleanly.",
       "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60b7f0ad_73d59408",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39630
+      },
+      "writtenOn": "2026-11-18T12:23:38Z",
+      "side": 1,
+      "message": "recheck openstack-tox-py314: pip install failed fetching build deps for vaultlocker-interfaces from the OpenDev PyPI mirror (\"OSError: Response ended prematurely\"); transient mirror/network error, other jobs aborted as a consequence",
+      "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
