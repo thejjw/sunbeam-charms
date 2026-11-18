@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "05410d76_6b0d263c",
+        "filename": "charms/storage/cinder-volume-purestorage/charmcraft.yaml",
+        "patchSetId": 6
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-11-18T19:10:05Z",
+      "side": 1,
+      "message": "Updated the description to be clear about the secret creation process. However, `pure-api-token` has the same gap. From the sunbeam code it is clear that the secret should be generated under `token` but the description does not state this. \n\nSince the primary purpose of these secrets is to be created and consumed under sunbeam I assume this was not documented because the process would be automated. We may consider updating `pure-api-token` to be similarly verbose. Whether that belongs in this patch or another is also up for debate.",
+      "parentUuid": "d0cdc75c_6d1c96d4",
+      "revId": "89d3d5f7c99a3a00b44b6fb06bac9ae1fd57990a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1a244988_a9a89360",
         "filename": "charms/storage/cinder-volume-purestorage/tests/unit/test_cinder_volume_purestorage_scenario.py",
         "patchSetId": 6
@@ -31,6 +49,24 @@
       "writtenOn": "2026-11-17T20:52:26Z",
       "side": 1,
       "message": "todo: remove debug print statement",
+      "revId": "89d3d5f7c99a3a00b44b6fb06bac9ae1fd57990a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "039c31b2_d00dded8",
+        "filename": "charms/storage/cinder-volume-purestorage/tests/unit/test_cinder_volume_purestorage_scenario.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-11-18T19:10:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a244988_a9a89360",
       "revId": "89d3d5f7c99a3a00b44b6fb06bac9ae1fd57990a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -48,6 +84,24 @@
       "writtenOn": "2026-11-17T20:52:26Z",
       "side": 1,
       "message": "todo: remove debug print statement",
+      "revId": "89d3d5f7c99a3a00b44b6fb06bac9ae1fd57990a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9ffa7c86_62464073",
+        "filename": "charms/storage/cinder-volume-purestorage/tests/unit/test_cinder_volume_purestorage_scenario.py",
+        "patchSetId": 6
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-11-18T19:10:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "41f08922_c859adf1",
       "revId": "89d3d5f7c99a3a00b44b6fb06bac9ae1fd57990a",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
