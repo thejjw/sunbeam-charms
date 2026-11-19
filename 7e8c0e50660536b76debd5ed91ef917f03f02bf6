@@ -101,6 +101,23 @@
       "message": "recheck func-test-openstack-microovn: node overload - 36/37 pods killed by liveness probes. Tempest passed (82/0), but heat-api was restarted at 02:24:00 during HeatAPIAuditTest, so the expected audit line was missing from the heat-0 logs. Juju controller connection also timed out. Unrelated to this change; designate-bind stayed active.",
       "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7ebae719_4418b8c6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39630
+      },
+      "writtenOn": "2026-11-19T19:57:24Z",
+      "side": 1,
+      "message": "recheck func-test-openstack-microovn: deployment timed out after 5400s, vault/0 stuck in error on vault-peers-relation-created (storage-get certs/9: filesystem attachment not provisioned, Juju storage race); no tests ran, unrelated to this change",
+      "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
