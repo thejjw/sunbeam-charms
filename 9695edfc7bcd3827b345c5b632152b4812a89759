@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2693dd7f_e29db651",
+        "filename": "charms/storage/cinder-volume-ceph/lib/charms/cinder_volume_ceph/v0/ceph_access.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T20:55:52Z",
+      "side": 1,
+      "message": "Could we default `relation` to `None` here? That preserves the existing `get_remote_app_data(key)` call and matches the docstring.",
+      "revId": "9695edfc7bcd3827b345c5b632152b4812a89759",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d795ccd7_95ab6928",
+        "filename": "charms/storage/cinder-volume-ceph/lib/charms/cinder_volume_ceph/v0/ceph_access.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T20:55:52Z",
+      "side": 1,
+      "message": "We\u0027re usually using python3.10+ constructs, especially for new code.\n\n\n\n```suggestion\n    def get_remote_app_data(self, key: str, relation: Relation | None \u003d None) -\u003e str | None:\n```",
+      "range": {
+        "startLine": 162,
+        "startChar": 54,
+        "endLine": 162,
+        "endChar": 62
+      },
+      "revId": "9695edfc7bcd3827b345c5b632152b4812a89759",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
