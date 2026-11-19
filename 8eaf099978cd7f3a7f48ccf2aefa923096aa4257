@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "11ac9504_bc0f9568",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T21:17:48Z",
+      "side": 1,
+      "message": "Please address the FSID-only write, keep the cluster pin across relation loss, and gate readiness on a verified backend and its real secret UUID. I reproduced the FSID overwrite using snapd 2.78’s configuration transaction code.",
+      "revId": "8eaf099978cd7f3a7f48ccf2aefa923096aa4257",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "30a6c868_dc4f0171",
+        "filename": "charms/storage/cinder-volume-ceph/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T21:17:48Z",
+      "side": 1,
+      "message": "Breaking the relation clears the pin while the Cinder backend and its secret UUID survive. Re-relating to another cluster can then pin a different FSID under the existing backend identity. Could we keep the pin across relation loss and validate replacement settings before applying them?",
+      "revId": "8eaf099978cd7f3a7f48ccf2aefa923096aa4257",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9f6fc368_7c36f60f",
+        "filename": "charms/storage/cinder-volume-ceph/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T21:17:48Z",
+      "side": 1,
+      "message": "I reproduced this with snapd 2.78’s configuration transaction code and in-memory state. After seeding `ceph.demo` with a pool, monitors, user and key, applying `{\"ceph.demo\": {\"fsid\": \"test-fsid\"}}` left only the FSID. Applying `{\"ceph.demo.fsid\": \"test-fsid\"}` preserved all four settings. This helper sends the first form.\n\nIf the FSID-only write succeeds, the `NOT_RENDERED` retry reads the incomplete settings and `ceph-check` returns `USAGE`. Can we patch the FSID leaf directly or resend the complete backend config? The settings test helper merges the mocked writes, and the retry test supplies `OK` without reading the new settings.\n\nhttps://github.com/canonical/snapd/blob/00b63144e44cdb7bd059e40e947e720b942c55ec/overlord/configstate/config/transaction.go#L415-L431\nhttps://review.opendev.org/c/openstack/sunbeam-charms/+/1009341/11/charms/storage/cinder-volume-ceph/tests/unit/test_cinder_volume_ceph_scenario.py#142\nhttps://review.opendev.org/c/openstack/sunbeam-charms/+/1009341/11/charms/storage/cinder-volume-ceph/tests/unit/test_cinder_volume_ceph_scenario.py#562",
+      "revId": "8eaf099978cd7f3a7f48ccf2aefa923096aa4257",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b39bce3_83419c77",
+        "filename": "charms/storage/cinder-volume-ceph/src/charm.py",
+        "patchSetId": 11
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T21:17:48Z",
+      "side": 1,
+      "message": "For create-pool\u003dfalse, can we allocate the real backend UUID and check for a usable FSID before calling set_ready()? A missing ceph-check or an OK result without an FSID currently lets this through. This path can also render rbd-secret-uuid \u003d unknown, which Nova would use for the attachment.\n\nhttps://review.opendev.org/c/openstack/sunbeam-charms/+/1009341/11/charms/storage/cinder-volume-ceph/src/charm.py#112\nhttps://opendev.org/openstack/nova/src/commit/4afd2f98de8f551a2b011e16a14d996e1c929324/nova/virt/libvirt/volume/net.py#L44",
+      "revId": "8eaf099978cd7f3a7f48ccf2aefa923096aa4257",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
