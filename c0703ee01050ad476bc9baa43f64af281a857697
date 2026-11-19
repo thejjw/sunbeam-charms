@@ -33,6 +33,74 @@
       "message": "recheck",
       "revId": "c0703ee01050ad476bc9baa43f64af281a857697",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8cdd6dee_c760870e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T21:11:17Z",
+      "side": 1,
+      "message": "Please address the three inline comments. The per-backend settings expose CephX keys in debug logs, and reconciliation needs to distinguish a missing credential from a removed relation. Please also cover a fresh compute where the first related backend is external and then removed.",
+      "revId": "c0703ee01050ad476bc9baa43f64af281a857697",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7e13cce0_5bb677d1",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1357,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T21:11:17Z",
+      "side": 1,
+      "message": "This sends every backend’s raw CephX key through set_snap_data(), which logs the full settings dict at debug level. Could we log just the setting names?\n\nhttps://review.opendev.org/c/openstack/sunbeam-charms/+/1009340/5/charms/openstack-hypervisor/src/charm.py#906",
+      "revId": "c0703ee01050ad476bc9baa43f64af281a857697",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60f34107_4d0ffe92",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1361,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T21:11:17Z",
+      "side": 1,
+      "message": "A backend can drop out of backends while its relation still exists, for example when the Juju secret lookup returns SecretNotFoundError. This unsets the snap entry and can lead to deletion of a working libvirt secret. Can we keep the last applied value while credentials are unavailable and prune only when the relation is gone?\n\nhttps://review.opendev.org/c/openstack/sunbeam-charms/+/1009338/5/charms/storage/cinder-volume-ceph/lib/charms/cinder_volume_ceph/v0/ceph_access.py#204\nhttps://github.com/canonical/snap-openstack-hypervisor/blob/3390e7b000d2b84e95099a1681df171d752571c3/openstack_hypervisor/hooks.py#L2331",
+      "revId": "c0703ee01050ad476bc9baa43f64af281a857697",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84a04387_73f7773d",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1384,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T21:11:17Z",
+      "side": 1,
+      "message": "On a fresh compute, the first relation can be external. This also stores its key and UUID in compute.rbd-*, so removing the per-app entry leaves the UUID in the snap’s desired set. Can we preserve existing legacy settings without promoting a new external backend into them?\n\nhttps://github.com/canonical/snap-openstack-hypervisor/blob/3390e7b000d2b84e95099a1681df171d752571c3/openstack_hypervisor/hooks.py#L2312",
+      "revId": "c0703ee01050ad476bc9baa43f64af281a857697",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
