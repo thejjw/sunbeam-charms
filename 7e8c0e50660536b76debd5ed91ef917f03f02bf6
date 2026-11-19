@@ -84,6 +84,23 @@
       "message": "recheck func-test-openstack-microovn: node overload - 30/37 pods killed by liveness probes, keystone-0 restarted at 19:31:02, so tempest credential setup got \"Connection refused\" on keystone:5000 and 502 (8 failed, 62 passed). Infra issue, unrelated to this change: designate-bind stayed active and reloaded the PS2 config cleanly.",
       "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "659c1e94_ea221988",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39630
+      },
+      "writtenOn": "2026-11-19T16:01:38Z",
+      "side": 1,
+      "message": "recheck func-test-openstack-microovn: node overload - 36/37 pods killed by liveness probes. Tempest passed (82/0), but heat-api was restarted at 02:24:00 during HeatAPIAuditTest, so the expected audit line was missing from the heat-0 logs. Juju controller connection also timed out. Unrelated to this change; designate-bind stayed active.",
+      "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
