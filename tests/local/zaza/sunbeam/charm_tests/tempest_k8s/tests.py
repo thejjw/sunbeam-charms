@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import logging
+import re
 
 from zaza import model
 from zaza.openstack.charm_tests import test_utils
@@ -132,6 +133,14 @@ class TempestK8sTest(test_utils.BaseCharmTest):
         self.assertTrue(test_accounts_resources["networks"])
 
         # Verify that the application is blocked when keystone is missing
+        # Capture keystone's current state first: in bundles with
+        # keystone-ldap, keystone's steady state is 'waiting' (domain-config
+        # integration incomplete), not active with an empty message.
+        keystone_unit = model.get_units("keystone")[0]
+        keystone_status = keystone_unit.workload_status
+        keystone_msg_regex = "^%s$" % re.escape(
+            keystone_unit.workload_status_message or ""
+        )
         model.remove_relation("tempest", "identity-ops", "keystone")
         wait_for_application_state(
             model,
@@ -142,8 +151,8 @@ class TempestK8sTest(test_utils.BaseCharmTest):
         wait_for_application_state(
             model,
             "keystone",
-            "active",
-            r"^$",
+            keystone_status,
+            keystone_msg_regex,
         )
 
         # Verify that charm-created resources remain in the cloud
@@ -165,8 +174,8 @@ class TempestK8sTest(test_utils.BaseCharmTest):
         wait_for_application_state(
             model,
             "keystone",
-            "active",
-            r"^$",
+            keystone_status,
+            keystone_msg_regex,
         )
 
         # Verify that a new domain (with project and user) is created which

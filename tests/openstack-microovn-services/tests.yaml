@@ -1,0 +1,42 @@
+gate_bundles:
+  - smoke
+smoke_bundles:
+  - smoke
+configure:
+  - zaza.sunbeam.charm_tests.machine.setup.deploy_machine_applications_microovn
+  # Amphora provider setup: deploys multus + openstack-port-cni-k8s (needs
+  # ./openstack-port-cni-k8s.charm built locally, the 2026.2/edge channel is
+  # not on Charmhub yet), creates the lb-mgmt network/image/flavor and
+  # configures octavia. No amphora VM is booted (no LB is created), so no
+  # hypervisor is required.
+  - zaza.sunbeam.charm_tests.octavia.setup.configure_amphora
+  - zaza.sunbeam.charm_tests.k8s.setup.add_loadbalancer_annotations
+  - zaza.sunbeam.charm_tests.keystone.setup.wait_for_all_endpoints
+  - zaza.openstack.charm_tests.glance.setup.add_cirros_image
+  - zaza.sunbeam.charm_tests.neutron.setup.basic_overcloud_network
+tests:
+  - zaza.sunbeam.charm_tests.api_audit.tests.AodhAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.BarbicanAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.DesignateAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.HeatAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.MagnumAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.MasakariAPIAuditTest
+  - zaza.sunbeam.charm_tests.api_audit.tests.OctaviaAPIAuditTest
+tests_options:
+  trust:
+    - smoke
+  ignore_hard_deploy_errors:
+    - smoke
+  no_wait_deploy:
+    - smoke
+
+target_deploy_status:
+  keystone:
+    workload-status: waiting
+    workload-status-message-regex: '^.*domain-config.*integration incomplete.*$|^$'
+  neutron:
+    workload-status: blocked
+    workload-status-message-regex: '^.*integration missing$'
+  octavia:
+    workload-status: blocked
+    workload-status-message-regex: '^.*integration missing$'

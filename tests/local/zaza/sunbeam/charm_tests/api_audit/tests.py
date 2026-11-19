@@ -158,7 +158,10 @@ class HeatAPIAuditTest(AuditMiddlewareTest):
     def _trigger_audit_event(self):
         client = openstack_utils.get_heat_session_client(
             self.keystone_session)
-        client.stacks.list()
+        # heatclient's stacks.list() returns a lazy paginated generator;
+        # it must be consumed for the request (and the audit event) to
+        # actually happen.
+        list(client.stacks.list())
 
 
 class MagnumAPIAuditTest(AuditMiddlewareTest):
