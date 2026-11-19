@@ -3,6 +3,23 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "be55a25f_fa0e3df1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-19T07:24:31Z",
+      "side": 1,
+      "message": "Overall LGTM, why func-test-openstack-microovn test is not removed? The job mite take 1-2 hours. Can reduce CI time if the job is not adding any value",
+      "revId": "48caa646acc5394af7e0364d4d3cc07fdb0df87a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "f6b01cdc_d9169e08",
         "filename": "tests/openstack-microovn-ceph/tests.yaml",
         "patchSetId": 4
