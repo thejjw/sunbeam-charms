@@ -16,6 +16,23 @@
       "message": "recheck",
       "revId": "db6459408b82448f1387953844d3379686eace8d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9ade48e_2813859a",
+        "filename": "ops-sunbeam/ops_sunbeam/relation_handlers.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1679,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T20:56:20Z",
+      "side": 1,
+      "message": "The callback runs before this check. The base charm still treats every CephAccessGoneAwayEvent as a broken endpoint and can stop services for a mandatory consumer. I ran the readiness check with another ready backend and it still returned ceph-access as missing. Can we cover that path and keep the endpoint ready until the last usable relation is gone?\n\nhttps://review.opendev.org/c/openstack/sunbeam-charms/+/1009339/5/ops-sunbeam/ops_sunbeam/charm.py#663",
+      "revId": "db6459408b82448f1387953844d3379686eace8d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
