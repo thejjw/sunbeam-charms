@@ -279,7 +279,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum(${ceph_without_ephemeral} * ((ceph_cluster_total_used_bytes or vector(0)) / clamp_min((ceph_cluster_total_bytes or vector(0)), 1) * 100)) + ((1 - ${ceph_without_ephemeral}) * (sum(openstack_nova_local_storage_used_bytes{hostname=~\"$hypervisor.*\"}) / sum(openstack_nova_local_storage_available_bytes{hostname=~\"$hypervisor.*\"}) * 100))",
+          "expr": "(${ceph_without_ephemeral} * (((sum(max by (ceph_id) (label_replace(label_join(ceph_cluster_total_used_bytes, \"ceph_id\", \"/\", \"juju_model_uuid\", \"juju_application\"), \"nova_ceph\", \"1\", \"ceph_id\", \"$nova_ceph\") and on(nova_ceph) label_replace(vector(1), \"nova_ceph\", \"1\", \"\", \"\"))) / clamp_min(sum(max by (ceph_id) (label_replace(label_join(ceph_cluster_total_bytes, \"ceph_id\", \"/\", \"juju_model_uuid\", \"juju_application\"), \"nova_ceph\", \"1\", \"ceph_id\", \"$nova_ceph\") and on(nova_ceph) label_replace(vector(1), \"nova_ceph\", \"1\", \"\", \"\"))), 1)) * 100) or vector(0))) + ((1 - ${ceph_without_ephemeral}) * (sum(openstack_nova_local_storage_used_bytes{hostname=~\"$hypervisor.*\"}) / sum(openstack_nova_local_storage_available_bytes{hostname=~\"$hypervisor.*\"}) * 100))",
           "instant": false,
           "interval": "",
           "legendFormat": "",
@@ -621,7 +621,7 @@
       "pluginVersion": "9.2.1",
       "targets": [
         {
-          "expr": "sum(${ceph_without_ephemeral} * (ceph_cluster_total_bytes or vector(0))) + ((1 - ${ceph_without_ephemeral}) * sum(openstack_nova_local_storage_available_bytes{hostname=~\"$hypervisor.*\"}))",
+          "expr": "(${ceph_without_ephemeral} * (sum(max by (ceph_id) (label_replace(label_join(ceph_cluster_total_bytes, \"ceph_id\", \"/\", \"juju_model_uuid\", \"juju_application\"), \"nova_ceph\", \"1\", \"ceph_id\", \"$nova_ceph\") and on(nova_ceph) label_replace(vector(1), \"nova_ceph\", \"1\", \"\", \"\"))) or vector(0))) + ((1 - ${ceph_without_ephemeral}) * sum(openstack_nova_local_storage_available_bytes{hostname=~\"$hypervisor.*\"}))",
           "instant": false,
           "interval": "",
           "legendFormat": "",
@@ -2371,6 +2371,38 @@
       {
         "allValue": null,
         "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "datasource": {
+          "uid": "${prometheusds}"
+        },
+        "definition": "query_result(count by (ceph_id, ceph_name) (last_over_time((count_values by (ceph_id, ceph_name) (\"bytes\", floor(label_join(label_join(ceph_cluster_total_bytes, \"ceph_id\", \"/\", \"juju_model_uuid\", \"juju_application\"), \"ceph_name\", \"/\", \"juju_model\", \"juju_application\") / 1073741824) * 1073741824) and on(bytes) count_values(\"bytes\", openstack_nova_local_storage_available_bytes))[1h:5m])))",
+        "description": "Ceph cluster(s) backing Nova. Defaults to every cluster whose size matched a hypervisor's local storage in the last hour.",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Nova Ceph cluster",
+        "multi": true,
+        "name": "nova_ceph",
+        "options": [],
+        "query": {
+          "query": "query_result(count by (ceph_id, ceph_name) (last_over_time((count_values by (ceph_id, ceph_name) (\"bytes\", floor(label_join(label_join(ceph_cluster_total_bytes, \"ceph_id\", \"/\", \"juju_model_uuid\", \"juju_application\"), \"ceph_name\", \"/\", \"juju_model\", \"juju_application\") / 1073741824) * 1073741824) and on(bytes) count_values(\"bytes\", openstack_nova_local_storage_available_bytes))[1h:5m])))",
+          "refId": "${prometheusds}-nova_ceph-Variable-Query"
+        },
+        "refresh": 2,
+        "regex": "/ceph_id=\"(?<value>[^\"]+)\".*ceph_name=\"(?<text>[^\"]+)\"/",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "allValue": null,
+        "current": {
           "selected": false,
           "text": "0",
           "value": "0"
@@ -2378,7 +2410,7 @@
         "datasource": {
           "uid": "${prometheusds}"
         },
-        "definition": "query_result(max(((ceph_cluster_total_bytes or vector(0)) > bool(0)) * scalar(stddev(openstack_nova_local_storage_available_bytes) < bool(1e8)) * scalar(abs(sum(ceph_cluster_total_bytes or vector(0)) - max(openstack_nova_local_storage_available_bytes)) < bool(5e9))))",
+        "definition": "query_result(((count(max by (ceph_id) (label_replace(label_join(ceph_cluster_total_bytes, \"ceph_id\", \"/\", \"juju_model_uuid\", \"juju_application\"), \"nova_ceph\", \"1\", \"ceph_id\", \"$nova_ceph\") and on(nova_ceph) label_replace(vector(1), \"nova_ceph\", \"1\", \"\", \"\"))) or vector(0)) > bool 0) * ((count(count_values(\"bytes\", openstack_nova_local_storage_available_bytes) unless on(bytes) count by (bytes) (last_over_time(count_values(\"bytes\", floor(max by (ceph_id) (label_replace(label_join(ceph_cluster_total_bytes, \"ceph_id\", \"/\", \"juju_model_uuid\", \"juju_application\"), \"nova_ceph\", \"1\", \"ceph_id\", \"$nova_ceph\") and on(nova_ceph) label_replace(vector(1), \"nova_ceph\", \"1\", \"\", \"\")) / 1073741824) * 1073741824)[1h:5m]))) or vector(0)) == bool 0))",
         "description": "Detect if Ceph is used as shared backend storage (no ephemeral available)",
         "error": null,
         "hide": 0,
@@ -2388,10 +2420,10 @@
         "name": "ceph_without_ephemeral",
         "options": [],
         "query": {
-          "query": "query_result(max(((ceph_cluster_total_bytes or vector(0)) > bool(0)) * scalar(stddev(openstack_nova_local_storage_available_bytes) < bool(1e8)) * scalar(abs(sum(ceph_cluster_total_bytes or vector(0)) - max(openstack_nova_local_storage_available_bytes)) < bool(5e9))))",
+          "query": "query_result(((count(max by (ceph_id) (label_replace(label_join(ceph_cluster_total_bytes, \"ceph_id\", \"/\", \"juju_model_uuid\", \"juju_application\"), \"nova_ceph\", \"1\", \"ceph_id\", \"$nova_ceph\") and on(nova_ceph) label_replace(vector(1), \"nova_ceph\", \"1\", \"\", \"\"))) or vector(0)) > bool 0) * ((count(count_values(\"bytes\", openstack_nova_local_storage_available_bytes) unless on(bytes) count by (bytes) (last_over_time(count_values(\"bytes\", floor(max by (ceph_id) (label_replace(label_join(ceph_cluster_total_bytes, \"ceph_id\", \"/\", \"juju_model_uuid\", \"juju_application\"), \"nova_ceph\", \"1\", \"ceph_id\", \"$nova_ceph\") and on(nova_ceph) label_replace(vector(1), \"nova_ceph\", \"1\", \"\", \"\")) / 1073741824) * 1073741824)[1h:5m]))) or vector(0)) == bool 0))",
           "refId": "${prometheusds}-ceph_without_ephemeral-Variable-Query"
         },
-        "refresh": 1,
+        "refresh": 2,
         "regex": "/.*}\\s+(\\d+)\\s.*/",
         "skipUrlSync": false,
         "sort": 0,
