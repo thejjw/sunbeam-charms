@@ -67,6 +67,23 @@
       "message": "recheck func-test-openstack-microovn: tempest passed (82/0), then AodhAPIAuditTest got \"404 page not found\" from traefik because the traefik charm container had just been restarted by a liveness probe (10/37 pods killed) and was rewriting ingress routes, aodh route briefly missing; unrelated to designate-bind, which stayed active with PS2 config loaded",
       "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "89158d46_13f2099a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39630
+      },
+      "writtenOn": "2026-11-19T00:19:00Z",
+      "side": 1,
+      "message": "recheck func-test-openstack-microovn: node overload - 30/37 pods killed by liveness probes, keystone-0 restarted at 19:31:02, so tempest credential setup got \"Connection refused\" on keystone:5000 and 502 (8 failed, 62 passed). Infra issue, unrelated to this change: designate-bind stayed active and reloaded the PS2 config cleanly.",
+      "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
