@@ -18,6 +18,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f275035f_41a518d0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T18:33:04Z",
+      "side": 1,
+      "message": "I\u0027m not going to -2 hard block, but I hate the idea of having a mechanism to wipe the tables in the charm, and I fear the day the invariants don\u0027t hold and we wipe a database in production.\n\nTo me, we should investigate why this is happening in the first place.",
+      "revId": "de9334e3f27f05af57c7876ea3a2fb2523b004cf",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4c1b428c_d9fe1ec2",
