@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8411b72a_74bde6de",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-19T08:07:12Z",
+      "side": 1,
+      "message": "minor nit: remove ovn-relay-k8s from https://opendev.org/openstack/sunbeam-charms/src/branch/main/test-requirements.txt#L35\n\nCouple of comments inline",
+      "revId": "88288dc68bdeb9eebcb26d674468c03cf698b926",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "afec8b5d_a6ce4293",
+        "filename": "ops-sunbeam/doc/bundles/full.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-19T08:07:12Z",
+      "side": 1,
+      "message": "This is machine charm, remove from this bundle",
+      "revId": "88288dc68bdeb9eebcb26d674468c03cf698b926",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfd8d4d6_d582254c",
+        "filename": "ops-sunbeam/doc/bundles/minimal.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-19T08:07:12Z",
+      "side": 1,
+      "message": "This is a machine charm, remove from this bundle",
+      "revId": "88288dc68bdeb9eebcb26d674468c03cf698b926",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
