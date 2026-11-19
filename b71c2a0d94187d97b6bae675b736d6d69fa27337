@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5be3932f_57dfcd69",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T21:19:50Z",
+      "side": 1,
+      "message": "There\u0027s a special handling for PEM files, look for existing use cases.",
+      "revId": "b71c2a0d94187d97b6bae675b736d6d69fa27337",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b3965999_6ba84def",
+        "filename": "charms/storage/cinder-volume-purestorage/charmcraft.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T21:19:50Z",
+      "side": 1,
+      "message": "I tried this CA option with the previous snap. It rendered the PEM inline in the backend .conf, and Oslo Config rejected the file. Can we make the snap-first upgrade requirement explicit here and prevent applying the option against an older snap?\n\nhttps://github.com/canonical/snap-cinder-volume/blob/2d413f04352c414927b827a61965c7881429eee8/cinder_volume/templates/backend.conf.j2#L4",
+      "revId": "b71c2a0d94187d97b6bae675b736d6d69fa27337",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6a36ba7_d1c438ac",
+        "filename": "charms/storage/cinder-volume-purestorage/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T21:19:50Z",
+      "side": 1,
+      "message": "The charm accepts pure-trisync-enabled and emits a single replication device here. Cinder requires two devices for TriSync and logs an error when it receives one. Could we reject that combination before deployment so the operator gets a clear answer about what will be enabled?\n\nhttps://opendev.org/openstack/cinder/src/commit/58f7ac750dba3648d0f5c8517dba5e8f529f26cd/cinder/volume/drivers/pure.py#L629",
+      "revId": "b71c2a0d94187d97b6bae675b736d6d69fa27337",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
