@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d12ee5f6_905c3ca1",
+        "filename": "charms/openstack-exporter-k8s/src/grafana_dashboards/cloud.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 1071,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T14:22:21Z",
+      "side": 1,
+      "message": "This range query rechecks the capacity match at every sample, while ceph_without_ephemeral stays fixed across the range. In a single-cluster promtool fixture, Ceph reports 100 GB total and 30 GB used, and Nova briefly reports 80 GB before catching up to 100 GB. With the variable set to 1, this query plots 0 GB free during the mismatch, while the parent revision returns 70 GB. Can we select the cluster once by identity and use that selector throughout the range?",
+      "revId": "3e3646efefbc9b0c01ce4ab56c8ed853a9c6426d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ed1f11f_1986159d",
+        "filename": "charms/openstack-exporter-k8s/src/grafana_dashboards/compute.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-19T14:22:21Z",
+      "side": 1,
+      "message": "Both clusters can pass the 5e9-byte filter. I ran these queries in promtool with Nova backed by a 100 GB Ceph cluster at 30% usage and a separate 101 GB COS cluster with 70 GB used. The panels returned 101 GB Total and 69.3% Disk Subscription. Can we use the same deployment label or explicit cluster selector for Disk Total, Disk Subscription, and Free Disk so they all use Nova’s backing cluster?",
+      "revId": "3e3646efefbc9b0c01ce4ab56c8ed853a9c6426d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
