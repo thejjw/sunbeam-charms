@@ -52,6 +52,40 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5d8f97c3_577862aa",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-20T06:40:04Z",
+      "side": 1,
+      "message": "Automated review (Claude Sonnet Latest)\nReviewed by: Claude Sonnet Latest (openrouter/anthropic/claude-opus-5.5)",
+      "revId": "c0703ee01050ad476bc9baa43f64af281a857697",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6aa4dc65_1c5de9f5",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1356,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-20T06:40:04Z",
+      "side": 1,
+      "message": "**Medium**: pruning is keyed on \"credentials currently complete\" rather than \"relation still exists\". `ceph_access_data_by_app` omits relations whose secret cannot be read (SecretNotFoundError, not yet granted, rotated) so their `ceph-access.\u003capp\u003e` entries are set to None and the libvirt secret is undefined while VMs may still have RBD volumes attached (also the AttributeError path at :1350-1353). Fix: prune only apps no longer in `self.model.relations[\"ceph-access\"]`; leave related-but-incomplete entries untouched; add a test.",
+      "revId": "c0703ee01050ad476bc9baa43f64af281a857697",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "7e13cce0_5bb677d1",
@@ -65,6 +99,23 @@
       "writtenOn": "2026-11-19T21:11:17Z",
       "side": 1,
       "message": "This sends every backend’s raw CephX key through set_snap_data(), which logs the full settings dict at debug level. Could we log just the setting names?\n\nhttps://review.opendev.org/c/openstack/sunbeam-charms/+/1009340/5/charms/openstack-hypervisor/src/charm.py#906",
+      "revId": "c0703ee01050ad476bc9baa43f64af281a857697",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b3de7cd_81414fd4",
+        "filename": "charms/openstack-hypervisor/src/charm.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1357,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-20T06:40:04Z",
+      "side": 1,
+      "message": "**Medium**: the charm now always writes `ceph-access.\u003capp\u003e` keys that only snap-openstack-hypervisor PR #235 understands, with no snap revision/channel guard. Against an older snap the keys are ignored or rejected by the configure hook (unit error). Fix: confirm #235 is in the default tracked channel and state it in the commit message, or skip writing these keys when unsupported.",
       "revId": "c0703ee01050ad476bc9baa43f64af281a857697",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
