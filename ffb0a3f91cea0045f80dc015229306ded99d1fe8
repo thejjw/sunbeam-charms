@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "88c7be21_3de870e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-20T07:10:23Z",
+      "side": 1,
+      "message": "Job is not removed for jobs.yaml just in case it can be reused if necessary",
+      "revId": "ffb0a3f91cea0045f80dc015229306ded99d1fe8",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
