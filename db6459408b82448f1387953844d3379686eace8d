@@ -18,6 +18,40 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "851067b0_388889e1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-20T06:35:58Z",
+      "side": 1,
+      "message": "Automated review (Claude Sonnet Latest)\nReviewed by: Claude Sonnet Latest (openrouter/anthropic/claude-opus-5.5)\n\nSummary: Change 1009339 PS5 (db64594) makes the ceph-access requirer handler in ops-sunbeam work with more than one relation. It only blocks a mandatory relation on goneaway when no provider is left, and it adds `ctxt[\"backends\"]` (a per-app `{uuid, key}` map) to the handler context. It also adds 8 unit tests that mock the interface. The handler change is small and correct as far as it goes. But the base charm still treats every `CephAccessGoneAwayEvent` as a broken relation, so the main scenario (one of several providers goes away) is still broken for mandatory consumers. No consumer reads the new `backends` key yet, and the tests do not exercise the real library or the charm readiness path. The same concern was raised by gboutry (Code-Review -1) on relation_handlers.py:1679 and has not been addressed.\n\nZuul (check pipeline, PS5):\n- Latest run (after recheck), buildset cbd97ebbd00b47af920335c06256c80e: Verified +1. openstack-tox-linters SUCCESS, openstack-tox-pep8 SUCCESS, openstack-tox-py314 SUCCESS, openstack-tox-cover SUCCESS, all charm-build-bin-* jobs (core-identity/compute/ovn/storage, services-a/b, infra, storage-a..e) SUCCESS, func-test-openstack-microovn SUCCESS, func-test-identity SUCCESS (non-voting), func-test-tempest POST_FAILURE (non-voting).\n- Earlier run, buildset bcec9eab8bf7489dba1071158ccd8fe1: Verified -1 because charm-build-bin-services-a FAILED; the other jobs were cancelled or skipped. The recheck passed, so that failure looks transient.\n- Zuul triggering: the change touches ops-sunbeam only, and every charm-build job ran, so the file filters are fine. The change has no test-bundle or zuul.d edits.\n\n## Findings\n\nCritical: 0\nHigh: 1\nMedium: 2\nLow: 2\nNit: 1\n\n### High\n\n1. ops-sunbeam/ops_sunbeam/charm.py:663-669 (not changed here; reached via ops-sunbeam/ops_sunbeam/relation_handlers.py:1678)\n   - What: `check_broken_relations()` marks `ceph-access` as broken for any `CephAccessGoneAwayEvent`. `_ceph_access_goneaway` calls `self.callback_f(event)` (\u003d `configure_charm`) before the new `not self.ready` check. So in `get_mandatory_relations_not_ready()` a charm that has `ceph-access` in `mandatory_relations` still reports it missing when one of several providers leaves, even though `handler.ready` is True for the remaining ones.\n   - Why: This is exactly the case the change says it handles. A mandatory consumer will still go through the \"relation not ready\" path (blocked or waiting status, services possibly stopped) when one backend is removed. The new `not self.ready` guard only changes the handler\u0027s own compound status. It does not stop the charm-level readiness check from failing. gboutry reproduced this on PS5.\n   - Fix: In the `ceph-access` case, set `_is_broken` only when the ceph-access interface no longer has any complete provider, e.g. `_is_broken \u003d not self.ceph_access.interface.ready` (the lib already drops the departing relation during relation-broken). Add a Harness test in test_core.py with two ceph-access relations: remove one, assert `get_mandatory_relations_not_ready()` does not contain `ceph-access`; remove the last one, assert it does.\n\n### Medium\n\n2. ops-sunbeam/ops_sunbeam/relation_handlers.py:1696, charms/openstack-hypervisor/src/charm.py:1342-1351\n   - What: The new `ctxt[\"backends\"]` map is not used by any charm. openstack-hypervisor, the only requirer, still reads only the legacy `contexts.ceph_access.uuid/key`, which is the oldest complete relation.\n   - Why: The commit message says \"a charm can consume the secrets of several ceph backends\" and that it was \"tested through openstack-hypervisor ... with up to three ceph-access relations\". With this tree, the hypervisor only ever configures one libvirt secret. When the oldest provider leaves, `configure_charm` quietly switches `compute.rbd-secret-uuid`/`rbd-key` to the next backend\u0027s secret, and there is no log or status explaining why. That is a visible behaviour change for an existing consumer.\n   - Fix: Either say in the commit message that this is groundwork and add the hypervisor consumer of `backends` in a follow-up, or wire the hypervisor here. At least log when the legacy uuid changes because a provider left.\n\n3. ops-sunbeam/tests/unit_tests/test_relation_handlers.py:1124-1215\n   - What: The new tests patch out `setup_event_handler`/`__post_init__` and replace the interface with a MagicMock. `_set_interface` (line 1152) copies the library\u0027s \"oldest relation\" rule by hand.\n   - Why: Neither the real `CephAccessRequires` (secret lookup, relation ordering, excluding the broken relation) nor the charm-level readiness path is tested. That is how finding 1 got past CI. The tests only check the trivial `ready` passthrough and the dict copy.\n   - Fix: Add Harness-based tests in ops-sunbeam/tests/unit_tests/test_core.py. `test_utils.add_base_ceph_access_relation` / `add_ceph_access_relation_response` already exist; extend them to take an app name so two providers can be added. Cover context contents, ready/blocked status, and `get_mandatory_relations_not_ready` with 2 relations → 1 → 0.\n\n### Low\n\n4. ops-sunbeam/ops_sunbeam/relation_handlers.py:1678-1680\n   - What: When goneaway leaves `self.ready` True, the handler status is not refreshed. Also, if all providers are gone and the relation is optional, nothing resets the status.\n   - Why: A stale status can stay until the next `set_status` call. This is minor because the compound status is recomputed on other hooks.\n   - Fix: Call `self.set_status(self.status)` (the base helper, which handles both mandatory and optional) instead of setting `BlockedStatus` by hand.\n\n5. Commit message (`git log -1 --format\u003d%B`)\n   - What: The body has a stray `[check]` token (\"...ceph backends. [check] Readiness and...\"). The same artefact is in the parent commit 9695edfc. Body lines are not wrapped at 72 columns, and the subject is about 86 characters.\n   - Why: It looks like a leftover from an editing or template step, and it makes the history harder to read. Signed-off-by, Change-Id and Assisted-By are present, and the conventional-commit prefix `feat(ops-sunbeam):` matches the repo style. There is no bug reference; add `Partial-Bug:`/the OS121 reference if one exists.\n   - Fix: Remove `[check]`, wrap the body at 72 columns, and shorten the subject, e.g. `feat(ops-sunbeam): handle multiple ceph-access relations`.\n\n### Nit\n\n6. ops-sunbeam/ops_sunbeam/relation_handlers.py:1696\n   - What: `ctxt[\"backends\"]` holds CephX keys for every backend. Previously the context held one key.\n   - Why: There is no new type of exposure, but the context is now a bigger target if it is ever logged or rendered by mistake.\n   - Fix: Optional. Add a short docstring note that `backends` contains secrets and must not be logged.\n\nSuggested vote: Code-Review -1\nauto-review:db6459408b82448f1387953844d3379686eace8d",
+      "revId": "db6459408b82448f1387953844d3379686eace8d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f2666250_a11fe59e",
+        "filename": "ops-sunbeam/ops_sunbeam/relation_handlers.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1678,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-20T06:35:58Z",
+      "side": 1,
+      "message": "**High**: `ops_sunbeam/charm.py:663-669` `check_broken_relations()` still marks `ceph-access` broken on ANY `CephAccessGoneAwayEvent`, and `_ceph_access_goneaway` calls the callback before this `not self.ready` check. So a mandatory consumer still reports ceph-access not ready when one of several providers leaves - the main scenario of this change (same as gboutry\u0027s comment). Fix: in the ceph-access case set `_is_broken \u003d not self.ceph_access.interface.ready`; add a Harness test with 2 -\u003e 1 -\u003e 0 relations.",
+      "revId": "db6459408b82448f1387953844d3379686eace8d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a9ade48e_2813859a",
@@ -31,6 +65,40 @@
       "writtenOn": "2026-11-19T20:56:20Z",
       "side": 1,
       "message": "The callback runs before this check. The base charm still treats every CephAccessGoneAwayEvent as a broken endpoint and can stop services for a mandatory consumer. I ran the readiness check with another ready backend and it still returned ceph-access as missing. Can we cover that path and keep the endpoint ready until the last usable relation is gone?\n\nhttps://review.opendev.org/c/openstack/sunbeam-charms/+/1009339/5/ops-sunbeam/ops_sunbeam/charm.py#663",
+      "revId": "db6459408b82448f1387953844d3379686eace8d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "26948dbf_2c1e71df",
+        "filename": "ops-sunbeam/ops_sunbeam/relation_handlers.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1696,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-20T06:35:58Z",
+      "side": 1,
+      "message": "**Medium**: the new `ctxt[\"backends\"]` map is not consumed by any charm in this tree; openstack-hypervisor still reads only the legacy uuid/key (oldest relation) and silently switches secrets when the oldest provider leaves. Either state this is groundwork (consumer in follow-up) or wire it; at least log when the legacy uuid changes.",
+      "revId": "db6459408b82448f1387953844d3379686eace8d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "003a1f04_ba07581e",
+        "filename": "ops-sunbeam/tests/unit_tests/test_relation_handlers.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 1124,
+      "author": {
+        "id": 37697
+      },
+      "writtenOn": "2026-11-20T06:35:58Z",
+      "side": 1,
+      "message": "**Medium**: tests patch out setup_event_handler/__post_init__ and use a MagicMock interface; `_set_interface` (:1152) re-implements the lib\u0027s oldest-relation rule. Neither the real CephAccessRequires nor charm-level readiness is exercised (how the High finding slipped through). Add Harness tests in test_core.py using `add_base_ceph_access_relation` extended for multiple apps.",
       "revId": "db6459408b82448f1387953844d3379686eace8d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
