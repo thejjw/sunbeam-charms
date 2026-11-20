@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "83e51a44_2251cbe6",
+        "filename": "ops-sunbeam/doc/bundles/full.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-20T19:00:18Z",
+      "side": 1,
+      "message": "Could you add the three Nova relations from tests/openstack-microovn-core/smoke.yaml.j2 to both reference bundles? I ran the Nova charm scenario with each bundle\u0027s relations and both reported \u0027(ingress-metadata) integration missing\u0027. The logs also list traefik-route-internal and placement as incomplete.",
+      "revId": "2fb6bba1544b322b1d47b31de5d43257a46f829a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "63993b84_5eb83c42",
+        "filename": "ops-sunbeam/doc/bundles/full.yaml",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-20T19:00:18Z",
+      "side": 1,
+      "message": "Could you wire a backend to cinder:storage-backend or document how to provide one before the all-active wait? The full bundle omits this relation, and Cinder\u0027s missing-relation test confirms the charm stays blocked or waiting without it.",
+      "revId": "2fb6bba1544b322b1d47b31de5d43257a46f829a",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
