@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e76f6a5c_674d015a",
+        "filename": "ops-sunbeam/doc/bundles/full.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-20T08:28:52Z",
+      "side": 1,
+      "message": "Could you add the offer and integration steps to deploy-sunbeam-charms.rst? The guide goes straight from juju deploy to waiting for all units to become active. With either bundle, the proxy stays blocked until its ovsdb endpoint is integrated with microovn:ovsdb in the machine model, and Neutron has no OVN database addresses until then.",
+      "revId": "4ecb679b3e35e0147d4bdb4fef79c812e08c9548",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c98c51db_69009364",
+        "filename": "ops-sunbeam/doc/bundles/full.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-20T08:28:52Z",
+      "side": 1,
+      "message": "What base are these examples meant to target? Bare edge resolves to latest/edge, which only has revision 2 for Ubuntu 24.04 amd64. If the examples target Ubuntu 26.04 like the 2026.2 CI jobs, please use 2026.2/edge in both bundles. If they target Ubuntu 24.04 amd64, stating that in the guide is enough.",
+      "revId": "4ecb679b3e35e0147d4bdb4fef79c812e08c9548",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
