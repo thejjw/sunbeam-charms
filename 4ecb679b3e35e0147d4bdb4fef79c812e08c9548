@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "a8356487_afc2586a",
+        "filename": "ops-sunbeam/doc/bundles/full.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-11-20T16:05:36Z",
+      "side": 1,
+      "message": "Updated the charm bundle deployment guides in deploy-sunbeam-charms.rst and reference-bundle.rst to clarify the use of MicroOVN and the sunbeam-ovn-proxy.",
+      "parentUuid": "e76f6a5c_674d015a",
+      "revId": "4ecb679b3e35e0147d4bdb4fef79c812e08c9548",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "c98c51db_69009364",
         "filename": "ops-sunbeam/doc/bundles/full.yaml",
         "patchSetId": 3
@@ -31,6 +49,24 @@
       "writtenOn": "2026-11-20T08:28:52Z",
       "side": 1,
       "message": "What base are these examples meant to target? Bare edge resolves to latest/edge, which only has revision 2 for Ubuntu 24.04 amd64. If the examples target Ubuntu 26.04 like the 2026.2 CI jobs, please use 2026.2/edge in both bundles. If they target Ubuntu 24.04 amd64, stating that in the guide is enough.",
+      "revId": "4ecb679b3e35e0147d4bdb4fef79c812e08c9548",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "894784b1_43e7ac73",
+        "filename": "ops-sunbeam/doc/bundles/full.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-11-20T16:05:36Z",
+      "side": 1,
+      "message": "Added charm channels and bases for those bundles.",
+      "parentUuid": "c98c51db_69009364",
       "revId": "4ecb679b3e35e0147d4bdb4fef79c812e08c9548",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }

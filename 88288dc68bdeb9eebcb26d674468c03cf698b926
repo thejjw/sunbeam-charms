@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "be6cd6bc_647a6d11",
+        "filename": "ops-sunbeam/doc/bundles/full.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-11-20T16:05:36Z",
+      "side": 1,
+      "message": "Removed the machine charm from the K8s full bundle.",
+      "parentUuid": "afec8b5d_a6ce4293",
+      "revId": "88288dc68bdeb9eebcb26d674468c03cf698b926",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "cfd8d4d6_d582254c",
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "It\u0027s not necessarily a machine charm, it can be deployed on K8S to, since it\u0027s a `workload-less` charm.",
       "parentUuid": "cfd8d4d6_d582254c",
+      "revId": "88288dc68bdeb9eebcb26d674468c03cf698b926",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4d92352_26b08907",
+        "filename": "ops-sunbeam/doc/bundles/minimal.yaml",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 38595
+      },
+      "writtenOn": "2026-11-20T16:05:36Z",
+      "side": 1,
+      "message": "Removed the machine charm from the K8s minimal bundle.",
+      "parentUuid": "5eddd920_09e8ef4e",
       "revId": "88288dc68bdeb9eebcb26d674468c03cf698b926",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
