@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "15bdb57b_bf4d199f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-20T07:24:46Z",
+      "side": 1,
+      "message": "can you add cherry-picked from 7c9b92fb59eb6ade85a9b033153a6d27e73d47e3 (commit from https://review.opendev.org/c/openstack/sunbeam-charms/+/1015299) at the end of commit message OR wait for the other one to get merged and cherry-pick",
+      "revId": "28ada8ec05bba0d96e658c53c1caf60ddc285135",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
