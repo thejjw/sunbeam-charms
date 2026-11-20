@@ -118,6 +118,23 @@
       "message": "recheck func-test-openstack-microovn: deployment timed out after 5400s, vault/0 stuck in error on vault-peers-relation-created (storage-get certs/9: filesystem attachment not provisioned, Juju storage race); no tests ran, unrelated to this change",
       "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8c930338_baaf685d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39630
+      },
+      "writtenOn": "2026-11-20T12:24:33Z",
+      "side": 1,
+      "message": "recheck func-test-openstack-microovn: tempest passed (82/0), MasakariAPIAuditTest failed with FileNotFoundError for openstack/config/defaults.json in the func venv (broken openstacksdk install); same error hit 1015951 and 1016478 on Nov 19, and the job passed on 1011068 at 2026-11-20 06:00, so it looks resolved. Unrelated to this change.",
+      "revId": "7e8c0e50660536b76debd5ed91ef917f03f02bf6",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
