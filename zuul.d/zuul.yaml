@@ -5,9 +5,6 @@
       - openstack-sunbeam-charm-build-jobs
     check:
       jobs:
-        - func-test-openstack-microovn:
-            nodeset: charms-ubuntu-noble-32GB
-            voting: false
         - func-test-openstack-microovn-core:
             nodeset: charms-ubuntu-noble-32GB
         - func-test-openstack-microovn-services:
