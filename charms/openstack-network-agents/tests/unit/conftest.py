@@ -14,6 +14,7 @@
 
 """Shared fixtures for openstack-network-agents unit tests (ops.testing)."""
 
+import subprocess
 from pathlib import (
     Path,
 )
@@ -91,6 +92,7 @@ def _mock_heavy_externals(monkeypatch):
     status_result.stderr = ""
     mock_subprocess.run.return_value = status_result
     mock_subprocess.TimeoutExpired = type("TimeoutExpired", (Exception,), {})
+    mock_subprocess.SubprocessError = subprocess.SubprocessError
     monkeypatch.setattr(charm, "subprocess", mock_subprocess)
 
     # daemon.yaml — patch builtins.open for the daemon.yaml path
