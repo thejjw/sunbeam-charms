@@ -53,7 +53,7 @@ applications:
     charm: ch:keystone-k8s
     channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     storage:
@@ -68,7 +68,7 @@ applications:
     charm: ch:glance-k8s
     channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     storage:
@@ -82,7 +82,7 @@ applications:
     charm: ch:nova-k8s
     channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
@@ -97,7 +97,7 @@ applications:
     charm: ch:placement-k8s
     channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
@@ -109,7 +109,7 @@ applications:
     charm: ch:neutron-k8s
     channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     options:
@@ -131,7 +131,7 @@ applications:
     charm: ch:cinder-k8s
     channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
@@ -144,7 +144,7 @@ applications:
     charm: ch:keystone-ldap-k8s
     channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     scale: 1
 
 relations:

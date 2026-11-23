@@ -306,17 +306,18 @@ def _deploy_openstack_port_cni(juju_k8s):
         logging.info("%s already deployed, skipping", PORT_CNI_APP)
         return
 
+    charm_base = os.environ.get("SUNBEAM_TEST_BASE", "ubuntu@24.04")
     if os.path.exists(PORT_CNI_LOCAL_CHARM):
         logging.info("Deploying %s from local charm %s", PORT_CNI_APP,
                      PORT_CNI_LOCAL_CHARM)
         juju_k8s.cli("deploy", PORT_CNI_LOCAL_CHARM,
-                     "--base", "ubuntu@26.04", "--trust")
+                     "--base", charm_base, "--trust")
     else:
         logging.info("Deploying %s from %s", PORT_CNI_APP, PORT_CNI_CHANNEL)
         juju_k8s.cli(
             "deploy", PORT_CNI_APP,
             "--channel", PORT_CNI_CHANNEL,
-            "--base", "ubuntu@26.04",
+            "--base", charm_base,
             "--trust",
         )
     try:

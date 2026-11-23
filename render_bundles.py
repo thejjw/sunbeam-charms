@@ -25,6 +25,7 @@ Assumption: All build charms will be in sunbeam-charms folder.
 """
 
 import glob
+import os
 from pathlib import (
     Path,
 )
@@ -39,6 +40,7 @@ built_charms = glob.glob("*.charm")
 context = {
     charm.replace(".charm", "").replace("-", "_"): True for charm in built_charms
 }
+context["charm_base"] = os.environ.get("SUNBEAM_TEST_BASE", "ubuntu@24.04")
 print(f"Using context: {context}")
 
 for test_dir in test_directories:
