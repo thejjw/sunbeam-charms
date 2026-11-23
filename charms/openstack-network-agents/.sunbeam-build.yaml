@@ -1,4 +1,6 @@
 external-libraries:
+  - charms.loki_k8s.v1.loki_push_api
   - charms.operator_libs_linux.v2.snap
+  - charms.rabbitmq_k8s.v0.rabbitmq
 internal-libraries: []
 templates: []
