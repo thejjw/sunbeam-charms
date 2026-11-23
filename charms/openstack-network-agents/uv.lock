@@ -481,6 +481,7 @@ dependencies = [
     { name = "ops" },
     { name = "pydantic" },
     { name = "requests" },
+    { name = "sunbeam-ndr-contract" },
     { name = "tenacity" },
 ]
 
@@ -497,6 +498,7 @@ requires-dist = [
     { name = "ops" },
     { name = "pydantic" },
     { name = "requests" },
+    { name = "sunbeam-ndr-contract", specifier = "==2027.1.0.dev0" },
     { name = "tenacity" },
 ]
 
@@ -762,6 +764,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/34/64/8860370b167a9721e8956ae116825caff829224fbca0ca6e7bf8ddef8430/requests-2.33.0.tar.gz", hash = "sha256:c7ebc5e8b0f21837386ad0e1c8fe8b829fa5f544d8df3b2253bff14ef29d7652", size = 134232, upload-time = "2026-03-25T15:10:41.586Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/56/5d/c814546c2333ceea4ba42262d8c4d55763003e767fa169adc693bd524478/requests-2.33.0-py3-none-any.whl", hash = "sha256:3324635456fa185245e24865e810cecec7b4caf933d7eb133dcde67d48cee69b", size = 65017, upload-time = "2026-03-25T15:10:40.382Z" },
+]
+
+[[package]]
+name = "sunbeam-ndr-contract"
+version = "2027.1.0.dev0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b4/73/71292096d2916434cb1c97c774db7b48d18d3f067a810e81f1b97ae0fc10/sunbeam_ndr_contract-2027.1.0.dev0.tar.gz", hash = "sha256:d116ce5e0cc847e42cc091486455209eaf3d83090f724eca5e481c97b0e161f4", size = 9343, upload-time = "2026-11-25T10:41:30.856Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/cb/8a/af6613e210f431730d78f758e2f6486baefa18adc93d5c1e46dfdc40a2b7/sunbeam_ndr_contract-2027.1.0.dev0-py3-none-any.whl", hash = "sha256:e02b802d5cbd5306cfc04781e8bca96b78fb6871055993bede5c4c14d0e71c9b", size = 8913, upload-time = "2026-11-25T10:41:30.033Z" },
 ]
 
 [[package]]
