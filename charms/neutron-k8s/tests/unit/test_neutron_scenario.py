@@ -16,6 +16,9 @@
 
 """Scenario (ops.testing state-transition) tests for neutron-k8s."""
 
+from dataclasses import (
+    replace,
+)
 from pathlib import (
     Path,
 )
@@ -51,6 +54,36 @@ class TestAllRelations:
         assert_config_file_exists(
             state_out, ctx, "neutron-server", "/etc/neutron/neutron.conf"
         )
+
+    @pytest.mark.parametrize("enabled", [False, True])
+    def test_dynamic_routing_plugin(self, ctx, complete_state, enabled):
+        """Opt-in renders BGP and the static scheduler with the OVN plugin."""
+        state = replace(
+            complete_state,
+            config={
+                **complete_state.config,
+                "enable-dynamic-routing": enabled,
+            },
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state)
+        config = assert_config_file_exists(
+            state_out, ctx, "neutron-server", "/etc/neutron/neutron.conf"
+        ).read_text()
+        plugins = next(
+            line.split("=", 1)[1].strip().split(",")
+            for line in config.splitlines()
+            if line.startswith("service_plugins =")
+        )
+        assert "ovn-router" in plugins
+        assert ("bgp" in plugins) is enabled
+        assert ("bgp_drscheduler_driver =" in config) is enabled
+        assert any(
+            command.command[-2:] == ["upgrade", "head"]
+            and "neutron-dynamic-routing" in command.command
+            for command in ctx.exec_history["neutron-server"]
+        )
+        if enabled:
+            assert "bgp_dragent_scheduler.StaticScheduler" in config
 
     def test_ml2_config_file_written(self, ctx, complete_state):
         """All relations present → ml2_conf.ini is rendered."""
