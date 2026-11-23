@@ -18,6 +18,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8ce49fa_0aa5b0db",
+        "filename": "charms/openstack-exporter-k8s/src/grafana_dashboards/cloud.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 1071,
+      "author": {
+        "id": 39642
+      },
+      "writtenOn": "2026-11-23T21:20:42Z",
+      "side": 1,
+      "message": "Done: the selection is a dashboard variable, so it\u0027s fixed across the range; panels no longer re-match sizes per sample. Your 80 GB lag case gives 70 GB free throughout. Also covered: Ceph growing while Nova still reports the old size at the end of the range.",
+      "parentUuid": "d12ee5f6_905c3ca1",
+      "revId": "3e3646efefbc9b0c01ce4ab56c8ed853a9c6426d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "2ed1f11f_1986159d",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-11-19T14:22:21Z",
       "side": 1,
       "message": "Both clusters can pass the 5e9-byte filter. I ran these queries in promtool with Nova backed by a 100 GB Ceph cluster at 30% usage and a separate 101 GB COS cluster with 70 GB used. The panels returned 101 GB Total and 69.3% Disk Subscription. Can we use the same deployment label or explicit cluster selector for Disk Total, Disk Subscription, and Free Disk so they all use Nova’s backing cluster?",
+      "revId": "3e3646efefbc9b0c01ce4ab56c8ed853a9c6426d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4507584c_8b7b5a1b",
+        "filename": "charms/openstack-exporter-k8s/src/grafana_dashboards/compute.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 624,
+      "author": {
+        "id": 39642
+      },
+      "writtenOn": "2026-11-23T21:20:42Z",
+      "side": 1,
+      "message": "Done in PS2: added an explicit \"Nova Ceph cluster\" variable (identity \u003d juju_model_uuid + juju_application), used by Disk Total, Disk Subscription and Free Disk. Your 100 GB + 101 GB case is now a promtool test: 100 GB total, 30 %. A same-GiB tie is offered as two options; the operator can deselect one.",
+      "parentUuid": "2ed1f11f_1986159d",
       "revId": "3e3646efefbc9b0c01ce4ab56c8ed853a9c6426d",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
