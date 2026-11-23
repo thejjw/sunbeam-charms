@@ -34,11 +34,14 @@ from jinja2 import (
     FileSystemLoader,
 )
 
+from functional_test_base import get_functional_test_base
+
 test_directories = [dir_.name for dir_ in list(Path("tests").glob('*')) if dir_.name != "local"]
 built_charms = glob.glob("*.charm")
 context = {
     charm.replace(".charm", "").replace("-", "_"): True for charm in built_charms
 }
+context["charm_base"] = get_functional_test_base()
 print(f"Using context: {context}")
 
 for test_dir in test_directories:

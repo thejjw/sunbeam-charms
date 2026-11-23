@@ -132,35 +132,44 @@ then
 
 elif [[ $1 == "build" ]];
 then
-    if [[ $# != 2 ]];
-    then
-        echo "Command format: tox -e build <charm>"
+    if [[ $# != 2 && $# != 3 ]]; then
+        echo "Command format: tox -e build -- <charm> [platform]" >&2
         exit 1
     fi
 
     charm=$2
-    charms=($(all_charms))
-    if [[ ! ${charms[@]} =~ $charm ]];
-    then
-        echo "Argument should be one of ${charms[@]}";
+    if ! all_charms | grep -Fxq -- "$charm"; then
+        echo "Unknown charm: $charm" >&2
+        exit 1
+    fi
+    charm_dir=$(cd "charms/$charm" && pwd -P) || exit 1
+
+    platform=$(python3 repository.py build-platform "$charm_dir/charmcraft.yaml" "${3:-}") || exit 1
+    pack_args=()
+    if [[ -n "$platform" ]]; then
+        pack_args+=(--platform "$platform")
+    fi
+
+    python3 repository.py -v prepare --clean "$charm" || exit 1
+    # Charmcraft can rename the packed artifact from the project directory.
+    output_dir=$(mktemp -d "$charm_dir/.charmcraft-output.XXXXXX") || exit 1
+    trap 'rm -r -- "$output_dir"' EXIT
+    (
+        cd "$charm_dir" || exit 1
+        charmcraft -v pack --output "$output_dir" "${pack_args[@]}"
+    ) || exit 1
+
+    shopt -s nullglob
+    artifacts=("$output_dir"/*.charm)
+    if [[ ${#artifacts[@]} != 1 ]]; then
+        echo "Expected one packed charm for $charm, got ${#artifacts[@]}" >&2
         exit 1
     fi
 
-    python3 repository.py -v prepare --clean $charm || exit 1
-    pushd charms/$charm || exit 1
-    charmcraft -v pack || exit 1
-    if [[ -e "${charm}.charm" ]];
-    then
-        echo "Removing bad downloaded charm maybe?"
-        rm "${charm}.charm"
-    fi
-    echo "Renaming charm ${charm}_*.charm to ${pathed_charm}.charm"
-    unpathed_charm=$(basename $charm)
-    mv ${unpathed_charm}_*.charm ${unpathed_charm}.charm
-
-    popd || exit 1
-    cp charms/$charm/${unpathed_charm}.charm . || exit 1
-    python3 repository.py -v clean $charm || exit 1
+    charm_name=${charm##*/}
+    cp -- "${artifacts[0]}" "$charm_dir/$charm_name.charm" || exit 1
+    cp -- "${artifacts[0]}" "$charm_name.charm" || exit 1
+    python3 repository.py -v clean "$charm" || exit 1
 
 elif [[ $1 == "uv" ]];
 then
