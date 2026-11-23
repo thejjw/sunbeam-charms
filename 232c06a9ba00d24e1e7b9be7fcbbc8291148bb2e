@@ -20,6 +20,24 @@
     {
       "unresolved": false,
       "key": {
+        "uuid": "28c29ab4_878df5ec",
+        "filename": "render_bundles.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-23T15:50:16Z",
+      "side": 1,
+      "message": "Fixed in PS2",
+      "parentUuid": "bbf8356f_068be3a9",
+      "revId": "232c06a9ba00d24e1e7b9be7fcbbc8291148bb2e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
         "uuid": "6b771e19_362e35d8",
         "filename": "run_tox.sh",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2026-11-23T13:46:32Z",
       "side": 1,
       "message": "Could we put the temporary output directory inside the charm directory and pass its absolute path to Charmcraft? mktemp -d uses TMPDIR or /tmp, which can be on a separate mount from the checkout. Charmcraft 4.5 finalizes managed packs by moving the artifact from the project directory to --output with Path.rename(). I exercised that code with a staged artifact and got EXDEV across mounts. A checkout on ext4 with /tmp on tmpfs hits this after the pack has finished.",
+      "revId": "232c06a9ba00d24e1e7b9be7fcbbc8291148bb2e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b7559d51_f4c09493",
+        "filename": "run_tox.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-23T15:50:16Z",
+      "side": 1,
+      "message": "Fixed in PS2",
+      "parentUuid": "6b771e19_362e35d8",
       "revId": "232c06a9ba00d24e1e7b9be7fcbbc8291148bb2e",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
