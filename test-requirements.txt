@@ -36,3 +36,4 @@ lightkube-extensions @ git+https://github.com/canonical/lightkube-extensions.git
 vaultlocker-interfaces @ git+https://github.com/canonical/charm-vaultlocker.git@main#subdirectory=packages/vaultlocker-interfaces  # openstack-hypervisor
 charmlibs-apt  # sunbeam-machine
 charmlibs-snap  # sunbeam-machine
+sunbeam-ndr-contract==2027.1.0.dev0  # openstack-network-agents
