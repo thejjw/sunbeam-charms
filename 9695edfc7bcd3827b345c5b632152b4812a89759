@@ -39,6 +39,48 @@
       },
       "revId": "9695edfc7bcd3827b345c5b632152b4812a89759",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fc03f541_e472159c",
+        "filename": "charms/storage/cinder-volume-ceph/lib/charms/cinder_volume_ceph/v0/ceph_access.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-11-23T19:51:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2693dd7f_e29db651",
+      "revId": "9695edfc7bcd3827b345c5b632152b4812a89759",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "550e2584_87594762",
+        "filename": "charms/storage/cinder-volume-ceph/lib/charms/cinder_volume_ceph/v0/ceph_access.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-11-23T19:51:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d795ccd7_95ab6928",
+      "range": {
+        "startLine": 162,
+        "startChar": 54,
+        "endLine": 162,
+        "endChar": 62
+      },
+      "revId": "9695edfc7bcd3827b345c5b632152b4812a89759",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
