@@ -1,13 +1,13 @@
 machines:
   "0":
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     arch: amd64
 
 applications:
   microceph:
     charm: ch:microceph
     channel: tentacle/stable
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     arch: amd64
     to:
       - "0"
@@ -31,14 +31,14 @@ applications:
   microovn:
     charm: ch:microovn
     channel: 26.03/stable
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     scale: 1
     to:
       - "0"
   microcluster-token-distributor:
     charm: ch:microcluster-token-distributor
     channel: v1/edge
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     scale: 1
     to:
       - "0"
@@ -49,7 +49,7 @@ applications:
     charm: ch:sunbeam-ovn-proxy
     channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     scale: 1
     to:
       - "0"
@@ -60,7 +60,7 @@ applications:
     charm: ch:openstack-network-agents
     channel: 2026.2/edge
     {% endif -%}
-    base: ubuntu@26.04
+    base: {{ charm_base }}
     options:
       snap-channel: 2026.2/edge
       external-bridge-address: 0.0.0.0/0

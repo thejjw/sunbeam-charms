@@ -18,3 +18,4 @@
   ansible.builtin.command:
     cmd: "{{ tox_executable }} -e func -- --smoke --test-directory={{ test_dir }}"
     chdir: "{{ zuul.project.src_dir }}"
+  environment: "{{ {'SUNBEAM_TEST_BASE': func_charm_base} if func_charm_base is defined else {} }}"

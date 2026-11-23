@@ -1,5 +1,8 @@
 import pathlib
+import subprocess
+import sys
 
+import pytest
 import yaml
 
 
@@ -115,3 +118,77 @@ def test_functional_jobs_depend_on_bins_for_artifact_downloads():
         assert dependencies <= bin_jobs
         assert charm_jobs == dependencies
         assert all(dependency["soft"] is True for dependency in job["dependencies"])
+
+
+@pytest.mark.parametrize(
+    ("base", "requested", "expected"),
+    [
+        ("ubuntu@24.04", None, ""),
+        ("ubuntu@26.04", None, ""),
+        ("ubuntu@24.04", "noble-amd64", "amd64"),
+        ("ubuntu@26.04", "resolute-amd64", "amd64"),
+        ("ubuntu@26.04", "amd64", "amd64"),
+        ("ubuntu@24.04", "resolute-amd64", None),
+        ("ubuntu@26.04", "noble-amd64", None),
+        ("ubuntu@26.04", "resolute-s390x", None),
+        (None, "noble-amd64", "noble-amd64"),
+        (None, "resolute-amd64", "resolute-amd64"),
+        (None, "amd64", None),
+        (None, None, None),
+    ],
+)
+def test_build_platform_selection(tmp_path, base, requested, expected):
+    recipe = tmp_path / "charmcraft.yaml"
+    config = {
+        "platforms": {
+            "noble-amd64": {"build-for": ["ubuntu@24.04:amd64"]},
+            "resolute-amd64": {"build-for": "ubuntu@26.04:amd64"},
+        },
+    }
+    if base:
+        config = {"base": base, "platforms": {"amd64": None, "arm64": None}}
+    recipe.write_text(yaml.safe_dump(config))
+
+    args = [sys.executable, str(ROOT / "repository.py"), "build-platform", str(recipe)]
+    if requested:
+        args.append(requested)
+    result = subprocess.run(args, capture_output=True, text=True, check=False)
+
+    if expected is None:
+        assert result.returncode != 0
+        if requested:
+            assert f"does not support build platform {requested}" in result.stderr
+        else:
+            assert "has multiple platforms" in result.stderr
+            assert "charm_build_platform" in result.stderr
+            assert "noble-amd64, resolute-amd64" in result.stderr
+    else:
+        assert result.returncode == 0, result.stderr
+        assert result.stdout.strip() == expected
+
+
+@pytest.mark.parametrize("architectures", [("amd64",), ("amd64", "arm64", "s390x")])
+def test_single_base_named_platforms_without_selector(tmp_path, architectures):
+    recipe = tmp_path / "charmcraft.yaml"
+    platforms = {
+        f"noble-{arch}": {
+            "build-on": [f"ubuntu@24.04:{arch}"],
+            "build-for": [f"ubuntu@24.04:{arch}"],
+        }
+        for arch in architectures
+    }
+    recipe.write_text(yaml.safe_dump({"platforms": platforms}))
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "repository.py"), "build-platform", str(recipe)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    if len(architectures) == 1:
+        assert result.returncode == 0, result.stderr
+        assert not result.stdout.strip()
+    else:
+        assert result.returncode != 0
+        assert "has multiple platforms" in result.stderr
+        assert ", ".join(platforms) in result.stderr
