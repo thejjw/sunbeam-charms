@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bbf8356f_068be3a9",
+        "filename": "render_bundles.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-23T13:46:32Z",
+      "side": 1,
+      "message": "Could we keep ubuntu@26.04 as the default on main? With SUNBEAM_TEST_BASE unset, the documented local tox command renders Keystone with ubuntu@24.04 while still requesting 2026.2/edge. I reproduced this against the parent and confirmed that the channel\u0027s amd64 revision supports only ubuntu@26.04. Juju bundle deployment validates the explicitly requested base. The Ansible role has the same Noble fallback when func_charm_base is unset, and Octavia\u0027s Port CNI lookup uses the same 2026.2/edge channel. Please keep the defaults aligned with each branch\u0027s channels and retain the override.",
+      "revId": "232c06a9ba00d24e1e7b9be7fcbbc8291148bb2e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6b771e19_362e35d8",
+        "filename": "run_tox.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-23T13:46:32Z",
+      "side": 1,
+      "message": "Could we put the temporary output directory inside the charm directory and pass its absolute path to Charmcraft? mktemp -d uses TMPDIR or /tmp, which can be on a separate mount from the checkout. Charmcraft 4.5 finalizes managed packs by moving the artifact from the project directory to --output with Path.rename(). I exercised that code with a staged artifact and got EXDEV across mounts. A checkout on ext4 with /tmp on tmpfs hits this after the pack has finished.",
+      "revId": "232c06a9ba00d24e1e7b9be7fcbbc8291148bb2e",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
