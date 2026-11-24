@@ -5,26 +5,25 @@
       - openstack-sunbeam-charm-build-jobs
     check:
       jobs:
-        - func-test-openstack-microovn-core:
-            nodeset: charms-ubuntu-noble-32GB
-        - func-test-openstack-microovn-services:
-            nodeset: charms-ubuntu-noble-32GB
-        - func-test-openstack-microovn-ceph:
-            nodeset: charms-ubuntu-noble-32GB
-        - func-test-openstack-microovn-deploy:
-            nodeset: charms-ubuntu-noble-32GB
-        - func-test-identity:
-            nodeset: charms-ubuntu-noble-32GB
+        - func-test-identity
+        - func-test-identity-noble
+        - func-test-openstack-microovn-core
+        - func-test-openstack-microovn-core-noble
+        - func-test-openstack-microovn-services
+        - func-test-openstack-microovn-services-noble
+        - func-test-openstack-microovn-ceph
+        - func-test-openstack-microovn-ceph-noble
+        - func-test-openstack-microovn-deploy
+        - func-test-openstack-microovn-deploy-noble
     vars:
-      func_charm_base: ubuntu@24.04
+      func_charm_base: ubuntu@26.04
       ensure_tox_version: ==4.47.3
       juju_channel: 3.6/stable
       juju_classic_mode: false
       env_type: k8s
       k8s_channel: 1.32-classic/stable
       k8s_classic_mode: true
-      # TODO: Change it to 4.x/stable once it is available
-      charmcraft_channel: latest/stable
+      charmcraft_channel: 4.x/stable
       publish_channels:
         keystone-k8s: 2026.1/edge
         glance-k8s: 2026.1/edge

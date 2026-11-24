@@ -2,7 +2,7 @@
 
 import os
 
-DEFAULT_FUNCTIONAL_TEST_BASE = "ubuntu@24.04"
+DEFAULT_FUNCTIONAL_TEST_BASE = "ubuntu@26.04"
 
 
 def get_functional_test_base() -> str:

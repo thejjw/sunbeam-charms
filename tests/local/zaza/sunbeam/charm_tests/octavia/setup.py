@@ -200,13 +200,19 @@ def _deploy_openstack_port_cni(juju_k8s):
         logging.info("openstack-port-cni-k8s already deployed, skipping")
         return
 
-    logging.info("Deploying openstack-port-cni-k8s from %s", PORT_CNI_CHANNEL)
-    juju_k8s.cli(
-        "deploy", "openstack-port-cni-k8s",
-        "--channel", PORT_CNI_CHANNEL,
-        "--base", get_functional_test_base(),
-        "--trust",
-    )
+    charm_base = get_functional_test_base()
+    local_charm = Path("openstack-port-cni-k8s.charm").resolve()
+    if local_charm.is_file():
+        logging.info("Deploying openstack-port-cni-k8s from %s", local_charm)
+        juju_k8s.cli("deploy", str(local_charm), "--base", charm_base, "--trust")
+    else:
+        logging.info("Deploying openstack-port-cni-k8s from %s", PORT_CNI_CHANNEL)
+        juju_k8s.cli(
+            "deploy", "openstack-port-cni-k8s",
+            "--channel", PORT_CNI_CHANNEL,
+            "--base", charm_base,
+            "--trust",
+        )
     try:
         juju_k8s.cli(
             "integrate",
