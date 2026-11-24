@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce989450_529385b9",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-24T08:29:30Z",
+      "side": 1,
+      "message": "LGTM, thanks @gunnar.hovik@canonical.com",
+      "revId": "6019f1f7587ede6c0becd04a4ae3aafe1fa90cd1",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
