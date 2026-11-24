@@ -74,7 +74,7 @@ def test_bin_jobs_have_expected_files_and_build_metadata():
     for job_name, job in _bin_jobs(_jobs()).items():
         assert job_name.startswith("charm-build-bin-")
         assert job["files"][0] == "ops-sunbeam/ops_sunbeam/"
-        assert "rebuild" in job["files"]
+        assert "^rebuild$" in job["files"]
 
         for build in job["vars"]["charm_builds"]:
             charm_path = pathlib.Path(build["path"])
@@ -86,38 +86,68 @@ def test_bin_jobs_have_expected_files_and_build_metadata():
 def test_build_template_uses_only_concrete_bin_jobs():
     jobs = _jobs()
     template = _project_template("openstack-sunbeam-charm-build-jobs")
-    expected_jobs = list(_bin_jobs(jobs))
+    expected_jobs = [
+        name
+        for parent in _bin_jobs(jobs)
+        for name in (parent, f"{parent}-noble")
+    ]
 
     assert _pipeline_jobs(template, "check") == expected_jobs
     assert _pipeline_jobs(template, "gate") == expected_jobs
 
 
 def test_charm_build_jobs_are_only_bins():
+    jobs = _jobs()
     charm_build_jobs = [
         name
-        for name in _jobs()
+        for name in jobs
         if name.startswith("charm-build-") and name != "charm-build-bin"
     ]
 
-    assert charm_build_jobs == list(_bin_jobs(_jobs()))
+    bins = _bin_jobs(jobs)
+    assert set(charm_build_jobs) == set(bins) | {f"{name}-noble" for name in bins}
+    for name in bins:
+        sibling = jobs[f"{name}-noble"]
+        assert sibling["parent"] == name
+        assert sibling["vars"]["charm_build_platform"] == "noble-amd64"
+    assert jobs["charm-build-bin"]["vars"]["charm_build_platform"] == "resolute-amd64"
 
 
-def test_functional_jobs_depend_on_bins_for_artifact_downloads():
+def test_functional_jobs_depend_on_matching_bins_for_artifact_downloads():
     jobs = _jobs()
-    bin_jobs = set(_bin_jobs(jobs))
-    functional_jobs = [
-        job
-        for job in jobs.values()
-        if job["name"].startswith("func-test-") and "charm_jobs" in job.get("vars", {})
-    ]
+    primary_bins = set(_bin_jobs(jobs))
+    project = _load_yaml("zuul.d/zuul.yaml")[0]["project"]
+    checks = {entry for entry in project["check"]["jobs"] if isinstance(entry, str)}
+    base_template = _project_template("openstack-sunbeam-charm-build-jobs")
+    check_overrides = {
+        name: config
+        for entry in base_template["check"]["jobs"]
+        if isinstance(entry, dict)
+        for name, config in entry.items()
+    }
 
-    assert functional_jobs
-    for job in functional_jobs:
-        dependencies = {dependency["name"] for dependency in job["dependencies"]}
-        charm_jobs = set(job["vars"]["charm_jobs"])
-        assert dependencies <= bin_jobs
-        assert charm_jobs == dependencies
-        assert all(dependency["soft"] is True for dependency in job["dependencies"])
+    assert checks
+    assert project["vars"]["func_charm_base"] == "ubuntu@26.04"
+    for name in checks:
+        job = jobs[name]
+        noble = name.endswith("-noble")
+        primary = jobs[job["parent"]] if noble else job
+        dependencies = {dep["name"] for dep in job["dependencies"]}
+        assert set(job["vars"]["charm_jobs"]) == dependencies
+        assert all(not dep.get("soft") for dep in job["dependencies"])
+        if noble:
+            assert job["nodeset"] == "charms-ubuntu-noble-32GB"
+            assert job["vars"]["func_charm_base"] == "ubuntu@24.04"
+            assert job["parent"] in checks
+            assert dependencies == {f"{bin_name}-noble" for bin_name in primary["vars"]["charm_jobs"]}
+        else:
+            assert job["nodeset"] == "charms-ubuntu-resolute-32GB"
+            assert dependencies <= primary_bins
+            assert f"{name}-noble" in checks
+        for dependency in dependencies:
+            override = check_overrides[dependency]
+            assert override["vars"]["charm_build_complete_bin"] is True
+            assert set(primary["files"]) <= set(override["files"])
 
 
 @pytest.mark.parametrize(
