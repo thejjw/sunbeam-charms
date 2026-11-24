@@ -9,14 +9,14 @@
     state: latest
   become: true
   when:
-    - ansible_distribution_release in ('jammy', 'noble')
+    - ansible_distribution_release in ('jammy', 'noble', 'resolute')
 
 - name: Nftables is installed
   ansible.builtin.apt:
     name: nftables
   become: true
   when:
-    - ansible_distribution_release in ('jammy', 'noble')
+    - ansible_distribution_release in ('jammy', 'noble', 'resolute')
     - nftables_enabled | default(true) | bool
 
 - name: Ensure localhost is trusted ssh

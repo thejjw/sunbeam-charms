@@ -13,10 +13,19 @@ links:
   issues:
     - https://bugs.launchpad.net/sunbeam-charms
 
-base: ubuntu@24.04
 platforms:
-  amd64:
-  arm64:
+  noble-amd64:
+    build-on: [ubuntu@24.04:amd64]
+    build-for: [ubuntu@24.04:amd64]
+  noble-arm64:
+    build-on: [ubuntu@24.04:arm64]
+    build-for: [ubuntu@24.04:arm64]
+  resolute-amd64:
+    build-on: [ubuntu@26.04:amd64]
+    build-for: [ubuntu@26.04:amd64]
+  resolute-arm64:
+    build-on: [ubuntu@26.04:arm64]
+    build-for: [ubuntu@26.04:arm64]
 
 subordinate: true
 

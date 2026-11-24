@@ -4,9 +4,10 @@
 [project]
 name = "cinder-volume-veritasaccess"
 version = "2026.1"
-requires-python = "~=3.12.0"
+requires-python = ">=3.12,<3.15"
 
 dependencies = [
+    "jsonschema",
     "cryptography",
     "jinja2",
     "pydantic",

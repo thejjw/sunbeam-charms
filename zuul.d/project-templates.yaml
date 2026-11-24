@@ -38,30 +38,112 @@
     check:
       fail-fast: true
       jobs:
-        - charm-build-bin-core-identity
-        - charm-build-bin-core-compute
+        # Functional suites need a complete set of local charms for their base.
+        - charm-build-bin-core-identity: &functional_charm_artifacts
+            files:
+              - '^rebuild$'
+              - 'charms/aodh-k8s/'
+              - 'charms/barbican-k8s/'
+              - 'charms/ceilometer-k8s/'
+              - 'charms/cinder-k8s/'
+              - 'charms/cinder-volume/'
+              - 'charms/cloudkitty-k8s/'
+              - 'charms/designate-bind-k8s/'
+              - 'charms/designate-k8s/'
+              - 'charms/epa-orchestrator/'
+              - 'charms/glance-k8s/'
+              - 'charms/gnocchi-k8s/'
+              - 'charms/heat-k8s/'
+              - 'charms/horizon-k8s/'
+              - 'charms/ironic-conductor-k8s/'
+              - 'charms/ironic-k8s/'
+              - 'charms/keystone-k8s/'
+              - 'charms/keystone-ldap-k8s/'
+              - 'charms/keystone-saml-k8s/'
+              - 'charms/magnum-k8s/'
+              - 'charms/manila-cephfs-k8s/'
+              - 'charms/manila-data/'
+              - 'charms/manila-k8s/'
+              - 'charms/masakari-k8s/'
+              - 'charms/neutron-baremetal-switch-config-k8s/'
+              - 'charms/neutron-generic-switch-config-k8s/'
+              - 'charms/neutron-k8s/'
+              - 'charms/nova-ironic-k8s/'
+              - 'charms/nova-k8s/'
+              - 'charms/octavia-k8s/'
+              - 'charms/openstack-exporter-k8s/'
+              - 'charms/openstack-hypervisor/'
+              - 'charms/openstack-images-sync-k8s/'
+              - 'charms/openstack-network-agents/'
+              - 'charms/openstack-port-cni-k8s/'
+              - 'charms/placement-k8s/'
+              - 'charms/storage/cinder-volume-ceph/'
+              - 'charms/sunbeam-clusterd/'
+              - 'charms/sunbeam-machine/'
+              - 'charms/sunbeam-ovn-proxy/'
+              - 'charms/tempest-k8s/'
+              - 'charms/watcher-k8s/'
+              - 'ops-sunbeam/ops_sunbeam/'
+              - 'tests/local/zaza/sunbeam/charm_tests/api_audit/'
+              - 'tests/local/zaza/sunbeam/charm_tests/k8s/'
+              - 'tests/local/zaza/sunbeam/charm_tests/keystone/'
+              - 'tests/local/zaza/sunbeam/charm_tests/machine/'
+              - 'tests/local/zaza/sunbeam/charm_tests/neutron/'
+              - 'tests/local/zaza/sunbeam/charm_tests/octavia/'
+              - 'tests/local/zaza/sunbeam/charm_tests/openstack_images_sync_k8s/'
+              - 'tests/local/zaza/sunbeam/charm_tests/tempest_k8s/'
+              - 'tests/openstack-microovn-ceph/'
+              - 'tests/openstack-microovn-core/'
+              - 'tests/openstack-microovn-deploy/'
+              - 'tests/openstack-microovn-services/'
+            vars:
+              charm_build_complete_bin: true
+        - charm-build-bin-core-identity-noble: *functional_charm_artifacts
+        - charm-build-bin-core-compute: *functional_charm_artifacts
+        - charm-build-bin-core-compute-noble: *functional_charm_artifacts
         - charm-build-bin-core-ovn
-        - charm-build-bin-core-storage
-        - charm-build-bin-services-a
-        - charm-build-bin-services-b
-        - charm-build-bin-infra
+        - charm-build-bin-core-ovn-noble
+        - charm-build-bin-core-storage: *functional_charm_artifacts
+        - charm-build-bin-core-storage-noble: *functional_charm_artifacts
+        - charm-build-bin-services-a: *functional_charm_artifacts
+        - charm-build-bin-services-a-noble: *functional_charm_artifacts
+        - charm-build-bin-services-b: *functional_charm_artifacts
+        - charm-build-bin-services-b-noble: *functional_charm_artifacts
+        - charm-build-bin-infra: *functional_charm_artifacts
+        - charm-build-bin-infra-noble: *functional_charm_artifacts
         - charm-build-bin-storage-a
+        - charm-build-bin-storage-a-noble
         - charm-build-bin-storage-b
+        - charm-build-bin-storage-b-noble
         - charm-build-bin-storage-c
+        - charm-build-bin-storage-c-noble
         - charm-build-bin-storage-d
+        - charm-build-bin-storage-d-noble
         - charm-build-bin-storage-e
+        - charm-build-bin-storage-e-noble
     gate:
-      fail-fast: true
       jobs:
         - charm-build-bin-core-identity
+        - charm-build-bin-core-identity-noble
         - charm-build-bin-core-compute
+        - charm-build-bin-core-compute-noble
         - charm-build-bin-core-ovn
+        - charm-build-bin-core-ovn-noble
         - charm-build-bin-core-storage
+        - charm-build-bin-core-storage-noble
         - charm-build-bin-services-a
+        - charm-build-bin-services-a-noble
         - charm-build-bin-services-b
+        - charm-build-bin-services-b-noble
         - charm-build-bin-infra
+        - charm-build-bin-infra-noble
         - charm-build-bin-storage-a
+        - charm-build-bin-storage-a-noble
         - charm-build-bin-storage-b
+        - charm-build-bin-storage-b-noble
         - charm-build-bin-storage-c
+        - charm-build-bin-storage-c-noble
         - charm-build-bin-storage-d
+        - charm-build-bin-storage-d-noble
         - charm-build-bin-storage-e
+        - charm-build-bin-storage-e-noble

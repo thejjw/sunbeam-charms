@@ -3,3 +3,9 @@
     nodes:
       - name: charms-ubuntu-noble-32GB
         label: ubuntu-noble-32GB
+
+- nodeset:
+    name: charms-ubuntu-resolute-32GB
+    nodes:
+      - name: charms-ubuntu-resolute-32GB
+        label: ubuntu-resolute-32GB

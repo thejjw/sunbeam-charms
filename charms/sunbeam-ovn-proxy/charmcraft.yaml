@@ -9,11 +9,25 @@ description: |
   charms need more information that is provided by the ovsdb-cms
   relation.
 
-base: ubuntu@24.04
 platforms:
-  amd64:
-  arm64:
-  s390x:
+  noble-amd64:
+    build-on: [ubuntu@24.04:amd64]
+    build-for: [ubuntu@24.04:amd64]
+  noble-arm64:
+    build-on: [ubuntu@24.04:arm64]
+    build-for: [ubuntu@24.04:arm64]
+  noble-s390x:
+    build-on: [ubuntu@24.04:s390x]
+    build-for: [ubuntu@24.04:s390x]
+  resolute-amd64:
+    build-on: [ubuntu@26.04:amd64]
+    build-for: [ubuntu@26.04:amd64]
+  resolute-arm64:
+    build-on: [ubuntu@26.04:arm64]
+    build-for: [ubuntu@26.04:arm64]
+  resolute-s390x:
+    build-on: [ubuntu@26.04:s390x]
+    build-for: [ubuntu@26.04:s390x]
 
 parts:
   charm:
@@ -28,8 +42,8 @@ parts:
       # s390x: build cryptography (openssl-sys/Rust) from source
       - libssl-dev
       - pkg-config
-      - rustc-1.82
-      - cargo-1.82
+      - rustc-1.91
+      - cargo-1.91
 requires:
   ovsdb:
     interface: ovsdb
