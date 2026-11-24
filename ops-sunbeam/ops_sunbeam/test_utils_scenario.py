@@ -227,6 +227,53 @@ def db_relation_complete(
 
 
 # =========================================================================
+# Valkey (valkey_client) — ValkeyRequiresHandler
+# =========================================================================
+
+
+def valkey_credentials_secret(
+    secret_id: str = "secret:valkey-creds",
+) -> testing.Secret:
+    """Secret with Valkey ACL user credentials (owned by remote valkey app)."""
+    return testing.Secret(
+        tracked_content={"username": "relation-5-abc", "password": "s3cret"},
+        id=secret_id,
+        owner=None,
+    )
+
+
+def valkey_relation_complete(
+    endpoint: str = "distributed-cache",
+    secret_id: str = "secret:valkey-creds",
+    tls: bool = False,
+    tls_ca: str | None = None,
+) -> testing.Relation:
+    """valkey_client relation as published by the Valkey operator.
+
+    With client TLS on, the operator moves the Valkey and Sentinel
+    endpoints to the TLS ports (6380 and 26380).
+    """
+    port, sentinel_port = ("6380", "26380") if tls else ("6379", "26379")
+    return testing.Relation(
+        endpoint=endpoint,
+        remote_app_name="valkey",
+        remote_app_data={
+            "secret-user": secret_id,
+            "endpoints": f"valkey-primary.m.svc.cluster.local:{port}",
+            "sentinel-endpoints": ",".join(
+                f"valkey-{i}.valkey-endpoints.m.svc.cluster.local:"
+                f"{sentinel_port}"
+                for i in range(3)
+            ),
+            "mode": "sentinel",
+            "tls": str(tls),
+            "tls-ca": tls_ca or "None",
+            "version": "9.0.4",
+        },
+    )
+
+
+# =========================================================================
 # AMQP / RabbitMQ — RabbitMQHandler / AMQPHandler
 # =========================================================================
 

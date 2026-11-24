@@ -2052,6 +2052,15 @@ export OS_AUTH_VERSION=3
                 self.service_group,
                 0o640,
             ),
+            sunbeam_core.ContainerConfigFile(
+                # CA of the Valkey distributed cache, referenced from
+                # [cache] tls_cafile. Kept out of ca-bundle.crt, which feeds
+                # the system trust store from the receive-ca-cert relation.
+                self.distributed_cache.ca_file_path,
+                "root",
+                self.service_group,
+                0o640,
+            ),
         ]
         return _cconfigs
 
