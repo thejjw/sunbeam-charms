@@ -5,6 +5,8 @@
     run: playbooks/charm/build.yaml
     timeout: 7200
     nodeset: ubuntu-noble
+    vars:
+      charm_build_platform: resolute-amd64
     match-on-config-updates: false
     irrelevant-files:
       - ops-sunbeam/ops_sunbeam/test_.*\.py
@@ -19,7 +21,7 @@
       - charms/keystone-saml-k8s/
       - charms/horizon-k8s/
       - charms/openstack-exporter-k8s/
-      - rebuild
+      - ^rebuild$
     vars:
       charm_builds:
         - name: keystone-k8s
@@ -46,7 +48,7 @@
       - charms/neutron-generic-switch-config-k8s/
       - charms/openstack-images-sync-k8s/
       - charms/tempest-k8s/
-      - rebuild
+      - ^rebuild$
     vars:
       charm_builds:
         - name: glance-k8s
@@ -73,7 +75,7 @@
       - ops-sunbeam/ops_sunbeam/
       - charms/ovn-central-k8s/
       - charms/ovn-relay-k8s/
-      - rebuild
+      - ^rebuild$
     vars:
       charm_builds:
         - name: ovn-central-k8s
@@ -92,7 +94,7 @@
       - charms/manila-k8s/
       - charms/manila-cephfs-k8s/
       - charms/manila-data/
-      - rebuild
+      - ^rebuild$
     vars:
       charm_builds:
         - name: cinder-k8s
@@ -122,7 +124,7 @@
       - charms/cloudkitty-k8s/
       - charms/designate-k8s/
       - charms/designate-bind-k8s/
-      - rebuild
+      - ^rebuild$
     vars:
       charm_builds:
         - name: aodh-k8s
@@ -156,7 +158,7 @@
       - charms/magnum-k8s/
       - charms/masakari-k8s/
       - charms/openstack-hypervisor/
-      - rebuild
+      - ^rebuild$
     vars:
       charm_builds:
         - name: ironic-k8s
@@ -185,7 +187,7 @@
       - charms/sunbeam-machine/
       - charms/sunbeam-clusterd/
       - charms/epa-orchestrator/
-      - rebuild
+      - ^rebuild$
     vars:
       charm_builds:
         - name: openstack-network-agents
@@ -216,7 +218,7 @@
       - charms/storage/cinder-volume-dellunity/
       - charms/storage/cinder-volume-fujitsueternusdx/
       - charms/storage/cinder-volume-hpexp/
-      - rebuild
+      - ^rebuild$
     vars:
       charm_builds:
         - name: cinder-volume-datacore
@@ -254,7 +256,7 @@
       - charms/storage/cinder-volume-ibmibmstorage/
       - charms/storage/cinder-volume-ibmstorwizesvc/
       - charms/storage/cinder-volume-infinidat/
-      - rebuild
+      - ^rebuild$
     vars:
       charm_builds:
         - name: cinder-volume-hitachi
@@ -289,7 +291,7 @@
       - charms/storage/cinder-volume-necv/
       - charms/storage/cinder-volume-netapp/
       - charms/storage/cinder-volume-nexenta/
-      - rebuild
+      - ^rebuild$
     vars:
       charm_builds:
         - name: cinder-volume-inspuras13000
@@ -322,7 +324,7 @@
       - charms/storage/cinder-volume-sandstone/
       - charms/storage/cinder-volume-solidfire/
       - charms/storage/cinder-volume-stx/
-      - rebuild
+      - ^rebuild$
     vars:
       charm_builds:
         - name: cinder-volume-nimble
@@ -352,7 +354,7 @@
       - charms/storage/cinder-volume-veritasaccess/
       - charms/storage/cinder-volume-yadro/
       - charms/storage/cinder-volume-zadara/
-      - rebuild
+      - ^rebuild$
     vars:
       charm_builds:
         - name: cinder-volume-synology
@@ -366,6 +368,78 @@
         - name: cinder-volume-zadara
           path: storage/cinder-volume-zadara
 - job:
+    name: charm-build-bin-core-identity-noble
+    parent: charm-build-bin-core-identity
+    description: Build a bin of Sunbeam charms for Ubuntu 24.04
+    vars:
+      charm_build_platform: noble-amd64
+- job:
+    name: charm-build-bin-core-compute-noble
+    parent: charm-build-bin-core-compute
+    description: Build a bin of Sunbeam charms for Ubuntu 24.04
+    vars:
+      charm_build_platform: noble-amd64
+- job:
+    name: charm-build-bin-core-ovn-noble
+    parent: charm-build-bin-core-ovn
+    description: Build a bin of Sunbeam charms for Ubuntu 24.04
+    vars:
+      charm_build_platform: noble-amd64
+- job:
+    name: charm-build-bin-core-storage-noble
+    parent: charm-build-bin-core-storage
+    description: Build a bin of Sunbeam charms for Ubuntu 24.04
+    vars:
+      charm_build_platform: noble-amd64
+- job:
+    name: charm-build-bin-services-a-noble
+    parent: charm-build-bin-services-a
+    description: Build a bin of Sunbeam charms for Ubuntu 24.04
+    vars:
+      charm_build_platform: noble-amd64
+- job:
+    name: charm-build-bin-services-b-noble
+    parent: charm-build-bin-services-b
+    description: Build a bin of Sunbeam charms for Ubuntu 24.04
+    vars:
+      charm_build_platform: noble-amd64
+- job:
+    name: charm-build-bin-infra-noble
+    parent: charm-build-bin-infra
+    description: Build a bin of Sunbeam charms for Ubuntu 24.04
+    vars:
+      charm_build_platform: noble-amd64
+- job:
+    name: charm-build-bin-storage-a-noble
+    parent: charm-build-bin-storage-a
+    description: Build a bin of Sunbeam charms for Ubuntu 24.04
+    vars:
+      charm_build_platform: noble-amd64
+- job:
+    name: charm-build-bin-storage-b-noble
+    parent: charm-build-bin-storage-b
+    description: Build a bin of Sunbeam charms for Ubuntu 24.04
+    vars:
+      charm_build_platform: noble-amd64
+- job:
+    name: charm-build-bin-storage-c-noble
+    parent: charm-build-bin-storage-c
+    description: Build a bin of Sunbeam charms for Ubuntu 24.04
+    vars:
+      charm_build_platform: noble-amd64
+- job:
+    name: charm-build-bin-storage-d-noble
+    parent: charm-build-bin-storage-d
+    description: Build a bin of Sunbeam charms for Ubuntu 24.04
+    vars:
+      charm_build_platform: noble-amd64
+- job:
+    name: charm-build-bin-storage-e-noble
+    parent: charm-build-bin-storage-e
+    description: Build a bin of Sunbeam charms for Ubuntu 24.04
+    vars:
+      charm_build_platform: noble-amd64
+- job:
     name: func-test-identity
     description: |
       Zaza smoke test for the identity feature, which
@@ -373,16 +447,18 @@
     timeout: 3600
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml
+    match-on-config-updates: false
     post-run: playbooks/collect-run-data.yaml
+    nodeset: charms-ubuntu-resolute-32GB
     dependencies:
       - name: charm-build-bin-core-identity
-        soft: true
     files:
+      - '^playbooks/zaza-func-test\.yaml$'
       - ops-sunbeam/ops_sunbeam/
       - charms/horizon-k8s/
       - charms/keystone-k8s/
       - charms/keystone-saml-k8s/
-      - rebuild
+      - ^rebuild$
     irrelevant-files:
       - ops-sunbeam/ops_sunbeam/test_.*\.py
     vars:
@@ -395,21 +471,25 @@
     timeout: 3600
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml
+    match-on-config-updates: false
     post-run: playbooks/collect-run-data.yaml
+    nodeset: charms-ubuntu-resolute-32GB
     dependencies:
+      - name: charm-build-bin-core-storage
       - name: charm-build-bin-infra
-        soft: true
     files:
+      - '^playbooks/zaza-func-test\.yaml$'
       - ops-sunbeam/ops_sunbeam/
       - charms/sunbeam-machine/
       - charms/sunbeam-clusterd/
       - charms/epa-orchestrator/
-      - rebuild
+      - ^rebuild$
     irrelevant-files:
       - ops-sunbeam/ops_sunbeam/test_.*\.py
     vars:
       env_type: lxd
       charm_jobs:
+        - charm-build-bin-core-storage
         - charm-build-bin-infra
       test_dir: tests/machine
 - job:
@@ -424,21 +504,18 @@
     timeout: 7200
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml
+    match-on-config-updates: false
     post-run: playbooks/collect-run-data.yaml
+    nodeset: charms-ubuntu-resolute-32GB
     dependencies:
       - name: charm-build-bin-core-identity
-        soft: true
       - name: charm-build-bin-core-compute
-        soft: true
       - name: charm-build-bin-core-storage
-        soft: true
       - name: charm-build-bin-services-a
-        soft: true
       - name: charm-build-bin-services-b
-        soft: true
       - name: charm-build-bin-infra
-        soft: true
     files:
+      - '^playbooks/zaza-func-test\.yaml$'
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-k8s/
       - charms/glance-k8s/
@@ -476,7 +553,7 @@
       - charms/sunbeam-ovn-proxy/
       - charms/openstack-network-agents/
       - charms/openstack-port-cni-k8s/
-      - rebuild
+      - ^rebuild$
     irrelevant-files:
       - ops-sunbeam/ops_sunbeam/test_.*\.py
     vars:
@@ -498,17 +575,16 @@
     timeout: 7200
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml
+    match-on-config-updates: false
     post-run: playbooks/collect-run-data.yaml
+    nodeset: charms-ubuntu-resolute-32GB
     dependencies:
       - name: charm-build-bin-core-identity
-        soft: true
       - name: charm-build-bin-core-compute
-        soft: true
       - name: charm-build-bin-services-b
-        soft: true
       - name: charm-build-bin-infra
-        soft: true
     files:
+      - '^playbooks/zaza-func-test\.yaml$'
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-k8s/
       - charms/keystone-ldap-k8s/
@@ -530,7 +606,7 @@
       - tests/local/zaza/sunbeam/charm_tests/api_audit/
       - tests/local/zaza/sunbeam/charm_tests/tempest_k8s/
       - tests/local/zaza/sunbeam/charm_tests/openstack_images_sync_k8s/
-      - rebuild
+      - ^rebuild$
     irrelevant-files:
       - ops-sunbeam/ops_sunbeam/test_.*\.py
     vars:
@@ -550,19 +626,17 @@
     timeout: 7200
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml
+    match-on-config-updates: false
     post-run: playbooks/collect-run-data.yaml
+    nodeset: charms-ubuntu-resolute-32GB
     dependencies:
       - name: charm-build-bin-core-identity
-        soft: true
       - name: charm-build-bin-core-compute
-        soft: true
       - name: charm-build-bin-services-a
-        soft: true
       - name: charm-build-bin-services-b
-        soft: true
       - name: charm-build-bin-infra
-        soft: true
     files:
+      - '^playbooks/zaza-func-test\.yaml$'
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-k8s/
       - charms/keystone-ldap-k8s/
@@ -589,7 +663,7 @@
       - tests/local/zaza/sunbeam/charm_tests/neutron/
       - tests/local/zaza/sunbeam/charm_tests/api_audit/
       - tests/local/zaza/sunbeam/charm_tests/octavia/
-      - rebuild
+      - ^rebuild$
     irrelevant-files:
       - ops-sunbeam/ops_sunbeam/test_.*\.py
     vars:
@@ -610,19 +684,17 @@
     timeout: 7200
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml
+    match-on-config-updates: false
     post-run: playbooks/collect-run-data.yaml
+    nodeset: charms-ubuntu-resolute-32GB
     dependencies:
       - name: charm-build-bin-core-identity
-        soft: true
       - name: charm-build-bin-core-compute
-        soft: true
       - name: charm-build-bin-core-storage
-        soft: true
       - name: charm-build-bin-services-b
-        soft: true
       - name: charm-build-bin-infra
-        soft: true
     files:
+      - '^playbooks/zaza-func-test\.yaml$'
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-k8s/
       - charms/keystone-ldap-k8s/
@@ -643,7 +715,7 @@
       - tests/local/zaza/sunbeam/charm_tests/keystone/
       - tests/local/zaza/sunbeam/charm_tests/neutron/
       - tests/local/zaza/sunbeam/charm_tests/api_audit/
-      - rebuild
+      - ^rebuild$
     irrelevant-files:
       - ops-sunbeam/ops_sunbeam/test_.*\.py
     vars:
@@ -665,21 +737,18 @@
     timeout: 7200
     pre-run: playbooks/pre-run-func-test.yaml
     run: playbooks/zaza-func-test.yaml
+    match-on-config-updates: false
     post-run: playbooks/collect-run-data.yaml
+    nodeset: charms-ubuntu-resolute-32GB
     dependencies:
       - name: charm-build-bin-core-identity
-        soft: true
       - name: charm-build-bin-core-compute
-        soft: true
       - name: charm-build-bin-core-storage
-        soft: true
       - name: charm-build-bin-services-a
-        soft: true
       - name: charm-build-bin-services-b
-        soft: true
       - name: charm-build-bin-infra
-        soft: true
     files:
+      - '^playbooks/zaza-func-test\.yaml$'
       - ops-sunbeam/ops_sunbeam/
       - charms/keystone-k8s/
       - charms/keystone-ldap-k8s/
@@ -709,7 +778,7 @@
       - tests/local/zaza/sunbeam/charm_tests/k8s/
       - tests/local/zaza/sunbeam/charm_tests/keystone/
       - tests/local/zaza/sunbeam/charm_tests/neutron/
-      - rebuild
+      - ^rebuild$
     irrelevant-files:
       - ops-sunbeam/ops_sunbeam/test_.*\.py
     vars:
@@ -721,3 +790,117 @@
         - charm-build-bin-services-b
         - charm-build-bin-infra
       test_dir: tests/openstack-microovn-deploy
+- job:
+    name: func-test-identity-noble
+    parent: func-test-identity
+    nodeset: charms-ubuntu-noble-32GB
+    dependencies:
+      - name: charm-build-bin-core-identity-noble
+    vars:
+      func_charm_base: ubuntu@24.04
+      charm_jobs:
+        - charm-build-bin-core-identity-noble
+- job:
+    name: func-test-machine-noble
+    parent: func-test-machine
+    nodeset: charms-ubuntu-noble-32GB
+    dependencies:
+      - name: charm-build-bin-core-storage-noble
+      - name: charm-build-bin-infra-noble
+    vars:
+      func_charm_base: ubuntu@24.04
+      charm_jobs:
+        - charm-build-bin-core-storage-noble
+        - charm-build-bin-infra-noble
+- job:
+    name: func-test-openstack-microovn-noble
+    parent: func-test-openstack-microovn
+    nodeset: charms-ubuntu-noble-32GB
+    dependencies:
+      - name: charm-build-bin-core-identity-noble
+      - name: charm-build-bin-core-compute-noble
+      - name: charm-build-bin-core-storage-noble
+      - name: charm-build-bin-services-a-noble
+      - name: charm-build-bin-services-b-noble
+      - name: charm-build-bin-infra-noble
+    vars:
+      func_charm_base: ubuntu@24.04
+      charm_jobs:
+        - charm-build-bin-core-identity-noble
+        - charm-build-bin-core-compute-noble
+        - charm-build-bin-core-storage-noble
+        - charm-build-bin-services-a-noble
+        - charm-build-bin-services-b-noble
+        - charm-build-bin-infra-noble
+- job:
+    name: func-test-openstack-microovn-core-noble
+    parent: func-test-openstack-microovn-core
+    nodeset: charms-ubuntu-noble-32GB
+    dependencies:
+      - name: charm-build-bin-core-identity-noble
+      - name: charm-build-bin-core-compute-noble
+      - name: charm-build-bin-services-b-noble
+      - name: charm-build-bin-infra-noble
+    vars:
+      func_charm_base: ubuntu@24.04
+      charm_jobs:
+        - charm-build-bin-core-identity-noble
+        - charm-build-bin-core-compute-noble
+        - charm-build-bin-services-b-noble
+        - charm-build-bin-infra-noble
+- job:
+    name: func-test-openstack-microovn-services-noble
+    parent: func-test-openstack-microovn-services
+    nodeset: charms-ubuntu-noble-32GB
+    dependencies:
+      - name: charm-build-bin-core-identity-noble
+      - name: charm-build-bin-core-compute-noble
+      - name: charm-build-bin-services-a-noble
+      - name: charm-build-bin-services-b-noble
+      - name: charm-build-bin-infra-noble
+    vars:
+      func_charm_base: ubuntu@24.04
+      charm_jobs:
+        - charm-build-bin-core-identity-noble
+        - charm-build-bin-core-compute-noble
+        - charm-build-bin-services-a-noble
+        - charm-build-bin-services-b-noble
+        - charm-build-bin-infra-noble
+- job:
+    name: func-test-openstack-microovn-ceph-noble
+    parent: func-test-openstack-microovn-ceph
+    nodeset: charms-ubuntu-noble-32GB
+    dependencies:
+      - name: charm-build-bin-core-identity-noble
+      - name: charm-build-bin-core-compute-noble
+      - name: charm-build-bin-core-storage-noble
+      - name: charm-build-bin-services-b-noble
+      - name: charm-build-bin-infra-noble
+    vars:
+      func_charm_base: ubuntu@24.04
+      charm_jobs:
+        - charm-build-bin-core-identity-noble
+        - charm-build-bin-core-compute-noble
+        - charm-build-bin-core-storage-noble
+        - charm-build-bin-services-b-noble
+        - charm-build-bin-infra-noble
+- job:
+    name: func-test-openstack-microovn-deploy-noble
+    parent: func-test-openstack-microovn-deploy
+    nodeset: charms-ubuntu-noble-32GB
+    dependencies:
+      - name: charm-build-bin-core-identity-noble
+      - name: charm-build-bin-core-compute-noble
+      - name: charm-build-bin-core-storage-noble
+      - name: charm-build-bin-services-a-noble
+      - name: charm-build-bin-services-b-noble
+      - name: charm-build-bin-infra-noble
+    vars:
+      func_charm_base: ubuntu@24.04
+      charm_jobs:
+        - charm-build-bin-core-identity-noble
+        - charm-build-bin-core-compute-noble
+        - charm-build-bin-core-storage-noble
+        - charm-build-bin-services-a-noble
+        - charm-build-bin-services-b-noble
+        - charm-build-bin-infra-noble
