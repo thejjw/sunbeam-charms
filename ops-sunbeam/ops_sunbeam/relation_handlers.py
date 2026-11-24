@@ -480,6 +480,207 @@ class DBHandler(RelationHandler):
 
 
 @sunbeam_tracing.trace_type
+class ValkeyRequiresHandler(RelationHandler):
+    """Handler for valkey_client relations (e.g. distributed-cache).
+
+    Requests a Valkey ACL user from the Valkey operator and exposes the
+    connection data as an oslo.cache ready context.
+
+    The Valkey operator accepts data-interfaces v0 requirers, in which
+    case the requested resource (the ACL key pattern, e.g. ``keystone:*``)
+    is sent in the ``database`` field. The provider answers with flat
+    relation fields: ``endpoints``, ``read-only-endpoints``,
+    ``sentinel-endpoints``, ``mode``, ``tls``, ``tls-ca``, ``version``
+    and the ``secret-user`` (and optionally ``secret-tls``) Juju secrets.
+    """
+
+    interface: "data_interfaces.DatabaseRequires"
+
+    # The Valkey operator does not publish the Sentinel master name;
+    # it is hardcoded to "primary" on the provider side.
+    SENTINEL_SERVICE_NAME = "primary"
+    SENTINEL_BACKEND = "dogpile.cache.redis_sentinel"
+    DIRECT_BACKEND = "dogpile.cache.redis"
+
+    def __init__(
+        self,
+        charm: "OSBaseOperatorCharm",
+        relation_name: str,
+        callback_f: Callable,
+        resource: str,
+        mandatory: bool = False,
+        ca_file_path: str | None = None,
+    ) -> None:
+        """Run constructor.
+
+        :param resource: ACL key pattern requested from Valkey,
+            e.g. ``keystone:*``.
+        :param ca_file_path: path, inside the workload container, where
+            the charm renders the Valkey CA. Defaults to
+            ``/etc/<service_name>/<relation_name>-ca.pem``. The charm
+            must list this path in ``container_configs``. The template
+            is looked up by the path's basename plus ``.j2``, so a
+            custom path must keep a basename that has a matching
+            template, e.g. ``distributed-cache-ca.pem`` for the shared
+            ``distributed-cache-ca.pem.j2``.
+        """
+        super().__init__(charm, relation_name, callback_f, mandatory)
+        self.resource = resource
+        self.ca_file_path = (
+            ca_file_path or f"/etc/{charm.service_name}/{relation_name}-ca.pem"
+        )
+
+    def setup_event_handler(self) -> ops.framework.Object:
+        """Configure event handlers for a Valkey relation."""
+        logger.debug("Setting up Valkey event handler")
+        # Lazy import to ensure this lib is only required if the charm
+        # has this relation.
+        from charms.data_platform_libs.v0.data_interfaces import (
+            DatabaseRequires,
+        )
+
+        valkey = DatabaseRequires(
+            self.charm,
+            self.relation_name,
+            self.resource,
+        )
+        # The library only emits events for credential and endpoint
+        # changes. Observe relation-changed directly so changes to
+        # sentinel-endpoints or TLS data are picked up too. The library
+        # registers its observer first, so its secrets bookkeeping has
+        # already run when this one is called.
+        self.framework.observe(
+            self.charm.on[self.relation_name].relation_changed,
+            self._on_valkey_relation_changed,
+        )
+        self.framework.observe(
+            self.charm.on[self.relation_name].relation_broken,
+            self._on_valkey_relation_broken,
+        )
+        return valkey
+
+    def _on_valkey_relation_changed(
+        self, event: ops.RelationChangedEvent
+    ) -> None:
+        """Handle Valkey relation changes."""
+        if not self.ready:
+            logger.debug(f"{self.relation_name} relation not ready yet")
+            return
+        # Credentials are Juju secret IDs, so the databag holds no
+        # plaintext password. Skip the CA to keep the log short.
+        display_data = {
+            k: v for k, v in self.get_relation_data().items() if k != "tls-ca"
+        }
+        logger.info(f"Received {self.relation_name} data: {display_data}")
+        self.callback_f(event)
+
+    def _on_valkey_relation_broken(
+        self, event: ops.RelationBrokenEvent
+    ) -> None:
+        """Handle Valkey relation removal."""
+        if self.mandatory:
+            self.status.set(BlockedStatus("integration missing"))
+        # Re-render the configuration without the cache backend.
+        self.callback_f(event)
+
+    def get_relation(self) -> ops.Relation | None:
+        """Fetch the relation for the handler."""
+        for relation in self.model.relations[self.relation_name]:
+            return relation
+        return None
+
+    def get_relation_data(self) -> RelationDataMapping:
+        """Load the provider application data from the relation."""
+        relation = self.get_relation()
+        if relation and relation.app:
+            return relation.data[relation.app]
+        return {}
+
+    @property
+    def ready(self) -> bool:
+        """Whether the handler is ready for use."""
+        data = self.get_relation_data()
+        return bool(data.get("endpoints") and data.get("secret-user"))
+
+    def _get_secret_content(self, secret_id: str) -> dict:
+        """Read the latest content of a provider secret."""
+        secret = self.model.get_secret(id=secret_id)
+        return secret.get_content(refresh=True)
+
+    def context(self) -> dict:
+        """Context containing Valkey connection data for oslo.cache.
+
+        The primary is discovered through Sentinel when the provider
+        publishes sentinel endpoints and client TLS is enabled.
+        Otherwise the context points directly at ``endpoints``.
+        """
+        if not self.ready:
+            return {}
+
+        data = self.get_relation_data()
+        try:
+            user = self._get_secret_content(data["secret-user"])
+            tls_data = {
+                "tls": data.get("tls"),
+                "tls-ca": data.get("tls-ca"),
+            }
+            # When the requirer asks for secrets (the v0 library does),
+            # tls and tls-ca are moved into the secret-tls secret.
+            if secret_tls := data.get("secret-tls"):
+                tls_data.update(self._get_secret_content(secret_tls))
+        except (ops.SecretNotFoundError, ops.ModelError):
+            logger.warning(
+                f"Cannot read {self.relation_name} secrets", exc_info=True
+            )
+            return {}
+
+        username = user.get("username")
+        password = user.get("password")
+        if not (username and password):
+            logger.debug(f"{self.relation_name} credentials incomplete")
+            return {}
+
+        ctxt: dict[str, typing.Any] = {
+            "username": username,
+            "password": password,
+        }
+
+        tls_enabled = str(tls_data.get("tls")).lower() == "true"
+        tls_ca = tls_data.get("tls-ca")
+        # The provider publishes the string "None" when there is no CA.
+        if tls_ca in (None, "", "None"):
+            tls_ca = None
+        ctxt["tls_enabled"] = tls_enabled
+        if tls_enabled and tls_ca:
+            ctxt["tls_ca"] = tls_ca
+            ctxt["tls_cafile"] = self.ca_file_path
+
+        sentinels = [
+            s.strip()
+            for s in (data.get("sentinel-endpoints") or "").split(",")
+            if s.strip()
+        ]
+        # Sentinel monitors Valkey over peer TLS and always announces the
+        # TLS port, so Sentinel discovery only works when client TLS is
+        # enabled. Without it, connect to the primary Service instead.
+        # https://github.com/canonical/valkey-operator/issues/230
+        if sentinels and tls_enabled:
+            ctxt["backend"] = self.SENTINEL_BACKEND
+            ctxt["redis_sentinels"] = ",".join(sentinels)
+            ctxt["redis_sentinel_service_name"] = self.SENTINEL_SERVICE_NAME
+        else:
+            ctxt["backend"] = self.DIRECT_BACKEND
+            # endpoints is the primary Service, e.g. <app>-primary:6379
+            # (or :6380 when client TLS is on).
+            ctxt["redis_server"] = data["endpoints"].split(",")[0].strip()
+
+        # This context ends up namespaced under the relation name
+        # (normalised to fit a python identifier - s/-/_/),
+        # e.g. `distributed_cache.backend` in templates.
+        return ctxt
+
+
+@sunbeam_tracing.trace_type
 class RabbitMQHandler(RelationHandler):
     """Handler for managing a rabbitmq relation."""
 

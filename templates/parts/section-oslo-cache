@@ -1,6 +1,23 @@
 [cache]
-{% if memcache_url %}
+{% if distributed_cache and distributed_cache.backend -%}
+enabled = true
+backend = {{ distributed_cache.backend }}
+{% if distributed_cache.redis_sentinels -%}
+redis_sentinels = {{ distributed_cache.redis_sentinels }}
+redis_sentinel_service_name = {{ distributed_cache.redis_sentinel_service_name }}
+{% else -%}
+redis_server = {{ distributed_cache.redis_server }}
+{% endif -%}
+username = {{ distributed_cache.username }}
+password = {{ distributed_cache.password }}
+{% if distributed_cache.tls_enabled -%}
+tls_enabled = true
+{% if distributed_cache.tls_cafile -%}
+tls_cafile = {{ distributed_cache.tls_cafile }}
+{% endif -%}
+{% endif -%}
+{% elif memcache_url -%}
 enabled = true
 backend = oslo_cache.memcache_pool
 memcache_servers = {{ memcache_url }}
-{% endif %}
+{% endif -%}

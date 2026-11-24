@@ -248,7 +248,7 @@ class OSBaseOperatorCharm(
             return False
         return True
 
-    def get_relation_handlers(
+    def get_relation_handlers(  # noqa: C901
         self, handlers: list[sunbeam_rhandlers.RelationHandler] | None = None
     ) -> list[sunbeam_rhandlers.RelationHandler]:
         """Relation handlers for the service."""
@@ -319,6 +319,15 @@ class OSBaseOperatorCharm(
                 )
             )
             handlers.append(self.receive_ca_cert)
+        if self.can_add_handler("distributed-cache", handlers):
+            self.distributed_cache = sunbeam_rhandlers.ValkeyRequiresHandler(
+                self,
+                "distributed-cache",
+                self.configure_charm,
+                self.distributed_cache_resource,
+                "distributed-cache" in self.mandatory_relations,
+            )
+            handlers.append(self.distributed_cache)
 
         return handlers
 
@@ -522,6 +531,15 @@ class OSBaseOperatorCharm(
         with the database named after the service name.
         """
         return {"database": self.service_name.replace("-", "_")}
+
+    @property
+    def distributed_cache_resource(self) -> str:
+        """Valkey ACL key pattern requested on the distributed-cache relation.
+
+        Defaults to a key prefix named after the application, e.g.
+        ``keystone:*``. Override to request a different pattern.
+        """
+        return f"{self.app.name}:*"
 
     def _on_collect_unit_status_event(self, event: ops.CollectStatusEvent):
         """Publish the unit status.
