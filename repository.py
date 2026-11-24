@@ -291,6 +291,13 @@ def main_cli():
     list_parser = subparsers.add_parser("list", help="List all charms.")
     list_parser.set_defaults(func=list_cli)
 
+    platform_parser = subparsers.add_parser(
+        "build-platform", help="Select a Charmcraft platform for a recipe."
+    )
+    platform_parser.add_argument("recipe", type=pathlib.Path)
+    platform_parser.add_argument("platform", nargs="?", default="")
+    platform_parser.set_defaults(func=build_platform_cli)
+
     args = main_parser.parse_args()
     level = logging.INFO
     if args.verbose:
@@ -315,6 +322,35 @@ def main_cli():
             for charm in charms
         ]
     args.func(**context)
+
+
+def build_platform_cli(recipe: pathlib.Path, platform: str, **kwargs):
+    """Print the selected platform, or an empty line for a native pack."""
+    config = yaml.safe_load(recipe.read_text())
+    platforms = config.get("platforms", {})
+    if not platform:
+        if "base" not in config and len(platforms) > 1:
+            choices = ", ".join(platforms)
+            raise SystemExit(
+                f"{recipe} has multiple platforms. Pass a platform with "
+                "tox -e build -- <charm> <platform> or set charm_build_platform "
+                f"in the Zuul job. Available platforms: {choices}"
+            )
+        print()
+        return
+
+    if platform in platforms:
+        print(platform)
+        return
+
+    # Single-base recipes on other branches use architecture-only platform names.
+    series, _, target_arch = platform.partition("-")
+    target_base = {"noble": "ubuntu@24.04", "resolute": "ubuntu@26.04"}.get(series)
+    if config.get("base") and config["base"] == target_base and target_arch in platforms:
+        print(target_arch)
+        return
+
+    raise SystemExit(f"{recipe} does not support build platform {platform}")
 
 
 def prepare_cli(

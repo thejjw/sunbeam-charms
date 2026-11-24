@@ -62,7 +62,7 @@ applications:
     charm: ch:sunbeam-ovn-proxy
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     to:
       - "0"
@@ -73,7 +73,7 @@ applications:
     charm: ch:openstack-network-agents
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     options:
       snap-channel: 2026.1/edge
       external-bridge-address: 0.0.0.0/0

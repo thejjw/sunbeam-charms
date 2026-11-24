@@ -53,7 +53,7 @@ applications:
     charm: ch:keystone-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     storage:
@@ -68,7 +68,7 @@ applications:
     charm: ch:glance-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     storage:
@@ -82,7 +82,7 @@ applications:
     charm: ch:nova-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
@@ -97,7 +97,7 @@ applications:
     charm: ch:placement-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
@@ -109,7 +109,7 @@ applications:
     charm: ch:neutron-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     options:
@@ -134,7 +134,7 @@ applications:
     charm: ch:barbican-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: false
     resources:
@@ -148,7 +148,7 @@ applications:
     charm: ch:heat-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
@@ -162,7 +162,7 @@ applications:
     charm: ch:octavia-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
@@ -175,7 +175,7 @@ applications:
     charm: ch:magnum-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: false
     resources:
@@ -189,7 +189,7 @@ applications:
     charm: ch:aodh-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
@@ -206,7 +206,7 @@ applications:
     charm: ch:designate-bind-k8s
     channel: 9/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
@@ -218,7 +218,7 @@ applications:
     charm: ch:designate-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: false
     resources:
@@ -230,7 +230,7 @@ applications:
     charm: ch:keystone-ldap-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
   # Instance Recovery feature
   masakari:
@@ -240,7 +240,7 @@ applications:
     charm: ch:masakari-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
