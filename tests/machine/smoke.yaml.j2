@@ -5,6 +5,11 @@ machines:
   '0':
     constraints: *constraints
     base: {{ charm_base }}
+{% if charm_base == 'ubuntu@26.04' %}
+  '1':
+    constraints: *constraints
+    base: ubuntu@24.04
+{% endif %}
 
 applications:
   sunbeam-machine:
@@ -39,7 +44,7 @@ applications:
     options:
       ca-common-name: internal-ca
     to:
-     - '0'
+     - '{{ '1' if charm_base == 'ubuntu@26.04' else '0' }}'
   epa-orchestrator:
     {% if epa_orchestrator is defined and epa_orchestrator is sameas true -%}
     charm: ../../../epa-orchestrator.charm
