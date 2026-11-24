@@ -36,6 +36,13 @@ deployed then see file `actions.yaml`.
 The charm supports the following relations. They are primarily of use to
 developers:
 
+* `distributed-cache`: Optional. Connects Keystone's oslo.cache to Valkey
+  (interface `valkey_client`) as a shared cache for all Keystone units. When
+  Valkey client TLS is enabled, the primary is discovered through Sentinel and
+  the Valkey CA is written to `/etc/keystone/distributed-cache-ca.pem`;
+  otherwise Keystone connects directly to the Valkey primary service. Without
+  this relation no cache backend is configured.
+
 * `identity-credentials`: Used by charms to obtain Keystone credentials without
   creating a service catalogue entry. Set 'username' only on the relation and
   Keystone will set defaults and return authentication details. Possible

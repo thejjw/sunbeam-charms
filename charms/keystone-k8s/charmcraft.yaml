@@ -206,6 +206,10 @@ requires:
   keystone-saml:
     interface: keystone_saml
     optional: true
+  distributed-cache:
+    interface: valkey_client
+    optional: true
+    limit: 1
 
 provides:
   identity-service:

@@ -16,6 +16,8 @@
 
 """Scenario (ops.testing state-transition) tests for keystone-k8s."""
 
+import configparser
+import dataclasses
 from pathlib import (
     Path,
 )
@@ -29,8 +31,11 @@ from ops_sunbeam.test_utils_scenario import (
     assert_container_disconnect_causes_waiting_or_blocked,
     assert_relation_broken_causes_blocked_or_waiting,
     assert_unit_status,
+    cleanup_database_requires_events,
     k8s_api_container,
     mandatory_relations_from_charmcraft,
+    valkey_credentials_secret,
+    valkey_relation_complete,
 )
 
 CHARM_ROOT = Path(__file__).parents[2]
@@ -174,3 +179,183 @@ class TestRelationBrokenBlocksOrWaits:
         assert_relation_broken_causes_blocked_or_waiting(
             ctx, complete_state, relation_endpoint
         )
+
+
+KEYSTONE_CONF = "/etc/keystone/keystone.conf"
+VALKEY_CA_FILE = "/etc/keystone/distributed-cache-ca.pem"
+VALKEY_CA = (
+    "-----BEGIN CERTIFICATE-----\n"
+    "MIIBvalkeytestca\n"
+    "-----END CERTIFICATE-----"
+)
+
+
+def _cache_section(state_out, ctx) -> dict:
+    """Return the [cache] section of the rendered keystone.conf."""
+    path = assert_config_file_exists(state_out, ctx, "keystone", KEYSTONE_CONF)
+    # Keep [DEFAULT] keys out of the section so "not in" checks stay exact.
+    parser = configparser.RawConfigParser(
+        strict=False, default_section="__unused__"
+    )
+    parser.read_string(path.read_text())
+    return dict(parser["cache"])
+
+
+def _ca_file(state_out, ctx) -> str:
+    """Return the content of the rendered Valkey CA file."""
+    path = assert_config_file_exists(
+        state_out, ctx, "keystone", VALKEY_CA_FILE
+    )
+    return path.read_text().strip()
+
+
+def _with_valkey(state, relation, secret=None):
+    """Return a copy of state with the Valkey relation (and secret) added."""
+    secret = secret or valkey_credentials_secret()
+    return dataclasses.replace(
+        state,
+        relations=[*state.relations, relation],
+        secrets=[*state.secrets, secret],
+    )
+
+
+class TestDistributedCache:
+    """Optional distributed-cache (Valkey) relation renders oslo.cache."""
+
+    def test_no_relation_no_cache_backend(self, ctx, complete_state):
+        """Without the relation no cache backend is configured."""
+        state_out = ctx.run(ctx.on.config_changed(), complete_state)
+
+        assert state_out.unit_status == testing.ActiveStatus("")
+        cache = _cache_section(state_out, ctx)
+        assert "backend" not in cache
+        assert "enabled" not in cache
+        # Bug #1899117: expiration_time must stay in [cache].
+        assert "expiration_time" in cache
+        assert _ca_file(state_out, ctx) == ""
+
+    def test_relation_tls_off_direct_backend(self, ctx, complete_state):
+        """Client TLS off → direct connection to the primary Service."""
+        state_in = _with_valkey(complete_state, valkey_relation_complete())
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert state_out.unit_status == testing.ActiveStatus("")
+        cache = _cache_section(state_out, ctx)
+        assert cache["enabled"] == "true"
+        assert cache["backend"] == "dogpile.cache.redis"
+        assert (
+            cache["redis_server"] == "valkey-primary.m.svc.cluster.local:6379"
+        )
+        assert cache["username"] == "relation-5-abc"
+        assert cache["password"] == "s3cret"
+        assert "redis_sentinels" not in cache
+        assert "tls_enabled" not in cache
+        assert "expiration_time" in cache
+        assert _ca_file(state_out, ctx) == ""
+
+    def test_relation_tls_on_sentinel_backend(self, ctx, complete_state):
+        """Client TLS on → Sentinel discovery and the Valkey CA file."""
+        relation = valkey_relation_complete(tls=True, tls_ca=VALKEY_CA)
+        state_in = _with_valkey(complete_state, relation)
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert state_out.unit_status == testing.ActiveStatus("")
+        cache = _cache_section(state_out, ctx)
+        assert cache["backend"] == "dogpile.cache.redis_sentinel"
+        assert cache["redis_sentinels"] == ",".join(
+            f"valkey-{i}.valkey-endpoints.m.svc.cluster.local:26380"
+            for i in range(3)
+        )
+        assert cache["redis_sentinel_service_name"] == "primary"
+        assert cache["tls_enabled"] == "true"
+        assert cache["tls_cafile"] == VALKEY_CA_FILE
+        assert "redis_server" not in cache
+        assert "expiration_time" in cache
+        assert _ca_file(state_out, ctx) == VALKEY_CA
+
+    def test_requests_acl_key_pattern(self, ctx, complete_state):
+        """Leader requests the app-scoped ACL key pattern and secrets."""
+        relation = testing.Relation(
+            endpoint="distributed-cache", remote_app_name="valkey"
+        )
+        state_in = dataclasses.replace(
+            complete_state, relations=[*complete_state.relations, relation]
+        )
+        state_out = ctx.run(ctx.on.relation_created(relation), state_in)
+
+        data = state_out.get_relation(relation.id).local_app_data
+        # The app name defaults to the charm name in the test context.
+        assert data["database"] == "keystone-k8s:*"
+        assert "requested-secrets" in data
+
+    def test_relation_without_credentials_no_cache(self, ctx, complete_state):
+        """Endpoints without credentials → waiting, no backend rendered."""
+        relation = valkey_relation_complete()
+        data = dict(relation.remote_app_data)
+        del data["secret-user"]
+        relation = dataclasses.replace(relation, remote_app_data=data)
+        state_in = dataclasses.replace(
+            complete_state, relations=[*complete_state.relations, relation]
+        )
+        state_out = ctx.run(ctx.on.config_changed(), state_in)
+
+        assert state_out.unit_status == testing.WaitingStatus(
+            "(distributed-cache) integration incomplete"
+        )
+        assert "backend" not in _cache_section(state_out, ctx)
+
+    def test_relation_changed_rerenders(self, ctx, complete_state):
+        """Relation data changing from TLS off to on re-renders the config."""
+        state_in = _with_valkey(complete_state, valkey_relation_complete())
+        state_mid = ctx.run(ctx.on.config_changed(), state_in)
+        assert (
+            _cache_section(state_mid, ctx)["backend"] == "dogpile.cache.redis"
+        )
+        # The database library defines its events per run; reset them
+        # before running the charm a second time in the same test.
+        cleanup_database_requires_events()
+
+        old = state_mid.get_relations("distributed-cache")[0]
+        new_data = valkey_relation_complete(
+            tls=True, tls_ca=VALKEY_CA
+        ).remote_app_data
+        relation = dataclasses.replace(old, remote_app_data=new_data)
+        state_tls = dataclasses.replace(
+            state_mid,
+            relations=[r for r in state_mid.relations if r.id != old.id]
+            + [relation],
+        )
+        state_out = ctx.run(ctx.on.relation_changed(relation), state_tls)
+
+        cache = _cache_section(state_out, ctx)
+        assert cache["backend"] == "dogpile.cache.redis_sentinel"
+        assert cache["tls_cafile"] == VALKEY_CA_FILE
+        assert _ca_file(state_out, ctx) == VALKEY_CA
+
+    def test_relation_broken_removes_cache(self, ctx, complete_state):
+        """Removing the optional relation drops the backend, unit stays active."""
+        relation = valkey_relation_complete()
+        state_in = _with_valkey(complete_state, relation)
+        state_out = ctx.run(ctx.on.relation_broken(relation), state_in)
+
+        assert state_out.unit_status == testing.ActiveStatus("")
+        cache = _cache_section(state_out, ctx)
+        assert "backend" not in cache
+        assert "expiration_time" in cache
+
+    def test_secret_changed_updates_password(self, ctx, complete_state):
+        """A rotated Valkey password is rendered on secret-changed."""
+        secret = dataclasses.replace(
+            valkey_credentials_secret(),
+            latest_content={"username": "relation-5-abc", "password": "n3w"},
+        )
+        state_in = _with_valkey(
+            complete_state, valkey_relation_complete(), secret
+        )
+        state_out = ctx.run(ctx.on.secret_changed(secret), state_in)
+
+        assert _cache_section(state_out, ctx)["password"] == "n3w"
+
+    def test_distributed_cache_is_optional(self):
+        """The relation must never be treated as mandatory."""
+        assert "distributed-cache" not in MANDATORY_RELATIONS
