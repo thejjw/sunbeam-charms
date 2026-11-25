@@ -25,6 +25,7 @@ applications:
     charm: ch:sunbeam-machine
     channel: 2026.2/edge
     {% endif -%}
+    base: {{ charm_base }}
     scale: 1
     to:
       - "0"
@@ -43,6 +44,7 @@ applications:
     charm: ch:cinder-volume
     channel: 2026.2/edge
     {% endif -%}
+    base: {{ charm_base }}
     scale: 1
     to:
       - "0"
@@ -55,6 +57,7 @@ applications:
     charm: ch:cinder-volume-ceph
     channel: 2026.2/edge
     {% endif -%}
+    base: {{ charm_base }}
     options:
       ceph-osd-replication-count: 1
   hypervisor:
@@ -64,6 +67,7 @@ applications:
     charm: ch:openstack-hypervisor
     channel: 2026.2/edge
     {% endif -%}
+    base: {{ charm_base }}
     scale: 1
     to:
       - "0"
@@ -78,6 +82,7 @@ applications:
     charm: ch:manila-data
     channel: 2026.2/edge
     {% endif -%}
+    base: {{ charm_base }}
     scale: 1
     to:
       - "0"

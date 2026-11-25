@@ -25,6 +25,7 @@ applications:
     charm: ch:sunbeam-machine
     channel: 2026.2/edge
     {% endif -%}
+    base: {{ charm_base }}
     scale: 1
     to:
       - "0"
