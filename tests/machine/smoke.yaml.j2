@@ -39,7 +39,7 @@ applications:
   tls-operator:
     charm: self-signed-certificates
     channel: 1/beta
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     options:
       ca-common-name: internal-ca
