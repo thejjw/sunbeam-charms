@@ -18,6 +18,23 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "805b089a_4416e0b7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-25T12:33:58Z",
+      "side": 1,
+      "message": "We need to wait for the keystone image to bundle the right dependencies before we can claim this wiring is ready to use.\n\n(no redis module in the image)\n\nPublishing the charm would attach the new image if already rebuild, let\u0027s ensure we sync both these actions.",
+      "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "883d1b28_2b542df0",
