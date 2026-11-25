@@ -197,19 +197,50 @@ class TestCinderNetAppOperatorCharm(test_utils.CharmTestCase):
         with self.assertRaisesRegex(ValueError, "Invalid private key format"):
             pydantic.TypeAdapter(private_key_type).validate_python(secret)
 
+    def test_login_and_password_resolved_from_secret(self):
+        """Secret-backed login and password resolve to their plain values.
+
+        Both fields are stored in a single user secret, mirroring how
+        `sunbeam storage add netapp` provisions them.
+        """
+        self.harness.begin()
+        secret = self.harness.add_user_secret(
+            {"netapp-login": "admin", "netapp-password": "Pass$word1"}
+        )
+        self.harness.grant_secret(secret, self.harness.charm.app)
+        self.harness.update_config(
+            {
+                "san-ip": "10.20.20.3",
+                "protocol": "iscsi",
+                "netapp-storage-protocol": "iscsi",
+                "netapp-ca-certificate-file": certificate("netapp-ca"),
+                "netapp-login": secret,
+                "netapp-password": secret,
+            }
+        )
+
+        backend = self.harness.charm.get_backend_configuration()
+
+        self.assertEqual(backend["netapp-login"], "admin")
+        self.assertEqual(backend["netapp-password"], "Pass$word1")
+
     def test_all_relations(self):
         """Test charm in context of full set of relations."""
         self.harness.begin_with_initial_hooks()
-        # Add secret for the secret-type config field
+        # Add secret for the secret-type config fields
         # Use the secret_key value from the driver spec for the secret dict
         secret = self.harness.add_user_secret(
-            {"netapp-password": "test-value"}
+            {"netapp-login": "admin", "netapp-password": "test-value"}
         )
         add_complete_cinder_volume_relation(self.harness)
         self.harness.grant_secret(secret, self.harness.charm.app)
-        # Update config with required fields and the secret reference
+        # Update config with required fields and the secret references
         self.harness.update_config(
-            {"san-ip": "10.20.20.3", "netapp-password": secret}
+            {
+                "san-ip": "10.20.20.3",
+                "netapp-login": secret,
+                "netapp-password": secret,
+            }
         )
         self.harness.evaluate_status()
         self.assertSetEqual(
