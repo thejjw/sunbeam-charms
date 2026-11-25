@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f95d6467_da6f504d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-25T07:43:32Z",
+      "side": 1,
+      "message": "CI failed since tempest-k8s is not yet published with changes in https://review.opendev.org/c/openstack/sunbeam-charms/+/1017016/6",
+      "revId": "6d2427358ee0e195070f4e6e9f5908077905cf2b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
