@@ -35,6 +35,42 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "504ddda0_174fe56a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39595
+      },
+      "writtenOn": "2026-11-25T13:22:38Z",
+      "side": 1,
+      "message": "Thanks for the review! Addressed the inline comments in PS2.",
+      "parentUuid": "c5a74e44_83f680f2",
+      "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "897df6b2_c2a6f97f",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39595
+      },
+      "writtenOn": "2026-11-25T13:22:38Z",
+      "side": 1,
+      "message": "Agreed, this shouldn\u0027t be used until the keystone rock ships a Redis client. Nothing relates distributed-cache yet, so merging the wiring alone doesn\u0027t change existing deployments, but I\u0027m happy to hold it and land it together with the rock rebuild. I can propose adding python3-redis to the keystone rock in ubuntu-openstack-rocks; would that be the right place, or is someone on the rocks side already handling it?",
+      "parentUuid": "805b089a_4416e0b7",
+      "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "883d1b28_2b542df0",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-11-25T12:07:12Z",
       "side": 1,
       "message": "Nit: `parser[\"cache\"]` also includes every `[DEFAULT]` key (`debug`, `log_config_append`, …), because `configparser` merges defaults into each section. The current assertions aren\u0027t affected, but `\"x\" not in cache` checks would silently break if a matching key were ever added to `[DEFAULT]`. `configparser.RawConfigParser(strict\u003dFalse, default_section\u003d\"__unused__\")` keeps the section on its own.",
+      "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3e536d2_5c4e15d2",
+        "filename": "charms/keystone-k8s/tests/unit/test_keystone_scenario.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 39595
+      },
+      "writtenOn": "2026-11-25T13:22:38Z",
+      "side": 1,
+      "message": "Done, the parser now uses default_section\u003d\"__unused__\".",
+      "parentUuid": "883d1b28_2b542df0",
       "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
@@ -69,6 +123,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "33c33e35_4b021776",
+        "filename": "charms/keystone-k8s/tests/unit/test_keystone_scenario.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 39595
+      },
+      "writtenOn": "2026-11-25T13:22:38Z",
+      "side": 1,
+      "message": "Added test_requests_acl_key_pattern in PS2: on relation_created as leader, the local app databag has database \"keystone-k8s:*\" and requested-secrets.",
+      "parentUuid": "f334409c_78c11855",
+      "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8359ad7d_50db4bbe",
@@ -86,6 +158,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f714ebeb_7cb4eab3",
+        "filename": "charms/keystone-k8s/tests/unit/test_keystone_scenario.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 39595
+      },
+      "writtenOn": "2026-11-25T13:22:38Z",
+      "side": 1,
+      "message": "Ack, thanks.",
+      "parentUuid": "8359ad7d_50db4bbe",
+      "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fd548aaa_95a31b9f",
@@ -99,6 +189,24 @@
       "writtenOn": "2026-11-25T12:07:12Z",
       "side": 1,
       "message": "Nit: the `password` parameter isn\u0027t used anywhere yet. `test_secret_changed_updates_password` uses `dataclasses.replace(..., latest_content\u003d...)` instead. Either drop it, or keep it if you expect nova/heat to need it. I am fine with whatever you choose to do.",
+      "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6fa35b77_c866c654",
+        "filename": "ops-sunbeam/ops_sunbeam/test_utils_scenario.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 39595
+      },
+      "writtenOn": "2026-11-25T13:22:38Z",
+      "side": 1,
+      "message": "Dropped it in PS2; nova/heat can use dataclasses.replace(..., latest_content\u003d...) the same way.",
+      "parentUuid": "fd548aaa_95a31b9f",
       "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
