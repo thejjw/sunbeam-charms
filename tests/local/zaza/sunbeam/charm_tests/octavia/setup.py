@@ -18,7 +18,7 @@
 """Configure Octavia Amphora provider for CI tests.
 
 Steps performed by configure_amphora():
-  1. Deploy the Gazpacho version of the Multus CNI thin plugin on k8s.
+  1. Deploy the Multus charm on k8s.
   2. Set cni.exclusive=false on the Cilium Helm chart so Multus can co-exist.
   3. Deploy openstack-port-cni-k8s charm and relate it to keystone.
   4. Create lb-mgmt OpenStack resources:
@@ -42,7 +42,6 @@ import subprocess
 import time
 import yaml
 from pathlib import Path
-from urllib.request import urlopen
 
 import jubilant
 import zaza.model
@@ -57,17 +56,11 @@ from functional_test_base import get_functional_test_base
 # Constants
 # ---------------------------------------------------------------------------
 
-# Match the thin plugin shipped by the Gazpacho Multus charm. The upstream
-# thick snapshot can exhaust its 50 MiB pod limit on Resolute when running
-# delegate CNI plugins such as Cilium.
-MULTUS_VERSION = "v3.9.1"
-MULTUS_MANIFEST_URL = (
-    "https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni"
-    f"/{MULTUS_VERSION}/deployments/multus-daemonset.yml"
-)
-MULTUS_IMAGE = (
-    f"rocks.canonical.com:443/cdk/k8snetworkplumbingwg/multus-cni:{MULTUS_VERSION}"
-)
+# Match the Sunbeam loadbalancer feature's Multus channel and defaults.
+# The upstream thick snapshot can OOM on Resolute when its pod has to
+# run delegate CNI plugins such as Cilium within a 50 MiB limit.
+MULTUS_CHANNEL = "latest/stable"
+MULTUS_DAEMONSET = "kube-multus-ds"
 
 # The openstack-port-cni-k8s charm channel to deploy.
 PORT_CNI_CHANNEL = "2026.1/edge"
@@ -148,23 +141,29 @@ def _services_project_id(keystone_client):
 
 
 # ---------------------------------------------------------------------------
-# Step 1: Deploy Multus CNI thin plugin
+# Step 1: Deploy the Multus charm
 # ---------------------------------------------------------------------------
 
 
-def _deploy_multus():
-    """Apply the Multus thin-plugin manifest with the Gazpacho image."""
-    logging.info("Deploying Multus CNI thin plugin: %s", MULTUS_IMAGE)
-    with urlopen(MULTUS_MANIFEST_URL, timeout=30) as response:
-        manifest = response.read().decode("utf-8")
-    # The upstream manifest uses a floating image tag for both containers.
-    manifest = manifest.replace(
-        "ghcr.io/k8snetworkplumbingwg/multus-cni:stable", MULTUS_IMAGE
+def _deploy_multus(juju_k8s):
+    """Deploy Multus as the Sunbeam loadbalancer feature does."""
+    if "multus" not in juju_k8s.status().apps:
+        logging.info("Deploying Multus charm from %s", MULTUS_CHANNEL)
+        juju_k8s.cli("deploy", "multus", "--channel", MULTUS_CHANNEL, "--trust")
+
+    logging.info("Waiting for the Multus charm to become active")
+    juju_k8s.wait(
+        lambda status: jubilant.all_active(status, "multus"),
+        timeout=600,
+        delay=10,
     )
+    logging.info("Waiting for Multus DaemonSet to roll out")
     subprocess.run(
-        ["sudo", "k8s", "kubectl", "apply", "-f", "-"],
-        input=manifest,
-        text=True,
+        [
+            "sudo", "k8s", "kubectl", "rollout", "status",
+            f"daemonset/{MULTUS_DAEMONSET}", "-n", "kube-system",
+            "--timeout=600s",
+        ],
         check=True,
     )
 
@@ -645,7 +644,7 @@ def configure_amphora():
     juju_k8s = jubilant.Juju(model=k8s_model)
 
     # --- 1. Multus ---
-    _deploy_multus()
+    _deploy_multus(juju_k8s)
 
     # --- 2. Cilium cni.exclusive=false ---
     _disable_cni_exclusive()
