@@ -33,6 +33,23 @@
       "message": "recheck tempest-k8s published",
       "revId": "6d2427358ee0e195070f4e6e9f5908077905cf2b",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "158356df_9e433bca",
+        "filename": "tests/openstack-microovn-core/machines.yaml.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-25T12:47:25Z",
+      "side": 1,
+      "message": "Setting SUNBEAM_TEST_BASE\u003dubuntu@26.04 renders sunbeam-ovn-proxy with a Resolute base, but machine 0 still uses Noble. I get the same result in all five MicroOVN machine bundles. Juju 3.6 rejects that placement. The standalone machine suite has the reverse problem: machine 0 becomes Resolute while tls-operator stays Noble.\n\nCould we reject non-Noble values on stable/2026.1 until the machine and charm bases can change together? The default Noble jobs are unaffected.",
+      "revId": "6d2427358ee0e195070f4e6e9f5908077905cf2b",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
