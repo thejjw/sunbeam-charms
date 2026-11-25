@@ -16,6 +16,7 @@
 
 """Manage the host mount for encrypted Nova instance storage."""
 
+import logging
 import os
 import stat
 import subprocess
@@ -24,6 +25,8 @@ from pathlib import (
     Path,
 )
 
+logger = logging.getLogger(__name__)
+
 INSTANCES_PATH = Path(
     "/var/snap/openstack-hypervisor/common/lib/nova/instances"
 )
@@ -31,6 +34,13 @@ FSTAB_PATH = Path("/etc/fstab")
 FSTAB_MARKER = "# managed-by-openstack-hypervisor"
 BLKID_TIMEOUT_SECONDS = 30
 MOUNT_TIMEOUT_SECONDS = 60
+NOVA_COMPUTE_UNIT = "snap.openstack-hypervisor.nova-compute.service"
+# Vault can take a bit of time to unlock the device after a reboot.
+SYSTEMD_MOUNT_OPTIONS = (
+    f"x-systemd.required-by={NOVA_COMPUTE_UNIT}",
+    f"x-systemd.before={NOVA_COMPUTE_UNIT}",
+    "x-systemd.device-timeout=600s",
+)
 
 
 class EncryptedStorageError(Exception):
@@ -207,23 +217,24 @@ def _matching_fstab_entry(
 def _ensure_fstab_entry(
     mapper_path: Path, instances_path: Path, fstab_path: Path
 ) -> None:
-    """Add a host fstab entry without replacing an existing mount definition."""
+    """Add a host fstab entry that orders Nova after the encrypted mount."""
     exists, content = _matching_fstab_entry(
         mapper_path, instances_path, fstab_path
     )
-    if exists:
-        return
-
-    entry = f"{mapper_path} {instances_path} xfs defaults,nofail 0 2 {FSTAB_MARKER}\n"
     try:
-        with fstab_path.open("a", encoding="utf-8") as fstab:
-            if content and not content.endswith("\n"):
-                fstab.write("\n")
-            fstab.write(entry)
-    except OSError as exc:
+        if not exists:
+            options = ",".join(("defaults", "nofail", *SYSTEMD_MOUNT_OPTIONS))
+            entry = f"{mapper_path} {instances_path} xfs {options} 0 2 {FSTAB_MARKER}\n"
+            with fstab_path.open("a", encoding="utf-8") as fstab:
+                if content and not content.endswith("\n"):
+                    fstab.write("\n")
+                fstab.write(entry)
+        # Always reload: an earlier run may have written the entry and failed here.
+        subprocess.run(["systemctl", "daemon-reload"], check=True, timeout=30)
+    except (OSError, subprocess.SubprocessError) as exc:
         raise EncryptedStorageError(
-            f"cannot update {fstab_path}: {exc}",
-            "/etc/fstab cannot be updated",
+            f"cannot activate {fstab_path} mount configuration: {exc}",
+            "Nova instances mount configuration cannot be activated",
         ) from exc
 
 
@@ -250,14 +261,38 @@ def _verify_mount(instances_path: Path, mapper_device: int) -> None:
         ) from exc
 
 
-def _ensure_empty_instances_path(instances_path: Path) -> None:
-    """Prepare an unmounted instances directory without hiding existing data."""
+def _ensure_instances_path(instances_path: Path) -> None:
+    """Prepare the instances directory for encrypted storage."""
     try:
-        if instances_path.exists() and any(instances_path.iterdir()):
-            raise EncryptedStorageError(
-                f"{instances_path} contains data; mounting encrypted storage would hide it",
-                "Nova instances path contains data",
-            )
+        if instances_path.exists():
+            for entry in instances_path.iterdir():
+                # Nova creates a storage registry and lock files even
+                # on unused compute nodes. These can be regenerated.
+                if not entry.is_symlink():
+                    if entry.name == "compute_nodes" and entry.is_file():
+                        continue
+
+                    if entry.name == "locks" and entry.is_dir():
+                        continue
+
+                    # Nova can regenerate its image cache. Existing
+                    # cached images are not migrated to encrypted storage.
+                    if entry.name == "_base" and entry.is_dir():
+                        if any(entry.iterdir()):
+                            logger.warning(
+                                "Existing cached images in %s will be "
+                                "hidden by the encrypted storage mount "
+                                "and remain unencrypted",
+                                entry,
+                            )
+                        continue
+
+                raise EncryptedStorageError(
+                    f"Existing data present at {entry}; "
+                    "mounting encrypted storage would hide it",
+                    "Nova instances path contains existing data",
+                )
+
         instances_path.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
         raise EncryptedStorageError(
@@ -277,7 +312,7 @@ def prepare_encrypted_storage(
 
     mount_needed = not os.path.ismount(instances_path)
     if mount_needed:
-        _ensure_empty_instances_path(instances_path)
+        _ensure_instances_path(instances_path)
     else:
         _verify_mount(instances_path, mapper_device)
 
@@ -300,7 +335,7 @@ def mount_encrypted_storage(
             "Nova instances path has no fstab entry",
         )
     if not os.path.ismount(instances_path):
-        _ensure_empty_instances_path(instances_path)
+        _ensure_instances_path(instances_path)
         try:
             result = subprocess.run(
                 ["mount", str(instances_path)],

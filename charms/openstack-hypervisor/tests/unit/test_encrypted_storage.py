@@ -613,10 +613,19 @@ def test_result_checks_mapper_backing_device(monkeypatch, backing_device):
     device_file.assert_called_once_with("/sys/dev/block/253:0/slaves/sdb1/dev")
 
 
-def test_mounts_empty_instances_path(tmp_path, monkeypatch):
+@pytest.mark.parametrize("with_nova_files", [False, True])
+def test_mount_instances_path(tmp_path, monkeypatch, with_nova_files):
     """The mount helpers write fstab, mount the mapper, and verify the result."""
     instances_path = tmp_path / "instances"
     instances_path.mkdir()
+
+    if with_nova_files:
+        (instances_path / "compute_nodes").write_text("{}")
+        locks = instances_path / "locks"
+        locks.mkdir()
+        (locks / "nova-storage-registry-lock").touch()
+        (instances_path / "_base").mkdir()
+
     fstab_path = tmp_path / "fstab"
     fstab_path.write_text("/dev/sda1 / ext4 defaults 0 1")
     monkeypatch.setattr(
@@ -640,14 +649,20 @@ def test_mounts_empty_instances_path(tmp_path, monkeypatch):
         f"{MAPPER_PATH} {instances_path} xfs defaults,nofail"
         in fstab_path.read_text()
     )
+    assert all(
+        option in fstab_path.read_text()
+        for option in encrypted_storage.SYSTEMD_MOUNT_OPTIONS
+    )
     assert "0 1\n" in fstab_path.read_text()
-    run.assert_called_once_with(
+    run.assert_any_call(["systemctl", "daemon-reload"], check=True, timeout=30)
+    run.assert_any_call(
         ["mount", str(instances_path)],
         capture_output=True,
         text=True,
         check=False,
         timeout=encrypted_storage.MOUNT_TIMEOUT_SECONDS,
     )
+    assert run.call_count == 2
 
 
 def test_conflicting_fstab_entry_is_rejected(tmp_path, monkeypatch):
@@ -681,26 +696,34 @@ def test_preparation_skips_already_mounted_storage(tmp_path, monkeypatch):
         lambda path: instances_path.stat().st_dev,
     )
     monkeypatch.setattr(os.path, "ismount", lambda path: True)
+    reload = MagicMock()
+    monkeypatch.setattr(encrypted_storage.subprocess, "run", reload)
 
     assert not encrypted_storage.prepare_encrypted_storage(
         MAPPER_PATH, instances_path, fstab_path
     )
 
     assert fstab_path.read_text() == entry
+    reload.assert_called_once_with(
+        ["systemctl", "daemon-reload"], check=True, timeout=30
+    )
 
 
-def test_existing_instance_data_is_not_hidden(tmp_path, monkeypatch):
-    """A populated local instances directory blocks the mount."""
+@pytest.mark.parametrize("existing_file", ["instance-uuid/disk", "unexpected"])
+def test_existing_data_is_not_hidden(tmp_path, monkeypatch, existing_file):
+    """Existing instance data and unexpected files block enrollment."""
     instances_path = tmp_path / "instances"
-    instances_path.mkdir()
-    (instances_path / "existing-instance").write_text("data")
+    existing_data = instances_path / existing_file
+    existing_data.parent.mkdir(parents=True)
+    existing_data.write_text("data")
+
     fstab_path = tmp_path / "fstab"
     fstab_path.write_text("")
     monkeypatch.setattr(encrypted_storage, "_mapper_device", lambda path: 123)
     monkeypatch.setattr(os.path, "ismount", lambda path: False)
 
     with pytest.raises(
-        encrypted_storage.EncryptedStorageError, match="contains data"
+        encrypted_storage.EncryptedStorageError, match="data present"
     ):
         encrypted_storage.prepare_encrypted_storage(
             MAPPER_PATH, instances_path, fstab_path
@@ -747,9 +770,11 @@ def test_mount_rechecks_instances_path_after_prepare(tmp_path, monkeypatch):
     (instances_path / "existing-instance").write_text("data")
 
     with pytest.raises(
-        encrypted_storage.EncryptedStorageError, match="contains data"
+        encrypted_storage.EncryptedStorageError, match="data present"
     ):
         encrypted_storage.mount_encrypted_storage(
             MAPPER_PATH, instances_path, fstab_path
         )
-    run.assert_not_called()
+    run.assert_called_once_with(
+        ["systemctl", "daemon-reload"], check=True, timeout=30
+    )
