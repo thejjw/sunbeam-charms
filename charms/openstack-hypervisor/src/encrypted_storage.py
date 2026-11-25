@@ -16,6 +16,7 @@
 
 """Manage the host mount for encrypted Nova instance storage."""
 
+import logging
 import os
 import stat
 import subprocess
@@ -24,6 +25,8 @@ from pathlib import (
     Path,
 )
 
+logger = logging.getLogger(__name__)
+
 INSTANCES_PATH = Path(
     "/var/snap/openstack-hypervisor/common/lib/nova/instances"
 )
@@ -31,6 +34,13 @@ FSTAB_PATH = Path("/etc/fstab")
 FSTAB_MARKER = "# managed-by-openstack-hypervisor"
 BLKID_TIMEOUT_SECONDS = 30
 MOUNT_TIMEOUT_SECONDS = 60
+NOVA_COMPUTE_UNIT = "snap.openstack-hypervisor.nova-compute.service"
+# Vault can take a bit of time to unlock the device after a reboot.
+SYSTEMD_MOUNT_OPTIONS = (
+    f"x-systemd.required-by={NOVA_COMPUTE_UNIT}",
+    f"x-systemd.before={NOVA_COMPUTE_UNIT}",
+    "x-systemd.device-timeout=600s",
+)
 
 
 class EncryptedStorageError(Exception):
@@ -175,7 +185,7 @@ def _mapper_device(mapper_path: Path) -> int:
 def _matching_fstab_entry(
     mapper_path: Path, instances_path: Path, fstab_path: Path
 ) -> tuple[bool, str]:
-    """Find a matching mount definition without changing fstab."""
+    """Read fstab for the expected mount rule; raise on a conflicting rule."""
     try:
         content = fstab_path.read_text(encoding="utf-8")
     except (OSError, UnicodeError) as exc:
@@ -207,23 +217,24 @@ def _matching_fstab_entry(
 def _ensure_fstab_entry(
     mapper_path: Path, instances_path: Path, fstab_path: Path
 ) -> None:
-    """Add a host fstab entry without replacing an existing mount definition."""
+    """Add the Nova mount rule if missing, then reload systemd."""
     exists, content = _matching_fstab_entry(
         mapper_path, instances_path, fstab_path
     )
-    if exists:
-        return
-
-    entry = f"{mapper_path} {instances_path} xfs defaults,nofail 0 2 {FSTAB_MARKER}\n"
     try:
-        with fstab_path.open("a", encoding="utf-8") as fstab:
-            if content and not content.endswith("\n"):
-                fstab.write("\n")
-            fstab.write(entry)
-    except OSError as exc:
+        if not exists:
+            options = ",".join(("defaults", "nofail", *SYSTEMD_MOUNT_OPTIONS))
+            entry = f"{mapper_path} {instances_path} xfs {options} 0 2 {FSTAB_MARKER}\n"
+            with fstab_path.open("a", encoding="utf-8") as fstab:
+                if content and not content.endswith("\n"):
+                    fstab.write("\n")
+                fstab.write(entry)
+        # Always reload: an earlier run may have written the entry and failed here.
+        subprocess.run(["systemctl", "daemon-reload"], check=True, timeout=30)
+    except (OSError, subprocess.SubprocessError) as exc:
         raise EncryptedStorageError(
-            f"cannot update {fstab_path}: {exc}",
-            "/etc/fstab cannot be updated",
+            f"cannot activate {fstab_path} mount configuration: {exc}",
+            "Nova instances mount configuration cannot be activated",
         ) from exc
 
 
@@ -250,14 +261,38 @@ def _verify_mount(instances_path: Path, mapper_device: int) -> None:
         ) from exc
 
 
-def _ensure_empty_instances_path(instances_path: Path) -> None:
-    """Prepare an unmounted instances directory without hiding existing data."""
+def _ensure_instances_path(instances_path: Path) -> None:
+    """Reject unexpected entries and ensure the instances directory exists."""
     try:
-        if instances_path.exists() and any(instances_path.iterdir()):
-            raise EncryptedStorageError(
-                f"{instances_path} contains data; mounting encrypted storage would hide it",
-                "Nova instances path contains data",
-            )
+        if instances_path.exists():
+            for entry in instances_path.iterdir():
+                # Nova creates a storage registry and lock files even
+                # on unused compute nodes. These can be regenerated.
+                if not entry.is_symlink():
+                    if entry.name == "compute_nodes" and entry.is_file():
+                        continue
+
+                    if entry.name == "locks" and entry.is_dir():
+                        continue
+
+                    # Nova can regenerate its image cache. Existing
+                    # cached images are not migrated to encrypted storage.
+                    if entry.name == "_base" and entry.is_dir():
+                        if any(entry.iterdir()):
+                            logger.warning(
+                                "Existing cached images in %s will be "
+                                "hidden by the encrypted storage mount "
+                                "and remain unencrypted",
+                                entry,
+                            )
+                        continue
+
+                raise EncryptedStorageError(
+                    f"Existing data present at {entry}; "
+                    "mounting encrypted storage would hide it",
+                    "Nova instances path contains existing data",
+                )
+
         instances_path.mkdir(parents=True, exist_ok=True)
     except OSError as exc:
         raise EncryptedStorageError(
@@ -271,17 +306,23 @@ def prepare_encrypted_storage(
     instances_path: Path = INSTANCES_PATH,
     fstab_path: Path = FSTAB_PATH,
 ) -> bool:
-    """Validate the XFS mapper and fstab entry; return whether a mount is needed."""
+    """Check the mapper and instances path before Nova stops.
+
+    If already mounted, verify it and ensure its fstab rule. Return whether a
+    new mount is needed.
+    """
     mapper = Path(mapper_path)
     mapper_device = _mapper_device(mapper)
 
     mount_needed = not os.path.ismount(instances_path)
     if mount_needed:
-        _ensure_empty_instances_path(instances_path)
+        _ensure_instances_path(instances_path)
+        # Reject conflicting mount rules without activating one before Nova stops.
+        _matching_fstab_entry(mapper, instances_path, fstab_path)
     else:
         _verify_mount(instances_path, mapper_device)
+        _ensure_fstab_entry(mapper, instances_path, fstab_path)
 
-    _ensure_fstab_entry(mapper, instances_path, fstab_path)
     return mount_needed
 
 
@@ -290,20 +331,17 @@ def mount_encrypted_storage(
     instances_path: Path = INSTANCES_PATH,
     fstab_path: Path = FSTAB_PATH,
 ) -> None:
-    """Mount the prepared XFS mapper at the Nova instances path."""
+    """Mount if needed, verify the mapper, then configure fstab for Nova."""
     mapper = Path(mapper_path)
     mapper_device = _mapper_device(mapper)
-    exists, _ = _matching_fstab_entry(mapper, instances_path, fstab_path)
-    if not exists:
-        raise EncryptedStorageError(
-            f"{instances_path} has no fstab entry",
-            "Nova instances path has no fstab entry",
-        )
+    # Catch fstab conflicts added since preparation before mounting.
+    _matching_fstab_entry(mapper, instances_path, fstab_path)
     if not os.path.ismount(instances_path):
-        _ensure_empty_instances_path(instances_path)
+        _ensure_instances_path(instances_path)
         try:
+            # Mount directly; publish fstab only after the device is verified.
             result = subprocess.run(
-                ["mount", str(instances_path)],
+                ["mount", "-t", "xfs", str(mapper), str(instances_path)],
                 capture_output=True,
                 text=True,
                 check=False,
@@ -321,3 +359,4 @@ def mount_encrypted_storage(
             )
 
     _verify_mount(instances_path, mapper_device)
+    _ensure_fstab_entry(mapper, instances_path, fstab_path)
