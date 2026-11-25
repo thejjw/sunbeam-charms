@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5a74e44_83f680f2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39548
+      },
+      "writtenOn": "2026-11-25T12:07:12Z",
+      "side": 1,
+      "message": "Thanks, this looks good. It is the minimal wiring, and the tests cover the cases that matter for keystone (no relation, TLS off/on, incomplete data, relation changed and broken, secret rotation, optional relation). I ran the new tests locally on top of 1017259 and they pass.\n\nLeft a few suggestions inline, one adds a test, the rest are small nits. None of them blocks this change.",
+      "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "883d1b28_2b542df0",
+        "filename": "charms/keystone-k8s/tests/unit/test_keystone_scenario.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 39548
+      },
+      "writtenOn": "2026-11-25T12:07:12Z",
+      "side": 1,
+      "message": "Nit: `parser[\"cache\"]` also includes every `[DEFAULT]` key (`debug`, `log_config_append`, …), because `configparser` merges defaults into each section. The current assertions aren\u0027t affected, but `\"x\" not in cache` checks would silently break if a matching key were ever added to `[DEFAULT]`. `configparser.RawConfigParser(strict\u003dFalse, default_section\u003d\"__unused__\")` keeps the section on its own.",
+      "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f334409c_78c11855",
+        "filename": "charms/keystone-k8s/tests/unit/test_keystone_scenario.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 39548
+      },
+      "writtenOn": "2026-11-25T12:07:12Z",
+      "side": 1,
+      "message": "Suggestion: could you add a test for what keystone requests from Valkey? On `relation_created` as leader, the local app databag should contain `database: \"\u003capp\u003e:*\"` and `requested-secrets`. That `database` value becomes the Valkey ACL key pattern, so it\u0027s the one piece of the contract that\u0027s specific to keystone. Note that in the scenario context the app name defaults to the charm name, so the value is `keystone-k8s:*`, not `keystone:*`. Something like:\n```python\ndef test_requests_acl_key_pattern(self, ctx, complete_state):\n    rel \u003d testing.Relation(endpoint\u003d\"distributed-cache\", remote_app_name\u003d\"valkey\")\n    state_in \u003d dataclasses.replace(\n        complete_state, relations\u003d[*complete_state.relations, rel]\n    )\n    state_out \u003d ctx.run(ctx.on.relation_created(rel), state_in)\n    data \u003d state_out.get_relation(rel.id).local_app_data\n    assert data[\"database\"] \u003d\u003d \"keystone-k8s:*\"\n    assert \"requested-secrets\" in data\n```",
+      "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8359ad7d_50db4bbe",
+        "filename": "charms/keystone-k8s/tests/unit/test_keystone_scenario.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 39548
+      },
+      "writtenOn": "2026-11-25T12:07:12Z",
+      "side": 1,
+      "message": "Not a change request, just noting it: good that this pins the behaviour. While Valkey hasn\u0027t published credentials, the unit shows `waiting: (distributed-cache) integration incomplete`, even though the relation is optional (that\u0027s the base `RelationHandler.set_status`). That\u0027s what we want for a relation that has been created but isn\u0027t ready yet.",
+      "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fd548aaa_95a31b9f",
+        "filename": "ops-sunbeam/ops_sunbeam/test_utils_scenario.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 236,
+      "author": {
+        "id": 39548
+      },
+      "writtenOn": "2026-11-25T12:07:12Z",
+      "side": 1,
+      "message": "Nit: the `password` parameter isn\u0027t used anywhere yet. `test_secret_changed_updates_password` uses `dataclasses.replace(..., latest_content\u003d...)` instead. Either drop it, or keep it if you expect nova/heat to need it. I am fine with whatever you choose to do.",
+      "revId": "7e0fb2f83796a8e41dd54ff7eaf5346edf61e182",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
