@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b4fb2ba_16d02aa8",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 39548
+      },
+      "writtenOn": "2026-11-25T11:31:35Z",
+      "side": 1,
+      "message": "recheck func-test-identity failed installing test deps (pip: \"Response ended prematurely\")",
+      "revId": "8a2b1fc5e40145c290ca026dde0ac01a146ce021",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
