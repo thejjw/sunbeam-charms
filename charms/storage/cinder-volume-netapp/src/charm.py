@@ -87,6 +87,12 @@ class CinderVolumeNetAppOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
                         sunbeam_storage.certificate_bundle_validator
                     ),
                 ],
+                "netapp-login": typing.Annotated[
+                    str,
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("netapp-login")
+                    ),
+                ],
                 "netapp-password": typing.Annotated[
                     str,
                     pydantic.BeforeValidator(
