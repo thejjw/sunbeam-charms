@@ -20,3 +20,14 @@ groups:
         summary: Nova Compute Agent Down
         description: |
           The Compute Agent {{ $labels.service }} on {{ $labels.hostname }} is down
+
+    - alert: NovaComputeDisabled
+      expr: |
+        openstack_nova_agent_state{adminState="disabled"}
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: Nova Compute Agent Disabled
+        description: |
+          The Compute Agent {{ $labels.service }} is disabled on {{ $labels.hostname }}.
