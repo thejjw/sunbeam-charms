@@ -23,12 +23,15 @@ of an OpenStack deployment
 
 import logging
 import typing
-from enum import StrEnum
+from enum import (
+    StrEnum,
+)
 
 import ops
 import ops_sunbeam.charm as charm
 import ops_sunbeam.storage as sunbeam_storage
 import ops_sunbeam.tracing as sunbeam_tracing
+import pydantic
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +44,9 @@ class DiskType(StrEnum):
 
 
 @sunbeam_tracing.trace_sunbeam_charm
-class CinderVolumeDatacoreOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm):
+class CinderVolumeDatacoreOperatorCharm(
+    charm.OSCinderVolumeDriverOperatorCharm
+):
     """Cinder/DataCore Operator charm."""
 
     service_name = "cinder-volume-datacore"
@@ -57,6 +62,21 @@ class CinderVolumeDatacoreOperatorCharm(charm.OSCinderVolumeDriverOperatorCharm)
         overrides.update(
             {
                 "datacore-disk-type": DiskType | None,
+                "protocol": typing.Literal["iscsi", "fc"] | None,
+                "san-login": typing.Annotated[
+                    str,
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("san-login")
+                    ),
+                    sunbeam_storage.Required,
+                ],
+                "san-password": typing.Annotated[
+                    str,
+                    pydantic.BeforeValidator(
+                        sunbeam_storage.secret_validator("san-password")
+                    ),
+                    sunbeam_storage.Required,
+                ],
             }
         )
         return overrides
