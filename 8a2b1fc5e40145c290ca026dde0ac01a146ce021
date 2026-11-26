@@ -69,6 +69,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fcf65c5e_529ff573",
+        "filename": "templates/parts/section-oslo-cache",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 39548
+      },
+      "writtenOn": "2026-11-26T19:48:10Z",
+      "side": 1,
+      "message": "Thanks for the review, done.",
+      "parentUuid": "1073a282_f4c8d27d",
+      "revId": "8a2b1fc5e40145c290ca026dde0ac01a146ce021",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9215966_d66329a2",
@@ -82,6 +100,24 @@
       "writtenOn": "2026-11-25T16:48:02Z",
       "side": 1,
       "message": "Question about backports: the generic username/password options in [cache] only exist from oslo.cache 2026.1 on. On 2024.1 (tag 2024.1-eom) only redis_username/redis_password are registered, so if this template is backported to stable/2024.1 as is, the credentials would be silently ignored. Since the spec lists 2024.1 and 2026.1 as targets, do we plan to backport this? If yes, either render the redis_-prefixed names (still accepted as deprecated aliases on 2026.1+, at the cost of a deprecation warning) or adapt the template in the backport. Fine on main either way.",
+      "revId": "8a2b1fc5e40145c290ca026dde0ac01a146ce021",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "75c5b3c5_bc4dbdfe",
+        "filename": "templates/parts/section-oslo-cache",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 39548
+      },
+      "writtenOn": "2026-11-26T19:48:10Z",
+      "side": 1,
+      "message": "Good catch, confirmed: on 2024.1-eom (and also 2025.1/2025.2) oslo.cache only registers redis_username/redis_password. The generic username/password arrived in oslo.cache 4.1.0 (2026.1), with the redis_* names kept as deprecated aliases. Everything else the template renders (redis_server, redis_sentinels, redis_sentinel_service_name, tls_enabled, tls_cafile) already exists on 2024.1, so only those two keys differ.\n\nThis change targets 2027.1, though, so main should keep the generic names. That way the branch we care about logs no deprecation warnings. If we do end up backporting, it will need per-branch work anyway, not a straight cherry-pick.",
+      "parentUuid": "c9215966_d66329a2",
       "revId": "8a2b1fc5e40145c290ca026dde0ac01a146ce021",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
