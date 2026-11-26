@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "831b8703_10161518",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-11-26T22:19:31Z",
+      "side": 1,
+      "message": "LGTM.\n\nthe CLI is using relying on these config options.\n\nhttps://github.com/canonical/snap-openstack/blob/main/sunbeam-python/sunbeam/storage/backends/datacore/backend.py#L32",
+      "revId": "abaa3e89920eb1e570a40b88203ef10031d24fd9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a4d12e30_2601624e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-11-26T22:19:31Z",
+      "side": 1,
+      "message": "LGTM.",
+      "revId": "abaa3e89920eb1e570a40b88203ef10031d24fd9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
