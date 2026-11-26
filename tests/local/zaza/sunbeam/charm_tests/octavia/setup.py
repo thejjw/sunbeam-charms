@@ -18,7 +18,7 @@
 """Configure Octavia Amphora provider for CI tests.
 
 Steps performed by configure_amphora():
-  1. Deploy Multus CNI thick plugin on k8s.
+  1. Deploy the Gazpacho version of the Multus CNI thin plugin on k8s.
   2. Set cni.exclusive=false on the Cilium Helm chart so Multus can co-exist.
   3. Deploy openstack-port-cni-k8s charm and relate it to keystone.
   4. Create lb-mgmt OpenStack resources:
@@ -42,6 +42,7 @@ import subprocess
 import time
 import yaml
 from pathlib import Path
+from urllib.request import urlopen
 
 import jubilant
 import zaza.model
@@ -56,10 +57,16 @@ from functional_test_base import get_functional_test_base
 # Constants
 # ---------------------------------------------------------------------------
 
-# The Multus thick-plugin daemonset manifest URL.
+# Match the thin plugin shipped by the Gazpacho Multus charm. The upstream
+# thick snapshot can exhaust its 50 MiB pod limit on Resolute when running
+# delegate CNI plugins such as Cilium.
+MULTUS_VERSION = "v3.9.1"
 MULTUS_MANIFEST_URL = (
     "https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni"
-    "/master/deployments/multus-daemonset-thick.yml"
+    f"/{MULTUS_VERSION}/deployments/multus-daemonset.yml"
+)
+MULTUS_IMAGE = (
+    f"rocks.canonical.com:443/cdk/k8snetworkplumbingwg/multus-cni:{MULTUS_VERSION}"
 )
 
 # The openstack-port-cni-k8s charm channel to deploy.
@@ -141,15 +148,23 @@ def _services_project_id(keystone_client):
 
 
 # ---------------------------------------------------------------------------
-# Step 1: Deploy Multus CNI thick plugin
+# Step 1: Deploy Multus CNI thin plugin
 # ---------------------------------------------------------------------------
 
 
 def _deploy_multus():
-    """Apply the Multus thick-plugin DaemonSet manifest on k8s."""
-    logging.info("Deploying Multus CNI thick plugin: %s", MULTUS_MANIFEST_URL)
+    """Apply the Multus thin-plugin manifest with the Gazpacho image."""
+    logging.info("Deploying Multus CNI thin plugin: %s", MULTUS_IMAGE)
+    with urlopen(MULTUS_MANIFEST_URL, timeout=30) as response:
+        manifest = response.read().decode("utf-8")
+    # The upstream manifest uses a floating image tag for both containers.
+    manifest = manifest.replace(
+        "ghcr.io/k8snetworkplumbingwg/multus-cni:stable", MULTUS_IMAGE
+    )
     subprocess.run(
-        ["sudo", "k8s", "kubectl", "apply", "-f", MULTUS_MANIFEST_URL],
+        ["sudo", "k8s", "kubectl", "apply", "-f", "-"],
+        input=manifest,
+        text=True,
         check=True,
     )
 
@@ -200,13 +215,19 @@ def _deploy_openstack_port_cni(juju_k8s):
         logging.info("openstack-port-cni-k8s already deployed, skipping")
         return
 
-    logging.info("Deploying openstack-port-cni-k8s from %s", PORT_CNI_CHANNEL)
-    juju_k8s.cli(
-        "deploy", "openstack-port-cni-k8s",
-        "--channel", PORT_CNI_CHANNEL,
-        "--base", get_functional_test_base(),
-        "--trust",
-    )
+    charm_base = get_functional_test_base()
+    local_charm = Path("openstack-port-cni-k8s.charm").resolve()
+    if local_charm.is_file():
+        logging.info("Deploying openstack-port-cni-k8s from %s", local_charm)
+        juju_k8s.cli("deploy", str(local_charm), "--base", charm_base, "--trust")
+    else:
+        logging.info("Deploying openstack-port-cni-k8s from %s", PORT_CNI_CHANNEL)
+        juju_k8s.cli(
+            "deploy", "openstack-port-cni-k8s",
+            "--channel", PORT_CNI_CHANNEL,
+            "--base", charm_base,
+            "--trust",
+        )
     try:
         juju_k8s.cli(
             "integrate",

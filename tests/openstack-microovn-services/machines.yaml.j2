@@ -1,19 +1,19 @@
 machines:
   "0":
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     arch: amd64
 
 applications:
   microceph:
     charm: ch:microceph
-    channel: squid/stable
-    base: ubuntu@24.04
+    channel: {{ 'squid/stable' if charm_base == 'ubuntu@24.04' else 'tentacle/stable' }}
+    base: {{ charm_base }}
     arch: amd64
     to:
       - "0"
     scale: 1
     options:
-      snap-channel: squid/stable
+      snap-channel: {{ 'squid/stable' if charm_base == 'ubuntu@24.04' else 'tentacle/stable' }}
       default-pool-size: 1
       enable-rgw: "*"
     storage:
@@ -25,20 +25,21 @@ applications:
     charm: ch:sunbeam-machine
     channel: 2026.1/edge
     {% endif -%}
+    base: {{ charm_base }}
     scale: 1
     to:
       - "0"
   microovn:
     charm: ch:microovn
     channel: 26.03/stable
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     to:
       - "0"
   microcluster-token-distributor:
     charm: ch:microcluster-token-distributor
-    channel: v1/stable
-    base: ubuntu@24.04
+    channel: {{ 'v1/stable' if charm_base == 'ubuntu@24.04' else 'v1/edge' }}
+    base: {{ charm_base }}
     scale: 1
     to:
       - "0"

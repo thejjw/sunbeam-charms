@@ -83,7 +83,7 @@
   set_fact:
     rebuild_all: >-
       {{
-        changed_files.stdout_lines | select('match', '^ops-sunbeam/ops_sunbeam/') | list | length > 0
+        changed_files.stdout_lines | select('match', '^(ops-sunbeam/ops_sunbeam/|rebuild$)') | list | length > 0
       }}
 
 - name: Filter charm_builds to only modified charms
@@ -96,7 +96,7 @@
         {%- endif -%}
       {%- endfor -%}
       {{ ns.modified }}
-  when: not rebuild_all
+  when: not rebuild_all and not (charm_build_complete_bin | default(false) | bool)
 
 - name: Show charms to be built
   debug:
