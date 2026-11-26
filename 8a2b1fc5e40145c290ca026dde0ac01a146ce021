@@ -35,6 +35,40 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b6cf62b6_41fb8755",
+        "filename": "ops-sunbeam/ops_sunbeam/charm.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 542,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-11-26T13:39:55Z",
+      "side": 1,
+      "message": "This plays nicely with valkey prefix restrictions, juju app names are \"Lowercase ASCII letters (a-z), digits (0-9), and hyphens (-) only\", so no possible weirdness should happen (e.g. a character in the app name is treated as a special character in valkey)",
+      "revId": "8a2b1fc5e40145c290ca026dde0ac01a146ce021",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1073a282_f4c8d27d",
+        "filename": "templates/parts/section-oslo-cache",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-11-26T13:39:55Z",
+      "side": 1,
+      "message": "Use `-` to prevent extra newlines , e.g. `{%-` - https://jinja.palletsprojects.com/en/stable/templates/#whitespace-control",
+      "revId": "8a2b1fc5e40145c290ca026dde0ac01a146ce021",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c9215966_d66329a2",
