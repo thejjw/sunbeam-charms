@@ -18,7 +18,7 @@
 """Configure Octavia Amphora provider for CI tests.
 
 Steps performed by configure_amphora():
-  1. Deploy Multus CNI thick plugin on k8s.
+  1. Deploy the Multus charm on k8s.
   2. Set cni.exclusive=false on the Cilium Helm chart so Multus can co-exist.
   3. Deploy openstack-port-cni-k8s charm and relate it to keystone.
   4. Create lb-mgmt OpenStack resources:
@@ -59,37 +59,11 @@ from zaza.sunbeam.charm_tests import keystone_retry as _ks_session_patch  # noqa
 # Constants
 # ---------------------------------------------------------------------------
 
-# Multus thick-plugin release. Pinned because the manifest on master
-# references the moving "snapshot-thick" image, and recent master builds
-# break pod sandbox creation against the k8s snap apiserver (v1.32).
-# v4.2.4 is the last release with client-go v0.34.1, where the
-# WatchListClient gate (streaming-list informer, on by default from
-# client-go v0.36 / multus v4.3.x) is off — the daemon's pod informer
-# then syncs via plain LIST and CNI adds succeed, as in the 2026.1 green
-# CI. None falls back to the manifest's default (master).
-MULTUS_VERSION = "4.2.4"
-
-MULTUS_BASE_URL = (
-    "https://raw.githubusercontent.com/k8snetworkplumbingwg/multus-cni"
-)
-MULTUS_REGISTRY = "ghcr.io/k8snetworkplumbingwg/multus-cni"
-
-if MULTUS_VERSION:
-    MULTUS_MANIFEST_URL = (
-        f"{MULTUS_BASE_URL}/v{MULTUS_VERSION}/deployments/multus-daemonset-thick.yml"
-    )
-    # Both the daemon and the shim-installing init container, so they stay
-    # version-matched (the manifest's own image pins are "snapshot-thick").
-    MULTUS_IMAGE = f"{MULTUS_REGISTRY}:v{MULTUS_VERSION}-thick"
-else:
-    MULTUS_MANIFEST_URL = (
-        f"{MULTUS_BASE_URL}/master/deployments/multus-daemonset-thick.yml"
-    )
-    MULTUS_IMAGE = None
-
+# Match the Sunbeam loadbalancer feature's Multus channel and defaults.
+# The upstream thick snapshot can OOM on Resolute when its pod has to
+# run delegate CNI plugins such as Cilium within a 50 MiB limit.
+MULTUS_CHANNEL = "latest/stable"
 MULTUS_DAEMONSET = "kube-multus-ds"
-MULTUS_CONTAINER = "kube-multus"
-MULTUS_INIT_CONTAINER = "install-multus-binary"
 
 # The openstack-port-cni-k8s application and its deploy sources.
 PORT_CNI_APP = "openstack-port-cni-k8s"
@@ -177,53 +151,21 @@ def _services_project_id(keystone_client):
 
 
 # ---------------------------------------------------------------------------
-# Step 1: Deploy Multus CNI thick plugin
+# Step 1: Deploy the Multus charm
 # ---------------------------------------------------------------------------
 
 
-def _deploy_multus():
-    """Apply the Multus thick-plugin DaemonSet manifest on k8s."""
-    logging.info("Deploying Multus CNI thick plugin: %s", MULTUS_MANIFEST_URL)
-    subprocess.run(
-        ["sudo", "k8s", "kubectl", "apply", "-f", MULTUS_MANIFEST_URL],
-        check=True,
-    )
-    # Guard against WatchList streaming-list incompatibilities with the
-    # k8s snap apiserver, which wedge the pod informer and break all
-    # pod sandbox creation.
-    logging.info("Disabling WatchListClient on the Multus daemon")
-    subprocess.run(
-        [
-            "sudo", "k8s", "kubectl", "set", "env",
-            f"daemonset/{MULTUS_DAEMONSET}", "-n", "kube-system",
-            "KUBE_FEATURE_WatchListClient=false",
-        ],
-        check=True,
-    )
-    if MULTUS_IMAGE:
-        logging.info("Pinning Multus images to %s", MULTUS_IMAGE)
-        subprocess.run(
-            [
-                "sudo", "k8s", "kubectl", "set", "image",
-                f"daemonset/{MULTUS_DAEMONSET}", "-n", "kube-system",
-                f"{MULTUS_CONTAINER}={MULTUS_IMAGE}",
-                f"{MULTUS_INIT_CONTAINER}={MULTUS_IMAGE}",
-            ],
-            check=True,
-        )
-    # The upstream manifest pins the daemon to 50Mi, which OOM-kills it
-    # under deploy-time CNI churn and leaves every pod sandbox creation
-    # blocked (octavia can then never attach its amphora interface).
-    logging.info("Raising Multus daemon resources")
-    subprocess.run(
-        [
-            "sudo", "k8s", "kubectl", "-n", "kube-system",
-            "set", "resources", f"daemonset/{MULTUS_DAEMONSET}",
-            f"--containers={MULTUS_CONTAINER}",
-            "--limits=memory=256Mi,cpu=500m",
-            "--requests=memory=128Mi,cpu=100m",
-        ],
-        check=True,
+def _deploy_multus(juju_k8s):
+    """Deploy Multus as the Sunbeam loadbalancer feature does."""
+    if "multus" not in juju_k8s.status().apps:
+        logging.info("Deploying Multus charm from %s", MULTUS_CHANNEL)
+        juju_k8s.cli("deploy", "multus", "--channel", MULTUS_CHANNEL, "--trust")
+
+    logging.info("Waiting for the Multus charm to become active")
+    juju_k8s.wait(
+        lambda status: jubilant.all_active(status, "multus"),
+        timeout=600,
+        delay=10,
     )
     logging.info("Waiting for Multus DaemonSet to roll out")
     subprocess.run(
@@ -752,7 +694,7 @@ def configure_amphora():
     juju_k8s = jubilant.Juju(model=k8s_model)
 
     # --- 1. Multus ---
-    _deploy_multus()
+    _deploy_multus(juju_k8s)
 
     # --- 2. Cilium cni.exclusive=false ---
     _disable_cni_exclusive()
