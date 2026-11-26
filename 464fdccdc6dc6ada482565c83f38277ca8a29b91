@@ -33,6 +33,24 @@
       "message": "can this get in conflict with other implementations of bgp? (e.g. microovn + ovn)",
       "revId": "464fdccdc6dc6ada482565c83f38277ca8a29b91",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "af0dae00_fdb07004",
+        "filename": "charms/neutron-k8s/src/templates/neutron.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-26T13:24:23Z",
+      "side": 1,
+      "message": "It does not, both can coexist at the same time.",
+      "parentUuid": "24815367_8c765393",
+      "revId": "464fdccdc6dc6ada482565c83f38277ca8a29b91",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
