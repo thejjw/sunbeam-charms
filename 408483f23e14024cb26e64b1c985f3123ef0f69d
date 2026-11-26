@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d00f3776_634e703e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-26T13:01:18Z",
+      "side": 1,
+      "message": "LGTM, clean backport snap-openstack-network-agents PR should be merged first",
+      "revId": "408483f23e14024cb26e64b1c985f3123ef0f69d",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
