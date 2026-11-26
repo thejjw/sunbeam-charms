@@ -32,7 +32,7 @@ applications:
     charm: ch:keystone-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     storage:
@@ -47,7 +47,7 @@ applications:
     charm: ch:keystone-saml-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     options:
@@ -63,7 +63,7 @@ applications:
     charm: ch:horizon-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:

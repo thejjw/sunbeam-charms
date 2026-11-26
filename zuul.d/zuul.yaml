@@ -16,6 +16,7 @@
         - func-test-identity:
             nodeset: charms-ubuntu-noble-32GB
     vars:
+      func_charm_base: ubuntu@24.04
       ensure_tox_version: ==4.47.3
       juju_channel: 3.6/stable
       juju_classic_mode: false

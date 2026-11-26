@@ -50,6 +50,8 @@ from lightkube.core.client import Client as KubeClient
 from lightkube.generic_resource import create_namespaced_resource
 from zaza.openstack.utilities import openstack as openstack_utils
 
+from functional_test_base import get_functional_test_base
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -202,7 +204,7 @@ def _deploy_openstack_port_cni(juju_k8s):
     juju_k8s.cli(
         "deploy", "openstack-port-cni-k8s",
         "--channel", PORT_CNI_CHANNEL,
-        "--base", "ubuntu@24.04",
+        "--base", get_functional_test_base(),
         "--trust",
     )
     try:

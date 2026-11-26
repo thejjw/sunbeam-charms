@@ -74,7 +74,10 @@
     cmd: juju bootstrap --config caas-image-repo="ghcr.io/juju" manual-cloud manual
   register: res
   changed_when: '"already exists" not in res.stderr'
-  failed_when: '"ERROR" in res.stderr and "already exists" not in res.stderr'
+  failed_when: res.rc != 0 and "already exists" not in res.stderr
+  retries: 2
+  delay: 15
+  until: not res.failed
 
 - name: Ensure the current juju controller is manual
   ansible.builtin.command:

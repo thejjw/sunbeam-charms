@@ -53,7 +53,7 @@ applications:
     charm: ch:keystone-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     storage:
@@ -68,7 +68,7 @@ applications:
     charm: ch:glance-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     storage:
@@ -82,7 +82,7 @@ applications:
     charm: ch:nova-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
@@ -97,7 +97,7 @@ applications:
     charm: ch:placement-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
@@ -109,7 +109,7 @@ applications:
     charm: ch:neutron-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     options:
@@ -124,7 +124,7 @@ applications:
     charm: ch:openstack-images-sync-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     options:
@@ -141,7 +141,7 @@ applications:
     charm: ch:keystone-ldap-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
   # Tempest validation charm (runs the TempestK8sTest charm-action tests)
   tempest:
@@ -151,7 +151,7 @@ applications:
     charm: ch:tempest-k8s
     channel: 2026.1/edge
     {% endif -%}
-    base: ubuntu@24.04
+    base: {{ charm_base }}
     scale: 1
     trust: true
     resources:
