@@ -22,6 +22,30 @@
       },
       "revId": "a66ea04bbeab165ad99aeb440093ed6e1d762c22",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9514c330_cac3031f",
+        "filename": "charms/tempest-k8s/charmcraft.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 10366
+      },
+      "writtenOn": "2026-11-26T02:42:28Z",
+      "side": 1,
+      "message": "Is this because of the bug https://github.com/canonical/snap-tempest/issues/442? Couple of changes required - rock should move to 24.04 base and the fix for this should be submitted for main and then backport.",
+      "parentUuid": "cfe4788a_aa7c3b4b",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 64
+      },
+      "revId": "a66ea04bbeab165ad99aeb440093ed6e1d762c22",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
