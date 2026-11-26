@@ -51,6 +51,24 @@
       "parentUuid": "24815367_8c765393",
       "revId": "464fdccdc6dc6ada482565c83f38277ca8a29b91",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3ffa948a_c8f8ee67",
+        "filename": "charms/neutron-k8s/src/templates/neutron.conf.j2",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 2424
+      },
+      "writtenOn": "2026-11-26T13:24:56Z",
+      "side": 1,
+      "message": "Acknowledged",
+      "parentUuid": "af0dae00_fdb07004",
+      "revId": "464fdccdc6dc6ada482565c83f38277ca8a29b91",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
