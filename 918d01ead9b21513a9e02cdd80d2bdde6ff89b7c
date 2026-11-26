@@ -33,6 +33,24 @@
       "message": "**Medium**: The failure path of `set-dynamic-routing-instances` (charm.py:529-538) swallows the underlying exception completely: the `except (self.snap_module.SnapError, OSError, subprocess.SubprocessError, ValueError)` block calls `event.fail(\"Failed to reconcile dynamic routing on this unit. Correct the host configuration and retry.\")` without logging the exception, and `ndr_peering._run` (ndr_peering.py:105-107) uses `check\u003dTrue, capture_output\u003dTrue`, whose `CalledProcessError` message carries neither stdout nor stderr. Because the exception is caught, Juju records no traceback either, so the actual netplan/networkctl/snapd error text is unrecoverable — an operator told to \"correct the host configuration\" has no way to learn what is wrong. Fix: bind the error and log it before failing (`except (...) as error: logger.exception(\"Dynamic routing reconcile failed\"); event.fail(f\"Failed to reconcile dynamic routing on this unit: {error}\")`) and/or append `error.stderr` in `_run`\u0027s raise.",
       "revId": "918d01ead9b21513a9e02cdd80d2bdde6ff89b7c",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "3931bcc8_ec8d92f6",
+        "filename": "charms/openstack-network-agents/src/charm.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 529,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-26T06:12:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c9bc53d_29c76506",
+      "revId": "918d01ead9b21513a9e02cdd80d2bdde6ff89b7c",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
