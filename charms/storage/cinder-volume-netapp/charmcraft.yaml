@@ -89,7 +89,7 @@ config:
       default: null
     netapp-login:
       description: Administrative user account name used to access the storage system or proxy server.
-      type: string
+      type: secret
       default: null
     netapp-password:
       description: Password for the administrative user account specified in the netapp_login option.
