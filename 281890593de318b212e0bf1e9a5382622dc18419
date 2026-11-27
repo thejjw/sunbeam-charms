@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "382f77dd_50179b0a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-11-27T01:06:29Z",
+      "side": 1,
+      "message": "Tested the systemd fstab options on an enrolled MAAS compute host:\n- After daemon-reload,verified that the mount was required before nova-compute.\n- On a normal reboot, Vaultlocker unlocked the device, the mount appeared, and Nova started once, after the mount.\n- With Vaultlocker delayed by about 45 seconds, Nova waited and started cleanly.\n- With the mapper unavailable, the host booted, Nova stayed stopped, and the bare instances directory remained empty. Recovery required starting the mount and Nova manually.\nThe reboot experiment used a 180-second device timeout, the committed code uses 600 seconds.",
+      "revId": "281890593de318b212e0bf1e9a5382622dc18419",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
