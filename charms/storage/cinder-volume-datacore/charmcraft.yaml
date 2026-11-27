@@ -44,6 +44,21 @@ config:
       description: |
         Storage array management IP address or hostname.
       type: string
+    san-login:
+      description: |
+        Username for DataCore management authentication.
+      type: secret
+    san-password:
+      description: |
+        Password for DataCore management authentication.
+      type: secret
+    protocol:
+      description: "Protocol selector: iscsi, fc."
+      type: string
+      enum:
+        - iscsi
+        - fc
+      default: null
     datacore-disk-type:
       default: single
       description: |
@@ -79,6 +94,11 @@ config:
       description: |
         List of iSCSI targets that cannot be used to attach volume.
       type: string
+    use-chap-auth:
+      default: false
+      description: |
+        Enable CHAP authentication for iSCSI targets.
+      type: boolean
     datacore-iscsi-chap-storage:
       default: $state_path/.datacore_chap
       description: |
