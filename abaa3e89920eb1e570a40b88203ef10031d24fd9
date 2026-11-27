@@ -33,6 +33,23 @@
       "message": "LGTM.",
       "revId": "abaa3e89920eb1e570a40b88203ef10031d24fd9",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2e6e837c_eab002bc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 30223
+      },
+      "writtenOn": "2026-11-27T13:19:59Z",
+      "side": 1,
+      "message": "Thanks for the review Felipe! Anything else needed before the Workflow +1, or are we waiting on a second +2? Asking because this one (and its sibling https://review.opendev.org/c/openstack/sunbeam-charms/+/1017315, the netapp-login fix from the same audit) unblocks a CGI delivery, and the Backport-Candidate +2 is exactly where we want to go next.",
+      "revId": "abaa3e89920eb1e570a40b88203ef10031d24fd9",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
