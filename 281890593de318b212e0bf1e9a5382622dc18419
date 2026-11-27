@@ -16,6 +16,40 @@
       "message": "Tested the systemd fstab options on an enrolled MAAS compute host:\n- After daemon-reload,verified that the mount was required before nova-compute.\n- On a normal reboot, Vaultlocker unlocked the device, the mount appeared, and Nova started once, after the mount.\n- With Vaultlocker delayed by about 45 seconds, Nova waited and started cleanly.\n- With the mapper unavailable, the host booted, Nova stayed stopped, and the bare instances directory remained empty. Recovery required starting the mount and Nova manually.\nThe reboot experiment used a 180-second device timeout, the committed code uses 600 seconds.",
       "revId": "281890593de318b212e0bf1e9a5382622dc18419",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5be5364b_75bc473d",
+        "filename": "charms/openstack-hypervisor/src/encrypted_storage.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-27T08:33:15Z",
+      "side": 1,
+      "message": "Hosts enrolled with the current charm already have a `defaults,nofail` entry, so this skips them. I checked the generated systemd units for that entry. Nova still has no mount dependency and the mapper still uses the default timeout. Can we update the existing charm-managed entry on upgrade as well?",
+      "revId": "281890593de318b212e0bf1e9a5382622dc18419",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cf18459a_e2342d60",
+        "filename": "charms/openstack-hypervisor/src/encrypted_storage.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-27T08:33:15Z",
+      "side": 1,
+      "message": "This installs the systemd dependency before Nova stops and the charm checks the directory again. I reproduced the second check refusing to mount over a new instance disk, then confirmed that the fstab entry still generates a mount dependency for Nova. The next start can mount over the disk the charm just refused to hide. Can we activate the dependency after the guarded mount succeeds?",
+      "revId": "281890593de318b212e0bf1e9a5382622dc18419",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
   ]
 }
