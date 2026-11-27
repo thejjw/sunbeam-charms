@@ -37,6 +37,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "18cd6852_e55c8685",
+        "filename": "charms/openstack-hypervisor/src/encrypted_storage.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-11-27T16:36:55Z",
+      "side": 1,
+      "message": "Thanks for reviewing. The corresponding snap-openstack changes haven\u0027t landed yet, so we shouldn\u0027t have any existing deployments that have enrolled encrypted storage. The 2026.1 backport for the feature is also currently on hold: https://review.opendev.org/c/openstack/sunbeam-charms/+/1015218.\n\nGiven that the feature hasn\u0027t been released yet, should we still hanfle the migration of existing fstab entries at this stage?",
+      "parentUuid": "5be5364b_75bc473d",
+      "revId": "281890593de318b212e0bf1e9a5382622dc18419",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "cf18459a_e2342d60",
         "filename": "charms/openstack-hypervisor/src/encrypted_storage.py",
         "patchSetId": 1
@@ -48,6 +66,24 @@
       "writtenOn": "2026-11-27T08:33:15Z",
       "side": 1,
       "message": "This installs the systemd dependency before Nova stops and the charm checks the directory again. I reproduced the second check refusing to mount over a new instance disk, then confirmed that the fstab entry still generates a mount dependency for Nova. The next start can mount over the disk the charm just refused to hide. Can we activate the dependency after the guarded mount succeeds?",
+      "revId": "281890593de318b212e0bf1e9a5382622dc18419",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1cddf3e0_2ceeae5a",
+        "filename": "charms/openstack-hypervisor/src/encrypted_storage.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 38581
+      },
+      "writtenOn": "2026-11-27T16:36:55Z",
+      "side": 1,
+      "message": "Thanks, updated the flow to mount the device directly and only create the fstab entry after the mount has been verified.",
+      "parentUuid": "cf18459a_e2342d60",
       "revId": "281890593de318b212e0bf1e9a5382622dc18419",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
