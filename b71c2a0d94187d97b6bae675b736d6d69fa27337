@@ -35,6 +35,24 @@
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a0d92e9b_c594f095",
+        "filename": "charms/storage/cinder-volume-purestorage/charmcraft.yaml",
+        "patchSetId": 7
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-11-27T17:53:43Z",
+      "side": 1,
+      "message": "Addressed in latest patchset, together with changes in the accompanying PRs.\n\nThe charm now refuses to forward replication-driver-ssl-cert unless the installed cinder-volume snap advertises support for it. If the option is set against an older snap, the unit foes to blocked with \"replication-driver-ssl-cert needs a newer cinder-volume snap; refresh cinder-volume first\" and nothing is sent to the snap, so the PEM can no longer end up inline in the backend config. The option description also states the snap requirement.\n\nSupport is advertised by a marker the snap sets itself, which needs the accompanying snap-cinder-volume change. Its install and configure hooks set features.pure-replication-ssl-cert. Functional testing showed a boolean marker survives a downgrade done with `snap refresh` (snapd only restores per-revision config on `snap revert`). So the snap now writes the revision that set the marker, and _snap_supports only trusts it when it matches the current installed revision. A stale mariker left by a newer snap therefore blocks the unit as well.\n\nI kept the check snap-side rather than charm-only becuase the charm cannot tell from the snap channel or version alone whether a given build renders the CA safely without maintaining an internal revision table (this seems like far more work to keep updated than its worth); the marker is the snap\u0027s own statement of what it supports.\n\nTested on a single-node Sunbeam (2024.1 cinder-volume snap, Pure FlashArray):\n- old snap + CA: blocked with message above, conf untouched, no PEM in the snap config or on disk\n- patched snap: unit recovers, CA written to \u003cname\u003e.replication.pem (0640), replication_device carries ssl_cert_verify:true,ssl_cert_path\u003cpath\u003e, no inline PEM, no oslo.config parse errors\n- Primary and replication certs together, and CA removal, behave as expected\n\nUnit tests cover the revision mismatch (test_cert_blocked_after_downgrade, TestSnapSupports) in the charm, and the revision value in the snap.",
+      "parentUuid": "b3965999_6ba84def",
+      "revId": "b71c2a0d94187d97b6bae675b736d6d69fa27337",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c6a36ba7_d1c438ac",
@@ -48,6 +66,24 @@
       "writtenOn": "2026-11-19T21:19:50Z",
       "side": 1,
       "message": "The charm accepts pure-trisync-enabled and emits a single replication device here. Cinder requires two devices for TriSync and logs an error when it receives one. Could we reject that combination before deployment so the operator gets a clear answer about what will be enabled?\n\nhttps://opendev.org/openstack/cinder/src/commit/58f7ac750dba3648d0f5c8517dba5e8f529f26cd/cinder/volume/drivers/pure.py#L629",
+      "revId": "b71c2a0d94187d97b6bae675b736d6d69fa27337",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b5859276_e79618ca",
+        "filename": "charms/storage/cinder-volume-purestorage/src/charm.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 39104
+      },
+      "writtenOn": "2026-11-27T17:53:43Z",
+      "side": 1,
+      "message": "Done. pure-trisync-enabled\u003dtrue is now rejected, with or without a replication target. The unit blocks with \"pure-trisync-enabled requires two replication targets, which are not supported yet\"; the option description says it is not supported yet, as well.\n\nThe same rejection is in the accompanying snap-openstack PR (#961), so `sunbeam storage add` refuses it before anything is deployed, both from a config file and at the interactive prompt.\n\nTested on a single-node Sunbeam: blocked with the message in both cases (target set and unset), active again after reset; the CLI rejects it in both modes and leaves the Juju config unchanges. Multi-target support, which TriSync would need, is left for a follow-up parity change.",
+      "parentUuid": "c6a36ba7_d1c438ac",
       "revId": "b71c2a0d94187d97b6bae675b736d6d69fa27337",
       "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
     }
