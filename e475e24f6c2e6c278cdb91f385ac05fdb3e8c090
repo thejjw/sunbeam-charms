@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e4174b5c_e672d652",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 35761
+      },
+      "writtenOn": "2026-11-27T14:18:09Z",
+      "side": 1,
+      "message": "let\u0027s just be aware this could break an existing installation, but I don\u0027t believe any existing installation would be successful since the sunbeam snap couldn\u0027t configure it until now.",
+      "revId": "e475e24f6c2e6c278cdb91f385ac05fdb3e8c090",
+      "serverId": "4a232e18-c5a9-48ee-94c0-e04e7cca6543"
+    }
+  ]
+}
